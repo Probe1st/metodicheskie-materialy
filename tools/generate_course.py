@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import re
+import shutil
 from dataclasses import dataclass
 from html import escape
 from pathlib import Path
@@ -43,6 +44,52 @@ SOURCES: dict[str, tuple[str, str]] = {
         "https://docs.github.com/en/communities/documenting-your-project-with-wikis",
     ),
     "standards": ("Каталог стандартов Росстандарта", "https://www.standards.ru/"),
+    "gost_19_201": (
+        "ГОСТ 19.201-78 в каталоге Росстандарта",
+        "https://www.standards.ru/print.aspx?control=27&id=4125229&print=yes",
+    ),
+    "sphinx": (
+        "Официальная документация Sphinx",
+        "https://www.sphinx-doc.org/en/master/",
+    ),
+    "mkdocs": ("Официальная документация MkDocs", "https://www.mkdocs.org/"),
+}
+
+OUTCOME_INFINITIVES: dict[str, str] = {
+    "Объясняет": "объяснить",
+    "Формулирует": "сформулировать",
+    "Различает": "различать",
+    "Выбирает": "выбрать",
+    "Применяет": "применить",
+    "Сопоставляет": "сопоставить",
+    "Определяет": "определить",
+    "Разграничивает": "разграничить",
+    "Составляет": "составить",
+    "Оценивает": "оценить",
+    "Формирует": "сформировать",
+    "Строит": "построить",
+    "Разрабатывает": "разработать",
+    "Проверяет": "проверить",
+    "Выделяет": "выделить",
+    "Создаёт": "создать",
+    "Преобразует": "преобразовать",
+    "Организует": "организовать",
+    "Пишет": "написать",
+    "Подменяет": "подменить",
+    "Проектирует": "спроектировать",
+    "Классифицирует": "классифицировать",
+    "Сравнивает": "сравнить",
+    "Выстраивает": "выстроить",
+    "Редактирует": "отредактировать",
+    "Настраивает": "настроить",
+    "Заполняет": "заполнить",
+    "Добавляет": "добавить",
+    "Оформляет": "оформить",
+    "Описывает": "описать",
+    "Фиксирует": "зафиксировать",
+    "Проводит": "провести",
+    "Вносит": "внести",
+    "Представляет": "представить",
 }
 
 
@@ -81,10 +128,10 @@ THEORY: dict[int, TheoryFocus] = {
             ("Наблюдаемый результат", "Значение, сообщение или состояние, которое можно сравнить с ожиданием."),
         ),
         "booking_service.py",
-        """def availability_label(free_rooms: int) -> str:
+        '''def availability_label(free_rooms: int) -> str:
     if free_rooms < 0:
         raise ValueError("Количество мест не может быть отрицательным")
-    return "доступно" if free_rooms else "нет мест""".strip(),
+    return "доступно" if free_rooms else "нет мест"'''.strip(),
         """import pytest
 
 from booking_service import availability_label
@@ -153,13 +200,13 @@ def test_priority_rule(amount: int, is_refundable: bool, expected: bool) -> None
             ("Отказ", "Наблюдаемое расхождение поведения программы с ожидаемым результатом."),
         ),
         "booking_service.py",
-        """def classify_incident(requirement_known: bool, program_started: bool) -> str:
+        '''def classify_incident(requirement_known: bool, program_started: bool) -> str:
     if not requirement_known:
         return "неполные исходные данные"
     if not program_started:
         return "отказ запуска"
-    return "нужно уточнить наблюдение""".strip(),
-        """from booking_service import classify_incident
+    return "нужно уточнить наблюдение"'''.strip(),
+        '''from booking_service import classify_incident
 
 
 def test_missing_requirement_is_not_named_runtime_failure() -> None:
@@ -167,7 +214,7 @@ def test_missing_requirement_is_not_named_runtime_failure() -> None:
 
 
 def test_start_failure_is_visible_after_requirements_are_known() -> None:
-    assert classify_incident(True, False) == "отказ запуска""".strip(),
+    assert classify_incident(True, False) == "отказ запуска"'''.strip(),
         (
             "Какое новое наблюдение нужно зафиксировать, чтобы отличить дефект кода от неверной настройки окружения?",
             "Почему одно сообщение об отказе не доказывает единственную первопричину?",
@@ -520,11 +567,11 @@ def test_changed_promo_selects_only_related_checks() -> None:
         """def document_audience(document_type: str) -> str:
     audiences = {"описание": "разработчик", "инструкция": "пользователь", "протокол": "проверяющий"}
     return audiences[document_type]""".strip(),
-        """from booking_service import document_audience
+        '''from booking_service import document_audience
 
 
 def test_instruction_is_addressed_to_user() -> None:
-    assert document_audience("инструкция") == "пользователь""".strip(),
+    assert document_audience("инструкция") == "пользователь"'''.strip(),
         (
             "Какой факт из описания программы нельзя без изменения перенести в пошаговую инструкцию?",
             "Какой документ поможет сопоставить требование и фактический результат испытания?",
@@ -547,15 +594,15 @@ def test_instruction_is_addressed_to_user() -> None:
             ("Шаблон", "Структура документа с местами для данных, которые подставляются при создании версии."),
         ),
         "booking_service.py",
-        """def markdown_heading(text: str, level: int = 2) -> str:
+        '''def markdown_heading(text: str, level: int = 2) -> str:
     if level < 1:
         raise ValueError("Уровень заголовка должен быть положительным")
-    return f"{'#' * level} {text}""".strip(),
-        """from booking_service import markdown_heading
+    return f"{'#' * level} {text}"'''.strip(),
+        '''from booking_service import markdown_heading
 
 
 def test_markdown_heading_keeps_document_title() -> None:
-    assert markdown_heading("Сервис бронирования") == "## Сервис бронирования""".strip(),
+    assert markdown_heading("Сервис бронирования") == "## Сервис бронирования"'''.strip(),
         (
             "Какие сведения Вы введёте один раз в шаблон вместо копирования во все разделы?",
             "Когда исходник Markdown даст более удобную проверку изменений, чем форматированный файл?",
@@ -644,10 +691,10 @@ def test_review_finds_ambiguous_instruction() -> None:
             ("Версионный идентификатор", "Краткое обозначение состояния документа, на которое можно сослаться."),
         ),
         "booking_service.py",
-        """def change_entry(version: str, summary: str) -> str:
+        '''def change_entry(version: str, summary: str) -> str:
     if not version or not summary:
         raise ValueError("Версия и описание изменения обязательны")
-    return f"{version}: {summary}""".strip(),
+    return f"{version}: {summary}"'''.strip(),
         """import pytest
 
 from booking_service import change_entry
@@ -685,11 +732,11 @@ def test_history_entry_rejects_empty_summary() -> None:
         """def document_set(need: str) -> str:
     mapping = {"требование": "техническое задание", "проверка": "программа испытаний", "работа": "руководство оператора"}
     return mapping[need]""".strip(),
-        """from booking_service import document_set
+        '''from booking_service import document_set
 
 
 def test_need_is_linked_to_document_purpose() -> None:
-    assert document_set("проверка") == "программа испытаний""".strip(),
+    assert document_set("проверка") == "программа испытаний"'''.strip(),
         (
             "Какое назначение документа Вы можете доказать потребностью проекта, а не названием шаблона?",
             "Почему нужно сверить актуальную редакцию стандарта до ссылок на его пункты?",
@@ -704,35 +751,63 @@ def test_need_is_linked_to_document_purpose() -> None:
         ("standards",),
     ),
     31: TheoryFocus(
-        "Техническое задание превращает намерение в проверяемые требования. Хорошая формулировка "
-        "даёт идентификатор, условие, ожидаемое поведение и способ проверить результат; "
-        "она не подменяет критерий общим обещанием качества.",
+        "ГОСТ 19.201-78 задаёт структуру технического задания: «Введение», «Основания для "
+        "разработки», «Назначение разработки», «Требования к программе или программному изделию», "
+        "«Требования к программной документации», «Технико-экономические показатели», «Стадии и "
+        "этапы разработки» и «Порядок контроля и приёмки»; приложения добавляют при необходимости. "
+        "В каждом разделе фиксируйте проверяемые сведения, а требования связывайте с критериями "
+        "приёмки и будущими испытаниями.",
         (
-            ("Требование", "Согласованное условие к продукту, которое можно связать с проверкой результата."),
-            ("Критерий приёмки", "Наблюдаемое условие, подтверждающее выполнение конкретного требования."),
+            (
+                "ГОСТ 19.201-78",
+                "Стандарт ЕСПД, определяющий содержание и оформление технического задания на программу или программное изделие.",
+            ),
+            (
+                "Структура технического задания",
+                "Обязательные разделы задают путь от основания и назначения разработки к требованиям, этапам и приёмке; приложения используют при необходимости.",
+            ),
         ),
         "booking_service.py",
-        """def acceptance_case(requirement_id: str, observed: str, expected: str) -> bool:
-    if not requirement_id.startswith("REQ-"):
-        raise ValueError("Нужен идентификатор требования")
-    return observed == expected""".strip(),
-        """from booking_service import acceptance_case
+        """REQUIRED_TZ_SECTIONS = (
+    "Введение",
+    "Основания для разработки",
+    "Назначение разработки",
+    "Требования к программе или программному изделию",
+    "Требования к программной документации",
+    "Технико-экономические показатели",
+    "Стадии и этапы разработки",
+    "Порядок контроля и приёмки",
+)
 
 
-def test_requirement_case_compares_observed_result() -> None:
-    assert acceptance_case("REQ-BOOK-01", "подтверждено", "подтверждено")""".strip(),
+def missing_tz_sections(headings: list[str]) -> list[str]:
+    return [section for section in REQUIRED_TZ_SECTIONS if section not in headings]""".strip(),
+        """from booking_service import missing_tz_sections
+
+
+def test_tz_structure_reports_missing_documentation_section() -> None:
+    headings = [
+        "Введение",
+        "Основания для разработки",
+        "Назначение разработки",
+        "Требования к программе или программному изделию",
+        "Технико-экономические показатели",
+        "Стадии и этапы разработки",
+        "Порядок контроля и приёмки",
+    ]
+    assert missing_tz_sections(headings) == ["Требования к программной документации"]""".strip(),
         (
-            "Какой вход и результат сделают требование REQ-BOOK-01 проверяемым?",
-            "Что нужно удалить из формулировки, если результат нельзя наблюдать?",
+            "Какие сведения раздела «Основания для разработки» отличают его от «Назначения разработки»?",
+            "Как требование из раздела «Требования к программе или программному изделию» свяжете с «Порядком контроля и приёмки»?",
         ),
         (
-            "Напишите одно требование с идентификатором для создания бронирования.",
-            "Добавьте критерий приёмки и тестовый вход.",
-            "Проверьте связь требования с тестом в таблице трассируемости.",
+            "Создайте оглавление с восемью разделами ГОСТ 19.201-78 и решите, нужно ли для Вашего случая приложение.",
+            "Заполните назначение разработки и одно требование к программе с идентификатором и критерием приёмки.",
+            "Укажите стадию, этап и будущий вид испытания, который подтвердит это требование при приёмке.",
         ),
-        "Составьте раздел технического задания из четырёх требований к отмене бронирования; "
-        "к каждому добавьте идентификатор, критерий приёмки и ссылку на будущую проверку.",
-        ("standards", "pytest"),
+        "Подготовьте техническое задание на отмену бронирования со всеми восемью разделами ГОСТ 19.201-78; "
+        "добавьте приложение только при необходимости и свяжите каждое требование с критерием приёмки и испытанием.",
+        ("gost_19_201", "pytest"),
     ),
     32: TheoryFocus(
         "Программа и методика испытаний описывает, что проверяете, в каких условиях, какими шагами "
@@ -745,13 +820,13 @@ def test_requirement_case_compares_observed_result() -> None:
         "booking_service.py",
         """def test_case_row(case_id: str, expected: str) -> dict[str, str]:
     return {"id": case_id, "expected": expected, "actual": "не выполнено"}""".strip(),
-        """from booking_service import test_case_row
+        '''from booking_service import test_case_row
 
 
 def test_case_starts_with_expected_and_empty_actual_result() -> None:
     row = test_case_row("TC-01", "статус подтверждён")
     assert row["expected"] == "статус подтверждён"
-    assert row["actual"] == "не выполнено""".strip(),
+    assert row["actual"] == "не выполнено"'''.strip(),
         (
             "Какая часть строки испытания относится к плану, а какая появляется только после запуска?",
             "Как запишете условия так, чтобы другой человек воспроизвёл проверку?",
@@ -774,15 +849,15 @@ def test_case_starts_with_expected_and_empty_actual_result() -> None:
             ("Сообщение об ошибке", "Наблюдаемая подсказка, которую инструкция связывает с допустимым следующим действием."),
         ),
         "booking_service.py",
-        """def operator_message(guest: str) -> str:
+        '''def operator_message(guest: str) -> str:
     if not guest.strip():
         return "Укажите имя гостя"
-    return f"Бронирование для {guest} подготовлено""".strip(),
-        """from booking_service import operator_message
+    return f"Бронирование для {guest} подготовлено"'''.strip(),
+        '''from booking_service import operator_message
 
 
 def test_blank_name_has_actionable_message() -> None:
-    assert operator_message("") == "Укажите имя гостя""".strip(),
+    assert operator_message("") == "Укажите имя гостя"'''.strip(),
         (
             "Какой следующий шаг Вы предложите после сообщения о пустом имени?",
             "Какая внутренняя деталь не нужна оператору для выполнения сценария?",
@@ -805,13 +880,13 @@ def test_blank_name_has_actionable_message() -> None:
             ("Реквизит", "Сведения, которые помогают идентифицировать и использовать конкретный документ."),
         ),
         "booking_service.py",
-        """def document_code(product: str, document: str, version: str) -> str:
-    return f"{product}-{document}-{version}""".strip(),
-        """from booking_service import document_code
+        '''def document_code(product: str, document: str, version: str) -> str:
+    return f"{product}-{document}-{version}"'''.strip(),
+        '''from booking_service import document_code
 
 
 def test_code_keeps_all_identifying_parts() -> None:
-    assert document_code("BOOK", "TZ", "1.0") == "BOOK-TZ-1.0""".strip(),
+    assert document_code("BOOK", "TZ", "1.0") == "BOOK-TZ-1.0"'''.strip(),
         (
             "Какие части обозначения нужны, чтобы отличить техническое задание от протокола?",
             "Где в комплекте должно повторяться обозначение, чтобы ссылка была проверяемой?",
@@ -834,16 +909,16 @@ def test_code_keeps_all_identifying_parts() -> None:
             ("Генерация", "Создание представления документа из повторно используемого источника данных."),
         ),
         "booking_service.py",
-        """import inspect
+        '''import inspect
 
 
 def create_booking(guest: str) -> str:
-    \"\"\"Создаёт черновик бронирования для указанного гостя.\"\"\"
+    """Создаёт черновик бронирования для указанного гостя."""
     return f"Черновик: {guest}"
 
 
 def api_summary(function) -> str:
-    return inspect.getdoc(function) or "Описание отсутствует""".strip(),
+    return inspect.getdoc(function) or "Описание отсутствует"'''.strip(),
         """from booking_service import api_summary, create_booking
 
 
@@ -860,7 +935,7 @@ def test_api_summary_uses_function_docstring() -> None:
         ),
         "Подготовьте исходник API из трёх функций с docstrings и сгенерируйте Markdown-черновик; "
         "опишите, какую проверку структуры Вы выполните перед подключением Sphinx или MkDocs.",
-        ("github", "pytest"),
+        ("sphinx", "mkdocs", "pytest"),
     ),
     36: TheoryFocus(
         "В конвейере документация проходит те же проверяемые границы, что и код: исходник, сборка, "
@@ -954,12 +1029,12 @@ PRACTICE: dict[int, PracticeFocus] = {
     ),
     16: PracticeFocus(
         "Создайте новую ветку проекта для проверок чёрного ящика. Используйте спецификацию функции как источник классов, не опираясь на её внутренние ветви.",
-        """def guest_category(age: int) -> str:
+        '''def guest_category(age: int) -> str:
     if age < 0:
         raise ValueError("Возраст не может быть отрицательным")
     if age < 18:
         return "несовершеннолетний"
-    return "взрослый""".strip(),
+    return "взрослый"'''.strip(),
         (
             "Выделите допустимые и недопустимые классы входных значений возраста.",
             "Выберите по одному представителю каждого класса и запишите ожидаемый результат.",
@@ -1118,7 +1193,7 @@ def decode_confirmation(payload: str) -> dict[str, object]:
     24: PracticeFocus(
         "Моделируйте сбой зависимости контролируемо: не ждите реального сетевого тайм-аута. "
         "Тест должен показать реакцию компонента и сохранность его контракта для вызывающего кода.",
-        """class Repository:
+        '''class Repository:
     def save(self, reference: str) -> None:
         raise NotImplementedError
 
@@ -1128,7 +1203,7 @@ def persist_booking(reference: str, repository: Repository) -> str:
         repository.save(reference)
     except TimeoutError:
         return "сохранение отложено"
-    return "сохранено""".strip(),
+    return "сохранено"'''.strip(),
         (
             "Создайте mock Repository, возвращающий успешное сохранение, и проверьте результат.",
             "Настройте mock.side_effect = TimeoutError и проверьте статус отложенного сохранения.",
@@ -1143,14 +1218,14 @@ def persist_booking(reference: str, repository: Repository) -> str:
     37: PracticeFocus(
         "Начните документацию API из исходного кода: каждая публичная функция сервиса должна иметь "
         "короткий docstring о назначении, входе и результате. Подготовьте Markdown-страницу как промежуточный артефакт для Sphinx или MkDocs.",
-        """def available_rooms(total: int, reserved: int) -> int:
-    \"\"\"Возвращает число свободных номеров после учёта подтверждённых броней.\"\"\"
+        '''def available_rooms(total: int, reserved: int) -> int:
+    """Возвращает число свободных номеров после учёта подтверждённых броней."""
     return total - reserved
 
 
 def create_booking(reference: str) -> str:
-    \"\"\"Создаёт подтверждение для указанного номера бронирования.\"\"\"
-    return f"Подтверждено: {reference}""".strip(),
+    """Создаёт подтверждение для указанного номера бронирования."""
+    return f"Подтверждено: {reference}"'''.strip(),
         (
             "Дополните docstrings для публичных функций входом, результатом и условием исключения.",
             "Сформируйте Markdown-страницу API из имён и docstrings без копирования описаний вручную.",
@@ -1160,7 +1235,7 @@ def create_booking(reference: str) -> str:
         ("модуль с docstrings", "Markdown-черновик API", "проверка полноты описаний"),
         "Добавьте API отмены бронирования, сгенерируйте обновлённую Markdown-страницу и подготовьте "
         "структуру разделов, которую можно передать в Sphinx или MkDocs.",
-        ("github", "pytest"),
+        ("sphinx", "mkdocs", "pytest"),
     ),
     38: PracticeFocus(
         "Используйте единый словарь данных проекта, чтобы название продукта, версия и ссылка не расходились "
@@ -1283,10 +1358,10 @@ def requirement_ids() -> set[str]:
     44: PracticeFocus(
         "Руководство оператора строится вокруг цели пользователя. Каждый шаг должен указывать действие, "
         "данные и видимый результат; ожидаемая ошибка получает отдельную ветвь с безопасным следующим шагом.",
-        """def create_booking_message(guest: str, room: str) -> str:
+        '''def create_booking_message(guest: str, room: str) -> str:
     if not guest or not room:
         return "Заполните имя гостя и номер"
-    return f"Бронирование для {guest} в номере {room} подтверждено""".strip(),
+    return f"Бронирование для {guest} в номере {room} подтверждено"'''.strip(),
         (
             "Опишите подготовку и основной сценарий создания бронирования.",
             "Для каждого шага укажите действие, данные и видимый результат.",
@@ -1340,8 +1415,8 @@ def linked_cases(requirement: str) -> list[str]:
         "Рецензирование проверяет полноту, точность и согласованность текста с другими документами. "
         "Замечание должно указывать место, наблюдаемую проблему, критерий и желаемый результат, "
         "а не оценивать автора документа.",
-        """def review_comment(section: str, issue: str, criterion: str) -> str:
-    return f"{section}: {issue}. Критерий: {criterion}.""".strip(),
+        '''def review_comment(section: str, issue: str, criterion: str) -> str:
+    return f"{section}: {issue}. Критерий: {criterion}."'''.strip(),
         (
             "Составьте чек-лист полноты, точности и согласованности для технического задания и инструкции.",
             "Проведите рецензирование одного раздела и сформулируйте не менее трёх проверяемых замечаний.",
@@ -1433,11 +1508,17 @@ def _page_title(session: Session, document: str) -> str:
     return f"Занятие {session.number:02d}. {session.title} — {document}"
 
 
+def _student_outcome(outcome: str) -> str:
+    verb, detail = outcome.split(" ", maxsplit=1)
+    punctuation = "," if verb.endswith(",") else ""
+    return f"Вы сможете: {OUTCOME_INFINITIVES[verb.rstrip(',')]}{punctuation} {detail}"
+
+
 def _common_intro(session: Session) -> str:
     return "\n".join(
         (
             "    <h2>Ваш результат</h2>",
-            _paragraph(session.outcome),
+            _paragraph(_student_outcome(session.outcome)),
             f"    <p class=\"callout\">Тема блока: {escape(session.block)}. "
             f"Ключевые слова: {escape(', '.join(session.keywords))}.</p>",
         )
@@ -1602,12 +1683,15 @@ def _validate_content() -> None:
 
 
 def generate(output_root: Path) -> None:
-    """Create the 49 session folders and three student-facing HTML pages in each."""
+    """Create a clean 49-session HTML package at ``output_root``."""
     _validate_content()
-    output_root.mkdir(parents=True, exist_ok=True)
+    replacement_root = output_root.with_name(f".{output_root.name}.replacement")
+    if replacement_root.exists():
+        shutil.rmtree(replacement_root)
+    replacement_root.mkdir(parents=True)
 
     for session in SESSIONS:
-        folder = output_root / _folder_name(session)
+        folder = replacement_root / _folder_name(session)
         if session.kind == "theory":
             focus = THEORY[session.number]
             pages = (
@@ -1651,6 +1735,10 @@ def generate(output_root: Path) -> None:
 
         for filename, title, body in pages:
             write_html(folder / filename, render_page(title, body, _source_list(source_keys)))
+
+    if output_root.exists():
+        shutil.rmtree(output_root)
+    replacement_root.replace(output_root)
 
 
 def _parse_args() -> argparse.Namespace:

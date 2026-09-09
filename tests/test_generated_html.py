@@ -17,6 +17,10 @@ PRACTICE_FILES = {
 
 
 def test_each_session_has_exact_html_contract(tmp_path: Path) -> None:
+    stale_folder = tmp_path / "obsolete-session"
+    stale_folder.mkdir()
+    (stale_folder / "obsolete.html").write_text("obsolete", encoding="utf-8")
+
     generate(tmp_path)
 
     folders = sorted(path for path in tmp_path.iterdir() if path.is_dir())
@@ -32,7 +36,7 @@ def test_each_session_has_exact_html_contract(tmp_path: Path) -> None:
 def test_generated_pages_are_student_facing_and_topic_specific(tmp_path: Path) -> None:
     generate(tmp_path)
 
-    homework_pages: list[str] = []
+    homework_payloads: list[str] = []
     for session in SESSIONS:
         folder = next(tmp_path.glob(f"{session.number:02d}-*"))
         for page in folder.glob("*.html"):
@@ -40,15 +44,18 @@ def test_generated_pages_are_student_facing_and_topic_specific(tmp_path: Path) -
             assert '<html lang="ru">' in text
             assert "Источники" in text
             assert session.title in text
-            assert session.outcome in text
+            assert "<p>Вы сможете:" in text
             assert "колледж" not in text.casefold()
             assert "академическ" not in text.casefold()
             assert "преподавател" not in text.casefold()
-        homework_pages.append(
-            (folder / "domashnee-zadanie.html").read_text(encoding="utf-8")
+        homework = (folder / "domashnee-zadanie.html").read_text(encoding="utf-8")
+        homework_payloads.append(
+            homework.split("<h2>Самостоятельное продолжение</h2>", maxsplit=1)[1].split(
+                "<h2>Формат результата</h2>", maxsplit=1
+            )[0]
         )
 
-    assert len(set(homework_pages)) == len(SESSIONS)
+    assert len(set(homework_payloads)) == len(SESSIONS)
 
 
 def test_topic_sequences_are_present_in_generated_practices(tmp_path: Path) -> None:
