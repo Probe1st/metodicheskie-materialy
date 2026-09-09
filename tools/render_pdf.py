@@ -262,9 +262,11 @@ PRESENTATION_CONTENT: dict[int, PresentationContent] = {
 
 
 def _student_outcome(outcome: str) -> str:
-    return _OUTCOME_VERB_PATTERN.sub(
-        lambda match: _OUTCOME_INFINITIVES[match.group().casefold()], outcome
-    )
+    def infinitive(match: re.Match[str]) -> str:
+        replacement = _OUTCOME_INFINITIVES[match.group().casefold()]
+        return replacement.capitalize() if match.group()[0].isupper() else replacement
+
+    return _OUTCOME_VERB_PATTERN.sub(infinitive, outcome)
 
 
 def _sources_for(

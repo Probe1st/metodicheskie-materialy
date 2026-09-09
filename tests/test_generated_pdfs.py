@@ -1,6 +1,7 @@
 import subprocess
 from pathlib import Path
 
+from tools.course_manifest import SESSIONS
 from tools.generate_course import SOURCES, THEORY, generate
 from tools.render_pdf import PRESENTATION_CONTENT, _sources_for, _student_outcome, render_presentation
 
