@@ -17,9 +17,11 @@ from typing import Iterable
 try:  # Support both `python tools/generate_course.py` and package imports.
     from tools.course_manifest import SESSIONS, Session
     from tools.render_html import render_page, write_html
+    from tools.render_pdf import render_presentation
 except ModuleNotFoundError:  # pragma: no cover - exercised by the CLI form.
     from course_manifest import SESSIONS, Session
     from render_html import render_page, write_html
+    from render_pdf import render_presentation
 
 
 DEFAULT_OUTPUT_ROOT = Path("МДК.01.02 Поддержка и тестирование программных модулей")
@@ -1739,6 +1741,8 @@ def generate(output_root: Path) -> None:
 
         for filename, title, body in pages:
             write_html(folder / filename, render_page(title, body, _source_list(source_keys)))
+        if session.kind == "theory":
+            render_presentation(session, folder / "prezentaciya.pdf")
 
     if output_root.exists():
         shutil.rmtree(output_root)
