@@ -58,6 +58,22 @@ def test_generated_pages_are_student_facing_and_topic_specific(tmp_path: Path) -
     assert len(set(homework_payloads)) == len(SESSIONS)
 
 
+def test_generated_outcomes_inflect_every_coordinated_verb_for_student(tmp_path: Path) -> None:
+    generate(tmp_path)
+
+    expected_outcomes = {
+        4: "Вы сможете: выбрать стратегию отладки и обосновать порядок локализации дефекта.",
+        29: "Вы сможете: организовать хранение версий документа и зафиксировать историю согласованных изменений.",
+        30: "Вы сможете: объяснить назначение ЕСПД и определить применимые к проекту стандарты.",
+        49: "Вы сможете: представить комплект документации и обосновать его соответствие требованиям ЕСПД.",
+    }
+
+    for number, outcome in expected_outcomes.items():
+        folder = next(tmp_path.glob(f"{number:02d}-*"))
+        for page in folder.glob("*.html"):
+            assert f"<p>{outcome}</p>" in page.read_text(encoding="utf-8")
+
+
 def test_topic_sequences_are_present_in_generated_practices(tmp_path: Path) -> None:
     generate(tmp_path)
 
