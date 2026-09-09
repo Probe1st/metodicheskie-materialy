@@ -1,9 +1,8 @@
 import subprocess
 from pathlib import Path
 
-from tools.course_manifest import SESSIONS
-from tools.generate_course import generate
-from tools.render_pdf import render_presentation
+from tools.generate_course import SOURCES, THEORY, generate
+from tools.render_pdf import PRESENTATION_CONTENT, _sources_for, _student_outcome, render_presentation
 
 
 def _pdf_text(path: Path) -> str:
@@ -38,3 +37,35 @@ def test_generator_creates_presentations_only_for_theory_sessions(tmp_path: Path
             assert session.title in _pdf_text(presentation)
         else:
             assert not presentation.exists()
+
+
+def test_presentation_outcome_preserves_punctuation_and_transforms_all_verbs() -> None:
+    outcome = (
+        "Объясняет назначение ЕСПД и определяет применимые стандарты, "
+        "а также оформляет ссылку."
+    )
+
+    assert _student_outcome(outcome) == (
+        "Объяснить назначение ЕСПД и определить применимые стандарты, "
+        "а также оформить ссылку."
+    )
+
+
+def test_presentation_uses_theory_focus_sources_for_each_espd_topic() -> None:
+    by_number = {session.number: session for session in SESSIONS}
+
+    standard_sources = _sources_for(by_number[30], THEORY[30].sources)
+    technical_assignment_sources = _sources_for(by_number[31], THEORY[31].sources)
+
+    assert standard_sources == tuple(SOURCES[key] for key in THEORY[30].sources)
+    assert technical_assignment_sources == tuple(SOURCES[key] for key in THEORY[31].sources)
+    assert standard_sources != technical_assignment_sources
+
+
+def test_presentations_contain_authored_topic_specific_content() -> None:
+    theory_numbers = {session.number for session in SESSIONS if session.kind == "theory"}
+
+    assert set(PRESENTATION_CONTENT) == theory_numbers
+    assert len({content.example for content in PRESENTATION_CONTENT.values()}) == len(theory_numbers)
+    assert all(content.relationship and content.self_check for content in PRESENTATION_CONTENT.values())
+    assert all("в учебном проекте нужно применить" not in content.example.casefold() for content in PRESENTATION_CONTENT.values())

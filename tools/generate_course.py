@@ -1742,7 +1742,11 @@ def generate(output_root: Path) -> None:
         for filename, title, body in pages:
             write_html(folder / filename, render_page(title, body, _source_list(source_keys)))
         if session.kind == "theory":
-            render_presentation(session, folder / "prezentaciya.pdf")
+            render_presentation(
+                session,
+                folder / "prezentaciya.pdf",
+                sources=tuple(_source_list(source_keys)),
+            )
 
     if output_root.exists():
         shutil.rmtree(output_root)
