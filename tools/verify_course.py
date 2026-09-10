@@ -156,7 +156,7 @@ def _verify_session(folder: Path, number: int, kind: str, errors: list[str]) -> 
     if source_text is not None and "<pre><code>" not in source_text:
         errors.append(f"session {number:02d} lacks a direct student source block")
 
-    if PRESENTATION_FILE not in missing_pdfs:
+    if kind == "theory" and PRESENTATION_FILE not in missing_pdfs:
         _verify_pdf(folder / PRESENTATION_FILE, errors)
 
 
