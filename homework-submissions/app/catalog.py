@@ -12,7 +12,9 @@ class Catalog:
     disciplines: Mapping[str, tuple[str, ...]]
 
     def contains(self, group: str, discipline: str, work: str) -> bool:
-        return group in self.groups and work in self.disciplines.get(discipline, ())
+        return group in self.groups and work.casefold() in {
+            item.casefold() for item in self.disciplines.get(discipline, ())
+        }
 
 
 def load_catalog(path: Path) -> Catalog:

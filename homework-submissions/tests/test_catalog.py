@@ -21,3 +21,12 @@ def test_catalog_rejects_work_from_another_discipline() -> None:
         "Архитектура аппаратных средств",
         "паспорт качества учебного сервиса",
     )
+
+def test_catalog_accepts_database_work_case_insensitively() -> None:
+    catalog = load_catalog(Path(__file__).resolve().parents[1] / "catalog.json")
+
+    assert catalog.contains(
+        "ИС 25/9-4В",
+        "Основы проектирования баз данных",
+        "Основные понятия баз данных и субд",
+    )
