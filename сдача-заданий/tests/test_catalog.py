@@ -4,7 +4,7 @@ from app.catalog import load_catalog
 
 
 def test_catalog_accepts_known_work() -> None:
-    catalog = load_catalog(Path("catalog.json"))
+    catalog = load_catalog(Path(__file__).resolve().parents[1] / "catalog.json")
 
     assert catalog.contains(
         "ИС 25/9-1П",
@@ -14,7 +14,7 @@ def test_catalog_accepts_known_work() -> None:
 
 
 def test_catalog_rejects_work_from_another_discipline() -> None:
-    catalog = load_catalog(Path("catalog.json"))
+    catalog = load_catalog(Path(__file__).resolve().parents[1] / "catalog.json")
 
     assert not catalog.contains(
         "ИС 25/9-1П",

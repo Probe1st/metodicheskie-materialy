@@ -7,7 +7,7 @@ from app.web import create_app
 
 @pytest.fixture
 def client(tmp_path: Path):
-    app = create_app({"TESTING": True, "SECRET_KEY": "secret", "SUBMISSION_PASSWORD": "teacher", "STORAGE_ROOT": tmp_path, "CATALOG_PATH": Path("catalog.json"), "MAX_UPLOAD_GB": 1})
+    app = create_app({"TESTING": True, "SECRET_KEY": "secret", "SUBMISSION_PASSWORD": "teacher", "STORAGE_ROOT": tmp_path, "CATALOG_PATH": Path(__file__).resolve().parents[1] / "catalog.json", "MAX_UPLOAD_GB": 1})
     return app.test_client()
 
 
