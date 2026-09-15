@@ -356,11 +356,11 @@ def _slide_title(title: str, styles: dict[str, ParagraphStyle]) -> list[object]:
     return [Paragraph(title, styles["heading"]), Spacer(1, 5 * mm)]
 
 
-def _page_number(canvas, document) -> None:
+def _page_number(canvas, document, footer: str = "Поддержка и тестирование программных модулей") -> None:
     canvas.saveState()
     canvas.setFillColor(_NAVY)
     canvas.setFont(FONT_NAME, 9)
-    canvas.drawString(18 * mm, 12 * mm, "Поддержка и тестирование программных модулей")
+    canvas.drawString(18 * mm, 12 * mm, footer)
     canvas.drawRightString(_PAGE_SIZE[0] - 18 * mm, 12 * mm, f"{document.page}")
     canvas.restoreState()
 
@@ -379,18 +379,22 @@ def render_presentation(
     destination: Path,
     *,
     sources: tuple[tuple[str, str], ...] | None = None,
+    content: PresentationContent | None = None,
+    course_title: str = "Поддержка и тестирование программных модулей",
+    institution_label: str | None = None,
 ) -> None:
     """Write an eight-slide PDF presentation for one theory ``session``."""
     _register_font()
     destination.parent.mkdir(parents=True, exist_ok=True)
     styles = _styles()
-    content = PRESENTATION_CONTENT[session.number]
+    active_content = content if content is not None else PRESENTATION_CONTENT[session.number]
     story: list[object] = [
         Spacer(1, 48 * mm),
         Paragraph("Презентация по теме", styles["subtitle"]),
         Spacer(1, 9 * mm),
         Paragraph(session.title, styles["title"]),
         Spacer(1, 10 * mm),
+        *([Paragraph(institution_label, styles["subtitle"]), Spacer(1, 6 * mm)] if institution_label else []),
         Paragraph(f"Раздел: {session.block}", styles["subtitle"]),
         PageBreak(),
         *_slide_title("Учебный результат", styles),
@@ -406,9 +410,9 @@ def render_presentation(
         *[_bullet(concept, styles["body"]) for concept in session.keywords],
         PageBreak(),
         *_slide_title("Связь понятий", styles),
-        Paragraph(content.relationship, styles["body"]),
+        Paragraph(active_content.relationship, styles["body"]),
         Table(
-            [[content.flow[0]], ["↓"], [content.flow[1]], ["↓"], [content.flow[2]], ["↓"], [content.flow[3]]],
+            [[active_content.flow[0]], ["↓"], [active_content.flow[1]], ["↓"], [active_content.flow[2]], ["↓"], [active_content.flow[3]]],
             colWidths=[190 * mm],
             style=TableStyle(
                 [
@@ -435,7 +439,7 @@ def render_presentation(
                 [Paragraph("Ориентир", styles["table"]), Paragraph("Вопрос для проверки", styles["table"])],
                 *[
                     [Paragraph(label, styles["table"]), Paragraph(question, styles["table"])]
-                    for label, question in content.comparison
+                    for label, question in active_content.comparison
                 ],
             ],
             colWidths=[85 * mm, 105 * mm],
@@ -454,11 +458,11 @@ def render_presentation(
         ),
         PageBreak(),
         *_slide_title("Разбор конкретной ситуации", styles),
-        Paragraph(content.example, styles["body"]),
-        *[_bullet(step, styles["body"]) for step in content.example_steps],
+        Paragraph(active_content.example, styles["body"]),
+        *[_bullet(step, styles["body"]) for step in active_content.example_steps],
         PageBreak(),
         *_slide_title("Самопроверка", styles),
-        *[_bullet(question, styles["body"]) for question in content.self_check],
+        *[_bullet(question, styles["body"]) for question in active_content.self_check],
         PageBreak(),
         *_slide_title("Источники для самостоятельного изучения", styles),
         *[
@@ -476,6 +480,10 @@ def render_presentation(
         topMargin=24 * mm,
         bottomMargin=24 * mm,
         title=session.title,
-        author="МДК.01.02 Поддержка и тестирование программных модулей",
+        author=course_title,
     )
-    document.build(story, onFirstPage=_title_page, onLaterPages=_page_number)
+    document.build(
+        story,
+        onFirstPage=_title_page,
+        onLaterPages=lambda canvas, doc: _page_number(canvas, doc, course_title),
+    )

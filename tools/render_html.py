@@ -41,6 +41,20 @@ header h1 {
   line-height: 1.2;
 }
 
+.eyebrow {
+  margin: 0 0 10px;
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #d9eaf5;
+}
+
+@media print {
+  .eyebrow { color: #164a6b; }
+}
+
+
 main, footer {
   background: #fff;
 }
@@ -107,14 +121,13 @@ ol { padding-left: 1.5rem; }
 """.strip()
 
 
-def render_page(title: str, body: str, sources: list[tuple[str, str]]) -> str:
-    """Return a complete Russian-language HTML document.
-
-    ``title`` and every source label and URL are escaped before interpolation.
-    ``body`` is intentionally caller-owned, precomposed instructional HTML; it is
-    inserted unchanged so course authors can use the documented semantic markup
-    (headings, ``.callout``, ``pre > code``, ordered lists, and ``.checklist``).
-    """
+def render_page(
+    title: str,
+    body: str,
+    sources: list[tuple[str, str]],
+    *,
+    eyebrow: str | None = None,
+) -> str:
     source_items = "\n".join(
         f'        <li><a href="{escape(url, quote=True)}">'
         f"{escape(label, quote=True)}</a></li>"
@@ -132,6 +145,7 @@ def render_page(title: str, body: str, sources: list[tuple[str, str]]) -> str:
 </head>
 <body>
   <header>
+    {f'<p class="eyebrow">{escape(eyebrow, quote=True)}</p>' if eyebrow else ""}
     <h1>{escape(title, quote=True)}</h1>
   </header>
   <main>
