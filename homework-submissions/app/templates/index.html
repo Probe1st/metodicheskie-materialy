@@ -1,1 +1,82 @@
-<!doctype html><html lang="ru"><meta charset="utf-8"><title>Сдача заданий</title><body><main><h1>Сдача заданий</h1><form id="unlock" method="post" action="/unlock"><label>Пароль преподавателя <input name="password" type="password" required></label><button>Открыть форму</button></form><form id="submit" method="post" action="/submit" enctype="multipart/form-data" hidden><label>Группа <select name="group" required>{% for group in catalog.groups %}<option>{{ group }}</option>{% endfor %}</select></label><label>Дисциплина <select id="discipline" name="discipline" required>{% for name in catalog.disciplines %}<option>{{ name }}</option>{% endfor %}</select></label><label>ФИО <input name="student_name" required></label><label>Наименование работы <input id="work" name="work" list="works" required autocomplete="off"><datalist id="works"></datalist></label><label>Файл (до {{ limit }} ГБ) <input name="file" type="file" required></label><button>Отправить</button></form><p id="status" aria-live="polite"></p></main><script>const c={{ catalog.disciplines|tojson }},d=document.querySelector('#discipline'),w=document.querySelector('#work'),l=document.querySelector('#works'),u=document.querySelector('#unlock'),f=document.querySelector('#submit'),s=document.querySelector('#status');function works(){l.innerHTML=(c[d.value]||[]).map(x=>`<option value="${x}">`).join('');w.value=''}d.onchange=works;works();u.onsubmit=async e=>{e.preventDefault();let r=await fetch('/unlock',{method:'POST',body:new FormData(u)});if(r.ok){u.hidden=true;f.hidden=false}else s.textContent='Неверный пароль'};f.onsubmit=async e=>{e.preventDefault();let r=await fetch('/submit',{method:'POST',body:new FormData(f)});s.textContent=r.ok?'Работа принята.':'Проверьте все поля и файл.'}</script></body></html>
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<title>Сдача заданий</title>
+<body>
+<main>
+  <h1>Сдача заданий</h1>
+  <form id="unlock" method="post" action="/unlock">
+    <label>Группа
+      <select name="group" required>
+        {% for group in catalog.groups %}
+          <option>{{ group }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Пароль группы <input name="password" type="password" required></label>
+    <button>Открыть форму</button>
+  </form>
+
+  <form id="submit" method="post" action="/submit" enctype="multipart/form-data" hidden>
+    <input id="selected_group" name="group" type="hidden">
+    <p>Выбранная группа: <strong id="group_display"></strong></p>
+    <label>Дисциплина
+      <select id="discipline" name="discipline" required>
+        {% for name in catalog.disciplines %}
+          <option>{{ name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>ФИО <input name="student_name" required></label>
+    <label>Наименование работы
+      <input id="work" name="work" list="works" required autocomplete="off">
+      <datalist id="works"></datalist>
+    </label>
+    <label>Файл (до {{ limit }} ГБ) <input name="file" type="file" required></label>
+    <button>Отправить</button>
+  </form>
+  <p id="status" aria-live="polite"></p>
+</main>
+<script>
+const c = {{ catalog.disciplines|tojson }};
+const d = document.querySelector('#discipline');
+const w = document.querySelector('#work');
+const l = document.querySelector('#works');
+const u = document.querySelector('#unlock');
+const f = document.querySelector('#submit');
+const s = document.querySelector('#status');
+const groupDisplay = document.querySelector('#group_display');
+const selectedGroup = document.querySelector('#selected_group');
+
+function works() {
+  l.innerHTML = (c[d.value] || []).map(x => `<option value="${x}">`).join('');
+  w.value = '';
+}
+d.onchange = works;
+works();
+
+u.onsubmit = async (e) => {
+  e.preventDefault();
+  s.textContent = '';
+  const formData = new FormData(u);
+  const group = formData.get('group');
+  const res = await fetch('/unlock', { method: 'POST', body: formData });
+  if (res.ok) {
+    selectedGroup.value = group;
+    groupDisplay.textContent = group;
+    u.hidden = true;
+    f.hidden = false;
+  } else {
+    s.textContent = 'Доступ к приёму работ закрыт или пароль неверен.';
+  }
+};
+
+f.onsubmit = async (e) => {
+  e.preventDefault();
+  s.textContent = '';
+  const res = await fetch('/submit', { method: 'POST', body: new FormData(f) });
+  s.textContent = res.ok ? 'Работа принята.' : 'Ошибка отправки: проверьте статус приёма и поля формы.';
+};
+</script>
+</body>
+</html>
