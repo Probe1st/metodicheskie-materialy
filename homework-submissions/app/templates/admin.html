@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<title>Администрирование приёма заданий</title>
+<body>
+<main>
+  <h1>Управление доступом к приёму заданий</h1>
+
+  {% if not authenticated %}
+    <form id="admin_login" method="post" action="/admin/login">
+      <label>Мастер-пароль администратора
+        <input name="password" type="password" required autocomplete="current-password">
+      </label>
+      <button>Войти в панель</button>
+    </form>
+    <p id="status" aria-live="polite"></p>
+    <script>
+      const form = document.querySelector('#admin_login');
+      const status = document.querySelector('#status');
+      form.onsubmit = async (e) => {
+        e.preventDefault();
+        status.textContent = '';
+        const res = await fetch('/admin/login', { method: 'POST', body: new FormData(form) });
+        if (res.ok) {
+          window.location.reload();
+        } else {
+          status.textContent = 'Неверный мастер-пароль.';
+        }
+      };
+    </script>
+  {% else %}
+    <form method="post" action="/admin/logout">
+      <button>Выйти</button>
+    </form>
+
+    <table border="1" cellpadding="8" cellspacing="0">
+      <thead>
+        <tr>
+          <th>Группа</th>
+          <th>Приём открыт</th>
+          <th>Срок закрытия (серверное время)</th>
+          <th>Новый пароль</th>
+          <th>Действие</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in groups %}
+          <tr>
+            <td><strong>{{ item.group }}</strong></td>
+            <td>
+              <input form="form_{{ loop.index }}" type="checkbox" name="is_open" value="1" {% if item.is_open %}checked{% endif %}>
+            </td>
+            <td>
+              <input form="form_{{ loop.index }}" type="datetime-local" name="closes_at" value="{{ item.closes_at }}">
+            </td>
+            <td>
+              <input form="form_{{ loop.index }}" type="password" name="password" placeholder="Оставить текущий" autocomplete="new-password">
+            </td>
+            <td>
+              <form id="form_{{ loop.index }}" class="group-form" method="post" action="/admin/groups">
+                <input type="hidden" name="group" value="{{ item.group }}">
+                <button>Сохранить</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p id="status" aria-live="polite"></p>
+    <script>
+      document.querySelectorAll('.group-form').forEach(form => {
+        form.onsubmit = async (e) => {
+          e.preventDefault();
+          const status = document.querySelector('#status');
+          status.textContent = 'Сохранение...';
+          const res = await fetch('/admin/groups', { method: 'POST', body: new FormData(form) });
+          if (res.ok) {
+            status.textContent = 'Настройки группы сохранены.';
+          } else {
+            status.textContent = 'Ошибка сохранения настроек.';
+          }
+        };
+      });
+    </script>
+  {% endif %}
+</main>
+</body>
+</html>

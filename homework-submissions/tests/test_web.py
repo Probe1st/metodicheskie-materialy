@@ -72,3 +72,39 @@ def test_reconfiguring_group_invalidates_unlocked_student(client_env):
     configure_group(private_dir, password="5678", is_open=False)
 
     assert client.post("/submit", data=valid_submission()).status_code == 403
+
+
+def test_admin_login_is_required_to_access_and_change_groups(client_env):
+    client, _ = client_env
+    assert client.post("/admin/groups", data={"group": "ИС 25/9-1П", "is_open": "1"}).status_code == 403
+    assert client.post("/admin/login", data={"password": "wrong"}).status_code == 403
+    assert client.post("/admin/login", data={"password": "admin-secret"}).status_code == 204
+
+
+def test_admin_can_open_group_and_student_can_unlock_and_submit(client_env, tmp_path):
+    client, _ = client_env
+    assert client.post("/admin/login", data={"password": "admin-secret"}).status_code == 204
+
+    save_response = client.post("/admin/groups", data={
+        "group": "ИС 25/9-1П",
+        "password": "group-password",
+        "is_open": "1",
+        "closes_at": "",
+    })
+    assert save_response.status_code == 204
+
+    unlock_response = client.post("/unlock", data={"group": "ИС 25/9-1П", "password": "group-password"})
+    assert unlock_response.status_code == 204
+
+    submit_response = client.post("/submit", data=valid_submission())
+    assert submit_response.status_code == 201
+    assert list((tmp_path / "uploads").rglob("Иванов Иван Иванович 1.pdf"))
+
+
+def test_admin_page_shows_all_catalog_groups(client_env):
+    client, _ = client_env
+    client.post("/admin/login", data={"password": "admin-secret"})
+    page = client.get("/admin").get_data(as_text=True)
+
+    assert "ИС 25/9-1П" in page
+    assert "ИС 25/9-2П" in page
