@@ -108,3 +108,16 @@ def test_admin_page_shows_all_catalog_groups(client_env):
 
     assert "ИС 25/9-1П" in page
     assert "ИС 25/9-2П" in page
+
+
+def test_admin_setting_past_deadline_immediately_blocks_submission(client_env):
+    client, _ = client_env
+    client.post("/admin/login", data={"password": "admin-secret"})
+    client.post("/admin/groups", data={
+        "group": "ИС 25/9-1П",
+        "password": "group-password",
+        "is_open": "1",
+        "closes_at": "2020-01-01T00:00",
+    })
+
+    assert client.post("/unlock", data={"group": "ИС 25/9-1П", "password": "group-password"}).status_code == 403
