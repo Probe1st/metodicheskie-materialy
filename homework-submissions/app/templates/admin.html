@@ -1,88 +1,103 @@
 <!doctype html>
 <html lang="ru">
-<meta charset="utf-8">
-<title>Администрирование приёма заданий</title>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Управление приёмом заданий</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
 <body>
-<main>
-  <h1>Управление доступом к приёму заданий</h1>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="{{ url_for('index') }}">Учебный портал</a>
+      {% if authenticated %}
+        <form method="post" action="{{ url_for('admin_logout') }}">
+          <button class="button button--quiet" type="submit">Выйти</button>
+        </form>
+      {% else %}
+        <span class="header-label">Панель преподавателя</span>
+      {% endif %}
+    </div>
+  </header>
 
-  {% if not authenticated %}
-    <form id="admin_login" method="post" action="/admin/login">
-      <label>Мастер-пароль администратора
-        <input name="password" type="password" required autocomplete="current-password">
-      </label>
-      <button>Войти в панель</button>
-    </form>
-    <p id="status" aria-live="polite"></p>
-    <script>
-      const form = document.querySelector('#admin_login');
-      const status = document.querySelector('#status');
-      form.onsubmit = async (e) => {
-        e.preventDefault();
-        status.textContent = '';
-        const res = await fetch('/admin/login', { method: 'POST', body: new FormData(form) });
-        if (res.ok) {
-          window.location.reload();
-        } else {
-          status.textContent = 'Неверный мастер-пароль.';
-        }
-      };
-    </script>
-  {% else %}
-    <form method="post" action="/admin/logout">
-      <button>Выйти</button>
-    </form>
+  <main class="page-shell">
+    {% if not authenticated %}
+      <section class="student-layout" aria-labelledby="admin_title">
+        <div class="student-layout__intro">
+          <p class="eyebrow">Панель преподавателя</p>
+          <h1 id="admin_title">Управляйте<br>приёмом работ.</h1>
+          <p class="lead">Открывайте группы, устанавливайте дедлайны и меняйте пароли без перезапуска сервиса.</p>
+        </div>
+        <section class="panel form-card" aria-label="Вход в панель преподавателя">
+          <form id="admin_login" class="form-stack" method="post" action="{{ url_for('admin_login') }}">
+            <div>
+              <p class="eyebrow">Доступ преподавателя</p>
+              <h2>Войдите в панель</h2>
+            </div>
+            <label class="field">Мастер-пароль администратора
+              <input name="password" type="password" required autocomplete="current-password">
+            </label>
+            <button class="button button--primary" type="submit">Войти в панель</button>
+            <p class="status" id="admin_login_status" aria-live="polite"></p>
+          </form>
+        </section>
+      </section>
+    {% else %}
+      {% set open_count = groups | selectattr('is_open') | list | length %}
+      {% set closed_count = groups | length - open_count %}
+      <section class="admin-hero" aria-labelledby="admin_title">
+        <div>
+          <p class="eyebrow">Панель преподавателя</p>
+          <h1 id="admin_title">Управление<br>приёмом работ.</h1>
+        </div>
+        <p class="lead">Каждое изменение применяется сразу. Новый пароль завершает текущие сессии студентов этой группы.</p>
+      </section>
 
-    <table border="1" cellpadding="8" cellspacing="0">
-      <thead>
-        <tr>
-          <th>Группа</th>
-          <th>Приём открыт</th>
-          <th>Срок закрытия (серверное время)</th>
-          <th>Новый пароль</th>
-          <th>Действие</th>
-        </tr>
-      </thead>
-      <tbody>
+      <section class="summary-list" aria-label="Сводка групп">
+        <article class="summary-card"><strong id="open_count">{{ open_count }}</strong>Приём открыт</article>
+        <article class="summary-card"><strong id="closed_count">{{ closed_count }}</strong>Приём закрыт</article>
+      </section>
+
+      <section class="group-grid" aria-label="Настройки групп">
         {% for item in groups %}
-          <tr>
-            <td><strong>{{ item.group }}</strong></td>
-            <td>
-              <input form="form_{{ loop.index }}" type="checkbox" name="is_open" value="1" {% if item.is_open %}checked{% endif %}>
-            </td>
-            <td>
-              <input form="form_{{ loop.index }}" type="datetime-local" name="closes_at" value="{{ item.closes_at }}">
-            </td>
-            <td>
-              <input form="form_{{ loop.index }}" type="password" name="password" placeholder="Оставить текущий" autocomplete="new-password">
-            </td>
-            <td>
-              <form id="form_{{ loop.index }}" class="group-form" method="post" action="/admin/groups">
-                <input type="hidden" name="group" value="{{ item.group }}">
-                <button>Сохранить</button>
-              </form>
-            </td>
-          </tr>
+          <article class="panel group-card">
+            <div class="group-card__heading">
+              <div>
+                <p class="eyebrow">Учебная группа</p>
+                <h3>{{ item.group }}</h3>
+              </div>
+              {% if item.is_open %}
+                <span class="chip chip--open">Приём открыт</span>
+              {% else %}
+                <span class="chip chip--closed">Приём закрыт</span>
+              {% endif %}
+            </div>
+
+            <form class="group-form form-stack" method="post" action="{{ url_for('admin_update_group') }}">
+              <input type="hidden" name="group" value="{{ item.group }}">
+              <label class="switch">
+                <input type="checkbox" name="is_open" value="1" {% if item.is_open %}checked{% endif %}>
+                Принимать новые работы
+              </label>
+              <label class="field">Срок закрытия
+                <input type="datetime-local" name="closes_at" value="{{ item.closes_at }}">
+                <span class="field__hint">Оставьте пустым, чтобы не закрывать приём автоматически.</span>
+              </label>
+              <label class="field">Новый пароль
+                <input type="password" name="password" placeholder="Оставить текущий" autocomplete="new-password">
+                <span class="field__hint">После сохранения пароль нельзя посмотреть.</span>
+              </label>
+              <div class="group-actions">
+                <button class="button button--primary" type="submit">Сохранить</button>
+              </div>
+              <p class="group-status status" aria-live="polite"></p>
+            </form>
+          </article>
         {% endfor %}
-      </tbody>
-    </table>
-    <p id="status" aria-live="polite"></p>
-    <script>
-      document.querySelectorAll('.group-form').forEach(form => {
-        form.onsubmit = async (e) => {
-          e.preventDefault();
-          const status = document.querySelector('#status');
-          status.textContent = 'Сохранение...';
-          const res = await fetch('/admin/groups', { method: 'POST', body: new FormData(form) });
-          if (res.ok) {
-            status.textContent = 'Настройки группы сохранены.';
-          } else {
-            status.textContent = 'Ошибка сохранения настроек.';
-          }
-        };
-      });
-    </script>
-  {% endif %}
-</main>
+      </section>
+    {% endif %}
+  </main>
+
+  <script src="{{ url_for('static', filename='admin.js') }}" defer></script>
 </body>
 </html>
