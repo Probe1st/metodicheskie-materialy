@@ -101,6 +101,19 @@ class AccessStore:
             )
             conn.commit()
 
+    def rename_group(self, old_name: str, new_name: str) -> None:
+        with self._connect() as conn:
+            updated = conn.execute(
+                "UPDATE group_access SET group_name = ?, version = version + 1 WHERE group_name = ?",
+                (new_name, old_name),
+            )
+            if updated.rowcount != 1:
+                raise ValueError(f"Unknown group: {old_name}")
+
+    def delete_group(self, name: str) -> None:
+        with self._connect() as conn:
+            conn.execute("DELETE FROM group_access WHERE group_name = ?", (name,))
+
     def authorize(self, group: str, password: str, now: datetime | None = None) -> int | None:
         if not password:
             return None

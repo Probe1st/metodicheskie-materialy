@@ -1,11 +1,8 @@
-const catalog = window.submissionCatalog;
 const unlockForm = document.querySelector('#unlock');
 const submitForm = document.querySelector('#submit');
 const unlockStatus = document.querySelector('#unlock_status');
 const submitStatus = document.querySelector('#submit_status');
 const discipline = document.querySelector('#discipline');
-const work = document.querySelector('#work');
-const workList = document.querySelector('#works');
 const selectedGroup = document.querySelector('#selected_group');
 const groupDisplay = document.querySelector('#group_display');
 const accessSummary = document.querySelector('#access_summary');
@@ -24,14 +21,6 @@ function setBusy(form, busy, label) {
   button.textContent = label;
 }
 
-function updateWorks() {
-  workList.replaceChildren(...(catalog[discipline.value] || []).map((name) => {
-    const option = document.createElement('option');
-    option.value = name;
-    return option;
-  }));
-  work.value = '';
-}
 
 function resetAccess() {
   selectedGroup.value = '';
@@ -43,12 +32,10 @@ function resetAccess() {
   unlockForm.querySelector('[name="password"]').focus();
 }
 
-discipline.addEventListener('change', updateWorks);
 file.addEventListener('change', () => {
   fileName.textContent = file.files[0] ? file.files[0].name : `Файл до ${window.submissionLimit} ГБ`;
 });
 changeGroup.addEventListener('click', resetAccess);
-updateWorks();
 
 unlockForm.addEventListener('submit', async (event) => {
   event.preventDefault();

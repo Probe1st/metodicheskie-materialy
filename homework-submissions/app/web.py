@@ -1,14 +1,17 @@
 from __future__ import annotations
 
+import fcntl
 import hmac
 import os
+from contextlib import contextmanager, nullcontext
 from datetime import UTC, datetime
 from pathlib import Path
+from uuid import UUID
 from flask import Flask, abort, jsonify, redirect, render_template, request, session, url_for
 from werkzeug.exceptions import RequestEntityTooLarge
 
 from .access import AccessStore
-from .catalog import load_catalog
+from .catalog_store import CatalogItemNotFound, CatalogNameConflict, create_catalog_store
 from .storage import destination_directory, write_upload
 
 
@@ -40,18 +43,32 @@ def create_app(config=None):
         PRIVATE_DATA_DIR=Path(os.getenv("PRIVATE_DATA_DIR", ".private")),
         STORAGE_ROOT=Path("storage"),
         CATALOG_PATH=Path("catalog.json"),
+        CATALOG_PROVIDER=os.getenv("CATALOG_PROVIDER", "json"),
     )
     if config:
         app.config.update(config)
 
     app.config["MAX_CONTENT_LENGTH"] = app.config["MAX_UPLOAD_GB"] * 1024**3
+    catalog_store = create_catalog_store(app.config)
+
+    @contextmanager
+    def group_state_lock():
+        path = Path(app.config["PRIVATE_DATA_DIR"]) / "group-state.lock"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.parent.chmod(0o700)
+        with open(path, "a+b") as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            try:
+                yield
+            finally:
+                fcntl.flock(lock, fcntl.LOCK_UN)
 
     def catalog():
-        return load_catalog(Path(app.config["CATALOG_PATH"]))
+        return catalog_store.snapshot()
 
     def access_store() -> AccessStore:
         db_path = Path(app.config["PRIVATE_DATA_DIR"]) / "access.sqlite3"
-        return AccessStore(db_path, catalog().groups)
+        return AccessStore(db_path, (item.name for item in catalog().groups))
 
     def is_admin() -> bool:
         return bool(session.get("admin"))
@@ -67,13 +84,18 @@ def create_app(config=None):
         if not group or not password:
             abort(403)
 
-        store = access_store()
-        version = store.authorize(group, password)
-        if version is None:
-            abort(403)
+        with group_state_lock():
+            store = access_store()
+            version = store.authorize(group, password)
+            if version is None:
+                abort(403)
 
-        session["student_group"] = group
-        session["student_access_version"] = version
+            item = next((item for item in catalog().groups if item.name == group), None)
+            if item is None:
+                abort(403)
+            session["student_group"] = group
+            session["student_group_id"] = str(item.id)
+            session["student_access_version"] = version
         return ("", 204)
 
     @app.post("/submit")
@@ -82,6 +104,7 @@ def create_app(config=None):
         session_version = session.get("student_access_version")
         if not session_group or session_version is None:
             abort(403)
+        current_group_id = session.get("student_group_id")
 
         group, discipline, work, student = (
             request.form.get(key, "").strip()
@@ -92,12 +115,16 @@ def create_app(config=None):
         if group != session_group:
             abort(403)
 
-        if not all((group, discipline, work, student, file)) or not file.filename or not catalog().contains(group, discipline, work):
+        if not all((group, discipline, work, student, file)) or not file.filename:
             abort(400)
-
-        store = access_store()
-        if not store.permits(session_group, int(session_version)):
-            abort(403)
+        with group_state_lock():
+            snapshot = catalog()
+            if not any(item.name == group and str(item.id) == current_group_id for item in snapshot.groups):
+                abort(403)
+            if not snapshot.contains(group, discipline, work):
+                abort(400)
+            if not access_store().permits(session_group, int(session_version)):
+                abort(403)
 
         directory = destination_directory(Path(app.config["STORAGE_ROOT"]), group, discipline, work)
         saved = write_upload(file.stream, file.filename, student, directory)
@@ -107,17 +134,75 @@ def create_app(config=None):
     def admin_dashboard():
         if not is_admin():
             return render_template("admin.html", authenticated=False)
+        return render_template("admin.html", authenticated=True)
 
-        groups = [
-            {
-                "group": item.group,
-                "is_open": item.is_open,
-                "closes_at": _format_local_input(item.closes_at),
-                "version": item.version,
-            }
-            for item in access_store().groups()
-        ]
-        return render_template("admin.html", authenticated=True, groups=groups)
+    @app.get("/admin/access")
+    def admin_access():
+        if not is_admin():
+            abort(403)
+        with group_state_lock():
+            names = {group.name for group in catalog().groups}
+            groups = [
+                {"group": item.group, "is_open": item.is_open,
+                 "closes_at": _format_local_input(item.closes_at)}
+                for item in access_store().groups()
+                if item.group in names
+            ]
+        return render_template("admin_access.html", groups=groups, section="access")
+
+    @app.get("/admin/<kind>")
+    def admin_catalog_page(kind):
+        if not is_admin():
+            abort(403)
+        if kind not in ("groups", "subjects", "topics"):
+            abort(404)
+        items = getattr(catalog_store, f"list_{kind}")()
+        return render_template("admin_catalog.html", kind=kind, items=items, section=kind)
+
+    @app.post("/admin/<kind>")
+    def admin_catalog_create(kind):
+        if not is_admin():
+            abort(403)
+        if kind not in ("groups", "subjects", "topics"):
+            abort(404)
+        singular = kind[:-1]
+        with group_state_lock() if kind == "groups" else nullcontext():
+            try:
+                item = getattr(catalog_store, f"create_{singular}")(request.form.get("name", ""))
+            except (CatalogNameConflict, ValueError):
+                abort(400)
+        return jsonify(id=str(item.id), name=item.name), 201
+
+    @app.post("/admin/<kind>/<item_id>/<action>")
+    def admin_catalog_mutate(kind, item_id, action):
+        if not is_admin():
+            abort(403)
+        if kind not in ("groups", "subjects", "topics") or action not in ("rename", "delete"):
+            abort(404)
+        try:
+            uid = UUID(item_id)
+        except ValueError:
+            abort(400)
+        singular = kind[:-1]
+        with group_state_lock() if kind == "groups" else nullcontext():
+            old = next((item for item in getattr(catalog_store, f"list_{kind}")() if item.id == uid), None)
+            if old is None:
+                abort(404)
+            access = access_store() if kind == "groups" else None
+            try:
+                if action == "rename":
+                    item = getattr(catalog_store, f"rename_{singular}")(uid, request.form.get("name", ""))
+                    if access:
+                        access.rename_group(old.name, item.name)
+                    return jsonify(id=str(item.id), name=item.name)
+                if access:
+                    access.delete_group(old.name)
+                getattr(catalog_store, f"delete_{singular}")(uid)
+            except CatalogItemNotFound:
+                abort(404)
+            except (CatalogNameConflict, ValueError):
+                abort(400)
+        return ("", 204)
 
     @app.post("/admin/login")
     def admin_login():
@@ -134,14 +219,12 @@ def create_app(config=None):
         session.pop("admin", None)
         return redirect(url_for("admin_dashboard"))
 
-    @app.post("/admin/groups")
+    @app.post("/admin/access")
     def admin_update_group():
         if not is_admin():
             abort(403)
 
         group = request.form.get("group", "").strip()
-        if not group or group not in catalog().groups:
-            abort(400)
 
         password = request.form.get("password", "").strip() or None
         is_open = request.form.get("is_open") == "1"
@@ -152,8 +235,10 @@ def create_app(config=None):
         except ValueError:
             abort(400)
 
-        store = access_store()
-        store.configure(group, password, is_open, deadline)
+        with group_state_lock():
+            if not group or group not in (item.name for item in catalog().groups):
+                abort(400)
+            access_store().configure(group, password, is_open, deadline)
         return ("", 204)
 
     @app.errorhandler(RequestEntityTooLarge)

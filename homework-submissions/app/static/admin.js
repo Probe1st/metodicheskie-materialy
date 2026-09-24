@@ -51,7 +51,7 @@ document.querySelectorAll('.group-form').forEach((form) => {
     setStatus(status, 'working', 'Сохранение…');
 
     try {
-      const response = await fetch('/admin/groups', { method: 'POST', body: new FormData(form) });
+      const response = await fetch('/admin/access', { method: 'POST', body: new FormData(form) });
       if (!response.ok) throw new Error('failed');
       setStatus(status, 'success', 'Настройки группы сохранены.');
       updateGroupState(form);

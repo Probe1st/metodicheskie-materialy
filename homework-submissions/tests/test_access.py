@@ -35,3 +35,22 @@ def test_reconfiguring_group_invalidates_previous_student_session(tmp_path: Path
     assert not store.permits("Группа 1", version)
     assert store.authorize("Группа 1", "1234") is None
     assert store.authorize("Группа 1", "5678") is not None
+
+
+def test_renaming_group_preserves_access_but_invalidates_previous_session(tmp_path: Path):
+    store = AccessStore(tmp_path / ".private" / "access.sqlite3", ["Группа 1"])
+    store.configure("Группа 1", "1234", True, None)
+    version = store.authorize("Группа 1", "1234")
+
+    store.rename_group("Группа 1", "Группа 2")
+
+    assert not store.permits("Группа 1", version)
+    assert not store.permits("Группа 2", version)
+    assert store.authorize("Группа 2", "1234") is not None
+
+
+def test_deleting_group_removes_credentials(tmp_path: Path):
+    store = AccessStore(tmp_path / ".private" / "access.sqlite3", ["Группа 1"])
+    store.configure("Группа 1", "1234", True, None)
+    store.delete_group("Группа 1")
+    assert store.authorize("Группа 1", "1234") is None
