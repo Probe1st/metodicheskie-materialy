@@ -73,6 +73,20 @@ def create_app(config=None):
     def is_admin() -> bool:
         return bool(session.get("admin"))
 
+    def form_uuid(field: str) -> UUID:
+        try:
+            return UUID(request.form.get(field, ""))
+        except ValueError:
+            abort(400)
+
+    def topic_json(item):
+        return {"id": str(item.id), "name": item.name, "subject_id": str(item.subject_id)}
+
+    def name_conflict(error: CatalogNameConflict, topics: bool = False):
+        if topics:
+            return jsonify(error="topic_name_conflict", names=error.names), 400
+        return jsonify(error="name_conflict"), 400
+
     @app.get("/")
     def index():
         return render_template("index.html", catalog=catalog(), limit=app.config["MAX_UPLOAD_GB"])
@@ -156,8 +170,11 @@ def create_app(config=None):
             abort(403)
         if kind not in ("groups", "subjects", "topics"):
             abort(404)
-        items = getattr(catalog_store, f"list_{kind}")()
-        return render_template("admin_catalog.html", kind=kind, items=items, section=kind)
+        snapshot = catalog()
+        items = getattr(snapshot, kind)
+        return render_template("admin_catalog.html", kind=kind, items=items, section=kind,
+                               subjects=snapshot.subjects, topics=snapshot.topics,
+                               unassigned_subject_id=snapshot.unassigned_subject_id)
 
     @app.post("/admin/<kind>")
     def admin_catalog_create(kind):
@@ -168,16 +185,27 @@ def create_app(config=None):
         singular = kind[:-1]
         with group_state_lock() if kind == "groups" else nullcontext():
             try:
-                item = getattr(catalog_store, f"create_{singular}")(request.form.get("name", ""))
-            except (CatalogNameConflict, ValueError):
+                if kind == "topics":
+                    item = catalog_store.create_topic(request.form.get("name", ""), form_uuid("subject_id"))
+                else:
+                    item = getattr(catalog_store, f"create_{singular}")(request.form.get("name", ""))
+            except CatalogItemNotFound:
+                abort(404)
+            except CatalogNameConflict as error:
+                return name_conflict(error, kind == "topics")
+            except ValueError:
                 abort(400)
+        if kind == "topics":
+            return jsonify(topic_json(item)), 201
         return jsonify(id=str(item.id), name=item.name), 201
 
     @app.post("/admin/<kind>/<item_id>/<action>")
     def admin_catalog_mutate(kind, item_id, action):
         if not is_admin():
             abort(403)
-        if kind not in ("groups", "subjects", "topics") or action not in ("rename", "delete"):
+        if kind not in ("groups", "subjects", "topics") or action not in ("rename", "update", "delete"):
+            abort(404)
+        if (kind == "topics") != (action == "update") and action != "delete":
             abort(404)
         try:
             uid = UUID(item_id)
@@ -190,6 +218,9 @@ def create_app(config=None):
                 abort(404)
             access = access_store() if kind == "groups" else None
             try:
+                if action == "update":
+                    item = catalog_store.update_topic(uid, request.form.get("name", ""), form_uuid("subject_id"))
+                    return jsonify(topic_json(item))
                 if action == "rename":
                     item = getattr(catalog_store, f"rename_{singular}")(uid, request.form.get("name", ""))
                     if access:
@@ -200,9 +231,28 @@ def create_app(config=None):
                 getattr(catalog_store, f"delete_{singular}")(uid)
             except CatalogItemNotFound:
                 abort(404)
-            except (CatalogNameConflict, ValueError):
+            except CatalogNameConflict as error:
+                topic_conflict = kind == "topics" or (kind == "subjects" and action == "delete")
+                return name_conflict(error, topics=topic_conflict)
+            except ValueError:
                 abort(400)
         return ("", 204)
+
+    @app.post("/admin/topics/move")
+    def admin_move_topics():
+        if not is_admin():
+            abort(403)
+        item_ids = request.form.getlist("topic_ids")
+        try:
+            ids = tuple(UUID(value) for value in item_ids)
+            moved = catalog_store.move_topics(ids, form_uuid("subject_id"))
+        except CatalogItemNotFound:
+            abort(404)
+        except CatalogNameConflict as error:
+            return name_conflict(error, topics=True)
+        except ValueError:
+            abort(400)
+        return jsonify(topics=[topic_json(item) for item in moved])
 
     @app.post("/admin/login")
     def admin_login():
