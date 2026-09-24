@@ -26,22 +26,25 @@ def store(tmp_path):
     return create_catalog_store({'CATALOG_PROVIDER': 'json', 'CATALOG_PATH': path})
 
 
-def test_legacy_catalog_migrates_deduplicated_entities_with_stable_uuids(store):
+def test_legacy_catalog_preserves_subject_topic_ownership_and_stable_ids(store):
     snapshot = store.snapshot()
     assert [item.name for item in snapshot.groups] == ['Группа А']
-    assert [item.name for item in snapshot.subjects] == ['Предмет А', 'Предмет Б']
-    assert [item.name for item in snapshot.topics] == ['Тема А', 'Тема Б', 'Ещё одна тема']
-    assert snapshot.contains('Группа А', 'Предмет Б', 'Тема А')
-    assert isinstance(snapshot.groups[0].id, UUID)
+    assert [item.name for item in snapshot.subjects] == ['Предмет А', 'Предмет Б', 'Без предмета']
+    assert [(item.name, next(subject.name for subject in snapshot.subjects if subject.id == item.subject_id))
+            for item in snapshot.topics] == [
+        ('Тема А', 'Предмет А'), ('тема а', 'Предмет Б'),
+        ('Тема Б', 'Предмет Б'), ('Ещё одна тема', 'Предмет А'),
+    ]
+    assert snapshot.contains('Группа А', 'Предмет Б', 'тема а')
+    assert not snapshot.contains('Группа А', 'Предмет Б', 'Ещё одна тема')
     migrated = json.loads(store.path.read_text(encoding='utf-8'))
-    assert migrated['version'] == 2
-    assert migrated['groups'][0]['id'] == str(snapshot.groups[0].id)
-    assert migrated['subjects'][0]['id'] == str(snapshot.subjects[0].id)
-    assert migrated['topics'][0]['id'] == str(snapshot.topics[0].id)
+    assert migrated['version'] == 3
+    assert migrated['unassigned_subject_id'] == str(snapshot.unassigned_subject_id)
+    assert migrated['topics'][0]['subject_id'] == str(snapshot.topics[0].subject_id)
     assert store.snapshot() == snapshot
 
 
-@pytest.mark.parametrize('kind', ('group', 'subject', 'topic'))
+@pytest.mark.parametrize('kind', ('group', 'subject'))
 def test_crud_preserves_identity_and_rejects_duplicate_names(store, kind):
     create = getattr(store, f'create_{kind}')
     rename = getattr(store, f'rename_{kind}')
@@ -60,6 +63,77 @@ def test_crud_preserves_identity_and_rejects_duplicate_names(store, kind):
     assert created.id not in [item.id for item in list_items()]
     with pytest.raises(CatalogItemNotFound):
         delete(created.id)
+
+
+def test_topic_update_and_bulk_move_preserve_ids_and_reject_conflicts_atomically(store):
+    snapshot = store.snapshot()
+    first, second, fallback = snapshot.subjects
+    created = store.create_topic(' Общая тема ', first.id)
+    same_name_other_subject = store.create_topic('общая ТЕМА', second.id)
+    assert created.subject_id == first.id
+    assert same_name_other_subject.subject_id == second.id
+    with pytest.raises(CatalogNameConflict):
+        store.create_topic('Общая тема', first.id)
+    moved = store.update_topic(created.id, 'Общая тема', fallback.id)
+    assert moved.id == created.id and moved.subject_id == fallback.id
+    before = store.snapshot()
+    with pytest.raises(CatalogNameConflict):
+        store.move_topics((created.id, same_name_other_subject.id), first.id)
+    assert store.snapshot() == before
+    store.update_topic(same_name_other_subject.id, 'Другой заголовок', second.id)
+    changed = store.move_topics((created.id, same_name_other_subject.id), fallback.id)
+    assert {item.id for item in changed} == {created.id, same_name_other_subject.id}
+    assert all(item.subject_id == fallback.id for item in changed)
+    assert store.delete_topic(created.id) == moved
+
+
+def test_deleting_subject_moves_topics_or_rejects_conflict_without_changes(store):
+    subject_a, subject_b, fallback = store.snapshot().subjects
+    conflict = store.create_topic('Тема А', fallback.id)
+    before = store.snapshot()
+    with pytest.raises(CatalogNameConflict):
+        store.delete_subject(subject_a.id)
+    assert store.snapshot() == before
+    store.delete_topic(conflict.id)
+    store.delete_subject(subject_a.id)
+    after = store.snapshot()
+    assert subject_a not in after.subjects
+    assert all(topic.subject_id != subject_a.id for topic in after.topics)
+    assert any(topic.name == 'Тема А' and topic.subject_id == fallback.id for topic in after.topics)
+    with pytest.raises(ValueError):
+        store.delete_subject(fallback.id)
+    with pytest.raises(ValueError):
+        store.rename_subject(fallback.id, 'Новое имя')
+
+
+def test_v2_migration_preserves_topic_ids_in_existing_fallback(tmp_path):
+    path = tmp_path / 'catalog.json'
+    subject_id = UUID(int=10)
+    topic_id = UUID(int=11)
+    path.write_text(json.dumps({
+        'version': 2, 'groups': [],
+        'subjects': [{'id': str(subject_id), 'name': 'Без предмета'}],
+        'topics': [{'id': str(topic_id), 'name': 'Историческая тема'}],
+    }, ensure_ascii=False), encoding='utf-8')
+    store = create_catalog_store({'CATALOG_PROVIDER': 'json', 'CATALOG_PATH': path})
+    snapshot = store.snapshot()
+    assert snapshot.unassigned_subject_id == subject_id
+    assert snapshot.topics[0].id == topic_id
+    assert snapshot.topics[0].subject_id == subject_id
+    assert store.snapshot() == snapshot
+    assert json.loads(path.read_text(encoding='utf-8'))['version'] == 3
+
+
+def test_legacy_migration_canonicalizes_existing_fallback_subject(tmp_path):
+    path = tmp_path / 'catalog.json'
+    path.write_text(json.dumps({
+        'groups': [], 'disciplines': {' без ПРЕДМЕТА ': ['Тема без привязки']},
+    }, ensure_ascii=False), encoding='utf-8')
+    store = create_catalog_store({'CATALOG_PROVIDER': 'json', 'CATALOG_PATH': path})
+    snapshot = store.snapshot()
+    assert [item.name for item in snapshot.subjects] == ['Без предмета']
+    assert snapshot.topics[0].subject_id == snapshot.unassigned_subject_id
+    assert store.snapshot() == snapshot
 
 
 
@@ -191,7 +265,7 @@ def test_concurrent_process_writes_preserve_every_change_and_migrate_once(store)
     names = [item.name for item in snapshot.groups]
     expected_names = {'Группа А'} | {f'Параллельная {index}' for index in range(12)}
     assert set(names) == expected_names
-    assert json.loads(path.read_text(encoding='utf-8'))['version'] == 2
+    assert json.loads(path.read_text(encoding='utf-8'))['version'] == 3
 
 
 @pytest.mark.parametrize('payload', [
@@ -206,8 +280,11 @@ def test_concurrent_process_writes_preserve_every_change_and_migrate_once(store)
      'groups': [{'id': str(UUID(int=1)), 'name': 'Группа'},
                 {'id': str(UUID(int=2)), 'name': ' группа '}],
      'subjects': [], 'topics': []},
-    {'version': 3, 'groups': [], 'disciplines': {}},
+    {'version': 4, 'groups': [], 'disciplines': {}},
     {'version': 2.0, 'groups': [], 'subjects': [], 'topics': []},
+    {'version': 3, 'groups': [], 'subjects': [{'id': str(UUID(int=1)), 'name': 'Без предмета'}],
+     'topics': [{'id': str(UUID(int=2)), 'name': 'Тема', 'subject_id': str(UUID(int=3))}],
+     'unassigned_subject_id': str(UUID(int=1))},
     {'groups': [None], 'disciplines': {}},
     {'groups': [], 'disciplines': {'Предмет': 'not a topic list'}},
 ])
