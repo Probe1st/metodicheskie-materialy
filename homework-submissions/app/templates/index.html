@@ -10,7 +10,10 @@
   <header class="site-header">
     <div class="site-header__inner">
       <a class="brand" href="{{ url_for('index') }}">Учебный портал</a>
-      <span class="header-label">Приём заданий</span>
+      <div class="header-actions">
+        <span class="header-label">Приём заданий</span>
+        <a class="button button--quiet" href="{{ url_for('admin_dashboard') }}">Панель преподавателя</a>
+      </div>
     </div>
   </header>
 
@@ -30,7 +33,7 @@
         <label class="field">Группа
           <select name="group" required>
             {% for group in catalog.groups %}
-              <option>{{ group }}</option>
+              <option>{{ group.name }}</option>
             {% endfor %}
           </select>
         </label>
@@ -58,15 +61,18 @@
         <section class="form-section" aria-label="Данные работы">
           <label class="field">Дисциплина
             <select id="discipline" name="discipline" required>
-              {% for name in catalog.disciplines %}
-                <option>{{ name }}</option>
+              {% for subject in catalog.subjects %}
+                <option>{{ subject.name }}</option>
               {% endfor %}
             </select>
           </label>
-          <label class="field">Наименование работы
-            <input id="work" name="work" list="works" required autocomplete="off">
-            <span class="field__hint">Начните вводить название или выберите вариант из списка.</span>
-            <datalist id="works"></datalist>
+          <label class="field">Тема работы
+            <select id="work" name="work" required>
+              {% for topic in catalog.topics %}
+                <option>{{ topic.name }}</option>
+              {% endfor %}
+            </select>
+            <span class="field__hint">Темы пока не привязаны к предметам.</span>
           </label>
           <label class="field">ФИО
             <input name="student_name" required autocomplete="name">
@@ -86,7 +92,6 @@
   </main>
 
   <script>
-    window.submissionCatalog = {{ catalog.disciplines|tojson }};
     window.submissionLimit = {{ limit|tojson }};
   </script>
   <script src="{{ url_for('static', filename='student.js') }}" defer></script>

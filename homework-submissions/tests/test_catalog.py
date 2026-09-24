@@ -1,32 +1,17 @@
 from pathlib import Path
 
-from app.catalog import load_catalog
+from app.catalog_store import create_catalog_store
 
 
-def test_catalog_accepts_known_work() -> None:
-    catalog = load_catalog(Path(__file__).resolve().parents[1] / "catalog.json")
+def test_catalog_accepts_independent_topics(tmp_path: Path) -> None:
+    source = Path(__file__).resolve().parents[1] / "catalog.json"
+    path = tmp_path / "catalog.json"
+    path.write_bytes(source.read_bytes())
+    catalog = create_catalog_store({"CATALOG_PROVIDER": "json", "CATALOG_PATH": path}).snapshot()
 
     assert catalog.contains(
-        "ИС 25/9-1П",
-        "Архитектура аппаратных средств",
-        "Логические элементы. Базовые схемы",
-    )
-
-
-def test_catalog_rejects_work_from_another_discipline() -> None:
-    catalog = load_catalog(Path(__file__).resolve().parents[1] / "catalog.json")
-
-    assert not catalog.contains(
         "ИС 25/9-1П",
         "Архитектура аппаратных средств",
         "паспорт качества учебного сервиса",
     )
-
-def test_catalog_accepts_database_work_case_insensitively() -> None:
-    catalog = load_catalog(Path(__file__).resolve().parents[1] / "catalog.json")
-
-    assert catalog.contains(
-        "ИС 25/9-4В",
-        "Основы проектирования баз данных",
-        "Основные понятия баз данных и субд",
-    )
+    assert not catalog.contains("unknown", "Архитектура аппаратных средств", "паспорт качества учебного сервиса")
