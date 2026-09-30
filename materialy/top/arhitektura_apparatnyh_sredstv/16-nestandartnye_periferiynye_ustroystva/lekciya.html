@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Конспект лекции: Нестандартные периферийные устройства — ОП.02 Архитектура аппаратных средств</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --code-bg: #0f172a;
+      --code-text: #f1f5f9;
+      --success: #059669;
+      --warn: #d97706;
+      --danger: #dc2626;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.65;
+      font-size: 16px;
+      padding: 24px 16px;
+    }
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    header {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      margin-bottom: 22px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(22px, 3.8vw, 30px);
+      line-height: 1.3;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .lead {
+      color: var(--muted);
+      font-size: 16px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 26px;
+      margin-bottom: 22px;
+      box-shadow: var(--shadow);
+    }
+    h2 {
+      font-size: 20px;
+      color: var(--accent);
+      margin: 22px 0 14px;
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 6px;
+    }
+    h3 {
+      font-size: 17px;
+      margin: 18px 0 8px;
+      color: #1e293b;
+    }
+    p, ul, ol { margin-bottom: 14px; }
+    ul, ol { padding-left: 24px; }
+    li { margin-bottom: 6px; }
+    .note {
+      background: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+      font-size: 15px;
+    }
+    .note-warn {
+      background: #fef3c7;
+      border-left: 4px solid var(--warn);
+      color: #92400e;
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+      font-size: 15px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      font-size: 14.5px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 16px 20px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 16px 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    
+    /* Блок-схемы (SVG и адаптивные диаграммы) */
+    .diagram-wrap {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.02);
+    }
+    .diagram-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--accent);
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .diagram-svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .shpora-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin: 18px 0;
+    }
+    .shpora-card {
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .shpora-card h4 {
+      color: var(--accent);
+      font-size: 15px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #cbd5e1;
+      padding-bottom: 4px;
+    }
+    .shpora-card ul {
+      padding-left: 18px;
+      margin-bottom: 0;
+      font-size: 13.5px;
+    }
+
+    @media print {
+      body { background: #fff; padding: 0; font-size: 11pt; }
+      .card, header { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 12pt; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Тема 16. Нестандартные периферийные устройства и подготовка к зачёту</h1>
+    <div class="lead">Конспект лекции по дисциплине «ОП.02 Архитектура аппаратных средств» для студентов ММКЦТ «Академия TOP». Раздел 7 программы.</div>
+  </header>
+
+  <div class="card">
+    <h2>Введение: понятие нестандартных периферийных устройств</h2>
+    <p>В курсе архитектуры ЭВМ под <strong>нестандартными периферийными устройствами</strong> понимают специализированные аппаратные комплексы, выходящие за границы стандартной офисной вычислительной техники (мониторы, клавиатуры, мыши, обычные принтеры). Эти системы функционируют на стыке вычислительной техники, мехатроники, оптоэлектроники, аналоговой микроэлектроники и промышленных интерфейсов.</p>
+    <p>Ключевая особенность нестандартной периферии — наличие собственного микропроцессорного ядра (SoC или высокопроизводительного микроконтроллера ARM/RISC-V/DSP), специализированных аппаратных буферов, приводов физического воздействия (актуаторов) и чувствительных сенсоров реального мира.</p>
+    <p>В рамках данного занятия рассматриваются три ключевых класса нестандартных устройств:</p>
+    <ol>
+      <li><strong>Аддитивные комплексы и ЧПУ-системы:</strong> 3D-принтеры (FDM/FFF, SLA), станки лазерной резки, плоттеры с многоосевой кинематикой CoreXY.</li>
+      <li><strong>Иммерсивные комплексы виртуальной и дополненной реальности (VR/AR):</strong> шлемы с пространственным позиционированием 6DoF, оптическими трекерами Inside-Out, инерциальными IMU и видеоинтерфейсами сверхвысокой пропускной способности.</li>
+      <li><strong>Промышленные платы сбора данных (DAQ) и системы полевой автоматизации:</strong> прецизионные аналогово-цифровые преобразователи (АЦП), гальванически развязанные датчики, токовая петля 4–20 мА и дифференциальные помехоустойчивые шины RS-485 Modbus.</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>1. Аддитивные комплексы (3D-принтеры) и станки ЧПУ</h2>
+    <p>3D-принтер представляет собой специализированный координатный манипулятор с числовым программным управлением (ЧПУ), преобразующий цифровую трехмерную CAD-модель в физический объект методом послойного наплавления (FDM — Fused Deposition Modeling) или полимеризации фотополимерных смол (SLA/DLP).</p>
+
+    <!-- Адаптивная блок-схема 3D-принтера -->
+    <div class="diagram-wrap">
+      <div class="diagram-title">Рис. 1. Архитектурный тракт управления 3D-принтером (CoreXY / FDM)</div>
+      <svg class="diagram-svg" viewBox="0 0 880 240" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="shadow" x="-5%" y="-10%" width="110%" height="130%">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.1"/>
+          </filter>
+        </defs>
+        <!-- Блок 1: CAD / Слайсер -->
+        <rect x="10" y="30" width="140" height="90" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="2" filter="url(#shadow)"/>
+        <text x="80" y="65" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#1e40af" text-anchor="middle">CAD / CAM</text>
+        <text x="80" y="85" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">Слайсер (Slicer)</text>
+        <text x="80" y="103" font-family="system-ui, sans-serif" font-size="10" fill="#059669" text-anchor="middle">Генерация G-code</text>
+
+        <!-- Стрелка 1 -->
+        <path d="M 150 75 L 180 75" stroke="#1e40af" stroke-width="2" marker-end="url(#arrow)"/>
+        <polygon points="180,75 174,71 174,79" fill="#1e40af"/>
+        <text x="165" y="68" font-family="monospace" font-size="9" fill="#64748b" text-anchor="middle">G-code</text>
+
+        <!-- Блок 2: Хост-контроллер (OctoPrint / Klipper) -->
+        <rect x="185" y="30" width="145" height="90" rx="8" fill="#f0fdf4" stroke="#22c55e" stroke-width="2" filter="url(#shadow)"/>
+        <text x="257" y="60" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">Хост-контроллер</text>
+        <text x="257" y="78" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">Klipper / OctoPrint</text>
+        <text x="257" y="96" font-family="system-ui, sans-serif" font-size="10" fill="#64748b" text-anchor="middle">(Linux SoC / USB)</text>
+
+        <!-- Стрелка 2 -->
+        <path d="M 330 75 L 360 75" stroke="#1e40af" stroke-width="2"/>
+        <polygon points="360,75 354,71 354,79" fill="#1e40af"/>
+        <text x="345" y="68" font-family="monospace" font-size="9" fill="#64748b" text-anchor="middle">UART/USB</text>
+
+        <!-- Блок 3: Плата MCU -->
+        <rect x="365" y="20" width="165" height="110" rx="8" fill="#fefce8" stroke="#eab308" stroke-width="2" filter="url(#shadow)"/>
+        <text x="447" y="48" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#a16207" text-anchor="middle">Плата управления</text>
+        <text x="447" y="66" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">MCU 32-bit (STM32)</text>
+        <text x="447" y="84" font-family="system-ui, sans-serif" font-size="10" fill="#64748b" text-anchor="middle">Планировщик шагов</text>
+        <text x="447" y="102" font-family="system-ui, sans-serif" font-size="10" fill="#64748b" text-anchor="middle">ПИД-регуляторы T°</text>
+
+        <!-- Стрелка 3 к драйверам -->
+        <path d="M 530 75 L 560 75" stroke="#1e40af" stroke-width="2"/>
+        <polygon points="560,75 554,71 554,79" fill="#1e40af"/>
+        <text x="545" y="68" font-family="monospace" font-size="9" fill="#64748b" text-anchor="middle">STEP/DIR</text>
+
+        <!-- Блок 4: Драйверы TMC -->
+        <rect x="565" y="30" width="135" height="90" rx="8" fill="#faf5ff" stroke="#a855f7" stroke-width="2" filter="url(#shadow)"/>
+        <text x="632" y="60" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#7e22ce" text-anchor="middle">Драйверы ШД</text>
+        <text x="632" y="78" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">TMC2209 / TMC2240</text>
+        <text x="632" y="96" font-family="system-ui, sans-serif" font-size="10" fill="#64748b" text-anchor="middle">1/256 микрошаг</text>
+
+        <!-- Стрелка 4 к актуаторам -->
+        <path d="M 700 75 L 730 75" stroke="#1e40af" stroke-width="2"/>
+        <polygon points="730,75 724,71 724,79" fill="#1e40af"/>
+
+        <!-- Блок 5: Мехатроника -->
+        <rect x="735" y="15" width="135" height="120" rx="8" fill="#fff1f2" stroke="#f43f5e" stroke-width="2" filter="url(#shadow)"/>
+        <text x="802" y="42" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#be123c" text-anchor="middle">Исполнители</text>
+        <text x="802" y="62" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">Двигатели NEMA 17</text>
+        <text x="802" y="80" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">Нагреватель Hotend</text>
+        <text x="802" y="98" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">Термисторы NTC100k</text>
+        <text x="802" y="116" font-family="system-ui, sans-serif" font-size="10" fill="#64748b" text-anchor="middle">Кинематика CoreXY</text>
+
+        <!-- Нижний блок пояснений -->
+        <rect x="185" y="155" width="515" height="70" rx="6" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+        <text x="442" y="178" font-family="system-ui, sans-serif" font-size="11" font-weight="600" fill="#1e293b" text-anchor="middle">Контур обратной связи по температуре и концевикам (Endstops / BLTouch / Нагрузка драйвера)</text>
+        <text x="442" y="200" font-family="system-ui, sans-serif" font-size="10.5" fill="#475569" text-anchor="middle">АЦП считывает сопротивление термистора &rarr; ПИД корректирует ШИМ силовых MOSFET-ключей</text>
+      </svg>
+    </div>
+
+    <h3>1.1. Кинематика: Cartesian против CoreXY</h3>
+    <p>Традиционные 3D-принтеры (Prusa i3, Creality Ender 3) используют <strong>декартову кинематику</strong>: каретка экструдера двигается влево-вправо (X), а тяжелый алюминиевый подогреваемый стол вместе с деталью совершает возвратно-поступательные движения вперед-назад (Y). При массе стола в 1–1.5 кг возникают колоссальные силы инерции, приводящие к резонансным колебаниям ремней, потере шагов и волнистости поверхности детали («звон» / ringing). Рабочие скорости ограничены 60–100 мм/с при ускорениях не более $1000\,\text{мм/с}^2$.</p>
+    <p>В высокоскоростной <strong>кинематике CoreXY</strong> (Voron, Bambu Lab, Flying Bear Reborn) рабочий стол перемещается исключительно по вертикальной оси Z (только шаг на каждый слой), а плоскость XY обслуживается двумя неподвижно закрепленными двигателями A и B через два независимых замкнутых зубчатых ремня типа GT2. Перемещение рассчитывается матричным уравнением:</p>
+    <pre><code>ΔX = 0.5 * (ΔA + ΔB)
+ΔY = 0.5 * (ΔA - ΔB)</code></pre>
+    <p>Масса подвижной каретки составляет всего 200–350 грамм, что дает возможность разгонять инструмент до скоростей 300–600 мм/с с ускорениями до $20\,000\,\text{мм/с}^2$.</p>
+
+    <h3>1.2. Шаговые двигатели NEMA и расчет разрешающей способности</h3>
+    <p>Для прецизионного перемещения используются биполярные гибридные шаговые двигатели типоразмера <strong>NEMA 17</strong>. Двигатель имеет фиксированный шаг ротора, чаще всего $1.8^\circ$ (200 полных шагов на оборот $360^\circ$) или $0.9^\circ$ (400 шагов/оборот). Драйвер двигателя дробит полный шаг (микрошаг $1/16$, $1/64$, $1/256$).</p>
+    <p>Количество импульсов на миллиметр линейного перемещения ($Steps/mm$) рассчитывается по формуле:</p>
+    <pre><code>Steps_per_mm = (Steps_per_rev * Microstepping) / (Pulley_teeth * Belt_pitch)
+
+Пример для шкива 20 зубьев, ремня GT2 (шаг 2 мм), мотора 1.8° (200 шагов) и микрошага 1/16:
+Steps_per_mm = (200 * 16) / (20 * 2) = 3200 / 40 = 80 шагов/мм.
+Дискретность одного микрошага: 1 / 80 = 0.0125 мм (12.5 мкм).</code></pre>
+
+    <h3>1.3. Экструзия расплава и термодинамика Hotend</h3>
+    <p>Блок экструзии состоит из подающего механизма (feeder) и нагревательного блока (hotend):</p>
+    <ul>
+      <li><strong>Direct Drive против Bowden:</strong> в Direct-системах мотор подачи сидит непосредственно на каретке, обеспечивая мгновенный отклик и идеальную печать сверхмягкими пластиками (TPU, TPE). В Bowden-системах мотор вынесен на раму, филамент идет через тефлоновую трубку: каретка легкая, но длинный путь пластика вызывает пружинный эффект, требуя больших откатов (retract 4–6 мм).</li>
+      <li><strong>Термобарьер (Heatbreak):</strong> разделяет холодную зону радиатора от горячей зоны сопла (200–300°C). Бывает <em>All-metal</em> (цельнометаллический титановый/биметаллический) и <em>PTFE-lined</em> (с тефлоновой трубкой до сопла). Тефлон деградирует при $T &gt; 245^\circ\text{C}$ с выделением токсичных фторсодержащих паров, поэтому для высокотемпературных пластиков (ABS, Nylon, поликарбонат) обязателен только All-metal.</li>
+    </ul>
+
+    <h3>1.4. Язык G-code и интерфейсы связи</h3>
+    <p>G-code — стандартизированный язык команд управления ЧПУ. Примеры типовых инструкций:</p>
+    <pre><code>G28 ; Автокалибровка и парковка по всем осям (Homing)
+G90 ; Абсолютная система координат
+M104 S215 ; Включить нагрев хотэнда до 215°C (без ожидания)
+M190 S60  ; Нагреть стол до 60°C и ждать стабилизации
+G1 X120.5 Y80.0 Z0.2 E1.4 F3600 ; Перемещение в точку (120.5, 80.0) на высоте 0.2 с выдавливанием 1.4 мм пластика со скоростью 3600 мм/мин (60 мм/с)</code></pre>
+    <p>Связь между ПК/одноплатником (Raspberry Pi с сервером OctoPrint или Klipper) и платой принтера осуществляется по последовательному интерфейсу USB-UART. При высоких скоростях печати важна пропускная способность: скорость порта 115200 или 250000 бод предотвращает опустошение буфера команд микроконтроллера (buffer underrun), которое приводит к микроостановкам сопла и образованию наплывов («прыщей») на детали.</p>
+  </div>
+
+  <div class="card">
+    <h2>2. Иммерсивные комплексы вывода и пространственного ввода (VR/AR)</h2>
+    <p>Шлемы виртуальной (VR) и дополненной (AR) реальности — это высокоинтегрированные периферийные комплексы, синхронизирующие в реальном времени стереоскопический вывод графики высокого разрешения со сверхбыстрым сбором телеметрии положения головы и контроллеров пользователя.</p>
+
+    <!-- Адаптивная блок-схема тракта VR -->
+    <div class="diagram-wrap">
+      <div class="diagram-title">Рис. 2. Информационный тракт VR-гарнитуры (Motion-to-Photon &le; 20 мс)</div>
+      <svg class="diagram-svg" viewBox="0 0 880 230" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="shadow2" x="-5%" y="-10%" width="110%" height="130%">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.1"/>
+          </filter>
+        </defs>
+        <!-- Сенсоры -->
+        <rect x="10" y="30" width="150" height="100" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="2" filter="url(#shadow2)"/>
+        <text x="85" y="58" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">Блок сенсоров</text>
+        <text x="85" y="78" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">IMU (1000 Гц): Гиро+Акс</text>
+        <text x="85" y="96" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">Камеры SLAM (60 Гц)</text>
+        <text x="85" y="114" font-family="system-ui, sans-serif" font-size="10" fill="#059669" text-anchor="middle">Трекинг 6DoF</text>
+
+        <!-- Стрелка сенсоров -->
+        <path d="M 160 80 L 195 80" stroke="#15803d" stroke-width="2"/>
+        <polygon points="195,80 189,76 189,84" fill="#15803d"/>
+        <text x="178" y="72" font-family="monospace" font-size="8.5" fill="#475569" text-anchor="middle">USB-C</text>
+
+        <!-- Обработка позы (Fusion Engine) -->
+        <rect x="200" y="30" width="150" height="100" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2" filter="url(#shadow2)"/>
+        <text x="275" y="58" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#1e40af" text-anchor="middle">Sensor Fusion</text>
+        <text x="275" y="78" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">Фильтр Калмана</text>
+        <text x="275" y="96" font-family="system-ui, sans-serif" font-size="10" fill="#64748b" text-anchor="middle">Предиктивная поза</text>
+        <text x="275" y="114" font-family="system-ui, sans-serif" font-size="10" fill="#64748b" text-anchor="middle">Погрешность &lt; 1 мм</text>
+
+        <!-- Стрелка к рендеру -->
+        <path d="M 350 80 L 385 80" stroke="#2563eb" stroke-width="2"/>
+        <polygon points="385,80 379,76 379,84" fill="#2563eb"/>
+        <text x="368" y="72" font-family="monospace" font-size="8.5" fill="#475569" text-anchor="middle">Pose</text>
+
+        <!-- Графический стек хоста (GPU) -->
+        <rect x="390" y="20" width="160" height="120" rx="8" fill="#fefce8" stroke="#ca8a04" stroke-width="2" filter="url(#shadow2)"/>
+        <text x="470" y="48" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#854d0e" text-anchor="middle">GPU Рендеринг</text>
+        <text x="470" y="68" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">Стереопара 2x 4K</text>
+        <text x="470" y="86" font-family="system-ui, sans-serif" font-size="10.5" fill="#475569" text-anchor="middle">90 / 120 Гц кадра</text>
+        <text x="470" y="104" font-family="system-ui, sans-serif" font-size="10" fill="#64748b" text-anchor="middle">Компрессия DSC 1.2a</text>
+        <text x="470" y="122" font-family="system-ui, sans-serif" font-size="10" fill="#d97706" text-anchor="middle">TimeWarp / Reprojection</text>
+
+        <!-- Стрелка видео -->
+        <path d="M 550 80 L 585 80" stroke="#ca8a04" stroke-width="2"/>
+        <polygon points="585,80 579,76 579,84" fill="#ca8a04"/>
+        <text x="568" y="72" font-family="monospace" font-size="8.5" fill="#475569" text-anchor="middle">DP 1.4</text>
+
+        <!-- Дисплейная подсистема -->
+        <rect x="590" y="30" width="140" height="100" rx="8" fill="#faf5ff" stroke="#9333ea" stroke-width="2" filter="url(#shadow2)"/>
+        <text x="660" y="58" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#6b21a8" text-anchor="middle">Дисплейный тракт</text>
+        <text x="660" y="78" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">Декомпрессия DSC</text>
+        <text x="660" y="96" font-family="system-ui, sans-serif" font-size="10.5" fill="#475569" text-anchor="middle">Fast-LCD / Micro-OLED</text>
+        <text x="660" y="114" font-family="system-ui, sans-serif" font-size="10" fill="#7e22ce" text-anchor="middle">Low Persistence &lt; 2 мс</text>
+
+        <!-- Оптическая линза и глаз -->
+        <rect x="740" y="30" width="130" height="100" rx="8" fill="#fff1f2" stroke="#e11d48" stroke-width="2" filter="url(#shadow2)"/>
+        <text x="805" y="58" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#9f1239" text-anchor="middle">Оптика &amp; Глаз</text>
+        <text x="805" y="78" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">Pancake / Fresnel</text>
+        <text x="805" y="96" font-family="system-ui, sans-serif" font-size="10" fill="#64748b" text-anchor="middle">FOV 100° - 120°</text>
+        <text x="805" y="114" font-family="system-ui, sans-serif" font-size="10.5" font-weight="600" fill="#e11d48" text-anchor="middle">Фотон на сетчатке</text>
+
+        <!-- Нижняя линия тайминга -->
+        <rect x="100" y="160" width="680" height="55" rx="6" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+        <text x="440" y="182" font-family="system-ui, sans-serif" font-size="11.5" font-weight="700" fill="#1e293b" text-anchor="middle">Критический бюджет задержки Motion-to-Photon (MTP Budget &le; 20 мс)</text>
+        <text x="440" y="202" font-family="system-ui, sans-serif" font-size="10.5" fill="#475569" text-anchor="middle">Сбор IMU (1 мс) &rarr; Fusion (1 мс) &rarr; GPU Render (8 мс) &rarr; DP Transfer (4 мс) &rarr; Display Scanout (6 мс) = 20 мс</text>
+      </svg>
+    </div>
+
+    <h3>2.1. Степени свободы трекинга: 3DoF против 6DoF</h3>
+    <p>Пространственный трекинг характеризует количество независимых координат движения объекта:</p>
+    <ul>
+      <li><strong>3DoF (Degrees of Freedom):</strong> отслеживание 3 вращательных углов (рыскание Yaw, тангаж Pitch, крен Roll). Используется в простых панорамных видеоочках. При попытке пользователя наклониться или сделать физический шаг изображение «привязано» к голове, вызывая тяжелый сенсорный конфликт и вестибулярную тошноту.</li>
+      <li><strong>6DoF:</strong> включает 3 вращательные и 3 поступательные координаты (X, Y, Z — смещение вперед/назад, влево/вправо, вверх/вниз). Человек может присесть, обойти виртуальный объект, заглянуть за угол. Это обязательный стандарт для современных VR-тренажеров и симуляторов.</li>
+    </ul>
+
+    <h3>2.2. Архитектура сенсоров: IMU и оптический SLAM</h3>
+    <p>Для реализации 6DoF применяется гибридный сенсорный стек:</p>
+    <ul>
+      <li><strong>Инерциальный измерительный блок (IMU — Inertial Measurement Unit):</strong> микроэлектромеханический чип (MEMS), объединяющий 3-осевой гироскоп и 3-осевой акселерометр. Опрашивается на частоте <strong>1000 Гц (раз в 1 мс)</strong>. Дает мгновенные данные об угловой скорости и линейном ускорении, но подвержен быстрому накоплению математической ошибки интегрирования («дрейф» нуля).</li>
+      <li><strong>Оптический трекинг Inside-Out (SLAM):</strong> 4–6 широкоугольных монохромных камер на корпусе шлема снимают окружающее помещение с частотой 60–90 Гц. Процессор машинного зрения выделяет высококонтрастные опорные точки (углы мебели, текстуру стен) и решает задачу SLAM (Simultaneous Localization and Mapping). Оптические данные используются алгоритмом «Фильтр Калмана» (Sensor Fusion) для непрерывной коррекции дрейфа IMU.</li>
+    </ul>
+
+    <h3>2.3. Требования к дисплеям и расчет видеопотока</h3>
+    <p>Чтобы избежать смазывания быстро движущейся картинки перед глазами, в VR применяются матрицы <strong>Fast-Switch LCD</strong> или <strong>Micro-OLED</strong> с временем переключения пикселей менее 1 мс и частотой развертки 90, 120 или 144 Гц. Технология <em>Low Persistence</em> гасит подсветку дисплея на 80–90% времени кадра, отображая картинку только короткими импульсами длительностью 1–2 мс, что полностью устраняет эффект сетки и смазывания на сетчатке глаза.</p>
+    <div class="note">
+      <strong>Инженерный расчет видеопотока шлема 2x 4K @ 120 Гц:</strong><br>
+      Разрешение: 2 дисплея по $3840 \times 2160$ (суммарно $7680 \times 2160$ пикселей).<br>
+      Частота обновления: 120 Гц. Глубина цвета: 10 бит на канал (30 бит/пиксель), RGB 4:4:4.<br>
+      Чистый поток несжатых данных без кадрового гашения:<br>
+      $$R_{raw} = 7680 \times 2160 \times 30 \times 120 \approx 59.72\text{ Гбит/с}$$
+      С учетом стандартного VESA CVT-RBv2 оверхеда на кадровое гашение (Blanking ~15%):<br>
+      $$R_{total} \approx 59.72 \times 1.15 \approx 68.68\text{ Гбит/с}$$
+    </div>
+    <p>Физический интерфейс <strong>DisplayPort 1.4 HBR3</strong> имеет предельную полезную пропускную способность всего <strong>25.92 Гбит/с</strong>. Следовательно, передача такого потока без компрессии физически невозможна. Решение: использование стандарта <strong>DSC 1.2a (Display Stream Compression)</strong> со степенью сжатия 3:1 (поток сжимается до ~22.9 Гбит/с, что свободно укладывается в DP 1.4) либо переход на стандарт <strong>DisplayPort 2.1 UHBR20</strong> (до 77.37 Гбит/с полезной полосы).</p>
+  </div>
+
+  <div class="card">
+    <h2>3. Промышленные платы сбора данных (DAQ) и шины связи</h2>
+    <p>Модули сбора данных (DAQ — Data Acquisition) предназначены для сопряжения вычислительной машины с реальными физическими процессами: измерение температуры, вибрации, давлений, напряжений и выдача управляющих аналоговых и релейных сигналов.</p>
+
+    <!-- Адаптивная блок-схема DAQ -->
+    <div class="diagram-wrap">
+      <div class="diagram-title">Рис. 3. Аппаратный тракт прецизионного модуля DAQ с гальваноразвязкой</div>
+      <svg class="diagram-svg" viewBox="0 0 880 230" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="shadow3" x="-5%" y="-10%" width="110%" height="130%">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.1"/>
+          </filter>
+        </defs>
+        <!-- Аналоговые датчики -->
+        <rect x="10" y="30" width="135" height="100" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="2" filter="url(#shadow3)"/>
+        <text x="77" y="58" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#c2410c" text-anchor="middle">Датчики поля</text>
+        <text x="77" y="78" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">Термопары (мкВ)</text>
+        <text x="77" y="96" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">Тензомосты (мВ)</text>
+        <text x="77" y="114" font-family="system-ui, sans-serif" font-size="10" fill="#c2410c" text-anchor="middle">Петля 4-20 мА</text>
+
+        <!-- Стрелка датчиков -->
+        <path d="M 145 80 L 175 80" stroke="#ea580c" stroke-width="2"/>
+        <polygon points="175,80 169,76 169,84" fill="#ea580c"/>
+
+        <!-- Входной нормализатор сигналов -->
+        <rect x="180" y="30" width="150" height="100" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="2" filter="url(#shadow3)"/>
+        <text x="255" y="58" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#334155" text-anchor="middle">Нормализатор</text>
+        <text x="255" y="78" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">Инструмент. ОУ</text>
+        <text x="255" y="96" font-family="system-ui, sans-serif" font-size="10.5" fill="#475569" text-anchor="middle">ФНЧ (Антиалиасинг)</text>
+        <text x="255" y="114" font-family="system-ui, sans-serif" font-size="10" fill="#64748b" text-anchor="middle">Защита от перенапр.</text>
+
+        <!-- Стрелка -->
+        <path d="M 330 80 L 360 80" stroke="#64748b" stroke-width="2"/>
+        <polygon points="360,80 354,76 354,84" fill="#64748b"/>
+
+        <!-- Гальваническая развязка -->
+        <rect x="365" y="20" width="135" height="120" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="2" stroke-dasharray="4" filter="url(#shadow3)"/>
+        <text x="432" y="48" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#b91c1c" text-anchor="middle">Гальваноразвязка</text>
+        <text x="432" y="68" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">Оптопары /</text>
+        <text x="432" y="86" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">Цифровые изоляторы</text>
+        <text x="432" y="104" font-family="system-ui, sans-serif" font-size="10" fill="#dc2626" text-anchor="middle">Изоляция до 2.5 кВ</text>
+        <text x="432" y="122" font-family="system-ui, sans-serif" font-size="10" fill="#dc2626" text-anchor="middle">Изолир. DC-DC</text>
+
+        <!-- Стрелка -->
+        <path d="M 500 80 L 530 80" stroke="#dc2626" stroke-width="2"/>
+        <polygon points="530,80 524,76 524,84" fill="#dc2626"/>
+
+        <!-- АЦП прецизионный -->
+        <rect x="535" y="30" width="150" height="100" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2" filter="url(#shadow3)"/>
+        <text x="610" y="58" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#1e40af" text-anchor="middle">АЦП (ADC)</text>
+        <text x="610" y="78" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">24-бит Сигма-Дельта</text>
+        <text x="610" y="96" font-family="system-ui, sans-serif" font-size="10.5" fill="#475569" text-anchor="middle">100 кГц / 1 MSPS SAR</text>
+        <text x="610" y="114" font-family="system-ui, sans-serif" font-size="10" fill="#2563eb" text-anchor="middle">CMRR &gt; 100 дБ</text>
+
+        <!-- Стрелка к ПК -->
+        <path d="M 685 80 L 715 80" stroke="#2563eb" stroke-width="2"/>
+        <polygon points="715,80 709,76 709,84" fill="#2563eb"/>
+
+        <!-- Шина сопряжения с ПК -->
+        <rect x="720" y="30" width="150" height="100" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="2" filter="url(#shadow3)"/>
+        <text x="795" y="58" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">Шинный интерфейс</text>
+        <text x="795" y="78" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">PCIe / USB 3.0 /</text>
+        <text x="795" y="96" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">RS-485 Modbus RTU</text>
+        <text x="795" y="114" font-family="system-ui, sans-serif" font-size="10" fill="#16a34a" text-anchor="middle">Буфер FIFO / DMA</text>
+
+        <!-- Нижний блок пояснений -->
+        <rect x="150" y="160" width="600" height="55" rx="6" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+        <text x="450" y="182" font-family="system-ui, sans-serif" font-size="11.5" font-weight="700" fill="#1e293b" text-anchor="middle">Подавление синфазных помех (CMRR) и защита от земляных петель</text>
+        <text x="450" y="202" font-family="system-ui, sans-serif" font-size="10.5" fill="#475569" text-anchor="middle">Разность потенциалов земель между цехом и сервером может достигать сотен вольт!</text>
+      </svg>
+    </div>
+
+    <h3>3.1. Архитектура АЦП и критерии выбора</h3>
+    <p>Аналого-цифровой преобразователь (АЦП) квантует непрерывный сигнал по уровню и дискретизирует по времени. Основные типы в DAQ:</p>
+    <ul>
+      <li><strong>Сигма-Дельта ($\Sigma\Delta$) АЦП:</strong> высокая разрядность (24 бита), великолепное шумоподавление за счет передискретизации (oversampling) и цифровой фильтрации. Идеален для медленно меняющихся процессов (температура, весовые дозаторы).</li>
+      <li><strong>АЦП последовательного приближения (SAR):</strong> разрядность 12–18 бит, высокая скорость преобразования (от 100 квыб/с до 5 Мвыб/с). Применяется для регистрации быстропротекающих переходных процессов, вибрационного анализа и акустики.</li>
+    </ul>
+
+    <h3>3.2. Токовая петля 4–20 мА: концепция «живого нуля»</h3>
+    <p>В промышленных условиях передача аналогового сигнала напряжением (например, 0–10 В) на расстояние 100–500 метров неэффективна: омическое сопротивление кабеля вызывает падение напряжения, а электромагнитные наводки от силовых кабелей искажают показания. В токовой петле 4–20 мА значение параметра передается величиной тока, создаваемого генератором стабильного тока:</p>
+    <ul>
+      <li><strong>Ток 4 мА:</strong> соответствует 0% шкалы датчика («живой ноль» / Live Zero);</li>
+      <li><strong>Ток 20 мА:</strong> соответствует 100% шкалы датчика;</li>
+      <li><strong>Ток 0 мА:</strong> однозначно идентифицирует аварию — физический обрыв кабеля или выход датчика из строя.</li>
+    </ul>
+
+    <h3>3.3. Дифференциальный интерфейс RS-485 и Modbus RTU</h3>
+    <p>Интерфейс <strong>RS-485 (TIA/EIA-485)</strong> использует дифференциальную (балансную) передачу данных по экранированной витой паре проводов A и B. Логическое состояние определяется знаком разности напряжений $V_{AB} = V_A - V_B$:</p>
+    <ul>
+      <li>Если $V_A - V_B &gt; +200\,\text{мВ}$ &rarr; логическая 1 (Mark);</li>
+      <li>Если $V_A - V_B &lt; -200\,\text{мВ}$ &rarr; логический 0 (Space).</li>
+    </ul>
+    <p>Электромагнитная наводка от работающего станка индуцирует в обоих свитых проводах одинаковое синфазное напряжение (например, +15 В), которое взаимно вычитается на дифференциальном входе приемника: $(V_A + V_{noise}) - (V_B + V_{noise}) = V_A - V_B$. На обоих физических концах шины устанавливаются согласующие резисторы (терминаторы) номиналом <strong>$120\,\Omega$</strong>, равные волновому сопротивлению кабеля, что предотвращает паразитное отражение высокочастотных сигналов.</p>
+  </div>
+
+  <div class="card">
+    <h2>4. Сводная обзорная шпаргалка по курсу: Темы 01–12 к дифференцированному зачету</h2>
+    <p>Данный раздел служит опорным конспектом для экспресс-повторения всего фундаментального базиса курса перед зачётом.</p>
+
+    <div class="shpora-grid">
+      <div class="shpora-card">
+        <h4>Темы 01–04: Архитектура и классы ЭВМ</h4>
+        <ul>
+          <li><strong>Принцип фон Неймана:</strong> однородность памяти (программы и данные лежат в едином адресном пространстве), адресуемость ячеек, последовательное программное управление.</li>
+          <li><strong>Гарвардская архитектура:</strong> физически раздельные пространства и шины для памяти команд и памяти данных (одновременная выборка без задержек).</li>
+          <li><strong>Классификация Флинна:</strong> SISD (одноядерный классический ПК), SIMD (векторные инструкции AVX/SSE, GPU), MIMD (многоядерные CPU, кластеры).</li>
+        </ul>
+      </div>
+
+      <div class="shpora-card">
+        <h4>Темы 05–06: Логика и организация ЭВМ</h4>
+        <ul>
+          <li><strong>Булева алгебра:</strong> базовые элементы И (AND), ИЛИ (OR), НЕ (NOT), исключающее ИЛИ (XOR). Базис Шеффера (И-НЕ) и Пирса (ИЛИ-НЕ).</li>
+          <li><strong>Комбинационные схемы:</strong> полусумматор (XOR + AND), полный сумматор, мультиплексор (коммутатор 2-в-1, 4-в-1), дешифратор адреса.</li>
+          <li><strong>Триггеры и регистры:</strong> RS-триггер (асинхронная память 1 бита), D-триггер (синхронная фиксация данных по фронту тактового импульса).</li>
+          <li><strong>Системная магистраль:</strong> Шина Адреса (ША — определяет объем ОЗУ $2^n$), Шина Данных (ШД — разрядность слова), Шина Управления (ШУ — RD, WR, M/IO).</li>
+        </ul>
+      </div>
+
+      <div class="shpora-card">
+        <h4>Темы 07–08: Микропроцессоры и производительность</h4>
+        <ul>
+          <li><strong>Блоки процессора:</strong> АЛУ (арифметика), УУ (устройство управления), Регистры (PC — счетчик команд, IR — регистр инструкции, SP — указатель стека, Flags).</li>
+          <li><strong>Конвейер команд:</strong> фазы Fetch (выборка) &rarr; Decode (декодирование) &rarr; Execute (исполнение) &rarr; Memory (доступ к памяти) &rarr; Writeback (запись в регистр).</li>
+          <li><strong>Конфликты конвейера:</strong> структурные (нехватка блоков), по данным (RAW — Read After Write), по управлению (условные переходы).</li>
+          <li><strong>Ускорение:</strong> динамическое предсказание ветвлений (Branch Prediction), внеочередное исполнение (Out-of-Order Execution), суперскалярность (несколько АЛУ на ядро).</li>
+        </ul>
+      </div>
+
+      <div class="shpora-card">
+        <h4>Темы 09–12: Память, накопители и периферия</h4>
+        <ul>
+          <li><strong>Иерархия памяти:</strong> Регистры CPU (&lt; 1 нс) &rarr; Кэш L1/L2/L3 (SRAM на триггерах, 1–15 нс) &rarr; ОЗУ (DRAM на конденсаторах, 50–70 нс, требует регенерации) &rarr; NVMe SSD (NAND Flash, PCIe 4.0/5.0, 10–50 мкс) &rarr; HDD (магнитные пластины, 5–15 мс).</li>
+          <li><strong>Шина PCIe:</strong> последовательная точка-точка с кодированием 128b/130b. PCIe 4.0 дает ~2 ГБ/с на линию x1 (x4 дает ~7.88 ГБ/с).</li>
+          <li><strong>Видеоинтерфейсы:</strong> расчет битрейта $R = H \times V \times bpp \times f \times \text{overhead}$. DisplayPort 1.4 HBR3 = 25.92 Гбит/с net. HDMI 2.0 = 14.4 Гбит/с net.</li>
+          <li><strong>Ввод-вывод:</strong> прерывания IRQ (векторные контроллеры APIC), прямой доступ к памяти DMA (разгрузка CPU при пересылке блоков данных).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>5. Вопросы для самопроверки и подготовки к зачёту</h2>
+    <ol>
+      <li>В чем заключается фундаментальное кинематическое отличие схемы CoreXY от классической декартовой кинематики с «дрыгостолом»?</li>
+      <li>Почему для печати инженерными полимерами (Nylon, поликарбонат) при температуре 280°C запрещено использовать хотэнды с PTFE-трубкой в термобарьере?</li>
+      <li>Какое минимальное время задержки Motion-to-Photon (MTP) допустимо в шлемах виртуальной реальности для предотвращения кинетоза (укачивания)?</li>
+      <li>Почему в VR-гарнитурах частоту опроса инерциального датчика IMU делают равной 1000 Гц, тогда как оптические камеры SLAM работают на частоте 60–90 Гц?</li>
+      <li>Объясните физический принцип подавления синфазных электромагнитных помех в дифференциальной линии RS-485. Зачем на концах линии монтируют резисторы 120 Ом?</li>
+      <li>Почему в промышленном аналоговом стандарте токовой петли выбран диапазон 4–20 мА, а не 0–20 мА?</li>
+      <li>Сформулируйте «узкое место фон Неймана» (Von Neumann bottleneck) и объясните, как трехуровневый кэш процессора сглаживает эту проблему.</li>
+      <li>Каков физический объем адресного пространства процессора, если разрядность его шины адреса составляет 36 бит? (Ответ: $2^{36} = 64$ Гигабайта).</li>
+    </ol>
+  </div>
+
+</div>
+</body>
+</html>
