@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Рабочий лист: Запоминающие устройства ЭВМ</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --ok: #059669;
+      --warn: #d97706;
+      --danger: #dc2626;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .task-card, .actions-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(20px, 3.2vw, 26px);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .desc {
+      color: var(--muted);
+      font-size: 14.5px;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    input[type="text"], input[type="date"], select, textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+    }
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+    .task-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .task-intro {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      margin-bottom: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: middle;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .table-input {
+      padding: 6px 8px;
+      font-size: 13.5px;
+    }
+    .case-box {
+      background: #f1f5f9;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .case-box h4 {
+      color: #1e293b;
+      margin-bottom: 6px;
+      font-size: 15.5px;
+    }
+    .variant-selector {
+      margin-bottom: 16px;
+    }
+    .variant-content {
+      display: none;
+    }
+    .variant-content.active {
+      display: block;
+    }
+    .btn {
+      padding: 9px 18px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background .15s, transform .1s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary { background: #e2e8f0; color: #1e293b; }
+    .btn-secondary:hover { background: #cbd5e1; }
+    .btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+    .btn-danger:hover { background: #fecaca; }
+    .actions-flex {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    .status-msg {
+      font-size: 13.5px;
+      color: var(--ok);
+      font-weight: 600;
+    }
+    .print-mirror {
+      display: none;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 13.5px;
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      background: #fafafa;
+      min-height: 40px;
+    }
+    .checklist-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+      margin: 12px 0;
+    }
+    .check-item {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      padding: 10px 14px;
+      border-radius: 8px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13.5px;
+    }
+    .check-item input[type="checkbox"] {
+      margin-top: 3px;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+    .formula-note {
+      background: #e0e7ff;
+      border-left: 4px solid var(--accent);
+      padding: 8px 12px;
+      font-size: 13px;
+      font-family: ui-monospace, monospace;
+      margin-bottom: 12px;
+      border-radius: 0 6px 6px 0;
+      color: #1e1b4b;
+    }
+    @media print {
+      body { background: #fff; padding: 0; font-size: 11pt; }
+      .header-card, .student-card, .task-card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 12pt; }
+      .actions-card, .btn, .variant-selector { display: none !important; }
+      .variant-content { display: none !important; }
+      .variant-content.active { display: block !important; }
+      textarea { display: none !important; }
+      .print-mirror { display: block !important; }
+      input::placeholder, textarea::placeholder { color: transparent !important; }
+      .table-input { border: 1px solid #ccc; }
+    }
+    @media (max-width: 480px) {
+      body { padding: 12px 8px; }
+      .header-card, .student-card, .task-card, .actions-card { padding: 16px; }
+      .checklist-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header-card">
+    <h1>Рабочий лист: Запоминающие устройства ЭВМ</h1>
+    <div class="desc">Инженерный анализ иерархии памяти, расчет истинной задержки DRAM, подбор накопителей под целевой профиль нагрузки и аудит надежности запоминающих устройств.</div>
+  </div>
+
+  <div class="student-card">
+    <div class="student-grid">
+      <div>
+        <label for="student_fio">Фамилия, Имя обучающегося:</label>
+        <input type="text" id="student_fio" autocomplete="name">
+      </div>
+      <div>
+        <label for="student_group">Учебная группа:</label>
+        <input type="text" id="student_group">
+      </div>
+      <div>
+        <label for="student_date">Дата выполнения:</label>
+        <input type="date" id="student_date">
+      </div>
+    </div>
+  </div>
+
+  <div class="task-card">
+    <div class="variant-selector">
+      <label for="var_select"><strong>Выберите ваш рабочий профильный вариант:</strong></label>
+      <select id="var_select" onchange="switchVariant()">
+        <option value="1">Вариант 1: Высоконагруженная СУБД (Enterprise SSD, IOPS, DWPD, защита PLP)</option>
+        <option value="2">Вариант 2: Киберспортивная платформа (минимизация задержки DRAM, DDR5-6000 CL30 vs DDR5-6400 CL36)</option>
+        <option value="3">Вариант 3: Мобильное ультрабучное устройство (энергоэффективная LPDDR5X, ремонтопригодность, M.2 2230)</option>
+        <option value="4">Вариант 4: Архивное хранилище / холодный бэкап (HDD SMR vs CMR, плотность записи, расчет $/TB)</option>
+      </select>
+    </div>
+
+    <!-- ================= ВАРИАНТ 1: ВЫСОКОНАГРУЖЕННАЯ СУБД ================= -->
+    <div id="var_1" class="variant-content active">
+      <div class="case-box">
+        <h4>Инженерная ситуация (Вариант 1: Высоконагруженная СУБД)</h4>
+        <p>Проектируется дисковая подсистема для серверов реляционной СУБД (PostgreSQL). Профиль нагрузки: непрерывный поток случайной записи транзакционного журнала WAL и страниц данных (Random 4K Write/Read 70/30), пиковая нагрузка 350 000 IOPS. Критическое требование — нулевая потеря зафиксированных транзакций при внезапном обесточивании сервера. Расчетный объем записи на накопитель составляет 3.8 ТБ в сутки при емкости диска 3.84 ТБ. Срок службы — 5 лет.</p>
+      </div>
+
+      <div class="task-title">1. Спецификация накопителя и подсистемы памяти</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 30%;">Компонент / Параметр</th>
+              <th style="width: 70%;">Инженерное решение и обоснованный выбор</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Тип накопителя и шина</td>
+              <td><input type="text" id="v1_type" class="table-input"></td>
+            </tr>
+            <tr>
+              <td>Тип ячеек памяти NAND</td>
+              <td><input type="text" id="v1_nand" class="table-input"></td>
+            </tr>
+            <tr>
+              <td>Буфер контроллера и защита питания</td>
+              <td><input type="text" id="v1_plp" class="table-input"></td>
+            </tr>
+            <tr>
+              <td>Расчетный параметр ресурса (DWPD)</td>
+              <td><input type="text" id="v1_dwpd" class="table-input"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="task-title" style="margin-top: 16px;">2. Расчет гарантированного ресурса записи (TBW и DWPD)</div>
+      <div class="formula-note">Формула: TBW = Ежедневная_запись (ТБ) * 365 * Срок_службы (лет); DWPD = TBW / (Емкость * 365 * Срок)</div>
+      <div style="margin-bottom: 12px;">
+        <label for="v1_calc">Приведите расчет необходимого суммарного ресурса TBW и фактического DWPD для накопителя 3.84 ТБ на 5 лет:</label>
+        <textarea id="v1_calc"></textarea>
+        <div id="m_v1_calc" class="print-mirror"></div>
+      </div>
+
+      <div class="task-title">3. Анализ рисков и обоснование архитектурного выбора</div>
+      <div style="margin-bottom: 12px;">
+        <label for="v1_risk">Почему установка потребительского NVMe SSD на базе QLC памяти без аппаратного конденсаторного блока PLP (Power Loss Protection) категорически недопустима в данном сценарии? Опишите механизм сбоя транзакций и деградации ресурса:</label>
+        <textarea id="v1_risk"></textarea>
+        <div id="m_v1_risk" class="print-mirror"></div>
+      </div>
+
+      <div class="task-title">4. Чек-лист верификации конфигурации СУБД</div>
+      <div class="checklist-grid">
+        <label class="check-item"><input type="checkbox" id="v1_c1"><span>Подтверждено наличие аппаратной защиты PLP (танталовые конденсаторы на плате)</span></label>
+        <label class="check-item"><input type="checkbox" id="v1_c2"><span>Выбраны ячейки eTLC с ресурсом не менее 1.0–3.0 DWPD</span></label>
+        <label class="check-item"><input type="checkbox" id="v1_c3"><span>Интерфейс PCIe Gen4/Gen5 x4 U.2/U.3/E1.S с поддержкой Hot-Plug</span></label>
+        <label class="check-item"><input type="checkbox" id="v1_c4"><span>Коэффициент WAF минимизирован за счет запаса неразмеченной области (Over-Provisioning)</span></label>
+      </div>
+    </div>
+
+    <!-- ================= ВАРИАНТ 2: КИБЕРСПОРТИВНАЯ ПЛАТФОРМА ================= -->
+    <div id="var_2" class="variant-content">
+      <div class="case-box">
+        <h4>Инженерная ситуация (Вариант 2: Киберспортивная / геймерская платформа)</h4>
+        <p>Проектируется подсистема оперативной памяти для киберспортивной платформы (соревновательные шутеры в 1080p/240Hz, сокет AMD AM5, Ryzen 7 7800X3D). Главный критерий — минимизация системной задержки доступа к DRAM и максимальная стабильность времени кадра (Frametime, 0.1% Low FPS). Рассматриваются два комплекта памяти: Комплект A — <strong>DDR5-6000 с таймингами CL30-36-36-76</strong>; Комплект B — <strong>DDR5-6400 с таймингами CL36-40-40-84</strong>.</p>
+      </div>
+
+      <div class="task-title">1. Спецификация модулей оперативной памяти</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 25%;">Параметр</th>
+              <th style="width: 37%;">Комплект A (DDR5-6000 CL30)</th>
+              <th style="width: 38%;">Комплект B (DDR5-6400 CL36)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Реальная частота шины ($f_{\text{bus}}$)</td>
+              <td><input type="text" id="v2_fa" class="table-input"></td>
+              <td><input type="text" id="v2_fb" class="table-input"></td>
+            </tr>
+            <tr>
+              <td>Период такта ($t_{CK}$, нс)</td>
+              <td><input type="text" id="v2_ta" class="table-input"></td>
+              <td><input type="text" id="v2_tb" class="table-input"></td>
+            </tr>
+            <tr>
+              <td>Истинная задержка CL ($T_{\text{ns}}$)</td>
+              <td><input type="text" id="v2_cla" class="table-input"></td>
+              <td><input type="text" id="v2_clb" class="table-input"></td>
+            </tr>
+            <tr>
+              <td>Истинная задержка tRCD ($T_{\text{ns}}$)</td>
+              <td><input type="text" id="v2_rcda" class="table-input"></td>
+              <td><input type="text" id="v2_rcdb" class="table-input"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="task-title" style="margin-top: 16px;">2. Архитектурный расчет задержки контроллера памяти (IMC)</div>
+      <div class="formula-note">Формула: T_ns (CL) = (CL * 2000) / DataRate (MT/s)</div>
+      <div style="margin-bottom: 12px;">
+        <label for="v2_calc">Произведите расчет истинных задержек CL и tRCD для обоих комплектов. Объясните, в каком режиме (Gear 1: UCLK=MCLK 1:1 или Gear 2: 1:2) будет работать контроллер памяти на платформе AM5 для частот 6000 и 6400 МТ/с, и какой штраф по латентности это несет:</label>
+        <textarea id="v2_calc"></textarea>
+        <div id="m_v2_calc" class="print-mirror"></div>
+      </div>
+
+      <div class="task-title">3. Инженерное обоснование выбора комплекта</div>
+      <div style="margin-bottom: 12px;">
+        <label for="v2_choice_just">Какой комплект вы рекомендуете для соревновательного киберспорта и почему? Аргументируйте выбор с точки зрения микрофризов, редких событий 1% Low и синхронизации шин Infinity Fabric / IMC:</label>
+        <textarea id="v2_choice_just"></textarea>
+        <div id="m_v2_choice_just" class="print-mirror"></div>
+      </div>
+
+      <div class="task-title">4. Чек-лист оптимизации подсистемы памяти</div>
+      <div class="checklist-grid">
+        <label class="check-item"><input type="checkbox" id="v2_c1"><span>Модули установлены строго во 2-й и 4-й слоты (A2/B2) для топологии Daisy Chain</span></label>
+        <label class="check-item"><input type="checkbox" id="v2_c2"><span>Активирован профиль AMD EXPO с контролем синхронного режима UCLK=MCLK (1:1)</span></label>
+        <label class="check-item"><input type="checkbox" id="v2_c3"><span>Чипы памяти обеспечены воздушным обдувом (tREFI чувствителен к температуре выше 50°C)</span></label>
+        <label class="check-item"><input type="checkbox" id="v2_c4"><span>Использованы высокоскоростные чипы с возможностью ручного затягивания вторичных таймингов tRFC/tREFI</span></label>
+      </div>
+    </div>
+
+    <!-- ================= ВАРИАНТ 3: МОБИЛЬНЫЙ УЛЬТРАБУК ================= -->
+    <div id="var_3" class="variant-content">
+      <div class="case-box">
+        <h4>Инженерная ситуация (Вариант 3: Мобильное ультрабучное устройство)</h4>
+        <p>Разрабатывается архитектура ультрапортативного ноутбука (толщина корпуса менее 12 мм, вес до 1.0 кг, автономность от батареи 65 Вт·ч не менее 16 часов). Рассматривается выбор оперативной памяти между модулями SO-DIMM DDR5 и распаянными на материнскую плату чипами <strong>LPDDR5X-7500</strong>. Также необходимо подобрать твердотельный накопитель формата M.2 (2230 vs 2280) с учетом теплового пакета тесного металлического корпуса.</p>
+      </div>
+
+      <div class="task-title">1. Спецификация мобильной платформы</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 30%;">Подсистема</th>
+              <th style="width: 70%;">Выбранное инженерное решение и обоснование</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Тип оперативной памяти</td>
+              <td><input type="text" id="v3_ram_type" class="table-input"></td>
+            </tr>
+            <tr>
+              <td>Напряжение питания ядра / ввода-вывода</td>
+              <td><input type="text" id="v3_volt" class="table-input"></td>
+            </tr>
+            <tr>
+              <td>Конструктив и форм-фактор SSD</td>
+              <td><input type="text" id="v3_ssd_form" class="table-input"></td>
+            </tr>
+            <tr>
+              <td>Режим энергосбережения интерфейса шины</td>
+              <td><input type="text" id="v3_aspm" class="table-input"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="task-title" style="margin-top: 16px;">2. Анализ энергоэффективности и физических задержек</div>
+      <div class="formula-note">Свойства LPDDR5X: пониженное напряжение VDD = 1.05V / VDDQ = 0.5V, короткие трассировки On-Board</div>
+      <div style="margin-bottom: 12px;">
+        <label for="v3_calc">Сравните энергопотребление и полосу пропускания LPDDR5X-7500 против SO-DIMM DDR5-5200. Опишите влияние длины проводников печатной платы на паразитные емкости и частотный потенциал:</label>
+        <textarea id="v3_calc"></textarea>
+        <div id="m_v3_calc" class="print-mirror"></div>
+      </div>
+
+      <div class="task-title">3. Анализ компромисса: ремонтопригодность против габаритов</div>
+      <div style="margin-bottom: 12px;">
+        <label for="v3_tradeoff">В чем заключается инженерный и потребительский компромисс при распайке LPDDR5X на системную плату? Как это влияет на ремонтопригодность, возможность апгрейда и стоимость владения при выходе из строя чипа памяти:</label>
+        <textarea id="v3_tradeoff"></textarea>
+        <div id="m_v3_tradeoff" class="print-mirror"></div>
+      </div>
+
+      <div class="task-title">4. Чек-лист верификации мобильного устройства</div>
+      <div class="checklist-grid">
+        <label class="check-item"><input type="checkbox" id="v3_c1"><span>Память LPDDR5X распаяна On-Board с поддержкой режимов Deep Power Down</span></label>
+        <label class="check-item"><input type="checkbox" id="v3_c2"><span>Выбран односторонний (Single-Sided) SSD M.2 2230/2280 во избежание механического изгиба платы</span></label>
+        <label class="check-item"><input type="checkbox" id="v3_c3"><span>Включены энергосберегающие состояния PCIe ASPM L1.1 и L1.2 Substates</span></label>
+        <label class="check-item"><input type="checkbox" id="v3_c4"><span>Теплоотвод SSD соединен через термопрокладку с алюминиевым шасси корпуса</span></label>
+      </div>
+    </div>
+
+    <!-- ================= ВАРИАНТ 4: АРХИВНОЕ ХРАНИЛИЩЕ ================= -->
+    <div id="var_4" class="variant-content">
+      <div class="case-box">
+        <h4>Инженерная ситуация (Вариант 4: Архивное хранилище / холодный бэкап)</h4>
+        <p>Проектируется система долговременного резервного копирования данных (холодный архив объемом 120 ТБ полезной емкости). Данные записываются последовательными пакетами 1 раз в неделю, после чего находятся в режиме редкого чтения (Read-Heavy). Бюджет строго ограничен, ключевая метрика эффективности — минимальная стоимость за терабайт ($/TB). Стоит задача сравнить накопители HDD с технологией черепичной магнитной записи (SMR) и традиционной магнитной записи (CMR/PMR).</p>
+      </div>
+
+      <div class="task-title">1. Спецификация накопителей архивного массива</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 25%;">Параметр</th>
+              <th style="width: 37%;">Накопители CMR (PMR)</th>
+              <th style="width: 38%;">Накопители SMR (Shingled)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Принцип физического размещения дорожек</td>
+              <td><input type="text" id="v4_track_cmr" class="table-input"></td>
+              <td><input type="text" id="v4_track_smr" class="table-input"></td>
+            </tr>
+            <tr>
+              <td>Плотность записи данных ($Gbit/in^2$)</td>
+              <td><input type="text" id="v4_dens_cmr" class="table-input"></td>
+              <td><input type="text" id="v4_dens_smr" class="table-input"></td>
+            </tr>
+            <tr>
+              <td>Скорость при длительной случайной перезаписи</td>
+              <td><input type="text" id="v4_spd_cmr" class="table-input"></td>
+              <td><input type="text" id="v4_spd_smr" class="table-input"></td>
+            </tr>
+            <tr>
+              <td>Удельная стоимость ($/TB)</td>
+              <td><input type="text" id="v4_cost_cmr" class="table-input"></td>
+              <td><input type="text" id="v4_cost_smr" class="table-input"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="task-title" style="margin-top: 16px;">2. Расчет емкости и экономической эффективности ($/TB)</div>
+      <div class="formula-note">Формула: Стоимость за ТБ = Общая стоимость накопителя ($) / Полезная емкость (ТБ)</div>
+      <div style="margin-bottom: 12px;">
+        <label for="v4_calc">Рассчитайте стоимость построения массива 120 ТБ на базе дисков CMR 16 ТБ ($320/шт) и дисков SMR 20 ТБ ($330/шт). Определите удельную экономию на один терабайт:</label>
+        <textarea id="v4_calc"></textarea>
+        <div id="m_v4_calc" class="print-mirror"></div>
+      </div>
+
+      <div class="task-title">3. Анализ рисков SMR при перестроении массивов (RAID Rebuild)</div>
+      <div style="margin-bottom: 12px;">
+        <label for="v4_risk">Почему диски с черепичной записью (Drive-Managed SMR) категорически запрещено использовать в классических RAID-массивах (RAID-5, RAID-6, ZFS RAID-Z)? Опишите феномен «Rebuild Timeout» и каскадного разрушения массива:</label>
+        <textarea id="v4_risk"></textarea>
+        <div id="m_v4_risk" class="print-mirror"></div>
+      </div>
+
+      <div class="task-title">4. Чек-лист верификации архивного хранилища</div>
+      <div class="checklist-grid">
+        <label class="check-item"><input type="checkbox" id="v4_c1"><span>Использованы диски с гелиевым заполнением гермоблока (снижение трения и нагрева)</span></label>
+        <label class="check-item"><input type="checkbox" id="v4_c2"><span>При выборе SMR обеспечена последовательная потоковая запись (Append-Only)</span></label>
+        <label class="check-item"><input type="checkbox" id="v4_c3"><span>Исключено использование аппаратных RAID-контроллеров без поддержки Host-Managed SMR</span></label>
+        <label class="check-item"><input type="checkbox" id="v4_c4"><span>Организована проверка контрольных сумм данных (Data Scrubbing) для защиты от Bit Rot</span></label>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="actions-card">
+    <div class="actions-flex">
+      <button type="button" class="btn btn-primary" onclick="saveData()">Сохранить ответы</button>
+      <button type="button" class="btn btn-secondary" onclick="printDoc()">Печать / Сохранить в PDF</button>
+      <button type="button" class="btn btn-danger" onclick="clearData()">Очистить форму</button>
+      <span id="status_msg" class="status-msg"></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const STORAGE_KEY = 'top_ws10_memory_data';
+
+  const textFields = [
+    'student_fio', 'student_group', 'student_date',
+    // Var 1
+    'v1_type', 'v1_nand', 'v1_plp', 'v1_dwpd', 'v1_calc', 'v1_risk',
+    // Var 2
+    'v2_fa', 'v2_fb', 'v2_ta', 'v2_tb', 'v2_cla', 'v2_clb', 'v2_rcda', 'v2_rcdb', 'v2_calc', 'v2_choice_just',
+    // Var 3
+    'v3_ram_type', 'v3_volt', 'v3_ssd_form', 'v3_aspm', 'v3_calc', 'v3_tradeoff',
+    // Var 4
+    'v4_track_cmr', 'v4_track_smr', 'v4_dens_cmr', 'v4_dens_smr', 'v4_spd_cmr', 'v4_spd_smr', 'v4_cost_cmr', 'v4_cost_smr', 'v4_calc', 'v4_risk'
+  ];
+
+  const checkFields = [
+    'v1_c1', 'v1_c2', 'v1_c3', 'v1_c4',
+    'v2_c1', 'v2_c2', 'v2_c3', 'v2_c4',
+    'v3_c1', 'v3_c2', 'v3_c3', 'v3_c4',
+    'v4_c1', 'v4_c2', 'v4_c3', 'v4_c4'
+  ];
+
+  const mirrorMap = [
+    'v1_calc', 'v1_risk',
+    'v2_calc', 'v2_choice_just',
+    'v3_calc', 'v3_tradeoff',
+    'v4_calc', 'v4_risk'
+  ];
+
+  function switchVariant() {
+    const val = document.getElementById('var_select').value;
+    for (let i = 1; i <= 4; i++) {
+      const el = document.getElementById('var_' + i);
+      if (el) {
+        if (i.toString() === val) {
+          el.classList.add('active');
+        } else {
+          el.classList.remove('active');
+        }
+      }
+    }
+    updateMirrors();
+  }
+
+  function updateMirrors() {
+    mirrorMap.forEach(id => {
+      const src = document.getElementById(id);
+      const dst = document.getElementById('m_' + id);
+      if (src && dst) {
+        dst.textContent = src.value;
+      }
+    });
+  }
+
+  function saveData() {
+    const data = {
+      variant: document.getElementById('var_select').value,
+      texts: {},
+      checks: {}
+    };
+    textFields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) data.texts[id] = el.value;
+    });
+    checkFields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) data.checks[id] = el.checked;
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    const status = document.getElementById('status_msg');
+    status.textContent = 'Сохранено: ' + new Date().toLocaleTimeString();
+    setTimeout(() => { status.textContent = ''; }, 3500);
+  }
+
+  function loadData() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    try {
+      const data = JSON.parse(raw);
+      if (data.variant) {
+        document.getElementById('var_select').value = data.variant;
+        switchVariant();
+      }
+      if (data.texts) {
+        textFields.forEach(id => {
+          const el = document.getElementById(id);
+          if (el && data.texts[id] !== undefined) {
+            el.value = data.texts[id];
+          }
+        });
+      }
+      if (data.checks) {
+        checkFields.forEach(id => {
+          const el = document.getElementById(id);
+          if (el && data.checks[id] !== undefined) {
+            el.checked = data.checks[id];
+          }
+        });
+      }
+      updateMirrors();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function clearData() {
+    if (confirm('Вы действительно хотите полностью очистить форму? Все несохраненные данные будут удалены.')) {
+      localStorage.removeItem(STORAGE_KEY);
+      textFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      checkFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.checked = false;
+      });
+      document.getElementById('var_select').value = '1';
+      switchVariant();
+      updateMirrors();
+      const status = document.getElementById('status_msg');
+      status.textContent = 'Форма очищена';
+      setTimeout(() => { status.textContent = ''; }, 2500);
+    }
+  }
+
+  function printDoc() {
+    updateMirrors();
+    window.print();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadData();
+    mirrorMap.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', updateMirrors);
+      }
+    });
+  });
+</script>
+</body>
+</html>
