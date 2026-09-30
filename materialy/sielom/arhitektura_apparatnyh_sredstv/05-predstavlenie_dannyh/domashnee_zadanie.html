@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Домашнее задание - Формы представления чисел в ЭВМ. Кодирование текстовой и графической информации</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --code-bg: #0f172a;
+      --code-text: #f8fafc;
+      --warn-bg: #fffbeb;
+      --warn-border: #fde68a;
+      --warn-text: #92400e;
+      --input-bg: #f8fafc;
+      --input-focus: #ffffff;
+      --radius: 12px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    header {
+      background: var(--card);
+      padding: 28px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      margin-bottom: 24px;
+    }
+    h1 {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+    .condition-notice {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      color: var(--warn-text);
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+    .card {
+      background: var(--card);
+      padding: 28px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      margin-bottom: 24px;
+    }
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 14px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid var(--accent-soft);
+    }
+    h3 { font-size: 1.05rem; font-weight: 600; margin: 16px 0 8px 0; color: #1e293b; }
+    p { margin-bottom: 12px; font-size: 1rem; }
+    .form-group {
+      margin-top: 14px;
+      margin-bottom: 14px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+    .form-control {
+      width: 100%;
+      min-height: 80px;
+      max-height: 800px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--input-bg);
+      font-family: inherit;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      resize: vertical;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: var(--input-focus);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+    }
+    .input-single-line {
+      min-height: 40px !important;
+      height: 40px !important;
+      resize: none !important;
+    }
+    .input-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 600px) {
+      .input-row { grid-template-columns: 1fr; }
+    }
+    .actions-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 20px 0;
+      padding: 16px;
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      align-items: center;
+      justify-content: space-between;
+    }
+    .btn {
+      padding: 10px 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #172554; }
+    .btn-danger { background: #ef4444; color: #fff; }
+    .btn-danger:hover { background: #dc2626; }
+    .save-status {
+      font-size: 0.88rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+    .sample-box {
+      background: #f8fafc;
+      border-left: 4px solid var(--accent);
+      padding: 14px 16px;
+      margin: 14px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .sample-box pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 10px 12px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.88rem;
+      margin-top: 8px;
+    }
+    .print-text-replica { display: none; }
+    
+    @media print {
+      body { background: #fff; padding: 0; }
+      .actions-bar, .condition-notice { display: none !important; }
+      .card { box-shadow: none; border: 1px solid #999; break-inside: avoid; margin-bottom: 20px; padding: 16px; }
+      .form-control { display: none !important; }
+      .print-text-replica {
+        display: block !important;
+        border: 1px solid #475569 !important;
+        background: #fff !important;
+        min-height: 80px !important;
+        padding: 8px 10px !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        font-size: 10pt !important;
+        line-height: 1.45 !important;
+        font-family: inherit !important;
+        margin-top: 4px !important;
+        border-radius: 4px !important;
+      }
+      .form-group textarea.input-single-line + .print-text-replica {
+        min-height: 34px !important;
+      }
+      .form-control::placeholder {
+        color: transparent !important;
+        opacity: 0 !important;
+      }
+      header { box-shadow: none; border: 1px solid #999; padding: 16px; margin-bottom: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Домашнее задание - Формы представления чисел в ЭВМ. Кодирование текстовой и графической информации</h1>
+      <div class="condition-notice">
+        Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+      </div>
+
+      <div class="input-row" style="margin-top: 18px;">
+        <div class="form-group">
+          <label for="hwStudent">Фамилия, Имя, Отчество обучающегося:</label>
+          <textarea id="hwStudent" class="form-control input-single-line" placeholder=""></textarea>
+          <div class="print-text-replica" id="replica_hwStudent"></div>
+        </div>
+        <div class="form-group">
+          <label for="hwGroup">Учебная группа:</label>
+          <textarea id="hwGroup" class="form-control input-single-line" placeholder=""></textarea>
+          <div class="print-text-replica" id="replica_hwGroup"></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="actions-bar">
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <button type="button" class="btn btn-primary" onclick="window.print()">Распечатать / Сохранить в PDF</button>
+        <button type="button" class="btn btn-danger" onclick="confirmResetHw()">Очистить все поля</button>
+      </div>
+      <div id="hwSaveStatus" class="save-status">Изменения сохранены локально</div>
+    </div>
+
+    <main>
+      <!-- Section 1: Worked-Out Sample -->
+      <section class="card">
+        <h2>1. Разобранный эталонный образец выполнения</h2>
+        <p><strong>Пример задачи:</strong> Закодировать число $-9.75_{10}$ в стандарте IEEE 754 Single (32 бита), строку <code>"Процессор x86 (FPU)"</code> в CP1251 и UTF-8, и рассчитать объем монохромного и TrueColor значка $32 \times 32$ пикселя.</p>
+        
+        <div class="sample-box">
+          <p><strong>1. Представление вещественного числа $-9.75_{10}$ в IEEE 754:</strong></p>
+          <ul>
+            <li>Знак: число отрицательное $\implies S = 1$.</li>
+            <li>Двоичный модуль: $9_{10} = 1001_2$; $0.75_{10} = 0.5 + 0.25 = 0.11_2 \implies 9.75_{10} = 1001.11_2$.</li>
+            <li>Нормализация: $1.00111_2 \times 2^3$. Истинный порядок $e = 3$.</li>
+            <li>Смещенный порядок: $E = 3 + 127 = 130_{10} = 10000010_2$.</li>
+            <li>Мантисса (23 бита без ведущей 1): `00111000000000000000000`.</li>
+            <li>Итоговое 32-битное слово: `1 10000010 00111000000000000000000`.</li>
+            <li>В шестнадцатеричном виде (HEX): `1100 0001 0001 1100 0000 0000 0000 0000` $\implies$ <code>0xC11C0000</code>.</li>
+          </ul>
+
+          <p><strong>2. Сравнение кодировок для строки <code>"Процессор x86 (FPU)"</code>:</strong></p>
+          <ul>
+            <li>Всего символов: 19.</li>
+            <li>Кириллица: "Процессор" (9 букв). ASCII: 1 пробел, "x", "8", "6", 1 пробел, "(", "F", "P", "U", ")" = 10 символов.</li>
+            <li>Объем в CP1251: 19 символов $\times 1$ байт = <strong>19 байт</strong>.</li>
+            <li>Объем в UTF-8: $9 \text{ букв} \times 2 \text{ байта} + 10 \text{ ASCII} \times 1 \text{ байт} = 18 + 10 = $ <strong>28 байт</strong>.</li>
+          </ul>
+
+          <p><strong>3. Расчет объема растрового значка $32 \times 32$ пикселя ($N = 1024$ пикселя):</strong></p>
+          <ul>
+            <li>Монохром ($b = 1$ бит): $1024 \times 1 = 1024$ бита = $1024 / 8 = $ <strong>128 байт</strong>.</li>
+            <li>TrueColor 24 бита ($b = 24$ бита): $1024 \times 24 = 24\,576$ бит = $24\,576 / 8 = $ <strong>3072 байта</strong> (ровно 3 Кбайт).</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Section 2: Homework Exercises -->
+      <section class="card">
+        <h2>2. Самостоятельные упражнения</h2>
+
+        <h3>Упражнение 1. Числовые форматы: IEEE 754 Single и 16-битный дополнительный код</h3>
+        <p>1.1. Переведите положительное вещественное число <strong>$+19.5_{10}$</strong> в формат одинарной точности IEEE 754 (32 бита). Запишите биты знака $S$, смещенного порядка $E$ и мантиссы $M$. Приведите шестнадцатеричный код (HEX).</p>
+        <p>1.2. Переведите отрицательное целое число <strong>$-412_{10}$</strong> в 16-разрядный дополнительный код. Приведите двоичный код, шестнадцатеричный вид (HEX) и проверку по отрицательному весу старшего знакового разряда ($-32\,768$).</p>
+
+        <div class="form-group">
+          <label for="hw_ex1_solution">Ваше пошаговое решение (Упражнение 1):</label>
+          <textarea id="hw_ex1_solution" class="form-control" style="min-height: 150px;" placeholder=""></textarea>
+          <div class="print-text-replica" id="replica_hw_ex1_solution"></div>
+        </div>
+
+        <h3>Упражнение 2. Посимвольный расчет объема текста (CP1251 vs UTF-8)</h3>
+        <p>Дана символьная строка системного сообщения:</p>
+        <p><code>"Контроллер ввода-вывода (I/O Hub: 8 портов)"</code></p>
+        <p>2.1. Подсчитайте точное общее количество символов в строке, выделив отдельно кириллические буквы и символы набора ASCII (включая пробелы, дефис, двоеточие, косую черту, цифры и скобки).</p>
+        <p>2.2. Рассчитайте информационный объем строки в байтах для однобайтовой кодировки <strong>Windows-1251 (CP1251)</strong>.</p>
+        <p>2.3. Рассчитайте точный объем в байтах для кодировки <strong>UTF-8</strong>. Поясните, почему кириллические символы требуют именно 2 байта в битовой схеме UTF-8.</p>
+
+        <div class="form-group">
+          <label for="hw_ex2_solution">Ваш посимвольный расчет (Упражнение 2):</label>
+          <textarea id="hw_ex2_solution" class="form-control" style="min-height: 130px;" placeholder=""></textarea>
+          <div class="print-text-replica" id="replica_hw_ex2_solution"></div>
+        </div>
+
+        <h3>Упражнение 3. Расчет объема растрового изображения и битовая глубина</h3>
+        <p>Для пиктограммы размером <strong>$32 \times 32$ пикселя</strong> ($N = 1024$ пикселя) рассчитайте информационный объем несжатых графических данных:</p>
+        <p>3.1. В режиме с палитрой из 16 цветов (битовая глубина $b = 4$ бита/пиксель). Укажите объем в битах и байтах.</p>
+        <p>3.2. В полноцветном режиме TrueColor (битовая глубина $b = 24$ бита/пиксель). Укажите объем в битах и байтах.</p>
+        <p>3.3. Объясните, во сколько раз увеличивается требуемый объем памяти при переходе от 16 цветов к TrueColor 24 бита и почему для 16-цветного режима необходима цветовая палитра.</p>
+
+        <div class="form-group">
+          <label for="hw_ex3_solution">Ваш расчет и инженерное обоснование (Упражнение 3):</label>
+          <textarea id="hw_ex3_solution" class="form-control" style="min-height: 130px;" placeholder=""></textarea>
+          <div class="print-text-replica" id="replica_hw_ex3_solution"></div>
+        </div>
+      </section>
+
+      <!-- Section 3: Assessment Criteria and Submission Instructions -->
+      <section class="card">
+        <h2>3. Открытые критерии оценивания и порядок сдачи</h2>
+        <div class="sample-box">
+          <ul style="margin-left: 20px;">
+            <li><strong>Корректность (0–2 балла):</strong> верный перевод $+19.5$ в IEEE 754 и $-412$ в 16-битный доп. код; безошибочный подсчет байтов строки для CP1251 и UTF-8; правильный объем значка $32 \times 32$ в битах и байтах.</li>
+            <li><strong>Объяснение (0–1 балл):</strong> логически полное обоснование правил смещения порядка, префиксов UTF-8 и различия прямой и индексированной палитры.</li>
+            <li><strong>Проверка (0–1 балл):</strong> строгая десятичная проверка для чисел и сопоставление объемов памяти.</li>
+          </ul>
+        </div>
+        <p><strong>Порядок сдачи:</strong> Заполните все поля, нажмите кнопку «Распечатать / Сохранить в PDF» и передайте готовый файл преподавателю в установленный срок.</p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const HW_STORAGE_KEY = 'sie_arch_lesson05_hw';
+    const hwFields = [
+      'hwStudent',
+      'hwGroup',
+      'hw_ex1_solution',
+      'hw_ex2_solution',
+      'hw_ex3_solution'
+    ];
+
+    function updateHwReplicas() {
+      hwFields.forEach(id => {
+        const el = document.getElementById(id);
+        const replica = document.getElementById('replica_' + id);
+        if (el && replica) {
+          replica.textContent = el.value || ' ';
+        }
+      });
+    }
+
+    function autoExpandHw(el) {
+      if (el.classList.contains('input-single-line')) return;
+      el.style.height = 'auto';
+      el.style.height = Math.max(el.scrollHeight, 80) + 'px';
+    }
+
+    function saveHwData() {
+      const data = {};
+      hwFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) data[id] = el.value;
+      });
+      localStorage.setItem(HW_STORAGE_KEY, JSON.stringify(data));
+      updateHwReplicas();
+      const status = document.getElementById('hwSaveStatus');
+      if (status) {
+        status.textContent = 'Сохранено автоматически: ' + new Date().toLocaleTimeString();
+      }
+    }
+
+    function loadHwData() {
+      const raw = localStorage.getItem(HW_STORAGE_KEY);
+      if (!raw) {
+        updateHwReplicas();
+        return;
+      }
+      try {
+        const data = JSON.parse(raw);
+        hwFields.forEach(id => {
+          const el = document.getElementById(id);
+          if (el && data[id] !== undefined) {
+            el.value = data[id];
+            autoExpandHw(el);
+          }
+        });
+      } catch (e) {
+        console.error('Ошибка загрузки сохраненных данных:', e);
+      }
+      updateHwReplicas();
+    }
+
+    function confirmResetHw() {
+      if (confirm('Вы действительно хотите очистить все поля домашнего задания?')) {
+        localStorage.removeItem(HW_STORAGE_KEY);
+        hwFields.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) {
+            el.value = '';
+            if (!el.classList.contains('input-single-line')) {
+              el.style.height = '80px';
+            }
+          }
+        });
+        updateHwReplicas();
+        const status = document.getElementById('hwSaveStatus');
+        if (status) status.textContent = 'Все поля очищены';
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadHwData();
+      hwFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', () => {
+            autoExpandHw(el);
+            saveHwData();
+          });
+        }
+      });
+    });
+
+    window.addEventListener('beforeprint', () => {
+      updateHwReplicas();
+    });
+  </script>
+</body>
+</html>
