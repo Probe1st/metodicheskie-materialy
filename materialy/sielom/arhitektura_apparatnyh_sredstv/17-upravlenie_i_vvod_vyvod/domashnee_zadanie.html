@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Домашнее задание - Устройство управления, шины и ввод-вывод</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --ok: #059669;
+      --warn: #d97706;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .card, .actions-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(22px, 3.5vw, 27px);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .notice {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      font-size: 14.5px;
+      color: #92400e;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    input[type="text"], input[type="date"], textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+    }
+    textarea {
+      min-height: 95px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    h2 {
+      font-size: 18px;
+      color: var(--accent);
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+    p, ul, ol { margin-bottom: 12px; }
+    ul, ol { padding-left: 20px; }
+    li { margin-bottom: 4px; }
+    .example-box {
+      background: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      padding: 16px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+    .example-title {
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font: inherit;
+      font-weight: 600;
+      font-size: 14.5px;
+      transition: background .15s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary { background: #e2e8f0; color: #334155; }
+    .btn-secondary:hover { background: #cbd5e1; }
+    .btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #fecaca; }
+    .status-msg {
+      font-size: 14px;
+      font-weight: 600;
+      margin-left: auto;
+    }
+    .status-saved { color: var(--ok); }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      margin-bottom: 6px;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+        font-size: 10.5pt;
+        color: #000;
+      }
+      .page {
+        max-width: 100%;
+        margin: 0;
+      }
+      .header-card, .student-card, .card {
+        box-shadow: none;
+        border: 1px solid #777;
+        margin-bottom: 12pt;
+        padding: 10pt;
+        break-inside: auto;
+        page-break-inside: auto;
+      }
+      .actions-card, .btn-row {
+        display: none !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        opacity: 0 !important;
+      }
+      textarea {
+        height: auto !important;
+        min-height: 80px;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      input[type="text"], input[type="date"] {
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ШАПКА РЕЗЕРВНОГО ЗАДАНИЯ -->
+  <div class="header-card">
+    <h1>Домашнее задание - Устройство управления, шины и ввод-вывод</h1>
+    <div class="notice">
+      Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+    </div>
+    <p style="margin-top: 12px; color: var(--muted); font-size: 14.5px;">
+      Резервный комплект для обучающихся, пропустивших практическое занятие №17 или нуждающихся в повторной аттестации. Задание включает разбор эталонного примера трассировки циклов шины, аналитические упражнения по устройству управления и инженерный расчет шины ввода-вывода.
+    </p>
+  </div>
+
+  <!-- ДАННЫЕ ОБУЧАЮЩЕГОСЯ -->
+  <div class="student-card">
+    <div class="student-grid">
+      <div>
+        <label for="hw-name">ФИО обучающегося:</label>
+        <input type="text" id="hw-name" placeholder="Введите фамилию, имя и отчество">
+      </div>
+      <div>
+        <label for="hw-group">Учебная группа:</label>
+        <input type="text" id="hw-group" placeholder="Например: ИСП-23-1">
+      </div>
+      <div>
+        <label for="hw-date">Дата выполнения:</label>
+        <input type="date" id="hw-date">
+      </div>
+    </div>
+  </div>
+
+  <!-- РАЗОБРАННЫЙ ЭТАЛОННЫЙ ОБРАЗЕЦ -->
+  <div class="card">
+    <h2>Разобранный образец: Трассировка цикла чтения памяти при микропрограммном управлении</h2>
+    <div class="example-box">
+      <div class="example-title">Эталонная инженерная задача:</div>
+      <p>
+        <strong>Условие:</strong> Процессор выполняет инструкцию ассемблера <code>MOV EAX, [EBX]</code> (загрузка 32-битного двойного слова из оперативной памяти по адресу в регистре <code>EBX</code> в аккумулятор <code>EAX</code>). Опишите поведение микропрограммного устройства управления и состояние шинных стробов на протяжении четырех машинных тактов ($T_1, T_2, T_w, T_3$).
+      </p>
+      <p><strong>Эталонное решение и ход рассуждений:</strong></p>
+      <ol>
+        <li><strong>Такт $T_1$ (Фаза адреса):</strong> Микрокоманда считывается из управляющей памяти CROM. УУ выставляет содержимое регистра <code>EBX</code> на шину адреса. На шине управления выставляется сигнал <code>M/IO# = 1</code> (индикация обращения к памяти, а не к портам ввода-вывода) и <code>W/R# = 0</code> (чтение).</li>
+        <li><strong>Такт $T_2$ (Активация строба):</strong> Устройство управления активирует строб чтения памяти <code>MEMR# = 0</code> (активный низкий уровень). На конце такта опрашивается линия <code>READY</code> от контроллера оперативной памяти.</li>
+        <li><strong>Такт $T_w$ (Такт ожидания):</strong> Поскольку ОЗУ требует время на регенерацию и перезаряд емкостей строк DRAM (задержка CAS Latency), контроллер памяти удерживает <code>READY = 0</code>. Процессор вставляет дополнительный такт ожидания $T_w$, удерживая строб <code>MEMR# = 0</code> и адрес на шине адреса неизменными.</li>
+        <li><strong>Такт $T_3$ (Фиксация данных):</strong> Контроллер памяти выставляет 32-битное слово на шину данных и переводит линию <code>READY = 1</code>. Устройство управления процессора по срезу тактового импульса стробирует данные во внутренний буферный регистр данных, после чего пересылает их в регистр <code>EAX</code>. Строб <code>MEMR#</code> деактивируется (переходит в 1). Цикл шины завершен.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- УПРАЖНЕНИЕ 1: АНАЛИЗ ЦИКЛОВ ШИНЫ И УПРАВЛЯЮЩИХ СТРОБОВ -->
+  <div class="card">
+    <h2>Упражнение 1. Анализ циклов шины и управляющих стробов</h2>
+    <div class="form-group">
+      <label for="hw_ex1_a"><strong>Ситуация А:</strong> Процессор выполняет команду вывода байта в последовательный порт <code>OUT 3F8h, AL</code>. Какие шинные стробы (<code>MEMR#</code>, <code>MEMW#</code>, <code>IOR#</code>, <code>IOW#</code>) будут активны (равны 0), а какие пассивны (равны 1)? Какая информация появится на шине адреса и шине данных?</label>
+      <textarea id="hw_ex1_a" placeholder="Опишите состояние управляющих стробов, уровень M/IO#, адрес и байт данных..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="hw_ex1_b"><strong>Ситуация Б:</strong> Контроллер прямого доступа к памяти (DMAC) выполняет пересылку блока данных из контроллера накопителя в системную оперативную память. Какие сигналы (<code>DREQ</code>, <code>DACK#</code>, <code>IOR#</code>, <code>MEMW#</code>) активируются одновременно и почему в цикле DMA не требуется промежуточный регистр процессора?</label>
+      <textarea id="hw_ex1_b" placeholder="Объясните одновременную активность стробов IOR# и MEMW#, а также роль DACK#..."></textarea>
+    </div>
+  </div>
+
+  <!-- УПРАЖНЕНИЕ 2: СРАВНИТЕЛЬНЫЙ АНАЛИЗ АРХИТЕКТУР УСТРОЙСТВА УПРАВЛЕНИЯ -->
+  <div class="card">
+    <h2>Упражнение 2. Сравнение УУ с жесткой логикой и микропрограммного УУ</h2>
+    <div class="form-group">
+      <label for="hw_ex2_diff"><strong>Сравнительный инженерный анализ:</strong> Заполните анализ по трем критериям:</label>
+      <ul>
+        <li>1. <em>Быстродействие и тактовая частота:</em> почему УУ с жесткой логикой (RISC) формирует управляющие сигналы быстрее, чем микропрограммное УУ?</li>
+        <li>2. <em>Аппаратная сложность и площадь кристалла:</em> как влияет наличие внутренней памяти микрокоманд (CROM) на сложность трассировки процессора?</li>
+        <li>3. <em>Возможность исправления критических уязвимостей (Microcode Patching):</em> почему процессоры x86 способны исправлять ошибки архитектуры (например, Spectre/Meltdown) без физической замены чипа, а микроконтроллеры с жесткой логикой — нет?</li>
+      </ul>
+      <textarea id="hw_ex2_diff" style="min-height: 120px;" placeholder="Дайте развернутые ответы по пунктам 1, 2 и 3..."></textarea>
+    </div>
+  </div>
+
+  <!-- УПРАЖНЕНИЕ 3: ИНЖЕНЕРНЫЙ РАСЧЕТ И АНАЛИЗ ПРЕПЯТСТВИЙ ОБМЕНА -->
+  <div class="card">
+    <h2>Упражнение 3. Инженерный расчет арбитража шины и прерываний</h2>
+    <div class="form-group">
+      <label for="hw_ex3_calc"><strong>Расчет и архитектурный вывод:</strong> В высокоскоростном сервере установлен сетевой адаптер 10 GbE. При минимальном размере Ethernet-кадра (64 байта) поток пакетов достигает 14.88 млн кадров в секунду.</label>
+      <ul>
+        <li>1. Что произойдет с операционной системой и ядрами процессора, если для приема такого трафика попытаться использовать классические проводные прерывания IRQ (INTx) и программный опрос (PIO)?</li>
+        <li>2. Какая комбинация аппаратных механизмов (MSI-X, RSS, Bus Master DMA с дескрипторными кольцами в памяти) решает данную проблему?</li>
+        <li>3. Почему классический контроллер DMA Intel 8237A непригоден для таких задач (укажите разрядность адреса и лимит блока)?</li>
+      </ul>
+      <textarea id="hw_ex3_calc" style="min-height: 120px;" placeholder="Приведите расчеты и аргументируйте архитектурное решение..."></textarea>
+    </div>
+  </div>
+
+  <!-- КНОПКИ ДЕЙСТВИЯ И СТАТУС -->
+  <div class="actions-card">
+    <div class="btn-row">
+      <button class="btn-primary" onclick="window.print()">Печать задания / Сохранить в PDF</button>
+      <button class="btn-secondary" onclick="saveHw(true)">Сохранить решение</button>
+      <button class="btn-danger" onclick="confirmResetHw()">Очистить форму</button>
+      <span class="status-msg" id="status-msg"></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const HW_KEY = "arch_hw17_reserve_data";
+  const hwFields = ["hw-name", "hw-group", "hw-date", "hw_ex1_a", "hw_ex1_b", "hw_ex2_diff", "hw_ex3_calc"];
+
+  function saveHw(manual = false) {
+    const data = {};
+    hwFields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) data[id] = el.value;
+    });
+    localStorage.setItem(HW_KEY, JSON.stringify(data));
+    const msg = document.getElementById("status-msg");
+    if (msg) {
+      msg.textContent = manual ? "Сохранено!" : "Автосохранено";
+      msg.className = "status-msg status-saved";
+      setTimeout(() => { msg.textContent = ""; }, 2500);
+    }
+  }
+
+  function loadHw() {
+    const raw = localStorage.getItem(HW_KEY);
+    if (!raw) return;
+    try {
+      const data = JSON.parse(raw);
+      hwFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && data[id] !== undefined) el.value = data[id];
+      });
+    } catch(e) {
+      console.error("Ошибка загрузки данных ДЗ", e);
+    }
+  }
+
+  function confirmResetHw() {
+    if (confirm("Очистить все поля домашнего задания?")) {
+      localStorage.removeItem(HW_KEY);
+      hwFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+      });
+      const msg = document.getElementById("status-msg");
+      if (msg) {
+        msg.textContent = "Форма очищена";
+        setTimeout(() => { msg.textContent = ""; }, 2500);
+      }
+    }
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    loadHw();
+    hwFields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener("input", () => saveHw(false));
+        el.addEventListener("change", () => saveHw(false));
+      }
+    });
+  });
+</script>
+</body>
+</html>
