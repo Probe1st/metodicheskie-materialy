@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Домашнее задание - Виды памяти и принципы работы</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --ok: #059669;
+      --warn: #d97706;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15.5px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .card, .actions-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(22px, 3.5vw, 28px);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .notice {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      font-size: 14.5px;
+      color: #92400e;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    input[type="text"], input[type="date"], textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14.5px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+    }
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    .example-box {
+      background: #f1f5f9;
+      border-left: 4px solid #0284c7;
+      padding: 16px 20px;
+      border-radius: 0 10px 10px 0;
+      margin: 16px 0;
+    }
+    .example-box h3 {
+      color: #0369a1;
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      margin: 14px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .table-input {
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 6px 8px;
+      font-size: 13px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font: inherit;
+      font-weight: 600;
+      font-size: 14.5px;
+      transition: background .15s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary { background: #e2e8f0; color: #334155; }
+    .btn-secondary:hover { background: #cbd5e1; }
+    .btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #fecaca; }
+    .status-msg {
+      font-size: 14px;
+      font-weight: 600;
+      margin-left: auto;
+    }
+    .status-saved { color: var(--ok); }
+
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+        font-size: 11pt;
+        color: #000;
+      }
+      .page {
+        max-width: 100%;
+        margin: 0;
+      }
+      .header-card, .student-card, .card {
+        box-shadow: none;
+        border: 1px solid #777;
+        margin-bottom: 14pt;
+        padding: 12pt;
+        break-inside: auto;
+        page-break-inside: auto;
+      }
+      .actions-card, .btn-row {
+        display: none !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        opacity: 0 !important;
+      }
+      textarea {
+        height: auto !important;
+        min-height: 80px;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      input[type="text"], input[type="date"], .table-input {
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header-card">
+    <h1>Домашнее задание - Виды памяти и принципы работы</h1>
+    <p class="notice">Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.</p>
+  </div>
+
+  <div class="student-card">
+    <div class="student-grid">
+      <div>
+        <label for="hw_fio">ФИО обучающегося:</label>
+        <input type="text" id="hw_fio" placeholder="Иванов Иван Иванович" autocomplete="off">
+      </div>
+      <div>
+        <label for="hw_group">Учебная группа:</label>
+        <input type="text" id="hw_group" placeholder="ИС-21" autocomplete="off">
+      </div>
+      <div>
+        <label for="hw_date">Дата сдачи:</label>
+        <input type="date" id="hw_date">
+      </div>
+    </div>
+  </div>
+
+  <!-- РАЗОБРАННЫЙ ОБРАЗЕЦ -->
+  <div class="card">
+    <h2 style="color: var(--accent); font-size: 18px; margin-bottom: 10px;">Разобранный образец: расчет подсистемы памяти и проверка совместимости</h2>
+    <div class="example-box">
+      <h3>Задача-образец:</h3>
+      <p>Для рабочей станции требуется оценить комплект оперативной памяти <strong>DDR5-5200 CL38-38-38</strong>, установленный в 2-канальном режиме (Dual Channel) на материнскую плату с 4 разъемами DIMM (топология Daisy Chain). Рассчитать теоретическую ПСП, наносекундную задержку и указать правило установки модулей.</p>
+      
+      <h3 style="margin-top: 12px;">Эталонное решение:</h3>
+      <ol style="padding-left: 20px; font-size: 14px;">
+        <li><strong>Расчет теоретической ПСП:</strong>
+          <br>Ширина 2-канальной шины = $2 \times 64\text{ бит} = 128\text{ бит} = 16\text{ байт}$ за такт.
+          <br>$\text{ПСП} = 5200 \text{ MT/s} \times 16 \text{ байт} = 83\,200 \text{ МБ/с} = \mathbf{83.2\text{ ГБ/с}}$.
+        </li>
+        <li><strong>Расчет истинной задержки доступа CAS Latency:</strong>
+          <br>$t_{lat} = \frac{CL \times 2000}{\text{Data Rate (MT/s)}} = \frac{38 \times 2000}{5200} = \frac{76\,000}{5200} \approx \mathbf{14.62\text{ нс}}$.
+        </li>
+        <li><strong>Проверка топологии материнской платы:</strong>
+          <br>Так как плата имеет шлейфовую разводку Daisy Chain, 2 модуля обязаны устанавливаться строго в разъемы <strong>A2 и B2 (второй и четвертый слоты от сокета ЦП)</strong>. Установка в слоты A1 и B1 создаст незамкнутые отводы проводников (stubs), порождая отражения высокочастотных сигналов и нестабильность системы.
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- УПРАЖНЕНИЕ 1 -->
+  <div class="card">
+    <h2 style="color: var(--accent); font-size: 18px; margin-bottom: 10px;">Упражнение 1. Расчет пропускной способности (ПСП) и наносекундной задержки</h2>
+    <p style="font-size: 14.5px; color: var(--muted); margin-bottom: 12px;">
+      Используя формулы ПСП ($\text{MT/s} \times \text{байт за такт}$) и истинной задержки ($CL \times 2000 / \text{MT/s}$), рассчитайте характеристики для следующих трех конфигураций:
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25%;">Конфигурация модулей</th>
+            <th style="width: 20%;">Режим / Байт за такт</th>
+            <th style="width: 28%;">Расчет ПСП (ГБ/с)</th>
+            <th style="width: 27%;">Расчет задержки $t_{lat}$ (нс)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>DDR4-3600 CL18-22-22</strong></td>
+            <td>Dual Channel (16 байт)</td>
+            <td><input type="text" id="hw_t1_bw" class="table-input" placeholder="3600 × 16 = 57.6 ГБ/с"></td>
+            <td><input type="text" id="hw_t1_lat" class="table-input" placeholder="18 × 2000 / 3600 = 10.0 нс"></td>
+          </tr>
+          <tr>
+            <td><strong>DDR5-6400 CL32-39-39</strong></td>
+            <td>Dual Channel (16 байт)</td>
+            <td><input type="text" id="hw_t2_bw" class="table-input" placeholder="6400 × 16 = 102.4 ГБ/с"></td>
+            <td><input type="text" id="hw_t2_lat" class="table-input" placeholder="32 × 2000 / 6400 = 10.0 нс"></td>
+          </tr>
+          <tr>
+            <td><strong>DDR5-5600 CL46 (1 планка)</strong></td>
+            <td>Single Module (8 байт)</td>
+            <td><input type="text" id="hw_t3_bw" class="table-input" placeholder="5600 × 8 = 44.8 ГБ/с"></td>
+            <td><input type="text" id="hw_t3_lat" class="table-input" placeholder="46 × 2000 / 5600 ≈ 16.43 нс"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="margin-top: 12px;">
+      <label for="hw_ans_single_channel">Вывод: почему установка одной планки памяти в современном ПК снижает производительность процессора почти вдвое?</label>
+      <textarea id="hw_ans_single_channel" placeholder="Опишите падение ширины шины данных с 128 бит до 64 бит и последствия для графического ядра и многопоточных вычислений..."></textarea>
+    </div>
+  </div>
+
+  <!-- УПРАЖНЕНИЕ 2 -->
+  <div class="card">
+    <h2 style="color: var(--accent); font-size: 18px; margin-bottom: 10px;">Упражнение 2. Архитектурный анализ рисков серверной подсистемы памяти</h2>
+    <p style="font-size: 14.5px; color: var(--muted); margin-bottom: 10px;">
+      <strong>Ситуация:</strong> Системный администратор обновил сервер базы данных (СУБД PostgreSQL, непрерывная запись транзакций). Для экономии бюджета он установил стандартные потребительские модули DDR5-6000 с On-Die ECC вместо серверных DDR5 ECC UDIMM, а также подключил скоростной SSD PCIe 5.0 x4 без радиатора охлаждения, посчитав, что в серверной стойке «и так работают мощные вентиляторы».
+    </p>
+    <div style="margin-top: 14px;">
+      <label for="hw_ans_server_risks">Проанализируйте два критических аппаратных риска данной конфигурации:</label>
+      <textarea id="hw_ans_server_risks" placeholder="1. Риск искажения данных на шине между модулем и процессором из-за отсутствия True Sideband ECC.
+2. Риск термического троттлинга горячего ASIC-контроллера SSD (Phison E26) при перегреве выше 75°C и падения скорости транзакций..."></textarea>
+    </div>
+  </div>
+
+  <!-- УПРАЖНЕНИЕ 3 -->
+  <div class="card">
+    <h2 style="color: var(--accent); font-size: 18px; margin-bottom: 10px;">Упражнение 3. Инженерный расчет и спецификация для мобильной рабочей станции</h2>
+    <p style="font-size: 14.5px; color: var(--muted); margin-bottom: 10px;">
+      <strong>Техническое задание:</strong> Спроектируйте подсистему памяти для мобильной рабочей станции (ноутбук с мощным 16-ядерным процессором для локального запуска компактных LLM-нейросетей и обработки видео 4K). Требуется суммарный объем ОЗУ 64 ГБ и скоростной накопитель 2 ТБ.
+    </p>
+    <div style="margin-top: 14px;">
+      <label for="hw_ans_mobile_spec">Спецификация ОЗУ (форм-фактор, число модулей, стандарт, профиль, тайминги) и накопителя SSD (интерфейс, DRAM-буфер, охлаждение):</label>
+      <textarea id="hw_ans_mobile_spec" placeholder="Укажите форм-фактор SO-DIMM (или CAMM2), 2 модуля по 32 ГБ DDR5-5600 JEDEC (1.1 В без избыточного нагрева), быстрый SSD PCIe 4.0 x4 с DRAM-буфером и термопрокладкой к медному шасси ноутбука..."></textarea>
+    </div>
+  </div>
+
+  <div class="actions-card">
+    <div class="btn-row">
+      <button class="btn-primary" onclick="saveHwLocalStorage(true)">💾 Сохранить черновик</button>
+      <button class="btn-secondary" onclick="window.print()">🖨️ Распечатать / Экспорт в PDF</button>
+      <button class="btn-danger" onclick="confirmHwReset()">🗑️ Очистить форму</button>
+      <div id="hw_save_status" class="status-msg"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const HW_STORAGE_KEY = 'sie_hw14_domashnee_data';
+  const HW_FIELDS = [
+    'hw_fio', 'hw_group', 'hw_date',
+    'hw_t1_bw', 'hw_t1_lat',
+    'hw_t2_bw', 'hw_t2_lat',
+    'hw_t3_bw', 'hw_t3_lat',
+    'hw_ans_single_channel',
+    'hw_ans_server_risks',
+    'hw_ans_mobile_spec'
+  ];
+
+  function saveHwLocalStorage(showFeedback) {
+    const data = {};
+    HW_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) data[id] = el.value;
+    });
+    try {
+      localStorage.setItem(HW_STORAGE_KEY, JSON.stringify(data));
+      if (showFeedback) {
+        const s = document.getElementById('hw_save_status');
+        s.textContent = '✓ Сохранено в браузере';
+        s.className = 'status-msg status-saved';
+        setTimeout(() => { s.textContent = ''; }, 3000);
+      }
+    } catch (e) {}
+  }
+
+  function loadHwLocalStorage() {
+    try {
+      const raw = localStorage.getItem(HW_STORAGE_KEY);
+      if (raw) {
+        const data = JSON.parse(raw);
+        HW_FIELDS.forEach(id => {
+          if (data[id] !== undefined) {
+            const el = document.getElementById(id);
+            if (el) el.value = data[id];
+          }
+        });
+      }
+    } catch (e) {}
+  }
+
+  function confirmHwReset() {
+    if (confirm('Внимание! Все введенные ответы в домашнем задании будут удалены. Очистить форму?')) {
+      HW_FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      try {
+        localStorage.removeItem(HW_STORAGE_KEY);
+      } catch (e) {}
+      const s = document.getElementById('hw_save_status');
+      s.textContent = 'Форма очищена';
+      s.className = 'status-msg';
+      setTimeout(() => { s.textContent = ''; }, 3000);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadHwLocalStorage();
+    HW_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => saveHwLocalStorage(false));
+        el.addEventListener('change', () => saveHwLocalStorage(false));
+      }
+    });
+  });
+</script>
+</body>
+</html>
