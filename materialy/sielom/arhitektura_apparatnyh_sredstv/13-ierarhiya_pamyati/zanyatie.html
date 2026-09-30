@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Практикум: Энергонезависимая память. Иерархия памяти</title>
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --task-bg: #f8fafc;
+      --border-task: #94a3b8;
+      --ok: #059669;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15.5px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .task-card, .actions-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(22px, 3.5vw, 28px);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .desc {
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    input[type="text"], input[type="date"], select, textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14.5px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+    }
+    textarea {
+      min-height: 85px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    .criteria-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      font-size: 14px;
+    }
+    .criteria-box strong { color: var(--ok); }
+    .task-title {
+      font-size: 17.5px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .task-help {
+      background: var(--accent-soft);
+      border-left: 3px solid var(--accent);
+      padding: 10px 14px;
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 14px;
+      font-size: 14px;
+      color: #1e3a8a;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      margin: 14px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .table-input {
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 6px 8px;
+      font-size: 13px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font: inherit;
+      font-weight: 600;
+      font-size: 14.5px;
+      transition: background .15s, transform .05s;
+    }
+    button:active { transform: scale(0.98); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary { background: #e2e8f0; color: #334155; }
+    .btn-secondary:hover { background: #cbd5e1; }
+    .btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #fecaca; }
+    .status-msg {
+      font-size: 14px;
+      font-weight: 600;
+      margin-left: auto;
+    }
+    .status-saved { color: var(--ok); }
+    .variant-card {
+      background: var(--task-bg);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 14px;
+    }
+    .variant-title {
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+    .formula-badge {
+      display: inline-block;
+      background: #0f172a;
+      color: #38bdf8;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 13.5px;
+    }
+    .print-select-text { display: none; }
+
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+        font-size: 11pt;
+        color: #000;
+      }
+      .page {
+        max-width: 100%;
+        margin: 0;
+      }
+      .header-card, .student-card, .task-card {
+        box-shadow: none;
+        border: 1px solid #777;
+        margin-bottom: 14pt;
+        padding: 12pt;
+        break-inside: auto;
+        page-break-inside: auto;
+      }
+      .student-grid {
+        grid-template-columns: 1.4fr 0.8fr 0.8fr 1.5fr !important;
+        gap: 8pt !important;
+      }
+      .actions-card, .btn-row {
+        display: none !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        opacity: 0 !important;
+      }
+      select {
+        display: none !important;
+      }
+      .print-select-text {
+        display: block !important;
+        min-height: 20px;
+        border: 1px solid #777 !important;
+        border-radius: 4px;
+        padding: 4px 6px;
+        background: #fff !important;
+      }
+      textarea {
+        height: auto !important;
+        min-height: 90px;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      input[type="text"], input[type="date"], .table-input {
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
+  <div class="header-card">
+    <h1>Практикум: Энергонезависимая память. Иерархия памяти</h1>
+    <p class="desc">Интерактивный рабочий лист студента по дисциплине «Архитектура аппаратных средств» (СИЭУиП, занятие 13). Сравнительный анализ уровней иерархии памяти, исследование компромисса «скорость – стоимость – энергозависимость», расчет эффективного времени доступа по формуле <span class="formula-badge">T_eff = H · T_cache + (1 - H) · T_ram</span> и составление инженерного протокола подсистемы хранения по 4 вариантам архитектурных профилей.</p>
+  </div>
+
+  <!-- КАРТОЧКА СТУДЕНТА -->
+  <div class="student-card">
+    <div class="criteria-box">
+      <strong>Критерии оценивания (4-балльная шкала):</strong>
+      Корректность таблиц пирамиды, параметров и расчетов эффективного времени — до 2 баллов;
+      объяснение физических компромиссов, принципов локальности и алгоритмов Flash — 1 балл;
+      обоснование и верификация подсистемы памяти под вариант архитектурного профиля — 1 балл.
+      Сдача работы: до следующего учебного занятия.
+    </div>
+
+    <div class="student-grid">
+      <div>
+        <label for="student_fio">ФИО обучающегося:</label>
+        <input type="text" id="student_fio" placeholder="Фамилия, Имя, Отчество обучающегося" autocomplete="off">
+      </div>
+      <div>
+        <label for="student_group">Учебная группа:</label>
+        <input type="text" id="student_group" placeholder="Например, ИСП-21" autocomplete="off">
+      </div>
+      <div>
+        <label for="work_date">Дата выполнения:</label>
+        <input type="date" id="work_date">
+      </div>
+      <div>
+        <label for="work_variant">Архитектурный профиль (вариант):</label>
+        <select id="work_variant" onchange="updateVariantSelection()">
+          <option value="">-- Выберите вариант --</option>
+          <option value="1">Вариант 1: Высоконагруженная In-Memory СУБД (Redis / Tarantool)</option>
+          <option value="2">Вариант 2: Долговременный холодный архив и резервные копии (Tape / Cold Archive)</option>
+          <option value="3">Вариант 3: Рабочая станция для 3D-графики и соревновательного гейминга (DirectStorage)</option>
+          <option value="4">Вариант 4: Мобильный энергоэффективный IoT-контроллер / Edge AI (LPDDR4X / eMMC)</option>
+        </select>
+        <div id="print_work_variant" class="print-select-text">Вариант не выбран</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ЗАДАНИЕ 1: ПИРАМИДА ИЕРАРХИИ ПАМЯТИ -->
+  <div class="task-card">
+    <div class="task-title">
+      <span>1. Пирамида иерархии памяти: сопоставление ступеней и компромисс характеристик</span>
+    </div>
+    <div class="task-help">
+      Заполните аналитическую таблицу уровней иерархии памяти вычислительной системы. Для каждого уровня укажите диапазон времени доступа (в тактах ЦП и наносекундах), типичный объем, энергозависимость (энергозависимая / энергонезависимая) и относительную удельную стоимость за 1 ГБ (от наивысшей к минимальной).
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 22%;">Уровень иерархии памяти</th>
+            <th style="width: 20%;">Время доступа (такты и нс)</th>
+            <th style="width: 20%;">Типичная ёмкость</th>
+            <th style="width: 20%;">Энергозависимость</th>
+            <th style="width: 18%;">Стоимость 1 ГБ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Регистры ЦП (CPU Registers)</strong></td>
+            <td><input type="text" class="table-input" id="tbl_lat_reg" placeholder="~1 такт, ~0.5–1 нс"></td>
+            <td><input type="text" class="table-input" id="tbl_cap_reg" placeholder="~1–4 КБ"></td>
+            <td><input type="text" class="table-input" id="tbl_vol_reg" placeholder="Энергозависимая"></td>
+            <td><input type="text" class="table-input" id="tbl_cst_reg" placeholder="Максимальная ($$$$$)"></td>
+          </tr>
+          <tr>
+            <td><strong>Кэш L1 (Инструкции + Данные)</strong></td>
+            <td><input type="text" class="table-input" id="tbl_lat_l1" placeholder="~4–5 тактов, ~1–1.5 нс"></td>
+            <td><input type="text" class="table-input" id="tbl_cap_l1" placeholder="32–96 КБ на ядро"></td>
+            <td><input type="text" class="table-input" id="tbl_vol_l1" placeholder="Энергозависимая (SRAM)"></td>
+            <td><input type="text" class="table-input" id="tbl_cst_l1" placeholder="Экстремально высокая"></td>
+          </tr>
+          <tr>
+            <td><strong>Кэш L2 (Выделенный на ядро)</strong></td>
+            <td><input type="text" class="table-input" id="tbl_lat_l2" placeholder="~12–14 тактов, ~3–5 нс"></td>
+            <td><input type="text" class="table-input" id="tbl_cap_l2" placeholder="512 КБ – 2 МБ на ядро"></td>
+            <td><input type="text" class="table-input" id="tbl_vol_l2" placeholder="Энергозависимая (SRAM)"></td>
+            <td><input type="text" class="table-input" id="tbl_cst_l2" placeholder="Очень высокая"></td>
+          </tr>
+          <tr>
+            <td><strong>Кэш L3 (Общий кристалла / 3D V-Cache)</strong></td>
+            <td><input type="text" class="table-input" id="tbl_lat_l3" placeholder="~35–50 тактов, ~10–20 нс"></td>
+            <td><input type="text" class="table-input" id="tbl_cap_l3" placeholder="16–96+ МБ"></td>
+            <td><input type="text" class="table-input" id="tbl_vol_l3" placeholder="Энергозависимая (SRAM)"></td>
+            <td><input type="text" class="table-input" id="tbl_cst_l3" placeholder="Высокая"></td>
+          </tr>
+          <tr>
+            <td><strong>Оперативная память (ОЗУ / DRAM)</strong></td>
+            <td><input type="text" class="table-input" id="tbl_lat_ram" placeholder="~150–250 тактов, ~50–80 нс"></td>
+            <td><input type="text" class="table-input" id="tbl_cap_ram" placeholder="16–128+ ГБ"></td>
+            <td><input type="text" class="table-input" id="tbl_vol_ram" placeholder="Энергозависимая (DRAM)"></td>
+            <td><input type="text" class="table-input" id="tbl_cst_ram" placeholder="Умеренная (~$3–5/ГБ)"></td>
+          </tr>
+          <tr>
+            <td><strong>Быстрый NVMe SSD (NAND Flash)</strong></td>
+            <td><input type="text" class="table-input" id="tbl_lat_nvme" placeholder="~10–30 мкс (~50k тактов)"></td>
+            <td><input type="text" class="table-input" id="tbl_cap_nvme" placeholder="512 ГБ – 4 ТБ"></td>
+            <td><input type="text" class="table-input" id="tbl_vol_nvme" placeholder="Энергонезависимая"></td>
+            <td><input type="text" class="table-input" id="tbl_cst_nvme" placeholder="Доступная (~$0.07/ГБ)"></td>
+          </tr>
+          <tr>
+            <td><strong>Жесткий диск (HDD, магнитный)</strong></td>
+            <td><input type="text" class="table-input" id="tbl_lat_hdd" placeholder="~5–10 мс (~20M тактов)"></td>
+            <td><input type="text" class="table-input" id="tbl_cap_hdd" placeholder="2–24 ТБ"></td>
+            <td><input type="text" class="table-input" id="tbl_vol_hdd" placeholder="Энергонезависимая"></td>
+            <td><input type="text" class="table-input" id="tbl_cst_hdd" placeholder="Низкая (~$0.015/ГБ)"></td>
+          </tr>
+          <tr>
+            <td><strong>Архивный ленточный накопитель (LTO Tape)</strong></td>
+            <td><input type="text" class="table-input" id="tbl_lat_tape" placeholder="Десятки секунд / минуты"></td>
+            <td><input type="text" class="table-input" id="tbl_cap_tape" placeholder="10–45+ ТБ на картридж"></td>
+            <td><input type="text" class="table-input" id="tbl_vol_tape" placeholder="Энергонезависимая (30+ лет)"></td>
+            <td><input type="text" class="table-input" id="tbl_cst_tape" placeholder="Минимальная ($0.005/ГБ)"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top: 14px;">
+      <label for="ans_tradeoff_explanation"><strong>Инженерный анализ компромисса:</strong> Почему невозможно построить современный компьютер целиком на энергонезависимой памяти или целиком на регистрах/SRAM? Раскройте фундаментальный компромисс «скорость – ёмкость – стоимость – энергозависимость/сохранность»:</label>
+      <textarea id="ans_tradeoff_explanation" placeholder="Объясните физические и экономические ограничения (площадь кристалла, число транзисторов в ячейке 6T SRAM vs 1T-1C DRAM vs Floating Gate/CTF NAND, энергопотребление, токи утечки и задержки распространения сигналов по проводникам)..."></textarea>
+    </div>
+  </div>
+
+  <!-- ЗАДАНИЕ 2: РАСЧЕТ ЭФФЕКТИВНОГО ВРЕМЕНИ ДОСТУПА -->
+  <div class="task-card">
+    <div class="task-title">
+      <span>2. Расчет эффективного времени доступа к памяти и роль локальности</span>
+    </div>
+    <div class="task-help">
+      Эффективное среднее время доступа к памяти вычисляется по формуле:<br>
+      <span class="formula-badge">T_eff = H · T_cache + (1 - H) · T_ram</span><br>
+      где <span class="formula-badge">H</span> — коэффициент попадания в кэш (Hit Rate, $0 \le H \le 1$), <span class="formula-badge">(1 - H)</span> — коэффициент промаха (Miss Rate), <span class="formula-badge">T_cache</span> — задержка обращения к кэшу, <span class="formula-badge">T_ram</span> — задержка обращения к оперативной памяти при промахе кэша (Miss Penalty).
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25%;">Сценарий попадания (Hit Rate H)</th>
+            <th style="width: 25%;">Параметры подсистемы памяти</th>
+            <th style="width: 25%;">Формула расчета T_eff</th>
+            <th style="width: 25%;">Результат T_eff (нс)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Случай A: H = 90% (0.90)</strong></td>
+            <td>T_cache = 2 нс, T_ram = 60 нс</td>
+            <td><input type="text" class="table-input" id="tbl_calc_a_formula" placeholder="0.90 · 2 + 0.10 · 60"></td>
+            <td><input type="text" class="table-input" id="tbl_calc_a_res" placeholder="Например, 7.8 нс"></td>
+          </tr>
+          <tr>
+            <td><strong>Случай B: H = 95% (0.95)</strong></td>
+            <td>T_cache = 2 нс, T_ram = 60 нс</td>
+            <td><input type="text" class="table-input" id="tbl_calc_b_formula" placeholder="0.95 · 2 + 0.05 · 60"></td>
+            <td><input type="text" class="table-input" id="tbl_calc_b_res" placeholder="Например, 4.9 нс"></td>
+          </tr>
+          <tr>
+            <td><strong>Случай C: H = 98% (0.98)</strong></td>
+            <td>T_cache = 2 нс, T_ram = 60 нс</td>
+            <td><input type="text" class="table-input" id="tbl_calc_c_formula" placeholder="0.98 · 2 + 0.02 · 60"></td>
+            <td><input type="text" class="table-input" id="tbl_calc_c_res" placeholder="Например, 3.16 нс"></td>
+          </tr>
+          <tr>
+            <td><strong>Случай D: H = 99% (0.99)</strong></td>
+            <td>T_cache = 2 нс, T_ram = 60 нс</td>
+            <td><input type="text" class="table-input" id="tbl_calc_d_formula" placeholder="0.99 · 2 + 0.01 · 60"></td>
+            <td><input type="text" class="table-input" id="tbl_calc_d_res" placeholder="Например, 2.58 нс"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top: 14px;">
+      <label for="ans_locality_analysis"><strong>Анализ влияния кэш-промахов и принципов локальности:</strong> Объясните, почему падение Hit Rate всего на 4% (с 99% до 95%) увеличивает среднее время доступа к памяти почти в 2 раза? Каким образом принципы временной (Temporal Locality) и пространственной (Spatial Locality) локальности позволяют аппаратуре удерживать Hit Rate на уровне 95–99%?</label>
+      <textarea id="ans_locality_analysis" placeholder="Приведите расчет замедления и объясните физическую суть повторного использования данных (циклы) и чтения непрерывных кэш-линий размером 64 байта..."></textarea>
+    </div>
+  </div>
+
+  <!-- ЗАДАНИЕ 3: ФИЗИКА ЭНЕРГОНЕЗАВИСИМОЙ ПАМЯТИ NAND FLASH И ПРОТОКОЛЫ -->
+  <div class="task-card">
+    <div class="task-title">
+      <span>3. Физика энергонезависимой памяти: типы ячеек NAND, износ и протокол NVMe</span>
+    </div>
+    <div class="task-help">
+      Энергонезависимая флеш-память (NAND Flash) сохраняет заряд без внешнего питания, однако имеет жесткие физические ограничения на число циклов перезаписи (P/E cycles) и асимметрию операций чтения/записи/стирания.
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 20%;">Тип ячейки NAND</th>
+            <th style="width: 20%;">Бит в ячейке / Число уровней напряжения</th>
+            <th style="width: 20%;">Ресурс циклов перезаписи (P/E Cycles)</th>
+            <th style="width: 20%;">Быстродействие и надежность</th>
+            <th style="width: 20%;">Область применения</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>SLC (Single-Level Cell)</strong></td>
+            <td><input type="text" class="table-input" id="tbl_nand_slc_bits" placeholder="1 бит / 2 уровня"></td>
+            <td><input type="text" class="table-input" id="tbl_nand_slc_pe" placeholder="~50 000 – 100 000"></td>
+            <td><input type="text" class="table-input" id="tbl_nand_slc_perf" placeholder="Максимальная скорость, мин. задержка"></td>
+            <td><input type="text" class="table-input" id="tbl_nand_slc_app" placeholder="SLC-кэш, военные/промышленные узлы"></td>
+          </tr>
+          <tr>
+            <td><strong>MLC (Multi-Level Cell)</strong></td>
+            <td><input type="text" class="table-input" id="tbl_nand_mlc_bits" placeholder="2 бита / 4 уровня"></td>
+            <td><input type="text" class="table-input" id="tbl_nand_mlc_pe" placeholder="~3 000 – 10 000"></td>
+            <td><input type="text" class="table-input" id="tbl_nand_mlc_perf" placeholder="Высокая скорость, отличная стойкость"></td>
+            <td><input type="text" class="table-input" id="tbl_nand_mlc_app" placeholder="Enterprise SSD, серверы"></td>
+          </tr>
+          <tr>
+            <td><strong>TLC (Triple-Level Cell)</strong></td>
+            <td><input type="text" class="table-input" id="tbl_nand_tlc_bits" placeholder="3 бита / 8 уровней"></td>
+            <td><input type="text" class="table-input" id="tbl_nand_tlc_pe" placeholder="~1 000 – 3 000"></td>
+            <td><input type="text" class="table-input" id="tbl_nand_tlc_perf" placeholder="Средняя скорость, требует SLC-кэша"></td>
+            <td><input type="text" class="table-input" id="tbl_nand_tlc_app" placeholder="Массовые потребительские SSD"></td>
+          </tr>
+          <tr>
+            <td><strong>QLC (Quad-Level Cell)</strong></td>
+            <td><input type="text" class="table-input" id="tbl_nand_qlc_bits" placeholder="4 бита / 16 уровней"></td>
+            <td><input type="text" class="table-input" id="tbl_nand_qlc_pe" placeholder="~300 – 1 000"></td>
+            <td><input type="text" class="table-input" id="tbl_nand_qlc_perf" placeholder="Низкая скорость прямой записи"></td>
+            <td><input type="text" class="table-input" id="tbl_nand_qlc_app" placeholder="Бюджетные SSD, хранилища WORM"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top: 14px;">
+      <label for="ans_nand_mechanics"><strong>Физика блочно-страничной организации и выравнивания износа:</strong> Почему флеш-память NAND не может перезаписать данные в ячейку без предварительного стирания целого блока (Read-Modify-Write)? Как контроллер SSD продлевает жизнь накопителю с помощью алгоритмов Wear Leveling (динамический vs статический) и команды TRIM?</label>
+      <textarea id="ans_nand_mechanics" placeholder="Опишите различие размеров страницы (4–16 КБ) и блока стирания (2–8 МБ), квантовое туннелирование Фаулера-Нордгейма, износ оксидного диэлектрика и перераспределение статических блоков..."></textarea>
+    </div>
+
+    <div style="margin-top: 14px;">
+      <label for="ans_nvme_vs_sata"><strong>Архитектурный баттл: NVMe (PCIe) против SATA AHCI:</strong> Почему накопители NVMe демонстрируют в десятки раз меньшую задержку и многократно большую пропускную способность, чем SATA SSD, даже при использовании одинаковых чипов TLC NAND? Сопоставьте шины, количество и глубину очередей команд, механизм прерываний (MSI-X) и параллелизм потоков ЦП:</label>
+      <textarea id="ans_nvme_vs_sata" placeholder="Сравните SATA III (6 Гбит/с, AHCI, 1 очередь на 32 команды, блокировки драйвера) и PCIe Gen4/Gen5 x4 (до 64 000 очередей по 64 000 команд в каждой, прямой доступ без блокировок ядра)..."></textarea>
+    </div>
+  </div>
+
+  <!-- ЗАДАНИЕ 4: ИНДИВИДУАЛЬНЫЙ АРХИТЕКТУРНЫЙ ПРОТОКОЛ -->
+  <div class="task-card">
+    <div class="task-title">
+      <span>4. Индивидуальный инженерный протокол подсистемы памяти</span>
+    </div>
+    <div class="variant-card">
+      <div class="variant-title" id="display_variant_title">Вариант не выбран в шапке страницы (выберите вариант в карточке студента выше)</div>
+      <p style="color: var(--muted); font-size: 14px;">
+        Для выбранного архитектурного профиля составьте исчерпывающее инженерное заключение по организации подсистемы хранения и кэширования.
+      </p>
+    </div>
+
+    <div style="margin-top: 14px;">
+      <label for="ans_variant_bottleneck"><strong>1. Анализ критического аппаратного узкого места:</strong> Какой уровень иерархии памяти является критическим лимитирующим фактором для данного сценария (Memory Latency-bound, Storage Throughput-bound, Data Retention/Durability-bound, Power/Thermal-bound)? Обоснуйте характер возникающих задержек:</label>
+      <textarea id="ans_variant_bottleneck" placeholder="Определите, что критичнее для вашей задачи — наносекундная латентность ОЗУ/кэша, линейная скорость NVMe, долговременная сохранность заряда или минимальное энергопотребление в режиме сна..."></textarea>
+    </div>
+
+    <div style="margin-top: 14px;">
+      <label for="ans_variant_spec"><strong>2. Спецификация и обоснование архитектурной конфигурации:</strong> Сформулируйте точную конфигурацию подсистемы памяти (объем и структура L3 кэша, тип и канальность ОЗУ DDR4/DDR5/LPDDR, тип накопителя NAND SLC/TLC/QLC, протокол шины NVMe/PCIe или SAS/Tape). Аргументируйте выбор каждого компонента:</label>
+      <textarea id="ans_variant_spec" placeholder="Укажите конкретные типы памяти, шины, каналы контроллера и обоснуйте, почему предложенное решение оптимально решает задачу..."></textarea>
+    </div>
+
+    <div style="margin-top: 14px;">
+      <label for="ans_variant_compromise"><strong>3. Анализ неизбежного компромисса:</strong> Какими характеристиками системы пришлось сознательно пожертвовать (стоимость за гигабайт, пиковая производительность, энергопотребление или ресурс циклов перезаписи TBW) ради удовлетворения главного требования сценария? Почему этот компромисс оправдан:</label>
+      <textarea id="ans_variant_compromise" placeholder="Раскройте компромисс выбранного решения (например, высокая стоимость за гигабайт ОЗУ в In-Memory DB или низкая скорость доступа к ленточному архиву в пользу векового хранения)..."></textarea>
+    </div>
+  </div>
+
+  <!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
+  <div class="actions-card">
+    <div class="btn-row">
+      <button class="btn-primary" onclick="saveToLocalStorage(true)">💾 Сохранить в браузере</button>
+      <button class="btn-secondary" onclick="window.print()">🖨️ Распечатать / Сохранить в PDF</button>
+      <button class="btn-danger" onclick="confirmReset()">🗑️ Очистить форму</button>
+      <span id="save_status" class="status-msg"></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const STORAGE_KEY = 'sie_hw13_zanyatie_data';
+  const FORM_FIELDS = [
+    'student_fio', 'student_group', 'work_date', 'work_variant',
+    'tbl_lat_reg', 'tbl_cap_reg', 'tbl_vol_reg', 'tbl_cst_reg',
+    'tbl_lat_l1', 'tbl_cap_l1', 'tbl_vol_l1', 'tbl_cst_l1',
+    'tbl_lat_l2', 'tbl_cap_l2', 'tbl_vol_l2', 'tbl_cst_l2',
+    'tbl_lat_l3', 'tbl_cap_l3', 'tbl_vol_l3', 'tbl_cst_l3',
+    'tbl_lat_ram', 'tbl_cap_ram', 'tbl_vol_ram', 'tbl_cst_ram',
+    'tbl_lat_nvme', 'tbl_cap_nvme', 'tbl_vol_nvme', 'tbl_cst_nvme',
+    'tbl_lat_hdd', 'tbl_cap_hdd', 'tbl_vol_hdd', 'tbl_cst_hdd',
+    'tbl_lat_tape', 'tbl_cap_tape', 'tbl_vol_tape', 'tbl_cst_tape',
+    'ans_tradeoff_explanation',
+    'tbl_calc_a_formula', 'tbl_calc_a_res',
+    'tbl_calc_b_formula', 'tbl_calc_b_res',
+    'tbl_calc_c_formula', 'tbl_calc_c_res',
+    'tbl_calc_d_formula', 'tbl_calc_d_res',
+    'ans_locality_analysis',
+    'tbl_nand_slc_bits', 'tbl_nand_slc_pe', 'tbl_nand_slc_perf', 'tbl_nand_slc_app',
+    'tbl_nand_mlc_bits', 'tbl_nand_mlc_pe', 'tbl_nand_mlc_perf', 'tbl_nand_mlc_app',
+    'tbl_nand_tlc_bits', 'tbl_nand_tlc_pe', 'tbl_nand_tlc_perf', 'tbl_nand_tlc_app',
+    'tbl_nand_qlc_bits', 'tbl_nand_qlc_pe', 'tbl_nand_qlc_perf', 'tbl_nand_qlc_app',
+    'ans_nand_mechanics', 'ans_nvme_vs_sata',
+    'ans_variant_bottleneck', 'ans_variant_spec', 'ans_variant_compromise'
+  ];
+
+  const VARIANT_TITLES = {
+    '1': 'Вариант 1: Высоконагруженная In-Memory СУБД (Redis / Tarantool / SAP HANA)',
+    '2': 'Вариант 2: Долговременный холодный архив и резервное копирование (Tape LTO / Cold Cloud Archive)',
+    '3': 'Вариант 3: Рабочая станция для 3D-графики и соревновательного гейминга (DirectStorage / NVMe PCIe 4.0/5.0)',
+    '4': 'Вариант 4: Мобильный энергоэффективный IoT-контроллер / Edge AI (LPDDR4X / eMMC / Power Loss Protection)'
+  };
+
+  function updateVariantSelection() {
+    const sel = document.getElementById('work_variant');
+    const val = sel.value;
+    const titleElem = document.getElementById('display_variant_title');
+    const printElem = document.getElementById('print_work_variant');
+
+    if (val && VARIANT_TITLES[val]) {
+      titleElem.textContent = VARIANT_TITLES[val];
+      printElem.textContent = sel.options[sel.selectedIndex].text;
+    } else {
+      titleElem.textContent = 'Вариант не выбран в шапке страницы (выберите вариант в карточке студента выше)';
+      printElem.textContent = 'Вариант не выбран';
+    }
+    saveToLocalStorage(false);
+  }
+
+  function saveToLocalStorage(showFeedback) {
+    const data = {};
+    FORM_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) data[id] = el.value;
+    });
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      if (showFeedback) {
+        const status = document.getElementById('save_status');
+        status.textContent = '✓ Сохранено в браузере';
+        status.className = 'status-msg status-saved';
+        setTimeout(() => { status.textContent = ''; }, 3000);
+      }
+    } catch (e) {
+      console.warn('LocalStorage error:', e);
+    }
+  }
+
+  function loadFromLocalStorage() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const data = JSON.parse(raw);
+        FORM_FIELDS.forEach(id => {
+          if (data[id] !== undefined) {
+            const el = document.getElementById(id);
+            if (el) el.value = data[id];
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('LocalStorage load error:', e);
+    }
+    updateVariantSelection();
+  }
+
+  function confirmReset() {
+    if (confirm('Внимание! Все введенные данные в форме будут безвозвратно удалены. Продолжить очистку?')) {
+      FORM_FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (e) {}
+      updateVariantSelection();
+      const status = document.getElementById('save_status');
+      status.textContent = 'Форма очищена';
+      status.className = 'status-msg';
+      setTimeout(() => { status.textContent = ''; }, 3000);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadFromLocalStorage();
+    FORM_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => saveToLocalStorage(false));
+        el.addEventListener('change', () => saveToLocalStorage(false));
+      }
+    });
+  });
+
+  window.addEventListener('beforeprint', () => {
+    updateVariantSelection();
+  });
+</script>
+</body>
+</html>

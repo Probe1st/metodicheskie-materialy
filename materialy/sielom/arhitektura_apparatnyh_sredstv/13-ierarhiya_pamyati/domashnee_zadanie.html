@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Домашнее задание - Энергонезависимая память. Иерархия памяти</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --ok: #059669;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15.5px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .card, .actions-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(22px, 3.5vw, 28px);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .notice {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      font-size: 14.5px;
+      color: #92400e;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    input[type="text"], input[type="date"], textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14.5px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+    }
+    textarea {
+      min-height: 85px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    h2 {
+      font-size: 18.5px;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .sample-box {
+      background: #f1f5f9;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 12px 0 16px;
+      font-size: 14.5px;
+    }
+    .sample-title {
+      font-weight: 700;
+      color: #1e3a8a;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .formula-badge {
+      display: inline-block;
+      background: #0f172a;
+      color: #38bdf8;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      padding: 3px 7px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .table-input {
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 6px 8px;
+      font-size: 13px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font: inherit;
+      font-weight: 600;
+      font-size: 14.5px;
+      transition: background .15s, transform .05s;
+    }
+    button:active { transform: scale(0.98); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary { background: #e2e8f0; color: #334155; }
+    .btn-secondary:hover { background: #cbd5e1; }
+    .btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #fecaca; }
+    .status-msg {
+      font-size: 14px;
+      font-weight: 600;
+      margin-left: auto;
+    }
+    .status-saved { color: var(--ok); }
+
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+        font-size: 11pt;
+        color: #000;
+      }
+      .page {
+        max-width: 100%;
+        margin: 0;
+      }
+      .header-card, .student-card, .card {
+        box-shadow: none;
+        border: 1px solid #777;
+        margin-bottom: 14pt;
+        padding: 12pt;
+        break-inside: auto;
+        page-break-inside: auto;
+      }
+      .student-grid {
+        grid-template-columns: 1.5fr 1fr 1fr !important;
+        gap: 8pt !important;
+      }
+      .actions-card, .btn-row {
+        display: none !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        opacity: 0 !important;
+      }
+      textarea {
+        height: auto !important;
+        min-height: 90px;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      input[type="text"], input[type="date"], .table-input {
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ШАПКА ДЗ -->
+  <div class="header-card">
+    <h1>Домашнее задание - Энергонезависимая память. Иерархия памяти</h1>
+    <div class="notice">
+      Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+    </div>
+  </div>
+
+  <!-- КАРТОЧКА СТУДЕНТА -->
+  <div class="student-card">
+    <div class="student-grid">
+      <div>
+        <label for="hw_student_fio">ФИО обучающегося:</label>
+        <input type="text" id="hw_student_fio" placeholder="Фамилия, Имя, Отчество обучающегося" autocomplete="off">
+      </div>
+      <div>
+        <label for="hw_student_group">Учебная группа:</label>
+        <input type="text" id="hw_student_group" placeholder="Например, ИСП-21" autocomplete="off">
+      </div>
+      <div>
+        <label for="hw_work_date">Дата выполнения:</label>
+        <input type="date" id="hw_work_date">
+      </div>
+    </div>
+  </div>
+
+  <!-- РАЗОБРАННЫЙ ЭТАЛОННЫЙ ОБРАЗЕЦ -->
+  <div class="card">
+    <h2>Разобранный образец: расчет эффективного времени доступа и компромисса памяти</h2>
+    <div class="sample-box">
+      <div class="sample-title">📌 Условие задачи-образца:</div>
+      <p>
+        Вычислительный кластер выполняет обработку числовых массивов. Время обращения к кэш-памяти L3 составляет <span class="formula-badge">T_cache = 2.5 нс</span>, задержка обращения к оперативной памяти DRAM при кэш-промахе составляет <span class="formula-badge">T_ram = 75 нс</span>. Коэффициент попаданий в кэш равен <span class="formula-badge">H = 0.96 (96%)</span>.<br>
+        <strong>Требуется:</strong> рассчитать эффективное время доступа <span class="formula-badge">T_eff</span>, определить долю времени, затрачиваемую на обслуживание промахов, и оценить, что произойдет с быстродействием процессора, если оптимизация кода повысит Hit Rate до <span class="formula-badge">99%</span>.
+      </p>
+      
+      <div class="sample-title" style="margin-top: 10px;">💡 Эталонный ход решения:</div>
+      <ol style="padding-left: 20px;">
+        <li>
+          <strong>Базовый расчет по формуле эффективного времени:</strong><br>
+          <span class="formula-badge">T_eff = H · T_cache + (1 - H) · T_ram</span><br>
+          Подставляем входные данные:<br>
+          <span class="formula-badge">T_eff = 0.96 · 2.5 + (1 - 0.96) · 75 = 2.40 + 0.04 · 75 = 2.40 + 3.00 = 5.40 нс</span>.
+        </li>
+        <li>
+          <strong>Анализ вклада кэш-промахов:</strong><br>
+          Несмотря на то, что кэш-промахи происходят всего в 4% случаев (0.04), ожидание данных из DRAM дает <span class="formula-badge">3.00 нс</span> из общих <span class="formula-badge">5.40 нс</span>, то есть более <strong>55.5%</strong> среднего времени ожидания памяти обусловлено всего 4% промахов!
+        </li>
+        <li>
+          <strong>Расчет при оптимизации кода (H = 0.99):</strong><br>
+          <span class="formula-badge">T_eff(opt) = 0.99 · 2.5 + 0.01 · 75 = 2.475 + 0.75 = 3.225 нс</span>.<br>
+          <strong>Вывод:</strong> Рост Hit Rate всего на 3 процентных пункта (с 96% до 99%) сокращает среднее время доступа к памяти с 5.40 нс до 3.225 нс — ускорение подсистемы памяти в <span class="formula-badge">5.40 / 3.225 ≈ 1.67 раза</span> (+67% к скорости памяти), что напрямую разгружает конвейер процессора от длительных простоев (Stalls).
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- УПРАЖНЕНИЕ 1 -->
+  <div class="card">
+    <h2>Упражнение 1. Расчет эффективного времени доступа для индивидуальных параметров</h2>
+    <p>
+      Подсистема памяти сервера имеет следующие характеристики: время доступа к кэшу процессора <span class="formula-badge">T_cache = 1.5 нс</span>, задержка обращения к оперативной памяти DDR5 <span class="formula-badge">T_ram = 50 нс</span>.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25%;">Коэффициент попаданий (H)</th>
+            <th style="width: 35%;">Формула подстановки</th>
+            <th style="width: 40%;">Эффективное время T_eff (нс)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>H = 92% (0.92)</strong></td>
+            <td><input type="text" class="table-input" id="hw_ex1_sub92" placeholder="0.92 · 1.5 + 0.08 · 50"></td>
+            <td><input type="text" class="table-input" id="hw_ex1_res92" placeholder="Результат в нс"></td>
+          </tr>
+          <tr>
+            <td><strong>H = 96% (0.96)</strong></td>
+            <td><input type="text" class="table-input" id="hw_ex1_sub96" placeholder="0.96 · 1.5 + 0.04 · 50"></td>
+            <td><input type="text" class="table-input" id="hw_ex1_res96" placeholder="Результат в нс"></td>
+          </tr>
+          <tr>
+            <td><strong>H = 99% (0.99)</strong></td>
+            <td><input type="text" class="table-input" id="hw_ex1_sub99" placeholder="0.99 · 1.5 + 0.01 · 50"></td>
+            <td><input type="text" class="table-input" id="hw_ex1_res99" placeholder="Результат в нс"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top: 12px;">
+      <label for="hw_ex1_analysis"><strong>Архитектурный анализ штрафа за промах (Miss Penalty):</strong> Сравните результаты при H = 92% и H = 99%. Во сколько раз снизилась средняя задержка? Почему в архитектуре процессоров аппаратные предвыборщики (Hardware Prefetchers) стремятся предсказывать обращения к памяти заранее:</label>
+      <textarea id="hw_ex1_analysis" placeholder="Опишите, во сколько раз эффективнее работает процессор и почему предварительная загрузка данных (Prefetch) в кэш нивелирует задержку DRAM..."></textarea>
+    </div>
+  </div>
+
+  <!-- УПРАЖНЕНИЕ 2 -->
+  <div class="card">
+    <h2>Упражнение 2. Физический ресурс накопителей NAND Flash и расчет TBW</h2>
+    <p>
+      Ресурс записи SSD измеряется параметром <span class="formula-badge">TBW (Total Bytes Written)</span> — гарантированным суммарным объемом данных в терабайтах, который можно записать на накопитель до деградации ячеек. Формула ресурса:<br>
+      <span class="formula-badge">TBW = (Ёмкость накопителя в ТБ · Число циклов P/E) / Коэффициент усиления записи (WA)</span>
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25%;">Тип накопителя (Ёмкость 2 ТБ)</th>
+            <th style="width: 25%;">Ресурс ячеек (P/E) и WA</th>
+            <th style="width: 25%;">Расчетный TBW (ТБ)</th>
+            <th style="width: 25%;">Срок службы при записи 100 ГБ/день</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Серверный TLC SSD (2 ТБ)</strong></td>
+            <td>P/E = 3000 циклов, WA = 1.2</td>
+            <td><input type="text" class="table-input" id="hw_ex2_tlc_tbw" placeholder="(2 · 3000) / 1.2 = 5000 ТБ"></td>
+            <td><input type="text" class="table-input" id="hw_ex2_tlc_years" placeholder="Результат в годах (например, ~137 лет)"></td>
+          </tr>
+          <tr>
+            <td><strong>Бюджетный QLC SSD (2 ТБ)</strong></td>
+            <td>P/E = 400 циклов, WA = 1.8</td>
+            <td><input type="text" class="table-input" id="hw_ex2_qlc_tbw" placeholder="(2 · 400) / 1.8 = 444 ТБ"></td>
+            <td><input type="text" class="table-input" id="hw_ex2_qlc_years" placeholder="Результат в годах (например, ~12 лет)"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top: 12px;">
+      <label for="hw_ex2_exhaustion"><strong>Анализ физики SLC-кэширования и деградации скорости:</strong> Почему при непрерывной записи большого файла (например, 200 ГБ видеомонтажа) скорость записи на QLC/TLC SSD сначала составляет 3000–5000 МБ/с, а затем резко падает до 80–150 МБ/с (медленнее старого жесткого диска)? Опишите физику исчерпания динамического pSLC-буфера:</label>
+      <textarea id="hw_ex2_exhaustion" placeholder="Объясните временное однобитное программирование ячеек, переполнение буфера и вынужденный процесс уплотнения (folding) со сбросом данных в 3/4-битный режим..."></textarea>
+    </div>
+  </div>
+
+  <!-- УПРАЖНЕНИЕ 3 -->
+  <div class="card">
+    <h2>Упражнение 3. Сравнительный анализ архитектур накопителей: NVMe SSD против SAS HDD</h2>
+    <label for="hw_ex3_storage_comparison">
+      Банковская транзакционная СУБД обрабатывает случайные операции чтения и записи блоков размером 4 КБ при глубине очереди <span class="formula-badge">QD = 32</span>. Сравните массив из 8 жестких дисков Enterprise SAS HDD (15 000 об/мин) и 1 накопитель NVMe PCIe Gen4 SSD:
+    </label>
+    <textarea id="hw_ex3_storage_comparison" placeholder="Сравните: задержку доступа (5 мс механики vs 20 мкс полупроводников), количество случайных операций ввода-вывода (IOPS: ~210 IOPS на диск HDD против 800 000+ IOPS у NVMe), параллелизм очередей и энергопотребление..."></textarea>
+  </div>
+
+  <!-- ПАНЕЛЬ ДЕЙСТВИЙ -->
+  <div class="actions-card">
+    <div class="btn-row">
+      <button class="btn-primary" onclick="saveHwToLocalStorage(true)">💾 Сохранить ответы</button>
+      <button class="btn-secondary" onclick="window.print()">🖨️ Печать / Сохранить в PDF</button>
+      <button class="btn-danger" onclick="confirmHwReset()">🗑️ Сбросить ответы</button>
+      <span id="hw_save_status" class="status-msg"></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const HW_STORAGE_KEY = 'sie_hw13_domashnee_data';
+  const HW_FORM_FIELDS = [
+    'hw_student_fio', 'hw_student_group', 'hw_work_date',
+    'hw_ex1_sub92', 'hw_ex1_res92',
+    'hw_ex1_sub96', 'hw_ex1_res96',
+    'hw_ex1_sub99', 'hw_ex1_res99',
+    'hw_ex1_analysis',
+    'hw_ex2_tlc_tbw', 'hw_ex2_tlc_years',
+    'hw_ex2_qlc_tbw', 'hw_ex2_qlc_years',
+    'hw_ex2_exhaustion',
+    'hw_ex3_storage_comparison'
+  ];
+
+  function saveHwToLocalStorage(showFeedback) {
+    const data = {};
+    HW_FORM_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) data[id] = el.value;
+    });
+    try {
+      localStorage.setItem(HW_STORAGE_KEY, JSON.stringify(data));
+      if (showFeedback) {
+        const status = document.getElementById('hw_save_status');
+        status.textContent = '✓ Ответы сохранены';
+        status.className = 'status-msg status-saved';
+        setTimeout(() => { status.textContent = ''; }, 3000);
+      }
+    } catch (e) {
+      console.warn('LocalStorage error:', e);
+    }
+  }
+
+  function loadHwFromLocalStorage() {
+    try {
+      const raw = localStorage.getItem(HW_STORAGE_KEY);
+      if (raw) {
+        const data = JSON.parse(raw);
+        HW_FORM_FIELDS.forEach(id => {
+          if (data[id] !== undefined) {
+            const el = document.getElementById(id);
+            if (el) el.value = data[id];
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('LocalStorage load error:', e);
+    }
+  }
+
+  function confirmHwReset() {
+    if (confirm('Внимание! Все введенные ответы в домашнем задании будут удалены. Продолжить?')) {
+      HW_FORM_FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      try {
+        localStorage.removeItem(HW_STORAGE_KEY);
+      } catch (e) {}
+      const status = document.getElementById('hw_save_status');
+      status.textContent = 'Ответы очищены';
+      status.className = 'status-msg';
+      setTimeout(() => { status.textContent = ''; }, 3000);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadHwFromLocalStorage();
+    HW_FORM_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => saveHwToLocalStorage(false));
+        el.addEventListener('change', () => saveHwToLocalStorage(false));
+      }
+    });
+  });
+</script>
+</body>
+</html>
