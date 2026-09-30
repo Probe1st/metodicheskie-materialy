@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Домашнее задание - Итоговая комплексная работа по архитектуре ЭВМ</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --ok: #059669;
+      --warn: #d97706;
+      --danger: #dc2626;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .card, .actions-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(22px, 3.5vw, 27px);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .notice {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      font-size: 14.5px;
+      color: #92400e;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    input[type="text"], input[type="date"], textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+    }
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid rgba(30, 64, 175, 0.2);
+    }
+    .sample-box {
+      background: #f1f5f9;
+      border-left: 4px solid var(--accent);
+      padding: 16px;
+      border-radius: 0 10px 10px 0;
+      margin: 14px 0;
+      font-size: 14px;
+    }
+    .sample-box h4 {
+      color: var(--accent);
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      margin: 14px 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #fff;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    @media print {
+      body {
+        background: #fff !important;
+        color: #000 !important;
+        padding: 0 !important;
+        font-size: 10pt !important;
+      }
+      .page {
+        max-width: 100% !important;
+        margin: 0 !important;
+      }
+      .header-card, .student-card, .card {
+        box-shadow: none !important;
+        border: 1px solid #777 !important;
+        margin-bottom: 12pt !important;
+        padding: 10pt !important;
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+      }
+      .actions-card, .btn-row {
+        display: none !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        opacity: 0 !important;
+      }
+      textarea {
+        height: auto !important;
+        min-height: 80px;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      input[type="text"], input[type="date"] {
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      table {
+        page-break-inside: auto;
+      }
+      tr {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ШАПКА ЗАДАНИЯ -->
+  <div class="header-card">
+    <h1>Домашнее задание - Итоговая комплексная работа по архитектуре ЭВМ</h1>
+    <div class="notice">
+      Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+    </div>
+    <p style="margin-top: 12px; color: var(--muted); font-size: 14px;">
+      Резервный вариант итогового комплексного задания по дисциплине «ОП.02 Архитектура аппаратных средств» для обучающихся, пропустивших занятие или направленных на пересдачу/доработку проекта. Включает разбор типового архитектурного проекта и контрольные расчетные упражнения по балансировке подсистем ЭВМ.
+    </p>
+  </div>
+
+  <!-- КАРТОЧКА СТУДЕНТА (БЕЗ ВЫМЫШЛЕННЫХ ДАННЫХ) -->
+  <div class="student-card">
+    <div class="student-grid">
+      <div>
+        <label for="hw_fio">ФИО обучающегося:</label>
+        <input type="text" id="hw_fio" placeholder="Фамилия Имя Отчество" autocomplete="off">
+      </div>
+      <div>
+        <label for="hw_group">Учебная группа:</label>
+        <input type="text" id="hw_group" placeholder="Например, ИСП-23-1" autocomplete="off">
+      </div>
+      <div>
+        <label for="hw_date">Дата сдачи:</label>
+        <input type="date" id="hw_date">
+      </div>
+    </div>
+  </div>
+
+  <!-- РАЗОБРАННЫЙ ОБРАЗЕЦ ИНЖЕНЕРНОГО РАСЧЕТА -->
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+      <h3 style="color: var(--accent);">Разобранный эталонный образец: Проектирование узла визуализации</h3>
+      <span class="badge">Эталон методики</span>
+    </div>
+    <div class="sample-box">
+      <h4>Техническое задание:</h4>
+      <p>Спроектировать двухпроцессорный узел 3D-рендеринга на базе 2x Intel Xeon Gold 6430 (32 ядра/сокет, базовая 2.1 ГГц, All-Core Turbo 3.4 ГГц, 8 каналов DDR5 на сокет, 80 линий PCIe 5.0 на сокет), 2x NVIDIA RTX 4090 (по 450 Вт TDP), 2x NVMe PCIe 4.0 x4, 1x 25GbE NIC.</p>
+      
+      <h4 style="margin-top: 10px;">Пошаговый инженерный расчет:</h4>
+      <ol style="padding-left: 20px;">
+        <li><strong>Пиковая производительность процессоров ($R_{peak}$):</strong><br>
+          $R_{peak} = 2 \text{ сокета} \times 32 \text{ ядра} \times 3.4 \text{ ГГц} \times 32 \text{ FLOP/такт (2x AVX-512 FMA 512-bit)} = 6963.2 \text{ GFLOPS} \approx 6.96 \text{ TFLOPS (FP64)}$.
+        </li>
+        <li><strong>Пропускная способность памяти ($BW_{RAM}$):</strong><br>
+          16 каналов DDR5-4400 (по 8 каналов на сокет). $BW = 16 \times 4400 \text{ MT/s} \times 8 \text{ байт} = 563.2 \text{ ГБ/с}$. Баланс памяти (B/F ratio): $563.2 / 6963.2 \approx 0.081 \text{ байт/FLOP}$.
+        </li>
+        <li><strong>Распределение линий PCIe и баланс шин:</strong><br>
+          Платформа предоставляет 160 процессорных линий PCIe 5.0. Видеокарты подключаются напрямую к сокетам: GPU 1 к Socket 0 (16 линий PCIe 4.0/5.0), GPU 2 к Socket 1 (16 линий). Накопители NVMe: по 1 диску на сокет ($2 \times 4 = 8$ линий). Сетевая карта: 8 линий к Socket 0. Суммарно занято $16 + 16 + 8 + 8 = 48$ процессорных линий из 160. Переподписка отсутствует.
+        </li>
+        <li><strong>Расчет подсистемы питания ATX:</strong><br>
+          CPU: $2 \times 270 \text{ Вт} = 540 \text{ Вт}$. GPU: $2 \times 450 \text{ Вт} = 900 \text{ Вт}$ (пиковые броски до 1800 Вт по стандарту ATX 3.0 / PCIe 5.0). Периферия: 150 Вт. Суммарная долговременная мощность: $540 + 900 + 150 = 1590 \text{ Вт}$. Ток по шине 12V: $1590 / 12 = 132.5 \text{ А}$. Минимально необходимый блок питания с коэффициентом запаса 1.3: $1590 \times 1.3 \approx 2000 \text{ Вт}$ (2x CRPS 1200 Вт $N+1$ либо одиночный ATX 3.0 Titanium 2000 Вт).
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- УПРАЖНЕНИЕ 1: РАСЧЕТ ВЫЧИСЛИТЕЛЬНОГО БАЛАНСА -->
+  <div class="card">
+    <h3 style="color: var(--accent); margin-bottom: 8px;">Упражнение 1. Расчет пиковой производительности и пропускной способности памяти</h3>
+    <p style="font-size: 14px; color: var(--muted); margin-bottom: 12px;">
+      Для 2-сокетного сервера на процессорах AMD EPYC 9354 (32 ядра, All-Core Turbo 3.75 ГГц, 12 каналов памяти DDR5-4800 на сокет, 2x AVX-512 FMA 512-bit) рассчитайте:
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 40%;">Параметр</th>
+            <th style="width: 30%;">Формула</th>
+            <th style="width: 30%;">Ваш расчетный ответ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Пиковая производительность ($R_{peak}$ FP64)</td>
+            <td>$2 \times 32 \times 3.75 \times 32$</td>
+            <td><input type="text" id="hw_ex1_rpeak" placeholder="Значение в TFLOPS"></td>
+          </tr>
+          <tr>
+            <td>Суммарная ПСП памяти (24 канала DDR5-4800)</td>
+            <td>$24 \times 4800 \times 8$</td>
+            <td><input type="text" id="hw_ex1_bw" placeholder="Значение в ГБ/с"></td>
+          </tr>
+          <tr>
+            <td>Коэффициент Bytes-per-FLOP</td>
+            <td>$BW_{RAM} / R_{peak}$</td>
+            <td><input type="text" id="hw_ex1_bf" placeholder="Байт на FLOP"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <label for="hw_ex1_ans">Анализ: Является ли данная система сбалансированной для потоковых вычислений (Memory Wall)?</label>
+    <textarea id="hw_ex1_ans" placeholder="Приведите физическое и архитектурное обоснование роли кэш-памяти и каналов памяти."></textarea>
+  </div>
+
+  <!-- УПРАЖНЕНИЕ 2: БАЛАНСИРОВКА ЛИНИЙ И УЗКИХ МЕСТ PCIE -->
+  <div class="card">
+    <h3 style="color: var(--accent); margin-bottom: 8px;">Упражнение 2. Балансировка линий ввода-вывода и предотвращение дефицита шин</h3>
+    <p style="font-size: 14px; color: var(--muted); margin-bottom: 12px;">
+      В систему с процессором десктопного класса (20 процессорных линий PCIe 5.0, шина чипсета DMI 4.0 x4 с ПСП 7.88 ГБ/с) инженер установил: видеокарту PCIe 5.0 x16 (64 ГБ/с), системный накопитель M.2 PCIe 5.0 x4 (16 ГБ/с), плату видеозахвата PCIe 4.0 x8 (15.75 ГБ/с) и сетевой адаптер 10GbE PCIe 3.0 x4 (3.94 ГБ/с).
+    </p>
+    <label for="hw_ex2_ans"><strong>Задание:</strong> Постройте оптимальную схему коммутации устройств. Какие устройства допустимо подключить к чипсету, а какие строго обязаны идти к процессору? Обоснуйте риск насыщения шины DMI.</label>
+    <textarea id="hw_ex2_ans" placeholder="Укажите распределение линий и проведите расчет суммарной пропускной способности чипсетного линка при одновременной работе периферии."></textarea>
+  </div>
+
+  <!-- УПРАЖНЕНИЕ 3: АНАЛИЗ ДЕФЕКТНОЙ КОНФИГУРАЦИИ И РАСЧЕТ ПИТАНИЯ -->
+  <div class="card">
+    <h3 style="color: var(--accent); margin-bottom: 8px;">Упражнение 3. Диагностика аппаратного сбоя подсистемы питания ATX</h3>
+    <p style="font-size: 14px; color: var(--muted); margin-bottom: 12px;">
+      Конфигурация рабочей станции: процессор Core i9-14900K (TDP 125 Вт, PL2 253 Вт), видеокарта GeForce RTX 4090 (TDP 450 Вт, пиковые микросекундные броски до 900 Вт), 4 модуля DDR5, 3 накопителя NVMe. Установлен блок питания старого стандарта ATX 2.3 мощностью 850 Вт с двумя линиями +12V по 35 А каждая (виртуальная защита OCP). При запуске рендеринга компьютер мгновенно отключается без синего экрана (BSoD).
+    </p>
+    <label for="hw_ex3_ans"><strong>Задание:</strong> Опишите точную физико-схемотехническую причину отключения (срабатывание защит OCP/OPP, распределение нагрузки по виртуальным линиям 12V, броски Power Excursions). Рассчитайте параметры блока питания нового стандарта ATX 3.0, гарантирующего безотказную работу.</label>
+    <textarea id="hw_ex3_ans" placeholder="Приведите расчет требуемого тока по шине 12V, пиковой мощности и обоснуйте стандарт разъема 12V-2x6."></textarea>
+  </div>
+
+  <!-- ПАНЕЛЬ ДЕЙСТВИЙ -->
+  <div class="actions-card">
+    <div class="btn-row">
+      <button type="button" onclick="window.print()">
+        🖨️ Распечатать / Сохранить в PDF
+      </button>
+      <span style="font-size: 13px; color: var(--muted);">
+        * Распечатайте или сохраните PDF для отправки на проверку преподавателю.
+      </span>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
