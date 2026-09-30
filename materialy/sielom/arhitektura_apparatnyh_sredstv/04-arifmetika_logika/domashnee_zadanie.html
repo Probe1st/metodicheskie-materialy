@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Домашнее задание - Арифметические действия. Логические операции. Единицы количества информации. Коды чисел</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #2563eb;
+      --accent-soft: #eff6ff;
+      --accent-dark: #1e40af;
+      --code-bg: #0f172a;
+      --code-text: #f8fafc;
+      --warn-bg: #fffbeb;
+      --warn-border: #fde68a;
+      --warn-text: #92400e;
+      --input-bg: #f8fafc;
+      --input-focus: #ffffff;
+      --radius: 12px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    header {
+      background: var(--card);
+      padding: 28px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      margin-bottom: 24px;
+    }
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.3;
+      margin-bottom: 12px;
+    }
+    .instruction-line {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .reserve-badge {
+      display: inline-block;
+      background: var(--warn-bg);
+      color: var(--warn-text);
+      border: 1px solid var(--warn-border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-top: 6px;
+    }
+    .card {
+      background: var(--card);
+      padding: 28px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      margin-bottom: 24px;
+    }
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent-dark);
+      margin-bottom: 14px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid var(--accent-soft);
+    }
+    p { margin-bottom: 12px; }
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 14px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.92rem;
+      line-height: 1.45;
+      margin-bottom: 14px;
+    }
+    .form-group {
+      margin-top: 14px;
+      margin-bottom: 14px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+    .form-control {
+      width: 100%;
+      min-height: 80px;
+      max-height: 500px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--input-bg);
+      font-family: inherit;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      resize: vertical;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: var(--input-focus);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+    .actions-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 20px 0;
+      padding: 16px;
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      align-items: center;
+      justify-content: space-between;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+    .status-badge {
+      font-size: 0.9rem;
+      color: #166534;
+      font-weight: 600;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+    }
+    th { background: var(--accent-soft); }
+        
+    .print-text-replica { display: none; }
+    @media print {
+      body { background: #fff; padding: 0; }
+      .actions-bar { display: none !important; }
+      .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 20px; padding: 16px; }
+      .form-control {
+        border: 1px solid #666 !important;
+        background: #fff !important;
+        resize: none !important;
+        overflow: visible !important;
+        height: auto !important;
+        min-height: 90px !important;
+        display: block !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        font-size: 10pt !important;
+        line-height: 1.4 !important;
+      }
+      .form-group textarea#studentName,
+      .form-group textarea#studentGroup {
+        min-height: 38px !important;
+      }
+      .form-control::placeholder {
+        color: transparent !important;
+        opacity: 0 !important;
+      }
+      .print-text-replica {
+        display: block !important;
+        border: 1px solid #666 !important;
+        background: #fff !important;
+        min-height: 80px !important;
+        padding: 8px 10px !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        font-size: 10pt !important;
+        line-height: 1.45 !important;
+        font-family: inherit !important;
+        margin-top: 4px !important;
+      }
+      .form-group:has(#studentName) .print-text-replica,
+      .form-group:has(#studentGroup) .print-text-replica,
+      .form-group:has(#hwStudent) .print-text-replica,
+      .form-group:has(#hwGroup) .print-text-replica {
+        min-height: 34px !important;
+      }
+    }
+      .actions-bar { display: none !important; }
+      .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 20px; }
+      .form-control {
+        border: 1px solid #666 !important;
+        background: #fff !important;
+        resize: none !important;
+        overflow: visible !important;
+        height: auto !important;
+        min-height: 90px !important;
+        display: block !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        font-size: 10pt !important;
+        line-height: 1.4 !important;
+      }
+      .form-group textarea#hwStudent,
+      .form-group textarea#hwGroup {
+        min-height: 38px !important;
+      }
+      .form-control::placeholder {
+        color: transparent !important;
+        opacity: 0 !important;
+      }
+    }
+      .actions-bar { display: none !important; }
+      .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 20px; }
+      .form-control { border: 1px solid #999; background: #fff; resize: none; overflow: visible; height: auto !important; }
+    }
+  
+    
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Домашнее задание - Арифметические действия. Логические операции. Единицы количества информации. Коды чисел</h1>
+      <p class="instruction-line">Инструкция: изучите разобранный пример, решите самостоятельные задачи с обоснованием правил и сохраните страницу в формате PDF для передачи преподавателю. Срок сдачи сообщит преподаватель.</p>
+      <div class="reserve-badge">Выполняйте только если преподаватель назначил это задание.</div>
+    </header>
+
+    <div class="actions-bar">
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button type="button" class="btn btn-primary" onclick="window.print()">Сохранить решение в PDF</button>
+        <button type="button" class="btn btn-danger" onclick="confirmReset()">Очистить форму</button>
+      </div>
+      <div id="saveStatus" class="status-badge">✓ Данные сохранены в браузере</div>
+    </div>
+
+    <form id="hwForm">
+      <div class="card">
+        <h2>Сведения об обучающемся</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label for="hwStudent">Фамилия, Имя:</label>
+            <textarea id="hwStudent" class="form-control" rows="1" placeholder=""></textarea>
+          </div>
+          <div class="form-group">
+            <label for="hwGroup">Группа:</label>
+            <textarea id="hwGroup" class="form-control" rows="1" placeholder=""></textarea>
+          </div>
+        </div>
+      </div>
+
+      <section class="card">
+        <h2>1. Разобранный пример: аппаратное вычитание через дополнительный код</h2>
+        <p><strong>Задача:</strong> Найти разность $28_{10} - 45_{10}$ в 8-разрядной сетке со знаком.</p>
+        <p><strong>Ход рассуждения:</strong></p>
+        <ol style="margin-left: 20px; margin-bottom: 12px;">
+          <li>Запишем положительное число $28_{10} = 16 + 8 + 4 = 00011100_2$.</li>
+          <li>Запишем модуль вычитаемого $45_{10} = 32 + 8 + 4 + 1 = 00101101_2$.</li>
+          <li>Сформируем дополнительный код для отрицательного числа $-45$:
+            <ul>
+              <li>Инвертируем биты модуля: <code>11010010</code> (обратный код).</li>
+              <li>Прибавляем единицу: <code>11010010 + 1 = 11010011</code> (дополнительный код).</li>
+            </ul>
+          </li>
+          <li>Сложим оба числа на сумматоре:
+            <pre>
+       00011100  (+28)
+     + 11010011  (-45 в доп. коде)
+     ----------
+       11101111  (результат в регистре)
+            </pre>
+          </li>
+          <li><strong>Анализ результата:</strong> Старший бит равен <code>1</code> $\implies$ число отрицательное. Вычислим его модуль:
+            <ul>
+              <li>Инвертируем разряды: <code>11101111</code> $\to$ <code>00010000</code>.</li>
+              <li>Прибавляем единицу: <code>00010000 + 1 = 00010001_2 = 17_{10}</code>.</li>
+              <li>Итоговый результат: $-17_{10}$.</li>
+              <li>Проверка в десятичной системе: $28 - 45 = -17$. Результат доказан.</li>
+            </ul>
+          </li>
+        </ol>
+      </section>
+
+      <section class="card">
+        <h2>2. Самостоятельное проверяемое задание 1: вычитание в дополнительном коде</h2>
+        <p><strong>Условие:</strong> Выполните операцию $A - B$ для $A = 74_{10}$ и $B = 89_{10}$ в 8-разрядной знаковой сетке. Переведите вычитаемое в дополнительный код, выполните сложение, определите знак результата и проверьте вычисления обратным преобразованием.</p>
+        <div class="form-group">
+          <label for="hwTask1">Ваше пошаговое решение:</label>
+          <textarea id="hwTask1" class="form-control" placeholder=""></textarea>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>3. Самостоятельное проверяемое задание 2: возникновение знакового переполнения (OF)</h2>
+        <p><strong>Условие:</strong> В 8-битном сумматоре складываются числа $A = +95_{10}$ ($01011111_2$) и $B = +65_{10}$ ($01000001_2$). Выполните поразрядное сложение, поясните, почему знаковый бит результата стал равен единице, рассчитайте значение флага переполнения $OF = C_6 \oplus C_7$ и сформулируйте архитектурный вывод о допустимом диапазоне знакового байта.</p>
+        <div class="form-group">
+          <label for="hwTask2">Ваше решение с расчётом флагов и объяснением:</label>
+          <textarea id="hwTask2" class="form-control" placeholder=""></textarea>
+        </div>
+
+        <div style="background: #f8fafc; border: 1px dashed var(--line); border-radius: 8px; padding: 14px; margin-top: 14px;">
+          <strong>Критерии проверки домашнего задания:</strong>
+          <table>
+            <thead>
+              <tr>
+                <th>Оценка</th>
+                <th>Показатели выполнения</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Отлично (4 балла)</strong></td>
+                <td>Оба задания выполнены строго по алгоритму, представлено поразрядное сложение, объяснена физика флагов и выполнена обратная проверка.</td>
+              </tr>
+              <tr>
+                <td><strong>Хорошо (3 балла)</strong></td>
+                <td>Правильно получен дополнительный код, но допущена арифметическая описка при расчёте флага $OF$ или не завершена проверка.</td>
+              </tr>
+              <tr>
+                <td><strong>Удовлетворительно (2 балла)</strong></td>
+                <td>Верно решено только первое задание, анализ знакового переполнения отсутствует.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </form>
+  </div>
+
+  <script>
+    const HW_KEY = 'sie_hw04_hw_data';
+    const textareas = document.querySelectorAll('textarea');
+    const saveStatus = document.getElementById('saveStatus');
+
+    function autoResize(el) {
+      el.style.height = 'auto';
+      el.style.height = Math.max(el.scrollHeight, 72) + 'px';
+    }
+
+    function saveHw() {
+      const data = {};
+      textareas.forEach(el => data[el.id] = el.value);
+      localStorage.setItem(HW_KEY, JSON.stringify(data));
+      saveStatus.textContent = '✓ Сохранено в ' + new Date().toLocaleTimeString();
+    }
+
+    function loadHw() {
+      try {
+        const raw = localStorage.getItem(HW_KEY);
+        if (raw) {
+          const data = JSON.parse(raw);
+          textareas.forEach(el => {
+            if (data[el.id] !== undefined) el.value = data[el.id];
+            autoResize(el);
+          });
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function confirmReset() {
+      if (confirm('Очистить все поля домашнего задания?')) {
+        localStorage.removeItem(HW_KEY);
+        textareas.forEach(el => {
+          el.value = '';
+          el.style.height = 'auto';
+        });
+        saveStatus.textContent = 'Форма очищена';
+      }
+    }
+
+    textareas.forEach(el => {
+      el.addEventListener('input', () => {
+        autoResize(el);
+        saveHw();
+      });
+    });
+
+    
+    window.addEventListener('beforeprint', () => {
+      textareas.forEach(el => {
+        let printDiv = el.nextElementSibling;
+        if (!printDiv || !printDiv.classList.contains('print-text-replica')) {
+          printDiv = document.createElement('div');
+          printDiv.className = 'print-text-replica';
+          el.parentNode.insertBefore(printDiv, el.nextSibling);
+        }
+        printDiv.textContent = el.value;
+        if (!el.value.trim()) {
+          printDiv.innerHTML = '&nbsp;';
+        }
+      });
+    });
+
+    window.addEventListener('DOMContentLoaded', loadHw);
+  </script>
+</body>
+</html>

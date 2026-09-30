@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Арифметические действия. Логические операции. Единицы количества информации. Коды чисел — Конспект занятия</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --code-bg: #0f172a;
+      --code-text: #f8fafc;
+      --radius: 12px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px;
+    }
+    .container { max-width: 920px; margin: 0 auto; }
+    header {
+      background: var(--card);
+      padding: 30px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      margin-bottom: 24px;
+    }
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+    .lead { font-size: 1.05rem; color: var(--muted); }
+    .card {
+      background: var(--card);
+      padding: 28px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      margin-bottom: 24px;
+    }
+    h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 14px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid var(--accent-soft);
+    }
+    h3 { font-size: 1.1rem; font-weight: 600; margin: 16px 0 8px 0; }
+    p { margin-bottom: 12px; }
+    ul, ol { margin-left: 24px; margin-bottom: 14px; }
+    li { margin-bottom: 6px; }
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 14px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.92rem;
+      line-height: 1.45;
+      margin-bottom: 14px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.95rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 9px 12px;
+      text-align: left;
+    }
+    th { background: var(--accent-soft); }
+    .step-box {
+      border-left: 4px solid var(--accent);
+      background: var(--accent-soft);
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 600px) {
+      body { padding: 12px 8px; }
+      header, .card { padding: 18px 14px; }
+      h1 { font-size: 1.4rem; }
+    }
+    @media print {
+      body { background: #fff; padding: 0; }
+      .card, header { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Арифметические действия. Логические операции. Единицы количества информации. Коды чисел</h1>
+      <p class="lead">Преподавательский конспект занятия: дидактическая канва, структура изложения, формулировка ключевых правил и демонстрационных примеров.</p>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>1. Дидактические параметры занятия</h2>
+        <ul>
+          <li><strong>Тип и вид занятия:</strong> Урок усвоения новых знаний с первичным закреплением практических навыков.</li>
+          <li><strong>Основная дидактическая цель:</strong> Освоение принципов представления чисел в разрядной сетке ЭВМ, аппаратной реализации арифметических и побитовых логических операций, разграничения физической емкости носителя и кода данных.</li>
+          <li><strong>Планируемый образовательный результат:</strong> Обучающийся переводит отрицательные числа в дополнительный код, выполняет поразрядное сложение с проверкой переполнения ($CF$, $OF$), накладывает битовые маски и рассчитывает информационные объемы.</li>
+          <li><strong>Используемые средства:</strong> Проектор/интерактивная панель (презентация), персональные компьютеры студентов или рабочие тетради/бланки решений.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>2. Ход занятия: этапы и содержательное наполнение</h2>
+
+        <div class="step-box">
+          <h3>Этап 1. Актуализация опорных знаний и мотивация (5 минут)</h3>
+          <p><strong>Деятельность преподавателя:</strong> Приветствие студентов. Постановка проблемного вопроса: <em>«Что произойдет в 8-битном микроконтроллере, если к числу 127 прибавить 1?»</em>. Фиксация парадокса: результат равен $-128$, если число знаковое, или $128$, если беззнаковое.<br>
+          <strong>Деятельность студентов:</strong> Выдвижение гипотез, актуализация знаний о двоичной системе счисления и разрядной сетке.</p>
+        </div>
+
+        <div class="step-box">
+          <h3>Этап 2. Изложение нового материала (25 мин в 80-мин / 18 мин в 60-мин)</h3>
+          <p><strong>Ключевые содержательные блоки:</strong></p>
+          <ol>
+            <li><strong>Единицы информации:</strong> Бит как состояние ячейки (0/1), байт как единица адресации, двоичные приставки ГОСТ/IEC ($1\text{ Кбайт} = 1024\text{ байта}$). Доказательство того, что бит не задает смысл содержимого.</li>
+            <li><strong>Коды чисел:</strong>
+              <ul>
+                <li>Прямой код: знаковый бит + модуль. Недостаток: два нуля ($+0$ и $-0$).</li>
+                <li>Обратный код: инверсия битов модуля. Недостаток: циклический перенос.</li>
+                <li>Дополнительный код: инверсия плюс 1. Достоинство: $A - B = A + [-B]_{доп}$.</li>
+              </ul>
+            </li>
+            <li><strong>Арифметические действия и флаги:</strong> Суммирование в АЛУ. Флаг переноса $CF$ (перенос из старшего бита, беззнаковый) и флаг переполнения $OF$ (знаковое переполнение $C_{n-1} \oplus C_n$).</li>
+            <li><strong>Поразрядные логические операции:</strong> <code>AND</code> (маскирование/сброс в 0), <code>OR</code> (установка в 1), <code>XOR</code> (инвертирование битов по маске), <code>NOT</code> (инверсия).</li>
+          </ol>
+        </div>
+
+        <div class="step-box">
+          <h3>Этап 3. Демонстрационный показ и разбор алгоритма (15 мин / 10 мин)</h3>
+          <p><strong>Преподаватель демонстрирует на доске:</strong></p>
+          <pre>
+1. Преобразование числа -43 в дополнительный код (8 бит):
+   |-43| = 43_10 = 00101011_2
+   Прямой:   10101011
+   Обратный: 11010100
+   Доп. код: 11010100 + 1 = 11010101
+
+2. Сложение 58 + (-43):
+      00111010  (+58)
+    + 11010101  (-43 в доп. коде)
+    ----------
+    1 00001111  (перенос 1 отбрасывается, результат: +15)
+
+3. Битовая маска: сброс старшей тетрады числа 11011010:
+      11011010 AND 00001111 = 00001010.
+          </pre>
+        </div>
+
+        <div class="step-box">
+          <h3>Этап 4. Практическое закрепление и индивидуальный продукт (20 мин / 15 мин)</h3>
+          <p><strong>Деятельность студентов:</strong> Самостоятельное выполнение заданий индивидуального бланка (задания 1–4). В обоих вариантах тайминга (80 и 60 минут) все 4 оцениваемых задания индивидуального бланка выполняются очно в аудитории.<br>
+          <strong>Деятельность преподавателя:</strong> Консультирование, контроль пошагового выполнения алгоритмов, выявление затруднений.</p>
+        </div>
+
+        <div class="step-box">
+          <h3>Этап 5. Обратная связь и разбор затруднений (10 мин / 7 мин)</h3>
+          <p>Коллективный разбор характерных ошибок: почему нельзя инвертировать знаковый бит у положительного числа; почему перенос $CF$ не равен переполнению $OF$.</p>
+        </div>
+
+        <div class="step-box">
+          <h3>Этап 6. Подведение итогов занятия (5 минут)</h3>
+          <p>Оценивание индивидуальных продуктов по 4-балльной шкале (корректность 2, объяснение 1, проверка 1). Разъяснение резервного задания при пропуске пары.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>3. Индивидуальный продукт и открытые критерии</h2>
+        <p>Каждый студент сдает заполненный лист решения индивидуального задания (4 балла):</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Балл</th>
+              <th>Критерий</th>
+              <th>Что проверяет преподаватель</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>2 балла</strong></td>
+              <td>Корректность</td>
+              <td>Безошибочность двоичных вычислений, верные коды чисел, отсутствие ошибок при сложении.</td>
+            </tr>
+            <tr>
+              <td><strong>1 балл</strong></td>
+              <td>Объяснение правил</td>
+              <td>Наличие четких комментариев: логика знакового бита, алгоритм дополнительного кода, правила маскирования.</td>
+            </tr>
+            <tr>
+              <td><strong>1 балл</strong></td>
+              <td>Проверка</td>
+              <td>Выполнено обратное доказательство (десятичное вычитание или обратный перевод кода).</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
