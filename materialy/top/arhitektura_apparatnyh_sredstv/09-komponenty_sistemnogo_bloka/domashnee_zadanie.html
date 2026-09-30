@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Домашнее задание - Компоненты системного блока</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --ok: #059669;
+      --warn: #d97706;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .card, .actions-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(20px, 3.2vw, 26px);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .notice {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      font-size: 14.5px;
+      color: #92400e;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    input[type="text"], input[type="date"], select, textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+    }
+    textarea {
+      min-height: 95px;
+      resize: vertical;
+    }
+    .section-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 12px;
+      border-bottom: 1.5px solid var(--accent-soft);
+      padding-bottom: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 16px;
+      font-size: 13.5px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: middle;
+    }
+    th {
+      background: var(--accent-soft);
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .example-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-left: 4px solid #64748b;
+      padding: 14px 16px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 14px;
+      font-size: 14px;
+    }
+    .example-box h4 {
+      color: #1e293b;
+      margin-bottom: 6px;
+    }
+    .btn {
+      padding: 9px 18px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background .15s, transform .1s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary { background: #e2e8f0; color: #1e293b; }
+    .btn-secondary:hover { background: #cbd5e1; }
+    .btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+    .btn-danger:hover { background: #fecaca; }
+    .actions-flex {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    .status-msg {
+      font-size: 13.5px;
+      color: var(--ok);
+      font-weight: 600;
+    }
+    .print-mirror {
+      display: none;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 13.5px;
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      background: #fafafa;
+      min-height: 40px;
+    }
+    @media print {
+      body { background: #fff; padding: 0; font-size: 11pt; }
+      .header-card, .student-card, .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 10pt; }
+      .actions-card, .btn { display: none !important; }
+      .notice { background: #fdfdfd; border-left: 3px solid #999; color: #333; }
+      textarea { display: none !important; }
+      .print-mirror { display: block !important; }
+      input::placeholder, textarea::placeholder { color: transparent !important; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header-card">
+    <h1>Домашнее задание - Компоненты системного блока</h1>
+    <div class="notice">
+      Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+    </div>
+  </div>
+
+  <div class="student-card">
+    <div class="student-grid">
+      <div>
+        <label for="hw_fio">Фамилия, Имя обучающегося:</label>
+        <input type="text" id="hw_fio" placeholder="Введите ФИО">
+      </div>
+      <div>
+        <label for="hw_group">Учебная группа:</label>
+        <input type="text" id="hw_group" placeholder="Например: П-22">
+      </div>
+      <div>
+        <label for="hw_date">Дата выполнения:</label>
+        <input type="date" id="hw_date">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">1. Разобранный эталонный пример расчета энергопотребления и совместимости</div>
+    <div class="example-box">
+      <h4>Пример: Мультимедийная рабочая станция для видеомонтажа 4K</h4>
+      <p><strong>Конфигурация:</strong> Процессор AMD Ryzen 9 7900X (TDP 170 Вт, PPT пиковый 230 Вт), материнская плата B650 ATX, кулер Noctua NH-D15 (рассеивание до 250 Вт), 2 планки DDR5-6000 по 32 ГБ (15 Вт), видеокарта RTX 4070 Ti Super 16GB (TDP 285 Вт, Transient Spike до 400 Вт), 2 накопителя NVMe PCIe 4.0 x4 (20 Вт), 4 корпусных вентилятора 140 мм (15 Вт).</p>
+      <p><strong>Расчет мощности блока питания:</strong></p>
+      <ul>
+        <li>Базовая суммарная нагрузка: $230 + 15 + 285 + 20 + 15 + 50\text{ (плата)} = 615\text{ Вт}$.</li>
+        <li>Коэффициент запаса на деградацию компонентов и пиковые броски (25–30%): $615 \times 1.30 = 799.5\text{ Вт}$.</li>
+        <li><strong>Инженерный выбор:</strong> Блок питания мощностью <strong>850 Вт</strong> стандарта <strong>ATX 3.0</strong> с сертификатом 80 Plus Gold и штатным кабелем 12VHPWR. Запас в 38% полностью нивелирует микросекундные броски видеокарты.</li>
+        <li><strong>Проверка совместимости:</strong> Кулер высотой 165 мм требует ширины корпуса от 215 мм. Модули памяти должны иметь низкий профиль радиаторов (до 32 мм), иначе передний вентилятор кулера придется смещать вверх.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">2. Индивидуальное практическое задание: Расчет и аудит совместимости</div>
+    <p>Вам поручено провести инженерную экспертизу спецификации ПК для студии 3D-графики и архитектурной визуализации:</p>
+    <ul>
+      <li><strong>Процессор:</strong> Intel Core i7-14700K (Базовый TDP 125 Вт, Максимальная мощность Turbo PL2 = 253 Вт, сокет LGA1700).</li>
+      <li><strong>Материнская плата:</strong> Z790 ATX (VRM 16+1+1 фаз, силовые ключи 70A DrMOS).</li>
+      <li><strong>Видеокарта:</strong> NVIDIA GeForce RTX 4080 Super (TDP 320 Вт, разъем питания 16-pin 12VHPWR).</li>
+      <li><strong>Накопители:</strong> 1x SSD M.2 PCIe 5.0 x4 (12 Вт, требуется массивный радиатор), 1x SSD M.2 PCIe 4.0 x4 (7 Вт).</li>
+      <li><strong>Оперативная память:</strong> 2x 32 ГБ DDR5-6400 (слоты 2 и 4).</li>
+      <li><strong>Корпус и охлаждение:</strong> Корпус Mid-Tower с поддержкой СЖО до 360 мм, 4 корпусных вентилятора 120 мм PWM.</li>
+    </ul>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Параметр для расчета и аудита</th>
+          <th>Ваш расчет и инженерное обоснование</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>1. Расчет суммарного пикового энергопотребления (PL2 ЦП + TDP GPU + периферия)</strong></td>
+          <td>
+            <input type="text" id="ans_power_calc" placeholder="Приведите формулу и суммарную пиковую мощность в Ваттах">
+          </td>
+        </tr>
+        <tr>
+          <td><strong>2. Выбор мощности и стандарта блока питания</strong></td>
+          <td>
+            <input type="text" id="ans_psu_choice" placeholder="Укажите мощность (Вт), стандарт (ATX 3.0), сертификат и обоснуйте запас">
+          </td>
+        </tr>
+        <tr>
+          <td><strong>3. Оценка подсистемы питания VRM платы для Core i7-14700K</strong></td>
+          <td>
+            <textarea id="ans_vrm_eval" placeholder="Хватит ли 16 фаз по 70А для нагрузки 253 Вт при VCore=1.25В? Поясните запас по току и нагрев"></textarea>
+            <div class="print-mirror" id="ans_vrm_eval_mirror"></div>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>4. Анализ интерфейсов PCIe и M.2 (риск Lane Sharing)</strong></td>
+          <td>
+            <textarea id="ans_pcie_audit" placeholder="Будет ли видеокарта работать в режиме x16 при установке M.2 Gen5x4 в процессорный разъем? Поясните бифуркацию"></textarea>
+            <div class="print-mirror" id="ans_pcie_audit_mirror"></div>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>5. Организация охлаждения и схема давления воздуха</strong></td>
+          <td>
+            <textarea id="ans_cooling_setup" placeholder="Какую схему давления (Positive/Negative) выбрать? Где разместить радиатор СЖО 360 мм и почему?"></textarea>
+            <div class="print-mirror" id="ans_cooling_setup_mirror"></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="actions-card">
+    <div class="actions-flex">
+      <button type="button" class="btn btn-primary" onclick="saveData()">Сохранить ответы</button>
+      <button type="button" class="btn btn-secondary" onclick="printDoc()">Печать / Сохранить в PDF</button>
+      <button type="button" class="btn btn-danger" onclick="clearData()">Очистить форму</button>
+      <span class="status-msg" id="status_msg"></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const STORAGE_KEY = 'top_hw_09_komponenty_data';
+  const fields = ['hw_fio', 'hw_group', 'hw_date', 'ans_power_calc', 'ans_psu_choice', 'ans_vrm_eval', 'ans_pcie_audit', 'ans_cooling_setup'];
+
+  function updateMirrors() {
+    ['ans_vrm_eval', 'ans_pcie_audit', 'ans_cooling_setup'].forEach(id => {
+      const textarea = document.getElementById(id);
+      const mirror = document.getElementById(id + '_mirror');
+      if (textarea && mirror) {
+        mirror.textContent = textarea.value;
+      }
+    });
+  }
+
+  function saveData() {
+    updateMirrors();
+    const data = {};
+    fields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) data[id] = el.value;
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    const status = document.getElementById('status_msg');
+    status.textContent = 'Сохранено: ' + new Date().toLocaleTimeString();
+    setTimeout(() => { status.textContent = ''; }, 3500);
+  }
+
+  function loadData() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    try {
+      const data = JSON.parse(raw);
+      fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && data[id] !== undefined) {
+          el.value = data[id];
+        }
+      });
+      updateMirrors();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function clearData() {
+    if (confirm('Вы действительно хотите очистить все введенные данные?')) {
+      localStorage.removeItem(STORAGE_KEY);
+      fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      updateMirrors();
+      const status = document.getElementById('status_msg');
+      status.textContent = 'Форма очищена';
+      setTimeout(() => { status.textContent = ''; }, 2500);
+    }
+  }
+
+  function printDoc() {
+    updateMirrors();
+    window.print();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadData();
+    fields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => {
+          updateMirrors();
+        });
+      }
+    });
+  });
+</script>
+</body>
+</html>

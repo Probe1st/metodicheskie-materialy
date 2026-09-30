@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Лекция: Технологии повышения производительности процессоров</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --radius: 12px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+      --success: #059669;
+      --warn: #d97706;
+      --danger: #dc2626;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15.5px;
+      padding: 24px 16px;
+    }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(22px, 3.5vw, 28px);
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    h2 {
+      font-size: 20px;
+      color: var(--accent);
+      margin: 28px 0 14px;
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 6px;
+    }
+    h3 {
+      font-size: 17px;
+      margin: 18px 0 8px;
+      color: #1e293b;
+    }
+    p, ul, ol { margin-bottom: 14px; }
+    ul, ol { padding-left: 22px; }
+    li { margin-bottom: 6px; }
+    code {
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      color: #0f172a;
+    }
+    .formula-card {
+      background: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 15px;
+      color: #1e3a8a;
+    }
+    .diagram-container {
+      width: 100%;
+      overflow-x: auto;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 18px 0;
+    }
+    .diagram-container svg {
+      display: block;
+      margin: 0 auto;
+      max-width: 100%;
+      height: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 9px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .quiz-box {
+      background: #f8fafc;
+      border: 1.5px solid var(--line);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 14px;
+    }
+    .quiz-item {
+      margin-bottom: 14px;
+    }
+    .quiz-q {
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 6px;
+    }
+    .quiz-a {
+      color: var(--muted);
+      font-size: 14px;
+      padding-left: 12px;
+      border-left: 3px solid #cbd5e1;
+    }
+    @media print {
+      body { background: #fff; padding: 0; font-size: 11pt; }
+      .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+    }
+    @media (max-width: 480px) {
+      body { padding: 12px 8px; }
+      .card { padding: 16px 12px; }
+      table { font-size: 12px; }
+      th, td { padding: 6px 8px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="card">
+    <h1>Конспект лекции: Технологии повышения производительности процессоров</h1>
+    <p><strong>Дисциплина:</strong> ОП.02 Архитектура аппаратных средств</p>
+    <p><strong>Раздел 3 программы (§2.2 с.8):</strong> Технологии повышения производительности процессоров</p>
+    <p><strong>Целевая аудитория:</strong> Студенты ММКЦТ «Академия TOP»</p>
+    <div class="formula-card">
+      Фундаментальное уравнение производительности (Iron Law of Processor Performance):<br>
+      Время_исполнения = N &times; CPI &times; T_clk = (N &times; CPI) / Частота
+    </div>
+    <p>Быстродействие микропроцессора опирается на баланс трех компонентов:</p>
+    <ul>
+      <li><code>N</code> — количество динамически выполняемых инструкций машинной программы (сокращается компилятором и наборами инструкций SIMD).</li>
+      <li><code>CPI</code> (Cycles Per Instruction) — среднее число тактов, необходимых для завершения одной инструкции. Обратная величина: <code>IPC = 1 / CPI</code> — темп выполнения (повышается суперскалярностью и внеочередным исполнением).</li>
+      <li><code>T_clk = 1 / Частота</code> — период тактового генератора в наносекундах (сокращается конвейеризацией и технологическими нормами полупроводников).</li>
+    </ul>
+  </div>
+
+  <!-- РАЗДЕЛ 1: КОНВЕЙЕРИЗАЦИЯ -->
+  <div class="card">
+    <h2>1. Конвейеризация команд (Instruction Pipelining)</h2>
+    <p>Идея конвейера аналогична автомобильному сборочному конвейеру Генри Форда: выполнение команды разделяется на серию последовательных микростадий, каждая из которых обслуживается отдельным физическим блоком процессора.</p>
+    
+    <h3>Классический 5-ступенчатый конвейер RISC (DLX / MIPS):</h3>
+    <ol>
+      <li><strong>IF (Instruction Fetch — Выборка команды):</strong> получение 32/64-битного кода команды из кэша команд (L1i) по адресу, хранящемуся в регистре счетчика команд <code>PC</code>. Инкремент <code>PC &larr; PC + 4</code>.</li>
+      <li><strong>ID (Instruction Decode / Register Read — Декодирование и чтение РОН):</strong> дешифрация опкода и параллельное аппаратное считывание операндов из регистрационного файла общего назначения (РОН).</li>
+      <li><strong>EX (Execute / Address Calculation — Выполнение):</strong> математическая или логическая операция в арифметико-логическом устройстве (ALU), либо расчет эффективного адреса памяти для инструкций загрузки/сохранения.</li>
+      <li><strong>MEM (Memory Access — Обращение к памяти):</strong> чтение или запись слова данных в кэш данных (L1d). Инструкции типа Register-Register на этой стадии простаивают без обращения к памяти.</li>
+      <li><strong>WB (Write-Back — Обратная запись):</strong> сохранение вычисленного результата из межстадийного регистра в целевой регистр РОН.</li>
+    </ol>
+
+    <h3>Конфликты конвейера (Pipeline Hazards):</h3>
+    <p>В идеальных условиях конвейер выпускает одну инструкцию каждый такт (CPI = 1). Однако в реальных программах возникают конфликты, вызывающие задержки и требующие вставки «пузырей» (Bubbles / NOP stalls):</p>
+    
+    <ul>
+      <li><strong>1. Структурные конфликты (Structural Hazards):</strong> возникают при одновременной попытке двух инструкций обратиться к одному аппаратному ресурсу (например, к единому порту оперативной памяти). Парируются разделением кэша первого уровня на L1i (инструкции) и L1d (данные) по гарвардскому принципу.</li>
+      <li><strong>2. Конфликты по данным (Data Hazards):</strong>
+        <ul>
+          <li><strong>RAW (Read After Write — истинная зависимость):</strong> последующая команда пытается прочитать регистр до того, как предшествующая запишет в него обновленные данные.</li>
+          <li><strong>WAR (Write After Read — антизависимость) и WAW (Write After Write — зависимость по выводу):</strong> ложные зависимости по именам регистров, порождаемые ограниченностью регистрового файла компилятора.</li>
+        </ul>
+      </li>
+      <li><strong>3. Конфликты по управлению (Control Hazards):</strong> вызываются инструкциями условных и безусловных переходов, нарушающими линейный поток выборки инструкций.</li>
+    </ul>
+
+    <h3>Диаграмма конвейерных пузырей vs Аппаратный форвардинг (Bypassing):</h3>
+    <div class="diagram-container">
+      <svg viewBox="0 0 860 380" width="860" height="380" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <style>
+            .t-title { font-size: 14px; font-weight: bold; fill: #1e3a8a; }
+            .t-sub { font-size: 12px; fill: #475569; }
+            .t-box { font-size: 11px; font-weight: bold; text-anchor: middle; fill: #ffffff; }
+            .c-if { fill: #3b82f6; }
+            .c-id { fill: #06b6d4; }
+            .c-ex { fill: #10b981; }
+            .c-mem { fill: #f59e0b; }
+            .c-wb { fill: #8b5cf6; }
+            .c-stall { fill: #ef4444; }
+            .c-fwd { stroke: #dc2626; stroke-width: 2.5; stroke-dasharray: 4,3; fill: none; marker-end: url(#arrow); }
+          </style>
+          <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626"/>
+          </marker>
+        </defs>
+
+        <!-- ЧАСТЬ А: БЕЗ ФОРВАРДИНГА -->
+        <text x="20" y="25" class="t-title">А) Исполнение без форвардинга: 2 пузыря (Stall) при RAW зависимости</text>
+        <text x="20" y="42" class="t-sub">Команда I2 ждет записи R1 в регистровый файл на стадии WB команды I1</text>
+
+        <!-- Заголовки тактов -->
+        <g transform="translate(180, 55)">
+          <text x="25" y="15" class="t-sub">T1</text>
+          <text x="75" y="15" class="t-sub">T2</text>
+          <text x="125" y="15" class="t-sub">T3</text>
+          <text x="175" y="15" class="t-sub">T4</text>
+          <text x="225" y="15" class="t-sub">T5</text>
+          <text x="275" y="15" class="t-sub">T6</text>
+          <text x="325" y="15" class="t-sub">T7</text>
+        </g>
+
+        <!-- Инструкция I1: ADD R1, R2, R3 -->
+        <text x="20" y="92" font-size="12" font-weight="bold" fill="#0f172a">I1: ADD R1, R2, R3</text>
+        <rect x="180" y="78" width="45" height="22" rx="4" class="c-if"/><text x="202" y="93" class="t-box">IF</text>
+        <rect x="230" y="78" width="45" height="22" rx="4" class="c-id"/><text x="252" y="93" class="t-box">ID</text>
+        <rect x="280" y="78" width="45" height="22" rx="4" class="c-ex"/><text x="302" y="93" class="t-box">EX</text>
+        <rect x="330" y="78" width="45" height="22" rx="4" class="c-mem"/><text x="352" y="93" class="t-box">MEM</text>
+        <rect x="380" y="78" width="45" height="22" rx="4" class="c-wb"/><text x="402" y="93" class="t-box">WB</text>
+
+        <!-- Инструкция I2: SUB R4, R1, R5 (со stalls) -->
+        <text x="20" y="127" font-size="12" font-weight="bold" fill="#0f172a">I2: SUB R4, R1, R5</text>
+        <rect x="230" y="113" width="45" height="22" rx="4" class="c-if"/><text x="252" y="128" class="t-box">IF</text>
+        <rect x="280" y="113" width="45" height="22" rx="4" class="c-stall"/><text x="302" y="128" class="t-box">STALL</text>
+        <rect x="330" y="113" width="45" height="22" rx="4" class="c-stall"/><text x="352" y="128" class="t-box">STALL</text>
+        <rect x="380" y="113" width="45" height="22" rx="4" class="c-id"/><text x="402" y="128" class="t-box">ID</text>
+        <rect x="430" y="113" width="45" height="22" rx="4" class="c-ex"/><text x="452" y="128" class="t-box">EX</text>
+        <rect x="480" y="113" width="45" height="22" rx="4" class="c-mem"/><text x="502" y="128" class="t-box">MEM</text>
+        <rect x="530" y="113" width="45" height="22" rx="4" class="c-wb"/><text x="552" y="128" class="t-box">WB</text>
+
+        <!-- Линия разделения -->
+        <line x1="20" y1="165" x2="840" y2="165" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="6,4"/>
+
+        <!-- ЧАСТЬ Б: С ФОРВАРДИНГОМ -->
+        <text x="20" y="200" class="t-title">Б) Исполнение с аппаратным форвардингом (Bypassing): 0 задержек!</text>
+        <text x="20" y="217" class="t-sub">Результат со стадии EX (T3) передается напрямую на вход ALU стадии EX (T4)</text>
+
+        <!-- Заголовки тактов -->
+        <g transform="translate(180, 230)">
+          <text x="25" y="15" class="t-sub">T1</text>
+          <text x="75" y="15" class="t-sub">T2</text>
+          <text x="125" y="15" class="t-sub">T3</text>
+          <text x="175" y="15" class="t-sub">T4</text>
+          <text x="225" y="15" class="t-sub">T5</text>
+          <text x="275" y="15" class="t-sub">T6</text>
+        </g>
+
+        <!-- Инструкция I1 с форвардингом -->
+        <text x="20" y="267" font-size="12" font-weight="bold" fill="#0f172a">I1: ADD R1, R2, R3</text>
+        <rect x="180" y="253" width="45" height="22" rx="4" class="c-if"/><text x="202" y="268" class="t-box">IF</text>
+        <rect x="230" y="253" width="45" height="22" rx="4" class="c-id"/><text x="252" y="268" class="t-box">ID</text>
+        <rect x="280" y="253" width="45" height="22" rx="4" class="c-ex" id="ex1"/><text x="302" y="268" class="t-box">EX</text>
+        <rect x="330" y="253" width="45" height="22" rx="4" class="c-mem"/><text x="352" y="268" class="t-box">MEM</text>
+        <rect x="380" y="253" width="45" height="22" rx="4" class="c-wb"/><text x="402" y="268" class="t-box">WB</text>
+
+        <!-- Инструкция I2 с форвардингом -->
+        <text x="20" y="302" font-size="12" font-weight="bold" fill="#0f172a">I2: SUB R4, R1, R5</text>
+        <rect x="230" y="288" width="45" height="22" rx="4" class="c-if"/><text x="252" y="303" class="t-box">IF</text>
+        <rect x="280" y="288" width="45" height="22" rx="4" class="c-id"/><text x="302" y="303" class="t-box">ID</text>
+        <rect x="330" y="288" width="45" height="22" rx="4" class="c-ex"/><text x="352" y="303" class="t-box">EX</text>
+        <rect x="380" y="288" width="45" height="22" rx="4" class="c-mem"/><text x="402" y="303" class="t-box">MEM</text>
+        <rect x="430" y="288" width="45" height="22" rx="4" class="c-wb"/><text x="452" y="303" class="t-box">WB</text>
+
+        <!-- Стрелка форвардинга -->
+        <path d="M 325 264 C 345 264, 345 282, 345 285" class="c-fwd"/>
+        <text x="355" y="280" font-size="11" font-weight="bold" fill="#dc2626">Data Forwarding (T3 &rarr; T4)</text>
+
+        <!-- Легенда цветов -->
+        <g transform="translate(20, 345)">
+          <rect x="0" y="0" width="16" height="12" rx="2" class="c-if"/><text x="22" y="10" font-size="11" fill="#475569">IF: Выборка</text>
+          <rect x="110" y="0" width="16" height="12" rx="2" class="c-id"/><text x="132" y="10" font-size="11" fill="#475569">ID: Декодирование</text>
+          <rect x="260" y="0" width="16" height="12" rx="2" class="c-ex"/><text x="282" y="10" font-size="11" fill="#475569">EX: Исполнение</text>
+          <rect x="390" y="0" width="16" height="12" rx="2" class="c-mem"/><text x="412" y="10" font-size="11" fill="#475569">MEM: Память</text>
+          <rect x="510" y="0" width="16" height="12" rx="2" class="c-wb"/><text x="532" y="10" font-size="11" fill="#475569">WB: Запись</text>
+          <rect x="620" y="0" width="16" height="12" rx="2" class="c-stall"/><text x="642" y="10" font-size="11" fill="#475569">Stall: Пузырь</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <!-- РАЗДЕЛ 2: СУПЕРСКАЛЯРНОСТЬ И OUT-OF-ORDER (АЛГОРИТМ ТОМАСУЛО) -->
+  <div class="card">
+    <h2>2. Суперскалярность и внеочередное исполнение (Out-of-Order Core)</h2>
+    <p>Процессор называется <strong>суперскалярным</strong>, если его аппаратный конвейер содержит параллельные исполнительные тракты и может декодировать, отправлять на исполнение и завершать более одной инструкции за один машинный такт (IPC &gt; 1, например IPC = 3–6).</p>
+    
+    <p>Однако последовательный (In-Order) запуск команд упирается в то, что команда, застрявшая в ожидании данных из оперативной памяти, блокирует все последующие независимые команды. Решением стало <strong>динамическое внеочередное исполнение (Out-of-Order Execution — OoO)</strong>, базирующееся на алгоритме Роберта Томасуло.</p>
+
+    <h3>Блок-схема современного Out-of-Order ядра процессора:</h3>
+    <div class="diagram-container">
+      <svg viewBox="0 0 860 480" width="860" height="480" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <style>
+            .b-block { fill: #f8fafc; stroke: #1e40af; stroke-width: 1.8; rx: 8; }
+            .b-title { font-size: 13px; font-weight: bold; fill: #1e3a8a; text-anchor: middle; }
+            .b-text { font-size: 11px; fill: #334155; text-anchor: middle; }
+            .b-zone { fill: none; stroke: #94a3b8; stroke-dasharray: 4,4; stroke-width: 1.5; rx: 12; }
+            .b-zone-title { font-size: 12px; font-weight: bold; fill: #64748b; }
+            .b-bus { stroke: #0284c7; stroke-width: 2.5; fill: none; marker-end: url(#bus-arrow); }
+            .b-cdb { stroke: #dc2626; stroke-width: 2.5; fill: none; marker-end: url(#cdb-arrow); }
+          </style>
+          <marker id="bus-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#0284c7"/>
+          </marker>
+          <marker id="cdb-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626"/>
+          </marker>
+        </defs>
+
+        <!-- ЗОНА 1: ВХОДЯЩИЙ ПОТОК (IN-ORDER FRONTEND) -->
+        <rect x="20" y="20" width="820" height="90" class="b-zone"/>
+        <text x="35" y="40" class="b-zone-title">1. IN-ORDER FRONTEND (Упорядоченный выбор и декодирование)</text>
+
+        <!-- Блок Instruction Fetch & Branch Predictor -->
+        <rect x="40" y="48" width="220" height="50" class="b-block"/>
+        <text x="150" y="68" class="b-title">Выборка команд (IF)</text>
+        <text x="150" y="86" class="b-text">L1i кэш + Предсказатель переходов (BTB/TAGE)</text>
+
+        <!-- Стрелка к декодеру -->
+        <line x1="260" y1="73" x2="310" y2="73" class="b-bus"/>
+
+        <!-- Блок Декодер &mu;ops -->
+        <rect x="310" y="48" width="220" height="50" class="b-block"/>
+        <text x="420" y="68" class="b-title">Декодер команд (&mu;ops Decoder)</text>
+        <text x="420" y="86" class="b-text">Расщепление CISC x86 &rarr; RISC-подобные &mu;ops</text>
+
+        <!-- Стрелка к RAT -->
+        <line x1="530" y1="73" x2="580" y2="73" class="b-bus"/>
+
+        <!-- Блок Переименование регистров (RAT) -->
+        <rect x="580" y="48" width="240" height="50" class="b-block" style="stroke: #059669;"/>
+        <text x="700" y="68" class="b-title" style="fill: #065f46;">Переименование регистров (RAT)</text>
+        <text x="700" y="86" class="b-text">Устранение WAR/WAW &rarr; Физические регистры PRF</text>
+
+        <!-- ЗОНА 2: ВНЕОЧЕРЕДНОЕ ИСПОЛНЕНИЕ (OUT-OF-ORDER ENGINE) -->
+        <rect x="20" y="130" width="820" height="210" class="b-zone"/>
+        <text x="35" y="150" class="b-zone-title">2. OUT-OF-ORDER EXECUTION ENGINE (Планирование по готовности данных)</text>
+
+        <!-- Шина Dispatch вниз -->
+        <path d="M 700 98 L 700 160 L 430 160" class="b-bus"/>
+
+        <!-- Станции резервирования (Reservation Stations / Scheduler) -->
+        <rect x="60" y="170" width="740" height="55" class="b-block" style="stroke: #d97706;"/>
+        <text x="430" y="193" class="b-title" style="fill: #92400e;">Станции резервирования / Планировщик инструкций (Reservation Stations / Unified Scheduler)</text>
+        <text x="430" y="211" class="b-text">Инструкции ждут готовности операндов. Как только данные поступили — пуск на свободный порт!</text>
+
+        <!-- Исполнительные порты ALU, FPU, Load/Store -->
+        <g transform="translate(60, 245)">
+          <!-- Порт 0: ALU 0 -->
+          <rect x="0" y="0" width="130" height="45" class="b-block"/>
+          <text x="65" y="20" class="b-title">ALU 0 (Целые)</text>
+          <text x="65" y="36" class="b-text">Базовая арифметика</text>
+
+          <!-- Порт 1: ALU 1 / Ветвления -->
+          <rect x="150" y="0" width="130" height="45" class="b-block"/>
+          <text x="215" y="20" class="b-title">ALU 1 / Branch</text>
+          <text x="215" y="36" class="b-text">Проверка ветвлений</text>
+
+          <!-- Порт 2: Векторный FPU 0 (AVX) -->
+          <rect x="300" y="0" width="140" height="45" class="b-block" style="stroke: #7c3aed;"/>
+          <text x="370" y="20" class="b-title" style="fill: #5b21b6;">Vector FPU / FMA</text>
+          <text x="370" y="36" class="b-text">AVX2 / AVX-512</text>
+
+          <!-- Порт 3: Векторный FPU 1 -->
+          <rect x="460" y="0" width="130" height="45" class="b-block" style="stroke: #7c3aed;"/>
+          <text x="525" y="20" class="b-title" style="fill: #5b21b6;">Vector FPU 1</text>
+          <text x="525" y="36" class="b-text">AVX / Преобразования</text>
+
+          <!-- Порт 4: AGU Load / Store -->
+          <rect x="610" y="0" width="130" height="45" class="b-block"/>
+          <text x="675" y="20" class="b-title">AGU (Load/Store)</text>
+          <text x="675" y="36" class="b-text">Доступ к памяти</text>
+        </g>
+
+        <!-- Стрелки от станций резервирования к портам -->
+        <line x1="125" y1="225" x2="125" y2="245" class="b-bus"/>
+        <line x1="275" y1="225" x2="275" y2="245" class="b-bus"/>
+        <line x1="430" y1="225" x2="430" y2="245" class="b-bus"/>
+        <line x1="585" y1="225" x2="585" y2="245" class="b-bus"/>
+        <line x1="735" y1="225" x2="735" y2="245" class="b-bus"/>
+
+        <!-- ОБЩАЯ ШИНА ДАННЫХ (CDB - Common Data Bus) -->
+        <path d="M 60 305 L 800 305 L 800 200 L 800 170" class="b-cdb"/>
+        <text x="430" y="322" font-size="11" font-weight="bold" fill="#dc2626" text-anchor="middle">
+          Common Data Bus (CDB) — широковещательная рассылка готовых результатов в Станции Резервирования и ROB
+        </text>
+
+        <!-- ЗОНА 3: УПОРЯДОЧЕННОЕ ЗАВЕРШЕНИЕ (IN-ORDER RETIRE / COMMIT) -->
+        <rect x="20" y="360" width="820" height="100" class="b-zone"/>
+        <text x="35" y="380" class="b-zone-title">3. IN-ORDER RETIRE / COMMIT (Буфер переупорядочивания ROB)</text>
+
+        <!-- Буфер переупорядочивания ROB -->
+        <rect x="60" y="390" width="500" height="55" class="b-block" style="stroke: #059669;"/>
+        <text x="310" y="413" class="b-title" style="fill: #065f46;">Буфер переупорядочивания (Reorder Buffer — ROB)</text>
+        <text x="310" y="431" class="b-text">Хранит команды в строгом исходном порядке программы. Фиксация результатов (Commit).</text>
+
+        <!-- Стрелка в архитектурный регистровый файл -->
+        <line x1="560" y1="417" x2="620" y2="417" class="b-bus"/>
+
+        <!-- Архитектурный регистровый файл -->
+        <rect x="620" y="390" width="200" height="55" class="b-block"/>
+        <text x="720" y="413" class="b-title">Регистры РОН / Память</text>
+        <text x="720" y="431" class="b-text">Окончательное состояние ЦПУ</text>
+
+        <!-- Стрелка от CDB в ROB -->
+        <path d="M 280 305 L 280 390" class="b-cdb"/>
+      </svg>
+    </div>
+
+    <h3>Ключевые принципы архитектуры Томасуло:</h3>
+    <ul>
+      <li><strong>Переименование регистров (Register Renaming):</strong> устраняет антизависимости (WAR) и зависимости по выводу (WAW). Логические имена регистров (например, <code>EAX</code>) динамически сопоставляются с физическими ячейками буфера переименования или расширенного файла физических регистров (Physical Register File — PRF, размер которого достигает 180–280 записей).</li>
+      <li><strong>Станции резервирования (Reservation Stations):</strong> хранят инструкции, ожидающие появления данных. При вычислении результата он выставляется на общую шину данных (Common Data Bus — CDB), и все станции, ожидающие этот тег, мгновенно захватывают его.</li>
+      <li><strong>Буфер переупорядочивания (Reorder Buffer — ROB):</strong> является циклическим списком (FIFO). Инструкции заносятся в него строго последовательно на этапе Dispatch, исполняются параллельно и асинхронно в ALU, а окончательно записываются в регистры (Retire / Commit) снова строго упорядоченно. Если спекулятивная ветвь оказалась ошибочной или инструкция вызвала ошибку (деление на ноль), спекулятивные результаты в ROB просто аннулируются без изменения глобального состояния процессора.</li>
+    </ul>
+  </div>
+
+  <!-- РАЗДЕЛ 3: ПРЕДСКАЗАНИЕ ПЕРЕХОДОВ И СПЕКУЛЯТИВНОЕ ИСПОЛНЕНИЕ -->
+  <div class="card">
+    <h2>3. Предсказание переходов (Branch Prediction) и цена промаха</h2>
+    <p>В типичном машинном коде инструкции условного перехода (<code>JNZ</code>, <code>BEQ</code>, <code>BGT</code>) встречаются каждые 5–7 команд. Если бы процессор останавливал конвейер до фактического вычисления флагов в ALU, производительность упала бы более чем вдвое.</p>
+    
+    <p><strong>Спекулятивное исполнение (Speculative Execution):</strong> процессор делает обоснованную догадку о том, куда пойдет ветвление, и начинает немедленно выбирать и выполнять команды по предсказанному адресу. Если догадка верна — задержек нет вовсе. Если догадка ошибочна — происходит <em>сброс конвейера (Pipeline Flush)</em>.</p>
+
+    <h3>Эволюция алгоритмов предсказания переходов:</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Тип предсказателя</th>
+          <th>Принцип работы</th>
+          <th>Типичная точность</th>
+          <th>Применение</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Статическое предсказание</strong></td>
+          <td>Переходы назад (циклы) считаются выполняемыми (Taken); переходы вперед (условия if) — невыполняемыми (Not Taken).</td>
+          <td>65–70%</td>
+          <td>Ранние RISC, простые микроконтроллеры</td>
+        </tr>
+        <tr>
+          <td><strong>1-битный динамический</strong></td>
+          <td>Запоминает результат последнего выполнения перехода (0 — Not Taken, 1 — Taken).</td>
+          <td>~80%</td>
+          <td>Неустойчив к смене направления (в циклах дает 2 ошибки за итерацию)</td>
+        </tr>
+        <tr>
+          <td><strong>2-битный насыщающийся счетчик</strong></td>
+          <td>Конечный автомат с 4 состояниями: 00 (Сильно не взят), 01 (Слабо не взят), 10 (Слабо взят), 11 (Сильно взят). Требует двух ошибок подряд для смены прогноза.</td>
+          <td>85–90%</td>
+          <td>Классические процессоры Pentium, Cortex-A8</td>
+        </tr>
+        <tr>
+          <td><strong>Корреляционный (gshare)</strong></td>
+          <td>Использует глобальный регистр истории переходов (Global History Register — GHR), смешивая биты истории и адрес команды через XOR.</td>
+          <td>92–95%</td>
+          <td>Процессоры 2000-х годов (Core 2 Duo, Athlon 64)</td>
+        </tr>
+        <tr>
+          <td><strong>TAGE-предсказатель (TAgged GEometric)</strong></td>
+          <td>Множество таблиц с геометрически растущей длиной истории ветвлений (от коротких до сверхдлинных контекстов в сотни переходов).</td>
+          <td>97–99%</td>
+          <td>Современные микроархитектуры AMD Zen, Intel Golden Cove / Raptor Lake, Apple M-серии</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="formula-card">
+      Расчет штрафа за ошибку предсказания (Branch Misprediction Penalty):<br>
+      CPI_eff = CPI_base + f_branch &times; (1 - Accuracy) &times; N_penalty<br>
+      Где f_branch — доля условных переходов (~20%), Accuracy — точность предсказателя, N_penalty — глубина конвейера до стадии подтверждения (15–20 тактов).
+    </div>
+  </div>
+
+  <!-- РАЗДЕЛ 4: ВЕКТОРНЫЕ ВЫЧИСЛЕНИЯ SIMD -->
+  <div class="card">
+    <h2>4. Векторные инструкции SIMD (AVX2 / AVX-512)</h2>
+    <p>Классический скалярный процессор (SISD — Single Instruction, Single Data) за одну команду складывает два числа. Векторные расширения парадигмы <strong>SIMD (Single Instruction, Multiple Data)</strong> позволяют одной инструкцией параллельно обработать пачку однотипных данных.</p>
+    
+    <h3>Эволюция SIMD расширений архитектуры x86:</h3>
+    <ul>
+      <li><strong>MMX (1997 г.):</strong> 64-битные регистры, только целочисленные типы данных (байты, слова).</li>
+      <li><strong>SSE / SSE2 / SSE4.2 (1999–2008 гг.):</strong> 128-битные регистры <code>XMM0–XMM15</code>. Позволяют одновременно складывать 4 числа формата <code>float32</code> или 2 числа формата <code>double64</code>.</li>
+      <li><strong>AVX / AVX2 (2011–2013 гг.):</strong> 256-битные регистры <code>YMM0–YMM15</code>. Обрабатывают 8 чисел <code>float32</code> или 4 числа <code>double64</code> за такт. Поддержка трехоперандной формы (<code>vaddps ymm0, ymm1, ymm2</code>) и операции FMA (Fused Multiply-Add, выполнение $a \times b + c$ с одним округлением).</li>
+      <li><strong>AVX-512 (2016–н.в.):</strong> 512-битные регистры <code>ZMM0–ZMM31</code> (32 регистра). Обрабатывают 16 чисел <code>float32</code> или 8 чисел <code>double64</code> одновременно! Введены регистры предикатных масок <code>k0–k7</code> для векторизации ветвлений.</li>
+    </ul>
+
+    <div class="formula-card">
+      Пиковая теоретическая производительность FPU (GFLOPS):<br>
+      Peak_FLOPS = Число_ядер &times; Тактовая_частота &times; Число_FMA_портов &times; Элементов_в_векторе &times; 2
+    </div>
+    <p><em>Аппаратное ограничение AVX Offset:</em> активация широких 512-битных исполнительных матриц вызывает колоссальную мгновенную плотность тока ($dI/dt$) и локальный нагрев кристалла. Процессор автоматически активирует динамическое снижение тактовой частоты (AVX Frequency Offset / Throttle) на 100–300 МГц для сохранения стабильности питания.</p>
+  </div>
+
+  <!-- РАЗДЕЛ 5: ЗАКОН АМДАЛА И ПРЕДЕЛ ДЕННАРДА -->
+  <div class="card">
+    <h2>5. Физические и математические пределы: Закон Амдала и предел Деннарда</h2>
+    
+    <h3>Закон Джина Амдала (1967 г.):</h3>
+    <p>Закон формулирует теоретический предел ускорения вычислительной системы при увеличении числа параллельных вычислительных ядер:</p>
+    <div class="formula-card">
+      S(N) = 1 / [ (1 - p) + (p / N) ]<br>
+      Предел ускорения при N &rarr; &infin;: S_max = 1 / (1 - p)
+    </div>
+    <p>где <code>p</code> — доля времени работы алгоритма, поддающаяся идеальному распараллеливанию, <code>(1 - p)</code> — строго последовательная часть (инициализация, ввод/вывод, синхронизация потоков, семафоры).</p>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 860 320" width="860" height="320" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <style>
+            .axis { stroke: #475569; stroke-width: 2; }
+            .grid { stroke: #e2e8f0; stroke-width: 1; stroke-dasharray: 4,4; }
+            .g-text { font-size: 12px; fill: #64748b; }
+            .l-95 { stroke: #059669; stroke-width: 3; fill: none; }
+            .l-90 { stroke: #2563eb; stroke-width: 3; fill: none; }
+            .l-75 { stroke: #d97706; stroke-width: 3; fill: none; }
+            .l-50 { stroke: #dc2626; stroke-width: 3; fill: none; }
+          </style>
+        </defs>
+
+        <!-- Оси -->
+        <line x1="80" y1="260" x2="800" y2="260" class="axis"/>
+        <line x1="80" y1="260" x2="80" y2="30" class="axis"/>
+
+        <!-- Сетка и подписи оси Y (Ускорение S) -->
+        <line x1="80" y1="202" x2="800" y2="202" class="grid"/><text x="45" y="206" class="g-text">5&times;</text>
+        <line x1="80" y1="145" x2="800" y2="145" class="grid"/><text x="40" y="149" class="g-text">10&times;</text>
+        <line x1="80" y1="88" x2="800" y2="88" class="grid"/><text x="40" y="92" class="g-text">15&times;</text>
+        <line x1="80" y1="30" x2="800" y2="30" class="grid"/><text x="40" y="34" class="g-text">20&times;</text>
+
+        <!-- Сетка и подписи оси X (Число ядер N) -->
+        <text x="75" y="280" class="g-text">1</text>
+        <line x1="170" y1="260" x2="170" y2="30" class="grid"/><text x="165" y="280" class="g-text">4</text>
+        <line x1="290" y1="260" x2="290" y2="30" class="grid"/><text x="285" y="280" class="g-text">8</text>
+        <line x1="430" y1="260" x2="430" y2="30" class="grid"/><text x="425" y="280" class="g-text">16</text>
+        <line x1="590" y1="260" x2="590" y2="30" class="grid"/><text x="585" y="280" class="g-text">32</text>
+        <line x1="770" y1="260" x2="770" y2="30" class="grid"/><text x="765" y="280" class="g-text">64</text>
+
+        <!-- Названия осей -->
+        <text x="80" y="18" font-size="13" font-weight="bold" fill="#1e3a8a">Ускорение S(N)</text>
+        <text x="730" y="295" font-size="13" font-weight="bold" fill="#1e3a8a">Число ядер N &rarr;</text>
+
+        <!-- Кривые Амдала -->
+        <!-- p = 0.95 (Smax = 20): N=1(1x, y=260), N=4(3.48x, y=220), N=8(5.93x, y=192), N=16(9.14x, y=155), N=32(12.55x, y=116), N=64(15.42x, y=83) -->
+        <path d="M 80 260 Q 170 215, 290 192 T 430 155 T 590 116 T 770 83" class="l-95"/>
+        <text x="775" y="85" font-size="11" font-weight="bold" fill="#059669">p = 95% (Предел 20&times;)</text>
+
+        <!-- p = 0.90 (Smax = 10): N=1(1x), N=4(3.08x), N=8(4.7x), N=16(6.4x), N=32(7.8x), N=64(8.77x, y=160) -->
+        <path d="M 80 260 Q 170 225, 290 206 T 430 186 T 590 171 T 770 160" class="l-90"/>
+        <text x="775" y="160" font-size="11" font-weight="bold" fill="#2563eb">p = 90% (Предел 10&times;)</text>
+
+        <!-- p = 0.75 (Smax = 4): N=1(1x), N=4(2.29x), N=8(2.9x), N=16(3.37x), N=32(3.65x), N=64(3.82x, y=216) -->
+        <path d="M 80 260 Q 170 234, 290 227 T 430 221 T 590 218 T 770 216" class="l-75"/>
+        <text x="775" y="216" font-size="11" font-weight="bold" fill="#d97706">p = 75% (Предел 4&times;)</text>
+
+        <!-- p = 0.50 (Smax = 2) -->
+        <path d="M 80 260 Q 170 245, 290 241 T 430 239 T 590 238 T 770 237" class="l-50"/>
+        <text x="775" y="240" font-size="11" font-weight="bold" fill="#dc2626">p = 50% (Предел 2&times;)</text>
+      </svg>
+    </div>
+
+    <h3>Предел масштабирования Деннарда и Термический барьер (Power Wall):</h3>
+    <p>Динамическая мощность, рассеиваемая КМОП-транзисторами, описывается физическим выражением:</p>
+    <div class="formula-card">
+      P_dyn = C &times; V^2 &times; f
+    </div>
+    <p>где $C$ — емкость затвора, $V$ — напряжение питания, $f$ — тактовая частота. Роберт Деннард доказал, что при уменьшении линейных размеров транзистора в $k$ раз, напряжение $V$ можно снизить в $k$ раз, что сохраняло удельную плотность тепла константной.</p>
+    <p>Однако около 2005 года напряжение уперлось в фундаментальный порог <strong>0.7–1.0 Вольт</strong>: при дальнейшем снижении напряжения термические флуктуации электронов вызывают самопроизвольное переключение транзисторов, а статические токи утечки (Static Leakage Power) растут экспоненциально. <em>Масштабирование Деннарда нарушилось.</em> Отводить более 150–250 Вт тепла с кремниевого кристалла площадью 1–2 см&sup2; стандартными воздушными кулерами стало невозможно. Это заставило полупроводниковую индустрию прекратить гонку мегагерц и перейти к параллельным микроархитектурам (многоядерность, SIMD, глубокий OoO).</p>
+  </div>
+
+  <!-- РАЗДЕЛ 6: САМОПРОВЕРКА -->
+  <div class="card">
+    <h2>6. Контрольные вопросы для самопроверки</h2>
+    <div class="quiz-box">
+      <div class="quiz-item">
+        <div class="quiz-q">1. В чем разница между конвейерным пузырем (Stall) и аппаратным форвардингом данных?</div>
+        <div class="quiz-a">Пузырь замораживает стадии конвейера, вставляя пустые такты ожидания NOP, пока результат не запишется в регистровый файл. Форвардинг же перехватывает вычисленные операнды прямо на выходе комбинационной логики (EX/MEM) и подает их по служебным шинам в мультиплексор следующей стадии без единого такта задержки.</div>
+      </div>
+      <div class="quiz-item">
+        <div class="quiz-q">2. Почему при внеочередном исполнении (OoO) завершение инструкций (Commit/Retire) обязано быть строго последовательным?</div>
+        <div class="quiz-a">Строго упорядоченное завершение в буфере переупорядочивания (ROB) обеспечивает точную модель исключений (Precise Exceptions). Если команда на спекулятивной ветви вызовет фатальную ошибку (деление на ноль или Page Fault), процессор сможет легко отменить ее без искажения состояния системы.</div>
+      </div>
+      <div class="quiz-item">
+        <div class="quiz-q">3. Каков физический смысл предела закона Амдала $S_{\max} = \frac{1}{1 - p}$?</div>
+        <div class="quiz-a">Даже если параллельная часть задачи будет выполнена за бесконечно малое мгновение на бесконечном числе процессоров, время работы программы все равно не может быть меньше времени выполнения ее строго последовательной части $(1 - p)$.</div>
+      </div>
+      <div class="quiz-item">
+        <div class="quiz-q">4. Что происходит с конвейером при неверном предсказании перехода (Branch Misprediction)?</div>
+        <div class="quiz-a">Происходит сброс конвейера (Pipeline Flush). Все спекулятивно загруженные и выполненные команды в станциях резервирования и буфере переупорядочивания признаются недействительными и стираются, а блок выборки перезагружает PC правильным целевым адресом, теряя 15–20 машинных тактов.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
