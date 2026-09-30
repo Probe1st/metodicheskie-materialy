@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Практическая работа №5: Конструкция, подключение и инсталляция нестандартных периферийных устройств</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --radius: 12px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+      --success: #059669;
+      --warn: #d97706;
+      --danger: #dc2626;
+      --code-bg: #1e293b;
+      --code-text: #f8fafc;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15px;
+      padding: 20px 16px;
+    }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(20px, 3.2vw, 26px);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    h2 {
+      font-size: 18.5px;
+      color: var(--accent);
+      margin: 20px 0 12px;
+      border-bottom: 1.5px solid var(--accent-soft);
+      padding-bottom: 6px;
+    }
+    h3 {
+      font-size: 16px;
+      margin: 14px 0 6px;
+      color: #1e293b;
+    }
+    p, ul, ol { margin-bottom: 10px; }
+    ul, ol { padding-left: 20px; }
+    li { margin-bottom: 4px; }
+    .note {
+      background: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 14px 0;
+      font-size: 14px;
+    }
+    .note-warn {
+      background: #fef3c7;
+      border-left: 4px solid var(--warn);
+      color: #92400e;
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 14px 0;
+      font-size: 14px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 14px;
+      color: #1e293b;
+    }
+    input[type="text"], textarea, select {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14.5px;
+      color: var(--text);
+      background: #ffffff;
+      transition: border-color 0.2s ease;
+    }
+    input[type="text"]:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+    }
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+    .code-term {
+      font-family: ui-monospace, monospace;
+      background: var(--code-bg);
+      color: #38bdf8;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.5;
+      overflow-x: auto;
+      margin: 10px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 13.5px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #e2e8f0;
+      color: #334155;
+    }
+    .btn-wrap {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .btn {
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+    .btn-danger {
+      background: #fee2e2;
+      color: var(--danger);
+      border: 1px solid #fca5a5;
+    }
+    .btn-danger:hover {
+      background: #fecaca;
+    }
+    .save-status {
+      font-size: 13.5px;
+      color: var(--success);
+      margin-top: 8px;
+      font-weight: 500;
+      display: inline-block;
+    }
+    .variant-section {
+      display: none;
+      background: #fdfdfd;
+      border: 1.5px dashed var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 12px;
+    }
+    .variant-section.active {
+      display: block;
+    }
+    .print-val {
+      display: none;
+    }
+    @media print {
+      body { background: white; color: black; padding: 0; font-size: 11pt; }
+      .container { max-width: 100%; }
+      .card { border: none; box-shadow: none; padding: 8px 0; margin-bottom: 10px; }
+      .btn-wrap, .save-status, .note-warn { display: none !important; }
+      input[type="text"], textarea, select {
+        color: transparent !important;
+        display: none !important;
+      }
+      .variant-section {
+        display: block !important;
+        border: 1px solid #cbd5e1;
+        margin-bottom: 12px;
+        page-break-inside: avoid;
+      }
+      .print-val {
+        display: block !important;
+        border: 1px solid #94a3b8;
+        border-radius: 4px;
+        padding: 6px 8px;
+        min-height: 32px;
+        white-space: pre-wrap;
+        font-family: inherit;
+        font-size: 10.5pt;
+        color: #000000;
+        background: #fafafa;
+        overflow: visible;
+        word-break: break-word;
+      }
+    }
+    @media (max-width: 768px) {
+      body { padding: 12px 8px; }
+      .card { padding: 16px; }
+      .form-row { grid-template-columns: 1fr; }
+      .btn-wrap { flex-direction: column; }
+      .btn { width: 100%; }
+      table { display: block; overflow-x: auto; }
+    }
+    @media (max-width: 375px) {
+      body { padding: 8px 4px; font-size: 14px; }
+      .card { padding: 12px; }
+      h1 { font-size: 18px; }
+      h2 { font-size: 16px; }
+      input[type="text"], textarea, select { font-size: 13.5px; padding: 8px; }
+      .btn { padding: 8px 12px; font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
+  <div class="card">
+    <h1>Рабочий лист: Конструкция, подключение и инсталляция нестандартных периферийных устройств</h1>
+    <p>Практическая работа №5 с комплексным интенсивным тренингом к дифференцированному зачету.</p>
+
+    <div class="note-warn">
+      <strong>Внимание (работа на общем компьютере):</strong> Ваши ответы сохраняются в локальном хранилище текущего браузера. Перед уходом сохраните отчет через кнопку <strong>«Печать отчета / Экспорт в PDF» (Ctrl+P)</strong> и при необходимости очистите данные.
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="student_fio">Фамилия, имя обучающегося:</label>
+        <input type="text" id="student_fio" oninput="saveData()">
+        <div class="print-val" id="pv_student_fio"></div>
+      </div>
+      <div class="form-group">
+        <label for="student_group">Группа:</label>
+        <input type="text" id="student_group" oninput="saveData()">
+        <div class="print-val" id="pv_student_group"></div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="variant_select"><strong>Выберите практический вариант оборудования:</strong></label>
+      <select id="variant_select" onchange="onVariantChange()">
+        <option value="">-- Выберите вариант пусконаладки --</option>
+        <option value="1">Вариант 1: Пусконаладка и калибровка 3D-принтера CoreXY</option>
+        <option value="2">Вариант 2: Подключение и калибровка контроллера DAQ (4-20 мА)</option>
+        <option value="3">Вариант 3: Инсталляция базовых станций и трекеров VR (Lighthouse 2.0)</option>
+        <option value="4">Вариант 4: Измерительный комплекс с USB-GPIB интерфейсом (IEEE-488)</option>
+      </select>
+      <div class="print-val" id="pv_variant_select"></div>
+    </div>
+  </div>
+
+  <!-- БЛОК 1: ПРАКТИЧЕСКАЯ ПУСКОНАЛАДКА ПО ВАРИАНТАМ -->
+  <div class="card">
+    <h2>Часть 1. Пусконаладка и калибровка оборудования (45 минут)</h2>
+    <p style="color: var(--muted); font-size: 13.5px;">Заполните протокол юстировки, кинематические/электрические расчеты и контрольные параметры по выбранному варианту.</p>
+
+    <!-- ВАРИАНТ 1 -->
+    <div id="v_sec_1" class="variant-section">
+      <span class="badge">Вариант 1: Аддитивная система CoreXY</span>
+      <h3>Пусконаладка 3D-принтера, Z-offset и PID-регулирование</h3>
+      <p><strong>Параметры стенда:</strong> Шаговые двигатели NEMA 17 (1.8°/шаг), микрошаг 1/16, шкивы GT2 (20 зубьев, шаг 2 мм). Ось Z: трапецеидальный винт Tr8x8 (ход 8 мм на оборот). Датчик Z: оптический концевик.</p>
+
+      <div class="form-group">
+        <label for="v1_calc_steps">1. Расчет шагов на миллиметр (Steps/mm) для осей X/Y и оси Z:</label>
+        <textarea id="v1_calc_steps" rows="3" oninput="saveData()"></textarea>
+        <div class="print-val" id="pv_v1_calc_steps"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="v1_zoffset_proto">2. Протокол настройки Z-offset и юстировки датчика стола:</label>
+        <p style="font-size: 13px; color: var(--muted);">Укажите исходную координату срабатывания концевика, измеренное щупом расстояние, расчетное значение Z-offset и команду сохранения в EEPROM (M851/M500).</p>
+        <textarea id="v1_zoffset_proto" rows="4" oninput="saveData()"></textarea>
+        <div class="print-val" id="pv_v1_zoffset_proto"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="v1_pid_table">3. Таблица автонастройки PID-регулятора хотэнда (метод Циглера-Никольса):</label>
+        <textarea id="v1_pid_table" rows="3" oninput="saveData()"></textarea>
+        <div class="print-val" id="pv_v1_pid_table"></div>
+      </div>
+    </div>
+
+    <!-- ВАРИАНТ 2 -->
+    <div id="v_sec_2" class="variant-section">
+      <span class="badge">Вариант 2: Промышленный DAQ-контроллер</span>
+      <h3>Калибровка токовой петли 4–20 мА и подавление помехи 50 Гц</h3>
+      <p><strong>Параметры стенда:</strong> Датчик давления 0–16 бар, токовый выход 4–20 мА. Прецизионный измерительный шунт $R_{sh} = 150\,\Omega$ ($0.1\%$). АЦП микроконтроллера 12 бит (0–4095), опорное напряжение $V_{ref} = 3.30\text{ В}$.</p>
+
+      <div class="form-group">
+        <label for="v2_calc_adc">1. Расчет напряжений на шунте и кодов АЦП для точек 4 мА (0 бар), 12 мА (8 бар) и 20 мА (16 бар):</label>
+        <textarea id="v2_calc_adc" rows="3" oninput="saveData()"></textarea>
+        <div class="print-val" id="pv_v2_calc_adc"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="v2_fault_logic">2. Диагностика аппаратного обрыва цепи датчика («Живой ноль»):</label>
+        <p style="font-size: 13px; color: var(--muted);">При каком токе и коде АЦП контроллер обязан зафиксировать аварию «Обрыв линии датчика» (Wire Break Fault)? Чем принципиально отличается ток 0 мА от 4 мА?</p>
+        <textarea id="v2_fault_logic" rows="3" oninput="saveData()"></textarea>
+        <div class="print-val" id="pv_v2_fault_logic"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="v2_filter_50hz">3. Алгоритм подавления синфазной промышленной помехи 50 Гц:</label>
+        <p style="font-size: 13px; color: var(--muted);">Параметры скользящего окна усреднения или времени интегрирования АЦП, кратного периоду сети ($T = 20\text{ мс}$).</p>
+        <textarea id="v2_filter_50hz" rows="3" oninput="saveData()"></textarea>
+        <div class="print-val" id="pv_v2_filter_50hz"></div>
+      </div>
+    </div>
+
+    <!-- ВАРИАНТ 3 -->
+    <div id="v_sec_3" class="variant-section">
+      <span class="badge">Вариант 3: Комплекс виртуальной реальности</span>
+      <h3>Инсталляция базовых станций Lighthouse 2.0 и аудит задержки MTP</h3>
+      <p><strong>Параметры стенда:</strong> 2 базовые станции SteamVR 2.0 (развертка 100 Гц), шлем VR с двумя дисплеями Fast-Switch LCD 120 Гц, подключение DisplayPort 1.4 + USB 3.0 + Bluetooth LE синхронизация.</p>
+
+      <div class="form-group">
+        <label for="v3_lighthouse_calib">1. Протокол калибровки игрового пространства (Guardian / Chaperone):</label>
+        <p style="font-size: 13px; color: var(--muted);">Высота и наклон базовых станций, устранение затенений, привязка нулевой плоскости пола.</p>
+        <textarea id="v3_lighthouse_calib" rows="3" oninput="saveData()"></textarea>
+        <div class="print-val" id="pv_v3_lighthouse_calib"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="v3_mtp_budget">2. Расчет конвейера сквозной задержки Motion-to-Photon (MTP &le; 20 мс):</label>
+        <p style="font-size: 13px; color: var(--muted);">Поэтапный бюджет: опрос IMU/фотодиодов, Sensor Fusion, рендеринг GPU при 120 fps, передача по DP, отклик матрицы ЖК.</p>
+        <textarea id="v3_mtp_budget" rows="4" oninput="saveData()"></textarea>
+        <div class="print-val" id="pv_v3_mtp_budget"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="v3_sync_ble">3. Синхронизация оптических маркеров и протокол радиоканала Bluetooth LE:</label>
+        <textarea id="v3_sync_ble" rows="3" oninput="saveData()"></textarea>
+        <div class="print-val" id="pv_v3_sync_ble"></div>
+      </div>
+    </div>
+
+    <!-- ВАРИАНТ 4 -->
+    <div id="v_sec_4" class="variant-section">
+      <span class="badge">Вариант 4: Измерительный стенд с шиной IEEE-488 (GPIB)</span>
+      <h3>Адресация приборов по шине GPIB и опрос прерываний SRQ</h3>
+      <p><strong>Параметры стенда:</strong> Программируемый источник питания (адрес 5), мультиметр прецизионный (адрес 16), цифровой осциллограф (адрес 22). Адаптер USB-GPIB на базе контроллера с буфером FIFO.</p>
+
+      <div class="form-group">
+        <label for="v4_gpib_addr">1. Карта адресации и логические уровни сигналов шины IEEE-488:</label>
+        <p style="font-size: 13px; color: var(--muted);">Распределение первичных адресов приборов (1–30), инверсная TTL-логика (активный низкий уровень).</p>
+        <textarea id="v4_gpib_addr" rows="3" oninput="saveData()"></textarea>
+        <div class="print-val" id="pv_v4_gpib_addr"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="v4_handshake_proto">2. Трехпроводный протокол аппаратного квитирования (Handshake):</label>
+        <p style="font-size: 13px; color: var(--muted);">Взаимодействие сигналов DAV (Data Valid), NRFD (Not Ready For Data), NDAC (Not Data Accepted). Как гарантируется передача со скоростью самого медленного прибора?</p>
+        <textarea id="v4_handshake_proto" rows="4" oninput="saveData()"></textarea>
+        <div class="print-val" id="pv_v4_handshake_proto"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="v4_srq_poll">3. Процедура обработки прерывания SRQ (Serial Poll):</label>
+        <p style="font-size: 13px; color: var(--muted);">Алгоритм опроса контроллером байта статуса STB при выставлении сигнала запроса обслуживания SRQ.</p>
+        <textarea id="v4_srq_poll" rows="3" oninput="saveData()"></textarea>
+        <div class="print-val" id="pv_v4_srq_poll"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- БЛОК 2: ПРЕДЗАЧЕТНЫЙ ТРЕНИРОВОЧНЫЙ КОМПЛЕКС (ТЕМЫ 01-16) -->
+  <div class="card">
+    <h2>Часть 2. Интенсивный предзачетный тренинг (Темы 01–16, 35 минут)</h2>
+    <p style="color: var(--muted); font-size: 13.5px;">Решите 4 комплексные архитектурные задачи из экзаменационного пула вопросов дифференцированного зачета.</p>
+
+    <div class="form-group">
+      <label for="exam_q1_pcie">Задача 1 (Шины): Расчет реальной пропускной способности интерфейса PCI Express 4.0 x16:</label>
+      <p style="font-size: 13px; color: var(--muted);">
+        Тактовая частота 16 GT/s на линию, кодирование 128b/130b. Рассчитайте скорость одной линии и слота x16 в одном направлении (ГБ/с) и полный дуплексный поток (чтение + запись).
+      </p>
+      <textarea id="exam_q1_pcie" rows="3" oninput="saveData()"></textarea>
+      <div class="print-val" id="pv_exam_q1_pcie"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="exam_q2_ram">Задача 2 (Память): Пропускная способность памяти DDR5-5600 в двухканальном режиме:</label>
+      <p style="font-size: 13px; color: var(--muted);">
+        Учитывая, что модуль DDR5 содержит два 32-битных субканала (суммарно 64 бита = 8 байт), рассчитайте ПСП одного модуля и двухканальной конфигурации (ГБ/с). Сравните с DDR4-3200 двухканал.
+      </p>
+      <textarea id="exam_q2_ram" rows="3" oninput="saveData()"></textarea>
+      <div class="print-val" id="pv_exam_q2_ram"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="exam_q3_video">Задача 3 (Периферия): Расчет видеопотока 4K 144Hz 10-bit HDR и обоснование DSC:</label>
+      <p style="font-size: 13px; color: var(--muted);">
+        Разрешение $3840 \times 2160$, 144 Гц, 10 бит RGB (30 bpp), коэффициент гашения 1.2. Рассчитайте битрейт (Гбит/с). Хватит ли пропускной способности DisplayPort 1.4 (25.92 Гбит/с)? Обоснуйте применение DSC 1.2a.
+      </p>
+      <textarea id="exam_q3_video" rows="4" oninput="saveData()"></textarea>
+      <div class="print-val" id="pv_exam_q3_video"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="exam_q4_dma">Задача 4 (Архитектура ввода-вывода): Сравнение DMA (Direct Memory Access) и PIO (Programmed I/O):</label>
+      <p style="font-size: 13px; color: var(--muted);">
+        Почему скоростной обмен данными с накопителями NVMe и промышленными модулями DAQ невозможен в режиме PIO? Как работает режим Bus Master DMA по шине PCIe?
+      </p>
+      <textarea id="exam_q4_dma" rows="4" oninput="saveData()"></textarea>
+      <div class="print-val" id="pv_exam_q4_dma"></div>
+    </div>
+  </div>
+
+  <!-- БЛОК 3: ВЫВОДЫ И ЗАЩИТА -->
+  <div class="card">
+    <h2>Часть 3. Инженерные выводы и правила электромагнитной совместимости</h2>
+    <div class="form-group">
+      <label for="student_conclusions">Сформулируйте итоговые выводы по пусконаладке оборудования и правилам заземления экранов кабелей:</label>
+      <p style="font-size: 13px; color: var(--muted);">Почему экран сигнального кабеля заземляется строго в одной точке? Какие последствия возникают при образовании паразитного контура заземления (Ground Loop)?</p>
+      <textarea id="student_conclusions" rows="4" oninput="saveData()"></textarea>
+      <div class="print-val" id="pv_student_conclusions"></div>
+    </div>
+
+    <!-- КНОПКИ УПРАВЛЕНИЯ -->
+    <div class="btn-wrap">
+      <button type="button" class="btn btn-primary" onclick="saveData(true)">Сохранить ответы</button>
+      <button type="button" class="btn btn-secondary" onclick="printReport()">Печать отчета / Экспорт в PDF</button>
+      <button type="button" class="btn btn-danger" onclick="clearData()">Очистить форму</button>
+    </div>
+    <div id="save_status" class="save-status"></div>
+  </div>
+
+</div>
+
+<script>
+  const STORAGE_KEY = 'top_hw17_practice_worksheet';
+
+  const allFieldIds = [
+    'student_fio', 'student_group', 'variant_select',
+    'v1_calc_steps', 'v1_zoffset_proto', 'v1_pid_table',
+    'v2_calc_adc', 'v2_fault_logic', 'v2_filter_50hz',
+    'v3_lighthouse_calib', 'v3_mtp_budget', 'v3_sync_ble',
+    'v4_gpib_addr', 'v4_handshake_proto', 'v4_srq_poll',
+    'exam_q1_pcie', 'exam_q2_ram', 'exam_q3_video', 'exam_q4_dma',
+    'student_conclusions'
+  ];
+
+  function onVariantChange() {
+    const sel = document.getElementById('variant_select').value;
+    for (let i = 1; i <= 4; i++) {
+      const sec = document.getElementById('v_sec_' + i);
+      if (sec) {
+        if (String(i) === sel) {
+          sec.classList.add('active');
+        } else {
+          sec.classList.remove('active');
+        }
+      }
+    }
+    saveData();
+  }
+
+  function saveData(manual = false) {
+    const payload = {};
+    allFieldIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        payload[id] = el.value;
+        const pv = document.getElementById('pv_' + id);
+        if (pv) {
+          if (el.tagName === 'SELECT') {
+            pv.textContent = el.options[el.selectedIndex] ? el.options[el.selectedIndex].text : '';
+          } else {
+            pv.textContent = el.value;
+          }
+        }
+      }
+    });
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+
+    const status = document.getElementById('save_status');
+    if (status) {
+      status.textContent = manual ? '✓ Все данные успешно зафиксированы в браузере!' : 'Автосохранение...';
+      if (!manual) {
+        setTimeout(() => { status.textContent = ''; }, 2000);
+      }
+    }
+  }
+
+  function loadData() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      allFieldIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && data[id] !== undefined) {
+          el.value = data[id];
+          const pv = document.getElementById('pv_' + id);
+          if (pv) {
+            if (el.tagName === 'SELECT') {
+              pv.textContent = el.options[el.selectedIndex] ? el.options[el.selectedIndex].text : '';
+            } else {
+              pv.textContent = el.value;
+            }
+          }
+        }
+      });
+      const sel = document.getElementById('variant_select').value;
+      if (sel) {
+        for (let i = 1; i <= 4; i++) {
+          const sec = document.getElementById('v_sec_' + i);
+          if (sec) {
+            if (String(i) === sel) {
+              sec.classList.add('active');
+            } else {
+              sec.classList.remove('active');
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Ошибка загрузки сохраненных данных:', e);
+    }
+  }
+
+  function clearData() {
+    if (confirm('Внимание! Вы уверены, что хотите удалить все введённые ответы? Данные будут стёрты из памяти браузера.')) {
+      localStorage.removeItem(STORAGE_KEY);
+      allFieldIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+        const pv = document.getElementById('pv_' + id);
+        if (pv) pv.textContent = '';
+      });
+      for (let i = 1; i <= 4; i++) {
+        const sec = document.getElementById('v_sec_' + i);
+        if (sec) sec.classList.remove('active');
+      }
+      const status = document.getElementById('save_status');
+      if (status) status.textContent = 'Форма успешно очищена.';
+    }
+  }
+
+  function printReport() {
+    saveData(true);
+    window.print();
+  }
+
+  document.addEventListener('DOMContentLoaded', loadData);
+</script>
+</body>
+</html>

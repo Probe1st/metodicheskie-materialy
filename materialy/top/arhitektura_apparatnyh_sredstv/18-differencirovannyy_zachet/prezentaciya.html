@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Презентация: Дифференцированный зачет</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #161e2e;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-secondary: #818cf8;
+      --line: #2d3748;
+      --border-radius: 16px;
+      --success: #34d399;
+      --warn: #fbbf24;
+      --danger: #f87171;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+    }
+    .pres-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      position: relative;
+    }
+    .slide {
+      display: none;
+      flex: 1;
+      padding: 40px 60px;
+      overflow-y: auto;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .slide.active {
+      display: flex;
+    }
+    .slide-1 {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      background: radial-gradient(circle at center, #1e293b 0%, #0b0f19 100%);
+    }
+    .slide-1 h1 {
+      font-size: clamp(34px, 5.8vw, 68px);
+      line-height: 1.2;
+      color: #38bdf8;
+      font-weight: 800;
+      max-width: 1100px;
+      letter-spacing: -0.02em;
+    }
+    .slide-title {
+      font-size: clamp(22px, 3.2vw, 34px);
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 2px solid var(--line);
+      padding-bottom: 12px;
+    }
+    .slide-content {
+      font-size: clamp(15px, 1.8vw, 18px);
+      line-height: 1.6;
+      color: var(--text);
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .card-box {
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: var(--border-radius);
+      padding: 22px;
+    }
+    .card-box h3 {
+      font-size: 19px;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .card-box ul {
+      padding-left: 20px;
+    }
+    .card-box li {
+      margin-bottom: 8px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+    .badge-ok { background: rgba(52, 211, 153, 0.15); color: var(--success); border-color: rgba(52, 211, 153, 0.3); }
+    .badge-warn { background: rgba(251, 191, 36, 0.15); color: var(--warn); border-color: rgba(251, 191, 36, 0.3); }
+    .formula {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: #0f172a;
+      border: 1px solid #334155;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin: 10px 0;
+      color: #38bdf8;
+      font-size: 15px;
+    }
+    .meme-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      text-align: center;
+    }
+    .meme-img {
+      max-height: 48vh;
+      max-width: 90%;
+      border-radius: 12px;
+      border: 2px solid var(--line);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      object-fit: contain;
+    }
+    .attribution {
+      font-size: 13px;
+      color: var(--muted);
+      max-width: 780px;
+      line-height: 1.5;
+      background: rgba(22, 30, 46, 0.8);
+      padding: 12px 18px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+    }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 30px;
+      background: #080c14;
+      border-top: 1px solid var(--line);
+    }
+    .controls-btns {
+      display: flex;
+      gap: 12px;
+    }
+    .nav-btn {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid #334155;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nav-btn:hover:not(:disabled) {
+      background: var(--accent);
+      color: #0b0f19;
+    }
+    .nav-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+    .slide-counter {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 500;
+    }
+    @media (max-width: 768px) {
+      .slide { padding: 20px; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .slide-title { font-size: 20px; }
+      .slide-content { font-size: 15px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="pres-container">
+
+  <!-- СЛАЙД 1: СТРОГО ТОЛЬКО НАЗВАНИЕ ТЕМЫ -->
+  <div class="slide slide-1 active" id="slide-1">
+    <h1>Дифференцированный зачет</h1>
+  </div>
+
+  <!-- СЛАЙД 2: РЕГЛАМЕНТ И ЦЕЛИ ИТОГОВОЙ АТТЕСТАЦИИ -->
+  <div class="slide" id="slide-2">
+    <div class="slide-title">1. Регламент и задачи дифференцированного зачета</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="card-box">
+          <span class="badge">Тайминг занятия (90 мин)</span>
+          <h3>Порядок аттестации</h3>
+          <ul>
+            <li><strong>00–05 мин:</strong> Инструктаж, выбор вариантов проекта.</li>
+            <li><strong>05–75 мин (70 мин):</strong> Комплексная самостоятельная работа.</li>
+            <li><strong>75–85 мин (10 мин):</strong> Прием и верификация работ.</li>
+            <li><strong>85–90 мин (5 мин):</strong> Подведение итогов, оглашение отметок.</li>
+          </ul>
+        </div>
+        <div class="card-box">
+          <span class="badge badge-ok">Оцениваемые компетенции</span>
+          <h3>Три составляющие зачета</h3>
+          <ul>
+            <li><strong>Системный дизайн:</strong> выбор архитектуры и расчет шин.</li>
+            <li><strong>Физическая совместимость:</strong> память, питание, охлаждение.</li>
+            <li><strong>Инженерная диагностика:</strong> локализация скрытых аппаратных сбоев.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 3: КРИТЕРИАЛЬНАЯ МАТРИЦА 10 БАЛЛОВ -->
+  <div class="slide" id="slide-3">
+    <div class="slide-title">2. Критериальная шкала оценивания (10 баллов)</div>
+    <div class="slide-content">
+      <div class="grid-3">
+        <div class="card-box">
+          <span class="badge">Блок 1 (до 6 баллов)</span>
+          <h3>Архитектурное обоснование</h3>
+          <p>Выбор CPU/SoC, топология шин PCIe/NVLink/CXL, адресация и балансировка NUMA, учет законов Амдала и предела Деннарда.</p>
+        </div>
+        <div class="card-box">
+          <span class="badge">Блок 2 (до 2 баллов)</span>
+          <h3>Инженерные расчеты</h3>
+          <p>Пропускная способность памяти (DDR5/HBM) и шин (PCIe 5.0 128b/130b), расчет мощности, токов питания и надежности MTBF.</p>
+        </div>
+        <div class="card-box">
+          <span class="badge">Блок 3 (до 2 баллов)</span>
+          <h3>Аудит дефектов</h3>
+          <p>Локализация скрытой аппаратной неисправности (VRM, броски токов, земляные петли), физическое обоснование и план устранения.</p>
+        </div>
+      </div>
+      <div class="card-box" style="margin-top: 18px;">
+        <strong>Шкала перевода в отметки:</strong> 9–10 баллов — «Отлично» (5); 7–8 баллов — «Хорошо» (4); 5–6 баллов — «Удовлетворительно» (3); менее 5 баллов — «Неудовлетворительно» (2).
+      </div>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 4: АРХИТЕКТУРНАЯ КАРТА КУРСА -->
+  <div class="slide" id="slide-4">
+    <div class="slide-title">3. Генеральная архитектурная карта курса ОП.02</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="card-box">
+          <span class="badge">Низкоуровневые слои (Темы 01–08)</span>
+          <h3>От кремния до конвейера</h3>
+          <ul>
+            <li><strong>Полупроводники:</strong> логические вентили, АЛУ, триггеры памяти.</li>
+            <li><strong>Принципы фон Неймана:</strong> единая память vs Гарвардская шина.</li>
+            <li><strong>Микропроцессоры:</strong> конвейер, Out-of-Order, предсказание переходов.</li>
+          </ul>
+        </div>
+        <div class="card-box">
+          <span class="badge">Системные слои (Темы 09–17)</span>
+          <h3>Шины, память и периферия</h3>
+          <ul>
+            <li><strong>Иерархия памяти:</strong> L1–L3 SRAM, DRAM DDR5, пулы NVMe.</li>
+            <li><strong>Интерконнект:</strong> PCIe 5.0, CXL, NUMA, оптические каналы.</li>
+            <li><strong>Интерфейсы:</strong> Thunderbolt 4, InfiniBand, RS-485, CAN.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 5: ФУНДАМЕНТАЛЬНЫЙ ЗАКОН АМДАЛА -->
+  <div class="slide" id="slide-5">
+    <div class="slide-title">4. Закон Амдала и предел масштабирования</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="card-box">
+          <h3>Математическая формулировка</h3>
+          <div class="formula">S(N) = 1 / [ (1 - P) + (P / N) ]</div>
+          <p>Где <strong>P</strong> — доля параллельного кода, <strong>N</strong> — число ядер.</p>
+          <p>Если последовательная часть $1 - P = 5\%$, даже при бесконечном $N$ ускорение системы не превысит <strong>20x</strong>.</p>
+        </div>
+        <div class="card-box">
+          <h3>Практический вывод архитектора</h3>
+          <ul>
+            <li>Нельзя решить проблему задержки простым добавлением ядер.</li>
+            <li>Узкие места синхронизации и блокировки мьютексов обесценивают кластер.</li>
+            <li>Балансировка вычислений требует минимизации интерконнект-оверхеда.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 6: ПРЕДЕЛ ДЕННАРДА И ТЕМНЫЙ КРЕМНИЙ -->
+  <div class="slide" id="slide-6">
+    <div class="slide-title">5. Предел Деннарда и проблема Dark Silicon</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="card-box">
+          <h3>Кризис масштабирования мощности</h3>
+          <div class="formula">P = C &times; V&sup2; &times; f + I_leak &times; V</div>
+          <p>До 2005 г. уменьшение транзистора позволяло снижать напряжение $V$. Сегодня порог ~0.7 В уперся в квантовые токи утечки $I_{leak}$.</p>
+          <p><strong>Результат:</strong> плато тактовых частот (3.5–5.5 ГГц) и барьер рассеивания тепла.</p>
+        </div>
+        <div class="card-box">
+          <h3>Феномен Dark Silicon</h3>
+          <ul>
+            <li>Современный чип не может включить 100% транзисторов на полной частоте без саморазрушения.</li>
+            <li>Переход к гетерогенным блокам: NPU, DSP, видеоэнкодеры, энергоэффективные ядра.</li>
+            <li>Жесткие ограничения лимитов мощности PL1/PL2/EDC.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 7: ПРОБЛЕМА СТЕНЫ ПАМЯТИ (MEMORY WALL) -->
+  <div class="slide" id="slide-7">
+    <div class="slide-title">6. Проблема «Стены памяти» (Memory Wall)</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="card-box">
+          <h3>Разрыв скорости CPU и DRAM</h3>
+          <p>Скорость АЛУ росла на ~50% в год, а задержка доступа к DRAM сокращалась лишь на ~7% в год. Доступ к RAM требует 150–250 процессорных тактов простоя.</p>
+          <p>Конвейер современного CPU 70% времени простаивает на промахах кэша (Cache Misses).</p>
+        </div>
+        <div class="card-box">
+          <h3>Архитектурные решения</h3>
+          <ul>
+            <li><strong>Иерархия кэшей:</strong> интеграция 3D V-Cache (L3 до 256 МБ+).</li>
+            <li><strong>Многоканальность:</strong> 12 каналов DDR5 на сокет (серверы).</li>
+            <li><strong>Стек HBM3/HBM3e:</strong> шина 1024 бит, ПСП до 4.8 ТБ/с на чип.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 8: ЭКОНОМИКА TCO (CAPEX И OPEX) -->
+  <div class="slide" id="slide-8">
+    <div class="slide-title">7. Экономика архитектуры: расчет TCO</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="card-box">
+          <span class="badge">Формула совокупной стоимости</span>
+          <h3>TCO = CapEx + OpEx</h3>
+          <ul>
+            <li><strong>CapEx:</strong> затраты на покупку процессоров, шасси, памяти, сетевых плат.</li>
+            <li><strong>OpEx:</strong> затраты на электроэнергию (кВт*ч), охлаждение ЦОД (PUE), аренду и регламентную замену узлов.</li>
+          </ul>
+        </div>
+        <div class="card-box">
+          <span class="badge badge-warn">Энергетический баланс</span>
+          <h3>Серверная стойка 30 кВт</h3>
+          <p>За 3 года непрерывной эксплуатации стойка AI-серверов мощностью 30 кВт в дата-центре с коэффициентом PUE 1.3 потребляет электроэнергии на сумму, превышающую стоимость серверного оборудования!</p>
+          <p><strong>Ключевая метрика:</strong> Производительность на Ватт (Perf / Watt).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 9: РАСЧЕТ ПРОПУСКНОЙ СПОСОБНОСТИ ПАМЯТИ И ШИН -->
+  <div class="slide" id="slide-9">
+    <div class="slide-title">8. Инженерные формулы: память и шина PCIe</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="card-box">
+          <h3>Пропускная способность DDR5</h3>
+          <div class="formula">BW = Каналы &times; (MT/s &times; 8 байт) &times; &eta;</div>
+          <p>Для 2-сокетного сервера (24 канала DDR5-4800):</p>
+          <div class="formula">BW_raw = 24 &times; 38.4 ГБ/с = 921.6 ГБ/с</div>
+          <p>С учетом КПД шины (~85%): <strong>~783 ГБ/с</strong> чистой полосы.</p>
+        </div>
+        <div class="card-box">
+          <h3>Пропускная способность PCIe 5.0</h3>
+          <div class="formula">BW_lane = 32 GT/s &times; (128/130) / 8 &approx; 3.938 ГБ/с</div>
+          <p>Слот PCIe 5.0 x16 обеспечивает <strong>~63.0 ГБ/с</strong> в одном направлении (дуплекс 126 ГБ/с).</p>
+          <p>Кодирование 128b/130b снижает накладные расходы до 1.54% (против 20% в PCIe 2.0 8b/10b).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 10: ВАРИАНТ 1 — ВИРТУАЛИЗАЦИЯ И СУБД -->
+  <div class="slide" id="slide-10">
+    <div class="slide-title">9. Вариант 1: Платформа виртуализации и СУБД</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="card-box">
+          <span class="badge">Архитектурный профиль</span>
+          <h3>2x CPU EPYC / Xeon + 24ch DDR5</h3>
+          <ul>
+            <li><strong>Топология:</strong> 2 сокета, 192 ядра, 24 канала DDR5 ECC (1.5 ТБ).</li>
+            <li><strong>Диски:</strong> 8x U.2 NVMe PCIe 5.0 x4 (до 12 млн IOPS).</li>
+            <li><strong>NUMA-балансировка:</strong> разделение адаптеров сети 100GbE и пулов NVMe по процессорным узлам.</li>
+          </ul>
+        </div>
+        <div class="card-box">
+          <span class="badge badge-warn">Скрытый дефект</span>
+          <h3>Аэродинамическая тень VRM</h3>
+          <p><strong>Симптом:</strong> Спонтанный ребут под 100% нагрузкой СУБД при температуре CPU 68°C.</p>
+          <p><strong>Причина:</strong> Радиаторы VRM в тени высоких радиаторов CPU, перегрев ключей DrMOS выше 115°C (OTP).</p>
+          <p><strong>Решение:</strong> Установка дефлекторов (Air Shrouds), оптимизация кривой вентиляторов BMC.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 11: ВАРИАНТ 2 — AI TRAINING КЛАСТЕР -->
+  <div class="slide" id="slide-11">
+    <div class="slide-title">10. Вариант 2: Кластерный узел AI Training</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="card-box">
+          <span class="badge">Архитектурный профиль</span>
+          <h3>4x GPU H100 + NVSwitch + IB 400G</h3>
+          <ul>
+            <li><strong>Интерконнект ускорителей:</strong> шина NVLink 4 (900 ГБ/с на GPU для AllReduce).</li>
+            <li><strong>Интерфейс узлов:</strong> InfiniBand NDR 400G (50 ГБ/с) + GPUDirect RDMA.</li>
+            <li><strong>Энергетика стойки:</strong> 8 узлов по 3.4 кВт = 27.5 кВт на стойку (DLC охлаждение).</li>
+          </ul>
+        </div>
+        <div class="card-box">
+          <span class="badge badge-warn">Скрытый дефект</span>
+          <h3>Импульсные броски dI/dt</h3>
+          <p><strong>Симптом:</strong> Аварийное отключение БП при переходе от прямого к обратному проходу модели.</p>
+          <p><strong>Причина:</strong> Микросекундный бросок мощности ускорителей до 3400 Вт, срабатывание защиты OCP в схеме БП 1+1.</p>
+          <p><strong>Решение:</strong> Режим распределения токов 2+0, БП с transient tolerance 140%.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 12: ВАРИАНТ 3 — МОБИЛЬНАЯ РАБОЧАЯ СТАНЦИЯ -->
+  <div class="slide" id="slide-12">
+    <div class="slide-title">11. Вариант 3: Мобильная инженерная станция</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="card-box">
+          <span class="badge">Архитектурный профиль</span>
+          <h3>x86 PRO + LPDDR5X ECC + RTX Ada</h3>
+          <ul>
+            <li><strong>Надежность расчетов:</strong> аппаратная память ECC для исключения сбоев САПР/CFD.</li>
+            <li><strong>Шина Thunderbolt 4:</strong> 40 Гбит/с (туннель PCIe 32 Гбит/с + 2x 4K@60Hz).</li>
+            <li><strong>Автономность:</strong> батарея 99.9 Вт*ч (36 мин при 150W TDP, 1.3 ч при лимите 70W).</li>
+          </ul>
+        </div>
+        <div class="card-box">
+          <span class="badge badge-warn">Скрытый дефект</span>
+          <h3>Троттлинг датчика BD PROCHOT</h3>
+          <p><strong>Симптом:</strong> Сброс частоты CPU до 800 МГц при температуре кристаллов 72°C.</p>
+          <p><strong>Причина:</strong> Перегрев фаз питания GPU (125°C) из-за некондиционной толстой термопрокладки (1.5 мм вместо 0.5 мм).</p>
+          <p><strong>Решение:</strong> Замена термоинтерфейса, калибровка карты триггеров датчиков платы.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 13: ВАРИАНТ 4 — ШЛЮЗ INDUSTRIAL IOT -->
+  <div class="slide" id="slide-13">
+    <div class="slide-title">12. Вариант 4: Промышленный шлюз Edge Computing</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="card-box">
+          <span class="badge">Архитектурный профиль</span>
+          <h3>SoC i.MX8 + In-Line ECC + Fanless IP67</h3>
+          <ul>
+            <li><strong>Гетерогенность:</strong> 4x Cortex-A53 (Linux) + Cortex-M7 (FreeRTOS 800 МГц) + NPU.</li>
+            <li><strong>Накопитель:</strong> eMMC pSLC (до 60 000 циклов записи, устойчивость к сбоям).</li>
+            <li><strong>Надежность:</strong> MTBF &gt; 1.5 млн часов (&gt;175 лет) за счет безвентиляторного шасси.</li>
+          </ul>
+        </div>
+        <div class="card-box">
+          <span class="badge badge-warn">Скрытый дефект</span>
+          <h3>Земляная петля и выгорание RS-485</h3>
+          <p><strong>Симптом:</strong> Выгорание портов RS-485 и Kernel Panic при пуске высоковольтного двигателя.</p>
+          <p><strong>Причина:</strong> Экран кабеля заземлен с двух сторон; дешевые изоляторы без изолированного DC-DC питания.</p>
+          <p><strong>Решение:</strong> Заземление строго в 1 точке, микросхемы с изоляцией до 3 кВ (ADuM5401), TVS-супрессоры.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 14: ИНСТРУКЦИЯ ПО ОФОРМЛЕНИЮ РАБОТЫ -->
+  <div class="slide" id="slide-14">
+    <div class="slide-title">13. Инструкция по сдаче аттестационного листа</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="card-box">
+          <span class="badge">Рабочий лист студента</span>
+          <h3>Заполнение формы zanyatie.html</h3>
+          <ul>
+            <li>Укажите реальные ФИО и группу в чистых полях ввода.</li>
+            <li>Выберите свой вариант проекта из выпадающего списка.</li>
+            <li>Заполните все три раздела: обоснование, расчеты, аудит дефекта.</li>
+            <li>Нажимайте «Сохранить черновик» для сохранения в <code>localStorage</code>.</li>
+          </ul>
+        </div>
+        <div class="card-box">
+          <span class="badge badge-ok">Критерии защиты</span>
+          <h3>Прием работы преподавателем</h3>
+          <ul>
+            <li>Проверка числовых расчетов и размерностей.</li>
+            <li>Устный блиц-вопрос по первопричине дефекта (1 мин).</li>
+            <li>Суммирование баллов (макс. 10) и выставление академической оценки.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 15: ИНТЕРНЕТ-МЕМ СО СВОБОДНОЙ ЛИЦЕНЗИЕЙ -->
+  <div class="slide" id="slide-15">
+    <div class="slide-title">14. Архитектурный юмор: основы системного мышления</div>
+    <div class="meme-wrap">
+      <img class="meme-img" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAIAAgADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7pooorrPJCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP//Z" alt="Мем о двоичной системе счисления">
+      <div class="attribution">
+        <strong>Мем:</strong> «Mathjoke (10 types of people in the world) — В мире существует 10 типов людей: те, кто понимает двоичную систему счисления, и те, кто её не понимает».<br>
+        <strong>Автор:</strong> MjolnirPants (Wikimedia Commons).<br>
+        <strong>Лицензия:</strong> Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).<br>
+        <strong>Автономность:</strong> Изображение встроено автономно в формате Base64 Data URI (<code>data:image/jpeg;base64,...</code>) без внешних сетевых запросов.
+      </div>
+    </div>
+  </div>
+
+  <!-- ПАНЕЛЬ УПРАВЛЕНИЯ СЛАЙДАМИ -->
+  <div class="controls">
+    <div class="controls-btns">
+      <button type="button" class="nav-btn" id="btn_prev" onclick="prevSlide()">← Назад</button>
+      <button type="button" class="nav-btn" id="btn_next" onclick="nextSlide()">Вперед →</button>
+    </div>
+    <div class="slide-counter" id="slide_counter">Слайд 1 из 15</div>
+  </div>
+
+</div>
+
+<script>
+  let currentSlide = 1;
+  const totalSlides = 15;
+
+  function showSlide(n) {
+    if (n < 1) n = 1;
+    if (n > totalSlides) n = totalSlides;
+    currentSlide = n;
+
+    for (let i = 1; i <= totalSlides; i++) {
+      const el = document.getElementById('slide-' + i);
+      if (el) {
+        if (i === currentSlide) {
+          el.classList.add('active');
+        } else {
+          el.classList.remove('active');
+        }
+      }
+    }
+
+    document.getElementById('slide_counter').textContent = 'Слайд ' + currentSlide + ' из ' + totalSlides;
+    document.getElementById('btn_prev').disabled = (currentSlide === 1);
+    document.getElementById('btn_next').disabled = (currentSlide === totalSlides);
+  }
+
+  function prevSlide() {
+    if (currentSlide > 1) showSlide(currentSlide - 1);
+  }
+
+  function nextSlide() {
+    if (currentSlide < totalSlides) showSlide(currentSlide + 1);
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      nextSlide();
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      prevSlide();
+    } else if (e.key === 'Home') {
+      showSlide(1);
+    } else if (e.key === 'End') {
+      showSlide(totalSlides);
+    }
+  });
+
+  showSlide(1);
+</script>
+
+</body>
+</html>

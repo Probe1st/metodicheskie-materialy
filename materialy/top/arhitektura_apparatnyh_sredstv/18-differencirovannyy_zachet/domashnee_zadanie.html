@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Домашнее задание - Дифференцированный зачет</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --ok: #059669;
+      --warn: #d97706;
+      --danger: #dc2626;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .card, .actions-card, .variant-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(20px, 3.2vw, 26px);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    h2 {
+      font-size: 18px;
+      color: var(--accent);
+      margin: 18px 0 10px;
+      border-bottom: 1.5px solid var(--accent-soft);
+      padding-bottom: 6px;
+    }
+    h3 {
+      font-size: 15.5px;
+      margin: 14px 0 6px;
+      color: #1e293b;
+    }
+    .notice {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      font-size: 14.5px;
+      color: #92400e;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    input[type="text"], select, textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.12);
+    }
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12.5px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .field-group {
+      margin-top: 16px;
+    }
+    .field-title {
+      font-weight: 600;
+      font-size: 14px;
+      color: #1e293b;
+      margin-bottom: 6px;
+    }
+    .field-desc {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s, opacity 0.2s;
+    }
+    button:hover { background: #1d4ed8; }
+    button.btn-clear { background: #64748b; }
+    button.btn-clear:hover { background: #475569; }
+    .status-msg {
+      margin-top: 10px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--ok);
+      display: none;
+    }
+    .print-mirror {
+      display: none;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 14px;
+      line-height: 1.5;
+      padding: 8px 12px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      min-height: 48px;
+    }
+    @media (max-width: 480px) {
+      body { padding: 10px 6px; font-size: 14px; }
+      .header-card, .student-card, .card, .actions-card, .variant-card { padding: 14px; }
+      .student-grid { grid-template-columns: 1fr; }
+      .btn-group { width: 100%; flex-direction: column; }
+      button { width: 100%; justify-content: center; }
+    }
+    @media print {
+      body { background: #fff; padding: 0; font-size: 10.5pt; color: #000; }
+      .page { max-width: 100%; margin: 0; }
+      .header-card, .student-card, .card, .variant-card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+        break-inside: avoid;
+        margin-bottom: 12pt;
+        padding: 12pt;
+      }
+      .actions-card, button, .status-msg { display: none !important; }
+      textarea { display: none !important; }
+      .print-mirror { display: block !important; }
+      input::placeholder, textarea::placeholder { color: transparent !important; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ШАПКА ДОМАШНЕГО ЗАДАНИЯ -->
+  <div class="header-card">
+    <h1>Домашнее задание - Дифференцированный зачет</h1>
+    <div class="desc">Резервный вариант итоговой аттестационной работы по дисциплине «ОП.02 Архитектура аппаратных средств».</div>
+    <div class="notice">
+      Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+    </div>
+  </div>
+
+  <!-- ДАННЫЕ ОБУЧАЮЩЕГОСЯ -->
+  <div class="student-card">
+    <div class="student-grid">
+      <div>
+        <label for="hw_fio">Фамилия, Имя обучающегося:</label>
+        <input type="text" id="hw_fio">
+      </div>
+      <div>
+        <label for="hw_group">Учебная группа:</label>
+        <input type="text" id="hw_group">
+      </div>
+      <div>
+        <label for="hw_variant">Назначенный вариант зачета:</label>
+        <select id="hw_variant" onchange="changeHwVariant()">
+          <option value="">-- Выберите вариант --</option>
+          <option value="1">Вариант 1: Высокоплотный узел виртуализации и СУБД (EPYC, DDR5, NVMe, VRM)</option>
+          <option value="2">Вариант 2: Кластерный узел AI Training (4x GPU, NVLink, InfiniBand 400G, dI/dt)</option>
+          <option value="3">Вариант 3: Инженерная мобильная станция (x86/ARM, LPDDR5X ECC, TB4, BD PROCHOT)</option>
+          <option value="4">Вариант 4: Промышленный шлюз Edge Computing (SoC i.MX8, Fanless IP67, MTBF, RS-485)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- СОДЕРЖАНИЕ ВАРИАНТОВ -->
+  <div class="variant-card" id="hw_v1" style="display: none;">
+    <span class="badge">Вариант 1: Архитектура Enterprise-виртуализации и СУБД</span>
+    <h3>Техническое задание и исходные данные проекта</h3>
+    <p>Спроектируйте высоконагруженный 2-процессорный сервер базы данных (PostgreSQL / Redis) в корпусе 2U. Платформа: 2x AMD EPYC 9654 (Genoa, 96 ядер каждый) либо Intel Xeon 8480+, 24 канала памяти DDR5-4800 ECC Registered (1.5 ТБ ОЗУ), 8x NVMe накопителей PCIe 5.0 x4 U.2/E3.S, 2-портовый сетевой адаптер 100GbE.</p>
+    
+    <div class="field-group">
+      <div class="field-title">1. Архитектурное обоснование платформы и топологии шин (макс. 6 баллов):</div>
+      <div class="field-desc">Обоснуйте выбор конфигурации 1DPC для DDR5, топологию межпроцессорного интерконнекта (Infinity Fabric / UPI), распределение 128 линий PCIe 5.0 между сетевыми платами и дисковыми пулами двух сокетов, опишите эффект NUMA-локальности памяти.</div>
+      <textarea id="hw_ans_1_1" oninput="saveHwDraft()"></textarea>
+      <div class="print-mirror" id="hw_mirror_1_1"></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-title">2. Инженерные расчеты пропускной способности памяти и дисковой подсистемы (макс. 2 балла):</div>
+      <div class="field-desc">Рассчитайте теоретическую и эффективную ПСП 24 каналов памяти DDR5-4800 (с учетом КПД 85%). Рассчитайте суммарный потенциал IOPS пула из 8 накопителей NVMe (по 1.5 млн IOPS на диск) и сопоставьте требуемую полосу пропускания с возможностями шины PCIe 5.0 x4.</div>
+      <textarea id="hw_ans_1_2" oninput="saveHwDraft()"></textarea>
+      <div class="print-mirror" id="hw_mirror_1_2"></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-title">3. Аудит и ликвидация скрытого дефекта питания и охлаждения (макс. 2 балла):</div>
+      <div class="field-desc">Симптом: Сервер самопроизвольно перезагружается под 100% нагрузкой СУБД. Температура процессоров в норме (68°C). Лог BMC фиксирует аварию «VRD Over-Temperature Fault». Локализуйте причину перегрева DrMOS VRM и предложите конструктивное решение.</div>
+      <textarea id="hw_ans_1_3" oninput="saveHwDraft()"></textarea>
+      <div class="print-mirror" id="hw_mirror_1_3"></div>
+    </div>
+  </div>
+
+  <div class="variant-card" id="hw_v2" style="display: none;">
+    <span class="badge">Вариант 2: Кластерный вычислительный узел AI Training</span>
+    <h3>Техническое задание и исходные данные проекта</h3>
+    <p>Спроектируйте архитектуру сервера глубокого обучения больших языковых моделей (LLM Training). Состав узла: 2x CPU x86/ARM, 4x GPU-ускорителя NVIDIA H100 (TDP 450-700W), межчиповая коммутация NVLink 4, сетевой интерконнект InfiniBand NDR 400G с поддержкой GPUDirect RDMA.</p>
+
+    <div class="field-group">
+      <div class="field-title">1. Архитектурное обоснование интерконнекта и Scale-Out (макс. 6 баллов):</div>
+      <div class="field-desc">Обоснуйте, почему шина PCIe 5.0 x16 является узким горлышком для распределенной операции AllReduce, и какую роль играет коммутация NVSwitch. Опишите механизм GPUDirect RDMA для межузлового взаимодействия.</div>
+      <textarea id="hw_ans_2_1" oninput="saveHwDraft()"></textarea>
+      <div class="print-mirror" id="hw_mirror_2_1"></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-title">2. Инженерные расчеты энергетического баланса и термопрофиля стойки (макс. 2 балла):</div>
+      <div class="field-desc">Рассчитайте суммарную потребляемую мощность узла (GPU, CPU, DDR5, PCIe-коммутаторы, мощные вентиляторы). Рассчитайте тепловыделение серверной стойки при размещении 8 таких узлов. Обоснуйте выбор системы охлаждения (DLC / In-Row).</div>
+      <textarea id="hw_ans_2_2" oninput="saveHwDraft()"></textarea>
+      <div class="print-mirror" id="hw_mirror_2_2"></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-title">3. Аудит и устранение скрытой аварии питания импульсными бросками (макс. 2 балла):</div>
+      <div class="field-desc">Симптом: Узел аварийно отключается блоком питания ровно в момент старта AllReduce. Средняя мощность 2400 Вт при двух БП по 2000 Вт в режиме 1+1. Объясните физику бросков токов тензорных ядер $dI/dt$ и сформируйте регламент решения.</div>
+      <textarea id="hw_ans_2_3" oninput="saveHwDraft()"></textarea>
+      <div class="print-mirror" id="hw_mirror_2_3"></div>
+    </div>
+  </div>
+
+  <div class="variant-card" id="hw_v3" style="display: none;">
+    <span class="badge">Вариант 3: Мобильная инженерная станция повышенной надежности</span>
+    <h3>Техническое задание и исходные данные проекта</h3>
+    <p>Спроектируйте архитектуру портативной рабочей станции для аэродинамического и прочностного моделирования (CAD/CFD). Компоненты: CPU x86-64 PRO / ARM SoC, оперативная память LPDDR5X ECC, GPU NVIDIA RTX Ada Generation Mobile, шина Thunderbolt 4, лимит батареи 99.9 Вт*ч.</p>
+
+    <div class="field-group">
+      <div class="field-title">1. Архитектурное обоснование надежности и периферии (макс. 6 баллов):</div>
+      <div class="field-desc">Обоснуйте критическую необходимость аппаратной защиты памяти ECC для инженерных САПР-расчетов. Детализируйте протокол туннелирования Thunderbolt 4 (разделение шин PCIe 32 Гбит/с и видеопотока DisplayPort).</div>
+      <textarea id="hw_ans_3_1" oninput="saveHwDraft()"></textarea>
+      <div class="print-mirror" id="hw_mirror_3_1"></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-title">2. Инженерные расчеты полосы интерфейсов и автономности (макс. 2 балла):</div>
+      <div class="field-desc">Рассчитайте битрейт двух внешних мониторов 4K@60Hz и определите остаточную ПСП туннеля PCIe для внешнего NVMe накопителя. Рассчитайте автономность ноутбука от батареи 99.9 Вт*ч при нагрузке 150 Вт и при лимитированном профиле 70 Вт.</div>
+      <textarea id="hw_ans_3_2" oninput="saveHwDraft()"></textarea>
+      <div class="print-mirror" id="hw_mirror_3_2"></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-title">3. Аудит и устранение скрытого дефекта термотроттлинга BD PROCHOT (макс. 2 балла):</div>
+      <div class="field-desc">Симптом: Спустя 15 минут рендера процессор сбрасывает частоту до 800 МГц (BD PROCHOT), хотя датчики ядер показывают комфортные 72°C. Выявите причину перегрева силовых ключей цепей питания GPU и укажите способ устранения.</div>
+      <textarea id="hw_ans_3_3" oninput="saveHwDraft()"></textarea>
+      <div class="print-mirror" id="hw_mirror_3_3"></div>
+    </div>
+  </div>
+
+  <div class="variant-card" id="hw_v4" style="display: none;">
+    <span class="badge">Вариант 4: Промышленный IoT-шлюз Edge Computing</span>
+    <h3>Техническое задание и исходные данные проекта</h3>
+    <p>Спроектируйте необслуживаемый периферийный вычислительный шлюз для насосной подстанции. Состав: гетерогенная SoC NXP i.MX 8M Plus (4x Cortex-A53 + Cortex-M7 RTOS + NPU), память LPDDR4 In-Line ECC, Flash pSLC eMMC, безвентиляторный корпус IP67, изолированные порты RS-485 и CAN.</p>
+
+    <div class="field-group">
+      <div class="field-title">1. Архитектурное обоснование гетерогенности и детерминизма (макс. 6 баллов):</div>
+      <div class="field-desc">Обоснуйте разделение задач между ядрами Linux (аналитика, Docker) и ядром реального времени Cortex-M7 (опрос полевых шин). Обоснуйте применение памяти pSLC eMMC и безвентиляторного конструктива Fanless.</div>
+      <textarea id="hw_ans_4_1" oninput="saveHwDraft()"></textarea>
+      <div class="print-mirror" id="hw_mirror_4_1"></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-title">2. Инженерные расчеты надежности MTBF и таймингов CAN (макс. 2 балла):</div>
+      <div class="field-desc">Рассчитайте суммарную интенсивность отказов $\lambda$ в FIT и наработку на отказ MTBF (в часах и годах). Рассчитайте загрузку шины CAN 2.0B (500 кбит/с) при циклическом опросе 10 датчиков кадрами по 130 бит каждые 10 мс.</div>
+      <textarea id="hw_ans_4_2" oninput="saveHwDraft()"></textarea>
+      <div class="print-mirror" id="hw_mirror_4_2"></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-title">3. Аудит и устранение аварии выгорания трансиверов RS-485 (макс. 2 балла):</div>
+      <div class="field-desc">Симптом: При пуске высоковольтного насоса шлюз зависает с Kernel Panic, а порт RS-485 выгорает. Вскройте схемотехническую ошибку заземления экрана витой пары с двух сторон и отсутствия изолированного DC-DC питания. Сформируйте регламент защиты.</div>
+      <textarea id="hw_ans_4_3" oninput="saveHwDraft()"></textarea>
+      <div class="print-mirror" id="hw_mirror_4_3"></div>
+    </div>
+  </div>
+
+  <!-- ПАНЕЛЬ ДЕЙСТВИЙ -->
+  <div class="actions-card">
+    <div class="btn-group">
+      <button type="button" onclick="saveHwDraft()">💾 Сохранить черновик</button>
+      <button type="button" onclick="window.print()">🖨️ Распечатать / Сохранить в PDF</button>
+      <button type="button" class="btn-clear" onclick="clearHwForm()">🗑️ Очистить форму</button>
+    </div>
+    <div class="status-msg" id="hw_status">✓ Данные успешно сохранены в локальном хранилище браузера</div>
+  </div>
+
+</div>
+
+<script>
+  function changeHwVariant() {
+    const v = document.getElementById('hw_variant').value;
+    for (let i = 1; i <= 4; i++) {
+      const el = document.getElementById('hw_v' + i);
+      if (el) el.style.display = (v === String(i)) ? 'block' : 'none';
+    }
+    saveHwDraft();
+  }
+
+  function saveHwDraft() {
+    const data = {
+      fio: document.getElementById('hw_fio').value,
+      group: document.getElementById('hw_group').value,
+      variant: document.getElementById('hw_variant').value,
+      answers: {}
+    };
+
+    for (let v = 1; v <= 4; v++) {
+      for (let q = 1; q <= 3; q++) {
+        const id = 'hw_ans_' + v + '_' + q;
+        const mirrorId = 'hw_mirror_' + v + '_' + q;
+        const el = document.getElementById(id);
+        const mirror = document.getElementById(mirrorId);
+        if (el) {
+          data.answers[id] = el.value;
+          if (mirror) mirror.textContent = el.value || ' ';
+        }
+      }
+    }
+
+    localStorage.setItem('top_hw_18_data', JSON.stringify(data));
+    const status = document.getElementById('hw_status');
+    status.style.display = 'block';
+    setTimeout(() => { status.style.display = 'none'; }, 2000);
+  }
+
+  function loadHwDraft() {
+    const raw = localStorage.getItem('top_hw_18_data');
+    if (!raw) return;
+    try {
+      const data = JSON.parse(raw);
+      if (data.fio) document.getElementById('hw_fio').value = data.fio;
+      if (data.group) document.getElementById('hw_group').value = data.group;
+      if (data.variant) {
+        document.getElementById('hw_variant').value = data.variant;
+        changeHwVariant();
+      }
+      if (data.answers) {
+        for (const [id, val] of Object.entries(data.answers)) {
+          const el = document.getElementById(id);
+          const mirror = document.getElementById(id.replace('ans', 'mirror'));
+          if (el) {
+            el.value = val;
+            if (mirror) mirror.textContent = val || ' ';
+          }
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function clearHwForm() {
+    if (confirm('Вы уверены, что хотите полностью очистить форму? Все введенные данные будут удалены.')) {
+      localStorage.removeItem('top_hw_18_data');
+      document.getElementById('hw_fio').value = '';
+      document.getElementById('hw_group').value = '';
+      document.getElementById('hw_variant').value = '';
+      for (let v = 1; v <= 4; v++) {
+        for (let q = 1; q <= 3; q++) {
+          const el = document.getElementById('hw_ans_' + v + '_' + q);
+          const mirror = document.getElementById('hw_mirror_' + v + '_' + q);
+          if (el) el.value = '';
+          if (mirror) mirror.textContent = '';
+        }
+      }
+      changeHwVariant();
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', loadHwDraft);
+</script>
+</body>
+</html>
