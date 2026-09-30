@@ -1,0 +1,1516 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Методический материал — Понятия аппаратных средств ЭВМ и архитектура аппаратных средств</title>
+  <style>
+    :root {
+      --bg-page: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-subtle: #f1f5f9;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-light: #64748b;
+      --border-soft: #e2e8f0;
+      --border-medium: #cbd5e1;
+      --primary: #0369a1;
+      --primary-hover: #0284c7;
+      --primary-light: #e0f2fe;
+      --primary-dark: #075985;
+      --success: #15803d;
+      --success-light: #dcfce7;
+      --warning: #b45309;
+      --warning-light: #fef3c7;
+      --danger: #b91c1c;
+      --danger-light: #fee2e2;
+      --indigo: #4338ca;
+      --indigo-light: #e0e7ff;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --font-stack: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-family: var(--font-stack);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      padding: 24px 16px;
+    }
+
+    .wrapper {
+      max-width: 1140px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Header & Passport */
+    .header-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-soft);
+      border-top: 6px solid var(--primary);
+      border-radius: var(--radius-lg);
+      padding: 32px 36px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .badge-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .badge-primary { background: var(--primary-light); color: var(--primary-dark); }
+    .badge-indigo { background: var(--indigo-light); color: var(--indigo); }
+    .badge-success { background: var(--success-light); color: var(--success); }
+    .badge-warning { background: var(--warning-light); color: var(--warning); }
+
+    h1 {
+      font-size: 28px;
+      line-height: 1.25;
+      color: var(--text-main);
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .header-desc {
+      font-size: 17px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      max-width: 900px;
+    }
+
+    .passport-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .passport-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .passport-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .passport-value {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* Jump Nav */
+    .quick-nav {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md);
+      padding: 12px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+      position: sticky;
+      top: 12px;
+      z-index: 50;
+    }
+
+    .quick-nav-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-light);
+      text-transform: uppercase;
+      margin-right: 4px;
+    }
+
+    .quick-nav a {
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .quick-nav a:hover {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+    }
+
+    .print-btn {
+      margin-left: auto;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-medium);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .print-btn:hover {
+      background: #e2e8f0;
+    }
+
+    /* Main Sections */
+    section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-lg);
+      padding: 32px 36px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    h2 {
+      font-size: 22px;
+      line-height: 1.3;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--bg-subtle);
+    }
+
+    h2 .section-num {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      font-size: 14px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+
+    h3 {
+      font-size: 17px;
+      line-height: 1.4;
+      color: var(--text-main);
+      margin-top: 10px;
+    }
+
+    p {
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    /* Layout Cards & Grids */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card.accent-card {
+      background: #f0f9ff;
+      border-color: #bae6fd;
+    }
+
+    .card.warning-card {
+      background: #fffbeb;
+      border-color: #fde68a;
+    }
+
+    .card.danger-card {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .callout {
+      border-left: 4px solid var(--primary);
+      background: #f8fafc;
+      padding: 16px 20px;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      font-size: 15px;
+      color: var(--text-muted);
+    }
+
+    .callout.callout-alert {
+      border-left-color: var(--danger);
+      background: #fff5f5;
+    }
+
+    .callout.callout-success {
+      border-left-color: var(--success);
+      background: #f0fdf4;
+    }
+
+    .callout-title {
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    /* Lists */
+    ul, ol {
+      padding-left: 22px;
+      color: var(--text-muted);
+      font-size: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    li strong {
+      color: var(--text-main);
+    }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 12px 16px;
+      vertical-align: top;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    th {
+      background: #f8fafc;
+      color: var(--text-main);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: rgba(241, 245, 249, 0.6);
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .tag-blue { background: #e0f2fe; color: #0369a1; }
+    .tag-green { background: #dcfce7; color: #15803d; }
+    .tag-amber { background: #fef3c7; color: #b45309; }
+    .tag-red { background: #fee2e2; color: #b91c1c; }
+
+    /* SVG Architecture Diagram */
+    .diagram-wrapper {
+      background: #ffffff;
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .svg-container {
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .svg-container svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .diagram-caption {
+      font-size: 13px;
+      color: var(--text-light);
+      line-height: 1.4;
+      border-top: 1px dashed var(--border-soft);
+      padding-top: 10px;
+    }
+
+    /* Scenario switcher */
+    .scenario-tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 2px solid var(--border-soft);
+      padding-bottom: 2px;
+      margin-bottom: 8px;
+    }
+
+    .scenario-tab {
+      background: transparent;
+      border: none;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -4px;
+      transition: all 0.15s ease;
+    }
+
+    .scenario-tab:hover {
+      color: var(--primary);
+    }
+
+    .scenario-tab.active {
+      color: var(--primary-dark);
+      border-bottom-color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .scenario-content {
+      display: none;
+    }
+
+    .scenario-content.active {
+      display: block;
+    }
+
+    /* Diagnostic error box */
+    .error-item {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-bottom: 12px;
+      transition: border-color 0.2s ease;
+    }
+
+    .error-item:hover {
+      border-color: var(--border-medium);
+    }
+
+    .error-header {
+      background: var(--bg-subtle);
+      padding: 12px 16px;
+      font-weight: 700;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--danger);
+    }
+
+    .error-body {
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      font-size: 14px;
+    }
+
+    .error-col strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-light);
+    }
+
+    /* Print styles */
+    @media print {
+      body {
+        background: #fff;
+        color: #000;
+        padding: 0;
+        font-size: 12pt;
+        line-height: 1.4;
+      }
+
+      .wrapper {
+        max-width: 100%;
+        gap: 16pt;
+      }
+
+      .header-card, section {
+        border: 1px solid #ccc;
+        box-shadow: none;
+        padding: 16pt;
+        page-break-inside: avoid;
+      }
+
+      .quick-nav, .print-btn, .scenario-tabs {
+        display: none !important;
+      }
+
+      .scenario-content {
+        display: block !important;
+        margin-bottom: 20pt;
+      }
+
+      .scenario-content::before {
+        content: attr(data-title);
+        display: block;
+        font-size: 14pt;
+        font-weight: bold;
+        margin-bottom: 8pt;
+      }
+
+      h2 {
+        border-bottom: 1px solid #999;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 12px 8px;
+      }
+
+      .header-card, section {
+        padding: 20px 16px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      h2 {
+        font-size: 19px;
+      }
+
+      .quick-nav {
+        position: static;
+      }
+
+      .grid-2, .grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <!-- Header Card / Methodological Passport -->
+  <header class="header-card">
+    <div class="badge-bar">
+      <span class="badge badge-primary">Методическое руководство для преподавателя</span>
+      <span class="badge badge-indigo">Вводный теоретический блок</span>
+      <span class="badge badge-success">Основной тайминг: 90 минут</span>
+      <span class="badge badge-warning">Домашняя работа: 60 минут</span>
+    </div>
+    <h1>Понятия аппаратных средств ЭВМ и архитектура аппаратных средств</h1>
+    <p class="header-desc">
+      Фундаментальный методический комплекс для формирования у обучающихся системного понимания различий между 
+      физическим оборудованием и архитектурной логикой взаимодействия узлов. Включает пошаговый сквозной разбор 
+      маршрута данных, демонстрации, диагностику типичных ментальных ловушек и инструментарий объективной оценки.
+    </p>
+
+    <div class="passport-grid">
+      <div class="passport-item">
+        <span class="passport-label">Предметная направленность</span>
+        <span class="passport-value">Введение в архитектуру ЭВМ</span>
+      </div>
+      <div class="passport-item">
+        <span class="passport-label">Аудиторный регламент</span>
+        <span class="passport-value">90 мин (сокращенный 60 мин)</span>
+      </div>
+      <div class="passport-item">
+        <span class="passport-label">Самостоятельная нагрузка</span>
+        <span class="passport-value">60 мин (домашний практикум)</span>
+      </div>
+      <div class="passport-item">
+        <span class="passport-label">Оценочная точка</span>
+        <span class="passport-value">Схема системы (шкала 4 балла)</span>
+      </div>
+      <div class="passport-item">
+        <span class="passport-label">Ключевой сквозной процесс</span>
+        <span class="passport-value">Ввод → ОЗУ → ЦПУ → Монитор / SSD</span>
+      </div>
+      <div class="passport-item">
+        <span class="passport-label">Базовый дидактический акцент</span>
+        <span class="passport-value">Энергозависимость ОЗУ vs Накопитель</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Quick Anchor Navigation -->
+  <nav class="quick-nav" aria-label="Быстрый переход по разделам">
+    <span class="quick-nav-title">Разделы:</span>
+    <a href="#boundaries">Границы темы</a>
+    <a href="#concepts">Понятийный базис</a>
+    <a href="#data-flow">Маршрут данных</a>
+    <a href="#scenarios">Сценарии (90 / 60 мин)</a>
+    <a href="#pedagogy">Приемы и опыт</a>
+    <a href="#pitfalls">Диагностика ошибок</a>
+    <a href="#rubric">Критерии оценки</a>
+    <a href="#homework">Домашняя работа</a>
+    <button class="print-btn" onclick="window.print()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+      Печать конспекта
+    </button>
+  </nav>
+
+  <!-- Section 1: Concept Boundaries & Pedagogical Passport -->
+  <section id="boundaries">
+    <h2><span class="section-num">01</span> Концептуальные границы и дидактический паспорт</h2>
+    
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          Дидактическая цель занятия
+        </div>
+        <p>
+          Сформировать у обучающихся строгое категориальное разграничение понятий «аппаратные средства» (физические устройства) 
+          и «архитектура» (принципы логической организации и взаимодействия узлов), научить строить и аргументировать сквозной 
+          путь информационных потоков между функциональными блоками ЭВМ при выполнении базовых пользовательских операций.
+        </p>
+      </div>
+
+      <div class="card accent-card">
+        <div class="card-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+          Проверяемые результаты обучающихся
+        </div>
+        <ul>
+          <li><strong>Различает</strong> физический компонент (железо) и логическую архитектурную модель.</li>
+          <li><strong>Обосновывает</strong> функциональное назначение базовых узлов (ЦПУ, ОЗУ, накопитель, устройства ввода-вывода).</li>
+          <li><strong>Прослеживает</strong> сквозной путь данных от нажатия клавиши до отрисовки и записи на диск.</li>
+          <li><strong>Диагностирует</strong> фундаментальную разницу между временным энергозависимым и постоянным хранением.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25%;">Критерий</th>
+            <th style="width: 37%;">Что обязательно входит в данное занятие</th>
+            <th style="width: 38%;">Что сознательно исключено (границы темы)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Терминология</strong></td>
+            <td>Определения hardware, архитектуры, компонентов, интерфейсов, шин обмена. Понятие функционального узла.</td>
+            <td>Детальные спецификации стандартов (DDR5, PCIe 5.0, USB4), физика полупроводников и схемотехника транзисторов.</td>
+          </tr>
+          <tr>
+            <td><strong>Функциональные узлы</strong></td>
+            <td>Базовые блоки: Процессор (ЦПУ), Оперативная память (ОЗУ/RAM), Накопитель (SSD/HDD), Ввод (Клавиатура), Вывод (Монитор).</td>
+            <td>Внутреннее микроархитектурное устройство процессора (АЛУ, конвейеры, регистры, предсказатели ветвлений) — темы 06–08.</td>
+          </tr>
+          <tr>
+            <td><strong>Потоки данных</strong></td>
+            <td>Сквозная цепочка: скан-код → буферизация в ОЗУ → обработка процессором → вывод в видеобуфер → явное сохранение на SSD по команде.</td>
+            <td>Детальная инструментальная диагностика параметров системы, спецификации микросхем и разбор низкоуровневых прерываний IRQ/DMA.</td>
+          </tr>
+          <tr>
+            <td><strong>Память</strong></td>
+            <td>Разделение: энергозависимая оперативная память (DRAM) vs энергонезависимый накопитель (NAND Flash / HDD). Механика риска потери.</td>
+            <td>Многоуровневая иерархия кэшей L1/L2/L3, алгоритмы замещения страниц, контроллеры RAID и файловые системы (тема 10).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <span class="callout-title">Методическая преемственность в курсе</span>
+      Данное занятие является смысловым фундаментом всей дисциплины. Студенты приходят с бытовым представлением о компьютере как о «черном ящике», 
+      где всё содержимое часто называется «процессором» или «памятью». Задача преподавателя на этом этапе — демонтировать бытовую терминологическую кашу, 
+      не погружаясь раньше времени в низкоуровневые регистры и прикладные утилиты диагностики, сосредоточившись на инвариантной функциональной структуре ЭВМ.
+    </div>
+  </section>
+
+  <!-- Section 2: Conceptual Basis & Explanatory Models -->
+  <section id="concepts">
+    <h2><span class="section-num">02</span> Опорный понятийный аппарат и объяснительные модели</h2>
+
+    <p>
+      Преподаватель вводит четкие формулировки, иллюстрируя их контрастными связками «сущность — принцип». Важно подчеркнуть, 
+      что архитектура не сводится к схеме расположения деталей на плате, а описывает правила взаимодействия функциональных блоков.
+    </p>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-title">
+          <span class="tag tag-blue">Субстанция</span>
+          Аппаратные средства (Hardware)
+        </div>
+        <p>
+          Совокупность физических электронных, магнитных, оптических и электромеханических компонентов, плат, кристаллов и проводников, 
+          составляющих материальную основу вычислительной машины.
+        </p>
+        <div class="callout" style="padding: 10px; margin-top: auto; font-size: 13px;">
+          <strong>Пример:</strong> Кремниевый кристалл в сокете LGA1700, микросхема DDR5 на печатной плате, контроллер USB на шине.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span class="tag tag-green">Структура и логика</span>
+          Архитектура ЭВМ
+        </div>
+        <p>
+          Концептуальная организация вычислительной системы, определяющая её структуру, состав функциональных блоков, принципы 
+          логического соподчинения, адресацию памяти, систему команд и интерфейсы взаимодействия.
+        </p>
+        <div class="callout" style="padding: 10px; margin-top: auto; font-size: 13px;">
+          <strong>Пример:</strong> Фон-неймановская модель, Гарвардская структура, разрядность адресного пространства, организация шин.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span class="tag tag-amber">Связующее звено</span>
+          Интерфейс и шина
+        </div>
+        <p>
+          Стандартизированная совокупность линий связи, электрических сигналов и протоколов обмена, обеспечивающая согласованную 
+          передачу данных и управляющих сигналов между узлами.
+        </p>
+        <div class="callout" style="padding: 10px; margin-top: auto; font-size: 13px;">
+          <strong>Пример:</strong> Системная шина памяти, шина PCIe, протокол передачи скан-кодов пакетами USB HID.
+        </div>
+      </div>
+    </div>
+
+    <h3>Разбор контрпримеров для закрепления границы понятий</h3>
+    <div class="grid-2">
+      <div class="card accent-card">
+        <div class="card-title">Контрпример №1: Физический процессор vs Архитектура процессора</div>
+        <p>
+          <strong>Тезис студента:</strong> «Архитектура процессора — это пластмассовая крышка и ножки, которыми он вставляется в сокет».<br>
+          <strong>Коррекция преподавателя:</strong> Разъем, ножки и теплораспределительная крышка — это конструктивные элементы аппаратного средства. 
+          Архитектура — это организация регистров, набор выполняемых инструкций (например, x86-64 или ARM), логика работы конвейера и порядок выборки команд. 
+          Два процессора с разным аппаратным исполнением (например, десктопный и серверный) могут реализовывать одну и ту же архитектуру.
+        </p>
+      </div>
+
+      <div class="card accent-card">
+        <div class="card-title">Контрпример №2: Аналогия «Здание и чертеж» и её границы</div>
+        <p>
+          <strong>Педагогическая аналогия:</strong> Аппаратные средства — это кирпичи, бетонные перекрытия и трубы. Архитектура — это генеральный план здания, 
+          определяющий расположение комнат, маршруты перемещения людей, вентиляционные шахты и правила коммуникаций.<br>
+          <strong>Граница аналогии:</strong> В здании стены статичны. В ЭВМ архитектура динамически управляет информационными потоками, разделением прав доступа 
+          и синхронизацией событий в наносекундных масштабах.
+        </p>
+      </div>
+    </div>
+
+    <h3>Архитектурная дихотомия: ОЗУ против Долговременного накопителя</h3>
+    <p>
+      Преподаватель обязан зафиксировать фундаментальный дуализм подсистемы памяти, предотвращая фатальное заблуждение новичков о «единой общей памяти».
+    </p>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Характеристика</th>
+            <th>Оперативная память (ОЗУ / RAM)</th>
+            <th>Долговременный накопитель (SSD / HDD)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Функциональная роль</strong></td>
+            <td>Рабочее пространство ЦПУ: хранение выполняемого кода программ, структур ОС и текущих обрабатываемых данных.</td>
+            <td>Долговременное хранилище: размещение файлов, установленных программ и ОС в виде сохраненных блоков.</td>
+          </tr>
+          <tr>
+            <td><strong>Энергозависимость</strong></td>
+            <td><span class="tag tag-red">Энергозависимая (Volatile)</span>. Требует постоянного питания и регенерации заряда ячеек DRAM. При выключении данные моментально стираются.</td>
+            <td><span class="tag tag-green">Энергонезависимый (Non-Volatile)</span>. Данные фиксируются в плавающем затворе / ячейках NAND Flash или намагниченности пластин без питания.</td>
+          </tr>
+          <tr>
+            <td><strong>Способ адресации</strong></td>
+            <td>Байтовая адресация. ЦПУ обращается напрямую по шине памяти к любому отдельному байту за единицы наносекунд.</td>
+            <td>Блочная/секторная адресация. Чтение и запись выполняются через файловую систему и контроллер порциями (страницами/блоками).</td>
+          </tr>
+          <tr>
+            <td><strong>Скорость доступа</strong></td>
+            <td>Сверхвысокая: десятки гигабайт в секунду, задержка порядка 50–80 нс.</td>
+            <td>Относительно медленная: от сотен мегабайт до нескольких ГБ/с, задержка от сотен микросекунд (SSD) до миллисекунд (HDD).</td>
+          </tr>
+          <tr>
+            <td><strong>Прямой доступ процессора</strong></td>
+            <td><strong>ДА.</strong> Процессор исполняет машинные инструкции непосредственно из ОЗУ.</td>
+            <td><strong>НЕТ.</strong> Процессор не может напрямую выполнять код из файла на SSD — сначала блок должен быть скопирован в ОЗУ.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Section 3: Data Flow & System Diagram -->
+  <section id="data-flow">
+    <h2><span class="section-num">03</span> Сквозной предметный процесс: маршрут данных и архитектурные узлы</h2>
+    
+    <p>
+      Открытый тренировочный пример для фронтального объяснения: <em>обучающийся нажимает клавишу на клавиатуре → данные поступают в буфер ОЗУ → процессор обрабатывает ввод → результат отображается на экране; сохранение на накопитель происходит отдельно и только при явном действии</em>. Преподаватель последовательно ведет студентов по функциональным этапам, акцентируя внимание на том, где в каждый момент времени физически находятся данные.
+    </p>
+
+    <!-- Interactive/Adaptive Architecture Diagram -->
+    <div class="diagram-wrapper">
+      <div class="svg-container">
+        <svg viewBox="0 0 960 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Функциональная схема сквозного потока данных в ЭВМ">
+          <defs>
+            <marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#0284c7"/>
+            </marker>
+            <marker id="arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#15803d"/>
+            </marker>
+            <marker id="arrow-danger" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#dc2626"/>
+            </marker>
+            <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+              <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+            </filter>
+          </defs>
+
+          <!-- Background Zones -->
+          <rect x="20" y="20" width="920" height="420" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+
+          <!-- Zone Labels -->
+          <text x="45" y="48" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#64748b" text-transform="uppercase" letter-spacing="1">
+            ОПЕРАТИВНЫЙ КОНТУР ОБРАБОТКИ (ЭНЕРГОЗАВИСИМЫЙ)
+          </text>
+          <text x="640" y="48" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#15803d" text-transform="uppercase" letter-spacing="1">
+            ДОЛГОВРЕМЕННОЕ ХРАНЕНИЕ
+          </text>
+
+          <!-- Central System Bus -->
+          <rect x="240" y="225" width="460" height="34" rx="6" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+          <text x="470" y="247" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#334155" text-anchor="middle">
+            СИСТЕМНАЯ МАГИСТРАЛЬ / ВНУТРЕННИЕ ИНТЕРФЕЙСЫ ОБМЕНА
+          </text>
+
+          <!-- Node 1: Keyboard / Input -->
+          <g transform="translate(45, 195)">
+            <rect width="150" height="90" rx="8" fill="#ffffff" stroke="#0284c7" stroke-width="2" filter="url(#shadow)"/>
+            <rect x="0" y="0" width="150" height="26" rx="8" fill="#e0f2fe"/>
+            <text x="75" y="18" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#0369a1" text-anchor="middle">УСТРОЙСТВО ВВОДА</text>
+            <text x="75" y="48" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#0f172a" text-anchor="middle">Клавиатура</text>
+            <text x="75" y="66" font-family="system-ui, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">Контроллер + скан-код</text>
+          </g>
+
+          <!-- Node 2: RAM -->
+          <g transform="translate(260, 75)">
+            <rect width="180" height="110" rx="8" fill="#ffffff" stroke="#0284c7" stroke-width="2" filter="url(#shadow)"/>
+            <rect x="0" y="0" width="180" height="26" rx="8" fill="#e0f2fe"/>
+            <text x="90" y="18" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#0369a1" text-anchor="middle">ОПЕРАТИВНАЯ ПАМЯТЬ</text>
+            <text x="90" y="48" font-family="system-ui, sans-serif" font-size="15" font-weight="700" fill="#0f172a" text-anchor="middle">ОЗУ (DRAM)</text>
+            <text x="90" y="66" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">Буфер ввода и процесс ОС</text>
+            <text x="90" y="82" font-family="system-ui, sans-serif" font-size="11" fill="#dc2626" font-weight="600" text-anchor="middle">Энергозависимо!</text>
+          </g>
+
+          <!-- Node 3: CPU -->
+          <g transform="translate(500, 75)">
+            <rect width="180" height="110" rx="8" fill="#ffffff" stroke="#4338ca" stroke-width="2" filter="url(#shadow)"/>
+            <rect x="0" y="0" width="180" height="26" rx="8" fill="#e0e7ff"/>
+            <text x="90" y="18" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#3730a3" text-anchor="middle">ПРОЦЕССОР (ЦПУ)</text>
+            <text x="90" y="48" font-family="system-ui, sans-serif" font-size="15" font-weight="700" fill="#0f172a" text-anchor="middle">CPU (АЛУ + УУ)</text>
+            <text x="90" y="66" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">Выборка команд из ОЗУ</text>
+            <text x="90" y="82" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">Рендеринг символа редактором</text>
+          </g>
+
+          <!-- Node 4: Display / Output -->
+          <g transform="translate(260, 300)">
+            <rect width="180" height="100" rx="8" fill="#ffffff" stroke="#0284c7" stroke-width="2" filter="url(#shadow)"/>
+            <rect x="0" y="0" width="180" height="26" rx="8" fill="#e0f2fe"/>
+            <text x="90" y="18" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#0369a1" text-anchor="middle">УСТРОЙСТВО ВЫВОДА</text>
+            <text x="90" y="48" font-family="system-ui, sans-serif" font-size="15" font-weight="700" fill="#0f172a" text-anchor="middle">Видеокарта + Экран</text>
+            <text x="90" y="66" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">Видеобуфер (VRAM)</text>
+            <text x="90" y="82" font-family="system-ui, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">Отображение глифа на мониторе</text>
+          </g>
+
+          <!-- Node 5: Permanent Storage (SSD) -->
+          <g transform="translate(730, 195)">
+            <rect width="180" height="110" rx="8" fill="#ffffff" stroke="#15803d" stroke-width="2" stroke-dasharray="0" filter="url(#shadow)"/>
+            <rect x="0" y="0" width="180" height="26" rx="8" fill="#dcfce7"/>
+            <text x="90" y="18" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#166534" text-anchor="middle">НАКОПИТЕЛЬ (ДИСК)</text>
+            <text x="90" y="48" font-family="system-ui, sans-serif" font-size="15" font-weight="700" fill="#0f172a" text-anchor="middle">SSD (NVMe / SATA)</text>
+            <text x="90" y="66" font-family="system-ui, sans-serif" font-size="11" fill="#15803d" font-weight="700" text-anchor="middle">ЭНЕРГОНЕЗАВИСИМЫЙ</text>
+            <text x="90" y="84" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">Запись ТОЛЬКО по «Сохранить»</text>
+          </g>
+
+          <!-- Arrows & Flow Markers -->
+          <!-- 1. Keyboard to Bus -->
+          <path d="M 195 240 L 235 240" fill="none" stroke="#0284c7" stroke-width="3" marker-end="url(#arrow-blue)"/>
+          <text x="210" y="232" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#0284c7" text-anchor="middle">①</text>
+
+          <!-- 2. Bus to RAM -->
+          <path d="M 330 225 L 330 190" fill="none" stroke="#0284c7" stroke-width="3" marker-end="url(#arrow-blue)"/>
+          <text x="315" y="210" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#0284c7" text-anchor="middle">②</text>
+
+          <!-- 3. RAM <-> CPU -->
+          <path d="M 440 120 L 495 120" fill="none" stroke="#0284c7" stroke-width="3" marker-end="url(#arrow-blue)"/>
+          <path d="M 495 140 L 445 140" fill="none" stroke="#0284c7" stroke-width="3" marker-end="url(#arrow-blue)"/>
+          <text x="470" y="112" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#0284c7" text-anchor="middle">③ Команды / Данные</text>
+
+          <!-- 4. Bus to Display -->
+          <path d="M 350 260 L 350 295" fill="none" stroke="#0284c7" stroke-width="3" marker-end="url(#arrow-blue)"/>
+          <text x="370" y="280" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#0284c7" text-anchor="middle">④ Отрисовка</text>
+
+          <!-- 5. Bus to SSD (Explicit Save) -->
+          <path d="M 700 242 L 725 242" fill="none" stroke="#15803d" stroke-width="3" stroke-dasharray="6,4" marker-end="url(#arrow-green)"/>
+          <text x="712" y="232" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">⑤</text>
+
+          <!-- Danger Callout: Power Cut -->
+          <g transform="translate(500, 305)">
+            <rect width="210" height="95" rx="8" fill="#fff1f2" stroke="#f43f5e" stroke-width="1.5" stroke-dasharray="4,3"/>
+            <text x="105" y="24" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#be123c" text-anchor="middle">ВНЕЗАПНЫЙ СБРОС ПИТАНИЯ</text>
+            <text x="105" y="44" font-family="system-ui, sans-serif" font-size="11" fill="#881337" text-anchor="middle">Если команда ⑤ НЕ отдана:</text>
+            <text x="105" y="60" font-family="system-ui, sans-serif" font-size="11" font-weight="600" fill="#be123c" text-anchor="middle">• Данные в ОЗУ стираются</text>
+            <text x="105" y="76" font-family="system-ui, sans-serif" font-size="11" fill="#15803d" text-anchor="middle">• На SSD файла просто НЕТ</text>
+          </g>
+
+        </svg>
+      </div>
+      <div class="diagram-caption">
+        <strong>Архитектурная схема сквозного потока данных:</strong> Непрерывные синие стрелки ①–④ показывают штатный цикл оперативной обработки нажатия клавиши. 
+        Пока символ выводится на монитор, он существует исключительно в виде электрических зарядов в ячейках оперативной памяти (DRAM) и видеопамяти (VRAM). 
+        Зеленая пунктирная стрелка ⑤ инициируется <em>исключительно явной командой сохранения</em>, при которой операционная система передает массив данных из ОЗУ через контроллер на долговременный накопитель.
+      </div>
+    </div>
+
+    <h3>Пошаговый трейс данных: что происходит внутри компьютера</h3>
+    <ol>
+      <li>
+        <strong>Шаг 1. Физический ввод и аппаратное прерывание:</strong> Пользователь нажимает клавишу (например, букву «К»). Контроллер клавиатуры замыкает матрицу контактов, 
+        кодирует событие в скан-код (make-код) и отправляет пакет данных по интерфейсу (USB). Контроллер ввода-вывода генерирует прерывание процессора, 
+        сигнализируя о наличии входных данных.
+      </li>
+      <li>
+        <strong>Шаг 2. Размещение в буфере оперативной памяти:</strong> Драйвер операционной системы принимает скан-код и записывает его в кольцевой системный буфер 
+        в оперативной памяти (ОЗУ). Накопитель (SSD) на этом этапе <em>полностью бездействует</em>.
+      </li>
+      <li>
+        <strong>Шаг 3. Обработка процессором:</strong> Процессор, выполняя инструкции активного текстового редактора (также загруженного в ОЗУ), считывает скан-код, 
+        сопоставляет его с текущей раскладкой клавиатуры, переводит в Unicode-символ, добавляет в структуру документа в памяти и формирует команды для графической подсистемы.
+      </li>
+      <li>
+        <strong>Шаг 4. Отрисовка на экране:</strong> Процессор и видеочип передают растровый глиф буквы в буфер кадра (видеопамять). Видеоконтроллер через интерфейс 
+        (HDMI/DisplayPort) посылает сигнал развертки на монитор — пользователь видит символ на экране. Задержка составляет считанные миллисекунды.
+      </li>
+      <li>
+        <strong>Шаг 5. Фаза энергозависимого ожидания (КРИТИЧЕСКИЙ МОМЕНТ):</strong> Символ горит на экране, но на долговременном диске его НЕТ. Он хранится 
+        в микроскопических конденсаторах ячеек DRAM, требующих регулярной регенерации заряда каждые 64 миллисекунды.
+      </li>
+      <li>
+        <strong>Шаг 6. Явное сохранение (Ctrl+S / Меню «Файл»):</strong> Пользователь отдает команду записи. Процессор обращается к файловой системе ОС. 
+        ОС формирует блоки данных, обращается к драйверу контроллера накопителя, и контроллер SSD записывает данные в энергонезависимые ячейки флэш-памяти (NAND). 
+        Только с этой миллисекунды данные физически защищены от обесточивания.
+      </li>
+    </ol>
+
+    <div class="callout callout-alert">
+      <span class="callout-title">Педагогическое предостережение для преподавателя:</span>
+      Ни в коем случае не позволяйте студентам опускать промежуточное звено ОЗУ, формулируя «Клавиатура передает букву на монитор» или 
+      «Процессор записал букву в память компьютера». Обязательно добивайтесь раздельного называния: <em>оперативная память (быстро, временно)</em> 
+      и <em>долговременный накопитель (надежно, медленно)</em>.
+    </div>
+  </section>
+
+  <!-- Section 4: Lesson Scenarios (90 min & 60 min) -->
+  <section id="scenarios">
+    <h2><span class="section-num">04</span> Поурочные сценарии и регламент времени</h2>
+
+    <p>
+      Представлены два детальных сценария: классический академический вариант на <strong>90 минут</strong> и компактный 
+      интенсивный вариант на <strong>60 минут</strong>. В обоих вариантах сохраняется ключевой практический результат — 
+      составление обучающимися индивидуальной схемы с аргументацией.
+    </p>
+
+    <div class="scenario-tabs" role="tablist">
+      <button class="scenario-tab active" onclick="switchScenario('scenario-90', this)" role="tab" aria-selected="true">
+        Основной сценарий (90 минут)
+      </button>
+      <button class="scenario-tab" onclick="switchScenario('scenario-60', this)" role="tab" aria-selected="false">
+        Сокращенный сценарий (60 минут)
+      </button>
+    </div>
+
+    <!-- Scenario 90 Minutes -->
+    <div id="scenario-90" class="scenario-content active" data-title="Основной сценарий (90 минут)">
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="card-title">Формула тайминга: 5 + 30 + 20 + 20 + 10 + 5 = 90 минут</div>
+        <p>Полный дидактический цикл с глубокой эвристической беседой, взаимной проверкой обучающихся и разбором контрпримеров.</p>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 10%;">Минуты</th>
+              <th style="width: 20%;">Этап занятия</th>
+              <th style="width: 32%;">Деятельность преподавателя</th>
+              <th style="width: 26%;">Деятельность обучающихся</th>
+              <th style="width: 12%;">Фиксация</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>00–05</strong><br><span class="tag tag-blue">5 мин</span></td>
+              <td>Организационный вход и проблематизация</td>
+              <td>
+                Задает провокационный вопрос: <em>«Вы набрали 5 страниц курсовой работы в Word, но не нажимали "Сохранить". Свет внезапно отключился. 
+                Где физически находился текст за секунду до аварии и почему он исчез?»</em>
+              </td>
+              <td>
+                Выдвигают гипотезы, фиксируют интуитивные ответы. Осознают дефицит точного понимания устройства памяти.
+              </td>
+              <td>Устный фокус группы</td>
+            </tr>
+            <tr>
+              <td><strong>05–35</strong><br><span class="tag tag-blue">30 мин</span></td>
+              <td>Формирование понятий: железо и архитектура</td>
+              <td>
+                Объясняет категориальные различия Hardware и Architecture. Вводит контрпримеры (процессор и система команд, кристалл и шины). 
+                Проводит эвристический разбор дихотомии ОЗУ и SSD. Демонстрирует слайды/образцы модулей памяти и накопителей.
+              </td>
+              <td>
+                Конспектируют ключевые дефиниции. Заполняют сравнительную таблицу «ОЗУ vs SSD» по параметрам энергозависимости и адресации.
+              </td>
+              <td>Записи в тетради / конспекте</td>
+            </tr>
+            <tr>
+              <td><strong>35–55</strong><br><span class="tag tag-blue">20 мин</span></td>
+              <td>Разбор сквозного маршрута данных</td>
+              <td>
+                Пошагово разворачивает на доске/экране 6 этапов прохождения данных от клавиатуры до монитора и накопителя. 
+                Показывает в диспетчере задач ОС нулевую дисковую активность при наборе и всплеск при Ctrl+S.
+              </td>
+              <td>
+                Следят за логикой цепочки. Задают уточняющие вопросы по роли контроллеров и буферизации. Проверяют свои гипотезы этапа 1.
+              </td>
+              <td>Анализ схемы на экране</td>
+            </tr>
+            <tr>
+              <td><strong>55–75</strong><br><span class="tag tag-green">20 мин</span></td>
+              <td>Индивидуальное составление схемы</td>
+              <td>
+                Формулирует задание оценочной работы. Организует самостоятельную работу. Консультирует испытывающих затруднения, 
+                не подсказывая прямых ответов.
+              </td>
+              <td>
+                <strong>Индивидуальная работа:</strong> каждый студент чертит функциональную схему системы по оцениваемому сценарию (сканирование и кадрирование документа) 
+                и готовит письменные пояснения по критериям оценивания.
+              </td>
+              <td><strong>Оценочный лист (4 балла)</strong></td>
+            </tr>
+            <tr>
+              <td><strong>75–85</strong><br><span class="tag tag-blue">10 мин</span></td>
+              <td>Диагностика ошибок и обратная связь</td>
+              <td>
+                Разбирает у доски 2 характерные ошибки из сданных работ (анонимно). Задает контрольный диагностический вопрос на закрепление.
+              </td>
+              <td>
+                Проводят самопроверку своей схемы по открытым критериям. Исправляют ошибки в пояснениях.
+              </td>
+              <td>Самокоррекция работ</td>
+            </tr>
+            <tr>
+              <td><strong>85–90</strong><br><span class="tag tag-blue">5 мин</span></td>
+              <td>Итоги и домашний инструктаж</td>
+              <td>
+                Резюмирует главный вывод: «Архитектура определяет, как железо исполняет программы». Дает четкие ориентиры на самостоятельную работу 
+                и критерии самоконтроля.
+              </td>
+              <td>
+                Задают организационные вопросы по домашнему заданию. Фиксируют критерии самопроверки.
+              </td>
+              <td>Запись ДЗ</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Scenario 60 Minutes -->
+    <div id="scenario-60" class="scenario-content" data-title="Сокращенный сценарий (60 минут)">
+      <div class="card warning-card" style="margin-bottom: 16px;">
+        <div class="card-title">Формула тайминга: 5 + 20 + 10 + 15 + 5 + 5 = 60 минут</div>
+        <p>Интенсивный вариант. Сохраняются обязательный индивидуальный оценочный результат и ключевой пример. Дополнительные разборы перенесены в самостоятельную работу.</p>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 10%;">Минуты</th>
+              <th style="width: 20%;">Этап занятия</th>
+              <th style="width: 35%;">Деятельность преподавателя</th>
+              <th style="width: 25%;">Деятельность обучающихся</th>
+              <th style="width: 10%;">Фиксация</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>00–05</strong><br><span class="tag tag-amber">5 мин</span></td>
+              <td>Экспресс-вход</td>
+              <td>Быстрая постановка проблемы на кейсе внезапного сброса питания ПК.</td>
+              <td>Фиксируют интуитивный ответ за 60 секунд.</td>
+              <td>Устный блиц</td>
+            </tr>
+            <tr>
+              <td><strong>05–25</strong><br><span class="tag tag-amber">20 мин</span></td>
+              <td>Концентрированная теория</td>
+              <td>Вводит понятия Hardware vs Architecture, различия ОЗУ и накопителя в темпе лекции-диалога с готовыми опорными карточками.</td>
+              <td>Заполняют компактную сравнительную схему.</td>
+              <td>Опорный конспект</td>
+            </tr>
+            <tr>
+              <td><strong>25–35</strong><br><span class="tag tag-amber">10 мин</span></td>
+              <td>Демонстрация сквозного потока</td>
+              <td>Демонстрирует готовую эталонную схему движения данных: ввод → ОЗУ → ЦПУ → видеовывод → явное сохранение на SSD.</td>
+              <td>Прослеживают стрелки, фиксируют статус аварии питания.</td>
+              <td>Анализ схемы</td>
+            </tr>
+            <tr>
+              <td><strong>35–50</strong><br><span class="tag tag-green">15 мин</span></td>
+              <td>Индивидуальная схема (Оценка)</td>
+              <td>Выдает задание по оцениваемому практическому сценарию. Контролирует самостоятельность. Фокус — на ролях узлов, логике связей и границе ОЗУ/накопителя.</td>
+              <td><strong>Индивидуально выполняют схему</strong> и дают пояснения по критериям.</td>
+              <td><strong>Лист схемы (4 балла)</strong></td>
+            </tr>
+            <tr>
+              <td><strong>50–55</strong><br><span class="tag tag-amber">5 мин</span></td>
+              <td>Экспресс-проверка</td>
+              <td>Озвучивает правильные взаимосвязи, указывает на главную ловушку «клавиатура пишет на диск».</td>
+              <td>Сверяют работу с эталоном.</td>
+              <td>Самооценка</td>
+            </tr>
+            <tr>
+              <td><strong>55–60</strong><br><span class="tag tag-amber">5 мин</span></td>
+              <td>Инструктаж ДЗ</td>
+              <td>Четко формулирует задачи, перенесенные на дом: расширенный пример второго устройства для самостоятельного моделирования.</td>
+              <td>Фиксируют домашнее задание.</td>
+              <td>Лист ДЗ</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout" style="margin-top: 14px;">
+        <span class="callout-title">Что конкретно перенесено в самостоятельную работу при 60-минутном сценарии:</span>
+        <ul>
+          <li><strong>Расширенный пример альтернативного устройства:</strong> самостоятельное построение и текстовое обоснование потока данных для второго периферийного узла.</li>
+          <li><strong>Терминологическое закрепление:</strong> сопоставление физических параметров оборудования и архитектурных принципов взаимодействия по материалам конспекта.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 5: Pedagogical Techniques & Demonstrations -->
+  <section id="pedagogy">
+    <h2><span class="section-num">05</span> Педагогические приемы и интерактивные демонстрации</h2>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-title">
+          <span class="tag tag-blue">Прием 1</span>
+          «Слепое предсказание маршрута» (POE)
+        </div>
+        <p>
+          <strong>Методика (Predict-Observe-Explain):</strong> До объяснения преподаватель дает студентам ровно 3 минуты нарисовать в черновике, 
+          как буква с клавиатуры попадает на экран.
+        </p>
+        <p style="font-size: 13px; color: var(--text-light);">
+          <strong>Педагогический эффект:</strong> 8 из 10 студентов проводят стрелку напрямую от клавиатуры к экрану или от клавиатуры к диску. 
+          Когда преподаватель вскрывает реальный маршрут через ОЗУ и системную шину, возникает познавательный конфликт, активирующий глубокое запоминание.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span class="tag tag-red">Прием 2</span>
+          «Эксперимент со сбросом питания»
+        </div>
+        <p>
+          <strong>Методика:</strong> Преподаватель открывает простейший текстовый редактор (Notepad) на проекторе, вводит слово и задает вопрос: 
+          <em>«Если я сейчас выдерну кабель питания системного блока из розетки, на каком секторе диска останется это слово?»</em>
+        </p>
+        <p style="font-size: 13px; color: var(--text-light);">
+          <strong>Педагогический эффект:</strong> Наглядный вывод: <em>ни на каком!</em> Текст существует только в микросхемах ОЗУ. 
+          Слово появится на диске только после явного диалога сохранения и подтверждения от файловой системы.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span class="tag tag-green">Прием 3</span>
+          «Живой монитор ресурсов в ОС»
+        </div>
+        <p>
+          <strong>Методика:</strong> Открыть «Диспетчер задач» (вкладка «Производительность» / Performance). Студенты наблюдают за графиком 
+          активности диска (Disk Active Time) во время непрерывного набора текста в редакторе (активность 0%).
+        </p>
+        <p style="font-size: 13px; color: var(--text-light);">
+          <strong>Педагогический эффект:</strong> В момент нажатия сочетания Ctrl+S на графике диска возникает кратковременный всплеск записи. 
+          Это служит инструментальным доказательством автономности ОЗУ от накопителя в штатном режиме работы.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 6: Misconceptions & Diagnostic Catalog -->
+  <section id="pitfalls">
+    <h2><span class="section-num">06</span> Трудные места и диагностический каталог ошибок</h2>
+
+    <p>
+      Ошибки обучающихся на вводном занятии носят системный характер и обусловлены упрощенным бытовым языком. 
+      Преподаватель должен распознавать их по маркерам в речи и схемах, немедленно применяя корректирующие контрвопросы.
+    </p>
+
+    <!-- Error Item 1 -->
+    <div class="error-item">
+      <div class="error-header">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Заблуждение 1: «Если текст отображается на экране монитора, значит, он уже сохранен в компьютере»
+      </div>
+      <div class="error-body">
+        <div class="error-col">
+          <strong>Маркер проявления</strong>
+          Студент не рисует на схеме накопитель (SSD) или соединяет видеокарту напрямую с диском, утверждая, что картинка на мониторе берется с винчестера.
+        </div>
+        <div class="error-col">
+          <strong>Диагностический контрвопрос</strong>
+          <em>«Если в этот момент компьютер обесточить, где мы найдем файл после включения? Покажите конкретную микросхему, где лежат байты текста прямо сейчас».</em>
+        </div>
+        <div class="error-col">
+          <strong>Корректирующая аргументация</strong>
+          Изображение на мониторе — это содержимое видеопамяти и ОЗУ. Монитор лишь отображает текущее состояние кадра. Энергонезависимый диск включается в работу только при явном вызове системной команды записи.
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Item 2 -->
+    <div class="error-item">
+      <div class="error-header">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Заблуждение 2: «Оперативная память и жесткий диск (SSD) — это просто память разного объема»
+      </div>
+      <div class="error-body">
+        <div class="error-col">
+          <strong>Маркер проявления</strong>
+          Фразы: «У меня память на 512 гигабайт», объединение ОЗУ и SSD в один блок «Память» на функциональной схеме.
+        </div>
+        <div class="error-col">
+          <strong>Диагностический контрвопрос</strong>
+          <em>«Почему нельзя выбросить ОЗУ и заставить процессор читать инструкции прямо с быстрого NVMe SSD? Ведь SSD тоже энергонезависим и имеет большой объем!»</em>
+        </div>
+        <div class="error-col">
+          <strong>Корректирующая аргументация</strong>
+          Разница в принципах доступа и задержках: к ОЗУ процессор обращается побайтово с наносекундной задержкой (50 нс). SSD работает блоками через контроллер и шину ввода-вывода с задержкой в тысячи раз больше. Без ОЗУ процессор будет простаивать 99.9% времени.
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Item 3 -->
+    <div class="error-item">
+      <div class="error-header">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Заблуждение 3: «Архитектура — это физическая компоновка деталей внутри системного блока»
+      </div>
+      <div class="error-body">
+        <div class="error-col">
+          <strong>Маркер проявления</strong>
+          Студент называет архитектурой форму корпуса, цвет материнской платы или расположение вентиляторов охлаждения.
+        </div>
+        <div class="error-col">
+          <strong>Диагностический контрвопрос</strong>
+          <em>«Если мы переставим видеокарту в другой слот или заменим корпус с черного на белый, изменится ли архитектура вычислительной системы?»</em>
+        </div>
+        <div class="error-col">
+          <strong>Корректирующая аргументация</strong>
+          Компоновка корпуса — это конструктив. Архитектура — это система логических взаимосвязей: структура адресации, организация шин данных, набор инструкций и принципы взаимодействия процессора с периферией.
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Item 4 -->
+    <div class="error-item">
+      <div class="error-header">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Заблуждение 4: «Клавиатура передает команды напрямую процессору или монитору»
+      </div>
+      <div class="error-body">
+        <div class="error-col">
+          <strong>Маркер проявления</strong>
+          Стрелка на схеме ведет от клавиатуры напрямую в экран или напрямую в ядро процессора минуя системную шину и оперативную память.
+        </div>
+        <div class="error-col">
+          <strong>Диагностический контрвопрос</strong>
+          <em>«Если процессор в данный момент занят тяжелым расчетом, куда денется нажатая вами буква? Почему она не теряется?»</em>
+        </div>
+        <div class="error-col">
+          <strong>Корректирующая аргументация</strong>
+          Устройства ввода взаимодействуют через контроллеры и буферные очереди в оперативной памяти. Скан-код сначала помещается в буфер, откуда программа забирает его по мере готовности, не перегружая процессор непрерывным опросом контактов.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 7: Assessment Rubric (4-Point Scale) -->
+  <section id="rubric">
+    <h2><span class="section-num">07</span> Критерии оценивания индивидуальной работы (4 балла)</h2>
+
+    <div class="card accent-card">
+      <div class="card-title">Содержание индивидуальной оценочной работы (сценарий сканирования)</div>
+      <p>
+        Обучающийся выполняет самостоятельную индивидуальную работу по реальному практическому сценарию: 
+        <strong>оператор сканирует документ, кадрирует полученное изображение в окне программы на мониторе, 
+        но ещё не экспортировал и не сохранил файл на долговременный накопитель</strong>.
+      </p>
+      <p style="margin-top: 8px;">
+        На основе этого сценария студент строит функциональную схему взаимодействия узлов и даёт письменные пояснения, 
+        опираясь на открытые критерии (2 + 1 + 1 = 4 балла).
+      </p>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 18%;">Критерий</th>
+            <th style="width: 10%;">Баллы</th>
+            <th style="width: 44%;">Дескрипторы выполнения (Что проверяет преподаватель)</th>
+            <th style="width: 28%;">Типичные дефекты ответа</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td rowspan="3"><strong>1. Функциональные роли и связи компонентов схемы</strong></td>
+            <td><strong>2 балла</strong><br><span class="tag tag-green">Полный</span></td>
+            <td>
+              На схеме полно и корректно отражены необходимые функциональные блоки и направления связей, соответствующие процессу получения, обработки и вывода изображения в заданном сценарии; наглядно разделены контуры оперативного взаимодействия и долговременного хранения.
+            </td>
+            <td>Все необходимые роли и потоки данных отражены верно.</td>
+          </tr>
+          <tr>
+            <td><strong>1 балл</strong><br><span class="tag tag-amber">Частичный</span></td>
+            <td>
+              Состав функциональных блоков в целом отражает сценарий, однако допущены неточности в направлении информационных потоков либо нарушена логика соподчинения узлов в контуре обработки.
+            </td>
+            <td>Искажение маршрута потоков данных или роли промежуточных узлов.</td>
+          </tr>
+          <tr>
+            <td><strong>0 баллов</strong><br><span class="tag tag-red">Не зачтено</span></td>
+            <td>
+              Схема не соответствует сценарию, пропущены базовые функциональные блоки либо связи носят хаотический характер.
+            </td>
+            <td>Отсутствуют ключевые функциональные компоненты сценария.</td>
+          </tr>
+
+          <tr>
+            <td rowspan="2"><strong>2. Причинно-следственная логика перемещения данных и состояния памяти</strong></td>
+            <td><strong>1 балл</strong><br><span class="tag tag-green">Зачтено</span></td>
+            <td>
+              Корректно определено текущее состояние данных, объяснено, где они находятся, и указано условие долговременной записи.
+            </td>
+            <td>Текущее состояние данных и условие долговременной записи аргументированы верно.</td>
+          </tr>
+          <tr>
+            <td><strong>0 баллов</strong><br><span class="tag tag-red">Не зачтено</span></td>
+            <td>
+              Состояние данных на текущем шаге не определено, либо условие перехода к долговременному хранению сформулировано с ошибками или отсутствует.
+            </td>
+            <td>Нарушение причинно-следственной логики или отсутствие условия долговременной фиксации.</td>
+          </tr>
+
+          <tr>
+            <td rowspan="2"><strong>3. Самостоятельный поиск ошибки / аналитический разбор</strong></td>
+            <td><strong>1 балл</strong><br><span class="tag tag-green">Зачтено</span></td>
+            <td>
+              Самостоятельно найдено и аргументированно исправлено одно ошибочное предположение: сформулировано правдоподобное неверное суждение относительно работы системы в предложенном сценарии и дано предметное опровержение с опорой на принципы архитектуры ЭВМ.
+            </td>
+            <td>Ошибочное предположение четко выделено и доказательно опровергнуто.</td>
+          </tr>
+          <tr>
+            <td><strong>0 баллов</strong><br><span class="tag tag-red">Не зачтено</span></td>
+            <td>
+              Ошибочное суждение не сформулировано, не относится к условиям предложенного сценария либо в опровержении допущены грубые фактологические ошибки.
+            </td>
+            <td>Отсутствие самостоятельного контрпримера или некорректная аргументация.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout" style="font-size: 13px; color: var(--text-muted);">
+      <strong>Методическое указание к эталонам проверки:</strong> Открытый методический материал преподавателя содержит исключительно общие критериальные рамки оценивания; подробная эталонная схема, поэлементные дескрипторы начисления баллов и закрытый ключ проверки зафиксированы исключительно в закрытой рубрике оценивания курса.
+    </div>
+
+    <div class="callout callout-success">
+      <span class="callout-title">Организационные правила проверки для преподавателя:</span>
+      <ul style="margin-top: 6px;">
+        <li><strong>Срок проверки:</strong> работы проверяются и оцениваются преподавателем своевременно до завершения вводного цикла, обеспечивая оперативную обратную связь по пониманию структуры ЭВМ.</li>
+        <li><strong>Пропустившие занятие:</strong> обучающийся, отсутствовавший на занятии, после возвращения выполняет равнозначное индивидуальное задание (разбор функциональной схемы для альтернативного устройства) без автоматического выставления отметки.</li>
+        <li><strong>Шкала перевода:</strong> проектная шкала перевода (4 балла — отлично, 3 балла — хорошо, 2 балла — удовлетворительно, 0–1 балл — на доработку). Решение о внесении в ведомость принимается преподавателем в соответствии с локальными регламентами.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Section 8: Homework Organization & Differentiation -->
+  <section id="homework">
+    <h2><span class="section-num">08</span> Методические указания к домашней работе (60 минут)</h2>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Дидактическая задача домашней работы
+        </div>
+        <p>
+          Закрепить различие между физическим оборудованием и архитектурной организацией ЭВМ, отработать самостоятельный перенос 
+          сквозной модели потоков данных на расширенное периферийное устройство и прочно усвоить принцип энергозависимости оперативной памяти.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Методический хронометраж работы (60 мин)
+        </div>
+        <ul style="font-size: 14px;">
+          <li><strong>15 мин:</strong> Анализ опорного конспекта, повторение базовой теории и дефиниций.</li>
+          <li><strong>42 мин (по 10–12 мин на задачу):</strong> Решение четырёх аналитических ситуационных задач.</li>
+          <li><strong>3 мин:</strong> Итоговая самопроверка по критериям и оформление ответов.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Методические ориентиры проверки для преподавателя (4 задачи по 1 баллу)</h3>
+    <div class="card accent-card">
+      <p>
+        Оценочная самостоятельная работа включает четыре аналитические задачи с открытым ответом 
+        (по 1 баллу за каждую задачу, суммарно 4 балла). Преподаватель ориентируется на четыре общих критерия проверки:
+      </p>
+      <ul style="margin-top: 8px;">
+        <li><strong>Задача 1 (1 балл). Различие физического компонента и архитектурного принципа:</strong> оценивается точность разграничения материального оборудования (микросхемы, платы) и правил логической организации, интерфейсов и взаимодействия узлов ЭВМ.</li>
+        <li><strong>Задача 2 (1 балл). Сквозной поток данных при работе с периферией (звукозапись):</strong> оценивается умение последовательно проследить передачу оцифрованного потока через системную шину и промежуточный буфер памяти до момента долговременной фиксации на накопителе.</li>
+        <li><strong>Задача 3 (1 балл). Архитектурное ограничение объема памяти (сеть 8 ГБ при 4 ГБ ОЗУ):</strong> оценивается понимание потоковой буферизации данных, блочной выгрузки на накопитель и невозможности/необязательности единовременного удержания всего файла в оперативной памяти.</li>
+        <li><strong>Задача 4 (1 балл). Дихотомия энергозависимости памяти (ОЗУ vs SSD):</strong> оценивается аргументация физических последствий внезапного прекращения электропитания для содержимого оперативной памяти и долговременного хранилища.</li>
+      </ul>
+      <p style="margin-top: 8px; font-size: 13px; color: var(--text-light);">
+        <em>Примечание для преподавателя: подробные эталонные ответы, числовые параметры и закрытые ключи проверки содержатся исключительно в закрытой рубрике и не публикуются в открытых материалах.</em>
+      </p>
+    </div>
+
+    <div class="callout">
+      <span class="callout-title">Дифференциация и поддержка обучающихся:</span>
+      <ul>
+        <li><strong>Для студентов с повышенным темпом освоения:</strong> дополнительно описать роль буфера обмена (Clipboard) операционной системы — к какой подсистеме памяти он относится и почему очищается при перезагрузке ОС.</li>
+        <li><strong>Для студентов, испытывающих затруднения:</strong> предоставить структурную шаблон-подсказку с пустыми блоками для вписывания названий компонентов вместо самостоятельного черчения с нуля.</li>
+      </ul>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // Scenario switcher script
+  function switchScenario(scenarioId, btn) {
+    // Hide all scenario contents
+    const contents = document.querySelectorAll('.scenario-content');
+    contents.forEach(el => el.classList.remove('active'));
+
+    // Remove active class from buttons
+    const tabs = document.querySelectorAll('.scenario-tab');
+    tabs.forEach(tab => {
+      tab.classList.remove('active');
+      tab.setAttribute('aria-selected', 'false');
+    });
+
+    // Show target content
+    const target = document.getElementById(scenarioId);
+    if (target) {
+      target.classList.add('active');
+    }
+
+    // Set active button
+    btn.classList.add('active');
+    btn.setAttribute('aria-selected', 'true');
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Практическая работа №1: Анализ конфигурации вычислительной машины</title>
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --task-bg: #f8fafc;
+      --border-task: #94a3b8;
+      --ok: #059669;
+      --warn: #d97706;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15px;
+      padding: 16px 12px;
+    }
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .header-card, .student-card, .task-card, .actions-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 20px 16px;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow);
+    }
+    @media (min-width: 640px) {
+      body {
+        padding: 24px 16px;
+      }
+      .header-card, .student-card, .task-card, .actions-card {
+        padding: 26px 24px;
+      }
+    }
+    h1 {
+      font-size: clamp(20px, 3.5vw, 26px);
+      color: var(--accent);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .meta-line {
+      color: var(--muted);
+      font-size: 13.5px;
+      margin-bottom: 8px;
+    }
+    .field-group {
+      margin-bottom: 14px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #1e293b;
+      font-size: 14px;
+    }
+    input[type="text"], textarea, select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 14.5px;
+      font-family: inherit;
+      color: var(--text);
+      background: #ffffff;
+      transition: border-color 0.2s;
+      word-break: break-word;
+    }
+    input[type="text"]:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    }
+    textarea {
+      resize: vertical;
+      min-height: 85px;
+      line-height: 1.5;
+    }
+    .variant-selector-box {
+      background: var(--accent-soft);
+      border: 1.5px solid var(--accent);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+    }
+    .variant-desc-card {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin: 14px 0;
+      -webkit-overflow-scrolling: touch;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      min-width: 500px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    button {
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+    .btn-secondary {
+      background: #0284c7;
+      color: #ffffff;
+    }
+    .btn-secondary:hover {
+      background: #0369a1;
+    }
+    .btn-danger {
+      background: #ef4444;
+      color: #ffffff;
+    }
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+    .status-msg {
+      font-size: 13.5px;
+      color: var(--ok);
+      font-weight: 600;
+      margin-left: 6px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    code {
+      background: #e2e8f0;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
+
+    /* СТИЛИ ПЕЧАТИ ПО ТРЕБОВАНИЮ ТЗ */
+    @media print {
+      body {
+        background: #ffffff !important;
+        padding: 0 !important;
+        font-size: 10pt !important;
+        color: #000000 !important;
+      }
+      .page {
+        max-width: 100% !important;
+        margin: 0 !important;
+        width: 100% !important;
+      }
+      .actions-card, button, .status-msg {
+        display: none !important;
+      }
+      .header-card, .student-card, .task-card {
+        box-shadow: none !important;
+        border: 1px solid #444 !important;
+        margin-bottom: 10px !important;
+        padding: 12px !important;
+        page-break-inside: avoid !important;
+      }
+      input[type="text"], textarea, select {
+        border: 1px solid #666 !important;
+        background: transparent !important;
+        color: #000 !important;
+        box-shadow: none !important;
+        resize: none !important;
+        overflow: visible !important;
+        height: auto !important;
+        word-break: break-word !important;
+        white-space: pre-wrap !important;
+      }
+      /* Скрытие плейсхолдеров при печати */
+      ::placeholder {
+        color: transparent !important;
+      }
+      /* Рамки для рукописного ввода при пустых полях */
+      input[type="text"]:placeholder-shown,
+      textarea:placeholder-shown {
+        border: 1.5px solid #000 !important;
+        background-color: #fafafa !important;
+        min-height: 48px !important;
+      }
+      table {
+        font-size: 9.5pt !important;
+        min-width: 100% !important;
+      }
+      th, td {
+        border: 1px solid #444 !important;
+        padding: 6px 8px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
+  <div class="header-card">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap;">
+      <h1>Практическая работа №1: Анализ конфигурации вычислительной машины</h1>
+      <span class="badge">Бланк студента</span>
+    </div>
+    <div class="meta-line">
+      <strong>Дисциплина:</strong> ОП.02 Архитектура аппаратных средств &nbsp;|&nbsp; <strong>Тема:</strong> Раздел 1 (§2.2 с.8 программы)
+    </div>
+    <p style="font-size: 14px; color: var(--muted); margin: 0;">
+      Цель работы: произвести компонентную декомпозицию аппаратной конфигурации, рассчитать пропускную способность подсистем, проверить энергобаланс и сформировать инженерно-экономическое обоснование платформы под заданный профиль нагрузки.
+    </p>
+  </div>
+
+  <!-- БЛОК СТУДЕНТА (ЧИСТЫЕ ПОЛЯ БЕЗ ВЫМЫШЛЕННЫХ ПЛЕЙСХОЛДЕРОВ) -->
+  <div class="student-card">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;">
+      <div class="field-group">
+        <label for="student_fio">ФИО студента:</label>
+        <input type="text" id="student_fio" placeholder="">
+      </div>
+      <div class="field-group">
+        <label for="student_group">Группа:</label>
+        <input type="text" id="student_group" placeholder="">
+      </div>
+    </div>
+  </div>
+
+  <!-- ВЫБОР ЦЕЛЕВОГО ВАРИАНТА -->
+  <div class="variant-selector-box">
+    <div class="field-group" style="margin-bottom: 6px;">
+      <label for="selected_variant" style="color: var(--accent); font-size: 15px;">Выберите исследуемый прикладной вариант конфигурации:</label>
+      <select id="selected_variant" onchange="updateVariantDetails()">
+        <option value="">-- Нажмите для выбора одного из 4 вариантов --</option>
+        <option value="1">Вариант 1: Офисная / бухгалтерская станция (минимизация TCO, надежность, встроенное видеоядро, бесшумность)</option>
+        <option value="2">Вариант 2: Инженерная рабочая станция для CAD/3D-моделирования (многопоточный CPU, ECC-память, GPU Quadro/RTX, scratch NVMe)</option>
+        <option value="3">Вариант 3: Локальный сервер баз данных / веб-сервер предприятия (многоядерный серверный CPU, зеркальный RAID-10 NVMe, резервирование БП, IPMI)</option>
+        <option value="4">Вариант 4: Мобильная рабочая станция разработчика ПО (высокая автономность, LPDDR5, качественный экран, Thunderbolt 4)</option>
+      </select>
+    </div>
+
+    <!-- ДИНАМИЧЕСКОЕ ОПИСАНИЕ ВЫБРАННОГО ВАРИАНТА -->
+    <div id="variant_info_box" class="variant-desc-card" style="display: none;">
+      <div id="variant_desc_content"></div>
+    </div>
+  </div>
+
+  <!-- ЗАДАНИЕ 1: ДЕКОМПОЗИЦИЯ И ПОДБОР КОМПОНЕНТОВ -->
+  <div class="task-card">
+    <h2 style="font-size: 17.5px; color: var(--accent); margin-bottom: 8px;">Задание 1. Компонентная декомпозиция и спецификация конфигурации</h2>
+    <p style="font-size: 14px; color: var(--muted); margin-bottom: 12px;">
+      Заполните спецификацию аппаратных компонентов в соответствии с выбранным прикладным профилем. Укажите конкретные модели или технические характеристики каждого узла:
+    </p>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25%;">Узел / Подсистема</th>
+            <th style="width: 35%;">Модель и ключевые параметры</th>
+            <th style="width: 40%;">Архитектурное назначение в целевом профиле</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Центральный процессор (CPU)</strong></td>
+            <td><input type="text" id="t1_cpu_model" placeholder=""></td>
+            <td><input type="text" id="t1_cpu_role" placeholder=""></td>
+          </tr>
+          <tr>
+            <td><strong>Система охлаждения CPU</strong></td>
+            <td><input type="text" id="t1_cooler_model" placeholder=""></td>
+            <td><input type="text" id="t1_cooler_role" placeholder=""></td>
+          </tr>
+          <tr>
+            <td><strong>Материнская плата (Чипсет/Сокет)</strong></td>
+            <td><input type="text" id="t1_mb_model" placeholder=""></td>
+            <td><input type="text" id="t1_mb_role" placeholder=""></td>
+          </tr>
+          <tr>
+            <td><strong>Оперативная память (RAM)</strong></td>
+            <td><input type="text" id="t1_ram_model" placeholder=""></td>
+            <td><input type="text" id="t1_ram_role" placeholder=""></td>
+          </tr>
+          <tr>
+            <td><strong>Графический адаптер (GPU)</strong></td>
+            <td><input type="text" id="t1_gpu_model" placeholder=""></td>
+            <td><input type="text" id="t1_gpu_role" placeholder=""></td>
+          </tr>
+          <tr>
+            <td><strong>Основной накопитель (OS/App SSD)</strong></td>
+            <td><input type="text" id="t1_ssd_model" placeholder=""></td>
+            <td><input type="text" id="t1_ssd_role" placeholder=""></td>
+          </tr>
+          <tr>
+            <td><strong>Вторичный накопитель / Массив</strong></td>
+            <td><input type="text" id="t1_extra_storage" placeholder=""></td>
+            <td><input type="text" id="t1_extra_role" placeholder=""></td>
+          </tr>
+          <tr>
+            <td><strong>Блок питания / Аккумулятор</strong></td>
+            <td><input type="text" id="t1_psu_model" placeholder=""></td>
+            <td><input type="text" id="t1_psu_role" placeholder=""></td>
+          </tr>
+          <tr>
+            <td><strong>Корпус / Монитор / Периферия</strong></td>
+            <td><input type="text" id="t1_chassis_model" placeholder=""></td>
+            <td><input type="text" id="t1_chassis_role" placeholder=""></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ЗАДАНИЕ 2: РАСЧЕТ ПРОПУСКНОЙ СПОСОБНОСТИ И ЭНЕРГОБАЛАНСА -->
+  <div class="task-card">
+    <h2 style="font-size: 17.5px; color: var(--accent); margin-bottom: 8px;">Задание 2. Инженерные расчеты пропускной способности и энергобаланса</h2>
+    <p style="font-size: 14px; color: var(--muted); margin-bottom: 12px;">
+      Выполните математические расчеты на основе выбранных параметров конфигурации:
+    </p>
+
+    <div class="field-group">
+      <label for="t2_ram_bandwidth">1. Расчет теоретической пропускной способности шины памяти (ГБ/с):</label>
+      <textarea id="t2_ram_bandwidth" placeholder=""></textarea>
+    </div>
+
+    <div class="field-group">
+      <label for="t2_pcie_topology">2. Анализ распределения линий PCIe (Direct CPU Lanes vs Chipset/DMI):</label>
+      <textarea id="t2_pcie_topology" placeholder=""></textarea>
+    </div>
+
+    <div class="field-group">
+      <label for="t2_power_calculation">3. Расчет пикового энергопотребления системы и обоснование номинала БП (с запасом 1.3–1.5):</label>
+      <textarea id="t2_power_calculation" placeholder=""></textarea>
+    </div>
+
+    <div class="field-group">
+      <label for="t2_storage_endurance">4. Оценка надежности и скорости подсистемы хранения (TBW, DWPD, RAID):</label>
+      <textarea id="t2_storage_endurance" placeholder=""></textarea>
+    </div>
+  </div>
+
+  <!-- ЗАДАНИЕ 3: АНАЛИЗ УЗКИХ МЕСТ И TCO ОБОСНОВАНИЕ -->
+  <div class="task-card">
+    <h2 style="font-size: 17.5px; color: var(--accent); margin-bottom: 8px;">Задание 3. Анализ узких мест (Bottleneck) и технико-экономическое обоснование</h2>
+    <p style="font-size: 14px; color: var(--muted); margin-bottom: 12px;">
+      Докажите сбалансированность спроектированной конфигурации с точки зрения закона Амдала и критериев совокупной стоимости владения:
+    </p>
+
+    <div class="field-group">
+      <label for="t3_bottleneck_proof">1. Доказательство отсутствия узких мест (CPU vs GPU vs RAM vs Storage):</label>
+      <textarea id="t3_bottleneck_proof" placeholder=""></textarea>
+    </div>
+
+    <div class="field-group">
+      <label for="t3_profile_compliance">2. Обоснование соответствия профильным требованиям (надежность / ECC / RAID / автономность / тишина):</label>
+      <textarea id="t3_profile_compliance" placeholder=""></textarea>
+    </div>
+
+    <div class="field-group">
+      <label for="t3_tco_analysis">3. Технико-экономический анализ TCO (CAPEX vs OPEX, стоимость закупки, энергоэффективность, риски простоев):</label>
+      <textarea id="t3_tco_analysis" placeholder=""></textarea>
+    </div>
+  </div>
+
+  <!-- ЧЕК-ЛИСТ САМОПРОВЕРКИ -->
+  <div class="task-card">
+    <h2 style="font-size: 17.5px; color: var(--accent); margin-bottom: 8px;">Чек-лист самопроверки студента перед сдачей</h2>
+    <div style="font-size: 14px; color: #334155;">
+      <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; margin-bottom: 8px; cursor: pointer;">
+        <input type="checkbox" id="chk_1"> Проверена электрическая и сокетная совместимость процессора, материнской платы и кулера.
+      </label>
+      <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; margin-bottom: 8px; cursor: pointer;">
+        <input type="checkbox" id="chk_2"> Обеспечен многоканальный режим оперативной памяти (минимум 2 модуля для Dual Channel).
+      </label>
+      <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; margin-bottom: 8px; cursor: pointer;">
+        <input type="checkbox" id="chk_3"> Рассчитан запас мощности блока питания не менее 30% от суммарного пикового TDP.
+      </label>
+      <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; margin-bottom: 8px; cursor: pointer;">
+        <input type="checkbox" id="chk_4"> Подсистема хранения соответствует профильной нагрузке (TBW/DWPD/RAID).
+      </label>
+      <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; margin-bottom: 4px; cursor: pointer;">
+        <input type="checkbox" id="chk_5"> Приведены формулы и единицы измерения (ГБ/с, Вт, TBW).
+      </label>
+    </div>
+  </div>
+
+  <!-- ДЕЙСТВИЯ: СОХРАНЕНИЕ, ПЕЧАТЬ, СБРОС -->
+  <div class="actions-card">
+    <div class="btn-group">
+      <button class="btn-primary" onclick="saveData(true)">Сохранить бланк</button>
+      <button class="btn-secondary" onclick="window.print()">Печать / Экспорт в PDF</button>
+      <button class="btn-danger" onclick="confirmReset()">Очистить форму</button>
+      <span id="save_status" class="status-msg"></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const STORAGE_KEY = 'top_hw02_zanyatie_state';
+
+  const VARIANT_DETAILS = {
+    "1": `<strong>Вариант 1: Офисная / бухгалтерская станция</strong><br>
+          <em>Ключевые требования:</em> Минимизация TCO, абсолютная акустическая тишина (кулер до 20 дБА), встроенное графическое ядро (исключение дискретного GPU), надежный SSD с интерфейсом NVMe PCIe 3.0/4.0 под 1C и офисные пакеты, энергоэффективный БП 80 PLUS Bronze 400–450 Вт. ОЗУ — строго в двухканальном режиме (2×8 ГБ) для производительности встроенного GPU.`,
+    "2": `<strong>Вариант 2: Инженерная рабочая станция CAD / 3D-моделирования</strong><br>
+          <em>Ключевые требования:</em> Высокая однопоточная и многопоточная производительность CPU (TDP 125–170+ Вт), материнская плата с мощным VRM, оперативная память DDR5 с поддержкой ECC (SECDED) от 64 ГБ для предотвращения сбоев при многочасовом рендеринге, профессиональный GPU серии NVIDIA RTX/Quadro с ISV-сертификацией, двухдисковая подсистема (системный NVMe + скоростной Scratch-диск NVMe Gen5), БП 850–1000 Вт Gold/Platinum ATX 3.0.`,
+    "3": `<strong>Вариант 3: Локальный сервер баз данных / веб-сервер предприятия</strong><br>
+          <em>Ключевые требования:</em> Серверный процессор (AMD EPYC / Intel Xeon), материнская плата с контроллером удаленного управления BMC / IPMI 2.0, 8-канальная регистровая память DDR5 Registered ECC (RDIMM) от 128 ГБ, дисковая подсистема на корпоративных NVMe SSD (U.2/U.3, DWPD ≥ 3) в отказоустойчивом массиве RAID-10, сдвоенный блок питания с резервированием 1+1 (Redundant Platinum) и горячей заменой.`,
+    "4": `<strong>Вариант 4: Мобильная рабочая станция разработчика ПО</strong><br>
+          <em>Ключевые требования:</em> Мобильный процессор с гибридными ядрами и NPU (Core Ultra / Ryzen 7/9), распаянная скоростная память LPDDR5X (32–64 ГБ) с низким током покоя, качественный 2.5K–3.2K экран 16:10 со 100% sRGB/DCI-P3 и отсутствием ШИМ (Flicker-Free), энергоэффективный NVMe PCIe 4.0 TLC SSD на 2 ТБ, порты Thunderbolt 4 / USB4 с зарядкой Power Delivery 100 Вт, аккумулятор максимальной разрешенной емкости (до 99.9 Вт·ч) для автономности 12+ часов.`
+  };
+
+  const TEXT_FIELDS = [
+    'student_fio',
+    'student_group',
+    'selected_variant',
+    't1_cpu_model',
+    't1_cpu_role',
+    't1_cooler_model',
+    't1_cooler_role',
+    't1_mb_model',
+    't1_mb_role',
+    't1_ram_model',
+    't1_ram_role',
+    't1_gpu_model',
+    't1_gpu_role',
+    't1_ssd_model',
+    't1_ssd_role',
+    't1_extra_storage',
+    't1_extra_role',
+    't1_psu_model',
+    't1_psu_role',
+    't1_chassis_model',
+    't1_chassis_role',
+    't2_ram_bandwidth',
+    't2_pcie_topology',
+    't2_power_calculation',
+    't2_storage_endurance',
+    't3_bottleneck_proof',
+    't3_profile_compliance',
+    't3_tco_analysis'
+  ];
+
+  const CHECKBOX_FIELDS = [
+    'chk_1', 'chk_2', 'chk_3', 'chk_4', 'chk_5'
+  ];
+
+  function updateVariantDetails() {
+    const sel = document.getElementById('selected_variant');
+    const box = document.getElementById('variant_info_box');
+    const content = document.getElementById('variant_desc_content');
+    const v = sel.value;
+    if (v && VARIANT_DETAILS[v]) {
+      content.innerHTML = VARIANT_DETAILS[v];
+      box.style.display = 'block';
+    } else {
+      box.style.display = 'none';
+      content.innerHTML = '';
+    }
+    saveData(false);
+  }
+
+  function saveData(showFeedback = false) {
+    try {
+      const data = {};
+      TEXT_FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) data[id] = el.value;
+      });
+      CHECKBOX_FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) data[id] = el.checked;
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      if (showFeedback) {
+        const status = document.getElementById('save_status');
+        status.textContent = '✓ Бланк сохранен в браузере';
+        setTimeout(() => { status.textContent = ''; }, 3000);
+      }
+    } catch (e) {
+      console.warn('LocalStorage error:', e);
+    }
+  }
+
+  function loadData() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const data = JSON.parse(raw);
+        TEXT_FIELDS.forEach(id => {
+          if (data[id] !== undefined) {
+            const el = document.getElementById(id);
+            if (el) el.value = data[id];
+          }
+        });
+        CHECKBOX_FIELDS.forEach(id => {
+          if (data[id] !== undefined) {
+            const el = document.getElementById(id);
+            if (el) el.checked = !!data[id];
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('LocalStorage load error:', e);
+    }
+  }
+
+  function confirmReset() {
+    if (confirm('Внимание! Все введенные данные и расчеты в практическом бланке будут удалены. Продолжить очистку?')) {
+      TEXT_FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      CHECKBOX_FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.checked = false;
+      });
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (e) {}
+      updateVariantDetails();
+      const status = document.getElementById('save_status');
+      status.textContent = 'Форма очищена';
+      setTimeout(() => { status.textContent = ''; }, 3000);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadData();
+    updateVariantDetails();
+
+    TEXT_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => saveData(false));
+        el.addEventListener('change', () => saveData(false));
+      }
+    });
+
+    CHECKBOX_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('change', () => saveData(false));
+      }
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Понятия аппаратных средств ЭВМ и архитектура аппаратных средств</title>
+  <style>
+    :root {
+      --bg: #f3f6fa;
+      --card: #ffffff;
+      --text: #172033;
+      --muted: #53637a;
+      --line: #d8e2ee;
+      --accent: #1d58d8;
+      --accent-soft: #edf3ff;
+      --accent-hover: #1545aa;
+      --task-bg: #fffdf5;
+      --task-border: #f0de95;
+      --task-badge: #8c6b00;
+      --code-bg: #0f172a;
+      --code-text: #f1f5f9;
+      --ok: #0d6832;
+      --ok-soft: #eaf8ef;
+      --warn: #944a00;
+      --warn-soft: #fff4e5;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow: 0 6px 24px rgba(23, 32, 51, 0.07);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      line-height: 1.6;
+      font-size: 16px;
+      padding-bottom: 90px;
+    }
+
+    .container {
+      width: min(100% - 32px, 940px);
+      margin: 28px auto;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+
+    header.hero {
+      border-left: 6px solid var(--accent);
+    }
+
+    .hero h1 {
+      font-size: clamp(24px, 4.5vw, 34px);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      font-size: 17px;
+      color: var(--muted);
+      max-width: 820px;
+    }
+
+    .timing-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 14px;
+      margin-top: 14px;
+    }
+
+    /* Студенческая карточка */
+    .student-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      border: 2px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+      font-size: 15px;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(29, 88, 216, 0.15);
+    }
+
+    textarea {
+      min-height: calc(3 * 1.5em + 24px);
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    /* Навигация / прогресс */
+    .stepper {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      gap: 8px;
+      margin-bottom: 24px;
+      padding-bottom: 4px;
+    }
+
+    .step-item {
+      flex: 1 1 calc(50% - 8px);
+      min-width: 0;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      word-break: break-word;
+    }
+
+    .step-item.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Секции содержания */
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 10px;
+    }
+
+    .section-num {
+      background: var(--accent);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 6px;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    h3 {
+      font-size: 17px;
+      font-weight: 700;
+      margin: 18px 0 8px;
+      color: #24334a;
+    }
+
+    p {
+      margin-bottom: 12px;
+      font-size: 15.5px;
+    }
+
+    ul, ol {
+      margin-left: 20px;
+      margin-bottom: 14px;
+      font-size: 15.5px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    /* Блоки акцентов и определений */
+    .def-box {
+      background: #f8fafc;
+      border-left: 4px solid #64748b;
+      padding: 14px 18px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin: 14px 0;
+    }
+
+    .def-title {
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 4px;
+    }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    .compare-col {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+    }
+
+    .compare-col h4 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Интерактивные задания */
+    .task-card {
+      background: var(--task-bg);
+      border: 1.5px solid var(--task-border);
+      border-radius: var(--radius);
+      padding: 22px;
+      margin: 18px 0 10px;
+    }
+
+    .task-badge-title {
+      display: inline-block;
+      background: #fef3c7;
+      color: var(--task-badge);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 8px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+
+    .task-card p {
+      font-size: 15px;
+    }
+
+    /* Диагностический интерактив */
+    .interactive-quiz {
+      margin: 16px 0;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 10px 0;
+    }
+
+    .quiz-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 14.5px;
+      transition: background .15s ease;
+    }
+
+    .quiz-option:hover {
+      background: #f8fafc;
+    }
+
+    .quiz-feedback {
+      display: none;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      margin-top: 10px;
+      line-height: 1.45;
+    }
+
+    .quiz-feedback.show {
+      display: block;
+    }
+
+    .quiz-feedback.correct {
+      background: var(--ok-soft);
+      border: 1px solid #a3e6b9;
+      color: var(--ok);
+    }
+
+    .quiz-feedback.incorrect {
+      background: var(--warn-soft);
+      border: 1px solid #fed7aa;
+      color: var(--warn);
+    }
+
+    /* Адаптивная функциональная схема */
+    .arch-diagram-wrapper {
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 20px;
+      margin: 16px 0;
+    }
+
+    .arch-diagram {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr 1fr;
+      grid-template-rows: auto auto auto;
+      gap: 16px;
+      align-items: stretch;
+      margin-bottom: 16px;
+    }
+
+    .diag-node {
+      border: 2px solid #cbd5e1;
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      background: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      transition: transform .15s, border-color .15s, box-shadow .15s;
+      position: relative;
+    }
+
+    .diag-node:hover {
+      border-color: var(--accent);
+      box-shadow: 0 4px 12px rgba(29, 88, 216, 0.1);
+    }
+
+    .diag-node.active-step {
+      border-color: var(--accent);
+      background: #f0f5ff;
+      box-shadow: 0 0 0 3px rgba(29, 88, 216, 0.2);
+    }
+
+    .diag-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .diag-desc {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+      line-height: 1.35;
+    }
+
+    .diag-tag {
+      display: inline-block;
+      align-self: flex-start;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-bottom: 6px;
+    }
+
+    .tag-input { background: #e0f2fe; color: #0369a1; }
+    .tag-cpu { background: #fef3c7; color: #b45309; }
+    .tag-ram { background: #e0e7ff; color: #4338ca; }
+    .tag-storage { background: #fae8ff; color: #86198f; }
+    .tag-output { background: #dcfce7; color: #15803d; }
+
+    /* Позиционирование узлов в Grid */
+    .node-input { grid-column: 1; grid-row: 1; }
+    .node-ram { grid-column: 2; grid-row: 1; }
+    .node-cpu { grid-column: 2; grid-row: 2; }
+    .node-output { grid-column: 3; grid-row: 1; }
+    .node-storage { grid-column: 2; grid-row: 3; }
+
+    /* Интерактивный плеер схемы */
+    .diagram-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .step-btn {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      padding: 7px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+      transition: all .15s ease;
+    }
+
+    .step-btn:hover {
+      background: #e2e8f0;
+    }
+
+    .step-btn.current {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .step-explanation {
+      margin-top: 12px;
+      padding: 12px 16px;
+      background: #f8fafc;
+      border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      font-size: 14.5px;
+      min-height: 48px;
+    }
+    /* Оценочная рубрика 4 балла и таблицы */
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 14px 0;
+    }
+
+    .rubric-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0;
+      font-size: 14.5px;
+      min-width: 500px;
+    }
+
+    .rubric-table th,
+    .rubric-table td {
+      border: 1px solid var(--line);
+      padding: 10px 14px;
+      text-align: left;
+    }
+
+    .rubric-table th {
+      background: #f8fafc;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .rubric-table td:nth-child(2) {
+      font-weight: 700;
+      color: var(--accent);
+      width: 110px;
+      text-align: center;
+    }
+
+    /* Панель действий внизу */
+    .sticky-actions {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid var(--line);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
+      z-index: 100;
+    }
+
+    .actions-inner {
+      width: min(100%, 940px);
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .save-status {
+      font-size: 13.5px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      display: inline-block;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    button.btn {
+      font: inherit;
+      font-size: 14.5px;
+      font-weight: 600;
+      padding: 9px 18px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all .15s ease;
+    }
+
+    button.btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    button.btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    button.btn-secondary {
+      background: #fff;
+      border-color: var(--line);
+      color: var(--text);
+    }
+
+    button.btn-secondary:hover {
+      background: #f1f5f9;
+    }
+
+    button.btn-danger {
+      background: #fff;
+      border-color: #fecaca;
+      color: #dc2626;
+    }
+
+    button.btn-danger:hover {
+      background: #fef2f2;
+    }
+
+    /* Зеркало для печати */
+    .print-mirror {
+      display: none;
+      white-space: pre-wrap;
+      font-size: 14.5px;
+      line-height: 1.5;
+      padding: 10px 12px;
+      background: #fafafa;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--radius-sm);
+      margin-top: 6px;
+    }
+
+    /* Адаптивность для узких экранов */
+    @media (max-width: 768px) {
+      body {
+        overflow-x: hidden;
+      }
+
+      .container {
+        width: 100%;
+        padding: 0 12px;
+        box-sizing: border-box;
+      }
+
+      .card {
+        padding: 18px 14px;
+      }
+
+      .step-item {
+        flex: 1 1 100%;
+        text-align: left;
+        padding: 8px 12px;
+      }
+
+      .student-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .compare-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .arch-diagram {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .diagram-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .step-btn {
+        text-align: left;
+      }
+
+      .sticky-actions {
+        padding: 10px 14px;
+      }
+
+      .save-status span.status-text {
+        display: none;
+      }
+
+      .rubric-table {
+        font-size: 13.5px;
+      }
+
+      .rubric-table th,
+      .rubric-table td {
+        padding: 8px 10px;
+      }
+    }
+    /* Печать A4 */
+    @media print {
+      body {
+        background: #fff;
+        color: #000;
+        font-size: 12pt;
+        padding-bottom: 0;
+      }
+
+      .no-print,
+      .sticky-actions,
+      .diagram-controls,
+      .stepper {
+        display: none !important;
+      }
+
+      .container {
+        width: 100% !important;
+        margin: 0 !important;
+      }
+
+      .card {
+        box-shadow: none !important;
+        border: 1px solid #ccc !important;
+        padding: 16px !important;
+        margin-bottom: 16px !important;
+        break-inside: avoid;
+      }
+
+      textarea,
+      input[type="text"],
+      select {
+        display: none !important;
+      }
+
+      .print-mirror {
+        display: block !important;
+        border: 1px solid #bbb !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+
+      .arch-diagram {
+        display: grid !important;
+        grid-template-columns: 1fr 1.3fr 1fr !important;
+        border: 1px solid #ddd;
+      }
+
+      .diag-node {
+        border: 1px solid #888 !important;
+        background: #fff !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="container" id="mainContent">
+
+    <!-- Заголовок темы (без служебных шифров, дат, номеров пар) -->
+    <header class="card hero">
+      <h1>Понятия аппаратных средств ЭВМ и архитектура аппаратных средств</h1>
+      <p>Интерактивный рабочий лист учебного занятия. Содержит входную диагностику, исследование функционального взаимодействия узлов ЭВМ, практическое моделирование потоков данных и индивидуальную оценочную работу.</p>
+      <div class="timing-badge">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        Продолжительность занятия: 90 минут (сокращённый сценарий: 60 минут)
+      </div>
+    </header>
+
+    <!-- Идентификация обучающегося -->
+    <section class="card" aria-label="Сведения об обучающемся">
+      <div class="student-grid">
+        <div class="form-group">
+          <label for="studentName">Фамилия и имя обучающегося</label>
+          <input type="text" id="studentName" data-save placeholder="Введите фамилию и имя" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label for="studentGroup">Группа / класс</label>
+          <input type="text" id="studentGroup" data-save placeholder="Укажите учебную группу">
+        </div>
+      </div>
+    </section>
+
+    <!-- Навигация по этапам -->
+    <nav class="stepper no-print" aria-label="Этапы занятия">
+      <div class="step-item active">1. Входная диагностика</div>
+      <div class="step-item">2. Аппаратура и архитектура</div>
+      <div class="step-item">3. Сквозной маршрут данных</div>
+      <div class="step-item">4. ОЗУ против накопителя</div>
+      <div class="step-item">5. Оценочная схема (4 балла)</div>
+    </nav>
+
+    <!-- Блок 1: Входная диагностика (5-7 минут) -->
+    <section class="card" id="block-diagnostics">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <h2>Входная диагностика: интуитивные представления о потоках данных</h2>
+      </div>
+      <p>Перед изучением теории проверьте свои предположения. В реальной работе инженера критически важно точно представлять, по каким узлам перемещаются байты информации при повседневных действиях.</p>
+
+      <div class="task-card">
+        <span class="task-badge-title">Вводное задание · Устное или письменное рассуждение (без оценивания)</span>
+        <p><strong>Ситуация:</strong> Пользователь работает в текстовом редакторе и нажимает на клавиатуре клавишу «A». Символ мгновенно появляется в окне на экране монитора. Файл при этом на диск ещё не сохранялся.</p>
+        
+        <div class="form-group" style="margin-top: 14px;">
+          <label for="diagOralExplanation"><strong>Задание на объяснение (устно в группе или в свободной форме):</strong></label>
+          <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Сформулируйте гипотезу: в каких узлах компьютера сейчас находится этот символ, почему он виден на экране до сохранения на диск и какие аппаратные компоненты участвуют в его передаче?</p>
+          <textarea id="diagOralExplanation" data-save placeholder="На мой взгляд, код символа сейчас находится... потому что..."></textarea>
+        </div>
+
+        <div class="form-group" style="margin-top: 14px;">
+          <label for="diagDiscussion"><strong>Нейтральный вопрос для вводного обсуждения:</strong></label>
+          <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Представьте два разных взгляда пользователя: «Если символ виден на экране, он уже в безопасности в памяти компьютера» и «Пока нет подтверждения сохранения, данные легко потерять». Какие аргументы в пользу каждого утверждения вы можете привести до изучения темы?</p>
+          <textarea id="diagDiscussion" data-save placeholder="Аргументы участников дискуссии: с одной стороны... с другой стороны..."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- Блок 2: Аппаратные средства и архитектура (20 минут) -->
+    <section class="card" id="block-theory-diff">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <h2>Аппаратные средства и архитектура ЭВМ: принципиальная разница</h2>
+      </div>
+
+      <div class="compare-grid">
+        <div class="compare-col">
+          <h4>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #2563eb;"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
+            Аппаратные средства (Hardware)
+          </h4>
+          <p><strong>Физическая компонентная база</strong> ЭВМ: микросхемы, печатные платы, электронные компоненты, разъемы, кабели, дисковые накопители и периферия.</p>
+          <p style="font-size: 13.5px; color: var(--muted);"><em>Примеры:</em> микропроцессор Intel Core i5-13400, модуль памяти DDR5 16 ГБ, NVMe SSD Samsung 980, контроллер USB.</p>
+        </div>
+
+        <div class="compare-col">
+          <h4>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #059669;"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+            Архитектура аппаратных средств
+          </h4>
+          <p><strong>Концептуальная организация и принципы взаимодействия</strong> функциональных узлов системы, видимые программисту и определяющие логику исполнения программ и потоков данных.</p>
+          <p style="font-size: 13.5px; color: var(--muted);"><em>Примеры:</em> фон-неймановская модель, система команд x86-64 / ARM, разрядность адресного пространства, организация шин.</p>
+        </div>
+      </div>
+
+      <div class="def-box">
+        <div class="def-title">Ключевой контрпример для различения:</div>
+        <p style="margin: 0; font-size: 14.5px;">Физический процессор, который можно взять в руки, распаять или установить в сокет материнской платы — это <strong>аппаратное средство</strong>. Однако формат машинных инструкций, состав регистров общего назначения, организация уровней кэш-памяти и регламент передачи команд по шине — это <strong>архитектура</strong> вычислительной системы.</p>
+      </div>
+
+      <div class="task-card">
+        <span class="task-badge-title">Практическое упражнение 1 · Анализ категорий</span>
+        <p>Для каждой из предложенных ситуаций определите категорию (<strong>Аппаратное средство</strong> или <strong>Архитектурное решение</strong>) и дайте строгое обоснование.</p>
+
+        <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 12px;">
+          <div>
+            <label for="cat1"><strong>Ситуация А:</strong> Компьютер переведён с 32-битного адресного пространства на 64-битное, что позволило адресовать более 4 ГБ памяти напрямую в коде программ.</label>
+            <textarea id="cat1" data-save placeholder="Категория: ... Обоснование: почему это архитектура или оборудование?"></textarea>
+          </div>
+          <div>
+            <label for="cat2"><strong>Ситуация Б:</strong> В сервер установили медный радиатор с тепловыми трубками и вентилятором гидродинамического типа для охлаждения чипсета.</label>
+            <textarea id="cat2" data-save placeholder="Категория: ... Обоснование: к какой категории относится данный компонент?"></textarea>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Блок 3: Сквозной маршрут данных (25 минут) -->
+    <section class="card" id="block-data-flow">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <h2>Сквозной функциональный маршрут: от клавиши к экрану и диску</h2>
+      </div>
+      <p>Рассмотрим фундаментальный сквозной пример: пользователь вводит текст с клавиатуры, видит его на экране и затем явно нажимает кнопку сохранения файла. Проследите за каждым шагом в интерактивной модели.</p>
+
+      <div class="arch-diagram-wrapper">
+        <div class="arch-diagram">
+          <!-- Узел: Ввод -->
+          <div class="diag-node node-input" id="node-input">
+            <span class="diag-tag tag-input">Устройство ввода</span>
+            <div class="diag-title">1. Клавиатура</div>
+            <div class="diag-desc">Контроллер клавиш формирует скан-код нажатия и отправляет аппаратное прерывание (IRQ).</div>
+          </div>
+
+          <!-- Узел: ОЗУ -->
+          <div class="diag-node node-ram" id="node-ram">
+            <span class="diag-tag tag-ram">Временная память (ОЗУ)</span>
+            <div class="diag-title">2. Оперативная память</div>
+            <div class="diag-desc">Буфер ввода ОС, область данных текстового редактора. Энергозависимое временное хранилище!</div>
+          </div>
+
+          <!-- Узел: Экран -->
+          <div class="diag-node node-output" id="node-output">
+            <span class="diag-tag tag-output">Устройство вывода</span>
+            <div class="diag-title">4. Видеокарта и экран</div>
+            <div class="diag-desc">Символ растеризуется шрифтовым движком в буфер кадра видеопамяти и передается на матрицу монитора.</div>
+          </div>
+
+          <!-- Узел: ЦП -->
+          <div class="diag-node node-cpu" id="node-cpu">
+            <span class="diag-tag tag-cpu">Вычисления и управление</span>
+            <div class="diag-title">3. Центральный процессор</div>
+            <div class="diag-desc">Обработчик прерываний переводит скан-код в символ Unicode, исполняет код редактора, обновляет буфер.</div>
+          </div>
+
+          <!-- Узел: Долговременный накопитель -->
+          <div class="diag-node node-storage" id="node-storage">
+            <span class="diag-tag tag-storage">Долговременный накопитель</span>
+            <div class="diag-title">5. SSD / HDD накопитель</div>
+            <div class="diag-desc">Энергонезависимый накопитель. Данные попадают на диск при явной команде пользователя, периодическом фоновом автосохранении приложения или сбросе дисковых буферов ОС. Наличие накопителя само по себе не гарантирует сохранение несохранённых данных при внезапном сбое питания.</div>
+        </div>
+
+        <div class="diagram-controls">
+          <span style="font-size: 13.5px; font-weight: 700; color: #475569; margin-right: 6px;">Шаги процесса:</span>
+          <button type="button" class="step-btn current" data-step="1">1. Нажатие клавиши</button>
+          <button type="button" class="step-btn" data-step="2">2. Передача в ОЗУ</button>
+          <button type="button" class="step-btn" data-step="3">3. Обработка ЦП</button>
+          <button type="button" class="step-btn" data-step="4">4. Вывод на экран</button>
+          <button type="button" class="step-btn" data-step="5">5. Явное сохранение (SSD)</button>
+        </div>
+
+        <div class="step-explanation" id="stepExplanation">
+          <strong>Шаг 1: Физический ввод.</strong> При нажатии клавиши контроллер клавиатуры замыкает контакт матрицы, генерирует скан-код (например, 0x1E) и через USB/контроллер шлет сигнал запроса прерывания в систему.
+        </div>
+      </div>
+
+      <div class="task-card">
+        <span class="task-badge-title">Практическое упражнение 2 · Анализ непредвиденного сбоя</span>
+        <p><strong>Аварийная ситуация:</strong> Студент напечатал в текстовом редакторе 4 страницы курсовой работы за 40 минут. При этом в редакторе было <strong>отключено автоматическое сохранение</strong>, пользователь вручную не подавал команду сохранения (Ctrl+S / «Сохранить») и никаких других резервных копий не создавалось. В этот момент в кабинете внезапно отключилось электропитание (компьютер обесточен без ИБП). После повторного включения выяснилось, что файл на диске пуст либо содержит только старую версию.</p>
+        
+        <div class="form-group" style="margin-top: 10px;">
+          <label for="taskDisasterAnalysis">Дайте строгое инженерное объяснение произошедшего инцидента:</label>
+          <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Ответьте на три вопроса: 1) Где физически находились набранные 4 страницы до отключения питания? 2) Почему при выключенном автосохранении и отсутствии ручной команды сохранения факт отображения на экране и наличие в системе SSD не обеспечили автоматическую запись на накопитель? 3) Какое свойство оперативной памяти проявилось при аварийном обесточивании?</p>
+          <textarea id="taskDisasterAnalysis" data-save placeholder="1) Набранный текст находился...
+2) Отображение на экране и наличие накопителя не гарантируют запись, так как при отключенном автосохранении...
+3) Свойство ОЗУ заключается в..."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- Блок 4: Детальное сравнение ОЗУ и SSD (15 минут) -->
+    <section class="card" id="block-ram-vs-storage">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <h2>Временное и долговременное хранение: физика и системная роль</h2>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="rubric-table" aria-label="Сравнение ОЗУ и SSD">
+        <thead>
+          <tr>
+            <th>Критерий сравнения</th>
+            <th>Оперативная память (RAM / ОЗУ)</th>
+            <th>Долговременный накопитель (SSD / HDD)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Энергозависимость</strong></td>
+            <td><strong>Энергозависимая:</strong> данные теряются при исчезновении напряжения питания ячеек.</td>
+            <td><strong>Энергонезависимая:</strong> записанные блоки сохраняются без подачи питания, однако наличие накопителя в системе не гарантирует 100% сохранности данных, если они ещё находились только в ОЗУ или кэше контроллера в момент внезапного отключения питания.</td>
+          </tr>
+          <tr>
+            <td><strong>Скорость доступа и задержка</strong></td>
+            <td>Сверхвысокая: задержки измеряются в <strong>наносекундах (нс)</strong>; пропускная способность десятки ГБ/с.</td>
+            <td>Относительно низкая: задержки в <strong>микросекундах (мкс)</strong> для SSD или миллисекундах для HDD.</td>
+          </tr>
+          <tr>
+            <td><strong>Прямой доступ процессора</strong></td>
+            <td><strong>Да:</strong> процессор напрямую считывает машинные команды и операнды по шине адреса/данных.</td>
+            <td><strong>Нет:</strong> процессор не может напрямую исполнять инструкции из флеш-блоков; их нужно сначала загрузить в ОЗУ.</td>
+          </tr>
+          <tr>
+            <td><strong>Когда происходит запись</strong></td>
+            <td>Постоянно и автоматически в ходе вычислений при любой модификации переменных в программах.</td>
+            <td><strong>По команде сохранения или сброса буферов</strong> файловой системы (системные вызовы write/fsync, автосохранение приложения).</td>
+          </tr>
+        </tbody>
+        </table>
+      </div>
+      <div class="task-card">
+        <span class="task-badge-title">Практическое упражнение 3 · Экспресс-разбор утверждений</span>
+        <p>Определите, истинно (И) или ложно (Л) каждое утверждение, и кратко поясните ошибку:</p>
+        <div class="form-group" style="margin-top: 10px;">
+          <label for="taskStatements">Разбор трех технических утверждений:</label>
+          <textarea id="taskStatements" data-save placeholder="1. «Если текст виден на мониторе, он уже физически записан на твердотельный накопитель»: (И/Л), так как...
+2. «Процессор может напрямую считывать команды следующей строки программы из SSD»: (И/Л), так как...
+3. «ОЗУ быстрее накопителя в тысячи раз, поэтому используется как оперативный рабочий буфер ЦП»: (И/Л), так как..."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- Блок 5: Индивидуальная оценочная работа (20 минут) -->
+    <section class="card" id="block-evaluation">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <h2>Индивидуальная оценочная работа: анализ альтернативного аппаратного сценария</h2>
+      </div>
+
+      <p>Выполните самостоятельную аналитическую работу. Вам предложена производственная ситуация, отличная от разобранного клавиатурного ввода текста. Проанализируйте аппаратные роли компонентов, логику движения оцифрованных данных и возможные архитектурные риски.</p>
+
+      <div class="task-card" style="background: #ffffff; border-color: #cbd5e1; margin-bottom: 16px;">
+        <span class="task-badge-title" style="background: #e2e8f0; color: #1e293b;">Производственная ситуация</span>
+        <p><strong>Условие:</strong> Оператор оцифровывает документ с помощью планшетного оптического сканера, подключенного по интерфейсу USB к рабочей станции. Оператор нажимает кнопку «Сканировать» в графическом приложении: линейка датчиков сканирует страницу, изображение появляется в окне графического редактора на экране монитора, где оператор выполняет кадрирование и цветовую коррекцию. Команду «Экспорт в файл / Сохранить на диск» оператор ещё не подавал.</p>
+      </div>
+
+      <!-- Открытые критерии оценивания 2 + 1 + 1 = 4 балла -->
+      <div class="def-box" style="border-left-color: var(--accent);">
+        <div class="def-title">Критерии оценивания работы (максимум 4 балла):</div>
+      <div class="table-wrapper" style="margin-top: 8px;">
+        <table class="rubric-table">
+          <thead>
+            <tr>
+              <th>Критерий оценивания</th>
+              <th>Баллы</th>
+              <th>Показатели выполнения критерия</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1. Полнота и точность функциональных ролей</strong></td>
+              <td>0 – 2</td>
+              <td><strong>2 балла:</strong> полностью выделены все необходимые аппаратные и функциональные узлы для предложенного сценария, без пропусков промежуточных звеньев, и безошибочно указаны направления передачи данных между ними.<br><strong>1 балл:</strong> допущена неточность в назначении одного из компонентов или пропущена одна из информационных связей.<br><strong>0 баллов:</strong> состав узлов или структура связей определены неверно.</td>
+            </tr>
+            <tr>
+              <td><strong>2. Аргументированная причинно-следственная последовательность</strong></td>
+              <td>0 – 1</td>
+              <td><strong>1 балл:</strong> логично обоснован поэтапный маршрут движения данных от внешнего устройства через системные компоненты к интерфейсу вывода, с чётким разграничением этапа оперативной обработки в запущенном редакторе и этапа записи на накопитель.<br><strong>0 баллов:</strong> техническое обоснование отсутствует либо перепутана последовательность этапов.</td>
+            </tr>
+            <tr>
+              <td><strong>3. Самостоятельное обнаружение и анализ системной ошибки</strong></td>
+              <td>0 – 1</td>
+              <td><strong>1 балл:</strong> самостоятельно сформулировано правдоподобное ошибочное суждение пользователя о состоянии данных в данном сценарии и дано строгое инженерное опровержение на основе принципов работы компонентов ЭВМ.<br><strong>0 баллов:</strong> ошибочное суждение не сформулировано либо аргументация не содержит технического обоснования.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size: 13px; color: var(--muted); margin: 6px 0 0;"><em>Итоговая оценка выставляется преподавателем на основе соответствия критериям открытой рубрики (максимум 4 балла).</em></p>
+      </div>
+
+      <!-- Поля для выполнения индивидуального задания -->
+      <div class="task-card" style="background: #ffffff; border-color: var(--accent);">
+        <span class="task-badge-title" style="background: var(--accent-soft); color: var(--accent);">Поля для оформления решения</span>
+
+        <div class="form-group" style="margin-top: 12px;">
+          <label for="evalScheme">Задание 1. Структурно-функциональное описание компонентов и их взаимосвязей (до 2 баллов):</label>
+          <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Перечислите функциональные узлы системы, задействованные в процессе оцифровки и обработки изображения. Для каждого узла укажите его роль, тип памяти/устройства и направление входящих/исходящих потоков данных. Не используйте псевдографику и рамки из символов — опишите узлы и логические связи структурированным текстом.</p>
+          <textarea id="evalScheme" data-save placeholder="Опишите узлы вычислительной системы, их назначение в данной ситуации и порядок передачи информации между ними..."></textarea>
+        </div>
+
+        <div class="form-group" style="margin-top: 16px;">
+          <label for="evalExplanation">Задание 2. Инженерное обоснование последовательности обработки (до 1 балла):</label>
+          <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">В описанном сценарии оператор работает с изображением в окне редактора, но ещё не нажимал команду экспорта или сохранения. Объясните, почему факт отображения картинки на экране монитора технически не гарантирует её сохранность при внезапном сбое, и укажите, какие системные события должны произойти, чтобы данные физически закрепились в энергонезависимом хранилище.</p>
+          <textarea id="evalExplanation" data-save placeholder="Приведите техническое объяснение промежуточных этапов обработки и условий фиксации данных на накопителе..."></textarea>
+        </div>
+        <div class="form-group" style="margin-top: 16px;">
+          <label for="evalSelfCheck">Задание 3. Анализ рисков и выявление системной ошибки (до 1 балла):</label>
+          <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Сформулируйте ошибочное суждение неопытного оператора о статусе отсканированного изображения в описанной ситуации и аргументированно опровергните его, опираясь на архитектурные различия временного и постоянного хранения.</p>
+          <textarea id="evalSelfCheck" data-save placeholder="Ошибочное суждение: «...»
+Техническое опровержение и анализ рисков: «...»"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- Блок 6: Рефлексия и контрольный чеклист (5 минут) -->
+    <section class="card" id="block-summary">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <h2>Итог занятия и чеклист готовности к сдаче</h2>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
+        <label style="display: flex; align-items: center; gap: 10px; font-weight: 500; cursor: pointer;">
+          <input type="checkbox" id="chk1" data-save> Я четко различаю физическое аппаратное средство (чип/плату) и архитектурные принципы его взаимодействия.
+        </label>
+        <label style="display: flex; align-items: center; gap: 10px; font-weight: 500; cursor: pointer;">
+          <input type="checkbox" id="chk2" data-save> Я могу пошагово проследить маршрут данных: Клавиатура → ОЗУ ⇄ ЦП → Экран и понимаю изолированность ветки сохранения на SSD.
+        </label>
+        <label style="display: flex; align-items: center; gap: 10px; font-weight: 500; cursor: pointer;">
+          <input type="checkbox" id="chk3" data-save> В моей индивидуальной схеме и пояснениях выполнены все три критерия открытой рубрики (на 4 балла).
+        </label>
+        <label style="display: flex; align-items: center; gap: 10px; font-weight: 500; cursor: pointer;">
+          <input type="checkbox" id="chk4" data-save> Заполнены ФИО обучающегося и учебная группа в шапке документа.
+        </label>
+      </div>
+
+      <p style="font-size: 14.5px; color: var(--muted);">После завершения заполнения всех полей нажмите кнопку <strong>«Сформировать отчёт (Печать / PDF)»</strong> в нижней панели. В открывшемся системном окне печати выберите целевое устройство: <em>«Сохранить как PDF»</em>. Созданный файл содержит все ваши ответы и готов к отправке преподавателю.</p>
+    </section>
+
+  </main>
+
+  <!-- Закрепленная нижняя панель действий -->
+  <footer class="sticky-actions no-print" aria-label="Панель действий">
+    <div class="actions-inner">
+      <div class="save-status" id="saveIndicator">
+        <span class="status-dot"></span>
+        <span class="status-text">Изменения сохранены локально в браузере</span>
+      </div>
+      <div class="btn-group">
+        <button type="button" class="btn btn-danger" id="btnClear">Очистить форму</button>
+        <button type="button" class="btn btn-primary" id="btnPrint">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          Сформировать отчёт (Печать / PDF)
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Локальный автономный скрипт логики, автосохранения и печати -->
+  <script>
+    (function() {
+      'use strict';
+
+      const STORAGE_PREFIX = 'arch_lesson_01_';
+      const saveFields = Array.from(document.querySelectorAll('[data-save]'));
+      const statusText = document.querySelector('#saveIndicator .status-text');
+
+
+      // Функция автоподстройки высоты textarea под содержимое (мин. 3-4 строки)
+      function autoResizeTextarea(ta) {
+        if (!ta) return;
+        if (!ta.value.trim()) {
+          ta.style.height = '';
+          return;
+        }
+        ta.style.height = 'auto';
+        const border = ta.offsetHeight - ta.clientHeight;
+        ta.style.height = (ta.scrollHeight + border) + 'px';
+      }
+      // Создание элемента-зеркала для надежной векторной печати textarea в PDF
+      function ensurePrintMirror(field) {
+        let mirror = field.nextElementSibling;
+        if (!mirror || !mirror.classList.contains('print-mirror')) {
+          mirror = document.createElement('div');
+          mirror.className = 'print-mirror';
+          mirror.setAttribute('aria-hidden', 'true');
+          field.insertAdjacentElement('afterend', mirror);
+        }
+        return mirror;
+      }
+
+      function syncMirrors() {
+        saveFields.forEach(function(field) {
+          if (field.tagName === 'TEXTAREA' || (field.tagName === 'INPUT' && field.type === 'text')) {
+            const mirror = ensurePrintMirror(field);
+            mirror.textContent = field.value.trim() || '— (не заполнено)';
+          }
+        });
+      }
+
+      function notifySaved() {
+        if (statusText) {
+          statusText.textContent = 'Все ответы сохранены в браузере';
+          setTimeout(function() {
+            statusText.textContent = 'Изменения сохранены локально';
+          }, 2000);
+        }
+      }
+
+      // Восстановление данных из localStorage
+      saveFields.forEach(function(field) {
+        const storageKey = STORAGE_PREFIX + field.id;
+        const savedVal = localStorage.getItem(storageKey);
+
+        if (savedVal !== null) {
+          if (field.type === 'checkbox') {
+            field.checked = (savedVal === 'true');
+          } else {
+            field.value = savedVal;
+          }
+        }
+
+        // Автоподстройка высоты текстовых полей
+        if (field.tagName === 'TEXTAREA') {
+          autoResizeTextarea(field);
+        }
+
+        // Слушатель изменений
+        field.addEventListener('input', function() {
+          const val = (field.type === 'checkbox') ? field.checked : field.value;
+          localStorage.setItem(storageKey, val);
+          if (field.tagName === 'TEXTAREA') {
+            autoResizeTextarea(field);
+          }
+          syncMirrors();
+          notifySaved();
+        });
+
+        if (field.type === 'checkbox') {
+          field.addEventListener('change', function() {
+            localStorage.setItem(storageKey, field.checked);
+            notifySaved();
+          });
+        }
+
+        ensurePrintMirror(field);
+      });
+
+      // Синхронизация зеркал для печати
+
+      syncMirrors();
+
+      // Интерактивный разбор шагов схемы данных
+      const stepDescriptions = {
+        '1': '<strong>Шаг 1: Физический ввод.</strong> Пользователь нажимает клавишу на клавиатуре. Контроллер клавиатуры замыкает контакт, кодирует скан-код нажатия и отправляет сигнал прерывания (IRQ) контроллеру ввода-вывода.',
+        '2': '<strong>Шаг 2: Помещение в буфер ОЗУ.</strong> Системный драйвер ОС перехватывает скан-код, помещает его во входной буфер очереди сообщений в оперативной памяти (ОЗУ) для прикладного приложения.',
+        '3': '<strong>Шаг 3: Обработка центральным процессором (ЦП).</strong> Процессор выполняет машинные инструкции текстового редактора: считывает скан-код из ОЗУ, преобразует его в символ кодировки (Unicode), обновляет структуру документа в памяти и формирует команду перерисовки окна.',
+        '4': '<strong>Шаг 4: Отрисовка на экране.</strong> Видеокарта считывает растровые примитивы из выделенной области памяти, формирует видеосигнал нужной кадровой развертки и выводит пиксели символа на экран монитора.',
+        '5': '<strong>Шаг 5: Сохранение на долговременный накопитель.</strong> При явном вызове команды сохранения файла (или при срабатывании фоновой службы автосохранения приложения) операционная система сбрасывает данные из ОЗУ через файловый кэш в постоянную флеш-память SSD.'
+      };
+
+      const stepNodes = {
+        '1': ['node-input'],
+        '2': ['node-input', 'node-ram'],
+        '3': ['node-ram', 'node-cpu'],
+        '4': ['node-cpu', 'node-output'],
+        '5': ['node-ram', 'node-cpu', 'node-storage']
+      };
+
+      const stepButtons = document.querySelectorAll('.step-btn');
+      const stepExplanation = document.getElementById('stepExplanation');
+      const allNodes = document.querySelectorAll('.diag-node');
+
+      stepButtons.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          const step = this.getAttribute('data-step');
+          stepButtons.forEach(b => b.classList.remove('current'));
+          this.classList.add('current');
+
+          if (stepExplanation && stepDescriptions[step]) {
+            stepExplanation.innerHTML = stepDescriptions[step];
+          }
+
+          allNodes.forEach(n => n.classList.remove('active-step'));
+          if (stepNodes[step]) {
+            stepNodes[step].forEach(nodeId => {
+              const el = document.getElementById(nodeId);
+              if (el) el.classList.add('active-step');
+            });
+          }
+        });
+      });
+
+      // Кнопка очистки с подтверждением
+      const btnClear = document.getElementById('btnClear');
+      if (btnClear) {
+        btnClear.addEventListener('click', function() {
+          if (!confirm('Вы действительно хотите удалить все введённые ответы и сбросить форму занятия? Это действие невозможно отменить.')) {
+            return;
+          }
+
+          saveFields.forEach(function(field) {
+            localStorage.removeItem(STORAGE_PREFIX + field.id);
+            if (field.type === 'checkbox') {
+              field.checked = false;
+            } else {
+              field.value = '';
+            }
+            if (field.tagName === 'TEXTAREA') {
+              field.style.height = '';
+              autoResizeTextarea(field);
+            }
+          });
+
+          syncMirrors();
+          alert('Форма успешно очищена.');
+        });
+      }
+
+      window.addEventListener('resize', function() {
+        saveFields.forEach(function(field) {
+          if (field.tagName === 'TEXTAREA' && field.value.trim()) {
+            autoResizeTextarea(field);
+          }
+        });
+      });
+
+      // Кнопка формирования отчета / печати в PDF
+      const btnPrint = document.getElementById('btnPrint');
+      if (btnPrint) {
+        btnPrint.addEventListener('click', function() {
+          const nameInput = document.getElementById('studentName');
+          const groupInput = document.getElementById('studentGroup');
+
+          if (!nameInput.value.trim() || !groupInput.value.trim()) {
+            alert('Пожалуйста, укажите ваши Фамилию, Имя и Группу вверху страницы перед созданием отчета.');
+            nameInput.focus();
+            return;
+          }
+
+          syncMirrors();
+          setTimeout(function() {
+            window.print();
+          }, 100);
+        });
+      }
+
+      window.addEventListener('beforeprint', syncMirrors);
+
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Анализ конфигурации вычислительной машины — Теоретический конспект</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --code-bg: #0f172a;
+      --code-text: #f1f5f9;
+      --success: #059669;
+      --warn: #d97706;
+      --danger: #dc2626;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.65;
+      font-size: 16px;
+      padding: 24px 16px;
+    }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    header {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(24px, 4vw, 32px);
+      line-height: 1.25;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .meta-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 26px;
+      margin-bottom: 22px;
+      box-shadow: var(--shadow);
+    }
+    h2 {
+      font-size: 21px;
+      color: var(--accent);
+      margin: 22px 0 12px;
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 6px;
+    }
+    h3 {
+      font-size: 17.5px;
+      color: #1e293b;
+      margin: 18px 0 8px;
+    }
+    p {
+      margin-bottom: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 14.5px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 14px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    ul, ol {
+      padding-left: 24px;
+      margin: 12px 0;
+    }
+    li {
+      margin-bottom: 6px;
+    }
+    .schema-box {
+      background: #0f172a;
+      color: #38bdf8;
+      padding: 20px;
+      border-radius: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      line-height: 1.45;
+      overflow-x: auto;
+      margin: 16px 0;
+      border: 1px solid #1e293b;
+    }
+    .formula-card {
+      background: #f8fafc;
+      border: 1.5px dashed var(--accent);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: var(--accent);
+      font-size: 14.5px;
+    }
+    .alert {
+      padding: 14px 18px;
+      border-radius: 8px;
+      margin: 14px 0;
+      border-left: 4px solid;
+    }
+    .alert-info { background: #eff6ff; border-color: #3b82f6; }
+    .alert-warn { background: #fffbeb; border-color: #f59e0b; }
+    .alert-danger { background: #fef2f2; border-color: #ef4444; }
+    code {
+      background: #e2e8f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9em;
+      color: #0f172a;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 8px;">
+      <h1>Анализ конфигурации вычислительной машины</h1>
+      <span class="badge">Теоретический конспект</span>
+    </div>
+    <div class="meta-line">
+      <span><strong>Дисциплина:</strong> ОП.02 Архитектура аппаратных средств</span>
+      <span>•</span>
+      <span><strong>Программа:</strong> Раздел 1. Практическая работа №1 (§2.2 с.8)</span>
+      <span>•</span>
+      <span><strong>Колледж:</strong> ММКЦТ «Академия TOP»</span>
+    </div>
+  </header>
+
+  <div class="card">
+    <h2>Введение: Вычислительная машина как сбалансированная система</h2>
+    <p>Архитектура современной вычислительной машины представляет собой комплекс взаимодействующих аппаратных подсистем: процессора, системной логики, оперативной памяти, постоянных запоминающих устройств, графических ускорителей и подсистемы ввода-вывода. Главный закон проектирования и анализа конфигурации — <strong>принцип системной сбалансированности</strong>.</p>
+    
+    <div class="alert alert-info">
+      <strong>Закон Амдала (Amdahl's law):</strong> Увеличение производительности всей вычислительной системы ограничено скоростью того компонента, который используется в критическом пути выполнения задачи. Если мощный 32-ядерный процессор соединен с медленным накопителем или функционирует в одноканальном режиме памяти, общая скорость выполнения задач будет определяться задержками самого медленного узла («бутылочного горлышка» или <em>Bottleneck</em>).
+    </div>
+
+    <div class="schema-box">
++---------------------------------------------------------------------------------+
+|                        ЦЕНТРАЛЬНЫЙ ПРОЦЕССОР (CPU)                              |
+|   +-----------------------+   +-------------------+   +---------------------+   |
+|   |  Ядра P-Core / E-Core |   |  Кэш L1, L2, L3   |   | Контроллер памяти   |   |
+|   +-----------------------+   +-------------------+   +----------+----------+   |
+|                               +------------------+               |              |
+|                               | Контроллер PCIe  |               |              |
++-------------------------------+--------+---------+---------------+--------------+
+                                         |                         |
+               +-------------------------+                         | Шина памяти
+               | Прямые линии CPU                                  | Dual/Octa Channel
+               v                                                   v
++-------------------------------+              +----------------------------------+
+| ДИСКРЕТНЫЙ GPU (PCIe x16)     |              | ОПЕРАТИВНАЯ ПАМЯТЬ (RAM)         |
+| NVMe SSD (M.2 CPU PCIe x4)    |              | DDR4 / DDR5 / LPDDR5X (ECC/UDIMM)|
++-------------------------------+              +----------------------------------+
+               |
+               | Магистраль DMI / PCIe Uplink (Point-to-Point)
+               v
++---------------------------------------------------------------------------------+
+|                        ЧИПСЕТ / СИСТЕМНЫЙ ХАБ (PCH)                             |
+|  - Вторичные линии PCIe Gen3/Gen4 (M.2, PCIe x1/x4 слоты)                       |
+|  - Контроллеры SATA III (6 Гбит/с, AHCI/RAID)                                   |
+|  - Контроллеры USB 3.2 Gen2x2 / USB 2.0                                         |
+|  - Сетевой стек GbE/2.5GbE MAC, Аудиокодек HD Audio                             |
+|  - Шина eSPI / LPC -> Мониторинг, Super I/O, SPI Flash BIOS                     |
++---------------------------------------------------------------------------------+
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>1. Процессорная подсистема и форм-факторы сокетов</h2>
+    <p>Центральный процессор (CPU) исполняет машинные инструкции, управляет подсистемами и содержит в своем составе первичные контроллеры высокоскоростных интерфейсов (IMC — Integrated Memory Controller, PCIe Root Complex).</p>
+    
+    <h3>1.1. Классификация разъемов процессора (Socket)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Тип сокета</th>
+          <th>Физическая реализация</th>
+          <th>Примеры платформ</th>
+          <th>Особенности и эксплуатационные риски</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>LGA (Land Grid Array)</strong></td>
+          <td>Подпружиненные контактные ножки расположены в самом сокете материнской платы; на процессоре — контактные площадки.</td>
+          <td>Intel LGA1700 (12–14 поколение), LGA1851 (Core Ultra); AMD Socket AM5 (Ryzen 7000–9000); серверные LGA4677, SP5.</td>
+          <td>Высокая плотность контактов (до 4000+). Риск необратимого замятия контактов сокета при неаккуратной установке CPU.</td>
+        </tr>
+        <tr>
+          <td><strong>PGA (Pin Grid Array)</strong></td>
+          <td>Контактные ножки выведены на нижней стороне подложки процессора; в сокете материнской платы — отверстия с зажимами.</td>
+          <td>AMD Socket AM4 (Ryzen 1000–5000); устаревшие Intel Socket 478.</td>
+          <td>Риск погнуть ножки при транспортировке CPU; эффект «вырывания» процессора из сокета вместе с кулером при присыхании термопасты.</td>
+        </tr>
+        <tr>
+          <td><strong>BGA (Ball Grid Array)</strong></td>
+          <td>Процессор жестко распаивается на системной плате массивом шариков припоя без механического разъема.</td>
+          <td>Мобильные ноутбуки, мини-ПК, SoC смартфонов и планшетов (Intel FCBGA1744, Apple Silicon).</td>
+          <td>Невозможность пользовательской замены и апгрейда процессора без сложной пайки на ИК-станции; компактные габариты.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>1.2. Тепловыделение (TDP) и подсистема питания VRM</h3>
+    <p><strong>TDP (Thermal Design Power)</strong> — это расчетная тепловая мощность в ваттах, которую система охлаждения должна гарантированно рассеивать при типичной рабочей нагрузке. Однако в современных архитектурах Intel и AMD реальное кратковременное и долговременное энергопотребление существенно отличается:</p>
+    <ul>
+      <li><strong>Intel PL1 (Base Power) vs PL2 (Maximum Turbo Power):</strong> Процессор Core i7-14700K имеет паспортный базовый TDP 125 Вт (PL1), но при включении всех ядер под нагрузкой лимит мощности переключается на PL2 = 253 Вт на время действия лимита тау ($\tau$). При недостаточно мощном кулере температура достигает 100°C, вызывая термальный троттлинг.</li>
+      <li><strong>AMD TDP vs PPT (Package Power Tracking):</strong> Для процессоров AM5 реальный электрический лимит PPT составляет:
+        <div class="formula-card">PPT = TDP \times 1.35 \quad (\text{например, для TDP } 105 \text{ Вт лимит PPT } = 142 \text{ Вт; для TDP } 170 \text{ Вт } PPT = 230 \text{ Вт})</div>
+      </li>
+      <li><strong>Модуль стабилизатора напряжения (VRM):</strong> Преобразует входные +12 В от блока питания в рабочее напряжение ядер <code>Vcore</code> (1.1–1.35 В). При потреблении 200 Вт через VRM протекает ток:
+        <div class="formula-card">I = \frac{P}{U} = \frac{200 \text{ Вт}}{1.2 \text{ В}} \approx 166.7 \text{ Ампер}</div>
+        Материнские платы начального уровня (H610, A620) с 4–6 фазами питания без массивных радиаторов не способны длительно питать такой ток. Фазы разогреваются свыше 110°C, срабатывает термозащита ШИМ-контроллера, вызывая сброс частоты процессора до 800 МГц (VRM throttling).
+      </li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>2. Подсистема оперативной памяти (RAM)</h2>
+    <p>Оперативная память обеспечивает высокоскоростной буфер команд и данных между быстрым кэшем CPU и медленными дисковыми накопителями.</p>
+    
+    <h3>2.1. Сравнительные параметры поколений DDR</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Поколение памяти</th>
+          <th>Эффективная частота (MT/s)</th>
+          <th>Напряжение питания $V_{DD}$</th>
+          <th>Архитектура каналов модуля</th>
+          <th>Управление питанием (PMIC)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>DDR4</strong></td>
+          <td>2133 – 3200 (JEDEC) / до 4400 (XMP)</td>
+          <td>1.2 В (до 1.35–1.45 В в XMP)</td>
+          <td>1× 64-бит канал данных на планку (+8 бит ECC)</td>
+          <td>На материнской плате</td>
+        </tr>
+        <tr>
+          <td><strong>DDR5</strong></td>
+          <td>4800 – 6400 (JEDEC) / до 8400+ (XMP/EXPO)</td>
+          <td>1.1 В (до 1.25–1.4 В в XMP)</td>
+          <td>2× независимых 32-бит подканала на планку (+2×4 бит On-Die ECC)</td>
+          <td>Встроен в модуль памяти (On-DIMM PMIC)</td>
+        </tr>
+        <tr>
+          <td><strong>LPDDR5 / LPDDR5X</strong></td>
+          <td>5500 – 8533 MT/s</td>
+          <td>0.5 В / 1.05 В (сверхнизкое)</td>
+          <td>4× 16-бит подканала (распайка Point-to-Point)</td>
+          <td>Контроллер на плате устройства</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>2.2. Расчет пропускной способности памяти (Bandwidth)</h3>
+    <p>Теоретическая пропускная способность памяти рассчитывается по формуле:</p>
+    <div class="formula-card">
+      \text{Пропускная способность (ГБ/с)} = \frac{\text{Эффективная частота (MT/s)} \times \text{Ширина шины (бит)} \times \text{Число каналов}}{8 \text{ бит/байт} \times 1000}
+    </div>
+    <p><strong>Примеры расчетов:</strong></p>
+    <ul>
+      <li>Один модуль DDR4-3200 (Single Channel, 64 бит): $\frac{3200 \times 64 \times 1}{8000} = \mathbf{25.6 \text{ ГБ/с}}$.</li>
+      <li>Два модуля DDR4-3200 (Dual Channel, $2 \times 64$ бит): $\frac{3200 \times 64 \times 2}{8000} = \mathbf{51.2 \text{ ГБ/с}}$.</li>
+      <li>Два модуля DDR5-5600 (Dual Channel, $2 \times (2 \times 32)$ бит): $\frac{5600 \times 128}{8000} = \mathbf{89.6 \text{ ГБ/с}}$.</li>
+      <li>Сервер EPYC на 8 каналов DDR5-4800: $\frac{4800 \times 64 \times 8}{8000} = \mathbf{307.2 \text{ ГБ/с}}$.</li>
+    </ul>
+
+    <h3>2.3. Механизмы коррекции ошибок (ECC)</h3>
+    <ul>
+      <li><strong>On-Die ECC (DDR5):</strong> Внутренняя схема исправления одиночных ошибок внутри одного чипа DRAM. Необходима из-за сверхмалых размеров ячеек (менее 14 нм). <em>Не защищает данные при передаче по шине между модулем и процессором!</em></li>
+      <li><strong>Side-Band ECC (Server / Workstation):</strong> Выделение дополнительных 8 бит на каждые 64 бита данных (72-битная шина). Код Хэмминга позволяет процессору на лету исправлять одиночные битовые ошибки (Single Bit Error) и детектировать двойные (Double Bit Error, вызывающие контролируемый Halt системы). Предотвращает явление «тихой порчи данных» (Silent Data Corruption) в СУБД и научных расчетах.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>3. Системная логика (Чипсет) и системные шины</h2>
+    <p>Современный чипсет (PCH — Platform Controller Hub) выполняет функцию мультиплексора и концентратора периферийных интерфейсов, связываясь с процессором через высокоскоростную выделенную магистраль (Intel DMI 4.0 x4/x8 или AMD PCIe 4.0 Uplink).</p>
+
+    <h3>3.1. Эволюция и пропускная способность интерфейса PCI Express</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Поколение шины PCIe</th>
+          <th>Частота передачи (GT/s)</th>
+          <th>Канальное кодирование</th>
+          <th>ПСП на 1 линию (Lane)</th>
+          <th>ПСП на 16 линий (x16 Slot)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>PCIe 3.0</strong></td>
+          <td>8.0 GT/s</td>
+          <td>128b/130b (потери ~1.54%)</td>
+          <td>~985 МБ/с</td>
+          <td>~15.75 ГБ/с</td>
+        </tr>
+        <tr>
+          <td><strong>PCIe 4.0</strong></td>
+          <td>16.0 GT/s</td>
+          <td>128b/130b</td>
+          <td>~1969 МБ/с (~1.97 ГБ/с)</td>
+          <td>~31.51 ГБ/с</td>
+        </tr>
+        <tr>
+          <td><strong>PCIe 5.0</strong></td>
+          <td>32.0 GT/s</td>
+          <td>128b/130b</td>
+          <td>~3938 МБ/с (~3.94 ГБ/с)</td>
+          <td>~63.02 ГБ/с</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="alert alert-warn">
+      <strong>Архитектурное ограничение шины DMI:</strong> Если к чипсету подключены одновременно 2 накопителя NVMe PCIe 4.0 x4 (суммарный потенциальный поток $2 \times 7.5 = 15$ ГБ/с) и сетевая карта 10 GbE, а связь чипсета с процессором организована по шине DMI 4.0 x4 (предел ~7.8 ГБ/с), возникает аппаратное насыщение шины Uplink. Накопители не смогут развить паспортную скорость при одновременной работе.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>4. Подсистема постоянной памяти (Storage)</h2>
+    
+    <h3>4.1. Сравнение интерфейсов SATA III и NVMe PCIe</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Параметр сравнения</th>
+          <th>Интерфейс SATA III (AHCI)</th>
+          <th>Интерфейс NVMe (PCIe 3.0/4.0/5.0)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Физическая среда</strong></td>
+          <td>Последовательный кабель SATA (7 контактов), 6 Гбит/с</td>
+          <td>Разъем M.2 / U.2 / E1.S (4 линии PCIe)</td>
+        </tr>
+        <tr>
+          <td><strong>Максимальная скорость</strong></td>
+          <td>До 550–560 МБ/с</td>
+          <td>До 3500 (Gen3) / 7500 (Gen4) / 14000 (Gen5) МБ/с</td>
+        </tr>
+        <tr>
+          <td><strong>Очереди команд</strong></td>
+          <td>1 очередь глубиной до 32 команд (NCQ)</td>
+          <td>До 64 000 очередей по 64 000 команд в каждой</td>
+        </tr>
+        <tr>
+          <td><strong>Задержка доступа (Latency)</strong></td>
+          <td>~50–100 микросекунд (из-за накладных расходов стека AHCI)</td>
+          <td>~10–20 микросекунд (прямой доступ к регистрам контроллера)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>4.2. Показатели надежности SSD (TBW и DWPD)</h3>
+    <ul>
+      <li><strong>TBW (Terabytes Written):</strong> Гарантированный суммарный объем данных в терабайтах, который может быть записан на накопитель до исчерпания ресурса ячеек NAND.</li>
+      <li><strong>DWPD (Drive Writes Per Day):</strong> Количество полных перезаписей объема диска в день на протяжении гарантийного срока (обычно 5 лет):
+        <div class="formula-card">DWPD = \frac{TBW \times 1024}{\text{Емкость накопителя (ГБ)} \times 365 \times \text{Срок гарантии (лет)}}</div>
+        <em>Потребительские диски:</em> DWPD = 0.3 (рассчитаны на офисную нагрузку).<br>
+        <em>Серверные корпоративные накопители (Enterprise):</em> DWPD = 1.0–3.0 (для СУБД с непрерывной транзакционной записью).
+      </li>
+    </ul>
+
+    <h3>4.3. Архитектура дисковых массивов RAID</h3>
+    <ul>
+      <li><strong>RAID-0 (Striping):</strong> Чередование данных без избыточности. Скорость $N \times V$, емкость $N \times C$. Надежность падает обратно пропорционально числу дисков. При выходе из строя одного накопителя теряются все данные!</li>
+      <li><strong>RAID-1 (Mirroring):</strong> Зеркалирование данных на 2 диска. Скорость чтения до $2 \times$, емкость $1 \times C$. Полная отказоустойчивость при отказе одного диска.</li>
+      <li><strong>RAID-10 (1+0):</strong> Чередование зеркал (минимум 4 диска). Оптимальный выбор для высоконагруженных СУБД (PostgreSQL, MS SQL): максимальная скорость случайной записи IOPS, отсутствие задержек на расчет четности XOR.</li>
+      <li><strong>RAID-5 / RAID-6:</strong> Чередование с блоками четности. Экономия емкости, но значительное падение скорости случайной записи («write penalty» — 4 обращения к дискам на одну операцию записи в RAID-5).</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>5. Подсистема электропитания и совокупная стоимость владения (TCO)</h2>
+    
+    <h3>5.1. Стандарты эффективности 80 PLUS</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Сертификат</th>
+          <th>КПД при 20% нагрузки</th>
+          <th>КПД при 50% нагрузки (номинал)</th>
+          <th>КПД при 100% нагрузки</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>80 PLUS Bronze</strong></td>
+          <td>82%</td>
+          <td>85%</td>
+          <td>82%</td>
+        </tr>
+        <tr>
+          <td><strong>80 PLUS Gold</strong></td>
+          <td>87%</td>
+          <td>90%</td>
+          <td>87%</td>
+        </tr>
+        <tr>
+          <td><strong>80 PLUS Platinum</strong></td>
+          <td>90%</td>
+          <td>92%</td>
+          <td>89%</td>
+        </tr>
+        <tr>
+          <td><strong>80 PLUS Titanium</strong></td>
+          <td>92% (90% при 10% нагрузки!)</td>
+          <td>94%</td>
+          <td>90%</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>5.2. Совокупная стоимость владения (Total Cost of Ownership — TCO)</h3>
+    <p>При закупке парка оборудования инженер обязан рассчитывать TCO по формуле:</p>
+    <div class="formula-card">
+      TCO = CAPEX + OPEX = \text{Стоимость закупки} + \sum_{t=1}^{T} (\text{Электроэнергия} + \text{Охлаждение} + \text{Обслуживание} + \text{Убытки от простоев})
+    </div>
+    <p>Для офисного парка в 100 ПК разница в потреблении 30 Вт на машину при тарифе 8 руб/кВт·ч за 5 лет работы дает экономию сотен тысяч рублей, окупая более эффективные компоненты.</p>
+  </div>
+
+  <div class="card">
+    <h2>6. Вопросы для самопроверки</h2>
+    <ol>
+      <li>В чем заключается физическая причина троттлинга VRM материнской платы при нормальной температуре процессора?</li>
+      <li>Почему один модуль оперативной памяти DDR5 объемом 32 ГБ обеспечивает меньшую скорость работы в задачах со встроенным видеоядром, чем два модуля по 16 ГБ?</li>
+      <li>Чем отличается механизм On-Die ECC в модулях DDR5 от серверного Side-Band ECC с 72-битной шиной?</li>
+      <li>В каких случаях шина чипсета (DMI / PCIe Uplink) становится узким местом системы хранения данных?</li>
+      <li>Почему в серверах высоконагруженных баз данных предпочтителен массив RAID-10, а не RAID-5?</li>
+      <li>Каковы риски установки блока питания мощностью 500 Вт в систему с суммарным паспортным TDP компонентов 480 Вт?</li>
+    </ol>
+  </div>
+
+</div>
+
+</body>
+</html>
