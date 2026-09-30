@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Домашнее задание - Законы Мура. Основные характеристики процессоров</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --ok: #059669;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15.5px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .card, .actions-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(22px, 3.5vw, 28px);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .notice {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      font-size: 14.5px;
+      color: #92400e;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    input[type="text"], input[type="date"], textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14.5px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+    }
+    textarea {
+      min-height: 85px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    h2 {
+      font-size: 18.5px;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .sample-box {
+      background: #f1f5f9;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 12px 0 16px;
+      font-size: 14.5px;
+    }
+    .sample-title {
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    .step {
+      margin-bottom: 10px;
+    }
+    .step strong { color: var(--accent); }
+    .formula {
+      font-family: ui-monospace, monospace;
+      background: #e2e8f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13.5px;
+    }
+    .criteria-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-top: 14px;
+      font-size: 14px;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font: inherit;
+      font-weight: 600;
+      font-size: 14.5px;
+      transition: background .15s, transform .05s;
+    }
+    button:active { transform: scale(0.98); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary { background: #e2e8f0; color: #334155; }
+    .btn-secondary:hover { background: #cbd5e1; }
+    .btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #fecaca; }
+    .status-msg {
+      font-size: 14px;
+      font-weight: 600;
+      margin-left: auto;
+    }
+    .status-saved { color: var(--ok); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 13.5px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+        font-size: 11pt;
+        color: #000;
+      }
+      .page {
+        max-width: 100%;
+        margin: 0;
+      }
+      .header-card, .student-card, .card {
+        box-shadow: none;
+        border: 1px solid #777;
+        margin-bottom: 12pt;
+        padding: 12pt;
+        break-inside: auto;
+        page-break-inside: auto;
+      }
+      .actions-card, .btn-row {
+        display: none !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        opacity: 0 !important;
+      }
+      textarea {
+        height: auto !important;
+        min-height: 90px;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+        break-inside: auto;
+        page-break-inside: auto;
+      }
+      input[type="text"], input[type="date"] {
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      table, th, td {
+        border: 1px solid #555;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ШАПКА ЗАДАНИЯ -->
+  <div class="header-card">
+    <h1>Домашнее задание - Законы Мура. Основные характеристики процессоров</h1>
+    <p class="notice">Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.</p>
+  </div>
+
+  <!-- РЕКВИЗИТЫ СТУДЕНТА -->
+  <div class="student-card">
+    <div class="student-grid">
+      <div>
+        <label for="hw_student_fio">ФИО обучающегося:</label>
+        <input type="text" id="hw_student_fio" name="hw_student_fio" placeholder="Фамилия Имя Отчество">
+      </div>
+      <div>
+        <label for="hw_student_group">Учебная группа:</label>
+        <input type="text" id="hw_student_group" name="hw_student_group" placeholder="Например, ИСП-21">
+      </div>
+      <div>
+        <label for="hw_work_date">Дата выполнения:</label>
+        <input type="date" id="hw_work_date" name="hw_work_date">
+      </div>
+    </div>
+  </div>
+
+  <!-- РАЗОБРАННЫЙ ОБРАЗЕЦ РЕШЕНИЯ -->
+  <div class="card">
+    <h2>Разобранный образец: Выбор процессора для параллельной сборки ПО по закону Амдала</h2>
+    <div class="sample-box">
+      <div class="sample-title">Условие задачи:</div>
+      <p>Инженер-разработчик выбирает серверный процессор для конвейера сборки проекта (CI/CD). Профиль компиляции: доля идеально распараллеливаемого кода (компиляция независимых .cpp модулей) составляет <span class="formula">p = 0.85</span> (85%), а строго последовательная часть (линковка библиотек, финальная компоновка исполняемого файла) составляет <span class="formula">1 - p = 0.15</span> (15%).</p>
+      <p>Сравниваются два процессора с одинаковой микроархитектурой и идентичным показателем IPC:</p>
+      <ul style="margin: 6px 0 10px 20px;">
+        <li><strong>Процессор А (Высокочастотный):</strong> 8 ядер, базовая частота под нагрузкой 4.50 ГГц, TDP 125 Вт.</li>
+        <li><strong>Процессор Б (Многоядерный плотный):</strong> 16 ядер, базовая частота под нагрузкой 3.00 ГГц, TDP 125 Вт.</li>
+      </ul>
+
+      <div class="sample-title" style="margin-top: 12px;">Пошаговое решение:</div>
+      <div class="step">
+        <strong>Шаг 1. Расчёт ускорения многоядерности по закону Амдала для обоих процессоров.</strong><br>
+        Формула: <span class="formula">S(N) = 1 / ((1 - p) + p / N)</span>.<br>
+        Для Процессора А (N = 8 ядер):<br>
+        <span class="formula">S_A(8) = 1 / (0.15 + 0.85 / 8) = 1 / (0.15 + 0.10625) = 1 / 0.25625 &approx; 3.902x</span> (ускорение в 3.90 раза относительно 1 ядра той же частоты).<br>
+        Для Процессора Б (N = 16 ядер):<br>
+        <span class="formula">S_B(16) = 1 / (0.15 + 0.85 / 16) = 1 / (0.15 + 0.053125) = 1 / 0.203125 &approx; 4.923x</span> (ускорение в 4.92 раза относительно 1 ядра той же частоты).
+      </div>
+      <div class="step">
+        <strong>Шаг 2. Сопоставление с учётом тактовой частоты (формула времени ЦП).</strong><br>
+        Время выполнения вычислений: <span class="formula">T = T_seq + T_par / N = T_1 / S(N)</span>. При одинаковом IPC время на 1 ядре обратно пропорционально частоте: <span class="formula">T_1 &prop; 1 / f</span>.<br>
+        Следовательно, суммарная относительная производительность процессора равна: <span class="formula">Perf &prop; f &times; S(N)</span>.<br>
+        Производительность чипа А: <span class="formula">Perf_A = 4.50 &times; 3.902 &approx; 17.56 усл. ед.</span><br>
+        Производительность чипа Б: <span class="formula">Perf_B = 3.00 &times; 4.923 &approx; 14.77 усл. ед.</span><br>
+        Отношение скорости: <span class="formula">Perf_A / Perf_B = 17.56 / 14.77 &approx; 1.189</span> (+18.9% в пользу Процессора А!).
+      </div>
+      <div class="step">
+        <strong>Шаг 3. Инженерно-архитектурный вывод.</strong><br>
+        Несмотря на то, что Процессор Б имеет в 2 раза больше ядер (16 против 8), он проигрывает Процессору А почти 19% скорости! Причина кроется в последовательной доле задачи (15% на линковку). Согласно закону Амдала, на 16 ядрах последовательная доля занимает <span class="formula">0.15 / 0.203125 = 73.8%</span> всего времени сборки. В течение этой фазы 15 ядер чипа Б простаивают, а оставшееся активное ядро работает на низкой частоте 3.0 ГГц, уступая ядру чипа А (4.5 ГГц). Для сборки проектов выгоднее чип с меньшим числом более быстрых ядер.
+      </div>
+    </div>
+  </div>
+
+  <!-- УПРАЖНЕНИЕ 1 -->
+  <div class="card">
+    <h2>Упражнение 1. Расчёт пределов ускорения серверных задач по закону Амдала</h2>
+    <p>Веб-сервер СУБД обрабатывает независимые транзакции. Профиль нагрузки: <span class="formula">p = 0.80</span> (80% времени занимают параллельные потоки чтения/записи, 20% — глобальные блокировки таблицы, журнал WAL и координация соединений).</p>
+    <div style="margin-top: 12px;">
+      <label for="hw_q1_calc">1.1. Рассчитайте ускорение S(N) для N = 2, 4, 8, 16, 64 ядер, а также теоретический предел ускорения S_max при N &rarr; &infin;:</label>
+      <textarea id="hw_q1_calc" name="hw_q1_calc" placeholder="Приведите формулы и численные значения:
+- S(2) = 1 / (0.20 + 0.80 / 2) = ...
+- S(4) = ...
+- S(8) = ...
+- S(16) = ...
+- S(64) = ...
+- S_max (при N -> бесконечность) = 1 / (1 - 0.80) = ..."></textarea>
+    </div>
+    <div style="margin-top: 12px;">
+      <label for="hw_q1_analysis">1.2. Оцените коэффициент полезного действия (эффективность параллелизации E(N) = S(N) / N) для 4 и 64 ядер. Какой процент вычислительной мощности 64-ядерного процессора расходуется впустую из-за 20% последовательного кода?</label>
+      <textarea id="hw_q1_analysis" name="hw_q1_analysis" placeholder="Рассчитайте E(4) и E(64), сопоставьте реальное ускорение с идеальным линейным ускорением (64x) и сделайте архитектурный вывод..."></textarea>
+    </div>
+  </div>
+
+  <!-- УПРАЖНЕНИЕ 2 -->
+  <div class="card">
+    <h2>Упражнение 2. Архитектурные компромиссы: IPC vs Частота vs Кэш 3D V-Cache</h2>
+    <p>Сравниваются два процессора для двух различных задач: 1) профессиональный рендеринг в Blender Cycles (чистые вычисления с плавающей запятой, SIMD/AVX); 2) физическая симуляция в динамичной игре с непредсказуемыми переходами и обращением к случайным массивам памяти.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Параметр</th>
+          <th>Процессор X (Флагман частоты)</th>
+          <th>Процессор Y (Большой кэш 3D V-Cache)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Конфигурация ядер</td>
+          <td>16 ядер / 32 потока</td>
+          <td>8 ядер / 16 потоков</td>
+        </tr>
+        <tr>
+          <td>Частота всех ядер</td>
+          <td>5.40 ГГц</td>
+          <td>4.60 ГГц</td>
+        </tr>
+        <tr>
+          <td>Кэш L3</td>
+          <td>32 МБ</td>
+          <td>96 МБ (технология прямого стекирования)</td>
+        </tr>
+        <tr>
+          <td>Потребление энергии</td>
+          <td>230 Вт (PL2)</td>
+          <td>70 Вт (реальное среднее)</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="margin-top: 12px;">
+      <label for="hw_q2_analysis">Объясните, почему Процессор X безоговорочно выиграет в задаче рендеринга Blender, но уступит Процессору Y в физической симуляции игры. Раскройте понятия: Compute-bound vs Cache/Memory-bound, задержка обращения к оперативной памяти (латентность DRAM vs SRAM), штраф промаха кэша (Cache Miss Penalty).</label>
+      <textarea id="hw_q2_analysis" name="hw_q2_analysis" placeholder="Подробный ответ с описанием механизмов работы конвейера, штрафов ожидания данных из ОЗУ и эффективности вычислений на ватт..."></textarea>
+    </div>
+  </div>
+
+  <!-- УПРАЖНЕНИЕ 3 -->
+  <div class="card">
+    <h2>Упражнение 3. Расчёт энергоэффективности и выбор кулера под лимиты мощности</h2>
+    <p>Процессор Intel Core i7 имеет паспортный базовый TDP (PL1) = 125 Вт и максимальный турбо-лимит (PL2) = 253 Вт при времени удержания Tau = 56 секунд. Системный администратор установил кулер с рассеиваемой мощностью до 130 Вт.</p>
+    <div style="margin-top: 12px;">
+      <label for="hw_q3_power">3.1. Что произойдёт с производительностью и тактовой частотой процессора при запуске непрерывного многопоточного рендеринга длительностью 30 минут? Опишите механизм термического троттлинга (Thermal Throttling) и переход от PL2 к PL1.</label>
+      <textarea id="hw_q3_power" name="hw_q3_power" placeholder="Опишите фазу PL2 (первые секунды), нагрев кристалла до 100°C (T_junction max), срабатывание защиты, сброс частот до базового TDP 125 Вт или ниже при нехватке обдува..."></textarea>
+    </div>
+    <div style="margin-top: 12px;">
+      <label for="hw_q3_cooling">3.2. Какую систему охлаждения (воздушный суперкулер с 2 секциями или СЖО 360 мм) необходимо установить, чтобы процессор удерживал частоты турбо-буста без потери производительности в длительных вычислениях?</label>
+      <textarea id="hw_q3_cooling" name="hw_q3_cooling" placeholder="Обоснуйте выбор системы охлаждения исходя из рассеиваемой мощности 253-280 Вт и допустимого уровня шума..."></textarea>
+    </div>
+  </div>
+
+  <!-- КРИТЕРИИ ОЦЕНИВАНИЯ -->
+  <div class="criteria-box">
+    <strong>Критерии оценивания домашнего задания (4-балльная шкала):</strong>
+    <ul style="margin: 6px 0 0 18px;">
+      <li><strong>Корректность (до 2 баллов):</strong> верные математические расчеты ускорений S(N) и предела S_max по закону Амдала в Упражнении 1; верный тепловой баланс и расчет мощностей в Упражнении 3.</li>
+      <li><strong>Объяснение (1 балл):</strong> глубокое физико-архитектурное раскрытие природы Compute-bound и Cache-bound нагрузок, влияния латентности памяти и механизмов троттлинга ЦП в Упражнениях 2 и 3.</li>
+      <li><strong>Проверка (1 балл):</strong> обоснованное решение инженерного кейса по подбору охлаждения и анализу эффективности параллелизации при 64 ядрах.</li>
+    </ul>
+    <div style="margin-top: 6px; font-size: 13px; color: #15803d;">Готовый отчёт сдаётся преподавателю в распечатанном виде или экспортом в PDF до установленного срока.</div>
+  </div>
+
+  <!-- ПАНЕЛЬ ДЕЙСТВИЙ (СКРЫВАЕТСЯ НА ПЕЧАТИ) -->
+  <div class="actions-card">
+    <div class="btn-row">
+      <button type="button" class="btn-primary" onclick="window.print()">🖨️ Печать / Сохранить в PDF</button>
+      <button type="button" class="btn-secondary" onclick="saveHw(true)">💾 Сохранить черновик</button>
+      <button type="button" class="btn-danger" onclick="confirmResetHw()">🗑️ Очистить форму</button>
+      <span class="status-msg status-saved" id="hw_save_status"></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const HW_STORAGE_KEY = 'arch_lab6_homework_data';
+  const hwFields = [
+    'hw_student_fio', 'hw_student_group', 'hw_work_date',
+    'hw_q1_calc', 'hw_q1_analysis', 'hw_q2_analysis',
+    'hw_q3_power', 'hw_q3_cooling'
+  ];
+
+  function autoResizeHw(el) {
+    el.style.height = 'auto';
+    el.style.height = (el.scrollHeight + 4) + 'px';
+  }
+
+  function saveHw(notify) {
+    const data = {};
+    hwFields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) data[id] = el.value;
+    });
+    try {
+      localStorage.setItem(HW_STORAGE_KEY, JSON.stringify(data));
+      if (notify) showHwStatus('Черновик успешно сохранён');
+    } catch (e) {
+      console.warn('HW save failed:', e);
+    }
+  }
+
+  function loadHw() {
+    try {
+      const raw = localStorage.getItem(HW_STORAGE_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      hwFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && data[id] !== undefined) {
+          el.value = data[id];
+          if (el.tagName.toLowerCase() === 'textarea') autoResizeHw(el);
+        }
+      });
+      showHwStatus('Черновик восстановлен');
+    } catch (e) {
+      console.warn('HW load failed:', e);
+    }
+  }
+
+  function confirmResetHw() {
+    if (confirm('Очистить форму домашнего задания? Все сохранённые ответы будут удалены.')) {
+      localStorage.removeItem(HW_STORAGE_KEY);
+      hwFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.value = '';
+          if (el.tagName.toLowerCase() === 'textarea') el.style.height = '';
+        }
+      });
+      showHwStatus('Форма очищена');
+    }
+  }
+
+  function showHwStatus(text) {
+    const el = document.getElementById('hw_save_status');
+    if (el) {
+      el.textContent = text;
+      el.style.display = 'inline';
+      setTimeout(() => { el.textContent = ''; }, 4000);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadHw();
+    document.querySelectorAll('textarea').forEach(ta => {
+      autoResizeHw(ta);
+      ta.addEventListener('input', () => {
+        autoResizeHw(ta);
+        saveHw(false);
+      });
+    });
+    document.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('input', () => saveHw(false));
+      inp.addEventListener('change', () => saveHw(false));
+    });
+  });
+</script>
+</body>
+</html>
