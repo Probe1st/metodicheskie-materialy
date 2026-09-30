@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Домашнее задание - Конструкция, подключение и инсталляция периферийных устройств — часть 1</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --ok: #059669;
+      --warn: #d97706;
+      --danger: #dc2626;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 940px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .card, .actions-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(20px, 3.2vw, 25px);
+      color: var(--accent);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .notice {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      font-size: 14.5px;
+      color: #92400e;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    input[type="text"], input[type="date"], select, textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.12);
+    }
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+    h2 {
+      font-size: 18px;
+      color: var(--accent);
+      margin-bottom: 12px;
+      border-bottom: 1.5px solid var(--accent-soft);
+      padding-bottom: 6px;
+    }
+    h3 {
+      font-size: 15.5px;
+      margin: 14px 0 6px;
+      color: #1e293b;
+    }
+    p, ul, ol { margin-bottom: 12px; }
+    ul, ol { padding-left: 20px; }
+    li { margin-bottom: 4px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 13.5px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-right: 10px;
+      margin-bottom: 8px;
+    }
+    .btn:hover { background: #1d4ed8; }
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #334155;
+    }
+    .btn-secondary:hover { background: #cbd5e1; }
+    .btn-danger {
+      background: var(--danger);
+    }
+    .btn-danger:hover { background: #b91c1c; }
+    .status-msg {
+      display: inline-block;
+      margin-left: 10px;
+      font-size: 13.5px;
+      font-weight: 500;
+    }
+    .status-ok { color: var(--ok); }
+    .status-err { color: var(--danger); }
+    .formula-badge {
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 13px;
+    }
+    @media print {
+      body { background: #fff; padding: 0; font-size: 11pt; }
+      .actions-card, .btn { display: none !important; }
+      .header-card, .student-card, .card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+        break-inside: avoid;
+        margin-bottom: 12pt;
+      }
+      input, select, textarea {
+        border: 1px solid #999 !important;
+        background: #fff !important;
+      }
+      ::placeholder {
+        color: transparent !important;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header-card">
+    <h1>Домашнее задание - Конструкция, подключение и инсталляция периферийных устройств — часть 1</h1>
+    <p><strong>Дисциплина:</strong> ОП.02 Архитектура аппаратных средств | Раздел 4. Практическая работа №4 (часть 1 из 3)</p>
+    <div class="notice">
+      Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+    </div>
+  </div>
+
+  <div class="student-card">
+    <h2>1. Регистрационные данные студента</h2>
+    <div class="student-grid">
+      <div>
+        <label for="hw_fio">ФИО обучающегося:</label>
+        <input type="text" id="hw_fio" placeholder="">
+      </div>
+      <div>
+        <label for="hw_group">Учебная группа:</label>
+        <input type="text" id="hw_group" placeholder="">
+      </div>
+      <div>
+        <label for="hw_date">Дата выполнения:</label>
+        <input type="date" id="hw_date">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. Постановка инженерной задачи</h2>
+    <p>Вам поручено спроектировать кабельную инфраструктуру и электрическую схему подключения рабочего места для архитектурно-строительного проектирования (CAD/BIM). Рабочая станция инженера включает:</p>
+    <ul>
+      <li><strong>Вычислительный блок:</strong> производительный ноутбук-рабочая станция с поддержкой интерфейсов USB4 / Thunderbolt 4 и портами питания USB Power Delivery (требуемая входная мощность под нагрузкой — 95 Вт).</li>
+      <li><strong>Дисплейный комплекс:</strong> профессиональный монитор 4K UHD ($3840 \times 2160$, частота 60 Гц, глубина цвета 10 бит HDR, формат RGB 4:4:4). В монитор встроен концентратор USB-C с проходным портом питания Power Delivery и видеовходами DisplayPort 1.4 и HDMI 2.0.</li>
+      <li><strong>Сетевое оборудование:</strong> подключение к корпоративной сети через порт Gigabit Ethernet (1000BASE-T) и сетевой кабель витой пары до настенной розетки RJ-45 (расстояние 15 метров).</li>
+      <li><strong>Внешнее хранилище:</strong> внешний скоростной SSD-накопитель емкостью 2 ТБ с шиной NVMe PCIe 3.0 x4 (пиковая потребляемая мощность 8.5 Вт, пиковая скорость передачи не менее 1500 Мбайт/с).</li>
+      <li><strong>Периферия ввода:</strong> графический планшет с чувствительностью к нажатию (USB 2.0/3.0, 5 В 500 мА) и комплект беспроводной клавиатуры с мышью с USB-радиомодулем 2.4 ГГц.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>3. Расчетная часть: Совместимость питания и пропускной способности</h2>
+
+    <h3>3.1. Расчет пропускной способности видеопотока 4K HDR</h3>
+    <p>Рассчитайте битрейт нескорректированного видеосигнала монитора по формуле:<br>
+    <span class="formula-badge">R_raw = H × V × bpp × f × 1.15 (коэффициент интервала гашения)</span></p>
+    <div style="margin-bottom: 12px;">
+      <label for="calc_bitrate">Результат расчета чистого битрейта (Гбит/с) и сопоставление со стандартами:</label>
+      <textarea id="calc_bitrate" placeholder=""></textarea>
+    </div>
+
+    <h3>3.2. Электрический расчет шины питания USB Power Delivery</h3>
+    <p>Проанализируйте энергобаланс: док-станция / монитор питаются от внешнего блока питания 180 Вт. На ноутбук требуется подать 95 Вт, накопитель NVMe потребляет 8.5 Вт, графический планшет 2.5 Вт, радиомодуль 0.5 Вт.</p>
+    <div style="margin-bottom: 12px;">
+      <label for="calc_power">Обоснование требуемого профиля USB PD, рабочего тока и необходимости микросхемы E-Marker:</label>
+      <textarea id="calc_power" placeholder=""></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>4. Спецификация кабельной коммутации и выбор стандартов</h2>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 25%;">Соединяемые узлы</th>
+          <th style="width: 25%;">Физический интерфейс и разъемы</th>
+          <th style="width: 30%;">Спецификация кабеля и категория</th>
+          <th style="width: 20%;">Предельная длина</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Ноутбук ↔ Монитор (док-станция)</td>
+          <td>USB Type-C ↔ Type-C</td>
+          <td>Thunderbolt 4 / USB4 40Gbps, 100W PD с чипом E-Marker</td>
+          <td>до 0.8–2.0 м</td>
+        </tr>
+        <tr>
+          <td>Монитор ↔ Накопитель NVMe SSD</td>
+          <td>USB Type-C ↔ Type-C</td>
+          <td>USB 3.2 Gen2 (10 Гбит/с) экранированный</td>
+          <td>до 1.0 м</td>
+        </tr>
+        <tr>
+          <td>Монитор (док) ↔ Корпоративная сеть</td>
+          <td>RJ-45 ↔ RJ-45</td>
+          <td>Витая пара U/UTP или F/UTP Cat.5e / Cat.6 (медь 24 AWG)</td>
+          <td>до 100 м (факт 15 м)</td>
+        </tr>
+        <tr>
+          <td>Монитор ↔ Графический планшет</td>
+          <td>USB Type-A ↔ USB Type-C</td>
+          <td>USB 2.0 / USB 3.0 с ферритовым кольцом</td>
+          <td>до 2.0 м</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top: 14px;">
+      <label for="cable_scheme">Текстовое описание схемы кабельной коммутации и топологии подключения:</label>
+      <textarea id="cable_scheme" placeholder="" style="min-height: 110px;"></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>5. Инженерный аудит рисков и техника безопасности</h2>
+    <div style="margin-bottom: 12px;">
+      <label for="safety_risks">Перечислите потенциальные аппаратные риски и меры их предотвращения (ESD-разряд при подключении металлического кабеля, перегрев блока питания, просадка напряжения VBUS, потеря кадров видео):</label>
+      <textarea id="safety_risks" placeholder="" style="min-height: 100px;"></textarea>
+    </div>
+  </div>
+
+  <div class="actions-card">
+    <h2>6. Сохранение и экспорт результатов</h2>
+    <button type="button" class="btn" onclick="saveHomework()">Сохранить в браузере</button>
+    <button type="button" class="btn btn-secondary" onclick="exportHomework()">Экспорт в JSON</button>
+    <button type="button" class="btn btn-secondary" onclick="window.print()">Версия для печати</button>
+    <button type="button" class="btn btn-danger" onclick="clearHomework()">Очистить форму</button>
+    <span id="save_status" class="status-msg"></span>
+  </div>
+
+</div>
+
+<script>
+  const STORAGE_KEY = 'top_hw13_save';
+
+  function saveHomework() {
+    const data = {
+      fio: document.getElementById('hw_fio').value,
+      group: document.getElementById('hw_group').value,
+      date: document.getElementById('hw_date').value,
+      calc_bitrate: document.getElementById('calc_bitrate').value,
+      calc_power: document.getElementById('calc_power').value,
+      cable_scheme: document.getElementById('cable_scheme').value,
+      safety_risks: document.getElementById('safety_risks').value,
+      timestamp: new Date().toISOString()
+    };
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      showStatus('Данные успешно сохранены в браузере!', true);
+    } catch (e) {
+      showStatus('Ошибка сохранения в локальное хранилище.', false);
+    }
+  }
+
+  function loadHomework() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (data.fio) document.getElementById('hw_fio').value = data.fio;
+      if (data.group) document.getElementById('hw_group').value = data.group;
+      if (data.date) document.getElementById('hw_date').value = data.date;
+      if (data.calc_bitrate) document.getElementById('calc_bitrate').value = data.calc_bitrate;
+      if (data.calc_power) document.getElementById('calc_power').value = data.calc_power;
+      if (data.cable_scheme) document.getElementById('cable_scheme').value = data.cable_scheme;
+      if (data.safety_risks) document.getElementById('safety_risks').value = data.safety_risks;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function exportHomework() {
+    saveHomework();
+    const raw = localStorage.getItem(STORAGE_KEY) || '{}';
+    const blob = new Blob([raw], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'HW13_Periferiya_Part1_' + (document.getElementById('hw_fio').value.replace(/\s+/g, '_') || 'student') + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function clearHomework() {
+    if (confirm('Вы уверены, что хотите полностью очистить форму домашнего задания? Все несохраненные данные будут удалены.')) {
+      localStorage.removeItem(STORAGE_KEY);
+      document.getElementById('hw_fio').value = '';
+      document.getElementById('hw_group').value = '';
+      document.getElementById('hw_date').value = '';
+      document.getElementById('calc_bitrate').value = '';
+      document.getElementById('calc_power').value = '';
+      document.getElementById('cable_scheme').value = '';
+      document.getElementById('safety_risks').value = '';
+      showStatus('Форма очищена.', false);
+    }
+  }
+
+  function showStatus(text, ok) {
+    const el = document.getElementById('save_status');
+    el.textContent = text;
+    el.className = 'status-msg ' + (ok ? 'status-ok' : 'status-err');
+    setTimeout(() => { el.textContent = ''; }, 4000);
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    loadHomework();
+    if (!document.getElementById('hw_date').value) {
+      document.getElementById('hw_date').valueAsDate = new Date();
+    }
+  });
+</script>
+
+</body>
+</html>

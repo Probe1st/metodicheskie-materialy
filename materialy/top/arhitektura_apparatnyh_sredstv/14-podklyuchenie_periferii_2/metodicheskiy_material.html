@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Методическое руководство: Конструкция, подключение и инсталляция периферийных устройств — часть 2</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --radius: 12px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+      --success: #059669;
+      --warn: #d97706;
+      --danger: #dc2626;
+      --code-bg: #0f172a;
+      --code-text: #f8fafc;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15.5px;
+      padding: 24px 16px;
+    }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(20px, 3.2vw, 26px);
+      color: var(--accent);
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+    h2 {
+      font-size: 19px;
+      color: var(--accent);
+      margin: 24px 0 12px;
+      border-bottom: 1.5px solid var(--accent-soft);
+      padding-bottom: 6px;
+    }
+    h3 {
+      font-size: 16px;
+      margin: 18px 0 8px;
+      color: #1e293b;
+    }
+    p, ul, ol { margin-bottom: 12px; }
+    ul, ol { padding-left: 22px; }
+    li { margin-bottom: 6px; }
+    .note {
+      background: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 14px 0;
+      font-size: 14.5px;
+    }
+    .note-warn {
+      background: #fef3c7;
+      border-left: 4px solid var(--warn);
+      color: #92400e;
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 14px 0;
+      font-size: 14.5px;
+    }
+    .note-danger {
+      background: #fee2e2;
+      border-left: 4px solid var(--danger);
+      color: #991b1b;
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 14px 0;
+      font-size: 14.5px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 9px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      background: #e2e8f0;
+      color: #0f172a;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 14px 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      line-height: 1.5;
+      margin: 14px 0;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #e2e8f0;
+      color: #334155;
+    }
+    @media (max-width: 480px) {
+      body { padding: 12px 8px; font-size: 14px; }
+      .card { padding: 16px; }
+      table { font-size: 12.5px; }
+      th, td { padding: 6px 8px; }
+    }
+    @media print {
+      body { background: #fff; padding: 0; font-size: 11pt; }
+      .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 12pt; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="card">
+    <h1>Методическое руководство: Конструкция, подключение и инсталляция периферийных устройств — часть 2</h1>
+    <p>Настоящее руководство предназначено для преподавателя при проведении практического занятия, посвященного архитектуре программной инсталляции периферийного оборудования, согласованию аппаратных абстракций операционной системы, расшифровке системных дескрипторов и идентификаторов шин, настройке профильных подсистем ввода-вывода (сетевой печати, виртуальных COM-портов, аудиоинтерфейсов прямого доступа и координатных манипуляторов), а также инструментальной диагностике сбоев инициализации устройств.</p>
+  </div>
+
+  <div class="card">
+    <h2>1. Регламент и хронометраж занятия</h2>
+    <p>Занятие рассчитано на 2 академических часа. В зависимости от учебного расписания и организационного формата занятие проводится по основному (90 минут) либо по сокращенному регламенту (ровно 60 минут).</p>
+
+    <h3>Основной регламент — 90 минут (5 + 25 + 15 + 35 + 6 + 4 = 90 мин)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 15%;">Этап и время</th>
+          <th style="width: 35%;">Дидактическое содержание</th>
+          <th style="width: 50%;">Действия преподавателя и методические акценты</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>1. Вводный инструктаж</strong><br><span class="badge">5 мин</span></td>
+          <td>Постановка инженерной проблемы, актуализация темы, проверка готовности ПК лаборатории.</td>
+          <td>Формулирует проблематику: «Почему ОС при подключении физического кабеля USB/Ethernet иногда мгновенно запускает устройство, а в других случаях выдает ошибку Код 28 или Код 43? Что происходит на уровне шины в первые 200 миллисекунд после замыкания контактов?»</td>
+        </tr>
+        <tr>
+          <td><strong>2. Архитектурный разбор</strong><br><span class="badge">25 мин</span></td>
+          <td>Теоретический фундамент: механизм PnP-энумерации, стек драйверов WDM/KMDF/UMDF, структура Hardware ID, драйверы классов USB, протоколы сетевой печати (RAW 9100 vs WSD).</td>
+          <td>Демонстрирует стек драйверов (Bus Driver &rarr; Function Driver &rarr; Filter Driver). Разбирает на проекторе синтаксис <code>INF</code>-файлов, цифровые подписи WHQL и каталоги <code>.cat</code>. Показывает различия между драйверами классов и вендорными пакетами.</td>
+        </tr>
+        <tr>
+          <td><strong>3. Интерактивный анализ коллизий</strong><br><span class="badge">15 мин</span></td>
+          <td>Методический прием «Предсказание до объяснения»: разбор аномалий дескрипторов и несовпадения драйверов.</td>
+          <td>Предъявляет студентам дамп <code>SetupAPI.dev.log</code> и вывод <code>Get-PnpDevice</code> с желтым восклицательным знаком. Студенты должны до объяснения выдвинуть гипотезу о корневой причине (отсутствие драйвера чипсета USB, блокировка неподписанного <code>.sys</code>, или аппаратный сбой энумерации).</td>
+        </tr>
+        <tr>
+          <td><strong>4. Лабораторный практикум</strong><br><span class="badge">35 мин</span></td>
+          <td>Индивидуальное выполнение практического протокола в рабочем листе <code>zanyatie.html</code> по 4 вариантам.</td>
+          <td>Распределяет студентов по 4 вариантам (МФУ RAW 9100, графический планшет с пером, аудиоинтерфейс UAC 2.0 ASIO, сканер ШК VCP). Консультирует по настройке виртуальных портов, буферов ASIO и параметров UART.</td>
+        </tr>
+        <tr>
+          <td><strong>5. Экспресс-разбор ошибок</strong><br><span class="badge">6 мин</span></td>
+          <td>Сравнение полученных результатов, анализ ловушек инсталляции.</td>
+          <td>Разбирает ключевые ошибки: почему сетевой принтер на порту WSD пропал после перезагрузки роутера; почему аудиоинтерфейс щелкает при буфере 64 сэмпла; почему сканер ШК печатает русские буквы кракозябрами в режиме HID.</td>
+        </tr>
+        <tr>
+          <td><strong>6. Подведение итогов</strong><br><span class="badge">4 мин</span></td>
+          <td>Фиксация результатов в localStorage/PDF, рефлексия, инструктаж по резервному заданию.</td>
+          <td>Проверяет сохранение данных студентами, формулирует критерии оценивания по 4-балльной шкале, озвучивает статус резервного дистанционного задания <code>domashnee_zadanie.html</code>.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Сокращенный регламент — 60 минут (4 + 18 + 30 + 5 + 3 = 60 мин)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 15%;">Этап и время</th>
+          <th style="width: 35%;">Дидактическое содержание</th>
+          <th style="width: 50%;">Действия преподавателя и методические акценты</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>1. Экспресс-вход</strong><br><span class="badge">4 мин</span></td>
+          <td>Быстрая формулировка инженерной цели, раздача заданий.</td>
+          <td>Сразу обозначает задачу: выполнить конфигурирование одного профильного периферийного узла и документально подтвердить корректность дескрипторов.</td>
+        </tr>
+        <tr>
+          <td><strong>2. Сжатая теория</strong><br><span class="badge">18 мин</span></td>
+          <td>Фокус на Hardware ID (VID/PID, VEN/DEV), системном хранилище Driver Store и ключевых ошибках Диспетчера устройств.</td>
+          <td>Исключаются исторические аспекты WDM; акцент делается сугубо на связке «Аппаратный ID &rarr; INF-файл &rarr; загрузка FDO в KMDF». Углубленные детали протокола IPP и архитектуры фильтр-драйверов переносятся в самостоятельное изучение (<code>lekciya.html</code>).</td>
+        </tr>
+        <tr>
+          <td><strong>3. Интенсивный практикум</strong><br><span class="badge">30 мин</span></td>
+          <td>Выполнение основного протокола инсталляции в <code>zanyatie.html</code>.</td>
+          <td>Студенты концентрируются на заполнении полей идентификации, настройке базовых интерфейсных параметров и тестировании функционала. Дополнительный расчет латентности или тонкая настройка суффиксов сканера выносятся на самоподготовку.</td>
+        </tr>
+        <tr>
+          <td><strong>4. Фронтальный контроль</strong><br><span class="badge">5 мин</span></td>
+          <td>Быстрый опрос по кодам ошибок (Код 10, 28, 43) и путям их устранения.</td>
+          <td>Выборочная проверка протоколов у 3–4 студентов, фиксация типичных промахов.</td>
+        </tr>
+        <tr>
+          <td><strong>5. Итог</strong><br><span class="badge">3 мин</span></td>
+          <td>Сохранение данных, экспорт в PDF.</td>
+          <td>Контроль сохранения локального хранилища браузера и завершение пары.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>2. Архитектура Plug and Play и стек драйверов</h2>
+    <p>Современная программная инсталляция периферии базируется на подсистеме Plug and Play (PnP), управляемой диспетчером PnP Manager ядра операционной системы.</p>
+    
+    <h3>Этапы PnP-энумерации (Enumeration Sequence):</h3>
+    <ol>
+      <li><strong>Физическое обнаружение (Bus Interrogation):</strong> при подключении устройства драйвер шины (Bus Driver, например, <code>usbhub3.sys</code> для USB или <code>pci.sys</code> для PCI Express) фиксирует изменение электрического состояния линии (подтяжка D+/D- к шине питания или изменение импеданса линии PCIe).</li>
+      <li><strong>Считывание дескрипторов (Descriptor Read):</strong> драйвер шины отправляет стандартный запрос <code>GET_DESCRIPTOR</code> (для USB — Device Descriptor по нулевому адресу канала Control Endpoint 0). Из полученного дескриптора извлекаются идентификаторы производителя (Vendor ID), модели (Product/Device ID), ревизии и класса устройства.</li>
+      <li><strong>Формирование Hardware ID и Compatible ID:</strong> драйвер шины генерирует аппаратно-зависимые строки идентификации и передает их в PnP Manager.</li>
+      <li><strong>Создание PDO (Physical Device Object):</strong> драйвер шины создает в дереве устройств объект PDO, представляющий физический слот или порт шины.</li>
+      <li><strong>Поиск драйвера в Driver Store:</strong> PnP Manager опрашивает реестр и базу системных драйверов (<code>DriverStore\FileRepository</code>), сопоставляя аппаратные строки со списком поддерживаемых устройств в <code>.inf</code>-файлах по принципу ранжирования совпадений (Driver Ranking).</li>
+      <li><strong>Загрузка функционального драйвера (FDO):</strong> загружается соответствующий бинарный драйвер (Functional Device Object), при необходимости над ним монтируются фильтр-драйверы верхнего и нижнего уровня (Upper/Lower Filter Drivers).</li>
+      <li><strong>Инициализация и запуск (IRP_MN_START_DEVICE):</strong> ядро ОС отправляет устройству пакет запроса ввода-вывода (IRP) на старт, выделяет ресурсы памяти, линий прерываний MSI/MSI-X или конечных точек USB, переводя устройство в рабочее состояние <code>D0</code>.</li>
+    </ol>
+
+    <div class="note">
+      <strong>Методическое указание:</strong> Обратите внимание студентов на разницу между <code>Hardware ID</code> (точный идентификатор конкретной железки) и <code>Compatible ID</code> (совместимый идентификатор, указывающий на стандартный класс, например, <code>USB\Class_03&SubClass_01</code> для клавиатуры HID). Если точный драйвер производителя не найден, ОС пытается задействовать драйвер класса по Compatible ID.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>3. Структура Hardware ID и базы идентификаторов</h2>
+    <p>Аппаратные идентификаторы стандартизированы международными консорциумами (PCI-SIG, USB-IF) и строго структурированы:</p>
+
+    <h3>1. Идентификаторы шины PCI / PCI Express:</h3>
+    <pre>PCI\VEN_xxxx&DEV_yyyy&SUBSYS_zzzzwwww&REV_rr</pre>
+    <ul>
+      <li><code>VEN_xxxx</code> (Vendor ID) — 16-битный шестнадцатеричный код производителя чипа, выдаваемый PCI-SIG (например, <code>10DE</code> — NVIDIA, <code>1002</code> — AMD/ATI, <code>8086</code> — Intel, <code>10EC</code> — Realtek).</li>
+      <li><code>DEV_yyyy</code> (Device ID) — код конкретной микросхемы, назначаемый производителем (например, <code>1F08</code> — GeForce RTX 2060).</li>
+      <li><code>SUBSYS_zzzzwwww</code> (Subsystem ID) — идентификатор конечного производителя платы/устройства (Subsystem Vendor ID + Subsystem Model ID), например, плата от ASUS, MSI или Gigabyte на том же видеочипе.</li>
+      <li><code>REV_rr</code> (Revision ID) — аппаратная ревизия кремниевого кристалла.</li>
+    </ul>
+
+    <h3>2. Идентификаторы шины USB:</h3>
+    <pre>USB\VID_xxxx&PID_yyyy&REV_zzzz</pre>
+    <ul>
+      <li><code>VID_xxxx</code> (Vendor ID) — 16-битный идентификатор компании-разработчика USB-устройства, зарегистрированный в USB-IF (например, <code>046D</code> — Logitech, <code>04A9</code> — Canon, <code>045E</code> — Microsoft, <code>0FD9</code> — Elgato).</li>
+      <li><code>PID_yyyy</code> (Product ID) — код модели устройства.</li>
+      <li><code>REV_zzzz</code> — номер версии прошивки/устройства в формате BCD (Binary-Coded Decimal).</li>
+    </ul>
+
+    <div class="note-warn">
+      <strong>Типичная ошибка студентов:</strong> Попытка искать драйвер исключительно по названию устройства на корпусе («черная мышь без опознавательных знаков» или «безымянный сканер»). Педагогическая задача — приучить студентов сразу открывать вкладку «Сведения» &rarr; «ИД оборудования» и использовать открытые репозитории <code>pci-ids.ucw.cz</code> и <code>usb-ids.gowdy.us</code>.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>4. Цифровая подпись WHQL и уровни изоляции драйверов</h2>
+    <p>Для предотвращения крахов ядра операционной системы (BSOD) и внедрения руткитов корпорация Microsoft с 64-битных версий Windows NT внедрила обязательную проверку подписи драйверов (Driver Signature Enforcement — DSE).</p>
+    
+    <ul>
+      <li><strong>WHQL (Windows Hardware Quality Labs):</strong> сертификационная лаборатория Microsoft. Разработчик драйвера передает образ на тестирование в специальном стенде HLK (Hardware Lab Kit). После успешного прохождения автоматизированных стресс-тестов на стабильность Microsoft генерирует цифровой сертификат и файл каталога безопасности <code>.cat</code>, связывающий хэши <code>.inf</code>, <code>.sys</code> и <code>.dll</code>.</li>
+      <li><strong>KMDF (Kernel-Mode Driver Framework):</strong> среда выполнения драйверов режима ядра (Ring 0). Драйвер имеет прямой доступ к физической памяти и регистрам устройств. Любая необработанная ошибка или обращение по неверному указателю вызывает критический останов ядра (Bug Check / BSOD).</li>
+      <li><strong>UMDF (User-Mode Driver Framework):</strong> среда выполнения драйверов в пользовательском пространстве (Ring 3). Драйвер функционирует как изолированный системный процесс <code>WUDFHost.exe</code>. При сбое драйвера перезапускается только процесс хоста, а сама операционная система продолжает работать без падения. В UMDF сегодня выносятся протоколы датчиков, программных USB-устройств, считывателей смарт-карт и некоторых принтеров.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>5. Стандартные классы USB (USB Class Drivers)</h2>
+    <p>Если устройство строго придерживается спецификаций USB Implementers Forum, операционная система не требует установки стороннего ПО и задействует встроенные стековые драйверы классов:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Класс (Base Class)</th>
+          <th>Код</th>
+          <th>Назначение и драйвер ОС</th>
+          <th>Особенности инсталляции и архитектурные ограничения</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>USB HID (Human Interface Device)</strong></td>
+          <td><code>03h</code></td>
+          <td>Мыши, клавиатуры, геймпады, простые сканеры ШК.<br>Драйвер: <code>hidusb.sys</code></td>
+          <td>Передача данных короткими отчетами (Report Descriptor). Ограничение частоты опроса (Polling Rate) по умолчанию до 1000 Гц. Для сложной макро-периферии требуется вендорный фильтр-драйвер.</td>
+        </tr>
+        <tr>
+          <td><strong>USB Mass Storage (MSC)</strong></td>
+          <td><code>08h</code></td>
+          <td>Флеш-накопители, кардридеры, внешние SSD.<br>Драйвер: <code>usbstor.sys</code> (BOT) / <code>uaspstor.sys</code> (UASP)</td>
+          <td>Протокол BOT (Bulk-Only Transport) обрабатывает команды последовательно по одной. Протокол UAS (USB Attached SCSI Protocol) поддерживает аппаратные очереди команд NCQ до 32 потоков.</td>
+        </tr>
+        <tr>
+          <td><strong>USB Video Class (UVC)</strong></td>
+          <td><code>0Eh</code></td>
+          <td>Веб-камеры, карты захвата видеосигнала.<br>Драйвер: <code>usbvideo.sys</code></td>
+          <td>Передача изохронного несжатого потока (YUY2/NV12) или сжатого MJPEG/H.264. Не требует сторонних утилит, поддерживается напрямую через Media Foundation.</td>
+        </tr>
+        <tr>
+          <td><strong>USB Audio Class (UAC 1.0 / 2.0)</strong></td>
+          <td><code>01h</code></td>
+          <td>Микрофоны, ЦАП, звуковые интерфейсы.<br>Драйвер: <code>usbaudio.sys</code> / <code>usbaudio2.sys</code></td>
+          <td>UAC 1.0 ограничен полосой Full-Speed (12 Мбит/с, 96 кГц 24-бит стерео). UAC 2.0 работает на High-Speed (480 Мбит/с, до 384 кГц 32-бит многоканально). Для сверхнизкой задержки требует драйвера ASIO в обход микшера ОС.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>6. Сетевая печать: протоколы и архитектура драйверов</h2>
+    <p>Сетевая печать кардинально отличается от прямого подключения по USB логикой маршрутизации пакетов и взаимодействия с подсистемой печати Windows Spooler (<code>spoolsv.exe</code>):</p>
+    <ul>
+      <li><strong>RAW 9100 (HP JetDirect):</strong> передача непрерывного потока готовых данных принтера напрямую на TCP-порт 9100. Предельно прост, высокопроизводителен, не содержит накладных расходов. Требует фиксированного статического IP-адреса устройства.</li>
+      <li><strong>LPR / LPD (RFC 1179):</strong> классический сетевой протокол UNIX/BSD (порт 515). Требует указания имени очереди печати (например, <code>lp</code>, <code>raw</code>, <code>print</code>). Используется в гетерогенных сетях.</li>
+      <li><strong>IPP (Internet Printing Protocol, RFC 2910 / RFC 8011):</strong> современный стандарт на базе HTTP/HTTPS (порт 631). Поддерживает шифрование TLS, двухсторонний обмен статусом, аутентификацию пользователей и стандарты печати без драйверов (Apple AirPrint, Mopria).</li>
+      <li><strong>WSD (Web Services for Devices):</strong> протокол автоматического обнаружения на базе мультикаста WS-Discovery (порт 3702 UDP).</li>
+    </ul>
+
+    <div class="note-danger">
+      <strong>Критическая архитектурная ловушка WSD:</strong> По умолчанию Windows стремится подключить любой обнаруженный в локальной подсети принтер через WSD-порт. Однако при динамическом получении сетевого адреса по DHCP или при сегментации сети на VLAN мультикаст-пакеты блокируются маршрутизаторами, в результате чего принтер переходит в статус «Не в сети» (Offline), хотя физически пингуется. Корпоративный стандарт настройки — <em>строго статический IP-адрес и стандартный порт TCP/IP RAW 9100</em>.
+    </div>
+
+    <h3>Сравнение архитектурных драйверов печати:</h3>
+    <ul>
+      <li><strong>PCL6 (PCL XL):</strong> объектно-ориентированный протокол Hewlett-Packard. Быстро обрабатывает офисную графику, шрифты и таблицы. Компактный размер спул-файла, минимальная нагрузка на сеть.</li>
+      <li><strong>PostScript 3:</strong> язык описания страниц корпорации Adobe. Абсолютная математическая точность векторных контуров, строгое соответствие цветоделения CMYK, стандарт полиграфии и САПР. Требует мощного процессора и памяти на самом принтере для растрирования (RIP).</li>
+      <li><strong>Universal Print Driver (UPD):</strong> единый программный пакет, опрашивающий MIB-таблицы принтера по SNMP и динамически активирующий нужные функции (дуплекс, финишеры, лотки). Идеален для централизованного развертывания через Active Directory GPO.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>7. Инструменты диагностики ОС и устранение типовых сбоев</h2>
+    
+    <h3>Интерпретация критических кодов ошибок Диспетчера устройств:</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 15%;">Код ошибки</th>
+          <th style="width: 35%;">Причина возникновения</th>
+          <th style="width: 50%;">Инженерный алгоритм устранения</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Код 10</strong><br><code>CM_PROB_FAILED_START</code></td>
+          <td>Устройство не может запуститься. Драйвер загружен, но устройство вернуло аппаратную ошибку на запрос <code>IRP_MN_START_DEVICE</code>.</td>
+          <td>Аппаратная несовместимость, конфликт ресурсов ввода-вывода/прерываний, повреждение прошивки периферии либо подача неверных инициализационных параметров драйвером. Проверить кабель, питание и обновить микрокод (firmware).</td>
+        </tr>
+        <tr>
+          <td><strong>Код 28</strong><br><code>CM_PROB_FAILED_INSTALL</code></td>
+          <td>Драйвер для устройства не установлен. В системе отсутствует INF-файл, содержащий данный Hardware ID.</td>
+          <td>Определить Hardware ID (VEN/DEV или VID/PID), загрузить официальный пакет производителя, распаковать <code>.inf</code> и установить через <code>pnputil /add-driver *.inf /install</code>.</td>
+        </tr>
+        <tr>
+          <td><strong>Код 43</strong><br><code>CM_PROB_FAILED_POSTING</code></td>
+          <td>Сбой дескриптора устройства (Device Descriptor Request Failed). Контроллер шины не смог получить базовый дескриптор.</td>
+          <td>Физический дефект сигнальных линий D+/D-, просадка напряжения по шине +5V, чрезмерная длина USB-кабеля (&gt;3 м без повторителя), плохой контакт или выход из строя приемопередатчика PHY периферии.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Консольные команды администратора:</h3>
+    <pre># PowerShell: опрос подключенных устройств с проблемами конфигурации
+Get-PnpDevice -Status Error,Degraded,Unknown | Select-Object FriendlyName, InstanceId, Status, Class
+
+# Добавление и принудительная инсталляция драйвера из хранилища пакетов
+pnputil.exe /add-driver "D:\Drivers\Printer\*.inf" /install
+
+# Просмотр журналов процесса инсталляции оборудования (источник истины при ошибках!)
+Get-Content C:\Windows\INF\setupapi.dev.log -Tail 100
+
+# Диагностика в Linux: опрос топологии USB и шины PCIe
+lsusb -tv
+lspci -nnk
+dmesg | grep -E -i "usb|error|firmware" | tail -n 30</pre>
+  </div>
+
+  <div class="card">
+    <h2>8. Педагогические приемы и разбор типичных студенческих заблуждений</h2>
+    
+    <h3>Прием «Предсказание до объяснения» (Prediction before Explanation):</h3>
+    <p>Перед демонстрацией решения студентам предъявляется проблемный кейс: <em>«Мы перевели сканер штрихкодов из режима эмуляции клавиатуры (HID) в режим Virtual COM Port. В Диспетчере устройств появился порт COM3 с желтым значком. Что произойдет, если сейчас отсканировать штрихкод в открытый блокнот?»</em></p>
+    <ul>
+      <li>Большинство студентов предполагают, что текст продолжит печататься или выдаст ошибку в окно.</li>
+      <li><strong>Факт:</strong> в блокноте ничего не произойдет, так как режим VCP не эмулирует нажатия клавиш клавиатуры, а отправляет байты в буфер последовательного порта. Для чтения данных требуется открыть сессию в терминале (PuTTY / TeraTerm) или специализированном складском ПО.</li>
+    </ul>
+
+    <h3>Чек-лист типичных ошибок студентов при выполнении работы:</h3>
+    <ol>
+      <li><strong>Путаница между HID и COM:</strong> непонимание, почему промышленный сканер ШК в режиме клавиатуры портит символы при включенной русской раскладке клавиатуры в ОС (символы штрихкода маппятся на русские буквы, например, <code>460123</code> превращается в кракозябры, если задействованы префиксы с буквами).</li>
+      <li><strong>Игнорирование аудиобуфера ASIO:</strong> установка минимального буфера 16–32 сэмпла на слабом ПК, что приводит к переполнению очередей прерываний DPC Latency и непрерывным щелчкам (Buffer Underrun).</li>
+      <li><strong>Конфликт Windows Ink:</strong> не отключен механизм Windows Ink при работе с профессиональным графическим софтом, из-за чего удержание пера на месте интерпретируется операционной системой как нажатие правой кнопки мыши с отрисовкой круговой анимации.</li>
+      <li><strong>Слепая вера в автоматический поиск драйверов Windows Update:</strong> отсутствие навыка ручной распаковки пакета драйверов и принудительной подстановки INF-файла при отсутствии доступа к сети интернет.</li>
+    </ol>
+  </div>
+
+</div>
+</body>
+</html>

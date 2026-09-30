@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Презентация: Конструкция, подключение и инсталляция периферийных устройств — часть 1</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #161e2e;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-secondary: #818cf8;
+      --line: #2d3748;
+      --border-radius: 16px;
+      --success: #34d399;
+      --warn: #fbbf24;
+      --danger: #f87171;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+    }
+    .pres-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      position: relative;
+    }
+    .slide {
+      display: none;
+      flex: 1;
+      padding: 40px 60px;
+      overflow-y: auto;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .slide.active {
+      display: flex;
+    }
+    .slide-1 {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      background: radial-gradient(circle at center, #1e293b 0%, #0b0f19 100%);
+    }
+    .slide-1 h1 {
+      font-size: clamp(30px, 5vw, 56px);
+      line-height: 1.25;
+      color: #38bdf8;
+      font-weight: 800;
+      max-width: 1100px;
+      letter-spacing: -0.02em;
+    }
+    .slide-title {
+      font-size: clamp(22px, 3.2vw, 32px);
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 2px solid var(--line);
+      padding-bottom: 12px;
+    }
+    .slide-content {
+      font-size: clamp(15px, 1.7vw, 19px);
+      line-height: 1.6;
+      color: #e2e8f0;
+      max-width: 1300px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-top: 14px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 14px;
+    }
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 14px;
+    }
+    .box {
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: var(--border-radius);
+      padding: 18px 20px;
+    }
+    .box h4 {
+      color: var(--accent);
+      font-size: 17px;
+      margin-bottom: 8px;
+    }
+    .box p {
+      color: #cbd5e1;
+      font-size: 14.5px;
+      line-height: 1.5;
+    }
+    .box ul {
+      padding-left: 18px;
+      font-size: 14px;
+      color: #cbd5e1;
+    }
+    .box li { margin-bottom: 4px; }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .badge-blue { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+    .badge-green { background: rgba(52, 211, 153, 0.2); color: #34d399; }
+    .badge-amber { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+    .badge-red { background: rgba(248, 113, 113, 0.2); color: #f87171; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+      background: var(--card-bg);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 14px;
+      text-align: left;
+    }
+    th {
+      background: #1e293b;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .code-box {
+      background: #0f172a;
+      border-left: 4px solid var(--accent);
+      padding: 12px 16px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 14px;
+      color: #38bdf8;
+      border-radius: 0 8px 8px 0;
+      margin: 12px 0;
+    }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 30px;
+      background: #0f172a;
+      border-top: 1px solid var(--line);
+      z-index: 100;
+    }
+    .controls-btns {
+      display: flex;
+      gap: 12px;
+    }
+    .nav-btn {
+      background: var(--accent);
+      color: #0f172a;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: opacity 0.2s;
+    }
+    .nav-btn:hover { opacity: 0.9; }
+    .nav-btn:disabled {
+      background: #334155;
+      color: #64748b;
+      cursor: not-allowed;
+    }
+    .slide-counter {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .meme-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      max-height: 70vh;
+    }
+    .meme-img {
+      max-height: 48vh;
+      max-width: 90%;
+      border-radius: 12px;
+      border: 2px solid var(--line);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      object-fit: contain;
+    }
+    .attribution {
+      font-size: 12.5px;
+      color: #94a3b8;
+      line-height: 1.4;
+      text-align: center;
+      max-width: 800px;
+      background: rgba(15, 23, 42, 0.6);
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+    }
+  </style>
+</head>
+<body>
+
+<div class="pres-container">
+
+  <!-- СЛАЙД 1: СТРОГО ТОЛЬКО НАЗВАНИЕ ТЕМЫ КРУПНЫМ ШРИФТОМ -->
+  <div class="slide slide-1 active" id="slide-1">
+    <h1>Раздел 4. Практическая работа №4. Конструкция, подключение и инсталляция периферийных устройств — часть 1 из 3</h1>
+  </div>
+
+  <!-- СЛАЙД 2: АРХИТЕКТУРА И ЗАДАЧИ ФИЗИЧЕСКОЙ КОММУТАЦИИ -->
+  <div class="slide" id="slide-2">
+    <div class="slide-title">1. Цели практической работы и физический уровень периферии</div>
+    <div class="slide-content">
+      <p>Переход от классификации устройств к физической и электрической интеграции оборудования:</p>
+      <div class="grid-4">
+        <div class="box">
+          <span class="badge badge-blue">Интерфейсы</span>
+          <h4>Шины передачи</h4>
+          <p>USB 2.0 / 3.2 / USB4, Thunderbolt 3/4, DisplayPort 1.4/2.1, HDMI 2.0/2.1, Ethernet RJ-45, TRS/TRRS.</p>
+        </div>
+        <div class="box">
+          <span class="badge badge-amber">Энергия</span>
+          <h4>Электропитание</h4>
+          <p>Стандарты USB Power Delivery 3.1 (до 240 Вт) и Power over Ethernet IEEE 802.3af/at/bt (до 90 Вт).</p>
+        </div>
+        <div class="box">
+          <span class="badge badge-green">Безопасность</span>
+          <h4>ESD и Hot-plug</h4>
+          <p>Защита кристаллов трансиверов от статических разрядов 15–20 кВ и архитектура разнесенных контактов.</p>
+        </div>
+        <div class="box">
+          <span class="badge badge-red">Практика</span>
+          <h4>Проект коммутации</h4>
+          <p>Расчет кабельного баланса, пропускной способности видеопотоков и предпусковой чек-лист инженера.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 3: ЭВОЛЮЦИЯ ШИНЫ USB -->
+  <div class="slide" id="slide-3">
+    <div class="slide-title">2. Эволюция интерфейса USB: от 1.5 Мбит/с до 80 Гбит/с</div>
+    <div class="slide-content">
+      <table>
+        <thead>
+          <tr>
+            <th>Поколение стандарта</th>
+            <th>Маркетинговое обозначение</th>
+            <th>Сырая скорость (Line Rate)</th>
+            <th>Эффективная пропускная способность</th>
+            <th>Кодирование</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>USB 2.0 High-Speed</td>
+            <td>Hi-Speed USB</td>
+            <td>480 Мбит/с</td>
+            <td>до 43 Мбайт/с (344 Мбит/с)</td>
+            <td>NRZI, полудуплекс</td>
+          </tr>
+          <tr>
+            <td>USB 3.2 Gen1 (бывш. USB 3.0)</td>
+            <td>SuperSpeed USB 5Gbps</td>
+            <td>5 Гбит/с</td>
+            <td>до 450 Мбайт/с</td>
+            <td>8b/10b (оверхед 20%)</td>
+          </tr>
+          <tr>
+            <td>USB 3.2 Gen2 (бывш. USB 3.1)</td>
+            <td>SuperSpeed USB 10Gbps</td>
+            <td>10 Гбит/с</td>
+            <td>до 1050 Мбайт/с</td>
+            <td>128b/132b (оверхед ~3%)</td>
+          </tr>
+          <tr>
+            <td>USB 3.2 Gen2x2</td>
+            <td>SuperSpeed USB 20Gbps</td>
+            <td>20 Гбит/с (2 линии по 10G)</td>
+            <td>до 2050 Мбайт/с</td>
+            <td>128b/132b (только Type-C)</td>
+          </tr>
+          <tr>
+            <td>USB4 Gen 3x2 / TB4</td>
+            <td>USB4 40Gbps / TB4</td>
+            <td>40 Гбит/с (2 линии по 20G)</td>
+            <td>до 3200 Мбайт/с (PCIe + DP)</td>
+            <td>128b/132b, туннелирование</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 4: АНАТОМИЯ РАЗЪЕМА USB TYPE-C -->
+  <div class="slide" id="slide-4">
+    <div class="slide-title">3. Физическая конструкция разъема USB Type-C (24 контакта)</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="box">
+          <h4>Зеркальная симметрия разъема</h4>
+          <p>Разъем симметричен относительно вращения на 180°: 12 контактов в ряду A и 12 в ряду B.</p>
+          <ul>
+            <li><strong>GND (A1, A12, B1, B12):</strong> длинные контакты первой очереди (заземление корпусов).</li>
+            <li><strong>VBUS (A4, A9, B4, B9):</strong> силовые контакты второй очереди (до 48 В, 5 А).</li>
+            <li><strong>CC1 / CC2 (A5, B5):</strong> определение стороны подключения, роли Host/Device и пакеты USB PD.</li>
+            <li><strong>D+ / D- (A6, A7, B6, B7):</strong> совместимость со стандартом USB 2.0.</li>
+            <li><strong>TX / RX (4 пары):</strong> высокоскоростные дифференциальные линии SuperSpeed / DP / PCIe.</li>
+            <li><strong>SBU1 / SBU2 (A8, B8):</strong> служебные линии AUX для DisplayPort Alt Mode.</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>Роль микросхемы E-Marker (Electronic Marker)</h4>
+          <div class="code-box">
+Host (DFP) --[VCONN (5V, Pin B5)]--> E-Marker Chip
+Host &lt;--[VDM Packets over CC1]-- E-Marker: 5A, 48V EPR, TB4
+          </div>
+          <p>• E-Marker встроен в гильзу кабеля и питается напряжением 5 В по неактивному контакту CC2 (VCONN).</p>
+          <p>• Без E-Marker контроллер USB PD строго ограничивает ток до <strong>3 Ампер (макс. 60 Вт)</strong>, блокируя быструю зарядку ноутбуков мощностью 65–140 Вт.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 5: ТЕХНОЛОГИЯ THUNDERBOLT 3/4 -->
+  <div class="slide" id="slide-5">
+    <div class="slide-title">4. Thunderbolt 3 и Thunderbolt 4: архитектура туннелирования</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="box">
+          <h4>Принцип пакетного туннелирования шин</h4>
+          <p>Контроллер Thunderbolt инкапсулирует пакеты различных протоколов в единый высокоскоростной поток данных 40 Гбит/с:</p>
+          <ul>
+            <li><strong>PCIe Tunneling:</strong> прямое подключение внешних дискретных видеокарт (eGPU), скоростных RAID NVMe накопителей со скоростями до 32 Гбит/с (PCIe 3.0 x4).</li>
+            <li><strong>DisplayPort Tunneling:</strong> независимая передача двух видеопотоков 4K@60Hz или одного 8K@60Hz.</li>
+            <li><strong>USB 3.2 Data:</strong> выделенный канал данных до 10 Гбит/с.</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>Thunderbolt 3 vs Thunderbolt 4: жесткие требования TB4</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>Параметр</th>
+                <th>Thunderbolt 3</th>
+                <th>Thunderbolt 4</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Мин. скорость PCIe</td>
+                <td>16 Гбит/с (PCIe x2)</td>
+                <td><strong>32 Гбит/с (PCIe x4)</strong></td>
+              </tr>
+              <tr>
+                <td>Внешние дисплеи</td>
+                <td>1 дисплей 4K</td>
+                <td><strong>2 дисплея 4K@60Hz или 1×8K</strong></td>
+              </tr>
+              <tr>
+                <td>Защита памяти DMA</td>
+                <td>Опционально</td>
+                <td><strong>Обязательно Intel VT-d / AMD-Vi</strong></td>
+              </tr>
+              <tr>
+                <td>Длина пассивного кабеля</td>
+                <td>до 0.5–0.8 м</td>
+                <td><strong>2.0 м универсальный кабель</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 6: DISPLAYPORT 1.4 И 2.1 -->
+  <div class="slide" id="slide-6">
+    <div class="slide-title">5. Цифровой интерфейс DisplayPort: HBR3, UHBR и MST Daisy Chain</div>
+    <div class="slide-content">
+      <div class="grid-3">
+        <div class="box">
+          <h4>DisplayPort 1.4a</h4>
+          <p>• Пропускная способность HBR3: 32.4 Гбит/с (чистая полоса данных <strong>25.92 Гбит/с</strong>).</p>
+          <p>• 4K@120Hz 8-bit RGB без потерь.</p>
+          <p>• Поддержка сжатия <strong>DSC 1.2a</strong> (Display Stream Compression) без визуальных артефактов (коэффициент до 3:1).</p>
+        </div>
+        <div class="box">
+          <h4>DisplayPort 2.1</h4>
+          <p>• Стандарты UHBR10 / UHBR13.5 / UHBR20: сырая полоса до 80 Гбит/с (чистая <strong>77.37 Гбит/с</strong>).</p>
+          <p>• Передача 8K@60Hz 10-bit HDR и 4K@240Hz <strong>без сжатия</strong>.</p>
+          <p>• Кабельные классы DP40 и DP80 с экранированием пар.</p>
+        </div>
+        <div class="box">
+          <h4>Топология Daisy Chain (MST)</h4>
+          <p>• Подключение нескольких мониторов по цепочке: <strong>ПК → DP-In [Монитор 1] DP-Out → DP-In [Монитор 2]</strong>.</p>
+          <p>• Суммарная пропускная способность всех мониторов не должна превышать полосу кабеля от ПК.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 7: HDMI 2.0 ПРОТИВ HDMI 2.1 -->
+  <div class="slide" id="slide-7">
+    <div class="slide-title">6. Сравнение интерфейсов: HDMI 2.0 против HDMI 2.1</div>
+    <div class="slide-content">
+      <table>
+        <thead>
+          <tr>
+            <th>Характеристика</th>
+            <th>HDMI 2.0b (TMDS)</th>
+            <th>HDMI 2.1a (FRL)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Физическая сигнализация</td>
+            <td>TMDS (3 канала данных + 1 канал тактовой частоты)</td>
+            <td>FRL (Fixed Rate Link: 4 канала данных со встроенным клоком)</td>
+          </tr>
+          <tr>
+            <td>Пропускная способность</td>
+            <td>18.0 Гбит/с (эффективная <strong>14.4 Гбит/с</strong>)</td>
+            <td>48.0 Гбит/с (эффективная <strong>42.66 Гбит/с</strong>)</td>
+          </tr>
+          <tr>
+            <td>Макс. режим без сжатия</td>
+            <td>4K@60Hz (8-bit RGB 4:4:4)</td>
+            <td>4K@120Hz 10-bit HDR или 8K@60Hz (с DSC)</td>
+          </tr>
+          <tr>
+            <td>Канал возврата звука</td>
+            <td>ARC (стерео PCM или сжатый 5.1, полоса ~1 Мбит/с)</td>
+            <td>eARC (несжатый 24-бит 192 кГц 7.1, Dolby Atmos, 37 Мбит/с)</td>
+          </tr>
+          <tr>
+            <td>Игровые технологии</td>
+            <td>Фиксированная частота кадров</td>
+            <td>VRR (Variable Refresh Rate), ALLM, QFT</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 8: USB POWER DELIVERY 3.1 -->
+  <div class="slide" id="slide-8">
+    <div class="slide-title">7. Спецификации питания USB Power Delivery: SPR и EPR до 240W</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="box">
+          <h4>Standard Power Range (SPR): до 100 Вт</h4>
+          <p>Базовый стандарт USB PD 3.0 оперирует фиксированными профилями:</p>
+          <ul>
+            <li><strong>5 В / 9 В / 15 В:</strong> ток до 3.0 А (периферия, смартфоны, планшеты).</li>
+            <li><strong>20 В:</strong> ток до 3.0 А (до 60 Вт без E-Marker).</li>
+            <li><strong>20 В / 5.0 А:</strong> максимальная мощность 100 Вт (требуется кабель с чипом E-Marker).</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>Extended Power Range (EPR): до 240 Вт</h4>
+          <p>Стандарт USB PD 3.1 для игровых ноутбуков и мощных рабочих станций:</p>
+          <ul>
+            <li><strong>28 В / 5.0 А:</strong> до 140 Вт (например, Apple MacBook Pro 16).</li>
+            <li><strong>36 В / 5.0 А:</strong> до 180 Вт.</li>
+            <li><strong>48 В / 5.0 А:</strong> максимальная мощность 240 Вт.</li>
+            <li><strong>AVS (Adjustable Voltage Supply):</strong> регулировка напряжения от 15 В до 48 В с шагом 100 мВ.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="code-box">
+Внимание: Кабели для режима EPR обязаны иметь усиленную изоляцию (до 50 В) и специальный маркер в дескрипторе E-Marker!
+      </div>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 9: СЕТЕВЫЕ СТАНДАРТЫ POE -->
+  <div class="slide" id="slide-9">
+    <div class="slide-title">8. Питание по витой паре: Power over Ethernet (IEEE 802.3)</div>
+    <div class="slide-content">
+      <table>
+        <thead>
+          <tr>
+            <th>Стандарт</th>
+            <th>Обозначение</th>
+            <th>Мощность на порту PSE</th>
+            <th>Мощность на устройстве PD</th>
+            <th>Витые пары</th>
+            <th>Типовая периферия</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>IEEE 802.3af</td>
+            <td>PoE (Type 1)</td>
+            <td>15.4 Вт</td>
+            <td>12.95 Вт</td>
+            <td>2 пары (350 мА)</td>
+            <td>Базовые IP-телефоны, датчики, фиксированные камеры</td>
+          </tr>
+          <tr>
+            <td>IEEE 802.3at</td>
+            <td>PoE+ (Type 2)</td>
+            <td>30.0 Вт</td>
+            <td>25.5 Вт</td>
+            <td>2 пары (600 мА)</td>
+            <td>Поворотные PTZ-камеры, точки доступа Wi-Fi 6, видеопанели</td>
+          </tr>
+          <tr>
+            <td>IEEE 802.3bt</td>
+            <td>PoE++ (Type 3)</td>
+            <td>60.0 Вт</td>
+            <td>51.0 Вт</td>
+            <td>4 пары (600 мА)</td>
+            <td>Мощные уличные PTZ-камеры с обогревом, тонкие клиенты</td>
+          </tr>
+          <tr>
+            <td>IEEE 802.3bt</td>
+            <td>PoE++ (Type 4)</td>
+            <td>90.0–100 Вт</td>
+            <td>71.3–90.0 Вт</td>
+            <td>4 пары (960 мА)</td>
+            <td>Светодиодные панели освещения, моноблоки, Dante-усилители</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 10: ЭЛЕКТРОСТАТИЧЕСКАЯ ЗАЩИТА (ESD) -->
+  <div class="slide" id="slide-10">
+    <div class="slide-title">9. Электростатический разряд (ESD) и физика повреждения кремния</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="box">
+          <h4>Физика электростатического потенциала</h4>
+          <p>• Человек при движении по диэлектрическим покрытиям генерирует потенциал до <strong>15–20 кВ</strong>.</p>
+          <p>• Время нарастания фронта импульса разряда модели HBM (Human Body Model) составляет менее <strong>1 наносекунды</strong>.</p>
+          <p>• Входные КМОП-транзисторы контроллеров имеют толщину подзатворного оксида $SiO_2$ в единицы нанометров и пробиваются при напряжении свыше <strong>5–7 Вольт</strong>.</p>
+        </div>
+        <div class="box">
+          <h4>Аппаратная защита на системных платах</h4>
+          <ul>
+            <li><strong>TVS-диоды (Transient Voltage Suppressor):</strong> сверхбыстрые защитные матрицы, сбрасывающие импульс перенапряжения на землю за пикосекунды.</li>
+            <li><strong>Экранирование разъемов:</strong> внешний металлический кожух штекера соединяется с шасси и земляной шиной раньше сигнальных выводов.</li>
+            <li><strong>Антистатические браслеты и коврики:</strong> обязательный регламент при сервисных и лабораторных работах.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 11: АРХИТЕКТУРА ГОРЯЧЕГО ПОДКЛЮЧЕНИЯ (HOT-PLUG) -->
+  <div class="slide" id="slide-11">
+    <div class="slide-title">10. Механика и схемотехника «горячего» подключения (Hot-plug)</div>
+    <div class="slide-content">
+      <div class="grid-3">
+        <div class="box">
+          <span class="badge badge-blue">Фаза 1</span>
+          <h4>Земляной контур (GND)</h4>
+          <p>Контакты заземления удлинены на 0.5–1 мм. Они соприкасаются первыми, выравнивая электрические потенциалы корпусов устройств до нуля.</p>
+        </div>
+        <div class="box">
+          <span class="badge badge-amber">Фаза 2</span>
+          <h4>Шина питания (VBUS)</h4>
+          <p>Замыкается силовая цепь. Схема плавного заряда (Soft-Start) плавно подает напряжение на сглаживающие конденсаторы, исключая просадку системного питания.</p>
+        </div>
+        <div class="box">
+          <span class="badge badge-green">Фаза 3</span>
+          <h4>Сигнальные линии</h4>
+          <p>Замыкаются короткие сигнальные выводы (D+, D-, RX, TX, HPD). Контроллер фиксирует логический уровень и инициирует процедуру перечисления (Enumeration).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 12: АНАЛОГОВЫЕ АУДИОРАЗЪЕМЫ И ЭКРАНИРОВАНИЕ -->
+  <div class="slide" id="slide-12">
+    <div class="slide-title">11. Кабели, экранирование, ферриты и аудиоразъемы 3.5mm</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="box">
+          <h4>Аудиоразъемы: TRS против TRRS (CTIA / OMTP)</h4>
+          <p>• <strong>TRS (3 контакта):</strong> Tip (Левый канал), Ring (Правый), Sleeve (Земля).</p>
+          <p>• <strong>TRRS CTIA (современный):</strong> Tip (L), Ring 1 (R), <strong>Ring 2 (GND)</strong>, <strong>Sleeve (Mic)</strong>.</p>
+          <p>• <strong>TRRS OMTP (устаревший):</strong> земля и микрофон перепутаны местами (Sleeve — GND, Ring 2 — Mic). При подключении к CTIA звук глухой и противофазный!</p>
+        </div>
+        <div class="box">
+          <h4>Ферритовые кольца и экранирование</h4>
+          <p>• <strong>Ферритовый дроссель:</strong> высокочастотный фильтр синфазных помех (30 МГц – 1 ГГц). Подавляет электромагнитные наводки от радиостанций и импульсных БП.</p>
+          <p>• <strong>Плетеная медная оплетка + алюминиевая фольга:</strong> 100% экранирование высокоскоростных витых пар от перекрестных помех (Crosstalk).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 13: 4 ИНЖЕНЕРНЫХ ВАРИАНТА ПРАКТИЧЕСКОЙ РАБОТЫ -->
+  <div class="slide" id="slide-13">
+    <div class="slide-title">12. Сценарии практической работы №4 (4 варианта)</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="box">
+          <h4>Вариант 1: Студийный монтажный комплекс 8K</h4>
+          <p>Thunderbolt 4 док-станция, монитор DisplayPort 2.1 HDR, внешний сверхскоростной NVMe RAID, питание ноутбука USB PD 100W EPR.</p>
+        </div>
+        <div class="box">
+          <h4>Вариант 2: Конференц-зал с ВКС</h4>
+          <p>Поворотная PTZ-камера с питанием PoE+ 802.3at, микрофонный массив Dante/USB, сплиттер дублирующих экранов HDMI 2.0b.</p>
+        </div>
+        <div class="box">
+          <h4>Вариант 3: Офисный Open Space</h4>
+          <p>Многопортовый USB-C хаб с Power Delivery 65W, гигабитный сетевой Ethernet, два офисных монитора в цепочке Daisy Chain (DP MST).</p>
+        </div>
+        <div class="box">
+          <h4>Вариант 4: Измерительный лабораторный стенд</h4>
+          <p>Интерфейсы RS-232 / USB Virtual COM, гальваническая изоляция сигнальных линий, цифровой осциллограф, ферритовые фильтры.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 14: АЛГОРИТМ ПРЕДПУСКОВОГО ЧЕК-ЛИСТА -->
+  <div class="slide" id="slide-14">
+    <div class="slide-title">13. Алгоритм инженерного аудита коммутации (Чек-лист)</div>
+    <div class="slide-content">
+      <div class="grid-3">
+        <div class="box">
+          <span class="badge badge-blue">Шаг 1</span>
+          <h4>Аудит пропускной способности</h4>
+          <p>Проверка битрейта видеопотока ($R = H \times V \times bpp \times f$) и соответствия версии интерфейса (DP 1.4/2.1, HDMI 2.0/2.1, USB4).</p>
+        </div>
+        <div class="box">
+          <span class="badge badge-amber">Шаг 2</span>
+          <h4>Электрический баланс питания</h4>
+          <p>Сопоставление суммарной мощности потребителей с возможностями источника (USB PD профили, бюджет мощности PoE коммутатора).</p>
+        </div>
+        <div class="box">
+          <span class="badge badge-green">Шаг 3</span>
+          <h4>Физическая трассировка кабелей</h4>
+          <p>Соблюдение предельной длины кабелей, категории витой пары (Cat.6a), наличия E-Marker и экранирования от наводок.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- СЛАЙД 15: РЕАЛЬНЫЙ МЕМ (WIKIMEDIA COMMONS) -->
+  <div class="slide" id="slide-15">
+    <div class="slide-title">14. Архитектурный юмор: основы системного мышления</div>
+    <div class="meme-wrap">
+      <img class="meme-img" src="data:image/jpeg;base64,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8Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsf//Z" alt="Mathjoke meme">
+      <div class="attribution">
+        <strong>Мем:</strong> «Mathjoke (10 types of people in the world) — В мире существует 10 типов людей: те, кто понимает двоичную систему счисления, и те, кто её не понимает».<br>
+        <strong>Автор:</strong> MjolnirPants (Wikimedia Commons).<br>
+        <strong>Лицензия:</strong> Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).<br>
+        <strong>Атрибуция:</strong> Изображение встроено автономно в формате Data URI (data:image/jpeg;base64) без сторонних сетевых запросов.
+      </div>
+    </div>
+  </div>
+
+  <!-- ПАНЕЛЬ УПРАВЛЕНИЯ СЛАЙДАМИ -->
+  <div class="controls">
+    <div class="controls-btns">
+      <button type="button" class="nav-btn" id="btn_prev" onclick="prevSlide()">← Назад</button>
+      <button type="button" class="nav-btn" id="btn_next" onclick="nextSlide()">Вперед →</button>
+    </div>
+    <div class="slide-counter" id="slide_counter">Слайд 1 из 15</div>
+  </div>
+
+</div>
+
+<script>
+  let currentSlide = 1;
+  const totalSlides = 15;
+
+  function showSlide(n) {
+    if (n < 1) n = 1;
+    if (n > totalSlides) n = totalSlides;
+    currentSlide = n;
+
+    for (let i = 1; i <= totalSlides; i++) {
+      const el = document.getElementById('slide-' + i);
+      if (el) {
+        if (i === currentSlide) {
+          el.classList.add('active');
+        } else {
+          el.classList.remove('active');
+        }
+      }
+    }
+
+    document.getElementById('slide_counter').textContent = 'Слайд ' + currentSlide + ' из ' + totalSlides;
+    document.getElementById('btn_prev').disabled = (currentSlide === 1);
+    document.getElementById('btn_next').disabled = (currentSlide === totalSlides);
+  }
+
+  function prevSlide() {
+    if (currentSlide > 1) showSlide(currentSlide - 1);
+  }
+
+  function nextSlide() {
+    if (currentSlide < totalSlides) showSlide(currentSlide + 1);
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      nextSlide();
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      prevSlide();
+    } else if (e.key === 'Home') {
+      showSlide(1);
+    } else if (e.key === 'End') {
+      showSlide(totalSlides);
+    }
+  });
+
+  showSlide(1);
+</script>
+
+</body>
+</html>
