@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Практикум: Шины, системные ресурсы и порты ввода-вывода (Архитектура подсистемы I/O)</title>
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --task-bg: #f8fafc;
+      --border-task: #94a3b8;
+      --ok: #059669;
+      --warn: #d97706;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .task-card, .actions-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(22px, 3.5vw, 28px);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .desc {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    input[type="text"], input[type="date"], select, textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+    }
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    .task-title {
+      font-size: 18px;
+      color: var(--accent);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+    }
+    .task-intro {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      margin: 14px 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      background: #fff;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 9px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .table-input {
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 6px 8px;
+      font-size: 13px;
+      width: 100%;
+      box-sizing: border-box;
+      background: #fff;
+    }
+    .table-input:focus {
+      border-color: var(--accent);
+      outline: none;
+    }
+    .variant-card {
+      background: #eff6ff;
+      border-left: 4px solid var(--accent);
+      padding: 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 14px 0;
+    }
+    .variant-title {
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font: inherit;
+      font-weight: 600;
+      font-size: 14.5px;
+      transition: background .15s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary { background: #e2e8f0; color: #334155; }
+    .btn-secondary:hover { background: #cbd5e1; }
+    .btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #fecaca; }
+    .status-msg {
+      font-size: 14px;
+      font-weight: 600;
+      margin-left: auto;
+    }
+    .status-saved { color: var(--ok); }
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-group label {
+      margin-bottom: 4px;
+    }
+    .print-select-text { display: none; }
+
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+        font-size: 11pt;
+        color: #000;
+      }
+      .page {
+        max-width: 100%;
+        margin: 0;
+      }
+      .header-card, .student-card, .task-card {
+        box-shadow: none;
+        border: 1px solid #777;
+        margin-bottom: 14pt;
+        padding: 12pt;
+        break-inside: auto;
+        page-break-inside: auto;
+      }
+      .actions-card, .btn-row {
+        display: none !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        opacity: 0 !important;
+      }
+      select {
+        display: none !important;
+      }
+      .print-select-text {
+        display: block !important;
+        min-height: 22px;
+        border: 1px solid #777 !important;
+        border-radius: 4px;
+        padding: 4px 6px;
+        background: #fff !important;
+      }
+      textarea {
+        height: auto !important;
+        min-height: 85px;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      input[type="text"], input[type="date"], .table-input {
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      table {
+        page-break-inside: auto;
+      }
+      tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
+  <div class="header-card">
+    <h1>Практикум: Шины, системные ресурсы и интерфейсы ввода-вывода</h1>
+    <p class="desc">Интерактивный рабочий лист студента по дисциплине «Архитектура аппаратных средств» (СИЭУиП, занятие 15). Сравнительный анализ параллельных разделяемых шин (ISA/PCI) и скоростной последовательной топологии точка-точка (PCI Express 3.0–5.0); анализ эволюции и распределения системных ресурсов (IRQ, MSI-X, каналы DMA, изолированное адресное пространство I/O портов и MMIO); математический расчет пропускной способности интерфейсов и протокол выбора подсистемы I/O по 4 вариантам платформ.</p>
+  </div>
+
+  <!-- РЕКВИЗИТЫ СТУДЕНТА (ЧИСТЫЕ ПОЛЯ БЕЗ ВЫМЫШЛЕННЫХ ДАННЫХ) -->
+  <div class="student-card">
+    <div class="student-grid">
+      <div>
+        <label for="student_fio">ФИО обучающегося:</label>
+        <input type="text" id="student_fio" placeholder="Иванов Иван Иванович" autocomplete="off">
+      </div>
+      <div>
+        <label for="student_group">Учебная группа:</label>
+        <input type="text" id="student_group" placeholder="ИС-21" autocomplete="off">
+      </div>
+      <div>
+        <label for="work_variant">Вариант задания:</label>
+        <select id="work_variant" onchange="updateVariantSelection()">
+          <option value="">-- Выберите вариант (1–4) --</option>
+          <option value="1">Вариант 1: Промышленный контроллер / встраиваемая система АСУ ТП</option>
+          <option value="2">Вариант 2: Высокопроизводительный сервер БД с сетевым адаптером 100 GbE и NVMe</option>
+          <option value="3">Вариант 3: Офисный ПК с унаследованным оборудованием (RS-232 / LPT)</option>
+          <option value="4">Вариант 4: Рабочая станция видеомонтажа 8K и ИИ-моделей (Multi-GPU)</option>
+        </select>
+        <div id="print_work_variant" class="print-select-text">Вариант не выбран</div>
+      </div>
+      <div>
+        <label for="work_date">Дата выполнения:</label>
+        <input type="date" id="work_date">
+      </div>
+    </div>
+  </div>
+
+  <!-- ЗАДАНИЕ 1. СРАВНИТЕЛЬНЫЙ АНАЛИЗ СИСТЕМНЫХ ШИН -->
+  <div class="task-card">
+    <div class="task-title">Задание 1. Сравнительный анализ архитектур шин: разделяемые шины vs PCIe</div>
+    <p class="task-intro">Заполните сравнительную таблицу характеристик системных шин. Сопоставьте архитектурные поколения, топологию, арбитраж, тактовые частоты и физические ограничения.</p>
+    
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 20%;">Параметр сравнения</th>
+            <th style="width: 25%;">Шина ISA / PCI (32-bit / 33 MHz)</th>
+            <th style="width: 25%;">Шина PCI Express 3.0 / 4.0 (x16)</th>
+            <th style="width: 30%;">Шина PCI Express 5.0 (x16)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Топология соединения</strong></td>
+            <td><input type="text" id="t1_p1_isa" class="table-input" placeholder="Общая разделяемая параллельная шина"></td>
+            <td><input type="text" id="t1_p1_pcie4" class="table-input" placeholder="Точка-точка, коммутируемая матрица"></td>
+            <td><input type="text" id="t1_p1_pcie5" class="table-input" placeholder="Точка-точка, коммутируемая матрица"></td>
+          </tr>
+          <tr>
+            <td><strong>Способ передачи данных</strong></td>
+            <td><input type="text" id="t1_p2_isa" class="table-input" placeholder="Параллельная передача (16/32 бит)"></td>
+            <td><input type="text" id="t1_p2_pcie4" class="table-input" placeholder="Последовательная по дуплексным линиям (lanes)"></td>
+            <td><input type="text" id="t1_p2_pcie5" class="table-input" placeholder="Последовательная по дуплексным линиям (lanes)"></td>
+          </tr>
+          <tr>
+            <td><strong>Механизм арбитража шины</strong></td>
+            <td><input type="text" id="t1_p3_isa" class="table-input" placeholder="Централизованный арбитр (REQ#/GNT#)"></td>
+            <td><input type="text" id="t1_p3_pcie4" class="table-input" placeholder="Пакетная коммутация, виртуальные каналы VC"></td>
+            <td><input type="text" id="t1_p3_pcie5" class="table-input" placeholder="Пакетная коммутация с приоритетами QoS"></td>
+          </tr>
+          <tr>
+            <td><strong>Кодирование и накладные расходы</strong></td>
+            <td><input type="text" id="t1_p4_isa" class="table-input" placeholder="Без канального кодирования (тактовый строб)"></td>
+            <td><input type="text" id="t1_p4_pcie4" class="table-input" placeholder="128b/130b (~1.5% оверхед)"></td>
+            <td><input type="text" id="t1_p4_pcie5" class="table-input" placeholder="128b/130b (~1.5% оверхед)"></td>
+          </tr>
+          <tr>
+            <td><strong>Предельная пропускная способность</strong></td>
+            <td><input type="text" id="t1_p5_isa" class="table-input" placeholder="ISA: 8 МБ/с; PCI: 133 МБ/с на всю шину"></td>
+            <td><input type="text" id="t1_p5_pcie4" class="table-input" placeholder="PCIe 3.0: ~15.75 ГБ/с; PCIe 4.0: ~31.5 ГБ/с"></td>
+            <td><input type="text" id="t1_p5_pcie5" class="table-input" placeholder="PCIe 5.0 x16: ~63 ГБ/с (в каждую сторону)"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="form-group" style="margin-top: 14px;">
+      <label for="ans_skew_reflection"><strong>Аналитическое объяснение:</strong> Почему высокоскоростные шины перешли от широких параллельных линий к узким последовательным дифференциальным парам? Объясните влияние эффекта перекоса фаз (clock skew) и паразитной емкости проводников:</label>
+      <textarea id="ans_skew_reflection" placeholder="Объясните физическое ограничение параллельных шин на высоких частотах: разброс длин проводников приводит к несинхронному приходу бит одного слова (clock skew), а емкостная нагрузка от множества слотов на общей дорожке вызывает отражение сигналов..."></textarea>
+    </div>
+  </div>
+
+  <!-- ЗАДАНИЕ 2. МАТРИЦА РАСПРЕДЕЛЕНИЯ СИСТЕМНЫХ РЕСУРСОВ -->
+  <div class="task-card">
+    <div class="task-title">Задание 2. Матрица и эволюция системных ресурсов (IRQ, DMA, I/O Port, MMIO)</div>
+    <p class="task-intro">Заполните сравнительную матрицу системных ресурсов архитектуры x86/x86-64. Отразите переход от классических контроллеров IBM PC/AT к современным интерфейсам PCI Express и APIC.</p>
+    
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 18%;">Тип ресурса</th>
+            <th style="width: 25%;">Классическая архитектура (Legacy PC/AT)</th>
+            <th style="width: 27%;">Современная архитектура (UEFI / PCIe / x86-64)</th>
+            <th style="width: 30%;">Механизм разрешения конфликтов / Преимущество</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Линии прерываний (IRQ)</strong></td>
+            <td><input type="text" id="t2_irq_leg" class="table-input" placeholder="Каскад 8259A PIC (16 аппаратных линий IRQ0-15)"></td>
+            <td><input type="text" id="t2_irq_mod" class="table-input" placeholder="I/O APIC, MSI / MSI-X (до 2048 векторов на плату)"></td>
+            <td><input type="text" id="t2_irq_res" class="table-input" placeholder="MSI передается как запись в память; нет разделяемых линий"></td>
+          </tr>
+          <tr>
+            <td><strong>Прямой доступ к памяти (DMA)</strong></td>
+            <td><input type="text" id="t2_dma_leg" class="table-input" placeholder="Каскад 8237A (7 каналов DMA, 24-бит адресация)"></td>
+            <td><input type="text" id="t2_dma_mod" class="table-input" placeholder="Bus Mastering DMA через PCIe, IOMMU / VT-d / AMD-Vi"></td>
+            <td><input type="text" id="t2_dma_res" class="table-input" placeholder="Устройство самостоятельно читает/пишет память через PCIe TLP"></td>
+          </tr>
+          <tr>
+            <td><strong>Адресное пространство I/O портов</strong></td>
+            <td><input type="text" id="t2_io_leg" class="table-input" placeholder="Изолированное I/O space 64 КБ (инструкции IN/OUT)"></td>
+            <td><input type="text" id="t2_io_mod" class="table-input" placeholder="Legacy-порты эмулируются; вытеснение в пользу MMIO"></td>
+            <td><input type="text" id="t2_io_res" class="table-input" placeholder="Base Address Registers (BAR) для изоляции базовых адресов"></td>
+          </tr>
+          <tr>
+            <td><strong>Отображение памяти (MMIO)</strong></td>
+            <td><input type="text" id="t2_mmio_leg" class="table-input" placeholder="Окно UMA 640 КБ - 1 МБ (VGA буфер A0000h и BIOS)"></td>
+            <td><input type="text" id="t2_mmio_mod" class="table-input" placeholder="64-битное MMIO выше 4 ГБ (Above 4G Decoding, Resizable BAR)"></td>
+            <td><input type="text" id="t2_mmio_res" class="table-input" placeholder="Прямой доступ процессора к регистрам и видеопамяти VRAM"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="form-group" style="margin-top: 14px;">
+      <label for="ans_msix_advantage"><strong>Аналитическое объяснение:</strong> В чем заключается критическое преимущество технологии MSI-X по сравнению с классическими прерываниями физических линий INTx (IRQ) в многоядерных серверах с сетевыми картами 100 GbE?</label>
+      <textarea id="ans_msix_advantage" placeholder="Объясните механизм message signaled interrupts: прерывание передается как запись в системную память, возможность назначения отдельного вектора прерывания на каждое ядро ЦП (Receive Side Scaling / RSS), устранение монопольной блокировки ядра и накладных расходов арбитража линий..."></textarea>
+    </div>
+  </div>
+
+  <!-- ЗАДАНИЕ 3. РАСЧЕТ ПРОПУСКНОЙ СПОСОБНОСТИ И СРАВНЕНИЕ ИНТЕРФЕЙСОВ -->
+  <div class="task-card">
+    <div class="task-title">Задание 3. Инженерный расчет пропускной способности и параметров портов</div>
+    <p class="task-intro">Выполните расчет теоретической и полезной пропускной способности интерфейсов передачи данных. Результаты внесите в таблицу с единицами измерения.</p>
+    
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25%;">Интерфейс передачи</th>
+            <th style="width: 20%;">Тактовая частота / Символьная скорость</th>
+            <th style="width: 15%;">Кодирование</th>
+            <th style="width: 20%;">Теоретическая ПСП</th>
+            <th style="width: 20%;">Реальная полезная ПСП</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>RS-232 / UART (стандарт 115200 бод, 8-N-1)</strong></td>
+            <td>115 200 Бод</td>
+            <td>1 старт + 8 бит данных + 1 стоп (10 бит на байт)</td>
+            <td><input type="text" id="t3_rs232_raw" class="table-input" placeholder="115 200 бит/с (14.4 КБ/с)"></td>
+            <td><input type="text" id="t3_rs232_net" class="table-input" placeholder="11.52 КБ/с (92 160 бит/с)"></td>
+          </tr>
+          <tr>
+            <td><strong>IEEE 1284 ECP (параллельный LPT порт)</strong></td>
+            <td>~2.0 МГц (стробирование)</td>
+            <td>8 бит данных параллельно (без кодирования)</td>
+            <td><input type="text" id="t3_lpt_raw" class="table-input" placeholder="2.0 МБ/с (16 Мбит/с)"></td>
+            <td><input type="text" id="t3_lpt_net" class="table-input" placeholder="~1.5 - 2.0 МБ/с"></td>
+          </tr>
+          <tr>
+            <td><strong>PCIe 3.0 x4 (накопитель NVMe M.2)</strong></td>
+            <td>8.0 GT/s на линию</td>
+            <td>128b/130b</td>
+            <td><input type="text" id="t3_pcie3_raw" class="table-input" placeholder="32.0 Гбит/с (~4.0 ГБ/с)"></td>
+            <td><input type="text" id="t3_pcie3_net" class="table-input" placeholder="~3.94 ГБ/с (~3500 МБ/с)"></td>
+          </tr>
+          <tr>
+            <td><strong>PCIe 4.0 x16 (видеокарта)</strong></td>
+            <td>16.0 GT/s на линию</td>
+            <td>128b/130b</td>
+            <td><input type="text" id="t3_pcie4_raw" class="table-input" placeholder="256 Гбит/с (~32 ГБ/с)"></td>
+            <td><input type="text" id="t3_pcie4_net" class="table-input" placeholder="~31.51 ГБ/с"></td>
+          </tr>
+          <tr>
+            <td><strong>PCIe 5.0 x16 (видеокарта / ИИ-ускоритель)</strong></td>
+            <td>32.0 GT/s на линию</td>
+            <td>128b/130b</td>
+            <td><input type="text" id="t3_pcie5_raw" class="table-input" placeholder="512 Гбит/с (~64 ГБ/с)"></td>
+            <td><input type="text" id="t3_pcie5_net" class="table-input" placeholder="~63.02 ГБ/с"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="form-group" style="margin-top: 14px;">
+      <label for="ans_baud_vs_bps"><strong>Аналитическое объяснение:</strong> В чем состоит физическое и математическое различие между понятиями «бодрейт» (Baud rate) и «битрейт» (бит/с)? В каком случае бодрейт строго равен битрейту?</label>
+      <textarea id="ans_baud_vs_bps" placeholder="Объясните соотношение между частотой модуляции сигнальных состояний линии (бод) и количеством передаваемой информации в битах. Укажите случай двоичной двухуровневой модуляции (NRZ)..."></textarea>
+    </div>
+  </div>
+
+  <!-- ЗАДАНИЕ 4. ПРОТОКОЛ ВЫБОРА ПОДСИСТЕМЫ ВВОДА-ВЫВОДА (4 ВАРИАНТА) -->
+  <div class="task-card">
+    <div class="task-title">Задание 4. Протокол выбора архитектуры ввода-вывода и системных ресурсов</div>
+    <p class="task-intro">На основе выбранного в карточке студента варианта платформы обоснуйте распределение системных ресурсов (IRQ/MSI-X, DMA, I/O Port, MMIO), подбор шин, протоколов арбитража и интерфейсов подключения периферии.</p>
+
+    <div class="variant-card">
+      <div class="variant-title" id="display_variant_title">Вариант не выбран</div>
+      <div id="display_variant_desc" style="font-size: 14px; color: var(--muted); line-height: 1.5;">
+        Выберите вариант задания в карточке обучающегося вверху страницы для отображения технического задания.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="ans_proto_buses"><strong>1. Конфигурация системных шин и топологии соединений:</strong></label>
+      <textarea id="ans_proto_buses" placeholder="Укажите типы шин (PCIe версий, поколений и линий x1/x4/x16, DMI/PCH, последовательные шины), распределение процессорных и чипсетных линий, пропускную способность..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="ans_proto_resources"><strong>2. Распределение системных ресурсов (прерывания, DMA, адресация):</strong></label>
+      <textarea id="ans_proto_resources" placeholder="Обоснуйте тип прерываний (Legacy IRQ vs MSI/MSI-X с многовекторной диспетчеризацией), адреса портов ввода-вывода или окно MMIO 64-bit (Above 4G, Resizable BAR), организацию DMA (Bus Mastering, IOMMU)..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="ans_proto_interfaces"><strong>3. Выбор внешних интерфейсов и портов (RS-232 / RS-485 / LPT / Ethernet / PCIe):</strong></label>
+      <textarea id="ans_proto_interfaces" placeholder="Обоснуйте выбор портов: последовательные (UART/RS-232/485) или параллельные, необходимость преобразователей интерфейсов, физические параметры (кадрирование, гальваническая развязка, длина линий)..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="ans_proto_arbitration"><strong>4. Протокол арбитража и гарантия отсутствия узких мест:</strong></label>
+      <textarea id="ans_proto_arbitration" placeholder="Объясните механизм арбитража трафика, предотвращение коллизий и задержек, управление качеством обслуживания (QoS / Virtual Channels), отсутствие блокировки шины при интенсивном обмене данными..."></textarea>
+    </div>
+  </div>
+
+  <!-- КНОПКИ ДЕЙСТВИЙ -->
+  <div class="actions-card">
+    <div class="btn-row">
+      <button class="btn-primary" onclick="window.print()">Распечатать / Сохранить в PDF</button>
+      <button class="btn-secondary" onclick="saveToLocalStorage(true)">Сохранить в браузере</button>
+      <button class="btn-danger" onclick="confirmReset()">Очистить форму</button>
+      <span id="save_status" class="status-msg"></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const STORAGE_KEY = 'sie_hw15_zanyatie_state';
+
+  const FORM_FIELDS = [
+    'student_fio', 'student_group', 'work_variant', 'work_date',
+    't1_p1_isa', 't1_p1_pcie4', 't1_p1_pcie5',
+    't1_p2_isa', 't1_p2_pcie4', 't1_p2_pcie5',
+    't1_p3_isa', 't1_p3_pcie4', 't1_p3_pcie5',
+    't1_p4_isa', 't1_p4_pcie4', 't1_p4_pcie5',
+    't1_p5_isa', 't1_p5_pcie4', 't1_p5_pcie5',
+    'ans_skew_reflection',
+    't2_irq_leg', 't2_irq_mod', 't2_irq_res',
+    't2_dma_leg', 't2_dma_mod', 't2_dma_res',
+    't2_io_leg', 't2_io_mod', 't2_io_res',
+    't2_mmio_leg', 't2_mmio_mod', 't2_mmio_res',
+    'ans_msix_advantage',
+    't3_rs232_raw', 't3_rs232_net',
+    't3_lpt_raw', 't3_lpt_net',
+    't3_pcie3_raw', 't3_pcie3_net',
+    't3_pcie4_raw', 't3_pcie4_net',
+    't3_pcie5_raw', 't3_pcie5_net',
+    'ans_baud_vs_bps',
+    'ans_proto_buses', 'ans_proto_resources', 'ans_proto_interfaces', 'ans_proto_arbitration'
+  ];
+
+  const VARIANT_DETAILS = {
+    '1': {
+      title: 'Вариант 1: Промышленный контроллер / встраиваемая система автоматизации технологического процесса (SCADA/АСУ ТП)',
+      desc: 'Технические требования: сбор телеметрии с датчиков и управление приводами по последовательным интерфейсам (RS-232 / RS-485 Modbus RTU). Требуется аппаратная детерминированность, гарантированное время отклика реального времени (RTOS), изоляция прерываний без джиттера, гальваническая развязка сигнальных линий. Недопустимы задержки от разделяемых шин и коллизии арбитража.'
+    },
+    '2': {
+      title: 'Вариант 2: Высокопроизводительный сервер баз данных / виртуализации с сетевым адаптером 100 GbE и NVMe-массивом',
+      desc: 'Технические требования: установка сетевого адаптера 100 Gbps (PCIe 4.0 x16 / PCIe 5.0 x8) и пула быстрых накопителей NVMe U.2/U.3. Критичны векторная обработка прерываний MSI-X (до сотен векторов для очередей сетевых пакетов на разные ядра CPU), 64-битная адресация MMIO выше 4 ГБ, аппаратная виртуализация IOMMU (VT-d/AMD-Vi) и высокоэффективный Bus Mastering DMA.'
+    },
+    '3': {
+      title: 'Вариант 3: Офисный ПК для документооборота и подключения унаследованного торгового/лабораторного оборудования',
+      desc: 'Технические требования: подключение фискального регистратора (COM/RS-232), аппаратного ключа защиты или программатора микроконтроллеров (LPT IEEE 1284). Разрешение аппаратных конфликтов legacy-ресурсов (базовые адреса 0x3F8/0x2F8, 0x378, фиксированные линии IRQ3/4/7). Использование мостов PCIe-to-UART / PCIe-to-Parallel с поддержкой в современной ОС.'
+    },
+    '4': {
+      title: 'Вариант 4: Рабочая станция видеомонтажа 8K и обработки нейросетевых моделей (Multi-GPU)',
+      desc: 'Технические требования: установка двух мощных видеокарт (PCIe 4.0/5.0 x16 или x8/x8 при разделении процессорных линий), скоростной карты захвата SDI/HDMI (PCIe x4) и NVMe-диска PCIe 4.0. Распределение линий между процессорным контроллером PCIe и чипсетом (DMI/PCH). Настройка прямого доступа Resizable BAR, MSI-X и предотвращение насыщения чипсетного линка.'
+    }
+  };
+
+  function updateVariantSelection() {
+    const sel = document.getElementById('work_variant');
+    const val = sel.value;
+    const titleElem = document.getElementById('display_variant_title');
+    const descElem = document.getElementById('display_variant_desc');
+    const printElem = document.getElementById('print_work_variant');
+
+    if (val && VARIANT_DETAILS[val]) {
+      titleElem.textContent = VARIANT_DETAILS[val].title;
+      descElem.textContent = VARIANT_DETAILS[val].desc;
+      printElem.textContent = sel.options[sel.selectedIndex].text;
+    } else {
+      titleElem.textContent = 'Вариант не выбран';
+      descElem.textContent = 'Выберите вариант задания в карточке обучающегося вверху страницы для отображения технического задания.';
+      printElem.textContent = 'Вариант не выбран';
+    }
+    saveToLocalStorage(false);
+  }
+
+  function saveToLocalStorage(showFeedback) {
+    const data = {};
+    FORM_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) data[id] = el.value;
+    });
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      if (showFeedback) {
+        const status = document.getElementById('save_status');
+        status.textContent = '✓ Сохранено в браузере';
+        status.className = 'status-msg status-saved';
+        setTimeout(() => { status.textContent = ''; }, 3000);
+      }
+    } catch (e) {
+      console.warn('LocalStorage error:', e);
+    }
+  }
+
+  function loadFromLocalStorage() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const data = JSON.parse(raw);
+        FORM_FIELDS.forEach(id => {
+          if (data[id] !== undefined) {
+            const el = document.getElementById(id);
+            if (el) el.value = data[id];
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('LocalStorage load error:', e);
+    }
+    updateVariantSelection();
+  }
+
+  function confirmReset() {
+    if (confirm('Внимание! Все введенные данные в практическом бланке будут безвозвратно удалены. Продолжить очистку?')) {
+      FORM_FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (e) {}
+      updateVariantSelection();
+      const status = document.getElementById('save_status');
+      status.textContent = 'Форма очищена';
+      status.className = 'status-msg';
+      setTimeout(() => { status.textContent = ''; }, 3000);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadFromLocalStorage();
+    FORM_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => saveToLocalStorage(false));
+        el.addEventListener('change', () => saveToLocalStorage(false));
+      }
+    });
+  });
+
+  window.addEventListener('beforeprint', () => {
+    updateVariantSelection();
+  });
+</script>
+</body>
+</html>
