@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Обзор структурной схемы. Центральная и периферийная части компьютера</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --code-bg: #0f172a;
+      --code-text: #f1f5f9;
+      --success: #059669;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.65;
+      font-size: 16px;
+      padding: 24px 16px;
+    }
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+    header {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(24px, 4vw, 32px);
+      line-height: 1.25;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .lead {
+      color: var(--muted);
+      font-size: 17px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h2 {
+      font-size: 20px;
+      color: var(--accent);
+      margin-bottom: 16px;
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 8px;
+    }
+    h3 {
+      font-size: 17px;
+      margin: 16px 0 8px;
+      color: #1e293b;
+    }
+    p, ul, ol {
+      margin-bottom: 14px;
+    }
+    ul, ol {
+      padding-left: 24px;
+    }
+    li {
+      margin-bottom: 6px;
+    }
+    .definition {
+      background: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      padding: 14px 18px;
+      border-radius: 0 10px 10px 0;
+      margin-bottom: 16px;
+    }
+    .definition strong {
+      color: var(--accent);
+    }
+    /* Адаптивная структура компьютера */
+    .arch-diagram {
+      margin: 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .arch-central-box {
+      border: 2px dashed #2563eb;
+      background: #f0f7ff;
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .arch-title {
+      font-weight: 700;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+      color: #1d4ed8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .arch-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+    }
+    .node-block {
+      background: #ffffff;
+      border: 1px solid #94a3b8;
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+    .node-head {
+      font-weight: 700;
+      font-size: 15px;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+    .node-desc {
+      font-size: 13px;
+      color: #475569;
+      line-height: 1.4;
+    }
+    /* Шины */
+    .bus-system {
+      background: #1e293b;
+      color: #f8fafc;
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .bus-line {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: #334155;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .bus-name {
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .bus-tag {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+    .bus-tag.addr { background: #d97706; color: #fff; }
+    .bus-tag.data { background: #059669; color: #fff; }
+    .bus-tag.ctrl { background: #dc2626; color: #fff; }
+    .bus-direction {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .arch-periph-box {
+      border: 2px dashed #059669;
+      background: #f0fdf4;
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .arch-periph-box .arch-title {
+      color: #047857;
+    }
+    .example-trace {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 14px;
+      font-size: 14px;
+    }
+    .step-item {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 10px;
+      align-items: flex-start;
+    }
+    .step-num {
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+    }
+    th {
+      background: var(--accent-soft);
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .check-list {
+      background: #fffbeb;
+      border: 1px solid #fef3c7;
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 14px;
+    }
+    .check-title {
+      font-weight: 700;
+      color: #92400e;
+      margin-bottom: 8px;
+    }
+    @media print {
+      body { background: #fff; color: #000; padding: 0; font-size: 12pt; }
+      .card, header { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 12pt; }
+      .bus-system { background: #eee; color: #000; border: 1px solid #999; }
+      .bus-line { background: #fff; border: 1px solid #ccc; color: #000; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Обзор структурной схемы. Центральная и периферийная части компьютера</h1>
+    <p class="lead">Принципы фон-неймановской организации ЭВМ, разграничение центральных и периферийных узлов, структура магистрально-модульной шины и преодоление «узкого горлышка».</p>
+  </header>
+
+  <article class="card">
+    <h2>1. Архитектурные принципы фон Неймана</h2>
+    <p>Современные компьютеры общего назначения базируются на фундаментальных принципах, сформулированных в 1945 году Джоном фон Нейманом совместно с Джоном Мокли и Преспером Эккертом:</p>
+    
+    <div class="definition">
+      <strong>Принцип хранимой программы:</strong> команды и обрабатываемые данные хранятся в единой физической памяти. Программа считывается из памяти так же, как и числовые данные, что позволяет динамически изменять алгоритмы и загружать новое программное обеспечение без физической перекоммутации схем.
+    </div>
+
+    <ul>
+      <li><strong>Принцип однородности памяти:</strong> команды процессора и операнды (числа, символы, массивы) хранятся в общей оперативной памяти и не различаются по способу кодирования (представлены двоичными кодами). Различие между кодом команды и числом определяется лишь фазой машинного цикла и контекстом обращения процессора.</li>
+      <li><strong>Принцип адресности памяти:</strong> память состоит из нумерованных ячеек (байт), каждой из которых присвоен уникальный числовой адрес. Процессор имеет возможность произвольного прямого доступа к любой ячейке памяти.</li>
+      <li><strong>Принцип последовательного программного управления:</strong> инструкции выполняются последовательно одна за другой в порядке возрастания адресов, пока команда ветвления или безусловного перехода явно не изменит значение счётчика команд (Program Counter, PC).</li>
+      <li><strong>Принцип двоичного кодирования:</strong> вся информация — управляющие коды инструкций, числовые значения, символы, адреса — представлена двоичными разрядами (битами).</li>
+    </ul>
+  </article>
+
+  <article class="card">
+    <h2>2. Структурная модель ЭВМ: Центральная и периферийная части</h2>
+    <p>Архитектурно вычислительная машина разделяется на две взаимодействующие части: высокоскоростную <strong>центральную</strong> и распределённую <strong>периферийную</strong>.</p>
+
+    <!-- Адаптивная интерактивная структурная схема -->
+    <div class="arch-diagram" role="region" aria-label="Структурная схема компьютера">
+      <!-- Центральная часть -->
+      <div class="arch-central-box">
+        <div class="arch-title">
+          <span>⚙️ Центральная часть (Central Processing & Primary Memory)</span>
+        </div>
+        <div class="arch-grid-2">
+          <div class="node-block">
+            <div class="node-head">Центральный процессор (ЦП / CPU)</div>
+            <div class="node-desc">
+              • <strong>АЛУ:</strong> выполнение арифметических и побитовых логических операций.<br>
+              • <strong>УУ:</strong> выборка, декодирование команд, генерация тактовых управляющих импульсов.<br>
+              • <strong>Регистры (РОН, PC, SP, FLAGS, IR):</strong> сверхоперативная память для операндов, адресов и флагов состояний.
+            </div>
+          </div>
+          <div class="node-block">
+            <div class="node-head">Основная память (ОЗУ / ПЗУ)</div>
+            <div class="node-desc">
+              • <strong>ОЗУ (RAM):</strong> быстродействующая энергозависимая память для размещения запущенных программ и текущих данных.<br>
+              • <strong>ПЗУ (ROM/Flash):</strong> энергонезависимая память начальной загрузки (коды UEFI/BIOS, базовые таблицы инициализации).
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Магистральная шина -->
+      <div class="bus-system" role="group" aria-label="Системная магистраль">
+        <div style="font-weight:700; font-size:14px; margin-bottom:4px; color:#cbd5e1;">СИСТЕМНАЯ МАГИСТРАЛЬ (СИСТЕМНАЯ ШИНА)</div>
+        
+        <div class="bus-line">
+          <div class="bus-name">
+            <span class="bus-tag addr">ША</span>
+            <span>Шина адреса (Address Bus)</span>
+          </div>
+          <div class="bus-direction">ЦП / DMA ➔ Модули памяти и контроллеры (Однонаправленная)</div>
+        </div>
+
+        <div class="bus-line">
+          <div class="bus-name">
+            <span class="bus-tag data">ШД</span>
+            <span>Шина данных (Data Bus)</span>
+          </div>
+          <div class="bus-direction">ЦП ⮂ ОЗУ / Контроллеры ввода-вывода (Двунаправленная)</div>
+        </div>
+
+        <div class="bus-line">
+          <div class="bus-name">
+            <span class="bus-tag ctrl">ШУ</span>
+            <span>Шина управления (Control Bus)</span>
+          </div>
+          <div class="bus-direction">Стробы: RD, WR, M/IO#, READY, IRQ, RESET (Координирующие импульсы)</div>
+        </div>
+      </div>
+
+      <!-- Периферийная часть -->
+      <div class="arch-periph-box">
+        <div class="arch-title">
+          <span>🔌 Периферийная часть (Peripheral Subsystem & I/O)</span>
+        </div>
+        <div class="arch-grid-2">
+          <div class="node-block">
+            <div class="node-head">Системные контроллеры и мосты</div>
+            <div class="node-desc">
+              • <strong>Контроллер прямого доступа к памяти (DMA):</strong> обеспечивает пересылку блоков между периферией и ОЗУ без загрузки ЦП.<br>
+              • <strong>Контроллеры шин ввода-вывода:</strong> PCIe root complex, USB host controller, SATA/NVMe controller.
+            </div>
+          </div>
+          <div class="node-block">
+            <div class="node-head">Внешние устройства (ПУ)</div>
+            <div class="node-desc">
+              • <strong>Накопители:</strong> SSD NVMe/SATA, HDD, flash-носители.<br>
+              • <strong>Устройства ввода:</strong> клавиатура, мышь, сканер, сенсорный ввод.<br>
+              • <strong>Устройства вывода:</strong> дисплей (через GPU), аудиокодек, принтер.<br>
+              • <strong>Сетевые адаптеры:</strong> Ethernet, Wi-Fi.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <article class="card">
+    <h2>3. Магистрально-модульный принцип построения</h2>
+    <p>В ранних ЭВМ первого поколения каждый модуль соединялся с другими отдельными пучками индивидуальных проводников («точка-точка»). С ростом числа компонентов это приводило к экспоненциальному усложнению схемотехники и невозможности модульного расширения. Решением стал <strong>магистрально-модульный принцип</strong> (принцип общей шины):</p>
+    
+    <ul>
+      <li>Все функциональные узлы подключаются к единой стандартизированной группе проводников — <strong>системной магистрали</strong>.</li>
+      <li>Обмен информацией в каждый момент времени может вестись между двумя устройствами: источником (передатчиком) и приёмником.</li>
+      <li>Арбитраж шины определяет, кто в данный момент является «хозяином шины» (Bus Master) — обычно центральный процессор либо контроллер DMA.</li>
+    </ul>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Тип шины</th>
+          <th>Разрядность (типовая)</th>
+          <th>Направление передачи</th>
+          <th>Функциональное назначение</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Шина адреса (ША)</strong></td>
+          <td>32 бит / 64 бит (физ. 48–52 бит)</td>
+          <td>Однонаправленная (от ЦП/DMA к памяти и устройствам)</td>
+          <td>Передаёт двоичный адрес ячейки ОЗУ или номер порта ввода-вывода, к которому происходит обращение.</td>
+        </tr>
+        <tr>
+          <td><strong>Шина данных (ШД)</strong></td>
+          <td>64 бит (DDR4/DDR5: 64 бит + ECC)</td>
+          <td>Двунаправленная (чтение/запись)</td>
+          <td>Передаёт байты считываемого машинного кода, числовые операнды и результаты вычислений между ЦП, памятью и портами.</td>
+        </tr>
+        <tr>
+          <td><strong>Шина управления (ШУ)</strong></td>
+          <td>Набор линий управляющих сигналов</td>
+          <td>Смешанная (индивидуальные линии)</td>
+          <td>Передаёт стробы синхронизации, сигналы чтения (`MEMR`, `IOR`), записи (`MEMW`, `IOW`), запросы прерываний (`IRQ`), подтверждения готовности (`READY`).</td>
+        </tr>
+      </tbody>
+    </table>
+  </article>
+
+  <article class="card">
+    <h2>4. Трассировка машинного цикла (Fetch — Decode — Execute — Writeback)</h2>
+    <p>Любая программа на машинном уровне представляет собой цепочку базовых машинных тактов. Рассмотрим, как системные шины и узлы взаимодействуют при исполнении инструкции сложения регистра с содержимым ячейки ОЗУ: <code>ADD R1, [0x04F0]</code>.</p>
+
+    <div class="example-trace">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div>
+          <strong>Выборка команды (Fetch):</strong> УУ выставляет содержимое счётчика команд (PC = 0x0100) на шину адреса (ША). На шину управления (ШУ) подаётся строб <code>MEMR</code> (чтение памяти). ОЗУ считывает байты инструкции и выставляет их на шину данных (ШД). Код команды попадает в регистр команд (IR). PC увеличивается для следующей команды.
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div>
+          <strong>Декодирование (Decode):</strong> Дешифратор команд УУ определяет: требуется операция сложения, первый операнд находится в регистре R1, а второй — в ОЗУ по эффективному адресу <code>0x04F0</code>.
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div>
+          <strong>Выборка операнда (Operand Fetch):</strong> УУ выставляет адрес <code>0x04F0</code> на ША, строб <code>MEMR</code> на ШУ. ОЗУ считывает операнд (например, число 42) и передаёт его по ШД во входной буферный регистр АЛУ.
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <div>
+          <strong>Исполнение (Execute):</strong> По внутренней шине процессора значение регистра R1 подаётся на второй вход АЛУ. АЛУ складывает два числа, формирует результат и обновляет регистр признаков (флагов FLAGS: ZF, SF, OF, CF).
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">5</div>
+        <div>
+          <strong>Запись результата (Writeback):</strong> Результат из выходного регистра АЛУ по внутренней шине записывается обратно в регистр R1. Машинный цикл завершён.
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <article class="card">
+    <h2>5. «Узкое горлышко фон Неймана» и архитектурные решения</h2>
+    <p>В классической модели фон Неймана программы и данные конкурируют за одну физическую шину. Этот фундаментальный барьер производительности получил название <strong>узкое горлышко фон Неймана (von Neumann Bottleneck)</strong>.</p>
+    
+    <div class="definition">
+      <strong>Суть ограничения:</strong> Тактовая частота исполнительных конвейеров процессора достигает 4–5 ГГц (время выполнения операции внутри чипа — доли наносекунды), тогда как время обращения к внешней оперативной памяти составляет 50–70 наносекунд. Процессор вынужден простаивать (такты ожидания — wait states), ожидая поступления команд или данных по шине.
+    </div>
+
+    <h3>Как архитекторы преодолевают это ограничение в современных ЭВМ:</h3>
+    <ol>
+      <li><strong>Раздельная кэш-память L1 (Гарвардская модификация):</strong> Внутри кристалла современного процессора используется гарвардский принцип: кэш инструкций первого уровня (L1 Instruction Cache) и кэш данных (L1 Data Cache) физически разделены и имеют независимые сверхскоростные шины. Выборка следующей команды и чтение данных происходят одновременно без взаимных задержек.</li>
+      <li><strong>Иерархия кэш-памяти (L1 ➔ L2 ➔ L3):</strong> Размещение SRAM-буферов прямо на кристалле процессора снижает частоту обращений к медленному внешнему ОЗУ (hit rate достигает 95–98%).</li>
+      <li><strong>Конвейеризация и внеочередное исполнение (Out-of-Order Execution):</strong> Процессор заранее считывает инструкции (Prefetch) и предсказывает ветвления (Branch Prediction), маскируя латентность шины памяти.</li>
+      <li><strong>Прямой доступ к памяти (DMA):</strong> Освобождает ЦП от рутинной побайтовой пересылки данных с дисков и сетевых адаптеров в ОЗУ. Контроллер DMA самостоятельно пересылает целые массивы блоков.</li>
+    </ol>
+  </article>
+
+  <article class="card">
+    <h2>6. Вопросы для самопроверки</h2>
+    <div class="check-list">
+      <div class="check-title">Проверьте своё понимание пройденного материала:</div>
+      <ol>
+        <li>Почему в фон-неймановской модели невозможно одновременно выбрать следующую команду из ОЗУ и прочитать данные операнда из того же ОЗУ?</li>
+        <li>Чем принципиально отличается шина адреса от шины данных по направленности сигналов и почему?</li>
+        <li>Почему твердотельный накопитель (NVMe SSD), несмотря на полупроводниковую структуру микросхем, относится к периферийной части, а не к центральной?</li>
+        <li>Какую роль играет контроллер DMA при копировании файла с накопителя в оперативную память?</li>
+        <li>В чём заключается гарвардская модификация современных процессоров архитектуры x86-64 и ARM?</li>
+      </ol>
+    </div>
+  </article>
+</div>
+</body>
+</html>
