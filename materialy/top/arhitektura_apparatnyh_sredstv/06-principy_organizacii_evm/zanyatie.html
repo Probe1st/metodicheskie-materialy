@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Рабочий лист студента: Принципы организации ЭВМ</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --ok: #059669;
+      --warn: #d97706;
+      --danger: #dc2626;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .task-card, .actions-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(20px, 3.2vw, 26px);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .desc {
+      color: var(--muted);
+      font-size: 14.5px;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    input[type="text"], input[type="date"], select, textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+    }
+    textarea {
+      min-height: 95px;
+      resize: vertical;
+    }
+    h2 {
+      font-size: 19px;
+      color: var(--accent);
+      margin-bottom: 12px;
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 6px;
+    }
+    h3 {
+      font-size: 16px;
+      margin: 16px 0 8px;
+      color: #1e293b;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 700;
+      background: var(--accent-soft);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .table-input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 13.5px;
+    }
+    .case-box {
+      border: 1.5px solid var(--line);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 14px;
+      background: #f8fafc;
+    }
+    .variant-section {
+      display: none;
+    }
+    .variant-section.active {
+      display: block;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    button {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background-color .15s, opacity .15s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary { background: #e2e8f0; color: #334155; }
+    .btn-secondary:hover { background: #cbd5e1; }
+    .btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+    .btn-danger:hover { background: #fecaca; }
+    .status-msg {
+      font-size: 13.5px;
+      color: var(--ok);
+      font-weight: 600;
+    }
+    .print-select-text { display: none; }
+    @media print {
+      body {
+        background: #fff !important;
+        color: #000 !important;
+        padding: 0 !important;
+        font-size: 10.5pt !important;
+      }
+      .page { max-width: 100% !important; margin: 0 !important; }
+      .header-card, .student-card, .task-card {
+        box-shadow: none !important;
+        border: 1px solid #777 !important;
+        margin-bottom: 12pt !important;
+        padding: 10pt !important;
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+      }
+      .actions-card, .btn-row {
+        display: none !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        opacity: 0 !important;
+      }
+      select {
+        display: none !important;
+      }
+      .print-select-text {
+        display: block !important;
+        min-height: 22px;
+        border: 1px solid #777 !important;
+        border-radius: 4px;
+        padding: 4px 6px;
+        background: #fff !important;
+      }
+      textarea {
+        height: auto !important;
+        min-height: 85px;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      input[type="text"], input[type="date"], .table-input {
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      .case-box {
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        break-inside: avoid;
+      }
+      .variant-section {
+        display: block !important;
+      }
+    }
+    @media (max-width: 480px) {
+      body { padding: 10px 6px; }
+      .header-card, .student-card, .task-card, .actions-card { padding: 14px 10px; }
+      .student-grid { grid-template-columns: 1fr; }
+      table { font-size: 12px; }
+      th, td { padding: 6px 4px; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ВЕРХНЯЯ КАРТОЧКА -->
+  <div class="header-card">
+    <h1>Рабочий лист: Принципы организации ЭВМ</h1>
+    <div class="desc">
+      Дисциплина: ОП.02 Архитектура аппаратных средств. Раздел 3. Принципы организации ЭВМ (§2.2 с.8 программы). ММКЦТ «Академия TOP».
+    </div>
+  </div>
+
+  <!-- РЕГИСТРАЦИОННЫЕ ДАННЫЕ СТУДЕНТА (ЧИСТЫЕ ПОЛЯ БЕЗ ВЫМЫШЛЕННЫХ ПЛЕЙСХОЛДЕРОВ) -->
+  <div class="student-card">
+    <div class="student-grid">
+      <div>
+        <label for="student_fio">Фамилия, Имя студента</label>
+        <input type="text" id="student_fio">
+      </div>
+      <div>
+        <label for="student_group">Учебная группа</label>
+        <input type="text" id="student_group">
+      </div>
+      <div>
+        <label for="work_date">Дата выполнения</label>
+        <input type="date" id="work_date">
+      </div>
+      <div>
+        <label for="chosen_variant">Вариант аналитического задания</label>
+        <select id="chosen_variant" onchange="switchVariant(this.value)">
+          <option value="1">Вариант 1: Выборка из памяти (MOV AX, [1000h])</option>
+          <option value="2">Вариант 2: Арифметическое сложение (ADD AX, BX)</option>
+          <option value="3">Вариант 3: Условный переход (JNZ offset)</option>
+          <option value="4">Вариант 4: Расчет Von Neumann Bottleneck</option>
+        </select>
+        <div class="print-select-text" id="print_chosen_variant"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 ЧЕТКИХ ВАРИАНТА АНАЛИЗА ОРГАНИЗАЦИИ ЭВМ -->
+
+  <!-- ВАРИАНТ 1 -->
+  <div class="task-card variant-section active" id="sec_var1">
+    <span class="badge">Вариант 1</span>
+    <h2>Команда выборки из памяти: <code>MOV AX, [1000h]</code></h2>
+    <p style="font-size: 14.5px; margin-bottom: 12px;">
+      <strong>Постановка задачи:</strong> Выполните потактовую трассировку системной магистрали и служебных регистров процессора при считывании операнда из ячейки оперативной памяти <code>1000h</code> в регистр аккумулятора <code>AX</code>. Начальное значение <code>PC = 0100h</code>.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 14%;">Такт</th>
+          <th style="width: 22%;">Фаза цикла</th>
+          <th style="width: 22%;">Шина адреса (AB)</th>
+          <th style="width: 22%;">Шина данных (DB)</th>
+          <th style="width: 20%;">Шина управления (CB)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>T1</strong></td>
+          <td>Fetch 1 (Адрес кода)</td>
+          <td><input type="text" class="table-input" id="v1_t1_ab"></td>
+          <td><input type="text" class="table-input" id="v1_t1_db"></td>
+          <td><input type="text" class="table-input" id="v1_t1_cb"></td>
+        </tr>
+        <tr>
+          <td><strong>T2</strong></td>
+          <td>Fetch 2 (Прием опкода)</td>
+          <td><input type="text" class="table-input" id="v2_t2_ab"></td>
+          <td><input type="text" class="table-input" id="v2_t2_db"></td>
+          <td><input type="text" class="table-input" id="v2_t2_cb"></td>
+        </tr>
+        <tr>
+          <td><strong>T3</strong></td>
+          <td>Decode (Дешифрация)</td>
+          <td><input type="text" class="table-input" id="v1_t3_ab"></td>
+          <td><input type="text" class="table-input" id="v1_t3_db"></td>
+          <td><input type="text" class="table-input" id="v1_t3_cb"></td>
+        </tr>
+        <tr>
+          <td><strong>T4</strong></td>
+          <td>Execute (Чтение ОЗУ)</td>
+          <td><input type="text" class="table-input" id="v1_t4_ab"></td>
+          <td><input type="text" class="table-input" id="v1_t4_db"></td>
+          <td><input type="text" class="table-input" id="v1_t4_cb"></td>
+        </tr>
+        <tr>
+          <td><strong>T5</strong></td>
+          <td>Writeback (Запись в AX)</td>
+          <td><input type="text" class="table-input" id="v1_t5_ab"></td>
+          <td><input type="text" class="table-input" id="v1_t5_db"></td>
+          <td><input type="text" class="table-input" id="v1_t5_cb"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="case-box">
+      <label for="v1_analysis">1. Трассировка внутренних регистров (PC, MAR, MDR, IR): как операнд попадает в AX?</label>
+      <textarea id="v1_analysis"></textarea>
+
+      <label for="v1_bottleneck" style="margin-top: 12px;">2. Архитектурный анализ задержки: почему такт T4 требует ожидания памяти и как кэш L1 устраняет этот простой?</label>
+      <textarea id="v1_bottleneck"></textarea>
+    </div>
+  </div>
+
+  <!-- ВАРИАНТ 2 -->
+  <div class="task-card variant-section" id="sec_var2">
+    <span class="badge">Вариант 2</span>
+    <h2>Команда сложения в регистрах: <code>ADD AX, BX</code></h2>
+    <p style="font-size: 14.5px; margin-bottom: 12px;">
+      <strong>Постановка задачи:</strong> Проанализируйте работу Арифметико-логического устройства (АЛУ) и обновление флагов регистра состояния <code>FLAGS</code> при выполнении сложения двух 16-битных чисел. Исходные данные: <code>AX = 7FFFh</code>, <code>BX = 0001h</code>.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 15%;">Такт</th>
+          <th style="width: 25%;">Фаза процессора</th>
+          <th style="width: 30%;">Активность системных шин</th>
+          <th style="width: 30%;">Состояние АЛУ и регистров</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>T1–T2</strong></td>
+          <td>Fetch & Decode</td>
+          <td><input type="text" class="table-input" id="v2_fetch_bus"></td>
+          <td><input type="text" class="table-input" id="v2_fetch_alu"></td>
+        </tr>
+        <tr>
+          <td><strong>T3</strong></td>
+          <td>Execute (Сумматор АЛУ)</td>
+          <td><input type="text" class="table-input" id="v2_exec_bus"></td>
+          <td><input type="text" class="table-input" id="v2_exec_alu"></td>
+        </tr>
+        <tr>
+          <td><strong>T4</strong></td>
+          <td>Writeback (AX и FLAGS)</td>
+          <td><input type="text" class="table-input" id="v2_wb_bus"></td>
+          <td><input type="text" class="table-input" id="v2_wb_alu"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="case-box">
+      <label for="v2_flags_calc">1. Расчет результирующего значения AX и битов регистра флагов (ZF, CF, SF, OF):</label>
+      <textarea id="v2_flags_calc"></textarea>
+
+      <label for="v2_bus_advantage" style="margin-top: 12px;">2. Сравнение с памятью: почему регистровая операция ADD AX, BX выполняется в разы быстрее, чем ADD AX, [1000h]?</label>
+      <textarea id="v2_bus_advantage"></textarea>
+    </div>
+  </div>
+
+  <!-- ВАРИАНТ 3 -->
+  <div class="task-card variant-section" id="sec_var3">
+    <span class="badge">Вариант 3</span>
+    <h2>Команда условного перехода: <code>JNZ offset</code></h2>
+    <p style="font-size: 14.5px; margin-bottom: 12px;">
+      <strong>Постановка задачи:</strong> Исследуйте логику ветвления, модификацию указателя команд <code>PC (IP)</code> и эффект сброса предвыборки (Pipeline Flush). Исходное состояние: <code>PC = 0200h</code>, смещение <code>offset = +0030h</code>.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 25%;">Состояние флага ZF</th>
+          <th style="width: 25%;">Условие перехода</th>
+          <th style="width: 25%;">Новое значение PC</th>
+          <th style="width: 25%;">Поведение конвейера / шин</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>ZF = 1</strong> (Результат равен нулю)</td>
+          <td><input type="text" class="table-input" id="v3_zf1_cond"></td>
+          <td><input type="text" class="table-input" id="v3_zf1_pc"></td>
+          <td><input type="text" class="table-input" id="v3_zf1_pipe"></td>
+        </tr>
+        <tr>
+          <td><strong>ZF = 0</strong> (Результат не ноль)</td>
+          <td><input type="text" class="table-input" id="v3_zf0_cond"></td>
+          <td><input type="text" class="table-input" id="v3_zf0_pc"></td>
+          <td><input type="text" class="table-input" id="v3_zf0_pipe"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="case-box">
+      <label for="v3_pipeline_penalty">1. Архитектурный штраф сброса предвыборки (Branch Penalty): что происходит с командами, которые УУ уже успело выбрать из памяти?</label>
+      <textarea id="v3_pipeline_penalty"></textarea>
+
+      <label for="v3_pred_methods" style="margin-top: 12px;">2. Аппаратные решения в современных CPU: как блок предсказания ветвлений (Branch Predictor) снижает потери тактов?</label>
+      <textarea id="v3_pred_methods"></textarea>
+    </div>
+  </div>
+
+  <!-- ВАРИАНТ 4 -->
+  <div class="task-card variant-section" id="sec_var4">
+    <span class="badge">Вариант 4</span>
+    <h2>Анализ и расчет: «Узкое место фон Неймана» (Von Neumann Bottleneck)</h2>
+    <p style="font-size: 14.5px; margin-bottom: 12px;">
+      <strong>Постановка задачи:</strong> Произведите расчет пропускной способности подсистемы памяти, оцените дисбаланс скоростей CPU и DRAM, сформулируйте аппаратные меры решения.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Параметр системы</th>
+          <th>Числовое значение</th>
+          <th>Расчетная формула</th>
+          <th>Эффективная пропускная способность</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Ядро процессора</strong></td>
+          <td>Частота 4.8 ГГц, 4 инструкции/такт (IPC=4)</td>
+          <td>$Ops = Freq \times IPC$</td>
+          <td><input type="text" class="table-input" id="v4_cpu_perf"></td>
+        </tr>
+        <tr>
+          <td><strong>Шина ОЗУ DDR5</strong></td>
+          <td>DDR5-5600, 2 канала по 64 бита (16 байт)</td>
+          <td>$BW = Rate \times Bus\_Width$</td>
+          <td><input type="text" class="table-input" id="v4_dram_bw"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="case-box">
+      <label for="v4_delay_calc">1. Расчет коэффициента задержки: латентность доступа к DRAM составляет 60 нс. Сколько тактов CPU теряется на один промах кэша?</label>
+      <textarea id="v4_delay_calc"></textarea>
+
+      <label for="v4_arch_solutions" style="margin-top: 12px;">2. Системные меры преодоления узкого места: сопоставьте влияние L1/L2/L3 кэшей, многоканальности и модифицированной гарвардской модели:</label>
+      <textarea id="v4_arch_solutions"></textarea>
+    </div>
+  </div>
+
+  <!-- КНОПКИ УПРАВЛЕНИЯ И СОХРАНЕНИЯ -->
+  <div class="actions-card">
+    <div class="btn-row">
+      <button type="button" class="btn-primary" onclick="saveData()">Сохранить прогресс</button>
+      <button type="button" class="btn-secondary" onclick="window.print()">Печать / Экспорт в PDF</button>
+      <button type="button" class="btn-danger" onclick="clearData()">Очистить форму</button>
+      <span class="status-msg" id="status_msg"></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const STORAGE_KEY = 'top_arch_hw06_student_sheet';
+
+  const formFields = [
+    'student_fio', 'student_group', 'work_date', 'chosen_variant',
+    // V1
+    'v1_t1_ab', 'v1_t1_db', 'v1_t1_cb',
+    'v2_t2_ab', 'v2_t2_db', 'v2_t2_cb',
+    'v1_t3_ab', 'v1_t3_db', 'v1_t3_cb',
+    'v1_t4_ab', 'v1_t4_db', 'v1_t4_cb',
+    'v1_t5_ab', 'v1_t5_db', 'v1_t5_cb',
+    'v1_analysis', 'v1_bottleneck',
+    // V2
+    'v2_fetch_bus', 'v2_fetch_alu',
+    'v2_exec_bus', 'v2_exec_alu',
+    'v2_wb_bus', 'v2_wb_alu',
+    'v2_flags_calc', 'v2_bus_advantage',
+    // V3
+    'v3_zf1_cond', 'v3_zf1_pc', 'v3_zf1_pipe',
+    'v3_zf0_cond', 'v3_zf0_pc', 'v3_zf0_pipe',
+    'v3_pipeline_penalty', 'v3_pred_methods',
+    // V4
+    'v4_cpu_perf', 'v4_dram_bw',
+    'v4_delay_calc', 'v4_arch_solutions'
+  ];
+
+  function switchVariant(val) {
+    for (let i = 1; i <= 4; i++) {
+      const sec = document.getElementById('sec_var' + i);
+      if (sec) {
+        if (String(i) === String(val)) {
+          sec.classList.add('active');
+        } else {
+          sec.classList.remove('active');
+        }
+      }
+    }
+    const printEl = document.getElementById('print_chosen_variant');
+    const sel = document.getElementById('chosen_variant');
+    if (printEl && sel) {
+      printEl.textContent = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : '';
+    }
+  }
+
+  function saveData() {
+    const data = {};
+    formFields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) data[id] = el.value;
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    const status = document.getElementById('status_msg');
+    status.textContent = 'Сохранено: ' + new Date().toLocaleTimeString();
+    setTimeout(() => { status.textContent = ''; }, 4000);
+  }
+
+  function loadData() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    try {
+      const data = JSON.parse(raw);
+      formFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && data[id] !== undefined) {
+          el.value = data[id];
+        }
+      });
+      if (data.chosen_variant) {
+        switchVariant(data.chosen_variant);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function clearData() {
+    if (confirm('Вы уверены, что хотите полностью очистить форму? Все внесенные ответы будут удалены.')) {
+      localStorage.removeItem(STORAGE_KEY);
+      formFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      document.getElementById('chosen_variant').value = '1';
+      switchVariant('1');
+      const status = document.getElementById('status_msg');
+      status.textContent = 'Форма очищена';
+      setTimeout(() => { status.textContent = ''; }, 3000);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadData();
+    const sel = document.getElementById('chosen_variant');
+    if (sel) {
+      switchVariant(sel.value);
+    }
+  });
+</script>
+</body>
+</html>
