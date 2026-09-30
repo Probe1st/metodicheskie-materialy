@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Домашнее задание - Законы Мура. Основные характеристики процессоров</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --ok: #059669;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15.5px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .card, .actions-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(22px, 3.5vw, 28px);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .notice {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      font-size: 14.5px;
+      color: #92400e;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    input[type="text"], input[type="date"], textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14.5px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+    }
+    textarea {
+      min-height: 85px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    h2 {
+      font-size: 18.5px;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .sample-box {
+      background: #f1f5f9;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 12px 0 16px;
+      font-size: 14.5px;
+    }
+    .sample-title {
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 6px;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font: inherit;
+      font-weight: 600;
+      font-size: 14.5px;
+      transition: background .15s, transform .05s;
+    }
+    button:active { transform: scale(0.98); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary { background: #e2e8f0; color: #334155; }
+    .btn-secondary:hover { background: #cbd5e1; }
+    .btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #fecaca; }
+    .status-msg {
+      font-size: 14px;
+      font-weight: 600;
+      margin-left: auto;
+    }
+    .status-saved { color: var(--ok); }
+
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+        font-size: 11pt;
+        color: #000;
+      }
+      .page {
+        max-width: 100%;
+        margin: 0;
+      }
+      .header-card, .student-card, .card {
+        box-shadow: none;
+        border: 1px solid #777;
+        margin-bottom: 14pt;
+        padding: 12pt;
+        break-inside: auto;
+        page-break-inside: auto;
+      }
+      .actions-card, .btn-row {
+        display: none !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        opacity: 0 !important;
+      }
+      textarea {
+        height: auto !important;
+        min-height: 90px;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      input[type="text"], input[type="date"] {
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ШАПКА -->
+  <div class="header-card">
+    <h1>Домашнее задание - Законы Мура. Основные характеристики процессоров</h1>
+    <div class="notice">
+      Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+    </div>
+  </div>
+
+  <!-- РЕКВИЗИТЫ СТУДЕНТА -->
+  <div class="student-card">
+    <div class="student-grid">
+      <div>
+        <label for="dz_fio">ФИО обучающегося:</label>
+        <input type="text" id="dz_fio" name="dz_fio" placeholder="Фамилия Имя Отчество">
+      </div>
+      <div>
+        <label for="dz_group">Учебная группа:</label>
+        <input type="text" id="dz_group" name="dz_group" placeholder="Например, ИСП-21-1">
+      </div>
+      <div>
+        <label for="dz_date">Дата выполнения:</label>
+        <input type="date" id="dz_date" name="dz_date">
+      </div>
+    </div>
+  </div>
+
+  <!-- РАЗОБРАННЫЙ ОБРАЗЕЦ -->
+  <div class="card">
+    <h2>Разобранный образец: расчет ускорения и анализ архитектурного компромисса</h2>
+    <div class="sample-box">
+      <div class="sample-title">Условие образца:</div>
+      <p>Программа трехмерного рендеринга имеет параллельную долю $p = 90\%$ (0.90), а 10% времени тратится на последовательную загрузку геометрии сцены из файла. Рассчитайте ускорение по закону Амдала для 8-ядерного и 32-ядерного процессоров. Определите теоретический предел ускорения при бесконечном числе ядер.</p>
+      
+      <div class="sample-title" style="margin-top: 10px;">Эталонное решение:</div>
+      <p><strong>1. Формула закона Амдала:</strong> $S(N) = \frac{1}{(1 - p) + \frac{p}{N}}$</p>
+      <p><strong>2. Расчет для $N = 8$:</strong><br>
+      $S(8) = \frac{1}{(1 - 0.90) + \frac{0.90}{8}} = \frac{1}{0.10 + 0.1125} = \frac{1}{0.2125} \approx 4.71\times$ (ускорение в 4.71 раза при 8 ядрах).</p>
+      <p><strong>3. Расчет для $N = 32$:</strong><br>
+      $S(32) = \frac{1}{0.10 + \frac{0.90}{32}} = \frac{1}{0.10 + 0.028125} = \frac{1}{0.128125} \approx 7.80\times$ (ускорение в 7.80 раза при 32 ядрах).</p>
+      <p><strong>4. Предельное ускорение ($N \to \infty$):</strong><br>
+      $S_{\max} = \frac{1}{1 - p} = \frac{1}{0.10} = 10.0\times$.</p>
+      <p><strong>Архитектурный вывод:</strong> Даже при покупке 64-ядерного процессора ускорение составит лишь $8.89\times$, а превысить 10-кратный рубеж невозможно из-за 10% последовательного кода загрузки геометрии. Для дальнейшего ускорения необходимо оптимизировать именно дисковый ввод-вывод или переходить на быстрые NVMe-накопители.</p>
+    </div>
+  </div>
+
+  <!-- УПРАЖНЕНИЕ 1 -->
+  <div class="card">
+    <h2>Упражнение 1. Закон Амдала при умеренной параллелизации</h2>
+    <p>Аналитическое приложение обрабатывает финансовый массив данных. 70% времени алгоритма идеально распределяется между вычислительными потоками ($p = 0.70$), а 30% времени занимает последовательный ввод-вывод и синхронизация мьютексов.</p>
+    
+    <div style="margin-bottom: 12px;">
+      <label for="dz_task1_calc">1.1. Выполните подробный пошаговый расчет ускорения программы для $N = 2$, $N = 4$, $N = 16$ ядер и найдите теоретический предел при $N \to \infty$:</label>
+      <textarea id="dz_task1_calc" name="dz_task1_calc" placeholder="Запишите вычисления для каждого N и предельное значение S_max..."></textarea>
+    </div>
+
+    <div>
+      <label for="dz_task1_conclusion">1.2. Обоснуйте, почему переход с 4-ядерного процессора на 16-ядерный в данной системе является экономически и инженерно неэффективным:</label>
+      <textarea id="dz_task1_conclusion" name="dz_task1_conclusion" placeholder="Сравните прирост скорости при 4 и 16 ядрах и сформулируйте вывод..."></textarea>
+    </div>
+  </div>
+
+  <!-- УПРАЖНЕНИЕ 2 -->
+  <div class="card">
+    <h2>Упражнение 2. Разоблачение «мегагерцевого мифа» в практическом сравнении</h2>
+    <p>Инженер выбирает процессор для рабочего сервера: Процессор «Альфа» работает на частоте 4.4 ГГц с $IPC = 1.35$. Процессор «Бета» работает на частоте 3.6 ГГц с $IPC = 2.10$.</p>
+
+    <div style="margin-bottom: 12px;">
+      <label for="dz_task2_calc">2.1. Рассчитайте относительную однопоточную производительность обоих процессоров по формуле $Performance = IPC \times f$ и определите, на сколько процентов процессор «Бета» быстрее или медленнее процессора «Альфа»:</label>
+      <textarea id="dz_task2_calc" name="dz_task2_calc" placeholder="Приведите расчет IPC * f для обоих CPU и найдите процентное соотношение..."></textarea>
+    </div>
+
+    <div>
+      <label for="dz_task2_factors">2.2. За счет каких микроархитектурных усовершенствований процессор «Бета» достигает более высокого IPC при меньшей частоте (ширина декодирования, конвейер, кэш L2/L3, предсказатель переходов)?</label>
+      <textarea id="dz_task2_factors" name="dz_task2_factors" placeholder="Перечислите и раскройте архитектурные факторы высокого IPC..."></textarea>
+    </div>
+  </div>
+
+  <!-- УПРАЖНЕНИЕ 3 -->
+  <div class="card">
+    <h2>Упражнение 3. Предел Деннарда и тепловыделение</h2>
+    <div>
+      <label for="dz_task3_thermal">Объясните физическую разницу между динамической мощностью переключения ($P_{dyn} = C \cdot V^2 \cdot f$) и статической мощностью утечки ($P_{stat} = I_{leak} \cdot V$). Почему современные процессоры (например, Core i7-14700K) имеют базовый TDP 125 Вт, но при максимальной нагрузке в Turbo Boost потребляют свыше 250 Вт?</label>
+      <textarea id="dz_task3_thermal" name="dz_task3_thermal" placeholder="Объясните токи утечки, лимиты мощности PL1 и PL2 и роль турбо-режимов..."></textarea>
+    </div>
+  </div>
+
+  <!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
+  <div class="actions-card">
+    <div class="btn-row">
+      <button type="button" class="btn-primary" onclick="window.print()">Распечатать / Сохранить в PDF</button>
+      <button type="button" class="btn-secondary" onclick="saveDzStorage(true)">Сохранить черновик</button>
+      <button type="button" class="btn-danger" onclick="confirmResetDz()">Очистить форму</button>
+      <span id="dz_status" class="status-msg"></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const DZ_STORAGE_KEY = 'sie_hw10_dz_data';
+  const DZ_FIELDS = [
+    'dz_fio', 'dz_group', 'dz_date',
+    'dz_task1_calc', 'dz_task1_conclusion',
+    'dz_task2_calc', 'dz_task2_factors',
+    'dz_task3_thermal'
+  ];
+
+  function saveDzStorage(showFeedback) {
+    const data = {};
+    DZ_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) data[id] = el.value;
+    });
+    try {
+      localStorage.setItem(DZ_STORAGE_KEY, JSON.stringify(data));
+      if (showFeedback) {
+        const status = document.getElementById('dz_status');
+        status.textContent = '✓ Сохранено в браузере';
+        status.className = 'status-msg status-saved';
+        setTimeout(() => { status.textContent = ''; }, 3000);
+      }
+    } catch (e) {
+      console.warn('LocalStorage error:', e);
+    }
+  }
+
+  function loadDzStorage() {
+    try {
+      const raw = localStorage.getItem(DZ_STORAGE_KEY);
+      if (raw) {
+        const data = JSON.parse(raw);
+        DZ_FIELDS.forEach(id => {
+          if (data[id] !== undefined) {
+            const el = document.getElementById(id);
+            if (el) el.value = data[id];
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('LocalStorage error:', e);
+    }
+  }
+
+  function confirmResetDz() {
+    if (confirm('Внимание! Все введенные ответы в домашнем задании будут удалены. Очистить форму?')) {
+      DZ_FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      try {
+        localStorage.removeItem(DZ_STORAGE_KEY);
+      } catch (e) {}
+      const status = document.getElementById('dz_status');
+      status.textContent = 'Форма очищена';
+      status.className = 'status-msg';
+      setTimeout(() => { status.textContent = ''; }, 3000);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadDzStorage();
+    DZ_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => saveDzStorage(false));
+        el.addEventListener('change', () => saveDzStorage(false));
+      }
+    });
+  });
+</script>
+</body>
+</html>

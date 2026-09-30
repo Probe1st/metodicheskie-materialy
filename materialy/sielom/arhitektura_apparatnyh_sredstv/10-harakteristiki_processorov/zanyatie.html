@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Практикум: Законы Мура. Основные характеристики процессоров</title>
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --task-bg: #f8fafc;
+      --border-task: #94a3b8;
+      --ok: #059669;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15.5px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .task-card, .actions-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(22px, 3.5vw, 28px);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .desc {
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    input[type="text"], input[type="date"], select, textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14.5px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+    }
+    textarea {
+      min-height: 85px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    .criteria-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      font-size: 14px;
+    }
+    .criteria-box strong { color: var(--ok); }
+    .task-title {
+      font-size: 17.5px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .task-help {
+      background: var(--accent-soft);
+      border-left: 3px solid var(--accent);
+      padding: 10px 14px;
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 14px;
+      font-size: 14px;
+      color: #1e3a8a;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      margin: 14px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .table-input {
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 6px 8px;
+      font-size: 13px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font: inherit;
+      font-weight: 600;
+      font-size: 14.5px;
+      transition: background .15s, transform .05s;
+    }
+    button:active { transform: scale(0.98); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary { background: #e2e8f0; color: #334155; }
+    .btn-secondary:hover { background: #cbd5e1; }
+    .btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #fecaca; }
+    .status-msg {
+      font-size: 14px;
+      font-weight: 600;
+      margin-left: auto;
+    }
+    .status-saved { color: var(--ok); }
+    .variant-card {
+      background: var(--task-bg);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 14px;
+    }
+    .variant-title {
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+    .print-select-text { display: none; }
+
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+        font-size: 11pt;
+        color: #000;
+      }
+      .page {
+        max-width: 100%;
+        margin: 0;
+      }
+      .header-card, .student-card, .task-card {
+        box-shadow: none;
+        border: 1px solid #777;
+        margin-bottom: 14pt;
+        padding: 12pt;
+        break-inside: auto;
+        page-break-inside: auto;
+      }
+      .actions-card, .btn-row {
+        display: none !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        opacity: 0 !important;
+      }
+      select {
+        display: none !important;
+      }
+      .print-select-text {
+        display: block !important;
+        min-height: 20px;
+        border: 1px solid #777 !important;
+        border-radius: 4px;
+        padding: 4px 6px;
+        background: #fff !important;
+      }
+      textarea {
+        height: auto !important;
+        min-height: 90px;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      input[type="text"], input[type="date"], .table-input {
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
+  <div class="header-card">
+    <h1>Практикум: Законы Мура. Основные характеристики процессоров</h1>
+    <p class="desc">Интерактивный рабочий лист студента по дисциплине «Архитектура аппаратных средств» (СИЭУиП, занятие 10). Сопоставление архитектурных параметров CPU, разоблачение «мегагерцевого мифа», расчет пределов параллелизации по закону Амдала и индивидуальный протокол подбора процессора по 4 вариантам нагрузок.</p>
+  </div>
+
+  <!-- РЕКВИЗИТЫ СТУДЕНТА (ЧИСТЫЕ ПОЛЯ БЕЗ ВЫМЫШЛЕННЫХ ДАННЫХ) -->
+  <div class="student-card">
+    <div class="student-grid">
+      <div>
+        <label for="student_fio">ФИО обучающегося:</label>
+        <input type="text" id="student_fio" name="student_fio" placeholder="Фамилия Имя Отчество">
+      </div>
+      <div>
+        <label for="student_group">Учебная группа:</label>
+        <input type="text" id="student_group" name="student_group" placeholder="Например, ИСП-21-1">
+      </div>
+      <div>
+        <label for="work_date">Дата выполнения:</label>
+        <input type="date" id="work_date" name="work_date">
+      </div>
+      <div>
+        <label for="work_variant">Выбранный вариант нагрузки:</label>
+        <select id="work_variant" name="work_variant" onchange="updateVariantSelection()">
+          <option value="">-- Выберите вариант --</option>
+          <option value="1">Вариант 1: Киберспортивный гейминг с высоким FPS (CS2, Valorant)</option>
+          <option value="2">Вариант 2: Офлайн 3D-рендеринг и компиляция C++ проектов (Blender, UE5)</option>
+          <option value="3">Вариант 3: Высокочастотный алготрейдинг (HFT, Single-thread Latency)</option>
+          <option value="4">Вариант 4: Моделирование гидродинамики и векторные расчеты (CFD, AVX-512)</option>
+        </select>
+        <div id="print_work_variant" class="print-select-text"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- КРИТЕРИИ ОЦЕНИВАНИЯ -->
+  <div class="task-card">
+    <div class="criteria-box">
+      <strong>Критерии оценивания (открытая 4-балльная шкала):</strong>
+      <ul style="margin-top: 6px; padding-left: 20px;">
+        <li><strong>Корректность (до 2 баллов):</strong> безошибочное сопоставление характеристик процессоров в таблице Задания 2 и математически точный расчет ускорения по закону Амдала в Задании 3.</li>
+        <li><strong>Объяснение (1 балл):</strong> логичное и физически обоснованное объяснение остановки закона Мура/Деннарда в Задании 1 и разоблачение «мегагерцевого мифа» через формулу $IPC \times f$.</li>
+        <li><strong>Проверка (1 балл):</strong> в индивидуальном протоколе (Задание 4) выявлены аппаратные узкие места выбранного сценария и аргументирован инженерный выбор процессора с учетом архитектурных ограничений.</li>
+      </ul>
+      <div style="margin-top: 8px; font-weight: 600; color: #1e3a8a;">
+        Максимальный балл: 4. Срок сдачи: до следующего занятия.
+      </div>
+    </div>
+  </div>
+
+  <!-- ЗАДАНИЕ 1: АНАЛИЗ ЗАКОНА МУРА И ПРЕДЕЛОВ ДЕННАРДА -->
+  <div class="task-card">
+    <div class="task-title">
+      <span>Задание 1. Анализ закона Мура, масштабирования Деннарда и физических барьеров</span>
+    </div>
+    <div class="task-help">
+      Сформулируйте экономическую суть закона Мура, объясните физический механизм масштабирования Деннарда и опишите причины возникновения «тепловой стены» (Power Wall) при достижении литографических норм 90–65 нм.
+    </div>
+
+    <div style="margin-bottom: 14px;">
+      <label for="ans_moore_definition">1.1. В чем заключается классическая формулировка закона Мура и почему это экономическое правило, а не закон физики? В чем разница между ростом плотности транзисторов и ростом тактовой частоты?</label>
+      <textarea id="ans_moore_definition" name="ans_moore_definition" placeholder="Опишите наблюдение Гордона Мура, темпы удвоения и проведите грань между числом транзисторов и тактовой частотой..."></textarea>
+    </div>
+
+    <div>
+      <label for="ans_dennard_powerwall">1.2. Раскройте формулу масштабирования Деннарда ($P_{dyn} = C \cdot V^2 \cdot f$) и объясните, почему в середине 2000-х годов произошел крах масштабирования и наступил барьер «тепловой стены» (квантовое туннелирование, подпороговые токи утечки, невозможность снижения напряжения питания):</label>
+      <textarea id="ans_dennard_powerwall" name="ans_dennard_powerwall" placeholder="Объясните, почему при уменьшении транзистора плотность мощности ранее оставалась постоянной, и почему при нормах 90-65 нм токи утечки остановили рост частоты..."></textarea>
+    </div>
+  </div>
+
+  <!-- ЗАДАНИЕ 2: СРАВНИТЕЛЬНАЯ ТАБЛИЦА ХАРАКТЕРИСТИК И МЕГАГЕРЦЕВЫЙ МИФ -->
+  <div class="task-card">
+    <div class="task-title">
+      <span>Задание 2. Сравнительный анализ характеристик процессоров и разоблачение «мегагерцевого мифа»</span>
+    </div>
+    <div class="task-help">
+      Заполните аналитическую матрицу характеристик процессоров четырех разных поколений и объясните математически, почему тактовая частота сама по себе не определяет реальную производительность.
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 22%;">Параметр архитектуры</th>
+            <th style="width: 19%;">Intel Pentium 4 670 (2005)</th>
+            <th style="width: 19%;">Intel Core 2 Duo E6600 (2006)</th>
+            <th style="width: 20%;">AMD Ryzen 7 7800X3D (2023)</th>
+            <th style="width: 20%;">Intel Core i7-14700K (2023)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Техпроцесс / Нод</strong></td>
+            <td><input type="text" class="table-input" id="tbl_node_p4" placeholder="например, 90 нм"></td>
+            <td><input type="text" class="table-input" id="tbl_node_c2d" placeholder="например, 65 нм"></td>
+            <td><input type="text" class="table-input" id="tbl_node_ryzen" placeholder="например, 5 нм (TSMC)"></td>
+            <td><input type="text" class="table-input" id="tbl_node_intel" placeholder="например, Intel 7 (10 нм)"></td>
+          </tr>
+          <tr>
+            <td><strong>Ядра / Потоки (P/E конфигурация)</strong></td>
+            <td><input type="text" class="table-input" id="tbl_cores_p4" placeholder="1 ядро / 2 потока (HT)"></td>
+            <td><input type="text" class="table-input" id="tbl_cores_c2d" placeholder="2 ядра / 2 потока"></td>
+            <td><input type="text" class="table-input" id="tbl_cores_ryzen" placeholder="8 ядер / 16 потоков"></td>
+            <td><input type="text" class="table-input" id="tbl_cores_intel" placeholder="20 ядер (8P+12E) / 28 потоков"></td>
+          </tr>
+          <tr>
+            <td><strong>Базовая / Турбо частота (ГГц)</strong></td>
+            <td><input type="text" class="table-input" id="tbl_freq_p4" placeholder="3.80 ГГц"></td>
+            <td><input type="text" class="table-input" id="tbl_freq_c2d" placeholder="2.40 ГГц"></td>
+            <td><input type="text" class="table-input" id="tbl_freq_ryzen" placeholder="4.20 / 5.00 ГГц"></td>
+            <td><input type="text" class="table-input" id="tbl_freq_intel" placeholder="3.40 / 5.60 ГГц"></td>
+          </tr>
+          <tr>
+            <td><strong>Глубина конвейера (Pipeline Stages)</strong></td>
+            <td><input type="text" class="table-input" id="tbl_pipe_p4" placeholder="31 стадия (NetBurst)"></td>
+            <td><input type="text" class="table-input" id="tbl_pipe_c2d" placeholder="14 стадий (Core)"></td>
+            <td><input type="text" class="table-input" id="tbl_pipe_ryzen" placeholder="~19 стадий"></td>
+            <td><input type="text" class="table-input" id="tbl_pipe_intel" placeholder="16 стадий (P-ядро)"></td>
+          </tr>
+          <tr>
+            <td><strong>Кэш L3 (объем и особенности)</strong></td>
+            <td><input type="text" class="table-input" id="tbl_l3_p4" placeholder="Отсутствует (L2: 2 МБ)"></td>
+            <td><input type="text" class="table-input" id="tbl_l3_c2d" placeholder="Отсутствует (L2: 4 МБ общий)"></td>
+            <td><input type="text" class="table-input" id="tbl_l3_ryzen" placeholder="96 МБ (32 МБ + 64 МБ 3D V-Cache)"></td>
+            <td><input type="text" class="table-input" id="tbl_l3_intel" placeholder="33 МБ Intel Smart Cache"></td>
+          </tr>
+          <tr>
+            <td><strong>TDP / Реальное пиковое потребление</strong></td>
+            <td><input type="text" class="table-input" id="tbl_tdp_p4" placeholder="115 Вт / ~140 Вт"></td>
+            <td><input type="text" class="table-input" id="tbl_tdp_c2d" placeholder="65 Вт"></td>
+            <td><input type="text" class="table-input" id="tbl_tdp_ryzen" placeholder="120 Вт (в играх 50-70 Вт)"></td>
+            <td><input type="text" class="table-input" id="tbl_tdp_intel" placeholder="125 Вт (PL2: 253 Вт)"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div>
+      <label for="ans_megahertz_myth">2.2. Разоблачение «мегагерцевого мифа»: почему процессор Pentium 4 Prescott (3.8 ГГц) безоговорочно проигрывал Core 2 Duo Conroe (2.4 ГГц)? Продемонстрируйте формулу $CPU\_Time = I / (IPC \times f)$, объясните влияние длины конвейера и штрафа за сброс конвейера при неверном предсказании ветвлений:</label>
+      <textarea id="ans_megahertz_myth" name="ans_megahertz_myth" placeholder="Поясните соотношение между частотой f, показателем IPC и штрафом 31 стадии конвейера NetBurst..."></textarea>
+    </div>
+  </div>
+
+  <!-- ЗАДАНИЕ 3: РАСЧЕТ УСКОРЕНИЯ ПО ЗАКОНУ АМДАЛА -->
+  <div class="task-card">
+    <div class="task-title">
+      <span>Задание 3. Расчет ускорения многоядерной системы по закону Амдала</span>
+    </div>
+    <div class="task-help">
+      Закон Амдала определяет предел ускорения: $S(N) = \frac{1}{(1 - p) + \frac{p}{N}}$, где $p$ — параллельная доля программы, $N$ — число вычислительных ядер. Рассчитайте ускорение для трех сценариев и сделайте архитектурный вывод.
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Параллельная доля кода ($p$)</th>
+            <th>Ускорение на 2 ядрах ($N=2$)</th>
+            <th>Ускорение на 4 ядрах ($N=4$)</th>
+            <th>Ускорение на 8 ядрах ($N=8$)</th>
+            <th>Ускорение на 16 ядрах ($N=16$)</th>
+            <th>Теоретический предел ($N \to \infty$)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Случай A: $p = 0.50$ (50% распараллелено)</strong></td>
+            <td><input type="text" class="table-input" id="tbl_amdahl_a2" placeholder="1.33x"></td>
+            <td><input type="text" class="table-input" id="tbl_amdahl_a4" placeholder="1.60x"></td>
+            <td><input type="text" class="table-input" id="tbl_amdahl_a8" placeholder="1.78x"></td>
+            <td><input type="text" class="table-input" id="tbl_amdahl_a16" placeholder="1.88x"></td>
+            <td><input type="text" class="table-input" id="tbl_amdahl_ainf" placeholder="2.00x"></td>
+          </tr>
+          <tr>
+            <td><strong>Случай B: $p = 0.80$ (80% распараллелено)</strong></td>
+            <td><input type="text" class="table-input" id="tbl_amdahl_b2" placeholder="1.67x"></td>
+            <td><input type="text" class="table-input" id="tbl_amdahl_b4" placeholder="2.50x"></td>
+            <td><input type="text" class="table-input" id="tbl_amdahl_b8" placeholder="3.33x"></td>
+            <td><input type="text" class="table-input" id="tbl_amdahl_b16" placeholder="4.00x"></td>
+            <td><input type="text" class="table-input" id="tbl_amdahl_binf" placeholder="5.00x"></td>
+          </tr>
+          <tr>
+            <td><strong>Случай C: $p = 0.95$ (95% распараллелено)</strong></td>
+            <td><input type="text" class="table-input" id="tbl_amdahl_c2" placeholder="1.90x"></td>
+            <td><input type="text" class="table-input" id="tbl_amdahl_c4" placeholder="3.48x"></td>
+            <td><input type="text" class="table-input" id="tbl_amdahl_c8" placeholder="5.93x"></td>
+            <td><input type="text" class="table-input" id="tbl_amdahl_c16" placeholder="9.14x"></td>
+            <td><input type="text" class="table-input" id="tbl_amdahl_cinf" placeholder="20.00x"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div>
+      <label for="ans_amdahl_conclusion">3.2. Архитектурный вывод по закону Амдала: почему бессмысленно наращивать число ядер в процессоре для слабопараллельных пользовательских программ? Что важнее для ускорения таких задач: тактовая частота, IPC или объем кэша?</label>
+      <textarea id="ans_amdahl_conclusion" name="ans_amdahl_conclusion" placeholder="Сформулируйте вывод о роли последовательной части (1 - p) и влиянии на требования к архитектуре CPU..."></textarea>
+    </div>
+  </div>
+
+  <!-- ЗАДАНИЕ 4: ИНДИВИДУАЛЬНЫЙ ПРОТОКОЛ ПО 4 ВАРИАНТАМ -->
+  <div class="task-card">
+    <div class="task-title">
+      <span>Задание 4. Индивидуальный протокол сравнительного анализа (по 4 вариантам рабочих нагрузок)</span>
+    </div>
+    <div class="task-help">
+      Заполните протокол в соответствии с вариантом, выбранным в блоке реквизитов (или назначенным преподавателем). Проанализируйте тип нагрузки, обоснуйте выбор CPU и вскройте ограничение поверхностной интерпретации характеристик.
+    </div>
+
+    <div class="variant-card">
+      <div class="variant-title" id="display_variant_title">Вариант не выбран в шапке страницы (выберите вариант в карточке студента выше)</div>
+      
+      <div style="margin-bottom: 14px;">
+        <label for="ans_variant_bottleneck">4.1. Анализ характера рабочей нагрузки и ключевых узких мест (Memory-bound / Cache-bound / Latency-bound / Compute-bound Throughput / SIMD-bound):</label>
+        <textarea id="ans_variant_bottleneck" name="ans_variant_bottleneck" placeholder="Определите характер вычислений, зависимость от задержек ОЗУ, кэша, объема данных и инструкций..."></textarea>
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <label for="ans_variant_choice">4.2. Сравнительный инженерный выбор процессора и его аргументация (AMD Ryzen 7 7800X3D vs Intel Core i7-14700K):</label>
+        <textarea id="ans_variant_choice" name="ans_variant_choice" placeholder="Какой процессор вы выбираете под данную задачу и почему? Приведите конкретные архитектурные аргументы (3D V-Cache, P/E ядра, AVX-512, TDP, латентность)..."></textarea>
+      </div>
+
+      <div>
+        <label for="ans_variant_interpretation_limit">4.3. Ограничение поверхностной интерпретации характеристик (разоблачение маркетингового мифа в данном сценарии):</label>
+        <textarea id="ans_variant_interpretation_limit" name="ans_variant_interpretation_limit" placeholder="Какая паспортная характеристика вводит неспециалиста в заблуждение (например, высокая частота 5.6 ГГц, 20 ядер или базовый TDP 125 Вт)? Почему в реальности результат противоположен?"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- ПАНЕЛЬ ДЕЙСТВИЙ (СКРЫВАЕТСЯ ПРИ ПЕЧАТИ) -->
+  <div class="actions-card">
+    <div class="btn-row">
+      <button type="button" class="btn-primary" onclick="window.print()">Распечатать / Сохранить в PDF</button>
+      <button type="button" class="btn-secondary" onclick="saveToLocalStorage(true)">Сохранить черновик</button>
+      <button type="button" class="btn-danger" onclick="confirmReset()">Очистить форму</button>
+      <span id="save_status" class="status-msg"></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const STORAGE_KEY = 'sie_hw10_zanyatie_data';
+  const FORM_FIELDS = [
+    'student_fio', 'student_group', 'work_date', 'work_variant',
+    'ans_moore_definition', 'ans_dennard_powerwall',
+    'tbl_node_p4', 'tbl_node_c2d', 'tbl_node_ryzen', 'tbl_node_intel',
+    'tbl_cores_p4', 'tbl_cores_c2d', 'tbl_cores_ryzen', 'tbl_cores_intel',
+    'tbl_freq_p4', 'tbl_freq_c2d', 'tbl_freq_ryzen', 'tbl_freq_intel',
+    'tbl_pipe_p4', 'tbl_pipe_c2d', 'tbl_pipe_ryzen', 'tbl_pipe_intel',
+    'tbl_l3_p4', 'tbl_l3_c2d', 'tbl_l3_ryzen', 'tbl_l3_intel',
+    'tbl_tdp_p4', 'tbl_tdp_c2d', 'tbl_tdp_ryzen', 'tbl_tdp_intel',
+    'ans_megahertz_myth',
+    'tbl_amdahl_a2', 'tbl_amdahl_a4', 'tbl_amdahl_a8', 'tbl_amdahl_a16', 'tbl_amdahl_ainf',
+    'tbl_amdahl_b2', 'tbl_amdahl_b4', 'tbl_amdahl_b8', 'tbl_amdahl_b16', 'tbl_amdahl_binf',
+    'tbl_amdahl_c2', 'tbl_amdahl_c4', 'tbl_amdahl_c8', 'tbl_amdahl_c16', 'tbl_amdahl_cinf',
+    'ans_amdahl_conclusion',
+    'ans_variant_bottleneck', 'ans_variant_choice', 'ans_variant_interpretation_limit'
+  ];
+
+  const VARIANT_TITLES = {
+    '1': 'Вариант 1: Киберспортивный и соревновательный гейминг с высоким FPS (CS2, Valorant, 1080p, 240+ Гц)',
+    '2': 'Вариант 2: Офлайн 3D-рендеринг и компиляция крупных C++ проектов (Blender, Unreal Engine Source)',
+    '3': 'Вариант 3: Высокочастотный алготрейдинг (HFT, Single-thread Tick-to-Trade Latency)',
+    '4': 'Вариант 4: Моделирование гидродинамики и векторные научные расчеты (CFD, AVX-512)'
+  };
+
+  function updateVariantSelection() {
+    const sel = document.getElementById('work_variant');
+    const val = sel.value;
+    const titleElem = document.getElementById('display_variant_title');
+    const printElem = document.getElementById('print_work_variant');
+
+    if (val && VARIANT_TITLES[val]) {
+      titleElem.textContent = VARIANT_TITLES[val];
+      printElem.textContent = sel.options[sel.selectedIndex].text;
+    } else {
+      titleElem.textContent = 'Вариант не выбран в шапке страницы (выберите вариант в карточке студента выше)';
+      printElem.textContent = 'Вариант не выбран';
+    }
+    saveToLocalStorage(false);
+  }
+
+  function saveToLocalStorage(showFeedback) {
+    const data = {};
+    FORM_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) data[id] = el.value;
+    });
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      if (showFeedback) {
+        const status = document.getElementById('save_status');
+        status.textContent = '✓ Сохранено в браузере';
+        status.className = 'status-msg status-saved';
+        setTimeout(() => { status.textContent = ''; }, 3000);
+      }
+    } catch (e) {
+      console.warn('LocalStorage error:', e);
+    }
+  }
+
+  function loadFromLocalStorage() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const data = JSON.parse(raw);
+        FORM_FIELDS.forEach(id => {
+          if (data[id] !== undefined) {
+            const el = document.getElementById(id);
+            if (el) el.value = data[id];
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('LocalStorage load error:', e);
+    }
+    updateVariantSelection();
+  }
+
+  function confirmReset() {
+    if (confirm('Внимание! Все введенные данные в форме будут безвозвратно удалены. Продолжить очистку?')) {
+      FORM_FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (e) {}
+      updateVariantSelection();
+      const status = document.getElementById('save_status');
+      status.textContent = 'Форма очищена';
+      status.className = 'status-msg';
+      setTimeout(() => { status.textContent = ''; }, 3000);
+    }
+  }
+
+  // Автосохранение при вводе
+  document.addEventListener('DOMContentLoaded', () => {
+    loadFromLocalStorage();
+    FORM_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => saveToLocalStorage(false));
+        el.addEventListener('change', () => saveToLocalStorage(false));
+      }
+    });
+  });
+
+  // Синхронизация select перед печатью
+  window.addEventListener('beforeprint', () => {
+    updateVariantSelection();
+  });
+</script>
+</body>
+</html>
