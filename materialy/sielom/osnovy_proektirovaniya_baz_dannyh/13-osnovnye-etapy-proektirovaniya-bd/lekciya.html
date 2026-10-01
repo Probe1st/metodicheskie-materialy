@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Конспект лекции: Основные этапы проектирования БД</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #e2e8f0;
+      --accent: #0284c7;
+      --accent-dark: #0369a1;
+      --accent-soft: #f0f9ff;
+      --code-bg: #0f172a;
+      --code-text: #f8fafc;
+      --diagram-bg: #f1f5f9;
+      --diagram-border: #cbd5e1;
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      padding: 24px 16px;
+    }
+
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+
+    header.lecture-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+    }
+
+    section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 26px 30px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--accent-dark);
+      margin-bottom: 16px;
+      border-left: 4px solid var(--accent);
+      padding-left: 12px;
+    }
+
+    h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 20px 0 10px 0;
+    }
+
+    p {
+      margin-bottom: 14px;
+      color: #334155;
+    }
+
+    ul, ol {
+      margin: 8px 0 16px 24px;
+      color: #334155;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    /* Блок-схемы стадий DBLC */
+    .flowchart-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: 24px 0;
+    }
+
+    .flow-step {
+      display: flex;
+      align-items: stretch;
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .flow-step:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .flow-step-num {
+      background: var(--accent-dark);
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 1.3rem;
+      width: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .flow-step-content {
+      padding: 16px 20px;
+      flex: 1;
+    }
+
+    .flow-step-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--accent-dark);
+      margin-bottom: 4px;
+    }
+
+    .flow-step-desc {
+      font-size: 0.95rem;
+      color: #475569;
+      line-height: 1.5;
+    }
+
+    .flow-arrow {
+      text-align: center;
+      color: var(--accent);
+      font-size: 1.5rem;
+      font-weight: 900;
+      margin: -4px 0;
+      user-select: none;
+    }
+
+    /* Таблицы входов/выходов */
+    table.summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 0.94rem;
+    }
+
+    table.summary-table th, table.summary-table td {
+      border: 1px solid var(--border);
+      padding: 12px 14px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    table.summary-table th {
+      background-color: #f1f5f9;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    table.summary-table tr:hover {
+      background-color: #f8fafc;
+    }
+
+    .code-box {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 16px 20px;
+      border-radius: 8px;
+      font-family: 'SFMono-Regular', Consolas, Monaco, 'Courier New', monospace;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      overflow-x: auto;
+      margin: 16px 0;
+    }
+
+    .note-box {
+      background: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      border-radius: 6px;
+      padding: 16px 20px;
+      margin: 20px 0;
+    }
+
+    .note-box strong {
+      color: var(--accent-dark);
+    }
+
+    .check-questions {
+      background: #fdfefe;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .check-questions ol {
+      margin-left: 20px;
+      margin-bottom: 0;
+    }
+
+    .check-questions li {
+      margin-bottom: 10px;
+      font-weight: 500;
+      color: #1e293b;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="lecture-header">
+      <h1>Конспект лекции: Основные этапы проектирования баз данных</h1>
+      <div class="subtitle">Дисциплина «ОП.08 Основы проектирования баз данных» — Тема 3. Занятие 13</div>
+    </header>
+
+    <!-- Введение в DBLC -->
+    <section>
+      <h2>1. Понятие жизненного цикла базы данных (DBLC)</h2>
+      <p>
+        Проектирование базы данных — это не изолированный акт написания SQL-инструкций, а строгий последовательный инженерный процесс создания информационной основы автоматизированной системы.
+      </p>
+      <p>
+        В теории программной инженерии совокупность взаимосвязанных стадий от первоначального зарождения идеи до вывода системы из эксплуатации называется <strong>жизненным циклом базы данных (Database Life Cycle, DBLC)</strong>.
+      </p>
+      <p>
+        Классический каскадный процесс проектирования баз данных опирается на трехуровневую архитектуру <strong>ANSI/SPARC</strong> (внешний, концептуальный и внутренний уровни), которая гарантирует логическую и физическую независимость данных.
+      </p>
+
+      <div class="note-box">
+        <strong>Фундаментальное правило проектирования:</strong> Ошибка, допущенная на этапе сбора требований или концептуального моделирования, при обнаружении на стадии физической эксплуатации обходится в 50–100 раз дороже, чем исправление на начальных этапах.
+      </div>
+    </section>
+
+    <!-- Наглядная блок-схема DBLC -->
+    <section>
+      <h2>2. Наглядная блок-схема стадий DBLC</h2>
+      <p>
+        Жизненный цикл базы данных включает 5 основных последовательных этапов с обратными связями (итерациями верификации):
+      </p>
+
+      <div class="flowchart-container">
+        <div class="flow-step">
+          <div class="flow-step-num">1</div>
+          <div class="flow-step-content">
+            <div class="flow-step-title">Системный анализ и сбор требований к БД</div>
+            <div class="flow-step-desc">Исследование предметной области, интервью с пользователями, сбор нормативных документов, спецификация функциональных и нагрузочных требований (ТЗ).</div>
+          </div>
+        </div>
+
+        <div class="flow-arrow">&darr; [Критерий перехода: Утвержденное ТЗ]</div>
+
+        <div class="flow-step">
+          <div class="flow-step-num">2</div>
+          <div class="flow-step-content">
+            <div class="flow-step-title">Концептуальное (инфологическое) проектирование</div>
+            <div class="flow-step-desc">Построение семантической модели данных (ER-диаграмма: сущности, атрибуты, связи). Полная независимость от целевой СУБД и аппаратной платформы.</div>
+          </div>
+        </div>
+
+        <div class="flow-arrow">&darr; [Критерий перехода: Верифицированная ER-модель]</div>
+
+        <div class="flow-step">
+          <div class="flow-step-num">3</div>
+          <div class="flow-step-content">
+            <div class="flow-step-title">Логическое (даталогическое) проектирование</div>
+            <div class="flow-step-desc">Отображение инфологической модели в реляционную структуру (таблицы, PK, FK). Нормализация отношений (1НФ &rarr; 2НФ &rarr; 3НФ). В OLAP — осознанная денормализация.</div>
+          </div>
+        </div>
+
+        <div class="flow-arrow">&darr; [Критерий перехода: Схема в 3НФ без аномалий]</div>
+
+        <div class="flow-step">
+          <div class="flow-step-num">4</div>
+          <div class="flow-step-content">
+            <div class="flow-step-title">Физическое проектирование и реализация</div>
+            <div class="flow-step-desc">Выбор конкретной СУБД (PostgreSQL, ClickHouse), генерация DDL, подбор типов данных, построение индексов (B-Tree, GiST), партиционирование, настройка серверов.</div>
+          </div>
+        </div>
+
+        <div class="flow-arrow">&darr; [Критерий перехода: Прохождение нагрузочных тестов]</div>
+
+        <div class="flow-step">
+          <div class="flow-step-num">5</div>
+          <div class="flow-step-content">
+            <div class="flow-step-title">Эксплуатация, администрирование и сопровождение</div>
+            <div class="flow-step-desc">Промышленная работа базы данных, регулярное резервное копирование (бэкапы), мониторинг производительности (slow logs), масштабирование и репликация.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Детальное описание каждого этапа -->
+    <section>
+      <h2>3. Детальная характеристика этапов проектирования</h2>
+
+      <h3>3.1. Этап системного анализа и сбора требований</h3>
+      <p>
+        На этом этапе проектировщик взаимодействует с заказчиками, экспертами предметной области и будущими пользователями. Главная задача — понять, какую реальность должна отражать база данных.
+      </p>
+      <ul>
+        <li><strong>Методы сбора:</strong> интервьюирование, анкетирование, наблюдение за рабочими процессами, изучение бумажного документооборота предприятия.</li>
+        <li><strong>Формализация ограничений:</strong> выявление бизнес-правил (например: «один клиент не может арендовать более одного автомобиля одновременно» или «рецепт на антибиотик действителен не более 30 дней»).</li>
+      </ul>
+
+      <h3>3.2. Этап концептуального проектирования</h3>
+      <p>
+        Создается инфологическая модель предметной области. Наиболее распространенным инструментом является модель «Сущность-Связь» (Entity-Relationship Model, ER-модель), предложенная Питером Ченом в 1976 году.
+      </p>
+      <ul>
+        <li><strong>Сущность (Entity):</strong> обособленный объект реального мира (Студент, Автомобиль, Товар).</li>
+        <li><strong>Атрибут (Attribute):</strong> свойство сущности (ФИО, VIN-номер, Цена).</li>
+        <li><strong>Связь (Relationship):</strong> содержательное отношение между сущностями (Студент «учится в» Группе; Врач «выписывает» Рецепт).</li>
+      </ul>
+
+      <h3>3.3. Этап логического проектирования</h3>
+      <p>
+        Концептуальная модель транслируется в конкретную модель данных. В подавляющем большинстве промышленных систем это <strong>реляционная модель</strong>.
+      </p>
+      <ul>
+        <li>Каждая сущность трансформируется в отношение (реляционную таблицу).</li>
+        <li>Связи 1:N реализуются добавлением внешнего ключа (Foreign Key) в дочернюю таблицу.</li>
+        <li>Связи M:N (многие-ко-многим) расщепляются созданием вспомогательной таблицы связи с составным первичным ключом.</li>
+        <li>Проводится математическая <strong>нормализация отношений</strong> до 3-й нормальной формы для исключения избыточности и аномалий модификации.</li>
+      </ul>
+
+      <h3>3.4. Этап физического проектирования</h3>
+      <p>
+        Логическая схема привязывается к архитектурным особенностям выбранной СУБД (PostgreSQL, MariaDB, Oracle Database) и оборудованию.
+      </p>
+      <ul>
+        <li>Определение точных системных типов данных (INT, NUMERIC, TIMESTAMP WITH TIME ZONE).</li>
+        <li>Проектирование структур быстрого поиска: выбор типов индексов (B-Tree для диапазонов, Hash для точных совпадений, GiST/SP-GiST для геокоординат).</li>
+        <li>Горизонтальное партиционирование (Partitioning): разбиение гигантских таблиц на секции по диапазонам дат или хэш-ключам.</li>
+        <li>Обеспечение безопасности: настройка шифрования дисков (TDE), ролевой модели прав (GRANT/REVOKE).</li>
+      </ul>
+
+      <h3>3.5. Этап эксплуатации и сопровождения</h3>
+      <p>
+        База данных вводится в промышленный контур. Основные инженерные задачи:
+      </p>
+      <ul>
+        <li>Реализация стратегии резервного копирования: RPO (допустимая потеря данных во времени) и RTO (время восстановления сервиса).</li>
+        <li>Настройка репликации (Master-Replica) для обеспечения высокой доступности (High Availability).</li>
+        <li>Анализ профиля медленных запросов через <code>pg_stat_statements</code> и оптимизация планов выполнения (EXPLAIN ANALYZE).</li>
+      </ul>
+    </section>
+
+    <!-- Сводная таблица входов, выходов и ключевых документов -->
+    <section>
+      <h2>4. Сводная таблица входов, выходов и ключевых документов этапов</h2>
+      <p>
+        Инженерный процесс проектирования регламентируется четким набором входящей и исходящей документации:
+      </p>
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th style="width: 20%;">Этап DBLC</th>
+            <th style="width: 28%;">Входные данные и документы</th>
+            <th style="width: 32%;">Выходные документы и артефакты</th>
+            <th style="width: 20%;">Критерий перехода (Gate)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Системный анализ</strong></td>
+            <td>Первичная документация предприятия (накладные, акты, рецепты), интервью, регламенты, 152-ФЗ.</td>
+            <td>Техническое задание (ТЗ) на БД, словарь данных, спецификация SLA и объемов.</td>
+            <td>Утверждение ТЗ заказчиком</td>
+          </tr>
+          <tr>
+            <td><strong>2. Концептуальное проектирование</strong></td>
+            <td>Утвержденное ТЗ, перечень бизнес-правил предметной области.</td>
+            <td>Инфологическая ER-диаграмма (нотации Chen / Crow's Foot), реестр сущностей и кардинальностей.</td>
+            <td>Согласование ERD экспертами домена</td>
+          </tr>
+          <tr>
+            <td><strong>3. Логическое проектирование</strong></td>
+            <td>Концептуальная ER-диаграмма, правила трансляции отношений.</td>
+            <td>Реляционная схема в 3НФ, спецификация PK и FK, ограничения CHECK, логическая схема «Звезда» (OLAP).</td>
+            <td>Подтверждение 3НФ (отсутствие аномалий)</td>
+          </tr>
+          <tr>
+            <td><strong>4. Физическое проектирование</strong></td>
+            <td>Логическая реляционная схема, профиль нагрузочного тестирования.</td>
+            <td>DDL-скрипты целевой СУБД, структуры индексов (B-Tree/GiST), конфигурация партиций, профиль RAID/дисков.</td>
+            <td>Успешный нагрузочный бенчмарк</td>
+          </tr>
+          <tr>
+            <td><strong>5. Эксплуатация и сопровождение</strong></td>
+            <td>Развернутая в проде БД, эксплуатационный трафик транзакций.</td>
+            <td>Регламент резервного копирования (RPO/RTO), конфигурация репликации, отчеты slow-запросов.</td>
+            <td>Непрерывный эксплуатационный цикл</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Вопросы для самопроверки -->
+    <section>
+      <h2>5. Вопросы для глубокой самопроверки</h2>
+      <div class="check-questions">
+        <ol>
+          <li>В чем заключается принципиальная разница между концептуальным и логическим уровнями проектирования БД? Почему на концептуальном уровне нельзя указывать типы данных СУБД?</li>
+          <li>Каким образом связь «многие-ко-многим» (M:N), выделенная на концептуальном этапе, трансформируется в схему отношений на логическом этапе проектирования?</li>
+          <li>Почему в аналитических хранилищах данных (DWH / OLAP) на логическом этапе сознательно допускается денормализация структуры таблиц?</li>
+          <li>Какие ключевые задачи решает физическое проектирование и почему правильный подбор индексов и партиционирования критичен для систем с высокой нагрузкой (на примере телеметрии каршеринга)?</li>
+          <li>Что означают показатели RPO (Recovery Point Objective) и RTO (Recovery Time Objective) на этапе эксплуатации и администрирования базы данных?</li>
+        </ol>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
