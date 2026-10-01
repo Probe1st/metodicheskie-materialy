@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Теоретический конспект — Организация интерфейса с пользователем: контроль</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #0284c7;
+      --accent-soft: #f0f9ff;
+      --accent-dark: #0369a1;
+      --success: #15803d;
+      --success-soft: #f0fdf4;
+      --warn: #b45309;
+      --warn-soft: #fffbeb;
+      --danger: #b91c1c;
+      --danger-soft: #fef2f2;
+      --code-bg: #0f172a;
+      --code-text: #f8fafc;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px;
+    }
+
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+
+    header.doc-header {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    h1 {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--accent-dark);
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.98rem;
+      font-weight: 500;
+    }
+
+    section.topic-block {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--accent-dark);
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+    }
+
+    h3 {
+      font-size: 1.08rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 20px 0 8px;
+    }
+
+    p {
+      margin-bottom: 12px;
+      font-size: 0.96rem;
+    }
+
+    ul, ol {
+      margin-left: 20px;
+      margin-bottom: 14px;
+      font-size: 0.95rem;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.92rem;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font-weight: 700;
+    }
+
+    pre, code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+    }
+
+    code {
+      background: #f1f5f9;
+      color: var(--accent-dark);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 14px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 12px 0;
+      line-height: 1.45;
+    }
+
+    /* Архитектурные блок-схемы потока валидации */
+    .flow-diagram {
+      background: #0f172a;
+      color: #38bdf8;
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 18px 0;
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 0.88rem;
+      line-height: 1.4;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .info-card {
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-size: 0.92rem;
+    }
+
+    .info-card.blue {
+      background: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      color: var(--accent-dark);
+    }
+
+    .info-card.warn {
+      background: var(--warn-soft);
+      border-left: 4px solid var(--warn);
+      color: var(--warn);
+    }
+
+    .info-card.green {
+      background: var(--success-soft);
+      border-left: 4px solid var(--success);
+      color: var(--success);
+    }
+
+    .quiz-card {
+      background: var(--bg);
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 14px 0;
+    }
+
+    .quiz-title {
+      font-weight: 700;
+      color: var(--accent-dark);
+      margin-bottom: 6px;
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 12px 8px; }
+      header.doc-header, section.topic-block { padding: 16px 14px; }
+      h1 { font-size: 1.35rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="doc-header">
+      <h1>Теоретический конспект: Организация интерфейса с пользователем — контроль</h1>
+      <div class="subtitle">
+        Дисциплина «ОП.08 Основы проектирования баз данных» | Тема 4. Проектирование структур баз данных (§2.2 с.7–8) | СИЭУиП
+      </div>
+    </header>
+
+    <!-- РАЗДЕЛ 1: АРХИТЕКТУРА И ПОТОК ВАЛИДАЦИИ -->
+    <section class="topic-block">
+      <h2>1. Архитектура эшелонированного контроля и блок-схема потока данных</h2>
+      <p>
+        В современных информационных системах пользовательский интерфейс отделен от СУБД сетевым уровнем. Любые данные, вводимые человеком через формы на веб-странице или в мобильном приложении, проходят многоступенчатую цепочку проверок. В промышленной архитектуре реализуется принцип <strong>«Defense in Depth» (эшелонированная оборона)</strong>:
+      </p>
+
+      <div class="flow-diagram">
++---------------------------------------------------------------------------------------------------+
+|                                БЛОК-СХЕМА ПОТОКА ВАЛИДАЦИИ ДАННЫХ                                |
++---------------------------------------------------------------------------------------------------+
+
+[ ПОЛЬЗОВАТЕЛЬ ]
+       | Ввод символов в форму (инпуты, селекторы, чекбоксы)
+       v
++-----------------------------+
+| 1. КЛИЕНТСКИЙ КОНТРОЛЬ (UX) | ---> Ошибка? ---> Мгновенная красная рамка, текст подсказки,
+|  - Маски ввода и regex      |                   блокировка кнопки Submit (is-invalid)
+|  - Проверка контрольных сумм|
+|  - Временные интервалы дат  |
++-----------------------------+
+       | Валидно (OK) -> Отправка HTTP POST / JSON Payload
+       v
++-----------------------------+
+| 2. API SERVER (БЭКЕНД)      | ---> Ошибка схемы? -> Ответ 400 Bad Request (JSON с ошибками)
+|  - Санитизация строк        |
+|  - Аутентификация / Сессия  |
++-----------------------------+
+       | Формирование Prepared Statement с плейсхолдерами ($1, $2, ...)
+       v
++-----------------------------+
+| 3. ПАРАМЕТРИЗОВАННЫЙ ЗАПРОС | ---> Защита от SQL Injection: СУБД скомпилировала AST,
+|  - Разделение кода и данных |      байты пользователя воспринимаются СТРОГО как литералы!
++-----------------------------+
+       | Передача параметров по бинарному протоколу в СУБД
+       v
++-----------------------------+
+| 4. СУБД: ДЕКЛАРАТИВНЫЙ И    |
+|    ТРАНЗАКЦИОННЫЙ КОНТРОЛЬ  |
+|  - NOT NULL, CHECK, UNIQUE  |
+|  - EXCLUDE USING gist       | ---> Конфликт? -> ВЫБРОС ИСКЛЮЧЕНИЯ СУБД:
+|  - BEFORE-триггеры (остатки)|                   Коды SQLSTATE (23505, 23514, 23P01, P0001)
+|  - SELECT ... FOR UPDATE    |                   Автоматический ROLLBACK транзакции!
++-----------------------------+
+       | Ошибка перехвачена драйвером бэкенда
+       v
++-----------------------------+
+| 5. ERROR MAPPING (ТРАНСЛЯЦИЯ| ---> Преобразование технического кода SQLSTATE
+|    ТЕХНИЧЕСКИХ ОШИБОК)      |      в понятный человеку текст (User-Friendly UI Notification)
++-----------------------------+      БЕЗ раскрытия имен таблиц и схемы базы данных!
+       |
+       v
+[ ЭКРАН ПОЛЬЗОВАТЕЛЯ: «Клиент с данным ИНН уже зарегистрирован» / «Номер занят на эти даты» ]
+      </div>
+
+      <div class="info-card blue">
+        <strong>Ключевая аксиома проектирования:</strong> Клиентская валидация существует для <em>удобства пользователя (UX)</em> и снижения сетевой нагрузки. Серверная валидация и ограничения СУБД существуют для <em>сохранения целостности и безопасности данных</em>. Никогда не доверяйте данным, пришедшим с клиента!
+      </div>
+    </section>
+
+    <!-- РАЗДЕЛ 2: СРАВНИТЕЛЬНЫЙ АНАЛИЗ УРОВНЕЙ -->
+    <section class="topic-block">
+      <h2>2. Сравнительная характеристика клиентского и серверного контроля</h2>
+      <p>Распределение ответственности между уровнями архитектуры представлено в сравнительной таблице:</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Характеристика</th>
+            <th>Клиентский контроль (Frontend)</th>
+            <th>Серверный контроль (Backend / СУБД)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Среда выполнения</strong></td>
+            <td>Браузер пользователя (V8, JavaScript / TypeScript, HTML5 Constraint API).</td>
+            <td>Сервер приложений (Node.js, Python, Java, Go) и ядро реляционной СУБД (PostgreSQL).</td>
+          </tr>
+          <tr>
+            <td><strong>Главная цель</strong></td>
+            <td>Мгновенный отклик интерфейса, снижение холостого трафика, подсказка правильного формата.</td>
+            <td>Гарантия целостности данных (ACID), исключение инъекций, обработка конкурентных транзакций.</td>
+          </tr>
+          <tr>
+            <td><strong>Скорость отклика</strong></td>
+            <td>0–5 миллисекунд (выполняется локально в оперативной памяти клиентского устройства).</td>
+            <td>15–150 миллисекунд (задержка сети, чтение блокировок, обращение к дисковым индексам).</td>
+          </tr>
+          <tr>
+            <td><strong>Степень доверия</strong></td>
+            <td><strong>Нулевая.</strong> Код клиента может быть отключен, переписан через консоль разработчика или обойден запросом через curl.</td>
+            <td><strong>Абсолютная.</strong> Ядро СУБД физически отменяет транзакцию и не допускает некорректную запись на диск.</td>
+          </tr>
+          <tr>
+            <td><strong>Инструменты реализации</strong></td>
+            <td>HTML5-атрибуты (<code>required</code>, <code>pattern</code>), события <code>input</code>, <code>blur</code>, маски полей, RegExp в JS.</td>
+            <td>Ограничения <code>CHECK</code>, <code>UNIQUE</code>, <code>FOREIGN KEY</code>, триггеры <code>BEFORE INSERT/UPDATE</code>, транзакции <code>SELECT FOR UPDATE</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>Типичные сценарии</strong></td>
+            <td>Проверка формата email, проверка длины и контрольной суммы ИНН, проверка Дата_выезда > Дата_заезда.</td>
+            <td>Проверка уникальности ИНН среди миллионов клиентов, проверка остатка на счете, блокировка слота времени.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- РАЗДЕЛ 3: РЕГУЛЯРНЫЕ ВЫРАЖЕНИЯ И МАСКИ -->
+    <section class="topic-block">
+      <h2>3. Правила составления регулярных выражений для валидации экранных форм</h2>
+      <p>
+        Регулярные выражения (Regular Expressions, RegExp) являются стандартом де-факто для проверки формата текстовых данных в формах ввода.
+      </p>
+
+      <h3>3.1. Фундаментальное правило: граничные якоря ^ и $</h3>
+      <p>
+        Самая распространенная ошибка разработчиков — отсутствие якорей начала строки (<code>^</code>) и конца строки (<code>$</code>). Без якорей регулярное выражение ищет <em>любое совпадение в подстроке</em>, что делает валидацию фиктивной:
+      </p>
+      <pre><code>// НЕПРАВИЛЬНО (без якорей):
+const badRegex = /\d{10}/;
+badRegex.test("Мой ИНН 1234567890 и еще мусор"); // Вернет TRUE! (пропустит грязь в БД)
+
+// ПРАВИЛЬНО (строго от начала до конца):
+const goodRegex = /^\d{10}$/;
+goodRegex.test("1234567890");                   // TRUE (ровно 10 цифр)
+goodRegex.test("Мой ИНН 1234567890");          // FALSE (отклонено)</code></pre>
+
+      <h3>3.2. Стандартные шаблоны валидации реквизитов</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Поле экранной формы</th>
+            <th>Спецификация формата</th>
+            <th>Регулярное выражение (RegExp)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>ИНН юридического лица</strong></td>
+            <td>Строго 10 арабских цифр</td>
+            <td><code>^\d{10}$</code></td>
+          </tr>
+          <tr>
+            <td><strong>ИНН индивидуального предпринимателя</strong></td>
+            <td>Строго 12 арабских цифр</td>
+            <td><code>^\d{12}$</code></td>
+          </tr>
+          <tr>
+            <td><strong>ОГРН юридического лица</strong></td>
+            <td>Строго 13 арабских цифр</td>
+            <td><code>^\d{13}$</code></td>
+          </tr>
+          <tr>
+            <td><strong>БИК Банка РФ</strong></td>
+            <td>Строго 9 арабских цифр (начинается с 04)</td>
+            <td><code>^04\d{7}$</code></td>
+          </tr>
+          <tr>
+            <td><strong>Банковский счет РФ (расчетный/корр.)</strong></td>
+            <td>Строго 20 цифр (начинается с 407, 408, 301 и др.)</td>
+            <td><code>^\d{20}$</code></td>
+          </tr>
+          <tr>
+            <td><strong>Мобильный телефон РФ</strong></td>
+            <td>Формат с кодом страны +7 и 10 цифрами номера</td>
+            <td><code>^\+7\d{10}$</code> или с маской <code>^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$</code></td>
+          </tr>
+          <tr>
+            <td><strong>Адрес электронной почты (Email)</strong></td>
+            <td>Имя пользователя, символ @, домен и зона от 2 букв</td>
+            <td><code>^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>3.3. Клиентская проверка контрольных сумм (Алгоритм ИНН-10)</h3>
+      <p>
+        Одной лишь проверки регулярным выражением <code>^\d{10}$</code> недостаточно, так как 10-й знак ИНН юридического лица является <strong>контрольным разрядом</strong>, вычисляемым по специальным весовым коэффициентам:
+      </p>
+      <pre><code>// Алгоритм проверки контрольного разряда ИНН 10 знаков:
+function validateInn10(inn) {
+    if (!/^\d{10}$/.test(inn)) return false;
+    const weights = [2, 4, 10, 3, 5, 9, 4, 6, 8];
+    let sum = 0;
+    for (let i = 0; i &lt; 9; i++) {
+        sum += parseInt(inn[i], 10) * weights[i];
+    }
+    const checkDigit = (sum % 11) % 10;
+    return checkDigit === parseInt(inn[9], 10);
+}</code></pre>
+    </section>
+
+    <!-- РАЗДЕЛ 4: ЗАЩИТА ОТ SQL INJECTION -->
+    <section class="topic-block">
+      <h2>4. Защита от SQL-инъекций: параметризованные запросы (Prepared Statements)</h2>
+      <p>
+        SQL-инъекция возникает в том случае, когда непроверенный ввод пользователя напрямую конкатенируется в тело SQL-запроса, в результате чего интерпретатор СУБД воспринимает данные как управляющие команды.
+      </p>
+
+      <div class="info-card warn">
+        <strong>Классическая атака тавтологии:</strong><br>
+        Если запрос сформирован строкой <code>"SELECT * FROM accounts WHERE login = '" + login + "'"</code>, злоумышленник вводит <code>admin' OR '1'='1</code>.<br>
+        Итоговый запрос превращается в <code>SELECT * FROM accounts WHERE login = 'admin' OR '1'='1'</code>, что приводит к обходу аутентификации и компрометации системы.
+      </div>
+
+      <p>
+        <strong>Почему параметризация дает 100% защиту?</strong><br>
+        Параметризованный запрос разделяет выполнение на два независимых этапа:
+      </p>
+      <ol>
+        <li><strong>Компиляция (PREPARE):</strong> СУБД компилирует запрос с маркерами параметров (плейсхолдерами <code>$1, $2</code>) в бинарное дерево синтаксического разбора (AST — Abstract Syntax Tree). Структура запроса жестко фиксируется в памяти.</li>
+        <li><strong>Исполнение (EXECUTE):</strong> Значения параметров передаются отдельно по протоколу передачи данных. Интерпретатор СУБД обрабатывает их строго как константные литералы соответствующего типа (строка, число, дата). Даже если параметр содержит символы <code>' ; -- DROP TABLE</code>, они не могут выйти за рамки строкового значения и не могут быть выполнены как код!</li>
+      </ol>
+      <pre><code>-- Как параметризация выглядит на уровне протокола PostgreSQL:
+-- Шаг 1: Подготовка запроса с типами параметров
+PREPARE find_user (text, text) AS
+    SELECT id, email, full_name FROM users WHERE login = $1 AND password_hash = $2;
+
+-- Шаг 2: Безопасное выполнение с любыми специальными символами
+EXECUTE find_user('admin\' OR 1=1 --', 'secret_hash_value');
+-- Запрос будет искать пользователя с буквальным логином "admin' OR 1=1 --" и не вернет лишних данных!</code></pre>
+    </section>
+
+    <!-- РАЗДЕЛ 5: ТРИГГЕРЫ И КОНКУРЕНТНОСТЬ В СУБД -->
+    <section class="topic-block">
+      <h2>5. Серверный контроль: триггеры BEFORE и изоляция транзакций</h2>
+      <p>
+        Некоторые бизнес-правила невозможно выразить статическим предикатом <code>CHECK</code> (например, проверка наличия товара на складе перед созданием заказа или списание баланса с лицевого счета). Для таких задач в СУБД применяются серверные триггеры <code>BEFORE INSERT OR UPDATE</code> и транзакционные блокировки.
+      </p>
+
+      <h3>5.1. Пример серверного триггера проверки остатка товара (PostgreSQL)</h3>
+      <pre><code>CREATE OR REPLACE FUNCTION check_stock_availability()
+RETURNS TRIGGER AS $$
+DECLARE
+    current_stock INT;
+BEGIN
+    -- Блокируем строку товара для предотвращения параллельного изменения остатка
+    SELECT stock_quantity INTO current_stock
+    FROM warehouse_products
+    WHERE product_id = NEW.product_id
+    FOR UPDATE;
+
+    IF current_stock &lt; NEW.quantity THEN
+        RAISE EXCEPTION 'Недостаточно товара на складе: запрошено %, в наличии %',
+            NEW.quantity, current_stock
+            USING ERRCODE = 'check_violation';
+    END IF;
+
+    -- Автоматически уменьшаем складской остаток
+    UPDATE warehouse_products
+    SET stock_quantity = stock_quantity - NEW.quantity
+    WHERE product_id = NEW.product_id;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_check_stock
+BEFORE INSERT ON order_items
+FOR EACH ROW
+EXECUTE FUNCTION check_stock_availability();</code></pre>
+
+      <h3>5.2. Проблема Race Condition и почему SELECT перед INSERT не работает</h3>
+      <p>
+        Начинающие разработчики часто пишут в коде бэкенда:
+      </p>
+      <pre><code>// Антипаттерн "Проверка перед вставкой":
+if (db.query("SELECT COUNT(*) FROM bookings WHERE room_id = 1 AND date = '2026-10-15'") == 0) {
+    db.query("INSERT INTO bookings (room_id, date) VALUES (1, '2026-10-15')");
+}</code></pre>
+      <p>
+        Если два пользователя нажмут кнопку одновременно, оба параллельных потока выполнят <code>SELECT</code>, оба получат результат <code>0</code>, после чего оба выполнят <code>INSERT</code>. В результате в базе образуется овербукинг (двойное бронирование)!<br>
+        <strong>Решение на уровне СУБД:</strong> создание уникального индекса <code>UNIQUE (room_id, booking_date)</code> или ограничения исключения <code>EXCLUDE USING gist (room_id WITH =, booking_range WITH &amp;&amp;)</code>. В этом случае СУБД аппаратно заблокирует вторую транзакцию и вернет ошибку <code>23505</code> или <code>23P01</code>.
+      </p>
+    </section>
+
+    <!-- РАЗДЕЛ 6: МАППИНГ ОШИБОК И UX -->
+    <section class="topic-block">
+      <h2>6. Обработка ошибок СУБД и трансляция в пользовательский интерфейс (Error Mapping)</h2>
+      <p>
+        В случае отказа транзакции на стороне СУБД сервер приложений обязан перехватить исключение, извлечь код <code>SQLSTATE</code> и сопоставить его со словарем дружественных экранных сообщений.
+      </p>
+
+      <div class="flow-diagram">
++-----------------------------------------------------------------------------------------------+
+|                      ТАБЛИЦА СООТВЕТСТВИЯ (ERROR MAPPING DICTIONARY)                          |
++-----------------------------------------------------------------------------------------------+
+| SQLSTATE | Системный конфликт СУБД        | Понятное сообщение пользователю                   |
++----------+--------------------------------+---------------------------------------------------+
+| 23505    | unique_violation               | «Запись с такими реквизитами уже зарегистрирована»|
+| 23514    | check_violation                | «Значение выходит за рамки допустимого диапазона» |
+| 23503    | foreign_key_violation          | «Связанная запись не найдена в справочнике»       |
+| 23P01    | exclusion_violation (gist)     | «Выбранный ресурс уже забронирован на эти даты»   |
+| 40001    | serialization_failure          | «Операция прервана из-за высокой нагрузки.        |
+|          |                                |  Пожалуйста, повторите попытку»                   |
+| P0001    | raise_exception (триггер)      | Динамический текст ошибки триггера бизнес-логики  |
++-----------------------------------------------------------------------------------------------+
+      </div>
+
+      <div class="info-card green">
+        <strong>Золотое правило интерфейса:</strong> Пользователь никогда не должен видеть системные термины базы данных: слова <code>SQLSTATE</code>, <code>constraint</code>, <code>table</code>, <code>null pointer</code> или стектрейсы. Сообщение должно четко объяснять:
+        <ol>
+          <li>Что именно пошло не так (на человеческом языке).</li>
+          <li>Какое конкретное действие нужно совершить пользователю для исправления ситуации (изменить дату, проверить ИНН, пополнить счет).</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- РАЗДЕЛ 7: ВОПРОСЫ ДЛЯ САМОПРОВЕРКИ -->
+    <section class="topic-block">
+      <h2>7. Вопросы для самопроверки и закрепления</h2>
+      
+      <div class="quiz-card">
+        <div class="quiz-title">Вопрос 1: Достаточность клиентской валидации</div>
+        <p>Если на веб-форме написан совершенный JavaScript-валидатор, проверяющий формат и контрольную сумму всех полей, можно ли отказаться от ограничений CHECK и NOT NULL в схеме базы данных?</p>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-title">Вопрос 2: Механизм защиты Prepared Statements</div>
+        <p>Почему параметризованный запрос делает невозможной SQL-инъекцию, даже если входная строка пользователя содержит кавычки и опасные инструкции <code>; DROP TABLE users; --</code>?</p>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-title">Вопрос 3: Разница между регулярным выражением с якорями и без</div>
+        <p>Какую уязвимость порождает регулярное выражение <code>/\d{10}/</code> по сравнению с <code>/^\d{10}$/</code> при проверке ИНН?</p>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-title">Вопрос 4: Перехват кодов SQLSTATE</div>
+        <p>Какую опасность несет вывод сырого сообщения <code>ERROR: duplicate key value violates unique constraint "clients_inn_key"</code> прямо на экран пользователя и как его правильно обработать?</p>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

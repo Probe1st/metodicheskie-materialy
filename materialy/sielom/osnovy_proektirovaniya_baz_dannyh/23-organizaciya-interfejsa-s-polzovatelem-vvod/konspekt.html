@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Сценарий учебного занятия (Конспект) - Организация интерфейса с пользователем: ввод</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #e2e8f0;
+      --accent: #0284c7;
+      --accent-dark: #0369a1;
+      --accent-soft: #f0f9ff;
+      --teacher-speech: #0369a1;
+      --speech-bg: #f0f9ff;
+      --dialogue-student: #15803d;
+      --student-bg: #f0fdf4;
+      --stage-badge: #e0f2fe;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    header.scenario-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+    }
+
+    section.stage-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .stage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--accent-dark);
+    }
+
+    .timing-pills {
+      display: flex;
+      gap: 8px;
+    }
+
+    .pill {
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 9999px;
+    }
+
+    .pill-main { background: #e0f2fe; color: #0369a1; }
+    .pill-short { background: #fef3c7; color: #92400e; }
+
+    .speech-block {
+      background: var(--speech-bg);
+      border-left: 4px solid var(--teacher-speech);
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 14px 0;
+    }
+
+    .speech-label {
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--teacher-speech);
+      margin-bottom: 6px;
+    }
+
+    .speech-text {
+      font-size: 1rem;
+      color: #0f172a;
+      font-style: italic;
+    }
+
+    .action-block {
+      background: #f8fafc;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 12px 0;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .action-label {
+      font-weight: 700;
+      color: var(--text);
+      margin-right: 6px;
+    }
+
+    .dialogue-block {
+      background: var(--student-bg);
+      border-left: 4px solid var(--dialogue-student);
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+      margin: 12px 0;
+      font-size: 0.95rem;
+    }
+
+    .dialogue-label {
+      font-weight: 700;
+      color: var(--dialogue-student);
+      margin-bottom: 4px;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9em;
+      background-color: #e2e8f0;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 14px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 12px 0;
+      font-size: 0.88rem;
+    }
+
+    pre code { background: transparent; padding: 0; color: inherit; }
+
+    @media (max-width: 640px) {
+      body { padding: 12px 8px; }
+      section.stage-card, header.scenario-header { padding: 16px; }
+      .stage-header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="scenario-header">
+      <h1>Развернутый сценарий учебного занятия (Конспект)</h1>
+      <div class="subtitle">Тема 4. Проектирование структур баз данных &mdash; Организация интерфейса с пользователем: ввод (Занятие №23)</div>
+    </header>
+
+    <section class="stage-card">
+      <div class="stage-header">
+        <h2>Этап 1. Организационный момент и проблемная мотивация</h2>
+        <div class="timing-pills">
+          <span class="pill pill-main">80 мин: 5 минут</span>
+          <span class="pill pill-short">60 мин: 3 минуты</span>
+        </div>
+      </div>
+
+      <div class="action-block">
+        <span class="action-label">Действие преподавателя:</span> Приветствует учебную группу, сверяет присутствующих по журналу, проверяет запуск мультимедийного проектора и доступность веб-комплекта материалов. Выводит на экран вводную заставку.
+      </div>
+
+      <div class="speech-block">
+        <div class="speech-label">Прямая речь преподавателя:</div>
+        <div class="speech-text">
+          «Здравствуйте, коллеги! Садитесь. На прошлых занятиях мы детально изучили ядро реляционной базы данных &mdash; как нормализовать таблицы, как строить первичные и внешние ключи, как закладывать математически строгие декларативные ограничения через предикаты CHECK и интервальные исключения EXCLUDE.<br><br>
+          Но представьте реальную ситуацию: мы с вами спроектировали идеальную реляционную базу данных для крупной оптовой компании. А затем отдали ее операторам, создав форму ввода, в которой каждое поле &mdash; это обычная свободная текстовая строка. Через месяц база оказалась заполнена мусором: один оператор написал клиента как "ООО Альфа", второй как "ОАО АЛЬФА", третий опечатался и написал "Алфа". В отчетах финансовый аналитик видит трех разных контрагентов, баланс не сходится, а при попытке сформировать акт сверки система выдает критическую ошибку.<br><br>
+          Кто виноват в этом инциденте? Не оператор, а мы &mdash; инженеры, проектировавшие систему. Сегодня на занятии №23 мы разберем критически важную тему: <strong>"Организация интерфейса с пользователем: ввод"</strong>. Мы научимся строить надежные экранные формы, жестко сопряженные с атрибутами базы данных, разберем многоуровневую архитектуру, паттерны MVC и Data Binding, и поймем, как графические компоненты защищают реляционное хранилище от аномалий ввода.»
+        </div>
+      </div>
+
+      <div class="action-block">
+        <span class="action-label">Действие студентов:</span> Слушают преподавателя, настраивают рабочие места, открывают тетради и браузеры, записывают тему занятия в конспекты.
+      </div>
+    </section>
+
+    <section class="stage-card">
+      <div class="stage-header">
+        <h2>Этап 2. Актуализация опорных знаний</h2>
+        <div class="timing-pills">
+          <span class="pill pill-main">80 мин: 8 минут</span>
+          <span class="pill pill-short">60 мин: 5 минут</span>
+        </div>
+      </div>
+
+      <div class="speech-block">
+        <div class="speech-label">Прямая речь преподавателя:</div>
+        <div class="speech-text">
+          «Прежде чем мы перейдем к графическим формам, давайте вспомним фундамент реляционной модели. Вопрос к аудитории: что гарантирует нам ограничение FOREIGN KEY на уровне СУБД, и что произойдет, если мы попытаемся вставить в дочернюю таблицу ID, которого нет в родительском справочнике?»
+        </div>
+      </div>
+
+      <div class="dialogue-block">
+        <div class="dialogue-label">Ответ студента:</div>
+        «Внешний ключ гарантирует ссылочную целостность. Если мы попытаемся вставить ID, отсутствующий в родительской таблице, СУБД выбросит ошибку нарушения внешнего ключа (foreign_key_violation) и прервет транзакцию.»
+      </div>
+
+      <div class="speech-block">
+        <div class="speech-label">Прямая речь преподавателя:</div>
+        <div class="speech-text">
+          «Верно. А теперь представьте рядового оператора приемного отделения больницы или менеджера по продажам. Знает ли он наизусть числовые первичные ключи наших клиентов &mdash; например, что у ООО "СеверТранс" идентификатор client_id = 482? Разумеется, нет! Человек оперирует названиями и фамилиями. Следовательно, перед нами встает фундаментальная задача: как в интерфейсе пользователя показать удобное читаемое имя, а в базу данных передать строгий числовой внешний ключ? Давайте разберем архитектуру, которая решает эту проблему.»
+        </div>
+      </div>
+    </section>
+
+    <section class="stage-card">
+      <div class="stage-header">
+        <h2>Этап 3. Сообщение новых знаний (Лекционный блок)</h2>
+        <div class="timing-pills">
+          <span class="pill pill-main">80 мин: 35 минут</span>
+          <span class="pill pill-short">60 мин: 27 минут</span>
+        </div>
+      </div>
+
+      <div class="action-block">
+        <span class="action-label">Действие преподавателя:</span> Включает слайд 2 и 3 интерактивной презентации prezentaciya.html, демонстрирует многоуровневую архитектуру приложения и изоляцию уровней.
+      </div>
+
+      <div class="speech-block">
+        <div class="speech-label">Прямая речь преподавателя:</div>
+        <div class="speech-text">
+          «Запомните главное инженерное табу: <strong>ни при каких условиях графический интерфейс пользователя не должен выполнять прямые SQL-запросы в базу данных!</strong> Если кнопка "Сохранить" в клиентском коде на JavaScript или C# напрямую выполняет SELECT или INSERT, это грубейший архитектурный провал. Вы открываете дыру для SQL-инъекций и раскрываете учетные данные СУБД прямо в памяти клиентской машины.<br><br>
+          Промышленная система строится по <strong>многоуровневой (N-tier) архитектуре</strong>:<br>
+          1. <strong>Уровень представления (View):</strong> Экранная форма, где оператор нажимает кнопки и вводит текст.<br>
+          2. <strong>Уровень бизнес-логики (Controller / Backend Service):</strong> Серверная часть, куда форма отправляет компактный пакет данных &mdash; <em>DTO (Data Transfer Object)</em>. Здесь проверяются права доступа и запускаются транзакции.<br>
+          3. <strong>Слой доступа к данным (DAO / ORM Repository):</strong> Модуль, который принимает объекты и транслирует их в параметризованный SQL.<br>
+          4. <strong>Реляционная СУБД:</strong> Обеспечивает ACID-гарантии, проверяет декларативные ограничения и записывает данные на диск.<br><br>
+          Для связи элементов формы со структурами данных используется концепция <strong>Data Binding (привязка данных)</strong>. Она избавляет разработчика от необходимости вручную вычитывать значения каждого инпута &mdash; изменения автоматически синхронизируются с объектом DTO.»
+        </div>
+      </div>
+
+      <div class="action-block">
+        <span class="action-label">Действие преподавателя:</span> Переключает презентацию на слайды 6&ndash;9, последовательно анализируя элементы управления формы ввода.
+      </div>
+
+      <div class="speech-block">
+        <div class="speech-label">Прямая речь преподавателя:</div>
+        <div class="speech-text">
+          «Теперь обратимся к сопряжению графических элементов с колонками таблиц. Каждый элемент интерфейса обязан строго соответствовать семантике атрибута базы данных:<br><br>
+          &bull; <strong>Текстовое поле с маской (Masked Input):</strong> Применяется для строго форматированных строковых атрибутов &mdash; телефонов, номеров автомобилей, СНИЛС, паспортов. Маска физически блокирует ввод недопустимых символов (например, букв в поле телефона). В базу данных мы отправляем так называемое <em>raw-значение</em> &mdash; очищенную строку из 11 цифр, где в СУБД на нее наложен предикат CHECK.<br><br>
+          &bull; <strong>Выпадающий список (Combobox / Select):</strong> Тот самый инструмент для внешних ключей. У каждого элемента списка есть два свойства: <em>Display Member</em> (то, что видит человек: "Иванов Иван Иванович") и <em>Value Member</em> (то, что уходит в INSERT: doctor_id = 15). Если в справочнике более 100 строк &mdash; обычный выпадающий список заменяется на <em>Autocomplete</em> с поиском по серверу.<br><br>
+          &bull; <strong>Группа переключателей (RadioGroup):</strong> Идеальна для атрибутов типа ENUM или коротких списков CHECK (status IN (...)), когда вариантов от 2 до 5 (например, приоритет: Низкий, Средний, Высокий). Пользователь видит все опции сразу.<br><br>
+          &bull; <strong>Флажок (Checkbox):</strong> Напрямую сопрягается с реляционным типом BOOLEAN. Состояние checked конвертируется в TRUE или FALSE.<br><br>
+          &bull; <strong>Компонент выбора даты (DatePicker):</strong> Исключает ввод некорректных календарных значений (31 февраля или 13 месяц) и передает данные строго в формате стандарта <strong>ISO 8601 (YYYY-MM-DD)</strong>, защищая нас от путаницы региональных настроек сервера СУБД.»
+        </div>
+      </div>
+
+      <div class="action-block">
+        <span class="action-label">Действие преподавателя:</span> Открывает слайды 10&ndash;11, объясняя компоновку Master-Detail.
+      </div>
+
+      <div class="speech-block">
+        <div class="speech-label">Прямая речь преподавателя:</div>
+        <div class="speech-text">
+          «Особое внимание уделим паттерну <strong>Master-Detail (Шапка &mdash; Табличная часть)</strong>. Почти все корпоративные документы устроены по этому принципу: заказ и позиции заказа, путевой лист и маршрутные точки, госпитализация и процедуры. В реляционной базе это отношение 1:M (один ко многим).<br><br>
+          В интерфейсе шапка документа содержит одиночные атрибуты (клиент, дата, склад), а табличная часть &mdash; динамическую сетку строк. Главная инженерная ловушка: ни в коем случае нельзя сохранять строки спецификации отдельными одиночными запросами! Если при сохранении третьей строки пропадет связь, в базе останется "битый" заказ. Вся форма Master-Detail должна собираться на клиенте в один JSON-объект и фиксироваться на бэкенде в <strong>единой неделимой транзакции BEGIN ... COMMIT</strong>!»
+        </div>
+      </div>
+    </section>
+
+    <section class="stage-card">
+      <div class="stage-header">
+        <h2>Этап 4. Демонстрация сквозного инженерного кейса</h2>
+        <div class="timing-pills">
+          <span class="pill pill-main">80 мин: 12 минут</span>
+          <span class="pill pill-short">60 мин: 10 минут</span>
+        </div>
+      </div>
+
+      <div class="action-block">
+        <span class="action-label">Действие преподавателя:</span> Проецирует на экран макет формы заказа в оптовой CRM и демонстрирует пошаговую трансляцию данных формы в транзакционный SQL.
+      </div>
+
+      <div class="speech-block">
+        <div class="speech-label">Прямая речь преподавателя:</div>
+        <div class="speech-text">
+          «Посмотрите на экран. Перед нами экранная форма оформления оптовой накладной. В шапке оператор выбирает контрагента "ООО СеверТранс" из Combobox. В скрытом значении лежит client_id = 104. В поле "Склад" выбран "Склад №1" (warehouse_id = 1). Дата выбрана через DatePicker: 2026-10-01.<br><br>
+          В табличную часть оператор добавил две строки: 5 бухт витой пары и 2 коммутатора. Сумма пересчиталась автоматически на клиенте через Two-Way Data Binding: 57 775 рублей.<br><br>
+          Оператор нажимает "Провести заказ". Кнопка моментально переходит в состояние disabled, чтобы оператор не нажал ее дважды. На сервер уходит DTO, и серверный контроллер выполняет блок:»
+        </div>
+      </div>
+
+      <pre><code>BEGIN;
+-- Вставка шапки заказа
+INSERT INTO orders (client_id, warehouse_id, order_date, total_amount, status)
+VALUES (104, 1, '2026-10-01', 57775.00, 'confirmed')
+RETURNING order_id;
+
+-- Вставка строк спецификации
+INSERT INTO order_items (order_id, product_id, quantity, unit_price)
+VALUES 
+  (4812, 301, 5, 4500.00),
+  (4812, 814, 2, 17637.50);
+COMMIT;</code></pre>
+
+      <div class="speech-block">
+        <div class="speech-label">Прямая речь преподавателя:</div>
+        <div class="speech-text">
+          «Если склад заблокирован ограничением CHECK или товара нет на складе, СУБД прерывает транзакцию, а бэкенд возвращает ошибку, которую интерфейс аккуратно подсветит оператору красной плашкой без потери введенных данных.»
+        </div>
+      </div>
+    </section>
+
+    <section class="stage-card">
+      <div class="stage-header">
+        <h2>Этап 5. Первичное закрепление знаний (Практикум)</h2>
+        <div class="timing-pills">
+          <span class="pill pill-main">80 мин: 14 минут</span>
+          <span class="pill pill-short">60 мин: 11 минут</span>
+        </div>
+      </div>
+
+      <div class="action-block">
+        <span class="action-label">Действие преподавателя:</span> Инструктирует обучающихся по открытию интерактивного рабочего листа zanyatie.html, распределяет группу по 4 вариантам кейсов, контролирует выполнение.
+      </div>
+
+      <div class="speech-block">
+        <div class="speech-label">Прямая речь преподавателя:</div>
+        <div class="speech-text">
+          «Коллеги, открываем на ваших ПК интерактивный рабочий лист zanyatie.html. Обязательно введите свои ФИО и группу в верхней части. Распределение по вариантам:<br>
+          &bull; <strong>Вариант 1:</strong> Форма регистрации заказа в оптовой CRM (Master-Detail, выбор клиента из Combobox);<br>
+          &bull; <strong>Вариант 2:</strong> Экранная форма оформления путевого листа АТП (автомобиль, водитель, DatePicker выезда/возврата, одометр);<br>
+          &bull; <strong>Вариант 3:</strong> Форма госпитализации пациента в стационар (персональные данные, выбор врача, справочник диагнозов МКБ-10 с Autocomplete);<br>
+          &bull; <strong>Вариант 4:</strong> Форма заявки в IT Service Desk (радиокнопки приоритета Low/Medium/High, категория, ограничение длины описания, файлы).<br><br>
+          Ваша задача: составить эскиз формы, сформировать матрицу маппинга полей на атрибуты БД с указанием типов данных и правил валидации, и ответить на вопросы самопроверки. Данные сохраняются автоматически в браузере. Приступайте, я готов ответить на индивидуальные вопросы.»
+        </div>
+      </div>
+
+      <div class="action-block">
+        <span class="action-label">Действие студентов:</span> Переходят к выполнению заданий своего варианта в рабочем листе, проектируют интерфейсные формы, заполняют матрицы маппинга, формулируют правила клиентской и серверной валидации.
+      </div>
+    </section>
+
+    <section class="stage-card">
+      <div class="stage-header">
+        <h2>Этап 6. Итог занятия, рефлексия и домашнее задание</h2>
+        <div class="timing-pills">
+          <span class="pill pill-main">80 мин: 6 минут</span>
+          <span class="pill pill-short">60 мин: 4 минуты</span>
+        </div>
+      </div>
+
+      <div class="action-block">
+        <span class="action-label">Действие преподавателя:</span> Проводит экспресс-разбор решений, открывает слайд 15 с комиксом Bobby Tables, подводит образовательные итоги.
+      </div>
+
+      <div class="speech-block">
+        <div class="speech-label">Прямая речь преподавателя:</div>
+        <div class="speech-text">
+          «Время вышло. Давайте взглянем на слайд 15 нашей презентации. Перед вами легендарный мем про "Little Bobby Tables". Мама назвала сына именем, содержащим SQL-инъекцию, и при внесении данных школьная база данных была полностью стерта.<br><br>
+          Этот комикс &mdash; наглядное предостережение каждому проектировщику интерфейсов. Интерфейс ввода &mdash; это первая линия обороны базы данных. Если вы правильно выбрали компоненты, привязали выпадающие списки к внешним ключам, замаскировали ввод и изолировали слои через DTO и параметризованные запросы, никакая ошибка оператора и никакая инъекция не смогут нарушить целостность хранилища.<br><br>
+          Работы оцениваются по 4-балльной критериальной шкале: правильность компоновки формы &mdash; до 2 баллов, корректность маппинга на атрибуты БД &mdash; 1 балл, эргономика и самопроверка &mdash; 1 балл.<br><br>
+          Нажмите кнопку "Печать / Сохранить в PDF" в рабочем листе для отправки отчета. Обратите внимание: файл domashnee_zadanie.html является резервным дистанционным заданием &mdash; выполняйте его только в случае пропуска пары по уважительной причине или по индивидуальному назначению. Всем спасибо за продуктивную работу! Урок окончен.»
+        </div>
+      </div>
+
+      <div class="action-block">
+        <span class="action-label">Действие студентов:</span> Задают финальные вопросы, сохраняют рабочий лист в PDF, приводят рабочие места в порядок.
+      </div>
+    </section>
+  </div>
+</body>
+</html>
