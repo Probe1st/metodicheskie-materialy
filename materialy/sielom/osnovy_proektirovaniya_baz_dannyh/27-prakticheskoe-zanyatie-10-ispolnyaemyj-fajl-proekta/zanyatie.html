@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Практическое занятие №10: исполняемый файл проекта, этап 1 — Рабочий лист студента</title>
+  <style>
+    :root {
+      --primary: #1e293b;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --warning: #ca8a04;
+      --code-bg: #0f172a;
+      --code-text: #f8fafc;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 1.5rem 1rem;
+    }
+
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+      background: var(--surface);
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--border);
+      padding: 2rem;
+    }
+
+    .header-box {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #dbeafe;
+      color: #1e40af;
+      font-weight: 700;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    h1 {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .topic-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .student-info-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.25rem;
+      margin-top: 1.25rem;
+      background: #f1f5f9;
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .form-group input {
+      padding: 0.6rem 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      color: var(--text);
+      background: #ffffff;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+    }
+
+    /* Вкладки вариантов */
+    .tabs-nav {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0.5rem;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      padding: 0.6rem 1.1rem;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      color: var(--text-muted);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      background: #e2e8f0;
+      color: var(--primary);
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    .variant-content {
+      display: none;
+    }
+
+    .variant-content.active {
+      display: block;
+    }
+
+    .variant-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      background: #ffffff;
+      margin-bottom: 1.5rem;
+    }
+
+    .variant-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 0.75rem;
+    }
+
+    .variant-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .variant-badge {
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+
+    .task-block {
+      margin-top: 1.25rem;
+    }
+
+    .task-label {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--primary);
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .task-desc {
+      font-size: 0.9rem;
+      color: #475569;
+      margin-bottom: 0.6rem;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 110px;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.875rem;
+      line-height: 1.45;
+      color: #0f172a;
+      background: #f8fafc;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+      background: #ffffff;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+    }
+
+    .actions-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #334155;
+      border-color: var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+
+    .btn-danger {
+      background: #fee2e2;
+      color: var(--danger);
+      border-color: #fca5a5;
+    }
+
+    .btn-danger:hover {
+      background: #fecaca;
+    }
+
+    .status-msg {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--success);
+      display: none;
+    }
+
+    /* Адаптивность для 375px без горизонтального скролла */
+    @media (max-width: 640px) {
+      body {
+        padding: 0.5rem;
+      }
+      .container {
+        padding: 1rem;
+      }
+      h1 {
+        font-size: 1.3rem;
+      }
+      .student-info-grid {
+        grid-template-columns: 1fr;
+        padding: 0.75rem;
+      }
+      .actions-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .btn-group {
+        flex-direction: column;
+      }
+      .btn {
+        justify-content: center;
+      }
+    }
+
+    /* Стили для печати (@media print) */
+    @media print {
+      body {
+        background: #ffffff !important;
+        padding: 0 !important;
+        color: #000000 !important;
+      }
+      .container {
+        border: none !important;
+        box-shadow: none !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+      }
+      .tabs-nav, .actions-bar, .badge, .status-msg {
+        display: none !important;
+      }
+      .variant-content {
+        display: block !important;
+        page-break-before: always;
+      }
+      .variant-content:first-of-type {
+        page-break-before: avoid;
+      }
+      .variant-card {
+        border: 1px solid #000000 !important;
+        page-break-inside: avoid;
+        margin-bottom: 1.5rem;
+      }
+      textarea {
+        border: 1px solid #000000 !important;
+        background: transparent !important;
+        color: #000000 !important;
+        height: auto !important;
+        min-height: 90px;
+        overflow: visible;
+      }
+      /* Скрытие плейсхолдеров при печати для аккуратного рукописного заполнения */
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+      }
+      .form-group input {
+        border: 1px solid #000000 !important;
+        background: transparent !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header-box">
+      <span class="badge">СИЭУиП • ОП.08 Базы данных • Занятие 27</span>
+      <h1>Интерактивный рабочий лист: Исполняемый файл проекта (Этап 1)</h1>
+      <p class="topic-desc">Практическое занятие №10: конфигурация строки подключения (Connection String), расчет архитектуры пула соединений (Connection Pool), валидация связности и обработка сетевых сбоев СУБД.</p>
+
+      <div class="student-info-grid">
+        <div class="form-group">
+          <label for="student_fio">ФИО обучающегося</label>
+          <input type="text" id="student_fio" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label for="student_group">Учебная группа</label>
+          <input type="text" id="student_group" autocomplete="off">
+        </div>
+      </div>
+    </header>
+
+    <!-- Вкладки вариантов -->
+    <nav class="tabs-nav" id="tabsNav">
+      <button type="button" class="tab-btn active" data-target="v1">Вариант 1 (Склад)</button>
+      <button type="button" class="tab-btn" data-target="v2">Вариант 2 (Медкарта)</button>
+      <button type="button" class="tab-btn" data-target="v3">Вариант 3 (Банк)</button>
+      <button type="button" class="tab-btn" data-target="v4">Вариант 4 (Портал)</button>
+    </nav>
+
+    <!-- Вариант 1 -->
+    <section class="variant-content active" id="v1">
+      <div class="variant-card">
+        <div class="variant-header">
+          <h2 class="variant-title">Вариант 1: Десктопное приложение складского учета</h2>
+          <span class="variant-badge">PostgreSQL • config.json • Pool 5 • Ping</span>
+        </div>
+        <p class="task-desc"><strong>Инженерная ситуация:</strong> Клиентское настольное приложение товароведа подключается к локальному серверу PostgreSQL. Требуется исключить хардкод учетных данных в исходном коде, настроить пул из 5 соединений и реализовать первичную проверку доступности СУБД.</p>
+
+        <div class="task-block">
+          <div class="task-label">1. Файл конфигурации подключения (config.json)</div>
+          <div class="task-desc">Сформируйте JSON-конфигурацию с параметрами: host, port, dbname, user, password, таймаут соединения (5с) и настройки пула (min: 2, max: 5, idle_timeout: 300с).</div>
+          <textarea id="v1_task1" spellcheck="false"></textarea>
+        </div>
+
+        <div class="task-block">
+          <div class="task-label">2. Архитектура и инициализация пула соединений (Connection Pool)</div>
+          <div class="task-desc">Обоснуйте выбранный размер пула для складского терминала. Напишите фрагмент кода инициализации пула (на выбранном языке программирования) и опишите, почему сокеты нельзя закрывать через прямой socket.close().</div>
+          <textarea id="v1_task2" spellcheck="false"></textarea>
+        </div>
+
+        <div class="task-block">
+          <div class="task-label">3. Первичное тестирование связи (Ping / SELECT 1) и отлов сбоев</div>
+          <div class="task-desc">Реализуйте функцию Health Check с выполнением запроса <code>SELECT 1;</code>. Обеспечьте гарантированный возврат сокета в пул и обработку сбоя при выключенной СУБД (ECONNREFUSED) с выводом пользователю.</div>
+          <textarea id="v1_task3" spellcheck="false"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- Вариант 2 -->
+    <section class="variant-content" id="v2">
+      <div class="variant-card">
+        <div class="variant-header">
+          <h2 class="variant-title">Вариант 2: Медицинская регистратура</h2>
+          <span class="variant-badge">SSL/TLS • verify-full • Сертификаты • Таймауты</span>
+        </div>
+        <p class="task-desc"><strong>Инженерная ситуация:</strong> Автоматизированное рабочее место регистратора клиники обрабатывает персональные данные пациентов (ФЗ-152). Требуется настроить криптографически защищенный канал к удаленному серверу баз данных с верификацией сертификатов и защитой от зависания при падении сети.</p>
+
+        <div class="task-block">
+          <div class="task-label">1. Конфигурация защищенного SSL/TLS-подключения (config.yaml)</div>
+          <div class="task-desc">Опишите конфигурацию в формате YAML: параметры хоста (remote-db.med.local:5432), режим sslmode=verify-full, пути к сертификатам (sslrootcert, sslcert, sslkey) и таймаут connect_timeout=3s.</div>
+          <textarea id="v2_task1" spellcheck="false"></textarea>
+        </div>
+
+        <div class="task-block">
+          <div class="task-label">2. Защита от атак Man-in-the-Middle и параметры сертификатов</div>
+          <div class="task-desc">Объясните разницу между режимами <code>sslmode=require</code> и <code>sslmode=verify-full</code>. Чем грозит клинике подмена сертификата злоумышленником в локальной сети?</div>
+          <textarea id="v2_task2" spellcheck="false"></textarea>
+        </div>
+
+        <div class="task-block">
+          <div class="task-label">3. Обработка ошибки таймаута связи при падении сервера СУБД</div>
+          <div class="task-desc">Напишите программный блок перехвата сетевого таймаута (ETIMEDOUT / TimeoutException). Какое понятное сообщение увидит сотрудник регистратуры вместо краша программы? Как зафиксировать инцидент в аудит-логе?</div>
+          <textarea id="v2_task3" spellcheck="false"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- Вариант 3 -->
+    <section class="variant-content" id="v3">
+      <div class="variant-card">
+        <div class="variant-header">
+          <h2 class="variant-title">Вариант 3: Банковский терминал самообслуживания</h2>
+          <span class="variant-badge">HikariCP/pgBouncer • Syslog • Connection Refused</span>
+        </div>
+        <p class="task-desc"><strong>Инженерная ситуация:</strong> Банкомат / платежный терминал выполняет финансовые транзакции. Необходим строгий контроль жизненного цикла соединений через пул HikariCP или pgBouncer и автоматическое журналирование сетевых инцидентов в системный лог.</p>
+
+        <div class="task-block">
+          <div class="task-label">1. Параметры промышленного пула соединений (HikariCP / pgBouncer)</div>
+          <div class="task-desc">Сформируйте конфигурацию пула: maximumPoolSize=10, minimumIdle=2, idleTimeout=300000ms, connectionTimeout=3000ms, maxLifetime=1800000ms. Обоснуйте каждый параметр.</div>
+          <textarea id="v3_task1" spellcheck="false"></textarea>
+        </div>
+
+        <div class="task-block">
+          <div class="task-label">2. Предотвращение критической аварии Connection Leak</div>
+          <div class="task-desc">Продемонстрируйте безопасный шаблон кода на C# или Java с использованием <code>using / try-with-resources</code>. Что произойдет с банкоматом, если при ошибке в транзакции сокет не вернется в пул?</div>
+          <textarea id="v3_task2" spellcheck="false"></textarea>
+        </div>
+
+        <div class="task-block">
+          <div class="task-label">3. Перехват Connection Refused и запись в syslog</div>
+          <div class="task-desc">Реализуйте обработчик исключения сбоя связи (порт закрыт, сервис СУБД упал). Сформируйте точный формат записи в системный журнал <code>/var/log/atm/db_error.log</code> с указанием таймстемпа, кода ошибки и уровня CRITICAL.</div>
+          <textarea id="v3_task3" spellcheck="false"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- Вариант 4 -->
+    <section class="variant-content" id="v4">
+      <div class="variant-card">
+        <div class="variant-header">
+          <h2 class="variant-title">Вариант 4: Образовательный портал колледжа</h2>
+          <span class="variant-badge">12-Factor App • .env • SELECT 1 • Latency Benchmark</span>
+        </div>
+        <p class="task-desc"><strong>Инженерная ситуация:</strong> Веб-сервер личного кабинета студента и деканата обслуживает до 500 обращений в минуту. Требуется настроить переменные окружения по стандарту 12-Factor App, провести первоначальный Health Check и замерить время установления сессии.</p>
+
+        <div class="task-block">
+          <div class="task-label">1. Конфигурация через переменные окружения (.env)</div>
+          <div class="task-desc">Составьте эталонный файл <code>.env</code> для образовательного портала (хост, порт, база, сервисный логин, пароль, размер пула, таймаут). Напишите фрагмент кода безопасного чтения переменных с валидацией обязательных полей.</div>
+          <textarea id="v4_task1" spellcheck="false"></textarea>
+        </div>
+
+        <div class="task-block">
+          <div class="task-label">2. Замер задержки установления сессии (Latency Benchmark)</div>
+          <div class="task-desc">Напишите алгоритм, замеряющий время первого подключения (TCP+TLS+Auth Handshake) в сравнении со временем аренды сокета из пула соединений. Опишите ожидаемую разницу в миллисекундах.</div>
+          <textarea id="v4_task2" spellcheck="false"></textarea>
+        </div>
+
+        <div class="task-block">
+          <div class="task-label">3. Реализация Health Check эндпоинта /api/health</div>
+          <div class="task-desc">Разработайте логику функции проверки здоровья сервиса: выполнение <code>SELECT 1</code>, возврат HTTP 200 OK при успехе или HTTP 503 Service Unavailable с описанием ошибки при сбое связи.</div>
+          <textarea id="v4_task3" spellcheck="false"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <footer class="actions-bar">
+      <div class="btn-group">
+        <button type="button" class="btn btn-primary" id="saveBtn">Сохранить ответы</button>
+        <button type="button" class="btn btn-secondary" id="printBtn">Версия для печати / PDF</button>
+        <button type="button" class="btn btn-danger" id="clearBtn">Очистить форму</button>
+      </div>
+      <div class="status-msg" id="statusMsg">Ответы сохранены в LocalStorage!</div>
+    </footer>
+  </div>
+
+  <script>
+    (function() {
+      const STORAGE_KEY = 'sieup_db_lesson_27_v1';
+      const inputs = document.querySelectorAll('input, textarea');
+      const tabs = document.querySelectorAll('.tab-btn');
+      const variantContents = document.querySelectorAll('.variant-content');
+      const saveBtn = document.getElementById('saveBtn');
+      const printBtn = document.getElementById('printBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      const statusMsg = document.getElementById('statusMsg');
+
+      // Переключение вкладок
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const targetId = tab.getAttribute('data-target');
+          tabs.forEach(t => t.classList.remove('active'));
+          variantContents.forEach(c => c.classList.remove('active'));
+
+          tab.classList.add('active');
+          const targetElem = document.getElementById(targetId);
+          if (targetElem) {
+            targetElem.classList.add('active');
+          }
+        });
+      });
+
+      // Сохранение в LocalStorage
+      function saveData() {
+        const data = {};
+        inputs.forEach(input => {
+          if (input.id) {
+            data[input.id] = input.value;
+          }
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        showStatus('Ответы сохранены в LocalStorage!');
+      }
+
+      // Загрузка из LocalStorage
+      function loadData() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return;
+          const data = JSON.parse(raw);
+          inputs.forEach(input => {
+            if (input.id && data[input.id] !== undefined) {
+              input.value = data[input.id];
+            }
+          });
+        } catch (e) {
+          console.error('Ошибка загрузки данных из LocalStorage', e);
+        }
+      }
+
+      function showStatus(text) {
+        statusMsg.textContent = text;
+        statusMsg.style.display = 'inline-block';
+        setTimeout(() => {
+          statusMsg.style.display = 'none';
+        }, 3000);
+      }
+
+      saveBtn.addEventListener('click', saveData);
+
+      // Автосохранение при вводе
+      inputs.forEach(input => {
+        input.addEventListener('input', () => {
+          // Дебаунс сохранения
+          clearTimeout(input._saveTimer);
+          input._saveTimer = setTimeout(saveData, 1000);
+        });
+      });
+
+      // Очистка формы с confirm()
+      clearBtn.addEventListener('click', () => {
+        if (confirm('Вы уверены, что хотите полностью очистить все поля формы? Несохраненные данные будут удалены.')) {
+          inputs.forEach(input => input.value = '');
+          localStorage.removeItem(STORAGE_KEY);
+          showStatus('Форма полностью очищена.');
+        }
+      });
+
+      // Печать
+      printBtn.addEventListener('click', () => {
+        saveData();
+        window.print();
+      });
+
+      loadData();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Домашнее задание - Практическое занятие №10: исполняемый файл проекта, этап 1</title>
+  <style>
+    :root {
+      --primary: #0f172a;
+      --accent: #2563eb;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --warn-bg: #fffbeb;
+      --warn-border: #f59e0b;
+      --warn-text: #b45309;
+      --code-bg: #0f172a;
+      --code-text: #f8fafc;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--surface);
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: #ffffff;
+      padding: 2.25rem 2rem;
+      border-bottom: 4px solid var(--accent);
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(37, 99, 235, 0.25);
+      border: 1px solid rgba(147, 197, 253, 0.3);
+      color: #93c5fd;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      line-height: 1.3;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: #94a3b8;
+      font-size: 1rem;
+    }
+
+    .reserve-banner {
+      background-color: var(--warn-bg);
+      border-left: 5px solid var(--warn-border);
+      padding: 1.25rem;
+      margin: 1.5rem 2rem 0;
+      border-radius: 4px 8px 8px 4px;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .reserve-banner svg {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      fill: var(--warn-text);
+      margin-top: 2px;
+    }
+
+    .reserve-banner-text {
+      color: var(--warn-text);
+      font-size: 0.98rem;
+      font-weight: 600;
+      line-height: 1.5;
+    }
+
+    .content {
+      padding: 2rem;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-top: 1.75rem;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h2:first-of-type { margin-top: 0; }
+
+    p { margin-bottom: 1rem; color: #334155; }
+    ul, ol { margin-bottom: 1.25rem; padding-left: 1.5rem; }
+    li { margin-bottom: 0.45rem; color: #334155; }
+
+    .task-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .task-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    pre {
+      background-color: var(--code-bg);
+      color: var(--code-text);
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: ui-monospace, monospace;
+      font-size: 0.875rem;
+      margin: 0.75rem 0;
+    }
+
+    code {
+      font-family: ui-monospace, monospace;
+      background: #e2e8f0;
+      color: #0f172a;
+      padding: 0.15rem 0.35rem;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+
+    pre code { background: transparent; color: inherit; padding: 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.25rem;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.65rem 0.9rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f1f5f9;
+      color: var(--primary);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="badge">СИЭУиП • Дистанционный резерв • Занятие 27</div>
+      <h1>Домашнее задание - Практическое занятие №10: исполняемый файл проекта, этап 1</h1>
+      <p class="subtitle">Дисциплина: ОП.08 Основы проектирования баз данных | Тема 4. Проектирование структур баз данных</p>
+    </header>
+
+    <div class="reserve-banner">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/>
+      </svg>
+      <div class="reserve-banner-text">
+        Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+      </div>
+    </div>
+
+    <main class="content">
+      <h2>1. Общая постановка инженерной задачи</h2>
+      <p>Цель домашнего задания — закрепить практические навыки конфигурирования строки подключения исполняемого приложения к реляционной СУБД (PostgreSQL), проектирования параметров пула соединений (Connection Pool) и разработки отказоустойчивой подсистемы диагностики сетевых сбоев.</p>
+      <p>Задание состоит из двух независимых взаимосвязанных блоков: <strong>инженерно-конфигурационного</strong> и <strong>диагностико-аналитического</strong>.</p>
+
+      <h2>2. Задание 1: Разработка защищенного конфигурационного файла подключения</h2>
+      <div class="task-card">
+        <div class="task-title">Часть А. Формирование переменных окружения (.env)</div>
+        <p>Разработайте эталонный файл конфигурации <code>.env</code> для микросервисного бэкенда информационной системы, удовлетворяющий следующим требованиям безопасности и производительности:</p>
+        <ul>
+          <li>Сетевой адрес хоста базы данных: <code>postgres-cluster.prod.internal</code>, нестандартный сетевой порт: <code>5433</code>.</li>
+          <li>Целевая база данных: <code>enterprise_core_db</code>.</li>
+          <li>Пользователь сервиса: <code>svc_core_app</code> (пароль должен быть сгенерирован и содержать не менее 16 символов, включая спецсимволы).</li>
+          <li>Режим шифрования соединения: строгая валидация подлинности сервера (<code>verify-full</code>) с указанием пути к доверенному центру сертификации <code>/etc/ssl/certs/enterprise-ca.crt</code>.</li>
+          <li>Лимит времени установления сетевого соединения (TCP/SSL Connect Timeout): 4 секунды.</li>
+        </ul>
+
+        <div class="task-title" style="margin-top: 1rem;">Часть Б. Расчет и настройка параметров Connection Pool</div>
+        <p>Для сервера приложений, обслуживающего в среднем 250 параллельных веб-запросов на 8-ядерном сервере СУБД с RAID-массивом SSD:</p>
+        <ul>
+          <li>Рассчитайте оптимальный размер пула соединений по формуле: $	ext{Pool Size} = (	ext{CPU} 	imes 2) + 	ext{Disk Spindles}$. Обоснуйте полученное значение.</li>
+          <li>Сформируйте конфигурацию пула в формате <code>config.json</code>:
+            <ul>
+              <li><code>min_idle_connections</code> (минимальный резерв готовых сокетов);</li>
+              <li><code>max_pool_size</code> (максимальный размер пула);</li>
+              <li><code>idle_timeout_ms</code> (время закрытия простаивающего сокета, 300 000 мс);</li>
+              <li><code>connection_timeout_ms</code> (максимальное время ожидания сокета из пула до падения по таймауту, 3 000 мс).</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <h2>3. Задание 2: Диагностика сетевых сбоев и отказоустойчивое логирование</h2>
+      <div class="task-card">
+        <div class="task-title">Разработка программного модуля Health Check и симуляция сбоев</div>
+        <p>Напишите скрипт на любом изучаемом языке программирования (Python, C#, JavaScript/Node.js, Java), выполняющий следующую последовательность действий при старте исполняемого файла:</p>
+        <ol>
+          <li>Считывание параметров подключения из внешнего файла конфигурации.</li>
+          <li>Инициализация пула соединений.</li>
+          <li>Выполнение проверочного запроса связности (Health Check / Ping): <code>SELECT 1;</code>.</li>
+          <li>Обязательный возврат сокета в пул в блоке гарантированного освобождения (finally / using / with) для предотвращения <strong>Connection Leak</strong>.</li>
+          <li>Перехват сетевых исключений с классификацией ошибок и записью в лог-файл <code>connection_errors.log</code>:
+            <ul>
+              <li><strong>Сценарий 1: Ошибка Connection Refused (порт 5433 недоступен).</strong> Приложение должно зафиксировать ошибку в логе, указать причину («Служба СУБД остановлена или сетевой порт заблокирован экраном») и предпринять 3 попытки реконнекта с интервалом в 2 секунды.</li>
+              <li><strong>Сценарий 2: Ошибка Connection Timeout.</strong> Приложение должно зафиксировать превышение 4-секундного таймаута («Превышено время ожидания ответа сервера СУБД») и корректно завершить исполнение с ненулевым кодом выхода <code>exit(1)</code>, не допуская бесконечного зависания процесса.</li>
+            </ul>
+          </li>
+        </ol>
+      </div>
+
+      <h2>4. Форма отчета и критерии оценивания</h2>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25%;">Компонент отчета</th>
+            <th style="width: 50%;">Требования к содержанию</th>
+            <th style="width: 25%;">Критерий оценки</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Файлы конфигурации</strong></td>
+            <td>Исходные тексты файлов <code>.env</code> и <code>config.json</code>, оформленные по спецификации без хардкода секретов в исходниках.</td>
+            <td>2 балла (полнота и корректность параметров)</td>
+          </tr>
+          <tr>
+            <td><strong>Расчет пула соединений</strong></td>
+            <td>Математическое обоснование параметров пула, объяснение недопустимости пулов на сотни соединений.</td>
+            <td>1 балл (инженерное обоснование)</td>
+          </tr>
+          <tr>
+            <td><strong>Исходный код Health Check и лог</strong></td>
+            <td>Листинг программы с перехватом исключений, корректным освобождением сокетов в пул и фрагмент журнала <code>connection_errors.log</code>.</td>
+            <td>1 балл (гарантия отсутствия connection leak, информативность лога)</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="margin-top: 1rem; color: var(--text-muted); font-size: 0.95rem;">Готовый отчет предоставляется преподавателю в виде архива с файлами конфигураций и исходным кодом модуля проверки связи в установленный преподавателем срок.</p>
+    </main>
+  </div>
+</body>
+</html>
