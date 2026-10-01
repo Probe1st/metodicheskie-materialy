@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Домашнее задание - Типы моделей данных</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #cbd5e1;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --accent-soft: #f0f9ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header.hw-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .reserve-notice {
+      display: inline-block;
+      background-color: #fef3c7;
+      color: #92400e;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+      border-left: 4px solid #f59e0b;
+      line-height: 1.45;
+    }
+
+    .instruction {
+      font-size: 1rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .deadline-notice {
+      margin-top: 10px;
+      font-size: 0.92rem;
+      font-style: italic;
+      color: var(--accent-hover);
+    }
+
+    .student-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .meta-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .meta-field label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .meta-field input {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      color: var(--text);
+      outline: none;
+    }
+
+    .meta-field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    section.hw-section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--accent-hover);
+      margin-bottom: 14px;
+      border-left: 4px solid var(--accent);
+      padding-left: 12px;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-top: 16px;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .task-desc {
+      font-size: 0.95rem;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .case-box {
+      background-color: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      padding: 14px 18px;
+      border-radius: 6px;
+      margin: 14px 0;
+      font-size: 0.95rem;
+    }
+
+    table.hw-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.92rem;
+    }
+
+    table.hw-table th, table.hw-table td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      vertical-align: middle;
+    }
+
+    table.hw-table th {
+      background-color: #f1f5f9;
+      font-weight: 700;
+      color: #334155;
+      text-align: left;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 90px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: var(--text);
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    .actions-bar {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    button.btn {
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.2s;
+    }
+
+    button.btn-primary {
+      background-color: var(--accent);
+      color: #ffffff;
+    }
+
+    button.btn-primary:hover {
+      background-color: var(--accent-hover);
+    }
+
+    button.btn-secondary {
+      background-color: #e2e8f0;
+      color: #334155;
+    }
+
+    button.btn-secondary:hover {
+      background-color: #cbd5e1;
+    }
+
+    .status-msg {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: none;
+    }
+
+    .status-success {
+      color: #166534;
+    }
+
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+      }
+      .actions-bar, .status-msg {
+        display: none !important;
+      }
+      header.hw-header, section.hw-section {
+        box-shadow: none !important;
+        border: 1px solid #64748b !important;
+        page-break-inside: avoid;
+        margin-bottom: 16px !important;
+      }
+      textarea {
+        border: 1px solid #475569 !important;
+        min-height: 80px !important;
+        height: auto !important;
+        color: #000000 !important;
+        resize: none;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+      }
+      input {
+        border: 1px solid #475569 !important;
+        color: #000000 !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <header class="hw-header">
+    <h1>Домашнее задание - Типы моделей данных</h1>
+    <div class="reserve-notice">
+      Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+    </div>
+    <div class="instruction">
+      Задание предназначено для самостоятельного выполнения при пропуске очного занятия либо в рамках углубленной индивидуальной подготовки. Оценка проводится по 4-балльной шкале.
+    </div>
+    <div class="deadline-notice">
+      Срок сдачи: к следующему теоретическому занятию по расписанию.
+    </div>
+
+    <div class="student-meta">
+      <div class="meta-field">
+        <label for="hw_student_name">ФИО студента</label>
+        <input type="text" id="hw_student_name" placeholder="Введите фамилию, имя и отчество">
+      </div>
+      <div class="meta-field">
+        <label for="hw_student_group">Учебная группа</label>
+        <input type="text" id="hw_student_group" placeholder="Например: ИС-22">
+      </div>
+    </div>
+  </header>
+
+  <section class="hw-section">
+    <h2>Задание 1. Сравнительный анализ моделей данных (2 балла)</h2>
+    <div class="task-desc">
+      Заполните аналитическую матрицу сопоставления классической реляционной модели и одного из классов NoSQL (по выбору: документоориентированной, графовой или колоночной).
+    </div>
+
+    <table class="hw-table">
+      <thead>
+        <tr>
+          <th style="width: 28%;">Параметр сопоставления</th>
+          <th style="width: 36%;">Реляционная модель данных (РМД, SQL)</th>
+          <th style="width: 36%;">Выбранная NoSQL модель (укажите тип)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Тип модели и целевая СУБД</strong></td>
+          <td><input type="text" id="hw_t1_r1" style="width:100%; padding:6px;" value="Реляционная (PostgreSQL / MySQL)"></td>
+          <td><input type="text" id="hw_t1_r2" style="width:100%; padding:6px;" placeholder="Например: Графовая (Neo4j)"></td>
+        </tr>
+        <tr>
+          <td><strong>Форма логической организации данных</strong></td>
+          <td><textarea id="hw_t2_r1" style="min-height:60px;" placeholder="Таблицы, кортежи, домены..."></textarea></td>
+          <td><textarea id="hw_t2_r2" style="min-height:60px;" placeholder="Вершины, ребра / JSON-документы / колонки..."></textarea></td>
+        </tr>
+        <tr>
+          <td><strong>Обеспечение целостности и транзакции</strong></td>
+          <td><textarea id="hw_t3_r1" style="min-height:60px;" placeholder="ACID, первичные и внешние ключи..."></textarea></td>
+          <td><textarea id="hw_t3_r2" style="min-height:60px;" placeholder="BASE / Eventual Consistency / локальные гарантии..."></textarea></td>
+        </tr>
+        <tr>
+          <td><strong>Язык запросов и доступ</strong></td>
+          <td><textarea id="hw_t4_r1" style="min-height:60px;" placeholder="Декларативный SQL, операции JOIN..."></textarea></td>
+          <td><textarea id="hw_t4_r2" style="min-height:60px;" placeholder="Cypher / MQL / CQL / API..."></textarea></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="hw-section">
+    <h2>Задание 2. Архитектурный выбор модели под заданный кейс (1 балл)</h2>
+    <div class="case-box">
+      <strong>Практический кейс:</strong> Сервис рекомендаций и анализа маршрутов курьерской доставки в мегаполисе. Система отслеживает граф связей между пересадочными узлами, дорожными сегментами, пунктами выдачи заказов и курьерами. Запросы требуют мгновенного поиска кратчайшего пути с учетом пробок и выявления цепочек взаимных пересечений («курьер А может передать посылку курьеру Б на узле Х»).
+    </div>
+
+    <h3>Аналитическое обоснование:</h3>
+    <div class="task-desc">
+      Сравните возможность реализации данного кейса на реляционной СУБД (PostgreSQL) и на графовой СУБД (Neo4j). Объясните, почему реляционные каскадные JOIN приводят к падению производительности при глубоких связях, и как концепция <em>безындексной смежности (index-free adjacency)</em> решает эту проблему.
+    </div>
+    <textarea id="hw_case_analysis" style="min-height:120px;" placeholder="Изложите развернутый сравнительный анализ производительности и топологии связей..."></textarea>
+
+    <h3>Оценка рисков по CAP-теореме:</h3>
+    <div class="task-desc">
+      К какому классу распределенных систем (CP или AP) должен относиться данный сервис логистики, и чем грозит выбор Eventual Consistency?
+    </div>
+    <textarea id="hw_cap_risks" style="min-height:90px;" placeholder="Проанализируйте поведение системы при сетевых задержках..."></textarea>
+  </section>
+
+  <section class="hw-section">
+    <h2>Задание 3. Выводы и самопроверка (1 балл)</h2>
+    <div class="task-desc">
+      Сформулируйте итоговый вывод: почему современная разработка программного обеспечения перешла к концепции <em>Polyglot Persistence</em>, и почему ни одна модель данных не может считаться абсолютно универсальной.
+    </div>
+    <textarea id="hw_conclusion" style="min-height:100px;" placeholder="Сформулируйте профессиональный инженерный вывод..."></textarea>
+
+    <div class="actions-bar">
+      <button class="btn btn-primary" id="saveBtn" type="button">Сохранить работу локально</button>
+      <button class="btn btn-secondary" id="printBtn" type="button">Распечатать / Экспорт в PDF</button>
+      <button class="btn btn-secondary" id="clearBtn" type="button">Очистить форму</button>
+    </div>
+    <div class="status-msg status-success" id="statusMsg">Работа успешно сохранена в браузере!</div>
+  </section>
+
+</div>
+
+<script>
+  (function() {
+    const STORAGE_KEY = 'hw_06_tipy_modelej_data';
+
+    const fields = [
+      'hw_student_name', 'hw_student_group',
+      'hw_t1_r1', 'hw_t1_r2',
+      'hw_t2_r1', 'hw_t2_r2',
+      'hw_t3_r1', 'hw_t3_r2',
+      'hw_t4_r1', 'hw_t4_r2',
+      'hw_case_analysis', 'hw_cap_risks', 'hw_conclusion'
+    ];
+
+    function saveState() {
+      const data = {};
+      fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) data[id] = el.value;
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      const msg = document.getElementById('statusMsg');
+      if (msg) {
+        msg.style.display = 'block';
+        setTimeout(() => { msg.style.display = 'none'; }, 3000);
+      }
+    }
+
+    function loadState() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      try {
+        const data = JSON.parse(raw);
+        fields.forEach(id => {
+          const el = document.getElementById(id);
+          if (el && data[id] !== undefined) {
+            el.value = data[id];
+          }
+        });
+      } catch (e) {
+        console.error('Ошибка загрузки данных', e);
+      }
+    }
+
+    function clearState() {
+      if (confirm('Вы уверены, что хотите полностью очистить форму домашнего задания?')) {
+        localStorage.removeItem(STORAGE_KEY);
+        fields.forEach(id => {
+          const el = document.getElementById(id);
+          if (el && id !== 'hw_t1_r1') el.value = '';
+        });
+      }
+    }
+
+    document.getElementById('saveBtn').addEventListener('click', saveState);
+    document.getElementById('printBtn').addEventListener('click', () => window.print());
+    document.getElementById('clearBtn').addEventListener('click', clearState);
+
+    // Автосохранение при вводе
+    fields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => {
+          const data = {};
+          fields.forEach(fId => {
+            const fEl = document.getElementById(fId);
+            if (fEl) data[fId] = fEl.value;
+          });
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        });
+      }
+    });
+
+    loadState();
+  })();
+</script>
+
+</body>
+</html>

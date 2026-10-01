@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Методический материал — Логическая и физическая независимость данных</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #0284c7;
+      --accent-soft: #f0f9ff;
+      --accent-dark: #0369a1;
+      --success: #16a34a;
+      --warn: #d97706;
+      --danger: #dc2626;
+      --radius: 12px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      line-height: 1.65;
+      font-size: 16px;
+    }
+    .page {
+      width: min(100% - 32px, 960px);
+      margin: 32px auto 80px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 30px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(24px, 4vw, 32px);
+      color: var(--text);
+      line-height: 1.25;
+    }
+    .lead {
+      color: var(--muted);
+      margin: 0;
+      font-size: 16px;
+    }
+    h2 {
+      margin: 0 0 16px;
+      font-size: 21px;
+      color: var(--accent-dark);
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 8px;
+    }
+    h3 {
+      font-size: 18px;
+      margin: 22px 0 10px;
+      color: var(--text);
+    }
+    p, ul, ol {
+      margin-top: 0;
+      margin-bottom: 14px;
+    }
+    ul, ol {
+      padding-left: 24px;
+    }
+    li {
+      margin-bottom: 6px;
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+    .meta-item {
+      background: var(--accent-soft);
+      border: 1px solid #bae6fd;
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .meta-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent-dark);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .meta-val {
+      font-size: 15px;
+      color: var(--text);
+      font-weight: 600;
+    }
+    .timing-table, .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 15px;
+    }
+    .timing-table th, .timing-table td,
+    .comparison-table th, .comparison-table td {
+      border: 1px solid var(--line);
+      padding: 10px 14px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .timing-table th, .comparison-table th {
+      background: #f1f5f9;
+      color: var(--text);
+      font-weight: 700;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .badge-primary { background: #e0f2fe; color: #0369a1; }
+    .badge-warn { background: #fef3c7; color: #92400e; }
+    .badge-success { background: #dcfce7; color: #166534; }
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: var(--accent-soft);
+      padding: 16px 20px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      margin: 18px 0;
+    }
+    .callout-warn {
+      border-left-color: var(--warn);
+      background: #fffbeb;
+    }
+    .callout-danger {
+      border-left-color: var(--danger);
+      background: #fef2f2;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9em;
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+    .diagram-box {
+      background: #f8fafc;
+      border: 2px dashed #94a3b8;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      margin: 18px 0;
+      font-family: ui-monospace, monospace;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="card">
+      <h1>Методическое руководство преподавателя</h1>
+      <p class="lead">Тема 2. Взаимосвязи в моделях и реляционный подход к построению моделей — Логическая и физическая независимость данных (§2.2 с.7 программы)</p>
+      <div class="meta-grid">
+        <div class="meta-item">
+          <div class="meta-label">Дисциплина</div>
+          <div class="meta-val">ОП.08 Основы проектирования баз данных</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Специальность</div>
+          <div class="meta-val">09.02.07 ИСП (СИЭУиП)</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Регламент</div>
+          <div class="meta-val">2 акад. часа (80 мин / 60 мин)</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Вид занятия</div>
+          <div class="meta-val">Урок с объяснением теории</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Детальный тайминг -->
+    <div class="card">
+      <h2>1. Поминутный тайминг учебного занятия</h2>
+      <p>В зависимости от расписания учебной части СИЭУиП занятие реализуется в основном регламенте (80 минут) или в сокращенном регламенте (60 минут при сжатом графике звонков):</p>
+      
+      <table class="timing-table">
+        <thead>
+          <tr>
+            <th>Этап занятия</th>
+            <th>Основной (80 мин)</th>
+            <th>Сокращенный (60 мин)</th>
+            <th>Ключевой фокус преподавателя</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Оргмомент и мотивация</strong></td>
+            <td>5 мин</td>
+            <td>4 мин</td>
+            <td>Проверка явки, постановка проблемы: «Что сломается в мобильном банке при добавлении нового поля в таблицу клиентов?»</td>
+          </tr>
+          <tr>
+            <td><strong>2. Актуализация опорных знаний</strong></td>
+            <td>8 мин</td>
+            <td>6 мин</td>
+            <td>Повторение реляционной модели: сущности, атрибуты, таблицы, первичные и внешние ключи. Концепция отделения логики от физики.</td>
+          </tr>
+          <tr>
+            <td><strong>3. Изложение нового материала</strong><br>• Архитектура ANSI/SPARC<br>• Логическая независимость (VIEW, INSTEAD OF)<br>• Физическая независимость (индексы, партиции, tablespaces)</td>
+            <td>32 мин</td>
+            <td>24 мин</td>
+            <td>Системное раскрытие трехуровневой архитектуры ANSI/SPARC (внешний, концептуальный, внутренний уровни). Демонстрация живых SQL-примеров экранирования схем.</td>
+          </tr>
+          <tr>
+            <td><strong>4. Разбор эталонных инженерных кейсов</strong></td>
+            <td>12 мин</td>
+            <td>8 мин</td>
+            <td>Демонстрация: декомпозиция таблицы клиентов с сохранением старого интерфейса через VIEW и оптимизация запроса с B-Tree индексом без правок кода приложения.</td>
+          </tr>
+          <tr>
+            <td><strong>5. Практическое закрепление в zanyatie.html</strong></td>
+            <td>15 мин</td>
+            <td>12 мин</td>
+            <td>Самостоятельный анализ студентами 4 вариантов инженерных сценариев в интерактивном бланке. Индивидуальный контроль педагога.</td>
+          </tr>
+          <tr>
+            <td><strong>6. Подведение итогов, рефлексия, ДЗ</strong></td>
+            <td>8 мин</td>
+            <td>6 мин</td>
+            <td>Анализ типовых ошибок, самооценка по критериальной шкале (4 балла), фиксация резервного домашнего задания.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Концепция независимости данных и ANSI/SPARC -->
+    <div class="card">
+      <h2>2. Архитектура ANSI/SPARC и концепция Data Independence</h2>
+      <p>В 1975 году комитет стандартов ANSI/X3/SPARC (American National Standards Institute, Standards Planning and Requirements Committee) сформулировал фундаментальный принцип организации современных СУБД — трехуровневую архитектуру данных, призванную решить проблему жесткой привязки прикладного программного обеспечения к форматам хранения на магнитных носителях.</p>
+      
+      <div class="diagram-box">
+        <strong>ТРЕХУРОВНЕВАЯ АРХИТЕКТУРА ANSI/SPARC</strong><br><br>
+        [ ВНЕШНИЙ УРОВЕНЬ (External Level) ]<br>
+        Внешняя схема 1 (Бухгалтерия) &nbsp;&nbsp;&nbsp;&nbsp; Внешняя схема 2 (Касса / Мобильное приложение)<br>
+        &uarr;&darr; (Отображение: Внешний &harr; Концептуальный: Представления VIEW)<br>
+        <span style="color: #0284c7; font-weight: bold;">[ ЛОГИЧЕСКАЯ НЕЗАВИСИМОСТЬ ДАННЫХ ]</span><br>
+        &uarr;&darr;<br>
+        [ КОНЦЕПТУАЛЬНЫЙ УРОВЕНЬ (Conceptual Level) ]<br>
+        Концептуальная схема: Таблицы, Столбцы, Связи PK/FK, Ограничения CHECK / UNIQUE<br>
+        &uarr;&darr; (Отображение: Концептуальный &harr; Внутренний: Storage Engine)<br>
+        <span style="color: #16a34a; font-weight: bold;">[ ФИЗИЧЕСКАЯ НЕЗАВИСИМОСТЬ ДАННЫХ ]</span><br>
+        &uarr;&darr;<br>
+        [ ВНУТРЕННИЙ / ФИЗИЧЕСКИЙ УРОВЕНЬ (Internal Level) ]<br>
+        Внутренняя схема: Страницы данных 8 КБ, Индексы B-Tree/Hash/GiST, Секции (Partitions), Tablespaces, Сжатие
+      </div>
+
+      <div class="callout">
+        <strong>Определение Data Independence (Независимость данных):</strong> способность изменять описание данных на одном уровне архитектуры СУБД без необходимости изменять описания на вышестоящих уровнях и без модификации исходного кода работающих клиентских приложений.
+      </div>
+    </div>
+
+    <!-- Логическая независимость данных -->
+    <div class="card">
+      <h2>3. Логическая независимость данных (Logical Data Independence)</h2>
+      <p><strong>Логическая независимость данных</strong> — это свойство СУБД и схемы данных, при котором изменение концептуальной схемы (структуры таблиц, разделения или слияния сущностей, добавления новых атрибутов) не требует переписывания внешних схем и прикладного программного кода.</p>
+
+      <h3>Механизмы обеспечения логической независимости:</h3>
+      <ol>
+        <li>
+          <strong>Представления (VIEW):</strong>
+          виртуальные таблицы, формируемые SQL-запросом к одной или нескольким базовым таблицам. При дроблении таблицы <code>Клиенты</code> на <code>ЮрЛица</code> и <code>ФизЛица</code> создается виртуальное представление <code>v_Клиенты</code> с помощью оператора <code>UNION ALL</code>, что позволяет внешним программам выполнять прежние <code>SELECT</code>-запросы без ошибок.
+        </li>
+        <li>
+          <strong>Триггеры INSTEAD OF:</strong>
+          специальный тип триггеров, перехватывающий операции манипулирования данными (<code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>), направленные на обновляемые сложные представления. Триггер программно распределяет входящий поток строк по новым концептуальным таблицам, сохраняя полную работоспособность устаревших систем учета.
+        </li>
+        <li>
+          <strong>Экранирование прав доступа и проекции:</strong>
+          создание специализированных представлений для разных категорий пользователей (например, кассир видит только <code>ID</code>, <code>ФИО</code> и <code>Скидочную карту</code>, не получая доступа к паспортам и финансовой истории).
+        </li>
+      </ol>
+
+      <pre><code>-- Пример логической независимости: сохранение старого интерфейса
+-- Исходная таблица Clients разделена на Legal_Entities и Individuals.
+-- Создаем VIEW для старой бухгалтерской программы:
+CREATE OR REPLACE VIEW Clients AS
+SELECT client_id, company_name AS client_name, inn AS tax_id, 'LEGAL' AS client_type
+FROM Legal_Entities
+UNION ALL
+SELECT client_id, full_name AS client_name, inn AS tax_id, 'INDIVIDUAL' AS client_type
+FROM Individuals;
+
+-- Обеспечение вставки через триггер INSTEAD OF:
+CREATE OR REPLACE TRIGGER trg_clients_insert
+INSTEAD OF INSERT ON Clients
+FOR EACH ROW
+BEGIN
+  IF :NEW.client_type = 'LEGAL' THEN
+    INSERT INTO Legal_Entities(client_id, company_name, inn)
+    VALUES (:NEW.client_id, :NEW.client_name, :NEW.tax_id);
+  ELSE
+    INSERT INTO Individuals(client_id, full_name, inn)
+    VALUES (:NEW.client_id, :NEW.client_name, :NEW.tax_id);
+  END IF;
+END;</code></pre>
+    </div>
+
+    <!-- Физическая независимость данных -->
+    <div class="card">
+      <h2>4. Физическая независимость данных (Physical Data Independence)</h2>
+      <p><strong>Физическая независимость данных</strong> — это способность СУБД изменять структуры физического хранения данных на дисковых накопителях, алгоритмы индексации, методы сжатия и распределение файлов по файловой системе без изменения концептуальной схемы (таблиц и связей) и прикладных запросов.</p>
+
+      <h3>Ключевые инструменты физического уровня:</h3>
+      <ul>
+        <li>
+          <strong>Индексы (B-Tree, Hash, GiST, GIN, BRIN):</strong>
+          дополнительные структуры доступа, ускоряющие поиск данных. Клиентский запрос <code>SELECT * FROM Orders WHERE order_date = '2026-05-10'</code> синтаксически остается абсолютно неизменным: оптимизатор СУБД сам решает переключиться со сканирования всей таблицы (Seq Scan) на сканирование индекса (Index Scan).
+        </li>
+        <li>
+          <strong>Секционирование таблиц (Table Partitioning):</strong>
+          логически таблица <code>Архив_Заказов</code> воспринимается приложением как единая сущность, однако на диске СУБД автоматически распределяет строки по физическим секциям (например, по годам или регионам: <code>orders_2024</code>, <code>orders_2025</code>, <code>orders_2026</code>).
+        </li>
+        <li>
+          <strong>Табличные пространства (Tablespaces) и точки монтирования:</strong>
+          администратор БД может перенести холодные исторические данные на медленные недорогие HDD-накопители, а оперативные горячие таблицы разместить на скоростном NVMe SSD-массиве. Для SQL-разработчика и прикладного сервиса структура таблицы не меняется ни на один байт.
+        </li>
+        <li>
+          <strong>Алгоритмы компрессии и размер страниц:</strong>
+          включение постраничного сжатия (LZ4, ZSTD) сокращает объем дискового ввода-вывода, оставаясь полностью прозрачным для концептуального уровня.
+        </li>
+      </ul>
+
+      <pre><code>-- Пример физической независимости: оптимизация без изменения прикладного кода
+-- Приложение шлет запрос:
+SELECT order_id, total_amount FROM Orders WHERE customer_id = 94821;
+
+-- Администратор создает B-Tree индекс:
+CREATE INDEX idx_orders_customer ON Orders USING btree(customer_id);
+
+-- Запрос приложения НЕ ИЗМЕНИЛСЯ ни на символ, 
+-- но время выполнения сократилось с 1200 мс (Sequential Scan) до 1.5 мс (Index Scan).</code></pre>
+    </div>
+
+    <!-- Типовые ошибки и педагогические приемы -->
+    <div class="card">
+      <h2>5. Типовые ошибки студентов и методические приемы</h2>
+      
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th style="width: 30%;">Типовая ошибка студента</th>
+            <th style="width: 35%;">В чем заключается суть заблуждения</th>
+            <th style="width: 35%;">Педагогический прием и контрпример</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>«Создание индекса — это изменение логической схемы»</strong></td>
+            <td>Студент путает концептуальный уровень с физическим. Полагает, что раз команда <code>CREATE INDEX</code> пишется на SQL, то это меняет бизнес-структуру таблицы.</td>
+            <td><strong>Прием «Слепой клиент»:</strong> Спросить: «Изменится ли список колонок, возвращаемых <code>SELECT * FROM Users</code>? Сломается ли мобильное приложение, если индекс удалить?» Показать план <code>EXPLAIN</code>: запрос идентичен, меняется только план выполнения.</td>
+          </tr>
+          <tr>
+            <td><strong>«Представление VIEW физически дублирует данные на диске»</strong></td>
+            <td>Отождествление VIEW с физической таблицей. Студенты боятся нехватки дискового пространства при создании 10 различных VIEW для одной таблицы.</td>
+            <td><strong>Прием «Виртуальное окно / Стеклянный трафарет»:</strong> Объяснить, что стандартное VIEW — это сохраненный SQL-запрос, «трафарет», накладываемый на сырые данные в момент обращения. Затраты диска равны длине текстовой строки определения в системном каталоге.</td>
+          </tr>
+          <tr>
+            <td><strong>«Партиционирование требует переписывания WHERE в запросах»</strong></td>
+            <td>Студент считает, что при секционировании по годам программист должен писать <code>FROM orders_2025</code> вместо <code>FROM orders</code>.</td>
+            <td><strong>Прием «Прозрачный диспетчер»:</strong> Продемонстрировать механизм <i>Partition Pruning</i>: программист обращается к мастер-таблице <code>Orders</code>, а планировщик СУБД сам отсекает ненужные секции, не читая терабайты лишних файлов.</td>
+          </tr>
+          <tr>
+            <td><strong>«Логическая независимость защищает от любых изменений в БД»</strong></td>
+            <td>Иллюзия абсолютной изоляции. Непонимание, что удаление критической бизнес-информации без эквивалента в новой схеме невозможно компенсировать никаким VIEW.</td>
+            <td><strong>Прием «Закон сохранения информации»:</strong> Если поле <code>Номер_Паспорта</code> удалено физически и не вычисляется из других полей, VIEW вернет <code>NULL</code>, что может уронить клиентский софт. Логическая независимость работает тогда, когда информация может быть реконструирована!</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Рекомендации по проверке и критериальная шкала -->
+    <div class="card">
+      <h2>6. Критериальное оценивание работы студентов (4 балла)</h2>
+      <p>Оценка за практическую работу на интерактивном листе <code>zanyatie.html</code> выставляется по 4-балльной прозрачной шкале:</p>
+      <ul>
+        <li><strong>Различение логической и физической независимости (2 балла):</strong> безошибочная классификация сценариев архитектурных изменений, точное сопоставление уровней ANSI/SPARC с конкретными компонентами СУБД.</li>
+        <li><strong>Механизм реализации (VIEW / Индексы / Партиции) (1 балл):</strong> корректное формулирование технического решения (экранирование интерфейса представлением, выбор типа индекса B-Tree vs Hash, секционирование).</li>
+        <li><strong>Выводы и самопроверка (1 балл):</strong> формулирование системного вывода о влиянии рефакторинга на внешние приложения и успешное прохождение контрольного блока самопроверки.</li>
+      </ul>
+      <div class="callout callout-warn">
+        <strong>Резервное дистанционное задание:</strong> предназначено строго для обучающихся, пропустивших очное занятие по уважительной причине, либо в случае объявления дистанционного режима. Домашнее задание сдается исключительно по прямому указанию преподавателя.
+      </div>
+    </div>
+  </div>
+</body>
+</html>

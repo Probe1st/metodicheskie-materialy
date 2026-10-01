@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Практическая работа — Логическая и физическая независимость данных</title>
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #2563eb;
+      --accent-soft: #eff6ff;
+      --accent-dark: #1d4ed8;
+      --warn: #d97706;
+      --warn-soft: #fef3c7;
+      --success: #16a34a;
+      --radius: 12px;
+      --shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      line-height: 1.6;
+      font-size: 16px;
+    }
+    .page {
+      width: min(100% - 32px, 880px);
+      margin: 28px auto 90px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(22px, 3.8vw, 30px);
+      line-height: 1.25;
+      color: var(--text);
+    }
+    .lead {
+      color: var(--muted);
+      margin: 0;
+      font-size: 15px;
+    }
+    h2 {
+      margin: 0 0 16px;
+      font-size: 19px;
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 8px;
+    }
+    h3 {
+      font-size: 17px;
+      margin: 20px 0 10px;
+      color: var(--text);
+    }
+    p, ul, ol {
+      margin-top: 0;
+      margin-bottom: 12px;
+    }
+    ul, ol {
+      padding-left: 24px;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+      margin-top: 14px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    input[type="text"], select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font: inherit;
+      color: var(--text);
+      background: #ffffff;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input[type="text"]:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+    .notice {
+      background: var(--warn-soft);
+      border-left: 4px solid var(--warn);
+      padding: 12px 16px;
+      border-radius: 4px 8px 8px 4px;
+      font-size: 14px;
+      margin-bottom: 20px;
+      color: #92400e;
+    }
+    .case-box {
+      background: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      padding: 16px 20px;
+      border-radius: 4px 8px 8px 4px;
+      margin-bottom: 20px;
+    }
+    .case-box h4 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      color: #0369a1;
+    }
+    .variant-container {
+      display: none;
+    }
+    .variant-container.active {
+      display: block;
+    }
+    .task-block {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+    .task-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: #1e3a8a;
+      margin-bottom: 8px;
+    }
+    .actions-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-top: 24px;
+    }
+    button {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font: inherit;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s, opacity 0.2s;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: var(--accent-dark);
+    }
+    .btn-secondary {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+    .btn-danger {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .btn-danger:hover {
+      background: #fecaca;
+    }
+    .status-msg {
+      font-size: 14px;
+      color: var(--success);
+      margin-left: auto;
+      display: none;
+    }
+    code {
+      font-family: ui-monospace, monospace;
+      font-size: 0.9em;
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* Адаптивность для мобильных экранов 375px */
+    @media (max-width: 640px) {
+      .page { width: calc(100% - 16px); margin: 12px auto 60px; }
+      .card { padding: 16px 12px; }
+      .student-grid { grid-template-columns: 1fr; gap: 12px; }
+      .actions-bar { flex-direction: column; align-items: stretch; }
+      .actions-bar button { width: 100%; justify-content: center; }
+      .status-msg { margin-left: 0; text-align: center; }
+    }
+
+    /* Стили для печати: аккуратные рамки, без обрезки полей, скрытые плейсхолдеры */
+    @media print {
+      body { background: white; color: black; font-size: 11pt; }
+      .page { width: 100%; margin: 0; }
+      .card { border: none; box-shadow: none; padding: 6px 0; margin-bottom: 12px; break-inside: avoid; }
+      .actions-bar, .notice { display: none; }
+      .variant-selector select { border: none; font-size: 12pt; font-weight: bold; -webkit-appearance: none; appearance: none; }
+      input[type="text"], textarea, select {
+        border: 1px solid #475569 !important;
+        background: white !important;
+        color: black !important;
+        -webkit-text-fill-color: black !important;
+        box-shadow: none !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+      }
+      textarea {
+        height: auto !important;
+        min-height: 90px;
+        overflow: visible;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="card">
+      <h1>Практическая работа: Логическая и физическая независимость данных</h1>
+      <p class="lead">Индивидуальный рабочий лист обучающегося по дисциплине «ОП.08 Основы проектирования баз данных». Анализ архитектурных уровней ANSI/SPARC, классификация сценариев независимости данных и проектирование механизмов изоляции схемы от клиентского ПО.</p>
+    </header>
+
+    <!-- Секция данных студента: ЧИСТЫЕ поля БЕЗ вымышленных плейсхолдеров -->
+    <section class="card">
+      <h2>Данные обучающегося</h2>
+      <div class="student-grid">
+        <div class="form-group">
+          <label for="studentFio">Фамилия, Имя</label>
+          <input type="text" id="studentFio">
+        </div>
+        <div class="form-group">
+          <label for="studentGroup">Учебная группа</label>
+          <input type="text" id="studentGroup">
+        </div>
+      </div>
+      <div class="form-group variant-selector" style="margin-top: 14px;">
+        <label for="variantSelect">Вариант индивидуального задания</label>
+        <select id="variantSelect">
+          <option value="1">Вариант 1: Декомпозиция таблицы «Клиенты» на Юридические и Физические лица</option>
+          <option value="2">Вариант 2: Перенос архива заказов на медленный HDD с секционированием по годам</option>
+          <option value="3">Вариант 3: Оптимизация поиска по миллиону записей (B-Tree vs Hash и план EXPLAIN)</option>
+          <option value="4">Вариант 4: Добавление поля «Статус_лояльности» и экранирование для старых касс</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Вариант 1 -->
+    <div id="variant-1" class="variant-container active">
+      <section class="card">
+        <h2>Вариант 1: Декомпозиция таблицы Клиенты на ЮрЛица и ФизЛица</h2>
+        <div class="case-box">
+          <h4>Инженерная ситуация:</h4>
+          <p>В ходе рефакторинга монолитная таблица <code>Clients</code> разделена на две независимые таблицы: <code>Legal_Entities</code> (Юридические лица: ИНН, КПП, ОГРН, название) и <code>Individuals</code> (Физические лица: ФИО, ИНН, паспорт). С базой работает старая бухгалтерская программа 2012 года, выполняющая запрос <code>SELECT client_id, name, inn FROM Clients;</code>, исходный код которой изменить невозможно.</p>
+        </div>
+
+        <div class="task-block">
+          <div class="task-title">Задание 1.1. Классификация уровня и типа независимости (1 балл)</div>
+          <p>Какой тип независимости иллюстрирует данная ситуация (логическая или физическая)? На какой границе трехуровневой модели ANSI/SPARC возникает данная изоляция?</p>
+          <textarea id="v1_ans1"></textarea>
+        </div>
+
+        <div class="task-block">
+          <div class="task-title">Задание 1.2. Механизм реализации через VIEW (1 балл)</div>
+          <p>Напишите SQL DDL-запрос создания экранирующего представления <code>Clients</code> с объединением (<code>UNION ALL</code>), обеспечивающего полную работоспособность старого бухгалтерского софта.</p>
+          <textarea id="v1_ans2"></textarea>
+        </div>
+
+        <div class="task-block">
+          <div class="task-title">Задание 1.3. Обработка вставок данных через триггеры INSTEAD OF (1 балл)</div>
+          <p>Что произойдет, если старая программа выполнит <code>INSERT INTO Clients ...</code>? Какой механизм СУБД (триггер <code>INSTEAD OF</code>) необходим для маршрутизации новых записей?</p>
+          <textarea id="v1_ans3"></textarea>
+        </div>
+
+        <div class="task-block">
+          <div class="task-title">Задание 1.4. Инженерный вывод и самопроверка (1 балл)</div>
+          <p>Сформулируйте доказательство: почему в данном случае исходный программный код клиентского приложения остался работоспособным? При каких условиях эта независимость может быть нарушена?</p>
+          <textarea id="v1_ans4"></textarea>
+        </div>
+      </section>
+    </div>
+
+    <!-- Вариант 2 -->
+    <div id="variant-2" class="variant-container">
+      <section class="card">
+        <h2>Вариант 2: Перенос архива заказов на HDD-массив и секционирование</h2>
+        <div class="case-box">
+          <h4>Инженерная ситуация:</h4>
+          <p>Таблица <code>Orders</code> насчитывает 50 миллионов записей. Для экономии места администратор БД переносит архивные заказы старше 3 лет на медленный HDD-массив с созданием отдельного tablespace <code>archive_hdd</code> и разбивает таблицу на секции (partitions) по годам. Пользователи продолжают запрашивать данные через привычный веб-интерфейс.</p>
+        </div>
+
+        <div class="task-block">
+          <div class="task-title">Задание 2.1. Классификация уровня и типа независимости (1 балл)</div>
+          <p>Какой тип независимости данных реализуется при переносе данных между дисками и секционировании таблицы? Какая граница ANSI/SPARC задействована?</p>
+          <textarea id="v2_ans1"></textarea>
+        </div>
+
+        <div class="task-block">
+          <div class="task-title">Задание 2.2. Механизм прозрачного секционирования (Partitioning) (1 балл)</div>
+          <p>Как при секционировании по годам работает механизм <em>Partition Pruning</em>? Должен ли прикладной программист писать в запросе имя партиции <code>orders_2023</code> вместо мастер-таблицы <code>Orders</code>?</p>
+          <textarea id="v2_ans2"></textarea>
+        </div>
+
+        <div class="task-block">
+          <div class="task-title">Задание 2.3. Роль табличных пространств (Tablespaces) (1 балл)</div>
+          <p>Какую роль играют Tablespaces в изоляции концептуальной схемы от физических накопителей (SSD vs HDD)? Поясните принцип многоуровневого хранения (Tiered Storage).</p>
+          <textarea id="v2_ans3"></textarea>
+        </div>
+
+        <div class="task-block">
+          <div class="task-title">Задание 2.4. Доказательство физической независимости (1 балл)</div>
+          <p>Докажите, почему выполнение клиентом запроса <code>SELECT * FROM Orders WHERE order_date = '2022-04-12';</code> не требует модификации после переноса на HDD-массив.</p>
+          <textarea id="v2_ans4"></textarea>
+        </div>
+      </section>
+    </div>
+
+    <!-- Вариант 3 -->
+    <div id="variant-3" class="variant-container">
+      <section class="card">
+        <h2>Вариант 3: Оптимизация поиска по миллиону записей (B-Tree vs Hash, EXPLAIN)</h2>
+        <div class="case-box">
+          <h4>Инженерная ситуация:</h4>
+          <p>Запрос фильтрации товаров <code>SELECT * FROM Products WHERE category_id = 42 AND price BETWEEN 1000 AND 5000;</code> на таблице из 1 000 000 строк выполняется за 2.5 секунды, перегружая CPU полным сканированием (Seq Scan). Требуется оптимизировать доступ без правки кода сервиса каталога.</p>
+        </div>
+
+        <div class="task-block">
+          <div class="task-title">Задание 3.1. Классификация уровня и типа независимости (1 балл)</div>
+          <p>К какому типу независимости относится добавление индекса к таблице? Изменяется ли при этом логическая структура таблицы (состав колонок, типы данных)?</p>
+          <textarea id="v3_ans1"></textarea>
+        </div>
+
+        <div class="task-block">
+          <div class="task-title">Задание 3.2. Выбор типа индекса: B-Tree vs Hash (1 балл)</div>
+          <p>Сравните применимость B-Tree индекса и Hash индекса для данного запроса с условием <code>BETWEEN</code>. Почему Hash-индекс категорически не подходит для диапазонных фильтров?</p>
+          <textarea id="v3_ans2"></textarea>
+        </div>
+
+        <div class="task-block">
+          <div class="task-title">Задание 3.3. Анализ плана запроса EXPLAIN (1 балл)</div>
+          <p>Как изменится план выполнения команды <code>EXPLAIN</code> до и после построения индекса (сравните <code>Seq Scan</code> и <code>Index Scan</code> / <code>Bitmap Index Scan</code>)? Что доказывает физическую независимость?</p>
+          <textarea id="v3_ans3"></textarea>
+        </div>
+
+        <div class="task-block">
+          <div class="task-title">Задание 3.4. Инженерный вывод и самопроверка (1 балл)</div>
+          <p>Сформулируйте вывод: почему разработчику микросервиса каталога не требуется выпускать патч приложения при создании или удалении индекса администратором БД?</p>
+          <textarea id="v3_ans4"></textarea>
+        </div>
+      </section>
+    </div>
+
+    <!-- Вариант 4 -->
+    <div id="variant-4" class="variant-container">
+      <section class="card">
+        <h2>Вариант 4: Добавление поля «Статус_лояльности» и экранирование касс</h2>
+        <div class="case-box">
+          <h4>Инженерная ситуация:</h4>
+          <p>В таблицу <code>Customers</code> добавлено новое поле <code>loyalty_tier VARCHAR(20)</code>. В сети супермаркетов эксплуатируются 500 старых кассовых аппаратов, ПО которых при выполнении запроса <code>SELECT * FROM Customers WHERE card_code = ?;</code> аварийно завершает работу при обнаружении неожиданной лишней колонки.</p>
+        </div>
+
+        <div class="task-block">
+          <div class="task-title">Задание 4.1. Классификация проблемы независимости (1 балл)</div>
+          <p>К какому уровню архитектуры ANSI/SPARC относится добавление нового поля в концептуальную таблицу? Нарушение какой независимости произошло для кассовых терминалов?</p>
+          <textarea id="v4_ans1"></textarea>
+        </div>
+
+        <div class="task-block">
+          <div class="task-title">Задание 4.2. Экранирование схемы через специализированное представление (1 балл)</div>
+          <p>Предложите решение с созданием представления <code>v_pos_customers</code> для кассовых аппаратов. Приведите SQL-запрос создания VIEW с жестко фиксированным списком разрешенных колонок.</p>
+          <textarea id="v4_ans2"></textarea>
+        </div>
+
+        <div class="task-block">
+          <div class="task-title">Задание 4.3. Разграничение прав доступа (GRANT) (1 балл)</div>
+          <p>Как с помощью команд <code>GRANT</code> и <code>REVOKE</code> запретить кассовым аппаратам прямой доступ к базовой таблице <code>Customers</code>, оставив права только на чтение представления?</p>
+          <textarea id="v4_ans3"></textarea>
+        </div>
+
+        <div class="task-block">
+          <div class="task-title">Задание 4.4. Инженерный вывод и самопроверка (1 балл)</div>
+          <p>Сформулируйте вывод: почему практика использования представлений (VIEW) вместо прямого доступа к таблицам является базовым правилом архитектуры корпоративных баз данных?</p>
+          <textarea id="v4_ans4"></textarea>
+        </div>
+      </section>
+    </div>
+
+    <!-- Кнопки управления -->
+    <section class="card actions-bar">
+      <button type="button" class="btn-primary" id="btnSave">Сохранить ответы</button>
+      <button type="button" class="btn-secondary" id="btnPrint">Печать / Сохранить в PDF</button>
+      <button type="button" class="btn-danger" id="btnClear">Очистить форму</button>
+      <span class="status-msg" id="statusMsg">Данные сохранены в браузере!</span>
+    </section>
+  </div>
+
+  <script>
+    (function() {
+      const STORAGE_KEY = 'db_hw_05_student_data';
+      const variantSelect = document.getElementById('variantSelect');
+      const studentFio = document.getElementById('studentFio');
+      const studentGroup = document.getElementById('studentGroup');
+      const btnSave = document.getElementById('btnSave');
+      const btnPrint = document.getElementById('btnPrint');
+      const btnClear = document.getElementById('btnClear');
+      const statusMsg = document.getElementById('statusMsg');
+
+      const textareas = document.querySelectorAll('textarea');
+
+      function switchVariant(v) {
+        document.querySelectorAll('.variant-container').forEach(el => {
+          el.classList.remove('active');
+        });
+        const target = document.getElementById('variant-' + v);
+        if (target) {
+          target.classList.add('active');
+        }
+      }
+
+      variantSelect.addEventListener('change', (e) => {
+        switchVariant(e.target.value);
+        saveData();
+      });
+
+      function collectData() {
+        const data = {
+          fio: studentFio.value,
+          group: studentGroup.value,
+          variant: variantSelect.value,
+          answers: {}
+        };
+        textareas.forEach(t => {
+          if (t.id) {
+            data.answers[t.id] = t.value;
+          }
+        });
+        return data;
+      }
+
+      function loadData() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return;
+          const data = JSON.parse(raw);
+          if (data.fio) studentFio.value = data.fio;
+          if (data.group) studentGroup.value = data.group;
+          if (data.variant) {
+            variantSelect.value = data.variant;
+            switchVariant(data.variant);
+          }
+          if (data.answers) {
+            textareas.forEach(t => {
+              if (t.id && data.answers[t.id] !== undefined) {
+                t.value = data.answers[t.id];
+              }
+            });
+          }
+        } catch (e) {
+          console.error('Ошибка загрузки данных:', e);
+        }
+      }
+
+      function saveData() {
+        try {
+          const data = collectData();
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+          statusMsg.style.display = 'inline';
+          setTimeout(() => {
+            statusMsg.style.display = 'none';
+          }, 2500);
+        } catch (e) {
+          console.error('Ошибка сохранения данных:', e);
+        }
+      }
+
+      btnSave.addEventListener('click', saveData);
+
+      // Автосохранение при вводе
+      document.querySelectorAll('input, textarea').forEach(el => {
+        el.addEventListener('input', () => {
+          // Отложенное сохранение
+          clearTimeout(window._autoSaveTimer);
+          window._autoSaveTimer = setTimeout(saveData, 1000);
+        });
+      });
+
+      btnPrint.addEventListener('click', () => {
+        saveData();
+        window.print();
+      });
+
+      btnClear.addEventListener('click', () => {
+        if (confirm('Вы уверены, что хотите полностью очистить все введенные данные на рабочем листе? Это действие необратимо.')) {
+          localStorage.removeItem(STORAGE_KEY);
+          studentFio.value = '';
+          studentGroup.value = '';
+          textareas.forEach(t => t.value = '');
+          alert('Данные успешно очищены.');
+        }
+      });
+
+      // Инициализация
+      loadData();
+    })();
+  </script>
+</body>
+</html>

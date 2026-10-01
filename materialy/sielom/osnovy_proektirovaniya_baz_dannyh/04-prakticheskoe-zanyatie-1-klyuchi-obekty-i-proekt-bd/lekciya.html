@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Конспект лекции — Практическое занятие №1: ключи, объекты и проект БД, таблицы</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #0284c7;
+      --accent-soft: #f0f9ff;
+      --accent-dark: #0369a1;
+      --success: #15803d;
+      --success-soft: #f0fdf4;
+      --warn: #b45309;
+      --warn-soft: #fffbeb;
+      --code-bg: #0f172a;
+      --code-text: #f8fafc;
+      --radius: 12px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      line-height: 1.65;
+      font-size: 16px;
+    }
+    .page {
+      width: min(100% - 32px, 960px);
+      margin: 32px auto 80px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(24px, 4vw, 32px);
+      color: var(--text);
+      line-height: 1.25;
+    }
+    .lead {
+      color: var(--muted);
+      margin: 0;
+      font-size: 16px;
+    }
+    h2 {
+      margin: 0 0 16px;
+      font-size: 21px;
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 8px;
+    }
+    h3 {
+      font-size: 18px;
+      margin: 22px 0 12px;
+      color: var(--text);
+    }
+    p, ul, ol {
+      margin-top: 0;
+      margin-bottom: 12px;
+    }
+    ul, ol {
+      padding-left: 24px;
+    }
+    li {
+      margin-bottom: 6px;
+    }
+    .callout {
+      background: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      padding: 14px 18px;
+      border-radius: 4px 8px 8px 4px;
+      margin-bottom: 18px;
+    }
+    .callout-success {
+      background: var(--success-soft);
+      border-left: 4px solid var(--success);
+      padding: 14px 18px;
+      border-radius: 4px 8px 8px 4px;
+      margin-bottom: 18px;
+    }
+    .callout-warn {
+      background: var(--warn-soft);
+      border-left: 4px solid var(--warn);
+      padding: 14px 18px;
+      border-radius: 4px 8px 8px 4px;
+      margin-bottom: 18px;
+    }
+    .table-responsive {
+      overflow-x: auto;
+      margin: 16px 0 20px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14.5px;
+      text-align: left;
+      min-width: 600px;
+    }
+    table.data-table th, table.data-table td {
+      border: 1px solid var(--line);
+      padding: 10px 14px;
+      vertical-align: top;
+    }
+    table.data-table th {
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font-weight: 600;
+    }
+    table.data-table tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 18px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 14px 0 18px;
+    }
+    code {
+      font-family: ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
+      font-size: 0.9em;
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+    /* ASCII / SVG Diagram Box */
+    .diagram-box {
+      background: #f8fafc;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      margin: 18px 0;
+      font-family: ui-monospace, "Cascadia Code", Menlo, monospace;
+      font-size: 13.5px;
+      line-height: 1.4;
+      overflow-x: auto;
+      white-space: pre;
+      color: #1e293b;
+    }
+    .quiz-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 14px;
+      background: #ffffff;
+    }
+    .quiz-q {
+      font-weight: 600;
+      color: var(--accent-dark);
+      margin-bottom: 8px;
+    }
+    @media (max-width: 640px) {
+      .page { width: calc(100% - 20px); margin: 16px auto 60px; }
+      .card { padding: 20px 16px; }
+      pre, .diagram-box { font-size: 12px; padding: 12px; }
+    }
+    @media print {
+      body { background: white; color: black; font-size: 11pt; }
+      .page { width: 100%; margin: 0; }
+      .card { border: none; box-shadow: none; padding: 10px 0; margin-bottom: 16px; break-inside: avoid; }
+      pre, .diagram-box { background: #f8fafc; color: #000; border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    
+    <header class="card">
+      <h1>Фундаментальный теоретический конспект</h1>
+      <p class="lead"><strong>Дисциплина:</strong> ОП.08 Основы проектирования баз данных<br>
+      <strong>Тема рабочей программы (§2.2 с.7):</strong> Тема 1. Основные понятия баз данных — Практическое занятие №1: ключи, объекты и проект БД, таблицы<br>
+      <strong>Назначение:</strong> Учебный конспект студента для подготовки к практической работе, курсовому проектированию и демонстрационному экзамену</p>
+    </header>
+
+    <section class="card">
+      <h2>1. Реляционная таблица как основа физической модели БД</h2>
+      <p>В реляционной модели данных Эдгара Кодда информация представляется в виде двумерных математических отношений, которые на физическом уровне СУБД реализуются как <strong>таблицы (Tables)</strong>. Каждая строка таблицы называется <strong>записью или кортежем (Tuple)</strong>, а каждый столбец — <strong>полем или атрибутом (Attribute)</strong>.</p>
+      
+      <p>К реляционной таблице предъявляются жесткие архитектурные требования:</p>
+      <ul>
+        <li><strong>Атомарность значений:</strong> каждое значение в ячейке неделимо (1-я нормальная форма). Нельзя хранить список телефонов или перечень товаров через запятую в одной ячейке.</li>
+        <li><strong>Уникальность строк:</strong> в таблице не может существовать двух абсолютно одинаковых строк (гарантируется первичным ключом).</li>
+        <li><strong>Однородность столбцов:</strong> все значения в одном столбце принадлежат строго одному базовому типу данных.</li>
+        <li><strong>Порядок не имеет значения:</strong> порядок строк и столбцов не влияет на семантический смысл запросов.</li>
+      </ul>
+
+      <h3>1.1. Блок-схема логической структуры реляционной таблицы</h3>
+      <div class="diagram-box">+-----------------------------------------------------------------------------------------+
+|                               ТАБЛИЦА: zakazy (Заказы клиентов)                         |
++-----------------------------------------------------------------------------------------+
+|  ИМЯ ПОЛЯ            | ТИП ДАННЫХ     | ОГРАНИЧЕНИЕ ЦЕЛОСТНОСТИ   | НАЗНАЧЕНИЕ                  |
++----------------------+----------------+---------------------------+-----------------------------+
+| [PK] id_zakaza       | BIGINT/SERIAL  | PRIMARY KEY               | Суррогатный первичный ключ  |
+| [AK] nomer_kvitancii | VARCHAR(30)    | NOT NULL UNIQUE           | Альтернативный естеств. ключ|
+| [FK] id_klienta      | INT            | NOT NULL REFERENCES ...   | Внешний ключ (связь 1:M)    |
+| [FK] id_mastera      | INT            | REFERENCES mastera(...)   | Внешний ключ (факультативн.)|
+|      status          | VARCHAR(20)    | NOT NULL DEFAULT 'новый'  | Состояние жизненного цикла  |
+|      summa           | NUMERIC(10,2)  | NOT NULL CHECK (summa >=0)| Финансовое значение         |
+|      data_sozdaniya  | TIMESTAMP      | NOT NULL DEFAULT NOW()    | Временная метка аудита      |
++----------------------+----------------+---------------------------+-----------------------------+
+|                               ОГРАНИЧЕНИЯ УРОВНЯ ТАБЛИЦЫ                                |
+|  CONSTRAINT chk_status CHECK (status IN ('новый', 'в_работе', 'готов', 'выдан'))         |
+|  CONSTRAINT fk_klient FOREIGN KEY (id_klienta) REFERENCES klienty(id_klienta)           |
+|                       ON UPDATE CASCADE ON DELETE RESTRICT                              |
++-----------------------------------------------------------------------------------------+</div>
+    </section>
+
+    <section class="card">
+      <h2>2. Теория первичных ключей: Естественные vs Суррогатные</h2>
+      <p><strong>Первичный ключ (Primary Key, PK)</strong> — это минимальный набор атрибутов, однозначно идентифицирующий кортеж в отношении. Первичный ключ эквивалентен комбинации ограничений <code>NOT NULL</code> и <code>UNIQUE</code>, а СУБД автоматически создает под него кластеризованный или уникальный B-Tree индекс.</p>
+
+      <h3>2.1. Естественные ключи (Natural Keys)</h3>
+      <p>Естественный ключ формируется из реквизитов, уже существующих в реальном мире: номер паспорта гражданина, государственный номер автомобиля, ISBN печатного издания, номер ИНН организации.</p>
+      <ul>
+        <li><strong>Плюс:</strong> Не требует выделения дополнительного столбца, данные информативны сами по себе при выборке.</li>
+        <li><strong>Минус 1 (Изменяемость):</strong> Человек может сменить паспорт, организация — название, автомобиль — номер при смене региона. Смена первичного ключа — крайне тяжелая операция для БД.</li>
+        <li><strong>Минус 2 (Производительность):</strong> Строковые естественные ключи (например, VIN 17 символов или ISBN 13 символов) требуют в 4–5 раз больше байт на запись, чем 4-байтовый <code>INT</code>. Поскольку первичный ключ копируется во все внешние ключи всех дочерних таблиц, размер B-Tree индексов многократно раздувается, а соединение таблиц (<code>JOIN</code>) замедляется.</li>
+      </ul>
+
+      <h3>2.2. Суррогатные ключи (Surrogate Keys)</h3>
+      <p>Суррогатный ключ — это искусственно созданное поле, не несущее бизнес-смысла и служащее исключительно для технической идентификации записи в рамках СУБД.</p>
+
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Тип суррогатного ключа</th>
+              <th>Размер</th>
+              <th>Способ генерации в SQL</th>
+              <th>Рекомендованный сценарий</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>INTEGER (SERIAL)</code></td>
+              <td>4 байта</td>
+              <td><code>id INT GENERATED ALWAYS AS IDENTITY</code></td>
+              <td>Справочники, каталоги, пользователи (до 2.14 млрд записей).</td>
+            </tr>
+            <tr>
+              <td><code>BIGINT (BIGSERIAL)</code></td>
+              <td>8 байт</td>
+              <td><code>id BIGINT GENERATED ALWAYS AS IDENTITY</code></td>
+              <td>Транзакционные таблицы, журналы логов, чеки, путевые листы, бронирования.</td>
+            </tr>
+            <tr>
+              <td><code>UUID (Universally Unique ID)</code></td>
+              <td>16 байт</td>
+              <td><code>id UUID DEFAULT gen_random_uuid()</code></td>
+              <td>Распределенные архитектуры, мобильные клиенты, автономный оффлайн-ввод.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout-success">
+        <strong>Золотое правило реляционного проектирования:</strong><br>
+        1. В качестве <code>PRIMARY KEY</code> используйте суррогатный целочисленный идентификатор (<code>INT</code> или <code>BIGINT</code>).<br>
+        2. Все естественные бизнес-идентификаторы (ИНН, VIN, номер паспорта, email) делайте альтернативными ключами через <code>UNIQUE NOT NULL</code>.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>3. Физические типы данных в реляционных СУБД</h2>
+      <p>Выбор типа данных определяет требуемый объем оперативной памяти (RAM) для кэша страниц, размер таблицы на диске и возможность использования специализированных функций фильтрации.</p>
+
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Тип данных SQL</th>
+              <th>Диапазон / Формат</th>
+              <th>Корректное применение</th>
+              <th>Типичная грубая ошибка</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>SMALLINT</code></td>
+              <td>От -32 768 до +32 767 (2 байта)</td>
+              <td>Номер этажа, вместимость номера, год выпуска, стаж.</td>
+              <td>Использование для автоинкрементного ID больших таблиц.</td>
+            </tr>
+            <tr>
+              <td><code>INTEGER</code> (<code>INT</code>)</td>
+              <td>От -2.14 млрд до +2.14 млрд (4 байта)</td>
+              <td>Первичные и внешние ключи справочников, счетчики.</td>
+              <td>Использование типа <code>VARCHAR</code> для числовых ID.</td>
+            </tr>
+            <tr>
+              <td><code>BIGINT</code></td>
+              <td>От $-9 \times 10^{18}$ до $+9 \times 10^{18}$ (8 байт)</td>
+              <td>Первичные ключи высоконагруженных таблиц, телеметрия.</td>
+              <td>Использование обычного <code>INT</code> для журналов логов.</td>
+            </tr>
+            <tr>
+              <td><code>NUMERIC(p, s)</code></td>
+              <td>Точные десятичные числа (p знаков, s после запятой)</td>
+              <td>Цены, зарплаты, остаток топлива, банковские балансы.</td>
+              <td><strong>Использование FLOAT / REAL для денег!</strong> Приводит к потере копеек из-за двоичного округления.</td>
+            </tr>
+            <tr>
+              <td><code>VARCHAR(n)</code></td>
+              <td>Строка переменной длины до n символов</td>
+              <td>ФИО, названия, email, марки авто, статусы.</td>
+              <td>Хранение дат в виде <code>VARCHAR(10)</code> ('12.05.2024').</td>
+            </tr>
+            <tr>
+              <td><code>CHAR(n)</code></td>
+              <td>Строка строго фиксированной длины n</td>
+              <td>Код валюты ISO (RUB), код страны (RU), VIN (17 симв.).</td>
+              <td>Применение для имен переменной длины (добивается пробелами).</td>
+            </tr>
+            <tr>
+              <td><code>DATE</code> / <code>TIMESTAMP</code></td>
+              <td>Календарная дата / Дата со временем до микросекунд</td>
+              <td>Дата заезда, дата рождения, время создания заказа.</td>
+              <td>Использование целочисленного Unix Timestamp без нужды.</td>
+            </tr>
+            <tr>
+              <td><code>BOOLEAN</code></td>
+              <td><code>TRUE</code>, <code>FALSE</code>, <code>NULL</code> (1 байт)</td>
+              <td>Флаги: активен, удален, в штате, оплачен.</td>
+              <td>Создание текстовых полей <code>VARCHAR(5)</code> со строками 'yes'/'no'.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>4. Ограничения целостности (Integrity Constraints)</h2>
+      <p>Ограничения целостности представляют собой декларативные правила, которые СУБД проверяет при каждой операции <code>INSERT</code>, <code>UPDATE</code> и <code>DELETE</code>. Если операция нарушает хотя бы одно ограничение, транзакция прерывается с ошибкой.</p>
+
+      <h3>4.1. Декларативные ограничения</h3>
+      <ul>
+        <li><code>NOT NULL</code>: запрещает хранение неопределенного значения <code>NULL</code> в столбце. Обязательно для всех ключевых полей, фамилий, дат событий.</li>
+        <li><code>UNIQUE</code>: требует уникальности каждого непустого значения. Поддерживается уникальным B-Tree индексом.</li>
+        <li><code>DEFAULT значение</code>: подставляет указанное константное или функциональное значение, если поле пропущено в операторе <code>INSERT</code>.</li>
+        <li><code>CHECK (логическое выражение)</code>: выполняет валидацию значений столбца или строки по произвольному предикату.</li>
+      </ul>
+
+      <h3>4.2. Примеры предикатных ограничений CHECK</h3>
+      <pre><code>-- Проверка диапазона значений
+CHECK (god_vypuska >= 1990 AND god_vypuska <= EXTRACT(YEAR FROM CURRENT_DATE) + 1)
+
+-- Сравнение двух атрибутов одной строки (темпоральная целостность)
+CHECK (data_vyezda > data_zaezda)
+CHECK (probeg_pri_vozvrashchenii >= probeg_pri_vyezde)
+
+-- Ограничение множества допустимых статусов
+CHECK (status IN ('доступен', 'занят', 'уборка', 'ремонт'))
+
+-- Финансовая валидация (цена продажи не ниже закупки)
+CHECK (cena_prodazhi >= cena_zakupki AND cena_zakupki >= 0)</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>5. Внешние ключи (Foreign Key) и ссылочная целостность</h2>
+      <p><strong>Внешний ключ (Foreign Key, FK)</strong> — это колонка или группа колонок дочерней таблицы, значения которых обязаны совпадать со значениями первичного (или уникального) ключа родительской таблицы.</p>
+
+      <div class="diagram-box">       РОДИТЕЛЬСКАЯ ТАБЛИЦА: avtomobili
+       +---------------------------------------------+
+       | [PK] id_avto : INT (101)                    | <----+
+       |      gos_nomer: VARCHAR(12)                 |      |
+       +---------------------------------------------+      |
+                                                            | Ссылочная связь
+       ДОЧЕРНЯЯ ТАБЛИЦА: putevye_listy                      | (Foreign Key)
+       +---------------------------------------------+      |
+       | [PK] id_putevogo_lista : BIGINT             |      |
+       | [FK] id_avto : INT --------------------------------+
+       |      probeg_pri_vyezde : INT                |
+       +---------------------------------------------+</div>
+
+      <h3>5.1. Каскадные действия при DELETE и UPDATE</h3>
+      <p>Секции <code>ON DELETE</code> и <code>ON UPDATE</code> определяют поведение реляционного движка, когда запись в родительской таблице удаляется или изменяется:</p>
+      <ul>
+        <li><code>RESTRICT</code> / <code>NO ACTION</code>: СУБД блокирует удаление/изменение родительской строки и возвращает ошибку, если на нее ссылается хотя бы одна дочерняя строка. <em>Используется в 90% связей учетных систем для защиты от случайного уничтожения истории</em>.</li>
+        <li><code>CASCADE</code>: СУБД автоматически физически удаляет все зависимые дочерние записи. <em>Используется строго для подчиненных спецификаций (например, пункты накладной при удалении накладной)</em>.</li>
+        <li><code>SET NULL</code>: СУБД заменяет значение внешнего ключа в дочерних строках на <code>NULL</code> (столбец внешнего ключа должен допускать <code>NULL</code>).</li>
+        <li><code>SET DEFAULT</code>: СУБД устанавливает в дочерних строках значение по умолчанию.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>6. Эталонный пример физической схемы (DDL SQL)</h2>
+      <p>Ниже представлен профессиональный DDL-скрипт создания связанных таблиц в СУБД PostgreSQL с соблюдением всех стандартов именования, ключей и ограничений:</p>
+      <pre><code>-- 1. Справочник категорий номеров
+CREATE TABLE kategorii_nomerov (
+    id_kategorii SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nazvanie VARCHAR(50) NOT NULL UNIQUE,
+    vmestimost_mest SMALLINT NOT NULL CHECK (vmestimost_mest BETWEEN 1 AND 10),
+    bazovaya_cena_za_sutki NUMERIC(10,2) NOT NULL CHECK (bazovaya_cena_za_sutki > 0)
+);
+
+-- 2. Номерной фонд отеля
+CREATE TABLE nomera (
+    id_nomera INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nomer_komnaty VARCHAR(10) NOT NULL UNIQUE,
+    etazh SMALLINT NOT NULL CHECK (etazh BETWEEN 1 AND 50),
+    id_kategorii SMALLINT NOT NULL REFERENCES kategorii_nomerov(id_kategorii)
+        ON UPDATE CASCADE ON DELETE RESTRICT,
+    status VARCHAR(20) NOT NULL DEFAULT 'доступен' 
+        CHECK (status IN ('доступен', 'занят', 'уборка', 'ремонт'))
+);
+
+-- 3. Анкеты гостей
+CREATE TABLE gosti (
+    id_gostya INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    pasport_seriya_nomer VARCHAR(30) NOT NULL UNIQUE,
+    familiya VARCHAR(50) NOT NULL,
+    imya VARCHAR(50) NOT NULL,
+    otchestvo VARCHAR(50),
+    telefon VARCHAR(20) NOT NULL,
+    email VARCHAR(100),
+    data_rozhdeniya DATE NOT NULL 
+        CHECK (data_rozhdeniya <= CURRENT_DATE - INTERVAL '18 years')
+);
+
+-- 4. Журнал бронирований
+CREATE TABLE bronirovaniya (
+    id_broni BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_nomera INT NOT NULL REFERENCES nomera(id_nomera)
+        ON UPDATE CASCADE ON DELETE RESTRICT,
+    id_gostya INT NOT NULL REFERENCES gosti(id_gostya)
+        ON UPDATE CASCADE ON DELETE RESTRICT,
+    data_zaezda DATE NOT NULL,
+    data_vyezda DATE NOT NULL,
+    itogovaya_stoimost NUMERIC(10,2) NOT NULL CHECK (itogovaya_stoimost >= 0),
+    status_broni VARCHAR(20) NOT NULL DEFAULT 'создано'
+        CHECK (status_broni IN ('создано', 'подтверждено', 'заселен', 'завершено', 'отменено')),
+    sozdano_v TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT chk_dates CHECK (data_vyezda > data_zaezda)
+);</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>7. Вопросы для самопроверки</h2>
+      <div class="quiz-card">
+        <div class="quiz-q">1. В чем заключается главное различие между суррогатным и естественным первичным ключом?</div>
+        <p>Естественный ключ формируется из реальных реквизитов предметной области (паспорт, VIN, ISBN), а суррогатный — искусственное неизменяемое числовое значение, генерируемое СУБД. Естественный ключ может измениться в реальном мире, что нарушит целостность ссылок.</p>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-q">2. Почему нельзя использовать тип данных FLOAT для хранения денежных средств?</div>
+        <p>Типы с плавающей точкой (FLOAT, DOUBLE) хранят числа в двоичной форме стандарта IEEE 754, что приводит к погрешностям округления при сложении дробей (например, 0.1 + 0.2 = 0.30000000000000004). Для денег используется строго NUMERIC(p,s).</p>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-q">3. Чем грозит указание правила ON DELETE CASCADE на внешнем ключе к таблице клиентов?</div>
+        <p>При случайном или намеренном удалении одного клиента из базы СУБД автоматически физически сотрет все его договоры, платежи, чеки и финансовые транзакции за все годы, что приведет к уничтожению юридической отчетности.</p>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-q">4. Почему при наличии суррогатного ID в таблице обязательно нужно добавлять ограничение UNIQUE на естественный атрибут?</div>
+        <p>Без ограничения UNIQUE СУБД позволит вставить две строки с абсолютно одинаковыми паспортами или VIN-номерами, так как их сгенерированные суррогатные ID будут разными (1 и 2). Это разрушит бизнес-логику системы.</p>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
