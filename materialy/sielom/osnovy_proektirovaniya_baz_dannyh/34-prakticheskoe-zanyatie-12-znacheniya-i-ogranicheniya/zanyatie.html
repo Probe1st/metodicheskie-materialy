@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Рабочий лист: Значения и ограничения поля (CHECK, IN, RegEx)</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #cbd5e1;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --accent-soft: #f0f9ff;
+      --code-bg: #0f172a;
+      --code-text: #f8fafc;
+      --success: #16a34a;
+      --success-soft: #dcfce7;
+      --radius: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 20px 12px;
+      min-width: 320px;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    header.sheet-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      font-size: 1.55rem;
+      color: var(--accent-hover);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .meta-subtitle {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .student-info {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .info-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 9px 12px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: var(--text);
+      background: #ffffff;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+
+    .variant-tabs-nav {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .v-tab-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 6px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .v-tab-btn:hover {
+      background: #f1f5f9;
+      color: var(--text);
+    }
+
+    .v-tab-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    .variant-card {
+      display: none;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .variant-card.active {
+      display: block;
+    }
+
+    .variant-card h2 {
+      font-size: 1.35rem;
+      color: var(--accent-hover);
+      margin-bottom: 6px;
+    }
+
+    .domain-desc {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .task-block {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+
+    .task-block h3 {
+      font-size: 1.05rem;
+      color: var(--text);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .task-num {
+      background: var(--accent-soft);
+      color: var(--accent-hover);
+      font-size: 0.8rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 800;
+    }
+
+    p, li {
+      font-size: 0.92rem;
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    ul, ol {
+      padding-left: 20px;
+      margin: 8px 0 12px;
+    }
+
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 12px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      margin: 10px 0;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.88em;
+      background: #e2e8f0;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+
+    pre code {
+      background: transparent;
+      padding: 0;
+    }
+
+    textarea.sql-input {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.88rem;
+      min-height: 130px;
+      line-height: 1.45;
+      margin-top: 8px;
+      resize: vertical;
+    }
+
+    textarea.text-input {
+      font-size: 0.92rem;
+      min-height: 90px;
+      line-height: 1.5;
+      margin-top: 8px;
+      resize: vertical;
+    }
+
+    .bottom-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      margin-top: 10px;
+    }
+
+    .status-indicator {
+      font-size: 0.85rem;
+      color: var(--success);
+      font-weight: 600;
+      display: none;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-left: auto;
+    }
+
+    .btn {
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .btn-save {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .btn-save:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-clear {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--text-muted);
+    }
+
+    .btn-clear:hover {
+      background: #f1f5f9;
+      color: var(--text);
+    }
+
+    .nav-local {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .nav-local a {
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 6px 14px;
+      background: var(--card-bg);
+      color: var(--accent-hover);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .nav-local a:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+
+    @media (max-width: 768px) {
+      .variant-tabs-nav {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .student-info { grid-template-columns: 1fr; }
+      body { padding: 10px 6px; }
+      header.sheet-header, .variant-card { padding: 16px 12px; }
+      h1 { font-size: 1.3rem; }
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+        color: #000000;
+        padding: 0;
+      }
+      .container {
+        max-width: 100%;
+      }
+      .nav-local, .variant-tabs-nav, .bottom-bar {
+        display: none !important;
+      }
+      header.sheet-header, .variant-card {
+        border: 1px solid #000000;
+        box-shadow: none;
+        page-break-inside: avoid;
+        margin-bottom: 14px;
+        padding: 14px;
+      }
+      .variant-card {
+        display: none !important;
+      }
+      .variant-card.active {
+        display: block !important;
+      }
+      textarea {
+        border: 1px solid #000000 !important;
+        background: transparent !important;
+        color: #000000 !important;
+        min-height: 80px !important;
+        resize: none !important;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+      }
+      input[type="text"] {
+        border: 1px solid #000000 !important;
+        background: transparent !important;
+        color: #000000 !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="nav-local">
+      <a href="metodicheskiy_material.html">Методичка</a>
+      <a href="lekciya.html">Лекция</a>
+      <a href="prezentaciya.html">Презентация</a>
+      <a href="tehnologicheskaya_karta.html">Технологическая карта</a>
+      <a href="konspekt.html">Сценарий</a>
+      <a href="domashnee_zadanie.html">Домашнее задание</a>
+    </div>
+
+    <header class="sheet-header">
+      <h1>Интерактивный рабочий лист: Значения и ограничения поля</h1>
+      <div class="meta-subtitle">Дисциплина «ОП.08 Основы проектирования баз данных» • СИЭУиП • Занятие №34 (ПЗ №12)</div>
+
+      <div class="student-info">
+        <div class="info-group">
+          <label for="studentFio">ФИО обучающегося</label>
+          <input type="text" id="studentFio">
+        </div>
+        <div class="info-group">
+          <label for="studentGroup">Группа</label>
+          <input type="text" id="studentGroup">
+        </div>
+      </div>
+    </header>
+
+    <div class="variant-tabs-nav" role="tablist">
+      <button class="v-tab-btn active" data-tab="tab-v1">Вариант 1 (Сотрудники)</button>
+      <button class="v-tab-btn" data-tab="tab-v2">Вариант 2 (Аренда)</button>
+      <button class="v-tab-btn" data-tab="tab-v3">Вариант 3 (Транзакции)</button>
+      <button class="v-tab-btn" data-tab="tab-v4">Вариант 4 (Студенты)</button>
+    </div>
+
+    <!-- ВАРИАНТ 1 -->
+    <div class="variant-card active" id="tab-v1">
+      <h2>Вариант 1: Таблица «Сотрудники» (employees)</h2>
+      <div class="domain-desc">
+        Предметная область: Корпоративная кадровая система. Разработка доменных ограничений возраста, минимального оклада и номера СНИЛС.
+      </div>
+
+      <div class="task-block">
+        <h3><span class="task-num">1.1</span> Проектирование DDL-структуры с ограничениями CHECK</h3>
+        <p>Спроектируйте SQL-запрос создания таблицы <code>employees</code> со следующими полями и ограничениями:</p>
+        <ul>
+          <li><code>id</code> (BIGINT, суррогатный первичный ключ);</li>
+          <li><code>full_name</code> (VARCHAR(150), ФИО, NOT NULL);</li>
+          <li><code>birth_date</code> (DATE, дата рождения, NOT NULL);</li>
+          <li><code>age</code> (INT, возраст от 18 до 70 лет включительно, <code>CONSTRAINT chk_employees_age</code>);</li>
+          <li><code>salary</code> (NUMERIC(12,2), оклад не ниже федерального МРОТ 19 242.00 руб., <code>CONSTRAINT chk_employees_salary</code>);</li>
+          <li><code>snils</code> (VARCHAR(14), валидация по регулярному выражению в формате <code>XXX-XXX-XXX YY</code>, <code>CONSTRAINT chk_employees_snils</code>).</li>
+        </ul>
+        <label for="v1_ddl">DDL-скрипт создания таблицы с именованными ограничениями:</label>
+        <textarea id="v1_ddl" class="sql-input"></textarea>
+      </div>
+
+      <div class="task-block">
+        <h3><span class="task-num">1.2</span> Протокол негативного тестирования недопустимого ввода</h3>
+        <p>Составьте 4 тестовых запроса вставки (3 негативных с фиксацией исключения <code>check_violation</code> код <strong>23514</strong> и 1 граничный позитивный):</p>
+        <ol>
+          <li>Попытка вставки сотрудника с возрастом менее 18 лет (например, 16 лет);</li>
+          <li>Попытка вставки оклада ниже МРОТ (например, 15 000.00 руб.);</li>
+          <li>Попытка вставки некорректного СНИЛС (например, с буквами или недостающим количеством цифр);</li>
+          <li>Позитивная вставка с точными граничными значениями (18 лет, ровно 19 242.00 руб.).</li>
+        </ol>
+        <label for="v1_tests">SQL-запросы тестирования и ожидаемая реакция СУБД (SQLSTATE 23514):</label>
+        <textarea id="v1_tests" class="sql-input" style="min-height: 160px;"></textarea>
+      </div>
+
+      <div class="task-block">
+        <h3><span class="task-num">1.3</span> Инженерные выводы и самопроверка</h3>
+        <p>Ответьте на теоретические вопросы:</p>
+        <ol>
+          <li>Почему недопустимо ограничиваться проверкой возраста только на веб-форме в браузере?</li>
+          <li>Что произойдет, если в поле <code>age</code> попытаться вставить <code>NULL</code>, если на столбце не объявлено <code>NOT NULL</code>? Почему условие CHECK не выдаст ошибку?</li>
+        </ol>
+        <label for="v1_analysis">Аналитический вывод обучающегося:</label>
+        <textarea id="v1_analysis" class="text-input"></textarea>
+      </div>
+    </div>
+
+    <!-- ВАРИАНТ 2 -->
+    <div class="variant-card" id="tab-v2">
+      <h2>Вариант 2: Таблица «Аренда помещений» (lease_contracts)</h2>
+      <div class="domain-desc">
+        Предметная область: Коммерческая недвижимость. Контроль площадей, арендных ставок, временных интервалов и статусов договоров.
+      </div>
+
+      <div class="task-block">
+        <h3><span class="task-num">2.1</span> Проектирование DDL-структуры с ограничениями CHECK</h3>
+        <p>Спроектируйте SQL-запрос создания таблицы <code>lease_contracts</code> со следующими полями и ограничениями:</p>
+        <ul>
+          <li><code>id</code> (BIGINT, суррогатный первичный ключ);</li>
+          <li><code>contract_number</code> (VARCHAR(50), уникальный номер договора, NOT NULL);</li>
+          <li><code>premises_area</code> (NUMERIC(8,2), площадь &gt; 0, <code>CONSTRAINT chk_lease_area</code>);</li>
+          <li><code>rental_rate</code> (NUMERIC(10,2), ставка аренды в месяц &gt; 0, <code>CONSTRAINT chk_lease_rate</code>);</li>
+          <li><code>start_date</code> (DATE, дата начала, NOT NULL);</li>
+          <li><code>end_date</code> (DATE, дата окончания строго позже даты начала, <code>CONSTRAINT chk_lease_dates</code>);</li>
+          <li><code>status</code> (VARCHAR(20), статус из списка <code>IN ('DRAFT', 'ACTIVE', 'TERMINATED')</code>, <code>CONSTRAINT chk_lease_status</code>).</li>
+        </ul>
+        <label for="v2_ddl">DDL-скрипт создания таблицы с именованными ограничениями:</label>
+        <textarea id="v2_ddl" class="sql-input"></textarea>
+      </div>
+
+      <div class="task-block">
+        <h3><span class="task-num">2.2</span> Протокол негативного тестирования недопустимого ввода</h3>
+        <p>Составьте 4 тестовых запроса (3 негативных и 1 позитивный граничный):</p>
+        <ol>
+          <li>Попытка вставки договора с нулевой или отрицательной площадью;</li>
+          <li>Попытка вставки договора, где дата окончания раньше или равна дате начала аренды;</li>
+          <li>Попытка вставки недопустимого статуса (например, <code>'ARCHIVED'</code>);</li>
+          <li>Позитивная вставка корректного договора с минимальной положительной ставкой.</li>
+        </ol>
+        <label for="v2_tests">SQL-запросы тестирования и ожидаемая реакция СУБД (SQLSTATE 23514):</label>
+        <textarea id="v2_tests" class="sql-input" style="min-height: 160px;"></textarea>
+      </div>
+
+      <div class="task-block">
+        <h3><span class="task-num">2.3</span> Инженерные выводы и самопроверка</h3>
+        <p>Ответьте на теоретические вопросы:</p>
+        <ol>
+          <li>Почему условие <code>end_date > start_date</code> невозможно объявить как ограничение на уровне столбца (Column Constraint)?</li>
+          <li>В чем архитектурное преимущество использования <code>CHECK (status IN (...))</code> перед созданием пользовательского типа <code>ENUM</code>?</li>
+        </ol>
+        <label for="v2_analysis">Аналитический вывод обучающегося:</label>
+        <textarea id="v2_analysis" class="text-input"></textarea>
+      </div>
+    </div>
+
+    <!-- ВАРИАНТ 3 -->
+    <div class="variant-card" id="tab-v3">
+      <h2>Вариант 3: Таблица «Банковские транзакции» (bank_transactions)</h2>
+      <div class="domain-desc">
+        Предметная область: Автоматизированная банковская система (АБС). Валидация сумм переводов, комиссий и списка поддерживаемых валют.
+      </div>
+
+      <div class="task-block">
+        <h3><span class="task-num">3.1</span> Проектирование DDL-структуры с ограничениями CHECK</h3>
+        <p>Спроектируйте SQL-запрос создания таблицы <code>bank_transactions</code> со следующими полями и ограничениями:</p>
+        <ul>
+          <li><code>id</code> (BIGINT, суррогатный первичный ключ);</li>
+          <li><code>sender_account</code> (VARCHAR(34), счет плательщика, NOT NULL);</li>
+          <li><code>receiver_account</code> (VARCHAR(34), счет получателя, NOT NULL);</li>
+          <li><code>amount</code> (NUMERIC(15,2), сумма перевода строго &gt; 0, <code>CONSTRAINT chk_tx_amount</code>);</li>
+          <li><code>fee_amount</code> (NUMERIC(10,2), комиссия &gt;= 0, <code>CONSTRAINT chk_tx_fee</code>);</li>
+          <li><code>currency</code> (VARCHAR(3), валюта строго из списка <code>IN ('RUB', 'USD', 'EUR', 'CNY')</code>, <code>CONSTRAINT chk_tx_currency</code>);</li>
+          <li>Соотношение комиссии и суммы: комиссия не может превышать или быть равной сумме перевода (<code>CONSTRAINT chk_tx_fee_limit CHECK (fee_amount &lt; amount)</code>).</li>
+        </ul>
+        <label for="v3_ddl">DDL-скрипт создания таблицы с именованными ограничениями:</label>
+        <textarea id="v3_ddl" class="sql-input"></textarea>
+      </div>
+
+      <div class="task-block">
+        <h3><span class="task-num">3.2</span> Протокол негативного тестирования недопустимого ввода</h3>
+        <p>Составьте 4 тестовых запроса (3 негативных и 1 позитивный граничный):</p>
+        <ol>
+          <li>Попытка проведения транзакции с отрицательной или нулевой суммой;</li>
+          <li>Попытка проведения операции с комиссией, превышающей сумму перевода;</li>
+          <li>Попытка указания неподдерживаемой валюты (например, <code>'GBP'</code> или <code>'JPY'</code>);</li>
+          <li>Позитивный тест: перевод 10 000.00 RUB с нулевой комиссией (0.00).</li>
+        </ol>
+        <label for="v3_tests">SQL-запросы тестирования и ожидаемая реакция СУБД (SQLSTATE 23514):</label>
+        <textarea id="v3_tests" class="sql-input" style="min-height: 160px;"></textarea>
+      </div>
+
+      <div class="task-block">
+        <h3><span class="task-num">3.3</span> Инженерные выводы и самопроверка</h3>
+        <p>Ответьте на теоретические вопросы:</p>
+        <ol>
+          <li>К каким финансовым последствиям приведет отсутствие ограничения <code>amount > 0</code> при обработке списаний и зачислений?</li>
+          <li>Как серверные приложения (на Node.js/Python/Java) распознают, что операция отклонена именно из-за ограничения CHECK, а не из-за сбоя сети?</li>
+        </ol>
+        <label for="v3_analysis">Аналитический вывод обучающегося:</label>
+        <textarea id="v3_analysis" class="text-input"></textarea>
+      </div>
+    </div>
+
+    <!-- ВАРИАНТ 4 -->
+    <div class="variant-card" id="tab-v4">
+      <h2>Вариант 4: Таблица «Студенческие работы» (student_submissions)</h2>
+      <div class="domain-desc">
+        Предметная область: Университетская образовательная платформа LMS. Контроль диапазонов баллов, плагиата и формата ссылок на репозитории.
+      </div>
+
+      <div class="task-block">
+        <h3><span class="task-num">4.1</span> Проектирование DDL-структуры с ограничениями CHECK</h3>
+        <p>Спроектируйте SQL-запрос создания таблицы <code>student_submissions</code> со следующими полями и ограничениями:</p>
+        <ul>
+          <li><code>id</code> (BIGINT, суррогатный первичный ключ);</li>
+          <li><code>student_id</code> (BIGINT, идентификатор студента, NOT NULL);</li>
+          <li><code>assignment_id</code> (BIGINT, идентификатор задания, NOT NULL);</li>
+          <li><code>grade</code> (INT, оценка по 5-балльной шкале от 2 до 5 либо NULL до проверки, <code>CONSTRAINT chk_submission_grade</code>);</li>
+          <li><code>plagiarism_percent</code> (NUMERIC(5,2), процент заимствований от 0.00 до 100.00%, <code>CONSTRAINT chk_submission_plagiarism</code>);</li>
+          <li><code>submission_url</code> (VARCHAR(255), ссылка на репозиторий GitHub/GitLab, валидируемая регулярным выражением, <code>CONSTRAINT chk_submission_url</code>).</li>
+        </ul>
+        <label for="v4_ddl">DDL-скрипт создания таблицы с именованными ограничениями:</label>
+        <textarea id="v4_ddl" class="sql-input"></textarea>
+      </div>
+
+      <div class="task-block">
+        <h3><span class="task-num">4.2</span> Протокол негативного тестирования недопустимого ввода</h3>
+        <p>Составьте 4 тестовых запроса (3 негативных и 1 позитивный граничный):</p>
+        <ol>
+          <li>Попытка выставить оценку вне шкалы (например, 1 или 6);</li>
+          <li>Попытка записать процент плагиата, превышающий 100.00% (например, 110.50%);</li>
+          <li>Попытка указать невалидный URL репозитория (например, незащищенный http или сторонний домен);</li>
+          <li>Позитивная вставка работы без оценки (NULL) с нулевым процентом плагиата (0.00%).</li>
+        </ol>
+        <label for="v4_tests">SQL-запросы тестирования и ожидаемая реакция СУБД (SQLSTATE 23514):</label>
+        <textarea id="v4_tests" class="sql-input" style="min-height: 160px;"></textarea>
+      </div>
+
+      <div class="task-block">
+        <h3><span class="task-num">4.3</span> Инженерные выводы и самопроверка</h3>
+        <p>Ответьте на теоретические вопросы:</p>
+        <ol>
+          <li>Как в ограничении CHECK для оценки корректно разрешить хранение <code>NULL</code> до момента проверки преподавателем?</li>
+          <li>Какое регулярное выражение обеспечивает строгую проверку ссылок на GitHub или GitLab? Почему оператор <code>~*</code> предпочтительнее <code>~</code>?</li>
+        </ol>
+        <label for="v4_analysis">Аналитический вывод обучающегося:</label>
+        <textarea id="v4_analysis" class="text-input"></textarea>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <div class="status-indicator" id="saveIndicator">Данные сохранены локально в браузере.</div>
+      <div class="btn-group">
+        <button class="btn btn-clear" id="resetBtn">Сбросить всё</button>
+        <button class="btn btn-save" id="manualSaveBtn">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const STORAGE_KEY = 'sielom_db_pz12_state_v1';
+      const tabButtons = document.querySelectorAll('.v-tab-btn');
+      const tabPanes = document.querySelectorAll('.variant-card');
+      const inputs = document.querySelectorAll('input[type="text"], textarea');
+      const saveBtn = document.getElementById('manualSaveBtn');
+      const resetBtn = document.getElementById('resetBtn');
+      const indicator = document.getElementById('saveIndicator');
+
+      function switchTab(tabId) {
+        tabButtons.forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.tab === tabId);
+        });
+        tabPanes.forEach(pane => {
+          pane.classList.toggle('active', pane.id === tabId);
+        });
+      }
+
+      function getActiveTab() {
+        const active = document.querySelector('.v-tab-btn.active');
+        return active ? active.dataset.tab : 'tab-v1';
+      }
+
+      tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          switchTab(btn.dataset.tab);
+          saveData();
+        });
+      });
+
+      function notifySave() {
+        indicator.style.display = 'inline';
+        setTimeout(() => {
+          indicator.style.display = 'none';
+        }, 2200);
+      }
+
+      function saveData() {
+        const state = {
+          activeTab: getActiveTab(),
+          fields: {}
+        };
+        inputs.forEach(el => {
+          if (el.id) {
+            state.fields[el.id] = el.value;
+          }
+        });
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {}
+      }
+
+      function loadData() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const state = JSON.parse(raw);
+            if (state.activeTab) {
+              switchTab(state.activeTab);
+            }
+            if (state.fields) {
+              inputs.forEach(el => {
+                if (el.id && state.fields[el.id] !== undefined) {
+                  el.value = state.fields[el.id];
+                }
+              });
+            }
+          }
+        } catch (e) {}
+      }
+
+      inputs.forEach(el => {
+        el.addEventListener('input', () => {
+          saveData();
+        });
+      });
+
+      saveBtn.addEventListener('click', () => {
+        saveData();
+        notifySave();
+      });
+
+      resetBtn.addEventListener('click', () => {
+        if (confirm('Вы уверены, что хотите сбросить все введенные данные в текущем рабочем листе?')) {
+          localStorage.removeItem(STORAGE_KEY);
+          inputs.forEach(el => el.value = '');
+          notifySave();
+        }
+      });
+
+      loadData();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Домашнее задание - Практическое занятие №12: значения и ограничения поля</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #cbd5e1;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --accent-soft: #f0f9ff;
+      --warn: #b45309;
+      --warn-soft: #fef3c7;
+      --warn-border: #f59e0b;
+      --success: #16a34a;
+      --success-soft: #dcfce7;
+      --code-bg: #0f172a;
+      --code-text: #f8fafc;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px;
+      min-width: 320px;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    header.hw-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .reserve-notice {
+      background: var(--warn-soft);
+      border: 1px solid var(--warn-border);
+      color: var(--warn);
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 18px;
+      line-height: 1.45;
+    }
+
+    h1 {
+      font-size: 1.65rem;
+      color: var(--accent-hover);
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+
+    .meta-sub {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      margin-bottom: 16px;
+    }
+
+    .student-fields {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 9px 12px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: var(--text);
+      background: #ffffff;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+
+    section.task-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 26px;
+      margin-bottom: 22px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      color: var(--accent-hover);
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+
+    p, li {
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    ul, ol {
+      padding-left: 22px;
+      margin: 10px 0 16px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 14px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      margin: 12px 0;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.88em;
+      background: #e2e8f0;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+
+    pre code {
+      background: transparent;
+      padding: 0;
+    }
+
+    textarea.sql-field {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.88rem;
+      min-height: 130px;
+      line-height: 1.45;
+      resize: vertical;
+    }
+
+    textarea.text-field {
+      min-height: 90px;
+      line-height: 1.5;
+      resize: vertical;
+    }
+
+    .bottom-actions {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 14px;
+    }
+
+    .status-msg {
+      font-size: 0.88rem;
+      color: var(--success);
+      font-weight: 600;
+      display: none;
+    }
+
+    .btn-wrap {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 9px 20px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--text-muted);
+    }
+
+    .btn-secondary:hover {
+      background: #f1f5f9;
+      color: var(--text);
+    }
+
+    .nav-local {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .nav-local a {
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 6px 14px;
+      background: var(--card-bg);
+      color: var(--accent-hover);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .nav-local a:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+
+    @media (max-width: 600px) {
+      .student-fields { grid-template-columns: 1fr; }
+      body { padding: 12px 8px; }
+      header.hw-header, section.task-card { padding: 18px 14px; }
+      h1 { font-size: 1.35rem; }
+    }
+
+    @media print {
+      body { background: #fff; color: #000; padding: 0; }
+      .container { max-width: 100%; }
+      .nav-local, .bottom-actions { display: none !important; }
+      header.hw-header, section.task-card {
+        border: 1px solid #000;
+        box-shadow: none;
+        page-break-inside: avoid;
+        margin-bottom: 12px;
+        padding: 12px;
+      }
+      textarea, input[type="text"] {
+        border: 1px solid #000 !important;
+        background: transparent !important;
+        color: #000 !important;
+      }
+      textarea {
+        min-height: 90px !important;
+        resize: none !important;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="nav-local">
+      <a href="metodicheskiy_material.html">Методичка</a>
+      <a href="lekciya.html">Лекция</a>
+      <a href="prezentaciya.html">Презентация</a>
+      <a href="zanyatie.html">Рабочий лист</a>
+      <a href="tehnologicheskaya_karta.html">Технологическая карта</a>
+      <a href="konspekt.html">Сценарий</a>
+    </div>
+
+    <header class="hw-header">
+      <div class="reserve-notice">
+        Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+      </div>
+      <h1>Домашнее задание - Практическое занятие №12: значения и ограничения поля</h1>
+      <div class="meta-sub">Дисциплина «ОП.08 Основы проектирования баз данных» • СИЭУиП • Занятие №34</div>
+
+      <div class="student-fields">
+        <div class="input-group">
+          <label for="hwFio">ФИО студента</label>
+          <input type="text" id="hwFio">
+        </div>
+        <div class="input-group">
+          <label for="hwGroup">Группа</label>
+          <input type="text" id="hwGroup">
+        </div>
+      </div>
+    </header>
+
+    <!-- ЗАДАНИЕ 1 -->
+    <section class="task-card">
+      <h2>Задание 1. Проектирование комплексной системы ограничений (Таблица заказов)</h2>
+      <p>Спроектируйте DDL-скрипт создания таблицы заказов интернет-магазина <code>ecommerce_orders</code> со следующими бизнес-правилами:</p>
+      <ul>
+        <li><code>order_code</code>: артикул заказа строго по маске RegEx <code>^ORD-[0-9]{4}-[0-9]{6}$</code> (например, <code>ORD-2026-000125</code>);</li>
+        <li><code>customer_email</code>: валидный адрес электронной почты через оператор <code>~*</code>;</li>
+        <li><code>customer_phone</code>: российский номер мобильного телефона в формате <code>^\+7[0-9]{10}$</code>;</li>
+        <li><code>total_amount</code>: сумма заказа строго &gt; 0;</li>
+        <li><code>discount_amount</code>: скидка &gt;= 0 и строго меньше суммы заказа (<code>discount_amount &lt; total_amount</code>);</li>
+        <li><code>status</code>: статус из списка <code>IN ('NEW', 'PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED')</code>;</li>
+        <li><code>delivery_date</code>: дата доставки должна быть равна или позже даты создания заказа (<code>created_at::DATE</code>) либо NULL.</li>
+      </ul>
+      <p><em>Требование:</em> всем ограничениям должны быть присвоены строгие имена <code>CONSTRAINT chk_orders_*</code>.</p>
+      <div class="input-group" style="margin-top: 14px;">
+        <label for="hwSqlDdl">DDL-запрос создания таблицы с ограничениями CHECK:</label>
+        <textarea id="hwSqlDdl" class="sql-field"></textarea>
+      </div>
+    </section>
+
+    <!-- ЗАДАНИЕ 2 -->
+    <section class="task-card">
+      <h2>Задание 2. Составление тестовых наборов данных (Граничные значения и некорректный ввод)</h2>
+      <p>Составьте протокол негативного тестирования таблицы <code>ecommerce_orders</code>. Для каждого из 4 тестов напишите запрос <code>INSERT</code> и укажите ожидаемый результат СУБД с кодом ошибки <strong>23514 (check_violation)</strong>:</p>
+      <ol>
+        <li><strong>Тест 1 (Граничный некорректный оклад/скидка):</strong> попытка вставить заказ, где скидка равна или больше общей суммы;</li>
+        <li><strong>Тест 2 (Некорректный номер телефона или артикул):</strong> искажение маски регулярного выражения (например, 9 цифр вместо 10);</li>
+        <li><strong>Тест 3 (Недопустимый статус заказа):</strong> статус, отсутствующий в разрешенном множестве оператора IN;</li>
+        <li><strong>Тест 4 (Позитивный граничный тест):</strong> вставка корректного заказа с минимальной скидкой 0.00 руб. и фиксация успешного создания.</li>
+      </ol>
+      <div class="input-group" style="margin-top: 14px;">
+        <label for="hwSqlTests">Тестовые SQL-запросы и протокол перехвата ошибок:</label>
+        <textarea id="hwSqlTests" class="sql-field" style="min-height: 180px;"></textarea>
+      </div>
+    </section>
+
+    <!-- ЗАДАНИЕ 3 -->
+    <section class="task-card">
+      <h2>Задание 3. Инженерный анализ и обоснование архитектуры</h2>
+      <p>Ответьте на аналитические вопросы:</p>
+      <ol>
+        <li>Почему в поле <code>discount_amount</code> необходимо дополнительно указывать <code>NOT NULL</code>, даже если уже написано <code>CHECK (discount_amount >= 0)</code>? Что произойдет, если пользователь передаст <code>NULL</code>?</li>
+        <li>В каких случаях ограничения CHECK рекомендуется временно отключать или создавать с модификатором <code>NOT VALID</code> в production-базах данных?</li>
+      </ol>
+      <div class="input-group" style="margin-top: 14px;">
+        <label for="hwAnalysis">Аналитический ответ студента:</label>
+        <textarea id="hwAnalysis" class="text-field"></textarea>
+      </div>
+    </section>
+
+    <div class="bottom-actions">
+      <div class="status-msg" id="statusMsg">Данные сохранены локально в браузере.</div>
+      <div class="btn-wrap">
+        <button class="btn btn-secondary" id="clearBtn">Сбросить</button>
+        <button class="btn btn-primary" id="saveBtn">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const STORAGE_KEY = 'sielom_db_hw_34_state';
+      const inputs = document.querySelectorAll('input[type="text"], textarea');
+      const saveBtn = document.getElementById('saveBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      const statusMsg = document.getElementById('statusMsg');
+
+      function notify(msg) {
+        statusMsg.textContent = msg || 'Данные сохранены!';
+        statusMsg.style.display = 'inline';
+        setTimeout(() => { statusMsg.style.display = 'none'; }, 2500);
+      }
+
+      function saveData() {
+        const data = {};
+        inputs.forEach(el => {
+          if (el.id) data[el.id] = el.value;
+        });
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        } catch (e) {}
+      }
+
+      function loadData() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const data = JSON.parse(raw);
+            inputs.forEach(el => {
+              if (el.id && data[el.id] !== undefined) el.value = data[el.id];
+            });
+          }
+        } catch (e) {}
+      }
+
+      inputs.forEach(el => {
+        el.addEventListener('input', saveData);
+      });
+
+      saveBtn.addEventListener('click', () => {
+        saveData();
+        notify('Данные успешно сохранены в LocalStorage!');
+      });
+
+      clearBtn.addEventListener('click', () => {
+        if (confirm('Вы действительно хотите очистить все поля домашнего задания?')) {
+          localStorage.removeItem(STORAGE_KEY);
+          inputs.forEach(el => el.value = '');
+          notify('Поля очищены.');
+        }
+      });
+
+      loadData();
+    })();
+  </script>
+</body>
+</html>
