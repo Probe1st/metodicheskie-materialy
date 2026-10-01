@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Рабочий лист: Практическое занятие №9: проект БД и форма входа, этап 1</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #cbd5e1;
+      --border-dark: #94a3b8;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --accent-soft: #f0f9ff;
+      --warn: #d97706;
+      --warn-soft: #fffbeb;
+      --success: #16a34a;
+      --success-soft: #f0fdf4;
+      --danger: #dc2626;
+      --danger-soft: #fef2f2;
+      --code-bg: #0f172a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      padding: 20px 12px;
+      min-width: 320px;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    header.task-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: var(--accent-hover);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .student-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      background: var(--accent-soft);
+      padding: 14px 16px;
+      border-radius: 8px;
+      border: 1px solid #bae6fd;
+      margin-top: 14px;
+    }
+
+    .info-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .info-group label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--accent-hover);
+    }
+
+    .info-group input {
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      background: #ffffff;
+      color: var(--text);
+    }
+
+    .variant-selector-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .variant-selector-label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .v-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .v-tab-btn {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .v-tab-btn:hover {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+
+    .v-tab-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent-hover);
+    }
+
+    .action-panel {
+      position: sticky;
+      top: 10px;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 16px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .action-btns {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .btn-primary:hover { background: var(--accent-hover); }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+    .btn-outline:hover {
+      background: #f1f5f9;
+      color: var(--text);
+    }
+
+    .btn-danger {
+      background: transparent;
+      border: 1px solid #f87171;
+      color: #dc2626;
+    }
+    .btn-danger:hover {
+      background: #fee2e2;
+    }
+
+    .save-indicator {
+      font-size: 0.85rem;
+      color: var(--success);
+      font-weight: 600;
+      display: none;
+    }
+
+    .variant-container {
+      display: none;
+    }
+
+    .variant-container.active {
+      display: block;
+    }
+
+    section.task-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent-hover);
+      margin-bottom: 12px;
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 6px;
+    }
+
+    h3 {
+      font-size: 1.02rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 16px 0 8px 0;
+    }
+
+    p { margin-bottom: 10px; font-size: 0.95rem; }
+    ul, ol { margin-left: 20px; margin-bottom: 12px; font-size: 0.95rem; }
+    li { margin-bottom: 5px; }
+
+    .desc-box {
+      background: #f8fafc;
+      border-left: 4px solid var(--accent);
+      padding: 12px 14px;
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 14px;
+      font-size: 0.92rem;
+    }
+
+    .desc-box-warn {
+      border-left-color: var(--warn);
+      background: var(--warn-soft);
+      color: #92400e;
+    }
+
+    .badge-points {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      background: var(--accent-soft);
+      color: var(--accent-hover);
+      float: right;
+    }
+
+    label.field-label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 14px 0 6px 0;
+    }
+
+    textarea.answer-area {
+      width: 100%;
+      min-height: 140px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      background: #ffffff;
+      color: var(--text);
+      resize: vertical;
+      margin-bottom: 12px;
+    }
+
+    textarea.answer-area:focus, input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+
+    .mockup-preview {
+      border: 2px dashed #94a3b8;
+      border-radius: 8px;
+      padding: 16px;
+      background: #f8fafc;
+      margin: 12px 0;
+    }
+
+    /* Print styles */
+    @media print {
+      body {
+        background: #ffffff;
+        color: #000000;
+        padding: 0;
+      }
+      .container {
+        max-width: 100%;
+        margin: 0;
+      }
+      .variant-selector-box, .action-panel, .v-tab-btn {
+        display: none !important;
+      }
+      header.task-header, section.task-card {
+        border: 1px solid #000000;
+        box-shadow: none;
+        page-break-inside: avoid;
+        margin-bottom: 14px;
+        padding: 14px;
+      }
+      .variant-container {
+        display: none !important;
+      }
+      .variant-container.active {
+        display: block !important;
+      }
+      textarea.answer-area {
+        border: 1px solid #000000;
+        background: transparent;
+        color: #000000;
+        min-height: 90px;
+        resize: none;
+        overflow: visible;
+      }
+      input {
+        border: 1px solid #000000 !important;
+        background: transparent !important;
+        color: #000000 !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+      }
+    }
+
+    /* Mobile 375px responsive */
+    @media (max-width: 480px) {
+      body { padding: 10px 6px; }
+      header.task-header, section.task-card { padding: 14px 12px; }
+      h1 { font-size: 1.25rem; }
+      h2 { font-size: 1.1rem; }
+      .badge-points { float: none; display: block; margin-bottom: 8px; width: fit-content; }
+      .student-info { grid-template-columns: 1fr; }
+      .action-panel { flex-direction: column; align-items: stretch; }
+      .action-btns { justify-content: space-between; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="task-header">
+      <h1>Рабочий лист: Практическое занятие №9: проект БД и форма входа, этап 1</h1>
+      <div class="subtitle">ОП.08 Основы проектирования баз данных — Тема 4. Проектирование структур баз данных</div>
+      <p>Индивидуальная практическая работа по проектированию реляционной подсистемы аутентификации (пользователи, роли, журнал аудита) и макета диалогового окна формы входа (Login Dialog).</p>
+      
+      <div class="student-info">
+        <div class="info-group">
+          <label for="studentFio">ФИО студента</label>
+          <input type="text" id="studentFio">
+        </div>
+        <div class="info-group">
+          <label for="studentGroup">Учебная группа</label>
+          <input type="text" id="studentGroup">
+        </div>
+        <div class="info-group">
+          <label for="studentDate">Дата выполнения</label>
+          <input type="text" id="studentDate">
+        </div>
+      </div>
+    </header>
+
+    <div class="variant-selector-box">
+      <span class="variant-selector-label">Выберите назначенный вариант:</span>
+      <div class="v-tabs">
+        <button type="button" class="v-tab-btn active" data-target="v1">Вариант 1 (Оптовый склад)</button>
+        <button type="button" class="v-tab-btn" data-target="v2">Вариант 2 (Поликлиника / 2FA)</button>
+        <button type="button" class="v-tab-btn" data-target="v3">Вариант 3 (Банковский терминал)</button>
+        <button type="button" class="v-tab-btn" data-target="v4">Вариант 4 (Образовательный портал)</button>
+      </div>
+    </div>
+
+    <div class="action-panel">
+      <div class="action-btns">
+        <button type="button" class="btn btn-primary" id="saveBtn">Сохранить прогресс</button>
+        <button type="button" class="btn btn-outline" id="printBtn">Печать / Сохранить в PDF</button>
+        <button type="button" class="btn btn-danger" id="clearBtn">Очистить поля</button>
+      </div>
+      <div class="save-indicator" id="saveMsg">✓ Данные успешно сохранены в браузере!</div>
+    </div>
+
+    <!-- ================= ВАРИАНТ 1 ================= -->
+    <div class="variant-container active" id="v1">
+      <section class="task-card">
+        <h2>
+          <span>Вариант 1: Информационная система «Оптовый склад»</span>
+          <span class="badge-points">Всего: 4 балла</span>
+        </h2>
+        <div class="desc-box">
+          <strong>Предметная область:</strong> Корпоративная логистическая система складского распределительного центра. В системе работают четыре категории сотрудников: <em>Кладовщик</em> (приемка и перемещение позиций), <em>Менеджер</em> (оформление расходных накладных), <em>Бухгалтер</em> (финансовый учет и фактуры), <em>Администратор</em> (управление правами и аудит).<br>
+          <strong>Специфика входа:</strong> Форма авторизации должна содержать обязательное поле выбора филиала/склада из выпадающего списка, поле логина, скрытие символов пароля точками/звездочками, переключатель видимости пароля и нейтральное уведомление об ошибке.
+        </div>
+
+        <h3>Задание 1.1. Проектирование реляционных таблиц безопасности (2 балла)</h3>
+        <p>Разработайте SQL DDL-скрипты для таблиц: <code>roles</code> (роли), <code>users</code> (пользователи: id, login, salt, password_hash, role_id, is_active, created_at) и <code>audit_logs</code> (журнал аудита: id, user_id, attempted_login, event_type, ip_address, event_time). Предусмотрите корректные типы данных, ограничения NOT NULL, UNIQUE, первичные и внешние ключи.</p>
+        <label class="field-label" for="v1_task1">SQL DDL скрипт создания таблиц безопасности (roles, users, audit_logs):</label>
+        <textarea class="answer-area" id="v1_task1"></textarea>
+
+        <h3>Задание 1.2. Проектирование макета диалогового окна формы входа (1 балл)</h3>
+        <p>Опишите графический/структурный макет диалогового окна Login Dialog. Укажите состав элементов интерфейса, их атрибуты, правила маскирования пароля, выпадающий список филиалов складов, состояния кнопки «Войти» (Disabled при пустых полях и во время отправки запроса) и текст системных сообщений.</p>
+        <label class="field-label" for="v1_task2">Макет формы входа (ASCII-схема или структурированное описание элементов и состояний):</label>
+        <textarea class="answer-area" id="v1_task2"></textarea>
+
+        <h3>Задание 1.3. Аналитическое обоснование и самопроверка (1 балл)</h3>
+        <p>1) Почему для хранения паролей выбрана связка salt + password_hash, а не простой MD5?<br>
+        2) Какое сообщение должно отображаться при вводе неверного пароля к существующему логину и почему?<br>
+        3) Что произойдет с журналом аудита при удалении или деактивации пользователя через <code>is_active = FALSE</code>?</p>
+        <label class="field-label" for="v1_task3">Аналитические выводы и ответы на контрольные вопросы:</label>
+        <textarea class="answer-area" id="v1_task3"></textarea>
+      </section>
+    </div>
+
+    <!-- ================= ВАРИАНТ 2 ================= -->
+    <div class="variant-container" id="v2">
+      <section class="task-card">
+        <h2>
+          <span>Вариант 2: Медицинская система поликлиники (2FA)</span>
+          <span class="badge-points">Всего: 4 балла</span>
+        </h2>
+        <div class="desc-box">
+          <strong>Предметная область:</strong> Единая медицинская информационная система поликлинического отделения. Категории пользователей: <em>Врач</em> (доступ к электронным медицинским картам и назначение лечения), <em>Регистратор</em> (запись пациентов на прием, внесение полисов ОМС), <em>Главврач</em> (контроль стандартов лечения и аналитические отчеты).<br>
+          <strong>Специфика входа:</strong> Авторизация медперсонала по уникальному табельному номеру сотрудника (login) и паролю, с последующей обязательной двухфакторной аутентификацией (2FA) через ввод 6-значного одноразового кода (TOTP) для защиты врачебной тайны (152-ФЗ).
+        </div>
+
+        <h3>Задание 2.1. Проектирование таблиц безопасности с поддержкой 2FA (2 балла)</h3>
+        <p>Разработайте SQL DDL-скрипты для таблиц: <code>roles</code>, <code>users</code> (с полями <code>totp_secret</code> или <code>is_2fa_enabled</code>, <code>salt</code>, <code>password_hash</code>, <code>is_active</code>, <code>failed_attempts</code>) и <code>audit_logs</code> (с фиксацией событий успешного входа, сбоя 1 фактора, сбоя 2FA-кода).</p>
+        <label class="field-label" for="v2_task1">SQL DDL скрипт создания таблиц безопасности (roles, users, audit_logs):</label>
+        <textarea class="answer-area" id="v2_task1"></textarea>
+
+        <h3>Задание 2.2. Проектирование двухэтапного диалога входа (1 балл)</h3>
+        <p>Разработайте макет экранной формы авторизации медперсонала. Опишите переход между Шагом 1 (ввод табельного номера и пароля) и Шагом 2 (ввод 6-значного кода 2FA с обратным отсчетом времени жизни токена в 30 секунд), обработку тайм-аута и нейтральные сообщения об ошибках.</p>
+        <label class="field-label" for="v2_task2">Макет формы входа (Шаг 1 и Шаг 2 с 2FA, описание элементов):</label>
+        <textarea class="answer-area" id="v2_task2"></textarea>
+
+        <h3>Задание 2.3. Аналитическое обоснование и самопроверка (1 балл)</h3>
+        <p>1) Почему табельный номер сотрудника должен храниться в типе <code>VARCHAR</code>, а не <code>INTEGER</code>?<br>
+        2) Каким образом двухфакторная аутентификация защищает медицинские данные в случае утечки хэша пароля?<br>
+        3) Зачем в таблице <code>users</code> необходим счетчик <code>failed_attempts</code> и поле временной блокировки <code>locked_until</code>?</p>
+        <label class="field-label" for="v2_task3">Аналитические выводы и ответы на контрольные вопросы:</label>
+        <textarea class="answer-area" id="v2_task3"></textarea>
+      </section>
+    </div>
+
+    <!-- ================= ВАРИАНТ 3 ================= -->
+    <div class="variant-container" id="v3">
+      <section class="task-card">
+        <h2>
+          <span>Вариант 3: Банковский терминал обслуживания</span>
+          <span class="badge-points">Всего: 4 балла</span>
+        </h2>
+        <div class="desc-box">
+          <strong>Предметная область:</strong> Внутренний терминал расчетно-кассового обслуживания финансовой организации. Роли пользователей: <em>Оператор</em> (прием платежей и открытие счетов), <em>Кредитный_инспектор</em> (верификация кредитных заявок), <em>Контролер</em> (акцепт крупных проводок и лимитов кассы).<br>
+          <strong>Специфика входа:</strong> Окно входа оснащено интерактивной виртуальной цифровой экранной клавиатурой (On-Screen Keypad) со случайным перемешиванием позиций клавиш 0–9 при каждом открытии (защита от аппаратных кейлоггеров и подглядывания за пальцами — Shoulder Surfing).
+        </div>
+
+        <h3>Задание 3.1. Проектирование таблиц безопасности банковского контура (2 балла)</h3>
+        <p>Разработайте SQL DDL-скрипты для таблиц: <code>roles</code>, <code>users</code> (с поддержкой криптографической соли, хэша алгоритма bcrypt/SHA-256, флагом блокировки терминала) и <code>audit_logs</code> (фиксация IP-адреса рабочего места, ID кассового аппарата и типа операции).</p>
+        <label class="field-label" for="v3_task1">SQL DDL скрипт создания таблиц безопасности (roles, users, audit_logs):</label>
+        <textarea class="answer-area" id="v3_task1"></textarea>
+
+        <h3>Задание 3.2. Проектирование макета диалога с экранной клавиатурой (1 балл)</h3>
+        <p>Разработайте макет экранного диалога авторизации оператора терминала. Опишите схему размещения поля табельного номера, замаскированного поля PIN-кода/пароля, матрицы виртуальных цифровых кнопок 0–9 с функцией «Перемешать», кнопки сброса ввода и кнопки авторизации.</p>
+        <label class="field-label" for="v3_task2">Макет окна терминала с виртуальной цифровой клавиатурой:</label>
+        <textarea class="answer-area" id="v3_task2"></textarea>
+
+        <h3>Задание 3.3. Аналитическое обоснование и самопроверка (1 балл)</h3>
+        <p>1) Почему в банковском секторе хэш bcrypt предпочтительнее быстрого алгоритма SHA-256?<br>
+        2) Каким образом перемешивание клавиш на экранной клавиатуре предотвращает атаку Shoulder Surfing?<br>
+        3) Почему при 3 подряд неверных вводах PIN-кода терминал должен блокироваться с записью в <code>audit_logs</code>?</p>
+        <label class="field-label" for="v3_task3">Аналитические выводы и ответы на контрольные вопросы:</label>
+        <textarea class="answer-area" id="v3_task3"></textarea>
+      </section>
+    </div>
+
+    <!-- ================= ВАРИАНТ 4 ================= -->
+    <div class="variant-container" id="v4">
+      <section class="task-card">
+        <h2>
+          <span>Вариант 4: Образовательный портал колледжа</span>
+          <span class="badge-points">Всего: 4 балла</span>
+        </h2>
+        <div class="desc-box">
+          <strong>Предметная область:</strong> Электронная информационно-образовательная среда (ЭИОС) колледжа. Роли пользователей: <em>Студент</em> (просмотр расписания, сдача заданий), <em>Преподаватель</em> (выставление оценок, загрузка методических материалов), <em>Куратор</em> (мониторинг посещаемости группы), <em>Родитель</em> (контроль успеваемости).<br>
+          <strong>Специфика входа:</strong> Форма входа по логину/email с паролем, функцией сохранения сессии «Запомнить меня» и безопасным диалогом сброса забытого пароля («Забыли пароль?») через отправку временного одноразового токена с ограниченным сроком действия.
+        </div>
+
+        <h3>Задание 4.1. Проектирование таблиц безопасности и токенов сброса (2 балла)</h3>
+        <p>Разработайте SQL DDL-скрипты для таблиц: <code>roles</code>, <code>users</code> (с полями <code>email</code>, <code>salt</code>, <code>password_hash</code>, <code>role_id</code>, <code>is_active</code>), таблицы временных токенов восстановления <code>password_resets (id, user_id, token_hash, expires_at, is_used)</code> и таблицы журнала <code>audit_logs</code>.</p>
+        <label class="field-label" for="v4_task1">SQL DDL скрипт создания таблиц безопасности и восстановления доступа:</label>
+        <textarea class="answer-area" id="v4_task1"></textarea>
+
+        <h3>Задание 4.2. Проектирование формы входа и сценария «Забыли пароль» (1 балл)</h3>
+        <p>Разработайте макет диалога авторизации портала с кнопкой «Войти», чекбоксом «Запомнить меня» и ссылкой «Забыли пароль?». Опишите всплывающее модальное окно запроса email для сброса пароля, нейтральное сообщение подтверждения и защиту от перечисления email.</p>
+        <label class="field-label" for="v4_task2">Макет формы авторизации и модального окна сброса пароля:</label>
+        <textarea class="answer-area" id="v4_task2"></textarea>
+
+        <h3>Задание 4.3. Аналитическое обоснование и самопроверка (1 балл)</h3>
+        <p>1) Почему токен сброса пароля в таблице <code>password_resets</code> должен храниться в виде хэша, а не открытой строки?<br>
+        2) Какое сообщение должен вывести интерфейс после отправки формы «Забыли пароль», если введенный email отсутствует в базе данных?<br>
+        3) Какой срок жизни (TTL) должен иметь токен сброса пароля и почему он должен становиться недействительным после первого использования?</p>
+        <label class="field-label" for="v4_task3">Аналитические выводы и ответы на контрольные вопросы:</label>
+        <textarea class="answer-area" id="v4_task3"></textarea>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const STORAGE_KEY = 'worksheet_db_lesson_25_data';
+      const TAB_KEY = 'worksheet_db_lesson_25_tab';
+
+      const tabBtns = document.querySelectorAll('.v-tab-btn');
+      const varContainers = document.querySelectorAll('.variant-container');
+
+      function switchTab(targetId) {
+        tabBtns.forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-target') === targetId);
+        });
+        varContainers.forEach(box => {
+          box.classList.toggle('active', box.id === targetId);
+        });
+        localStorage.setItem(TAB_KEY, targetId);
+      }
+
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          switchTab(btn.getAttribute('data-target'));
+        });
+      });
+
+      function getAllInputs() {
+        return document.querySelectorAll('input[type="text"], textarea');
+      }
+
+      function saveData() {
+        const payload = {};
+        getAllInputs().forEach(el => {
+          if (el.id) payload[el.id] = el.value;
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        const msg = document.getElementById('saveMsg');
+        if (msg) {
+          msg.style.display = 'inline';
+          setTimeout(() => { msg.style.display = 'none'; }, 2500);
+        }
+      }
+
+      function loadData() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          try {
+            const data = JSON.parse(raw);
+            Object.keys(data).forEach(id => {
+              const el = document.getElementById(id);
+              if (el) el.value = data[id];
+            });
+          } catch (e) {
+            console.error('Ошибка загрузки данных:', e);
+          }
+        }
+        const savedTab = localStorage.getItem(TAB_KEY);
+        if (savedTab && document.getElementById(savedTab)) {
+          switchTab(savedTab);
+        }
+      }
+
+      function clearData() {
+        if (confirm('Вы уверены, что хотите полностью очистить все введенные данные? Это действие нельзя отменить.')) {
+          localStorage.removeItem(STORAGE_KEY);
+          getAllInputs().forEach(el => {
+            el.value = '';
+          });
+          const msg = document.getElementById('saveMsg');
+          if (msg) {
+            msg.textContent = 'Поля успешно очищены.';
+            msg.style.display = 'inline';
+            setTimeout(() => {
+              msg.style.display = 'none';
+              msg.textContent = '✓ Данные успешно сохранены в браузере!';
+            }, 2500);
+          }
+        }
+      }
+
+      const saveBtn = document.getElementById('saveBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      const printBtn = document.getElementById('printBtn');
+
+      if (saveBtn) saveBtn.addEventListener('click', saveData);
+      if (clearBtn) clearBtn.addEventListener('click', clearData);
+      if (printBtn) printBtn.addEventListener('click', () => window.print());
+
+      // Автосохранение при потере фокуса
+      getAllInputs().forEach(el => {
+        el.addEventListener('blur', saveData);
+      });
+
+      // Инициализация при старте
+      loadData();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Сценарий учебного занятия (Конспект) — Проект БД и форма входа, этап 2</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #e2e8f0;
+      --accent: #0284c7;
+      --accent-dark: #0369a1;
+      --accent-soft: #f0f9ff;
+      --teacher-speech: #0369a1;
+      --speech-bg: #f0f9ff;
+      --dialogue-student: #15803d;
+      --student-bg: #f0fdf4;
+      --stage-badge: #e0f2fe;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px;
+    }
+
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+
+    header.plan-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: var(--accent-dark);
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .meta-box {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      font-size: 0.9rem;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .meta-label {
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    section.stage-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--accent-dark);
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .time-badge {
+      font-size: 0.85rem;
+      font-weight: 700;
+      background: var(--stage-badge);
+      color: var(--accent-dark);
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .speech-block {
+      background: var(--speech-bg);
+      border-left: 4px solid var(--teacher-speech);
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 14px 0;
+      font-style: italic;
+    }
+
+    .speech-label {
+      font-weight: 700;
+      font-style: normal;
+      color: var(--teacher-speech);
+      margin-bottom: 4px;
+      display: block;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+    }
+
+    .student-block {
+      background: var(--student-bg);
+      border-left: 4px solid var(--dialogue-student);
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 14px 0;
+    }
+
+    .student-label {
+      font-weight: 700;
+      color: var(--dialogue-student);
+      margin-bottom: 4px;
+      display: block;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+    }
+
+    .regime-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    .regime-box {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fafafa;
+    }
+
+    .regime-title {
+      font-weight: 700;
+      font-size: 0.92rem;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    pre, code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+    }
+
+    code {
+      background: #f1f5f9;
+      color: var(--accent-dark);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 14px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="plan-header">
+      <h1>Сценарий проведения учебного занятия (Конспект)</h1>
+      <div class="subtitle">Практическое занятие №9: проект БД и форма входа, этап 2</div>
+      <p style="color: var(--text-muted); margin-bottom: 0;">Развернутый пошаговый сценарий педагогического взаимодействия преподавателя и обучающихся с детализацией прямой речи для основного регламента (80 минут) и сокращенного регламента (60 минут).</p>
+
+      <div class="meta-box">
+        <div><span class="meta-label">Дисциплина:</span> ОП.08 Основы проектирования баз данных</div>
+        <div><span class="meta-label">Раздел программы:</span> Тема 4 (§2.2 с.7–8)</div>
+        <div><span class="meta-label">Занятие:</span> №26 (4-й семестр)</div>
+        <div><span class="meta-label">Вид занятия:</span> Практическое занятие</div>
+      </div>
+    </header>
+
+    <section class="stage-card">
+      <h2>
+        <span>Этап 1. Организационный момент и мотивационный инцидент</span>
+        <span class="time-badge">80 мин: 5 минут / 60 мин: 3 минуты</span>
+      </h2>
+
+      <div class="speech-block">
+        <span class="speech-label">Прямая речь преподавателя:</span>
+        «Здравствуйте, коллеги! Прошу занять свои рабочие места и включить компьютеры. На прошлом занятии мы завершили этап 1: спроектировали экранную форму аутентификации и базовую структуру таблицы пользователей. Но ответьте честно: что произойдет, если злоумышленник запустит простейший Python-скрипт, отправляющий 500 запросов в секунду с перебором паролей из словаря "rockyou.txt"? Если у нас нет серверного лимита попыток, такой сервис "ляжет" или аккаунт администратора будет скомпрометирован за 10 минут. Сегодня на этапе 2 мы реализуем надежный эшелонированный протокол безопасности: криптографическую проверку хэша с солью, автоматическую блокировку аккаунта на 15 минут при трех неверных вводах (Brute-force protection) и ведение неизменяемого журнала безопасности Security Audit Log. Открываем рабочие материалы!»
+      </div>
+
+      <div class="student-block">
+        <span class="student-label">Действия и реплики обучающихся:</span>
+        Приветствуют преподавателя, проверяют запуск рабочих инструментов, готовят локальный комплект материалов по занятию 26. Включаются в осмысление инцидента безопасности: осознают, что проверка на клиенте легко обходится прямыми HTTP-запросами через Postman или curl.
+      </div>
+
+      <div class="regime-split">
+        <div class="regime-box">
+          <div class="regime-title">Основной регламент (80 минут): 5 мин</div>
+          <p style="font-size: 0.9rem; margin: 0;">Преподаватель успевает разобрать на слайде 2 статистику реальных взломов баз данных из отчета OWASP Top-10 (Identification and Authentication Failures).</p>
+        </div>
+        <div class="regime-box">
+          <div class="regime-title">Сокращенный регламент (60 минут): 3 мин</div>
+          <p style="font-size: 0.9rem; margin: 0;">Лаконичная постановка цели без расширенной статистики, акцент на связывании формы и СУБД.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="stage-card">
+      <h2>
+        <span>Этап 2. Актуализация опорных знаний и теоретический разбор алгоритма</span>
+        <span class="time-badge">80 мин: 15 минут / 60 мин: 12 минут</span>
+      </h2>
+
+      <div class="speech-block">
+        <span class="speech-label">Прямая речь преподавателя:</span>
+        «Вспомним базовое правило информационной безопасности: пароли никогда не хранятся в открытом виде. Почему? При любой утечке дампа базы данных злоумышленники мгновенно получат учетные данные всех клиентов. Но почему недостаточно просто захэшировать пароль через SHA-256? Кто ответит?»
+      </div>
+
+      <div class="student-block">
+        <span class="student-label">Ответ студента (Иванов):</span>
+        «Потому что одинаковые пароли дадут одинаковый хэш. Злоумышленники заранее сгенерировали радужные таблицы (Rainbow Tables) под все популярные пароли и смогут мгновенно найти соответствие!»
+      </div>
+
+      <div class="speech-block">
+        <span class="speech-label">Прямая речь преподавателя:</span>
+        «Абсолютно верно, Иванов! Именно поэтому мы добавляем к паролю индивидуальную криптографическую соль (Salt). Взгляните на экран (слайд 6–7). Алгоритм верификации пароля в процедуре СУБД состоит строго из пяти шагов:<br>
+        1. <strong>Поиск учетной записи по логину:</strong> если пользователь не найден, мы обязаны вернуть нейтральное сообщение "Неверный логин или пароль", чтобы злоумышленник не понял, существует ли такой пользователь в системе (защита от User Enumeration).<br>
+        2. <strong>Проверка тайм-аута блокировки:</strong> если поле <code>locked_until > CURRENT_TIMESTAMP</code>, мы не тратим ресурсы на проверку пароля, а сразу отклоняем запрос.<br>
+        3. <strong>Проверка активности:</strong> если <code>is_active = FALSE</code> — аккаунт отключен.<br>
+        4. <strong>Вычисление и сравнение соленого хэша:</strong> <code>SHA256(введенный_пароль || salt)</code>.<br>
+        5. <strong>Аудит и обработка:</strong> при успехе сбрасываем <code>failed_attempts = 0</code> и <code>locked_until = NULL</code>. При ошибке инкрементируем <code>failed_attempts + 1</code>. Если достигнут порог 3 ошибки — ставим блокировку на 15 минут и пишем в журнал <code>ACCOUNT_LOCKED</code>.»
+      </div>
+    </section>
+
+    <section class="stage-card">
+      <h2>
+        <span>Этап 3. Демонстрация сквозного инженерного эталона на проекторе</span>
+        <span class="time-badge">80 мин: 10 минут / 60 мин: 8 минут</span>
+      </h2>
+
+      <div class="speech-block">
+        <span class="speech-label">Прямая речь преподавателя:</span>
+        «Внимание на проектор. Сейчас я на живом примере продемонстрирую реакцию базы данных. У нас создана таблица пользователей и таблица <code>security_audit_log</code>. Я ввожу верный логин <code>operator_1</code>, но трижды ошибаюсь в пароле.<br>
+        Попытка 1: в логе появляется <code>AUTH_FAILURE</code>, счетчик <code>failed_attempts</code> равен 1.<br>
+        Попытка 2: в логе второй <code>AUTH_FAILURE</code>, счетчик равен 2.<br>
+        Попытка 3: срабатывает триггер безопасности! В таблице пользователей поле <code>locked_until</code> получает значение текущего времени плюс 15 минут, а в журнал безопасности записывается статус <code>ACCOUNT_LOCKED</code>.<br>
+        Теперь, даже если на 4-й раз я введу абсолютно правильный пароль, СУБД отклонит вход, потому что учетная запись заблокирована! Обратите внимание: в журнал аудита мы фиксируем IP-адрес клиента и точное серверное время, но ни при каких обстоятельствах не записываем введенный пользователем сырой пароль!»
+      </div>
+
+      <div class="student-block">
+        <span class="student-label">Вопрос студента (Петрова):</span>
+        «А если через 15 минут пользователь вспомнит верный пароль и зайдет, блокировка снимется автоматически или нужен администратор?»
+      </div>
+
+      <div class="speech-block">
+        <span class="speech-label">Прямая речь преподавателя:</span>
+        «Отличный вопрос! Поскольку условие блокировки проверяет <code>locked_until > CURRENT_TIMESTAMP</code>, по истечении 15 минут текущее время станет больше сохраненной метки. Условие блокировки перестанет выполняться автоматически, и при вводе правильного пароля вход успешно произойдет, а счетчик неудач сбросится в ноль.»
+      </div>
+    </section>
+
+    <section class="stage-card">
+      <h2>
+        <span>Этап 4. Практический практикум студентов в zanyatie.html</span>
+        <span class="time-badge">80 мин: 40 минут / 60 мин: 30 минут</span>
+      </h2>
+
+      <div class="speech-block">
+        <span class="speech-label">Прямая речь преподавателя:</span>
+        «Приступаем к индивидуальной практической работе. Открываем файл <code>zanyatie.html</code>. Обязательно введите свои реальные ФИО и учебную группу в верхней панели. Распределение по 4 вариантам:<br>
+        • 1-й ряд выполняет <strong>Вариант 1 (Складской учет):</strong> протокол проверки кладовщика, блокировка при 3 ошибках на 15 минут, запись в <code>Security_Log</code>.<br>
+        • 2-й ряд выполняет <strong>Вариант 2 (Медицинская карта):</strong> аудит доступа к персональным данным, фиксация IP рабочей станции, запрет входа при <code>is_active = FALSE</code>.<br>
+        • 3-й ряд выполняет <strong>Вариант 3 (Банковский терминал):</strong> проверка срока действия пароля <code>password_expiry</code>, требование обязательной смены пароля при первом входе.<br>
+        • 4-й ряд выполняет <strong>Вариант 4 (Образовательная платформа):</strong> ролевое перенаправление: студент в ЛК, администратор в консоль управления, протоколирование сессий.<br>
+        Все данные автоматически сохраняются в вашем браузере. Приступайте, я буду подходить для консультаций.»
+      </div>
+
+      <div class="student-block">
+        <span class="student-label">Деятельность обучающихся:</span>
+        Обучающиеся работают в интерактивном листе. Проектируют SQL-процедуру верификации, составляют структуру журнала аудита, описывают логику динамического изменения экранного интерфейса в зависимости от роли (скрытие админ-панели для непривилегированных пользователей).
+      </div>
+    </section>
+
+    <section class="stage-card">
+      <h2>
+        <span>Этап 5. Экспертный разбор типичных студенческих ошибок</span>
+        <span class="time-badge">80 мин: 5 минут / 60 мин: 4 минуты</span>
+      </h2>
+
+      <div class="speech-block">
+        <span class="speech-label">Прямая речь преподавателя:</span>
+        «Коллеги, остановитесь на минуту, разберем три критические ошибки, которые я уже заметил в решениях:<br>
+        <strong>Ошибка 1:</strong> Сброс счетчика неудач до проверки пароля. Некоторые из вас написали <code>UPDATE users SET failed_attempts = 0</code> прямо в начале процедуры входа! В этом случае счетчик никогда не превысит 1, и защита от перебора просто уничтожена.<br>
+        <strong>Ошибка 2:</strong> Вывод на экран сообщения "Пользователь с таким логином не существует". Запомните: интерфейс должен отвечать "Неверный логин или пароль", чтобы злоумышленник не мог составить базу существующих логинов компании.<br>
+        <strong>Ошибка 3:</strong> Запись в лог аудита введенного пароля. Если в журнал аудита попадает пароль, этот лог сам становится огромной уязвимостью. Логируем только логин, IP, статус и тип события!»
+      </div>
+    </section>
+
+    <section class="stage-card">
+      <h2>
+        <span>Этап 6. Итог занятия, рефлексия, оценивание и домашнее задание</span>
+        <span class="time-badge">80 мин: 5 минут / 60 мин: 3 минуты</span>
+      </h2>
+
+      <div class="speech-block">
+        <span class="speech-label">Прямая речь преподавателя:</span>
+        «Посмотрим на слайд 15 нашей презентации. Знаменитый комикс Randall Munroe о "Little Bobby Tables" напоминает: безопасность базы данных и ее интерфейсов — это вопрос профессионализма разработчика. Если вы халатно отнесетесь к входным данным, цена ошибки — уничтожение или компрометация всей корпоративной базы.<br>
+        Сегодня все отлично поработали. Нажмите кнопку "Экспорт в PDF" в рабочем листе для фиксации ваших решений. Оценки выставляются в соответствии с 4-балльной рубрикой. Обратите внимание: файл <code>domashnee_zadanie.html</code> является резервным дистанционным заданием — выполняйте его только в случае пропуска пары по уважительной причине или по индивидуальному назначению преподавателя. Спасибо за работу, занятие окончено!»
+      </div>
+    </section>
+  </div>
+</body>
+</html>
