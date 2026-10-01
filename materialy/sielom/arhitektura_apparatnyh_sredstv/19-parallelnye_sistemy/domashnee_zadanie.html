@@ -1,387 +1,367 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Домашнее задание - Параллельные вычислительные системы и многопрограммная работа</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #1e40af;
-      --accent-soft: #eff6ff;
-      --ok: #059669;
-      --warn: #d97706;
-      --radius: 14px;
-      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.6;
-      font-size: 15px;
-      padding: 20px 14px;
-    }
-    .page {
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .header-card, .student-card, .card, .actions-card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow);
-    }
-    h1 {
-      font-size: clamp(20px, 3.2vw, 26px);
-      color: var(--accent);
-      margin-bottom: 8px;
-    }
-    .notice {
-      background: #fef3c7;
-      border-left: 4px solid #f59e0b;
-      padding: 12px 16px;
-      border-radius: 0 8px 8px 0;
-      font-size: 14.5px;
-      color: #92400e;
-      margin-top: 10px;
-      font-weight: 500;
-    }
-    .student-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 14px;
-    }
-    label {
-      display: block;
-      font-weight: 600;
-      font-size: 13.5px;
-      margin-bottom: 6px;
-      color: #1e293b;
-    }
-    input[type="text"], input[type="date"], textarea {
-      width: 100%;
-      border: 1.5px solid var(--line);
-      border-radius: 8px;
-      padding: 9px 12px;
-      font: inherit;
-      font-size: 14px;
-      background: #fff;
-      color: var(--text);
-      outline: none;
-      transition: border-color .15s, box-shadow .15s;
-    }
-    input:focus, textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
-    }
-    textarea {
-      min-height: 85px;
-      resize: vertical;
-    }
-    .card-title {
-      font-size: 17.5px;
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .sample-box {
-      background: #f1f5f9;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      padding: 14px 18px;
-      margin: 12px 0 16px;
-      font-size: 14px;
-    }
-    .sample-title {
-      font-weight: 700;
-      color: #1e293b;
-      margin-bottom: 6px;
-    }
-    .table-wrap {
-      overflow-x: auto;
-      margin: 12px 0;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13.5px;
-    }
-    th, td {
-      border: 1px solid var(--line);
-      padding: 8px 10px;
-      text-align: left;
-      vertical-align: top;
-    }
-    th {
-      background: var(--accent-soft);
-      color: var(--accent);
-    }
-    .btn-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: center;
-    }
-    button {
-      padding: 10px 18px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: background-color .15s;
-    }
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-    }
-    .btn-primary:hover {
-      background: #1d4ed8;
-    }
-    .btn-secondary {
-      background: #e2e8f0;
-      color: #1e293b;
-    }
-    .btn-secondary:hover {
-      background: #cbd5e1;
-    }
-    .btn-danger {
-      background: #fee2e2;
-      color: #991b1b;
-    }
-    .btn-danger:hover {
-      background: #fecaca;
-    }
-    .status-msg {
-      font-size: 13.5px;
-      font-weight: 500;
-    }
-    .status-saved {
-      color: var(--ok);
-    }
-    @media print {
-      body {
-        background: #fff !important;
-        color: #000 !important;
-        padding: 0 !important;
-        font-size: 11pt !important;
-      }
-      .page {
-        max-width: 100% !important;
-        margin: 0 !important;
-      }
-      .header-card, .student-card, .card {
-        box-shadow: none !important;
-        border: 1px solid #777 !important;
-        margin-bottom: 12pt !important;
-        padding: 10pt !important;
-        break-inside: auto !important;
-        page-break-inside: auto !important;
-      }
-      .actions-card, .btn-row {
-        display: none !important;
-      }
-      input::placeholder, textarea::placeholder {
-        color: transparent !important;
-        -webkit-text-fill-color: transparent !important;
-        opacity: 0 !important;
-      }
-      textarea {
-        height: auto !important;
-        min-height: 80px;
-        overflow: visible !important;
-        white-space: pre-wrap !important;
-        word-break: break-word !important;
-        border: 1px solid #777 !important;
-        background: #fff !important;
-        color: #000 !important;
-      }
-      input[type="text"], input[type="date"] {
-        border: 1px solid #777 !important;
-        background: #fff !important;
-        color: #000 !important;
-      }
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <title>Домашнее задание - Параллельные вычислительные системы и многопрограммная работа</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #1e40af;
+ --accent-soft: #eff6ff;
+ --ok: #059669;
+ --warn: #d97706;
+ --radius: 14px;
+ --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+ body {
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+ line-height: 1.6;
+ font-size: 15px;
+ padding: 20px 14px;
+ }.page {
+ max-width: 900px;
+ margin: 0 auto;
+ }.header-card,.student-card,.card,.actions-card {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 24px;
+ margin-bottom: 20px;
+ box-shadow: var(--shadow);
+ }
+ h1 {
+ font-size: clamp(20px, 3.2vw, 26px);
+ color: var(--accent);
+ margin-bottom: 8px;
+ }.notice {
+ background: #fef3c7;
+ border-left: 4px solid #f59e0b;
+ padding: 12px 16px;
+ border-radius: 0 8px 8px 0;
+ font-size: 14.5px;
+ color: #92400e;
+ margin-top: 10px;
+ font-weight: 500;
+ }.student-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+ gap: 14px;
+ }
+ label {
+ display: block;
+ font-weight: 600;
+ font-size: 13.5px;
+ margin-bottom: 6px;
+ color: #1e293b;
+ }
+ input[type="text"], input[type="date"], textarea {
+ width: 100%;
+ border: 1.5px solid var(--line);
+ border-radius: 8px;
+ padding: 9px 12px;
+ font: inherit;
+ font-size: 14px;
+ background: #fff;
+ color: var(--text);
+ outline: none;
+ transition: border-color.15s, box-shadow.15s;
+ }
+ input:focus, textarea:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+ }
+ textarea {
+ min-height: 85px;
+ resize: vertical;
+ }.card-title {
+ font-size: 17.5px;
+ font-weight: 700;
+ color: var(--accent);
+ margin-bottom: 10px;
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ }.sample-box {
+ background: #f1f5f9;
+ border: 1px solid #cbd5e1;
+ border-radius: 8px;
+ padding: 14px 18px;
+ margin: 12px 0 16px;
+ font-size: 14px;
+ }.sample-title {
+ font-weight: 700;
+ color: #1e293b;
+ margin-bottom: 6px;
+ }.table-wrap {
+ overflow-x: auto;
+ margin: 12px 0;
+ border: 1px solid var(--line);
+ border-radius: 8px;
+ }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ font-size: 13.5px;
+ }
+ th, td {
+ border: 1px solid var(--line);
+ padding: 8px 10px;
+ text-align: left;
+ vertical-align: top;
+ }
+ th {
+ background: var(--accent-soft);
+ color: var(--accent);
+ }.btn-row {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 12px;
+ align-items: center;
+ }
+ button {
+ padding: 10px 18px;
+ border-radius: 8px;
+ font-size: 14px;
+ font-weight: 600;
+ cursor: pointer;
+ border: none;
+ transition: background-color.15s;
+ }.btn-primary {
+ background: var(--accent);
+ color: #fff;
+ }.btn-primary:hover {
+ background: #1d4ed8;
+ }.btn-secondary {
+ background: #e2e8f0;
+ color: #1e293b;
+ }.btn-secondary:hover {
+ background: #cbd5e1;
+ }.btn-danger {
+ background: #fee2e2;
+ color: #991b1b;
+ }.btn-danger:hover {
+ background: #fecaca;
+ }.status-msg {
+ font-size: 13.5px;
+ font-weight: 500;
+ }.status-saved {
+ color: var(--ok);
+ }
+ @media print {
+ body {
+ background: #fff !important;
+ color: #000 !important;
+ padding: 0 !important;
+ font-size: 11pt !important;
+ }.page {
+ max-width: 100% !important;
+ margin: 0 !important;
+ }.header-card,.student-card,.card {
+ box-shadow: none !important;
+ border: 1px solid #777 !important;
+ margin-bottom: 12pt !important;
+ padding: 10pt !important;
+ break-inside: auto !important;
+ page-break-inside: auto !important;
+ }.actions-card,.btn-row {
+ display: none !important;
+ }
+ input::placeholder, textarea::placeholder {
+ color: transparent !important;
+ -webkit-text-fill-color: transparent !important;
+ opacity: 0 !important;
+ }
+ textarea {
+ height: auto !important;
+ min-height: 80px;
+ overflow: visible !important;
+ white-space: pre-wrap !important;
+ word-break: break-word !important;
+ border: 1px solid #777 !important;
+ background: #fff !important;
+ color: #000 !important;
+ }
+ input[type="text"], input[type="date"] {
+ border: 1px solid #777 !important;
+ background: #fff !important;
+ color: #000 !important;
+ }
+ }
+ </style>
 </head>
 <body>
 <div class="page">
 
-  <!-- ШАПКА ЗАДАНИЯ -->
-  <div class="header-card">
-    <h1>Домашнее задание - Параллельные вычислительные системы и многопрограммная работа</h1>
-    <div class="notice">
-      Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
-    </div>
-  </div>
+ <!-- ШАПКА ЗАДАНИЯ -->
+ <div class="header-card">
+ <h1>Домашнее задание - Параллельные вычислительные системы и многопрограммная работа</h1>
+ <div class="notice">
+ Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+ </div>
+ </div>
 
-  <!-- КАРТОЧКА СТУДЕНТА (ЧИСТЫЕ ПОЛЯ БЕЗ ВЫМЫШЛЕННЫХ ДАННЫХ) -->
-  <div class="student-card">
-    <div class="student-grid">
-      <div>
-        <label for="hw_student_fio">ФИО обучающегося:</label>
-        <input type="text" id="hw_student_fio" placeholder="Фамилия Имя Отчество" autocomplete="off">
-      </div>
-      <div>
-        <label for="hw_student_group">Учебная группа:</label>
-        <input type="text" id="hw_student_group" placeholder="Введите группу" autocomplete="off">
-      </div>
-      <div>
-        <label for="hw_work_date">Дата выполнения:</label>
-        <input type="date" id="hw_work_date">
-      </div>
-    </div>
-  </div>
+ <!-- КАРТОЧКА СТУДЕНТА (ЧИСТЫЕ ПОЛЯ БЕЗ ВЫМЫШЛЕННЫХ ДАННЫХ) -->
+ <div class="student-card">
+ <div class="student-grid">
+ <div>
+ <label for="hw_student_fio">ФИО обучающегося:</label>
+ <input type="text" id="hw_student_fio" placeholder="Фамилия Имя Отчество" autocomplete="off">
+ </div>
+ <div>
+ <label for="hw_student_group">Учебная группа:</label>
+ <input type="text" id="hw_student_group" placeholder="Введите группу" autocomplete="off">
+ </div>
+ <div>
+ <label for="hw_work_date">Дата выполнения:</label>
+ <input type="date" id="hw_work_date">
+ </div>
+ </div>
+ </div>
 
-  <!-- РАЗОБРАННЫЙ ОБРАЗЕЦ -->
-  <div class="card">
-    <div class="card-title">Разобранный образец: расчет ускорения и анализ когерентности</div>
-    <div class="sample-box">
-      <div class="sample-title">Условие образца:</div>
-      <p>Вычислительный комплекс включает 8 процессоров (n = 8). Доля строго последовательного кода в программе составляет s = 0.10 (10\%). В кэш-памяти Ядра 1 строка находится в состоянии <code>Modified</code>. Процессор 2 инициирует чтение по этому же адресу.</p>
-      
-      <div class="sample-title" style="margin-top: 10px;">Эталонное решение:</div>
-      <ol style="padding-left: 20px;">
-        <li><strong>Расчет ускорения по закону Амдала (Strong Scaling):</strong><br>
-          Параллельная доля: p = 1 - s = 1 - 0.10 = 0.90.<br>
-          <div class="formula">S<sub>A</sub> = frac{1}{s + frac{p}{n}} = frac{1}{0.10 + frac{0.90}{8}} = frac{1}{0.10 + 0.1125} = frac{1}{0.2125} ≈ 4.71  раз.</div>
-          Эффективность параллелизации: E = frac{S<sub>A</sub>}{n} = frac{4.71}{8} ≈ 58.88\%.<br>
-          Теоретический предел ускорения при бесконечном числе процессоров: S<sub>max</sub> = frac{1}{s} = frac{1}{0.10} = 10.0 раз.
-        </li>
-        <li><strong>Расчет ускорения по закону Густафсона-Барсиса (Weak Scaling):</strong><br>
-          <div class="formula">S<sub>G</sub> = s + p × n = 0.10 + 0.90 × 8 = 0.10 + 7.20 = 7.30  раз.</div>
-          Эффективность параллелизации: E = frac{7.30}{8} ≈ 91.25\%.
-        </li>
-        <li><strong>Поведение протокола когерентности MESI:</strong><br>
-          Ядро 2 отправляет по системной шине сигнал запроса на чтение (BusRd). Ядро 1 фиксирует запрос через шинный снупинг (Snooping), перехватывает операцию памяти и сбрасывает актуальные измененные данные в оперативную память (Write-Back), одновременно передавая их Ядру 2. После передачи обе строки переходят в состояние <strong>Shared (S)</strong>.
-        </li>
-      </ol>
-    </div>
-  </div>
+ <!-- РАЗОБРАННЫЙ ОБРАЗЕЦ -->
+ <div class="card">
+ <div class="card-title">Разобранный образец: расчет ускорения и анализ когерентности</div>
+ <div class="sample-box">
+ <div class="sample-title">Условие образца:</div>
+ <p>Вычислительный комплекс включает 8 процессоров (n = 8). Доля строго последовательного кода в программе составляет s = 0.10 (10\%). В кэш-памяти Ядра 1 строка находится в состоянии <code>Modified</code>. Процессор 2 инициирует чтение по этому же адресу.</p>
+ 
+ <div class="sample-title" style="margin-top: 10px;">Эталонное решение:</div>
+ <ol style="padding-left: 20px;">
+ <li><strong>Расчет ускорения по закону Амдала (Strong Scaling):</strong><br>
+ Параллельная доля: p = 1 - s = 1 - 0.10 = 0.90.<br>
+ <div class="formula">S<sub>A</sub> = frac{1}{s + frac{p}{n}} = frac{1}{0.10 + frac{0.90}{8}} = frac{1}{0.10 + 0.1125} = frac{1}{0.2125} ≈ 4.71 раз.</div>
+ Эффективность параллелизации: E = frac{S<sub>A</sub>}{n} = frac{4.71}{8} ≈ 58.88\%.<br>
+ Теоретический предел ускорения при бесконечном числе процессоров: S<sub>max</sub> = frac{1}{s} = frac{1}{0.10} = 10.0 раз.
+ </li>
+ <li><strong>Расчет ускорения по закону Густафсона-Барсиса (Weak Scaling):</strong><br>
+ <div class="formula">S<sub>G</sub> = s + p × n = 0.10 + 0.90 × 8 = 0.10 + 7.20 = 7.30 раз.</div>
+ Эффективность параллелизации: E = frac{7.30}{8} ≈ 91.25\%.
+ </li>
+ <li><strong>Поведение протокола когерентности MESI:</strong><br>
+ Ядро 2 отправляет по системной шине сигнал запроса на чтение (BusRd). Ядро 1 фиксирует запрос через шинный снупинг (Snooping), перехватывает операцию памяти и сбрасывает актуальные измененные данные в оперативную память (Write-Back), одновременно передавая их Ядру 2. После передачи обе строки переходят в состояние <strong>Shared (S)</strong>.
+ </li>
+ </ol>
+ </div>
+ </div>
 
-  <!-- УПРАЖНЕНИЕ 1 -->
-  <div class="card">
-    <div class="card-title">Упражнение 1. Архитектурное сопоставление и протоколы памяти</div>
-    <div style="margin-bottom: 12px;">
-      <label for="hw_ex1_tab">1.1. Сравните три архитектурных сценария: а) многопрограммность на 1 ядре; б) 2-сокетный SMP/NUMA сервер; в) кластер из 16 узлов Gigabit Ethernet. Укажите тип изоляции адресного пространства, способ межпроцессного обмена и главное аппаратное узкое место:</label>
-      <textarea id="hw_ex1_tab" placeholder="Дайте сравнительный анализ трех систем..."></textarea>
-    </div>
-    <div>
-      <label for="hw_ex1_mesi">1.2. Опишите физический механизм: что происходит в протоколе MESI, когда Ядро 1 пытается записать данные в кэш-линию, находящуюся в состоянии Shared (S)? Какой сигнал выставляется на шине и что происходит с копиями этой строки в кэшах других ядер?</label>
-      <textarea id="hw_ex1_mesi" placeholder="Опишите переход Shared -> Modified, сигнал BusInval и инвалидацию кэшей..."></textarea>
-    </div>
-  </div>
+ <!-- УПРАЖНЕНИЕ 1 -->
+ <div class="card">
+ <div class="card-title">Упражнение 1. Архитектурное сопоставление и протоколы памяти</div>
+ <div style="margin-bottom: 12px;">
+ <label for="hw_ex1_tab">1.1. Сравните три архитектурных сценария: а) многопрограммность на 1 ядре; б) 2-сокетный SMP/NUMA сервер; в) кластер из 16 узлов Gigabit Ethernet. Укажите тип изоляции адресного пространства, способ межпроцессного обмена и главное аппаратное узкое место:</label>
+ <textarea id="hw_ex1_tab" placeholder="Дайте сравнительный анализ трех систем..."></textarea>
+ </div>
+ <div>
+ <label for="hw_ex1_mesi">1.2. Опишите физический механизм: что происходит в протоколе MESI, когда Ядро 1 пытается записать данные в кэш-линию, находящуюся в состоянии Shared (S)? Какой сигнал выставляется на шине и что происходит с копиями этой строки в кэшах других ядер?</label>
+ <textarea id="hw_ex1_mesi" placeholder="Опишите переход Shared -> Modified, сигнал BusInval и инвалидацию кэшей..."></textarea>
+ </div>
+ </div>
 
-  <!-- УПРАЖНЕНИЕ 2 -->
-  <div class="card">
-    <div class="card-title">Упражнение 2. Расчетная задача масштабирования суперкомпьютерного комплекса</div>
-    <div style="margin-bottom: 12px;">
-      <p style="font-size: 14px; color: var(--muted); margin-bottom: 8px;">
-        <strong>Условие:</strong> Высокопроизводительный кластер состоит из 64 вычислительных узлов (n = 64). В расчетной гидродинамической задаче доля строго последовательного кода составляет s = 0.05 (5\%). Соответственно доля параллельного кода p = 0.95 (95\%).
-      </p>
-      <label for="hw_ex2_sol">Приведите пошаговый расчет ускорения по закону Амдала (S<sub>A</sub>), эффективности (E<sub>A</sub>), теоретического предела масштабирования (S<sub>max</sub>), а также ускорения по закону Густафсона-Барсиса (S<sub>G</sub>) и его эффективности (E<sub>G</sub>):</label>
-      <textarea id="hw_ex2_sol" placeholder="Приведите подробные расчетные формулы и вычисления..."></textarea>
-    </div>
-    <div>
-      <label for="hw_ex2_interconnect">Обоснуйте, почему замена коммутаторов Gigabit Ethernet на фабрику InfiniBand с поддержкой технологии RDMA позволяет приблизить реальное ускорение кластера к теоретическому пределу:</label>
-      <textarea id="hw_ex2_interconnect" placeholder="Опишите устранение задержек стека TCP/IP, механизм Zero-Copy и аппаратную редукцию..."></textarea>
-    </div>
-  </div>
+ <!-- УПРАЖНЕНИЕ 2 -->
+ <div class="card">
+ <div class="card-title">Упражнение 2. Расчетная задача масштабирования суперкомпьютерного комплекса</div>
+ <div style="margin-bottom: 12px;">
+ <p style="font-size: 14px; color: var(--muted); margin-bottom: 8px;">
+ <strong>Условие:</strong> Высокопроизводительный кластер состоит из 64 вычислительных узлов (n = 64). В расчетной гидродинамической задаче доля строго последовательного кода составляет s = 0.05 (5\%). Соответственно доля параллельного кода p = 0.95 (95\%).
+ </p>
+ <label for="hw_ex2_sol">Приведите пошаговый расчет ускорения по закону Амдала (S<sub>A</sub>), эффективности (E<sub>A</sub>), теоретического предела масштабирования (S<sub>max</sub>), а также ускорения по закону Густафсона-Барсиса (S<sub>G</sub>) и его эффективности (E<sub>G</sub>):</label>
+ <textarea id="hw_ex2_sol" placeholder="Приведите подробные расчетные формулы и вычисления..."></textarea>
+ </div>
+ <div>
+ <label for="hw_ex2_interconnect">Обоснуйте, почему замена коммутаторов Gigabit Ethernet на фабрику InfiniBand с поддержкой технологии RDMA позволяет приблизить реальное ускорение кластера к теоретическому пределу:</label>
+ <textarea id="hw_ex2_interconnect" placeholder="Опишите устранение задержек стека TCP/IP, механизм Zero-Copy и аппаратную редукцию..."></textarea>
+ </div>
+ </div>
 
-  <!-- КАРТОЧКА ДЕЙСТВИЙ (СКРЫВАЕТСЯ ПРИ ПЕЧАТИ) -->
-  <div class="actions-card">
-    <div class="btn-row">
-      <button type="button" class="btn-primary" onclick="window.print()">Сохранить в PDF / Распечатать</button>
-      <button type="button" class="btn-secondary" onclick="saveHwDraft(true)">Сохранить черновик</button>
-      <button type="button" class="btn-danger" onclick="resetHwDraft()">Очистить бланк</button>
-      <span id="hw_save_status" class="status-msg"></span>
-    </div>
-  </div>
+ <!-- КАРТОЧКА ДЕЙСТВИЙ (СКРЫВАЕТСЯ ПРИ ПЕЧАТИ) -->
+ <div class="actions-card">
+ <div class="btn-row">
+ <button type="button" class="btn-primary" onclick="window.print()">Сохранить в PDF / Распечатать</button>
+ <button type="button" class="btn-secondary" onclick="saveHwDraft(true)">Сохранить черновик</button>
+ <button type="button" class="btn-danger" onclick="resetHwDraft()">Очистить бланк</button>
+ <span id="hw_save_status" class="status-msg"></span>
+ </div>
+ </div>
 
 </div>
 
 <script>
-  const HW_STORAGE_KEY = 'sie_hw19_homework_draft';
-  const HW_FIELDS = [
-    'hw_student_fio', 'hw_student_group', 'hw_work_date',
-    'hw_ex1_tab', 'hw_ex1_mesi', 'hw_ex2_sol', 'hw_ex2_interconnect'
-  ];
+ const HW_STORAGE_KEY = 'sie_hw19_homework_draft';
+ const HW_FIELDS = [
+ 'hw_student_fio', 'hw_student_group', 'hw_work_date',
+ 'hw_ex1_tab', 'hw_ex1_mesi', 'hw_ex2_sol', 'hw_ex2_interconnect'
+ ];
 
-  function saveHwDraft(showFeedback) {
-    const data = {};
-    HW_FIELDS.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) data[id] = el.value;
-    });
-    try {
-      localStorage.setItem(HW_STORAGE_KEY, JSON.stringify(data));
-      if (showFeedback) {
-        const s = document.getElementById('hw_save_status');
-        s.textContent = '✓ Сохранено в браузере';
-        s.className = 'status-msg status-saved';
-        setTimeout(() => { s.textContent = ''; }, 3000);
-      }
-    } catch (e) {
-      console.warn('LocalStorage error:', e);
-    }
-  }
+ function saveHwDraft(showFeedback) {
+ const data = {};
+ HW_FIELDS.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) data[id] = el.value;
+ });
+ try {
+ localStorage.setItem(HW_STORAGE_KEY, JSON.stringify(data));
+ if (showFeedback) {
+ const s = document.getElementById('hw_save_status');
+ s.textContent = '✓ Сохранено в браузере';
+ s.className = 'status-msg status-saved';
+ setTimeout(() => { s.textContent = ''; }, 3000);
+ }
+ } catch (e) {
+ console.warn('LocalStorage error:', e);
+ }
+ }
 
-  function loadHwDraft() {
-    try {
-      const raw = localStorage.getItem(HW_STORAGE_KEY);
-      if (raw) {
-        const data = JSON.parse(raw);
-        HW_FIELDS.forEach(id => {
-          if (data[id] !== undefined) {
-            const el = document.getElementById(id);
-            if (el) el.value = data[id];
-          }
-        });
-      }
-    } catch (e) {
-      console.warn('LocalStorage load error:', e);
-    }
-  }
+ function loadHwDraft() {
+ try {
+ const raw = localStorage.getItem(HW_STORAGE_KEY);
+ if (raw) {
+ const data = JSON.parse(raw);
+ HW_FIELDS.forEach(id => {
+ if (data[id] !== undefined) {
+ const el = document.getElementById(id);
+ if (el) el.value = data[id];
+ }
+ });
+ }
+ } catch (e) {
+ console.warn('LocalStorage load error:', e);
+ }
+ }
 
-  function resetHwDraft() {
-    if (confirm('Внимание! Все введенные данные домашнего задания будут удалены. Очистить форму?')) {
-      HW_FIELDS.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-      });
-      try {
-        localStorage.removeItem(HW_STORAGE_KEY);
-      } catch (e) {}
-      const s = document.getElementById('hw_save_status');
-      s.textContent = 'Форма очищена';
-      s.className = 'status-msg';
-      setTimeout(() => { s.textContent = ''; }, 3000);
-    }
-  }
+ function resetHwDraft() {
+ if (confirm('Внимание! Все введенные данные домашнего задания будут удалены. Очистить форму?')) {
+ HW_FIELDS.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) el.value = '';
+ });
+ try {
+ localStorage.removeItem(HW_STORAGE_KEY);
+ } catch (e) {}
+ const s = document.getElementById('hw_save_status');
+ s.textContent = 'Форма очищена';
+ s.className = 'status-msg';
+ setTimeout(() => { s.textContent = ''; }, 3000);
+ }
+ }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    loadHwDraft();
-    HW_FIELDS.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener('input', () => saveHwDraft(false));
-        el.addEventListener('change', () => saveHwDraft(false));
-      }
-    });
-  });
+ document.addEventListener('DOMContentLoaded', () => {
+ loadHwDraft();
+ HW_FIELDS.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) {
+ el.addEventListener('input', () => saveHwDraft(false));
+ el.addEventListener('change', () => saveHwDraft(false));
+ }
+ });
+ });
 </script>
 </body>
 </html>

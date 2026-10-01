@@ -1,620 +1,593 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Практикум: Устройство управления, шины и ввод-вывод (Диагностика пути данных)</title>
-  <style>
-    :root {
-      --bg: #f1f5f9;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #1e40af;
-      --accent-soft: #eff6ff;
-      --task-bg: #f8fafc;
-      --border-task: #94a3b8;
-      --ok: #059669;
-      --warn: #d97706;
-      --danger: #dc2626;
-      --radius: 14px;
-      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.6;
-      font-size: 15px;
-      padding: 20px 14px;
-    }
-    .page {
-      max-width: 960px;
-      margin: 0 auto;
-    }
-    .header-card, .student-card, .task-card, .actions-card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow);
-    }
-    h1 {
-      font-size: clamp(22px, 3.5vw, 28px);
-      color: var(--accent);
-      margin-bottom: 8px;
-    }
-    .desc {
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.55;
-    }
-    .student-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 16px;
-    }
-    label {
-      display: block;
-      font-weight: 600;
-      font-size: 13.5px;
-      margin-bottom: 6px;
-      color: #1e293b;
-    }
-    input[type="text"], input[type="date"], select, textarea {
-      width: 100%;
-      border: 1.5px solid var(--line);
-      border-radius: 8px;
-      padding: 9px 12px;
-      font: inherit;
-      font-size: 14px;
-      background: #fff;
-      color: var(--text);
-      outline: none;
-      transition: border-color .15s, box-shadow .15s;
-    }
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
-    }
-    textarea {
-      min-height: 95px;
-      resize: vertical;
-      line-height: 1.5;
-    }
-    .task-title {
-      font-size: 18px;
-      color: var(--accent);
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 700;
-    }
-    .task-intro {
-      font-size: 14px;
-      color: var(--muted);
-      margin-bottom: 16px;
-    }
-    .table-wrap {
-      overflow-x: auto;
-      margin: 14px 0;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13.5px;
-      background: #fff;
-    }
-    th, td {
-      border: 1px solid var(--line);
-      padding: 9px 10px;
-      text-align: left;
-      vertical-align: top;
-    }
-    th {
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-weight: 600;
-      white-space: nowrap;
-    }
-    .table-input {
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      padding: 6px 8px;
-      font-size: 13px;
-      width: 100%;
-      box-sizing: border-box;
-      background: #fff;
-    }
-    .table-input:focus {
-      border-color: var(--accent);
-      outline: none;
-    }
-    .variant-card {
-      background: #eff6ff;
-      border-left: 4px solid var(--accent);
-      padding: 16px;
-      border-radius: 0 8px 8px 0;
-      margin: 14px 0;
-    }
-    .variant-title {
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 6px;
-    }
-    .btn-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: center;
-    }
-    button {
-      cursor: pointer;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 18px;
-      font: inherit;
-      font-weight: 600;
-      font-size: 14.5px;
-      transition: background .15s;
-    }
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-primary:hover { background: #1d4ed8; }
-    .btn-secondary { background: #e2e8f0; color: #334155; }
-    .btn-secondary:hover { background: #cbd5e1; }
-    .btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-    .btn-danger:hover { background: #fecaca; }
-    .status-msg {
-      font-size: 14px;
-      font-weight: 600;
-      margin-left: auto;
-    }
-    .status-saved { color: var(--ok); }
-    .form-group {
-      margin-bottom: 14px;
-    }
-    .form-group label {
-      margin-bottom: 4px;
-    }
-    .print-select-text { display: none; }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <title>Практикум: Устройство управления, шины и ввод-вывод (Диагностика пути данных)</title>
+ <style>
+ :root {
+ --bg: #f1f5f9;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #1e40af;
+ --accent-soft: #eff6ff;
+ --task-bg: #f8fafc;
+ --border-task: #94a3b8;
+ --ok: #059669;
+ --warn: #d97706;
+ --danger: #dc2626;
+ --radius: 14px;
+ --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+ body {
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+ line-height: 1.6;
+ font-size: 15px;
+ padding: 20px 14px;
+ }.page {
+ max-width: 960px;
+ margin: 0 auto;
+ }.header-card,.student-card,.task-card,.actions-card {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 24px;
+ margin-bottom: 20px;
+ box-shadow: var(--shadow);
+ }
+ h1 {
+ font-size: clamp(22px, 3.5vw, 28px);
+ color: var(--accent);
+ margin-bottom: 8px;
+ }.desc {
+ color: var(--muted);
+ font-size: 15px;
+ line-height: 1.55;
+ }.student-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+ gap: 16px;
+ }
+ label {
+ display: block;
+ font-weight: 600;
+ font-size: 13.5px;
+ margin-bottom: 6px;
+ color: #1e293b;
+ }
+ input[type="text"], input[type="date"], select, textarea {
+ width: 100%;
+ border: 1.5px solid var(--line);
+ border-radius: 8px;
+ padding: 9px 12px;
+ font: inherit;
+ font-size: 14px;
+ background: #fff;
+ color: var(--text);
+ outline: none;
+ transition: border-color.15s, box-shadow.15s;
+ }
+ input:focus, select:focus, textarea:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+ }
+ textarea {
+ min-height: 95px;
+ resize: vertical;
+ line-height: 1.5;
+ }.task-title {
+ font-size: 18px;
+ color: var(--accent);
+ margin-bottom: 12px;
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ font-weight: 700;
+ }.task-intro {
+ font-size: 14px;
+ color: var(--muted);
+ margin-bottom: 16px;
+ }.table-wrap {
+ overflow-x: auto;
+ margin: 14px 0;
+ border: 1px solid var(--line);
+ border-radius: 8px;
+ }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ font-size: 13.5px;
+ background: #fff;
+ }
+ th, td {
+ border: 1px solid var(--line);
+ padding: 9px 10px;
+ text-align: left;
+ vertical-align: top;
+ }
+ th {
+ background: var(--accent-soft);
+ color: var(--accent);
+ font-weight: 600;
+ white-space: nowrap;
+ }.table-input {
+ border: 1px solid var(--line);
+ border-radius: 6px;
+ padding: 6px 8px;
+ font-size: 13px;
+ width: 100%;
+ box-sizing: border-box;
+ background: #fff;
+ }.table-input:focus {
+ border-color: var(--accent);
+ outline: none;
+ }.variant-card {
+ background: #eff6ff;
+ border-left: 4px solid var(--accent);
+ padding: 16px;
+ border-radius: 0 8px 8px 0;
+ margin: 14px 0;
+ }.variant-title {
+ font-weight: 700;
+ color: var(--accent);
+ margin-bottom: 6px;
+ }.btn-row {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 12px;
+ align-items: center;
+ }
+ button {
+ cursor: pointer;
+ border: none;
+ border-radius: 8px;
+ padding: 10px 18px;
+ font: inherit;
+ font-weight: 600;
+ font-size: 14.5px;
+ transition: background.15s;
+ }.btn-primary { background: var(--accent); color: #fff; }.btn-primary:hover { background: #1d4ed8; }.btn-secondary { background: #e2e8f0; color: #334155; }.btn-secondary:hover { background: #cbd5e1; }.btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }.btn-danger:hover { background: #fecaca; }.status-msg {
+ font-size: 14px;
+ font-weight: 600;
+ margin-left: auto;
+ }.status-saved { color: var(--ok); }.form-group {
+ margin-bottom: 14px;
+ }.form-group label {
+ margin-bottom: 4px;
+ }.print-select-text { display: none; }
 
-    @media print {
-      body {
-        background: #fff;
-        padding: 0;
-        font-size: 10.5pt;
-        color: #000;
-      }
-      .page {
-        max-width: 100%;
-        margin: 0;
-      }
-      .header-card, .student-card, .task-card {
-        box-shadow: none;
-        border: 1px solid #777;
-        margin-bottom: 12pt;
-        padding: 10pt;
-        break-inside: auto;
-        page-break-inside: auto;
-      }
-      .actions-card, .btn-row {
-        display: none !important;
-      }
-      input::placeholder, textarea::placeholder {
-        color: transparent !important;
-        -webkit-text-fill-color: transparent !important;
-        opacity: 0 !important;
-      }
-      select {
-        display: none !important;
-      }
-      .print-select-text {
-        display: block !important;
-        min-height: 22px;
-        border: 1px solid #777 !important;
-        border-radius: 4px;
-        padding: 4px 6px;
-        background: #fff !important;
-      }
-      textarea {
-        height: auto !important;
-        min-height: 80px;
-        overflow: visible !important;
-        white-space: pre-wrap !important;
-        word-break: break-word !important;
-        border: 1px solid #777 !important;
-        background: #fff !important;
-        color: #000 !important;
-      }
-      input[type="text"], input[type="date"], .table-input {
-        border: 1px solid #777 !important;
-        background: #fff !important;
-        color: #000 !important;
-      }
-      table {
-        page-break-inside: auto;
-      }
-      tr {
-        page-break-inside: avoid;
-        page-break-after: auto;
-      }
-    }
-  </style>
+ @media print {
+ body {
+ background: #fff;
+ padding: 0;
+ font-size: 10.5pt;
+ color: #000;
+ }.page {
+ max-width: 100%;
+ margin: 0;
+ }.header-card,.student-card,.task-card {
+ box-shadow: none;
+ border: 1px solid #777;
+ margin-bottom: 12pt;
+ padding: 10pt;
+ break-inside: auto;
+ page-break-inside: auto;
+ }.actions-card,.btn-row {
+ display: none !important;
+ }
+ input::placeholder, textarea::placeholder {
+ color: transparent !important;
+ -webkit-text-fill-color: transparent !important;
+ opacity: 0 !important;
+ }
+ select {
+ display: none !important;
+ }.print-select-text {
+ display: block !important;
+ min-height: 22px;
+ border: 1px solid #777 !important;
+ border-radius: 4px;
+ padding: 4px 6px;
+ background: #fff !important;
+ }
+ textarea {
+ height: auto !important;
+ min-height: 80px;
+ overflow: visible !important;
+ white-space: pre-wrap !important;
+ word-break: break-word !important;
+ border: 1px solid #777 !important;
+ background: #fff !important;
+ color: #000 !important;
+ }
+ input[type="text"], input[type="date"],.table-input {
+ border: 1px solid #777 !important;
+ background: #fff !important;
+ color: #000 !important;
+ }
+ table {
+ page-break-inside: auto;
+ }
+ tr {
+ page-break-inside: avoid;
+ page-break-after: auto;
+ }
+ }
+ </style>
 </head>
 <body>
 <div class="page">
 
-  <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
-  <div class="header-card">
-    <h1>Практическое занятие №17: Устройство управления, шины и ввод-вывод</h1>
-    <p class="desc">
-      Интерактивный рабочий лист студента по дисциплине «ОП.02 Архитектура аппаратных средств». Программа объединяет практические занятия №5 («Устройство управления и шины») и №6 («Ввод-вывод»). Изучаются трассировка шинных стробов (RD#, WR#, IOR#, IOW#, DREQ, DACK), организация прерываний IRQ/ISR, прямой доступ к памяти DMA и диагностика пути данных по 4 вариантам аппаратных узлов.
-    </p>
-  </div>
+ <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
+ <div class="header-card">
+ <h1>Практическое занятие №17: Устройство управления, шины и ввод-вывод</h1>
+ <p class="desc">
+ Интерактивный рабочий лист студента по дисциплине «ОП.02 Архитектура аппаратных средств». Программа объединяет практические занятия №5 («Устройство управления и шины») и №6 («Ввод-вывод»). Изучаются трассировка шинных стробов (RD#, WR#, IOR#, IOW#, DREQ, DACK), организация прерываний IRQ/ISR, прямой доступ к памяти DMA и диагностика пути данных по 4 вариантам аппаратных узлов.
+ </p>
+ </div>
 
-  <!-- ДАННЫЕ ОБУЧАЮЩЕГОСЯ (ЧИСТЫЕ ПОЛЯ БЕЗ ВЫМЫШЛЕННЫХ ДАННЫХ) -->
-  <div class="student-card">
-    <div class="student-grid">
-      <div>
-        <label for="student-name">ФИО обучающегося:</label>
-        <input type="text" id="student-name" placeholder="Введите фамилию, имя и отчество">
-      </div>
-      <div>
-        <label for="student-group">Учебная группа:</label>
-        <input type="text" id="student-group" placeholder="Введите группу">
-      </div>
-      <div>
-        <label for="work-date">Дата выполнения:</label>
-        <input type="date" id="work-date">
-      </div>
-      <div>
-        <label for="student-variant">Вариант задания:</label>
-        <select id="student-variant">
-          <option value="">Выберите вариант (1–4)</option>
-          <option value="1">Вариант 1: Клавиатурный контроллер (PS/2 / Super I/O, PMIO, IRQ1)</option>
-          <option value="2">Вариант 2: Сетевой адаптер (Gigabit Ethernet NIC, MMIO, Bus Master DMA, MSI-X)</option>
-          <option value="3">Вариант 3: Твердотельный накопитель NVMe (PCIe Gen4 x4, MMIO, Doorbell, DMA)</option>
-          <option value="4">Вариант 4: Звуковая карта (HD Audio DSP, MMIO, Cyclic DMA, Buffer Interrupts)</option>
-        </select>
-        <div id="print-variant" class="print-select-text"></div>
-      </div>
-    </div>
-  </div>
+ <!-- ДАННЫЕ ОБУЧАЮЩЕГОСЯ (ЧИСТЫЕ ПОЛЯ БЕЗ ВЫМЫШЛЕННЫХ ДАННЫХ) -->
+ <div class="student-card">
+ <div class="student-grid">
+ <div>
+ <label for="student-name">ФИО обучающегося:</label>
+ <input type="text" id="student-name" placeholder="Введите фамилию, имя и отчество">
+ </div>
+ <div>
+ <label for="student-group">Учебная группа:</label>
+ <input type="text" id="student-group" placeholder="Введите группу">
+ </div>
+ <div>
+ <label for="work-date">Дата выполнения:</label>
+ <input type="date" id="work-date">
+ </div>
+ <div>
+ <label for="student-variant">Вариант задания:</label>
+ <select id="student-variant">
+ <option value="">Выберите вариант (1–4)</option>
+ <option value="1">Вариант 1: Клавиатурный контроллер (PS/2 / Super I/O, PMIO, IRQ1)</option>
+ <option value="2">Вариант 2: Сетевой адаптер (Gigabit Ethernet NIC, MMIO, Bus Master DMA, MSI-X)</option>
+ <option value="3">Вариант 3: Твердотельный накопитель NVMe (PCIe Gen4 x4, MMIO, Doorbell, DMA)</option>
+ <option value="4">Вариант 4: Звуковая карта (HD Audio DSP, MMIO, Cyclic DMA, Buffer Interrupts)</option>
+ </select>
+ <div id="print-variant" class="print-select-text"></div>
+ </div>
+ </div>
+ </div>
 
-  <!-- ЗАДАНИЕ 1: СРАВНИТЕЛЬНЫЙ АНАЛИЗ МЕТОДОВ ОБМЕНА ДАННЫМИ -->
-  <div class="task-card">
-    <div class="task-title">Задание 1. Сравнительный анализ методов обмена данными (I/O Methods)</div>
-    <div class="task-intro">
-      Заполните сравнительную таблицу характеристик трех фундаментальных методов организации ввода-вывода. В текстовом поле ниже объясните архитектурное различие устройства управления с жесткой логикой и микропрограммного УУ.
-    </div>
+ <!-- ЗАДАНИЕ 1: СРАВНИТЕЛЬНЫЙ АНАЛИЗ МЕТОДОВ ОБМЕНА ДАННЫМИ -->
+ <div class="task-card">
+ <div class="task-title">Задание 1. Сравнительный анализ методов обмена данными (I/O Methods)</div>
+ <div class="task-intro">
+ Заполните сравнительную таблицу характеристик трех фундаментальных методов организации ввода-вывода. В текстовом поле ниже объясните архитектурное различие устройства управления с жесткой логикой и микропрограммного УУ.
+ </div>
 
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Критерий сравнения</th>
-            <th>Программный опрос (Programmed I/O)</th>
-            <th>Прерывания (Interrupt-driven I/O)</th>
-            <th>Прямой доступ к памяти (DMA)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Участие CPU в пересылке байтов</strong></td>
-            <td><input type="text" class="table-input" id="t1_cpu_pio" placeholder="Степень участия CPU в PIO"></td>
-            <td><input type="text" class="table-input" id="t1_cpu_irq" placeholder="Степень участия CPU в прерываниях"></td>
-            <td><input type="text" class="table-input" id="t1_cpu_dma" placeholder="Степень участия CPU в DMA"></td>
-          </tr>
-          <tr>
-            <td><strong>Загрузка процессора (Overhead)</strong></td>
-            <td><input type="text" class="table-input" id="t1_load_pio" placeholder="Характер загрузки CPU"></td>
-            <td><input type="text" class="table-input" id="t1_load_irq" placeholder="Характер загрузки CPU"></td>
-            <td><input type="text" class="table-input" id="t1_load_dma" placeholder="Характер загрузки CPU"></td>
-          </tr>
-          <tr>
-            <td><strong>Задержка реакции (Latency)</strong></td>
-            <td><input type="text" class="table-input" id="t1_lat_pio" placeholder="Оценка задержки отклика"></td>
-            <td><input type="text" class="table-input" id="t1_lat_irq" placeholder="Оценка задержки отклика"></td>
-            <td><input type="text" class="table-input" id="t1_lat_dma" placeholder="Оценка задержки отклика"></td>
-          </tr>
-          <tr>
-            <td><strong>Характерные устройства применения</strong></td>
-            <td><input type="text" class="table-input" id="t1_dev_pio" placeholder="Примеры периферии"></td>
-            <td><input type="text" class="table-input" id="t1_dev_irq" placeholder="Примеры периферии"></td>
-            <td><input type="text" class="table-input" id="t1_dev_dma" placeholder="Примеры периферии"></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+ <div class="table-wrap">
+ <table>
+ <thead>
+ <tr>
+ <th>Критерий сравнения</th>
+ <th>Программный опрос (Programmed I/O)</th>
+ <th>Прерывания (Interrupt-driven I/O)</th>
+ <th>Прямой доступ к памяти (DMA)</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>Участие CPU в пересылке байтов</strong></td>
+ <td><input type="text" class="table-input" id="t1_cpu_pio" placeholder="Степень участия CPU в PIO"></td>
+ <td><input type="text" class="table-input" id="t1_cpu_irq" placeholder="Степень участия CPU в прерываниях"></td>
+ <td><input type="text" class="table-input" id="t1_cpu_dma" placeholder="Степень участия CPU в DMA"></td>
+ </tr>
+ <tr>
+ <td><strong>Загрузка процессора (Overhead)</strong></td>
+ <td><input type="text" class="table-input" id="t1_load_pio" placeholder="Характер загрузки CPU"></td>
+ <td><input type="text" class="table-input" id="t1_load_irq" placeholder="Характер загрузки CPU"></td>
+ <td><input type="text" class="table-input" id="t1_load_dma" placeholder="Характер загрузки CPU"></td>
+ </tr>
+ <tr>
+ <td><strong>Задержка реакции (Latency)</strong></td>
+ <td><input type="text" class="table-input" id="t1_lat_pio" placeholder="Оценка задержки отклика"></td>
+ <td><input type="text" class="table-input" id="t1_lat_irq" placeholder="Оценка задержки отклика"></td>
+ <td><input type="text" class="table-input" id="t1_lat_dma" placeholder="Оценка задержки отклика"></td>
+ </tr>
+ <tr>
+ <td><strong>Характерные устройства применения</strong></td>
+ <td><input type="text" class="table-input" id="t1_dev_pio" placeholder="Примеры периферии"></td>
+ <td><input type="text" class="table-input" id="t1_dev_irq" placeholder="Примеры периферии"></td>
+ <td><input type="text" class="table-input" id="t1_dev_dma" placeholder="Примеры периферии"></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
 
-    <div class="form-group">
-      <label for="q1_control_unit"><strong>Аналитическое обоснование:</strong> В чем состоит различие принципов построения устройства управления с жесткой (схемной) логикой (Hardwired Control Unit) и микропрограммного УУ (Microprogrammed Control Unit)? Каковы компромиссы по быстродействию и гибкости модификации (Microcode Update)?</label>
-      <textarea id="q1_control_unit" placeholder="Раскройте принципы синтеза схемных автоматов FSM против памяти микрокоманд ROM/CROM..."></textarea>
-    </div>
-  </div>
+ <div class="form-group">
+ <label for="q1_control_unit"><strong>Аналитическое обоснование:</strong> В чем состоит различие принципов построения устройства управления с жесткой (схемной) логикой (Hardwired Control Unit) и микропрограммного УУ (Microprogrammed Control Unit)? Каковы компромиссы по быстродействию и гибкости модификации (Microcode Update)?</label>
+ <textarea id="q1_control_unit" placeholder="Раскройте принципы синтеза схемных автоматов FSM против памяти микрокоманд ROM/CROM..."></textarea>
+ </div>
+ </div>
 
-  <!-- ЗАДАНИЕ 2: ТРАССИРОВКА ШИННЫХ СТРОБОВ И УПРАВЛЯЮЩИХ ЛИНИЙ -->
-  <div class="task-card">
-    <div class="task-title">Задание 2. Трассировка шинных стробов и фаз шинного цикла</div>
-    <div class="task-intro">
-      Определите источник/направление, активный электрический уровень и назначение основных шинных сигналов управления. Объясните назначение тактов ожидания (Wait States) и сигнала READY.
-    </div>
+ <!-- ЗАДАНИЕ 2: ТРАССИРОВКА ШИННЫХ СТРОБОВ И УПРАВЛЯЮЩИХ ЛИНИЙ -->
+ <div class="task-card">
+ <div class="task-title">Задание 2. Трассировка шинных стробов и фаз шинного цикла</div>
+ <div class="task-intro">
+ Определите источник/направление, активный электрический уровень и назначение основных шинных сигналов управления. Объясните назначение тактов ожидания (Wait States) и сигнала READY.
+ </div>
 
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Строб / Сигнал</th>
-            <th>Направление (Master / Slave)</th>
-            <th>Активный уровень</th>
-            <th>Назначение строба при обращении к ресурсу</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>MEMR# (RD#)</strong></td>
-            <td><input type="text" class="table-input" id="t2_dir_memr" placeholder="Источник -> Приемник"></td>
-            <td><input type="text" class="table-input" id="t2_lvl_memr" placeholder="Низкий (0) / Высокий (1)"></td>
-            <td><input type="text" class="table-input" id="t2_desc_memr" placeholder="Функция сигнала при чтении памяти"></td>
-          </tr>
-          <tr>
-            <td><strong>MEMW# (WR#)</strong></td>
-            <td><input type="text" class="table-input" id="t2_dir_memw" placeholder="Источник -> Приемник"></td>
-            <td><input type="text" class="table-input" id="t2_lvl_memw" placeholder="Низкий (0) / Высокий (1)"></td>
-            <td><input type="text" class="table-input" id="t2_desc_memw" placeholder="Функция сигнала при записи в память"></td>
-          </tr>
-          <tr>
-            <td><strong>IOR#</strong></td>
-            <td><input type="text" class="table-input" id="t2_dir_ior" placeholder="Источник -> Приемник"></td>
-            <td><input type="text" class="table-input" id="t2_lvl_ior" placeholder="Низкий (0) / Высокий (1)"></td>
-            <td><input type="text" class="table-input" id="t2_desc_ior" placeholder="Функция строба порта ввода (IN)"></td>
-          </tr>
-          <tr>
-            <td><strong>IOW#</strong></td>
-            <td><input type="text" class="table-input" id="t2_dir_iow" placeholder="Источник -> Приемник"></td>
-            <td><input type="text" class="table-input" id="t2_lvl_iow" placeholder="Низкий (0) / Высокий (1)"></td>
-            <td><input type="text" class="table-input" id="t2_desc_iow" placeholder="Функция строба порта вывода (OUT)"></td>
-          </tr>
-          <tr>
-            <td><strong>DREQ</strong></td>
-            <td><input type="text" class="table-input" id="t2_dir_dreq" placeholder="Источник -> Приемник"></td>
-            <td><input type="text" class="table-input" id="t2_lvl_dreq" placeholder="Низкий (0) / Высокий (1)"></td>
-            <td><input type="text" class="table-input" id="t2_desc_dreq" placeholder="Запрос прямого доступа от периферии"></td>
-          </tr>
-          <tr>
-            <td><strong>DACK#</strong></td>
-            <td><input type="text" class="table-input" id="t2_dir_dack" placeholder="Источник -> Приемник"></td>
-            <td><input type="text" class="table-input" id="t2_lvl_dack" placeholder="Низкий (0) / Высокий (1)"></td>
-            <td><input type="text" class="table-input" id="t2_desc_dack" placeholder="Подтверждение канала DMA контроллером"></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+ <div class="table-wrap">
+ <table>
+ <thead>
+ <tr>
+ <th>Строб / Сигнал</th>
+ <th>Направление (Master / Slave)</th>
+ <th>Активный уровень</th>
+ <th>Назначение строба при обращении к ресурсу</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>MEMR# (RD#)</strong></td>
+ <td><input type="text" class="table-input" id="t2_dir_memr" placeholder="Источник -> Приемник"></td>
+ <td><input type="text" class="table-input" id="t2_lvl_memr" placeholder="Низкий (0) / Высокий (1)"></td>
+ <td><input type="text" class="table-input" id="t2_desc_memr" placeholder="Функция сигнала при чтении памяти"></td>
+ </tr>
+ <tr>
+ <td><strong>MEMW# (WR#)</strong></td>
+ <td><input type="text" class="table-input" id="t2_dir_memw" placeholder="Источник -> Приемник"></td>
+ <td><input type="text" class="table-input" id="t2_lvl_memw" placeholder="Низкий (0) / Высокий (1)"></td>
+ <td><input type="text" class="table-input" id="t2_desc_memw" placeholder="Функция сигнала при записи в память"></td>
+ </tr>
+ <tr>
+ <td><strong>IOR#</strong></td>
+ <td><input type="text" class="table-input" id="t2_dir_ior" placeholder="Источник -> Приемник"></td>
+ <td><input type="text" class="table-input" id="t2_lvl_ior" placeholder="Низкий (0) / Высокий (1)"></td>
+ <td><input type="text" class="table-input" id="t2_desc_ior" placeholder="Функция строба порта ввода (IN)"></td>
+ </tr>
+ <tr>
+ <td><strong>IOW#</strong></td>
+ <td><input type="text" class="table-input" id="t2_dir_iow" placeholder="Источник -> Приемник"></td>
+ <td><input type="text" class="table-input" id="t2_lvl_iow" placeholder="Низкий (0) / Высокий (1)"></td>
+ <td><input type="text" class="table-input" id="t2_desc_iow" placeholder="Функция строба порта вывода (OUT)"></td>
+ </tr>
+ <tr>
+ <td><strong>DREQ</strong></td>
+ <td><input type="text" class="table-input" id="t2_dir_dreq" placeholder="Источник -> Приемник"></td>
+ <td><input type="text" class="table-input" id="t2_lvl_dreq" placeholder="Низкий (0) / Высокий (1)"></td>
+ <td><input type="text" class="table-input" id="t2_desc_dreq" placeholder="Запрос прямого доступа от периферии"></td>
+ </tr>
+ <tr>
+ <td><strong>DACK#</strong></td>
+ <td><input type="text" class="table-input" id="t2_dir_dack" placeholder="Источник -> Приемник"></td>
+ <td><input type="text" class="table-input" id="t2_lvl_dack" placeholder="Низкий (0) / Высокий (1)"></td>
+ <td><input type="text" class="table-input" id="t2_desc_dack" placeholder="Подтверждение канала DMA контроллером"></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
 
-    <div class="form-group">
-      <label for="q2_wait_states"><strong>Анализ тактов ожидания:</strong> Почему процессор не может обращаться ко всей периферии на своей предельной тактовой частоте? Как устройство управления процессора использует линию READY (или DTACK#) для вставки тактов ожидания (Wait States, Tw)?</label>
-      <textarea id="q2_wait_states" placeholder="Объясните рассогласование быстродействия и диаграмму тактов T1, T2, Tw, T3..."></textarea>
-    </div>
-  </div>
+ <div class="form-group">
+ <label for="q2_wait_states"><strong>Анализ тактов ожидания:</strong> Почему процессор не может обращаться ко всей периферии на своей предельной тактовой частоте? Как устройство управления процессора использует линию READY (или DTACK#) для вставки тактов ожидания (Wait States, Tw)?</label>
+ <textarea id="q2_wait_states" placeholder="Объясните рассогласование быстродействия и диаграмму тактов T1, T2, Tw, T3..."></textarea>
+ </div>
+ </div>
 
-  <!-- ЗАДАНИЕ 3: АРХИТЕКТУРА И КОНВЕЙЕР ПРЕРЫВАНИЙ -->
-  <div class="task-card">
-    <div class="task-title">Задание 3. Архитектура прерываний: конвейер обработки и векторы</div>
-    <div class="task-intro">
-      Опишите пошаговую последовательность действий аппаратных узлов и процессора от момента генерации запроса периферийным контроллером до возврата в прерванную программу.
-    </div>
+ <!-- ЗАДАНИЕ 3: АРХИТЕКТУРА И КОНВЕЙЕР ПРЕРЫВАНИЙ -->
+ <div class="task-card">
+ <div class="task-title">Задание 3. Архитектура прерываний: конвейер обработки и векторы</div>
+ <div class="task-intro">
+ Опишите пошаговую последовательность действий аппаратных узлов и процессора от момента генерации запроса периферийным контроллером до возврата в прерванную программу.
+ </div>
 
-    <div class="form-group">
-      <label for="q3_pipeline"><strong>Пошаговая трассировка конвейера прерывания:</strong> Укажите 7–8 ключевых фаз (запрос IRQ / MSI → арбитраж PIC/APIC → проверка флага IF в конце команды → подтверждение INTA# → выставление вектора → автосохранение EFLAGS/CS/EIP в стек → переход к ISR по таблице IDT → завершение по EOI и команде IRET).</label>
-      <textarea id="q3_pipeline" style="min-height: 120px;" placeholder="Шаг 1: Контроллер выставляет IRQ...&#10;Шаг 2: Процессор в фазе завершения команды проверяет IF...&#10;Шаг 3: Аппаратный цикл подтверждения INTA#...&#10;Шаг 4: Выборка вектора прерывания и сохранение контекста в стек...&#10;Шаг 5: Выполнение обработчика ISR и возврат через IRET..."></textarea>
-    </div>
+ <div class="form-group">
+ <label for="q3_pipeline"><strong>Пошаговая трассировка конвейера прерывания:</strong> Укажите 7–8 ключевых фаз (запрос IRQ / MSI → арбитраж PIC/APIC → проверка флага IF в конце команды → подтверждение INTA# → выставление вектора → автосохранение EFLAGS/CS/EIP в стек → переход к ISR по таблице IDT → завершение по EOI и команде IRET).</label>
+ <textarea id="q3_pipeline" style="min-height: 120px;" placeholder="Шаг 1: Контроллер выставляет IRQ...&#10;Шаг 2: Процессор в фазе завершения команды проверяет IF...&#10;Шаг 3: Аппаратный цикл подтверждения INTA#...&#10;Шаг 4: Выборка вектора прерывания и сохранение контекста в стек...&#10;Шаг 5: Выполнение обработчика ISR и возврат через IRET..."></textarea>
+ </div>
 
-    <div class="form-group">
-      <label for="q3_isolated_vs_mmio"><strong>Изолированные порты (PMIO) против отображения на память (MMIO):</strong> В чем физическое и логическое различие между командами IN/OUT и инструкциями MOV при обращении к регистрам контроллеров? Почему современные высокоскоростные шины (PCIe) отказываются от пространства ввода-вывода в пользу MMIO?</label>
-      <textarea id="q3_isolated_vs_mmio" placeholder="Опишите раздельные адресные пространства, декодеры шины, стробы IOR#/MEMR# и 64-битную адресацию MMIO..."></textarea>
-    </div>
-  </div>
+ <div class="form-group">
+ <label for="q3_isolated_vs_mmio"><strong>Изолированные порты (PMIO) против отображения на память (MMIO):</strong> В чем физическое и логическое различие между командами IN/OUT и инструкциями MOV при обращении к регистрам контроллеров? Почему современные высокоскоростные шины (PCIe) отказываются от пространства ввода-вывода в пользу MMIO?</label>
+ <textarea id="q3_isolated_vs_mmio" placeholder="Опишите раздельные адресные пространства, декодеры шины, стробы IOR#/MEMR# и 64-битную адресацию MMIO..."></textarea>
+ </div>
+ </div>
 
-  <!-- ЗАДАНИЕ 4: ЕДИНЫЙ ПРОТОКОЛ ДИАГНОСТИКИ ПУТИ ДАННЫХ -->
-  <div class="task-card">
-    <div class="task-title">Задание 4. Единый протокол диагностики пути данных (по 4 вариантам)</div>
-    <div class="task-intro">
-      Заполните диагностический протокол для аппаратного узла в соответствии с выбранным вариантом. Проанализируйте способ адресации, механизм прерываний, режим прямого доступа к памяти и локализуйте смоделированную аппаратно-программную неисправность.
-    </div>
+ <!-- ЗАДАНИЕ 4: ЕДИНЫЙ ПРОТОКОЛ ДИАГНОСТИКИ ПУТИ ДАННЫХ -->
+ <div class="task-card">
+ <div class="task-title">Задание 4. Единый протокол диагностики пути данных (по 4 вариантам)</div>
+ <div class="task-intro">
+ Заполните диагностический протокол для аппаратного узла в соответствии с выбранным вариантом. Проанализируйте способ адресации, механизм прерываний, режим прямого доступа к памяти и локализуйте смоделированную аппаратно-программную неисправность.
+ </div>
 
-    <!-- ВАРИАНТ 1 -->
-    <div class="variant-card" id="desc-v1">
-      <div class="variant-title">Вариант 1: Клавиатурный контроллер (PS/2 / Super I/O)</div>
-      <p style="font-size: 13.5px; color: #334155;">
-        Низкоскоростной символьный контроллер. Регистры данных <code>0x60</code>, статуса/команд <code>0x64</code>. Прерывание <code>IRQ1</code> (Edge-triggered), изолированное пространство ввода-вывода PMIO. Передача скан-кодов без DMA.<br>
-        <strong>Смоделированная неисправность:</strong> При нажатии клавиш контроллер генерирует бесконечный шторм прерываний, система зависает; в регистре статуса бит <code>OBF (Output Buffer Full)</code> остается в 1 даже после выполнения инструкции <code>IN AL, 60h</code>.
-      </p>
-    </div>
+ <!-- ВАРИАНТ 1 -->
+ <div class="variant-card" id="desc-v1">
+ <div class="variant-title">Вариант 1: Клавиатурный контроллер (PS/2 / Super I/O)</div>
+ <p style="font-size: 13.5px; color: #334155;">
+ Низкоскоростной символьный контроллер. Регистры данных <code>0x60</code>, статуса/команд <code>0x64</code>. Прерывание <code>IRQ1</code> (Edge-triggered), изолированное пространство ввода-вывода PMIO. Передача скан-кодов без DMA.<br>
+ <strong>Смоделированная неисправность:</strong> При нажатии клавиш контроллер генерирует бесконечный шторм прерываний, система зависает; в регистре статуса бит <code>OBF (Output Buffer Full)</code> остается в 1 даже после выполнения инструкции <code>IN AL, 60h</code>.
+ </p>
+ </div>
 
-    <!-- ВАРИАНТ 2 -->
-    <div class="variant-card" id="desc-v2">
-      <div class="variant-title">Вариант 2: Сетевой адаптер (Gigabit Ethernet NIC, PCIe)</div>
-      <p style="font-size: 13.5px; color: #334155;">
-        Высокоскоростной пакетный интерфейс. Регистры MMIO (BAR0). Механизм прерываний MSI-X (до десятков независимых векторов под RSS-очереди) + Bus Master DMA с дескрипторными кольцами (RX/TX Rings).<br>
-        <strong>Смоделированная неисправность:</strong> Счетчик принятых пакетов в чипе адаптера инкрементируется, прерывание MSI-X поступает, но сетевой стек ОС не получает данных (пакеты содержат нули). В системном журнале зафиксирована ошибка <code>IOMMU DMA Page Fault</code>.
-      </p>
-    </div>
+ <!-- ВАРИАНТ 2 -->
+ <div class="variant-card" id="desc-v2">
+ <div class="variant-title">Вариант 2: Сетевой адаптер (Gigabit Ethernet NIC, PCIe)</div>
+ <p style="font-size: 13.5px; color: #334155;">
+ Высокоскоростной пакетный интерфейс. Регистры MMIO (BAR0). Механизм прерываний MSI-X (до десятков независимых векторов под RSS-очереди) + Bus Master DMA с дескрипторными кольцами (RX/TX Rings).<br>
+ <strong>Смоделированная неисправность:</strong> Счетчик принятых пакетов в чипе адаптера инкрементируется, прерывание MSI-X поступает, но сетевой стек ОС не получает данных (пакеты содержат нули). В системном журнале зафиксирована ошибка <code>IOMMU DMA Page Fault</code>.
+ </p>
+ </div>
 
-    <!-- ВАРИАНТ 3 -->
-    <div class="variant-card" id="desc-v3">
-      <div class="variant-title">Вариант 3: Твердотельный накопитель NVMe (PCIe Gen4 x4 M.2)</div>
-      <p style="font-size: 13.5px; color: #334155;">
-        Высокопроизводительный блочный накопитель. Полностью MMIO адресация, регистры дверных звонков (Doorbell). Высокопараллельный Bus Master DMA со списками страниц PRP/SGL и прерываниями MSI-X.<br>
-        <strong>Смоделированная неисправность:</strong> При интенсивной записи больших файлов происходит аварийный сброс накопителя на шине PCIe (ошибка <code>AER: Completion Timeout</code>), диск «исчезает» из системы до полного цикла питания.
-      </p>
-    </div>
+ <!-- ВАРИАНТ 3 -->
+ <div class="variant-card" id="desc-v3">
+ <div class="variant-title">Вариант 3: Твердотельный накопитель NVMe (PCIe Gen4 x4 M.2)</div>
+ <p style="font-size: 13.5px; color: #334155;">
+ Высокопроизводительный блочный накопитель. Полностью MMIO адресация, регистры дверных звонков (Doorbell). Высокопараллельный Bus Master DMA со списками страниц PRP/SGL и прерываниями MSI-X.<br>
+ <strong>Смоделированная неисправность:</strong> При интенсивной записи больших файлов происходит аварийный сброс накопителя на шине PCIe (ошибка <code>AER: Completion Timeout</code>), диск «исчезает» из системы до полного цикла питания.
+ </p>
+ </div>
 
-    <!-- ВАРИАНТ 4 -->
-    <div class="variant-card" id="desc-v4">
-      <div class="variant-title">Вариант 4: Профессиональная звуковая карта (Audio DSP, PCIe / HD Audio)</div>
-      <p style="font-size: 13.5px; color: #334155;">
-        Изохронный потоковый аудиоконтроллер. Адресация MMIO BAR0. Циклический циклический DMA (Cyclic Buffer DMA / Buffer Descriptor List) с прерываниями по заполнению половины/полного буфера аудио (Half/Full Buffer Interrupts).<br>
-        <strong>Смоделированная неисправность:</strong> При воспроизведении аудиопотока в реальном времени наблюдается сильный треск и щелчки (<code>Buffer Underrun / XRun</code>), хотя общая загрузка ЦП не превышает 15%.
-      </p>
-    </div>
+ <!-- ВАРИАНТ 4 -->
+ <div class="variant-card" id="desc-v4">
+ <div class="variant-title">Вариант 4: Профессиональная звуковая карта (Audio DSP, PCIe / HD Audio)</div>
+ <p style="font-size: 13.5px; color: #334155;">
+ Изохронный потоковый аудиоконтроллер. Адресация MMIO BAR0. Циклический циклический DMA (Cyclic Buffer DMA / Buffer Descriptor List) с прерываниями по заполнению половины/полного буфера аудио (Half/Full Buffer Interrupts).<br>
+ <strong>Смоделированная неисправность:</strong> При воспроизведении аудиопотока в реальном времени наблюдается сильный треск и щелчки (<code>Buffer Underrun / XRun</code>), хотя общая загрузка ЦП не превышает 15%.
+ </p>
+ </div>
 
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Параметр протокола диагностики</th>
-            <th>Значение и техническая спецификация для выбранного устройства</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>1. Тип адресного пространства</strong></td>
-            <td><input type="text" class="table-input" id="diag_space" placeholder="PMIO (порты IN/OUT) или MMIO 64-bit (BAR)? Диапазоны адресов"></td>
-          </tr>
-          <tr>
-            <td><strong>2. Стробы шины и физические линии</strong></td>
-            <td><input type="text" class="table-input" id="diag_strobes" placeholder="Управляющие стробы (RD#/WR#/IOR#/IOW#) или пакетные транзакции PCIe"></td>
-          </tr>
-          <tr>
-            <td><strong>3. Подсистема прерываний</strong></td>
-            <td><input type="text" class="table-input" id="diag_irq" placeholder="Тип (Edge/Level IRQ, MSI, MSI-X), вектор, обработчик ISR"></td>
-          </tr>
-          <tr>
-            <td><strong>4. Механизм передачи данных (DMA)</strong></td>
-            <td><input type="text" class="table-input" id="diag_dma" placeholder="PIO, контроллер 8237A или Bus Master DMA с дескрипторными кольцами?"></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+ <div class="table-wrap">
+ <table>
+ <thead>
+ <tr>
+ <th>Параметр протокола диагностики</th>
+ <th>Значение и техническая спецификация для выбранного устройства</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>1. Тип адресного пространства</strong></td>
+ <td><input type="text" class="table-input" id="diag_space" placeholder="PMIO (порты IN/OUT) или MMIO 64-bit (BAR)? Диапазоны адресов"></td>
+ </tr>
+ <tr>
+ <td><strong>2. Стробы шины и физические линии</strong></td>
+ <td><input type="text" class="table-input" id="diag_strobes" placeholder="Управляющие стробы (RD#/WR#/IOR#/IOW#) или пакетные транзакции PCIe"></td>
+ </tr>
+ <tr>
+ <td><strong>3. Подсистема прерываний</strong></td>
+ <td><input type="text" class="table-input" id="diag_irq" placeholder="Тип (Edge/Level IRQ, MSI, MSI-X), вектор, обработчик ISR"></td>
+ </tr>
+ <tr>
+ <td><strong>4. Механизм передачи данных (DMA)</strong></td>
+ <td><input type="text" class="table-input" id="diag_dma" placeholder="PIO, контроллер 8237A или Bus Master DMA с дескрипторными кольцами?"></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
 
-    <div class="form-group">
-      <label for="diag_cause"><strong>Локализация неисправности пути данных:</strong> На каком физическом или логическом участке пути данных возник сбой? Проанализируйте поведение управляющих стробов шины, трансляции адресов или арбитража.</label>
-      <textarea id="diag_cause" placeholder="Укажите конкретную причину: неисправность строба, сбой трансляции адресов IOMMU, потеря пакетов TLP из-за перегрева или арбитражный джиттер..."></textarea>
-    </div>
+ <div class="form-group">
+ <label for="diag_cause"><strong>Локализация неисправности пути данных:</strong> На каком физическом или логическом участке пути данных возник сбой? Проанализируйте поведение управляющих стробов шины, трансляции адресов или арбитража.</label>
+ <textarea id="diag_cause" placeholder="Укажите конкретную причину: неисправность строба, сбой трансляции адресов IOMMU, потеря пакетов TLP из-за перегрева или арбитражный джиттер..."></textarea>
+ </div>
 
-    <div class="form-group">
-      <label for="diag_solution"><strong>Инженерное решение и метод верификации:</strong> Опишите последовательность действий инженера по устранению проблемы и контрольной проверке схемы обмена.</label>
-      <textarea id="diag_solution" placeholder="Укажите конкретные аппаратные и программные шаги восстановления нормальной работы пути данных..."></textarea>
-    </div>
-  </div>
+ <div class="form-group">
+ <label for="diag_solution"><strong>Инженерное решение и метод верификации:</strong> Опишите последовательность действий инженера по устранению проблемы и контрольной проверке схемы обмена.</label>
+ <textarea id="diag_solution" placeholder="Укажите конкретные аппаратные и программные шаги восстановления нормальной работы пути данных..."></textarea>
+ </div>
+ </div>
 
-  <!-- КНОПКИ ДЕЙСТВИЯ И СТАТУС -->
-  <div class="actions-card">
-    <div class="btn-row">
-      <button class="btn-primary" onclick="window.print()">Печать протокола / Экспорт в PDF</button>
-      <button class="btn-secondary" onclick="saveData(true)">Сохранить вручную</button>
-      <button class="btn-danger" onclick="confirmReset()">Очистить форму</button>
-      <span class="status-msg" id="status-msg"></span>
-    </div>
-  </div>
+ <!-- КНОПКИ ДЕЙСТВИЯ И СТАТУС -->
+ <div class="actions-card">
+ <div class="btn-row">
+ <button class="btn-primary" onclick="window.print()">Печать протокола / Экспорт в PDF</button>
+ <button class="btn-secondary" onclick="saveData(true)">Сохранить вручную</button>
+ <button class="btn-danger" onclick="confirmReset()">Очистить форму</button>
+ <span class="status-msg" id="status-msg"></span>
+ </div>
+ </div>
 
 </div>
 
 <script>
-  const STORAGE_KEY = "arch_hw17_data";
-  const fields = [
-    "student-name", "student-group", "work-date", "student-variant",
-    "t1_cpu_pio", "t1_cpu_irq", "t1_cpu_dma",
-    "t1_load_pio", "t1_load_irq", "t1_load_dma",
-    "t1_lat_pio", "t1_lat_irq", "t1_lat_dma",
-    "t1_dev_pio", "t1_dev_irq", "t1_dev_dma",
-    "q1_control_unit",
-    "t2_dir_memr", "t2_lvl_memr", "t2_desc_memr",
-    "t2_dir_memw", "t2_lvl_memw", "t2_desc_memw",
-    "t2_dir_ior", "t2_lvl_ior", "t2_desc_ior",
-    "t2_dir_iow", "t2_lvl_iow", "t2_desc_iow",
-    "t2_dir_dreq", "t2_lvl_dreq", "t2_desc_dreq",
-    "t2_dir_dack", "t2_lvl_dack", "t2_desc_dack",
-    "q2_wait_states",
-    "q3_pipeline", "q3_isolated_vs_mmio",
-    "diag_space", "diag_strobes", "diag_irq", "diag_dma",
-    "diag_cause", "diag_solution"
-  ];
+ const STORAGE_KEY = "arch_hw17_data";
+ const fields = [
+ "student-name", "student-group", "work-date", "student-variant",
+ "t1_cpu_pio", "t1_cpu_irq", "t1_cpu_dma",
+ "t1_load_pio", "t1_load_irq", "t1_load_dma",
+ "t1_lat_pio", "t1_lat_irq", "t1_lat_dma",
+ "t1_dev_pio", "t1_dev_irq", "t1_dev_dma",
+ "q1_control_unit",
+ "t2_dir_memr", "t2_lvl_memr", "t2_desc_memr",
+ "t2_dir_memw", "t2_lvl_memw", "t2_desc_memw",
+ "t2_dir_ior", "t2_lvl_ior", "t2_desc_ior",
+ "t2_dir_iow", "t2_lvl_iow", "t2_desc_iow",
+ "t2_dir_dreq", "t2_lvl_dreq", "t2_desc_dreq",
+ "t2_dir_dack", "t2_lvl_dack", "t2_desc_dack",
+ "q2_wait_states",
+ "q3_pipeline", "q3_isolated_vs_mmio",
+ "diag_space", "diag_strobes", "diag_irq", "diag_dma",
+ "diag_cause", "diag_solution"
+ ];
 
-  function syncPrintSelect() {
-    const sel = document.getElementById("student-variant");
-    const printEl = document.getElementById("print-variant");
-    if (sel && printEl) {
-      const txt = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : "";
-      printEl.textContent = sel.value ? txt : "Вариант не выбран";
-    }
-  }
+ function syncPrintSelect() {
+ const sel = document.getElementById("student-variant");
+ const printEl = document.getElementById("print-variant");
+ if (sel && printEl) {
+ const txt = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : "";
+ printEl.textContent = sel.value ? txt : "Вариант не выбран";
+ }
+ }
 
-  function saveData(manual = false) {
-    const data = {};
-    fields.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) data[id] = el.value;
-    });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    syncPrintSelect();
-    const msg = document.getElementById("status-msg");
-    if (msg) {
-      msg.textContent = manual ? "Сохранено!" : "Автосохранено";
-      msg.className = "status-msg status-saved";
-      setTimeout(() => { msg.textContent = ""; }, 2500);
-    }
-  }
+ function saveData(manual = false) {
+ const data = {};
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) data[id] = el.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ syncPrintSelect();
+ const msg = document.getElementById("status-msg");
+ if (msg) {
+ msg.textContent = manual ? "Сохранено!" : "Автосохранено";
+ msg.className = "status-msg status-saved";
+ setTimeout(() => { msg.textContent = ""; }, 2500);
+ }
+ }
 
-  function loadData() {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      syncPrintSelect();
-      return;
-    }
-    try {
-      const data = JSON.parse(raw);
-      fields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el && data[id] !== undefined) {
-          el.value = data[id];
-        }
-      });
-    } catch (e) {
-      console.error("Ошибка загрузки сохраненных данных", e);
-    }
-    syncPrintSelect();
-  }
+ function loadData() {
+ const raw = localStorage.getItem(STORAGE_KEY);
+ if (!raw) {
+ syncPrintSelect();
+ return;
+ }
+ try {
+ const data = JSON.parse(raw);
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el && data[id] !== undefined) {
+ el.value = data[id];
+ }
+ });
+ } catch (e) {
+ console.error("Ошибка загрузки сохраненных данных", e);
+ }
+ syncPrintSelect();
+ }
 
-  function confirmReset() {
-    if (confirm("Вы действительно хотите полностью очистить все поля формы?")) {
-      localStorage.removeItem(STORAGE_KEY);
-      fields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = "";
-      });
-      syncPrintSelect();
-      const msg = document.getElementById("status-msg");
-      if (msg) {
-        msg.textContent = "Форма очищена";
-        msg.className = "status-msg";
-        setTimeout(() => { msg.textContent = ""; }, 2500);
-      }
-    }
-  }
+ function confirmReset() {
+ if (confirm("Вы действительно хотите полностью очистить все поля формы?")) {
+ localStorage.removeItem(STORAGE_KEY);
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) el.value = "";
+ });
+ syncPrintSelect();
+ const msg = document.getElementById("status-msg");
+ if (msg) {
+ msg.textContent = "Форма очищена";
+ msg.className = "status-msg";
+ setTimeout(() => { msg.textContent = ""; }, 2500);
+ }
+ }
+ }
 
-  window.addEventListener("DOMContentLoaded", () => {
-    loadData();
-    fields.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener("input", () => saveData(false));
-        el.addEventListener("change", () => saveData(false));
-      }
-    });
-    const sel = document.getElementById("student-variant");
-    if (sel) {
-      sel.addEventListener("change", syncPrintSelect);
-    }
-  });
+ window.addEventListener("DOMContentLoaded", () => {
+ loadData();
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) {
+ el.addEventListener("input", () => saveData(false));
+ el.addEventListener("change", () => saveData(false));
+ }
+ });
+ const sel = document.getElementById("student-variant");
+ if (sel) {
+ sel.addEventListener("change", syncPrintSelect);
+ }
+ });
 
-  window.addEventListener("beforeprint", syncPrintSelect);
+ window.addEventListener("beforeprint", syncPrintSelect);
 </script>
 </body>
 </html>

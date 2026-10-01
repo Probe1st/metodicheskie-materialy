@@ -1,712 +1,654 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Рабочий лист: Организация интерфейса с пользователем — контроль</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --text-muted: #475569;
-      --border: #cbd5e1;
-      --accent: #0284c7;
-      --accent-hover: #0369a1;
-      --accent-soft: #f0f9ff;
-      --danger: #ef4444;
-      --danger-soft: #fee2e2;
-      --success: #10b981;
-      --success-soft: #dcfce7;
-      --warn: #f59e0b;
-      --warn-soft: #fef3c7;
-    }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Рабочий лист: Организация интерфейса с пользователем — контроль</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card-bg: #ffffff;
+ --text: #0f172a;
+ --text-muted: #475569;
+ --border: #cbd5e1;
+ --accent: #0284c7;
+ --accent-hover: #0369a1;
+ --accent-soft: #f0f9ff;
+ --danger: #ef4444;
+ --danger-soft: #fee2e2;
+ --success: #10b981;
+ --success-soft: #dcfce7;
+ --warn: #f59e0b;
+ --warn-soft: #fef3c7;
+ }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ }
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      padding: 24px 16px;
-    }
+ body {
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+ background-color: var(--bg);
+ color: var(--text);
+ line-height: 1.6;
+ padding: 24px 16px;
+ }.container {
+ max-width: 1040px;
+ margin: 0 auto;
+ }
 
-    .container {
-      max-width: 1040px;
-      margin: 0 auto;
-    }
+ header.task-header {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    header.task-header {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ h1 {
+ font-size: 1.55rem;
+ font-weight: 800;
+ color: var(--accent-hover);
+ margin-bottom: 8px;
+ line-height: 1.3;
+ }.meta-subtitle {
+ font-size: 0.95rem;
+ color: var(--text-muted);
+ margin-bottom: 18px;
+ }.student-info {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 16px;
+ padding-top: 16px;
+ border-top: 1px dashed var(--border);
+ }.info-group label {
+ display: block;
+ font-size: 0.85rem;
+ font-weight: 700;
+ color: var(--text-muted);
+ margin-bottom: 6px;
+ text-transform: uppercase;
+ }.info-group input {
+ width: 100%;
+ padding: 10px 12px;
+ border: 1px solid var(--border);
+ border-radius: 6px;
+ font-size: 0.95rem;
+ outline: none;
+ background: #ffffff;
+ color: var(--text);
+ }.info-group input:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 2px var(--accent-soft);
+ }
 
-    h1 {
-      font-size: 1.55rem;
-      font-weight: 800;
-      color: var(--accent-hover);
-      margin-bottom: 8px;
-      line-height: 1.3;
-    }
+ /* Variant Selector */.variant-selector-box {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 16px 20px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }.variant-tabs {
+ display: flex;
+ gap: 8px;
+ flex-wrap: wrap;
+ }.v-tab-btn {
+ padding: 8px 16px;
+ border: 1px solid var(--border);
+ background: var(--bg);
+ border-radius: 6px;
+ font-size: 0.9rem;
+ font-weight: 600;
+ cursor: pointer;
+ color: var(--text);
+ transition: all 0.2s;
+ }.v-tab-btn:hover {
+ background: var(--accent-soft);
+ border-color: var(--accent);
+ }.v-tab-btn.active {
+ background: var(--accent);
+ color: #ffffff;
+ border-color: var(--accent-hover);
+ }.variant-container {
+ display: none;
+ }.variant-container.active {
+ display: block;
+ }
 
-    .meta-subtitle {
-      font-size: 0.95rem;
-      color: var(--text-muted);
-      margin-bottom: 18px;
-    }
+ section.task-card {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    .student-info {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      padding-top: 16px;
-      border-top: 1px dashed var(--border);
-    }
+ h2 {
+ font-size: 1.35rem;
+ font-weight: 700;
+ color: var(--accent-hover);
+ margin-bottom: 14px;
+ border-bottom: 2px solid var(--accent-soft);
+ padding-bottom: 8px;
+ }
 
-    .info-group label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-      text-transform: uppercase;
-    }
+ h3 {
+ font-size: 1.1rem;
+ font-weight: 700;
+ color: var(--text);
+ margin: 18px 0 10px;
+ }
 
-    .info-group input {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.95rem;
-      outline: none;
-      background: #ffffff;
-      color: var(--text);
-    }
+ p {
+ margin-bottom: 12px;
+ font-size: 0.96rem;
+ }
 
-    .info-group input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-soft);
-    }
+ ul, ol {
+ margin-left: 20px;
+ margin-bottom: 14px;
+ font-size: 0.95rem;
+ }
 
-    /* Variant Selector */
-    .variant-selector-box {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px 20px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ li {
+ margin-bottom: 6px;
+ }
 
-    .variant-tabs {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
+ pre, code {
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 13.5px;
+ }
 
-    .v-tab-btn {
-      padding: 8px 16px;
-      border: 1px solid var(--border);
-      background: var(--bg);
-      border-radius: 6px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      color: var(--text);
-      transition: all 0.2s;
-    }
+ code {
+ background: #f1f5f9;
+ color: #0369a1;
+ padding: 2px 6px;
+ border-radius: 4px;
+ }
 
-    .v-tab-btn:hover {
-      background: var(--accent-soft);
-      border-color: var(--accent);
-    }
+ pre {
+ background: #0f172a;
+ color: #f8fafc;
+ padding: 14px;
+ border-radius: 8px;
+ overflow-x: auto;
+ margin: 12px 0;
+ line-height: 1.45;
+ }.spec-box {
+ background: #f8fafc;
+ border: 1px solid #e2e8f0;
+ border-left: 4px solid var(--accent);
+ padding: 14px 18px;
+ border-radius: 0 8px 8px 0;
+ margin: 14px 0;
+ }.question-block {
+ margin-top: 18px;
+ padding-top: 14px;
+ border-top: 1px dashed var(--border);
+ }.question-label {
+ font-weight: 700;
+ font-size: 0.95rem;
+ color: var(--text);
+ margin-bottom: 8px;
+ display: block;
+ }
 
-    .v-tab-btn.active {
-      background: var(--accent);
-      color: #ffffff;
-      border-color: var(--accent-hover);
-    }
+ textarea.answer-area {
+ width: 100%;
+ min-height: 120px;
+ padding: 12px;
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ font-family: ui-monospace, Consolas, monospace;
+ font-size: 0.92rem;
+ line-height: 1.5;
+ color: var(--text);
+ background: #ffffff;
+ outline: none;
+ resize: vertical;
+ }
 
-    .variant-container {
-      display: none;
-    }
+ textarea.answer-area:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 2px var(--accent-soft);
+ }
 
-    .variant-container.active {
-      display: block;
-    }
+ /* Action Panel */.action-panel {
+ display: flex;
+ gap: 12px;
+ margin-bottom: 40px;
+ flex-wrap: wrap;
+ align-items: center;
+ }.btn {
+ padding: 10px 20px;
+ border-radius: 8px;
+ font-size: 0.95rem;
+ font-weight: 600;
+ cursor: pointer;
+ border: 1px solid transparent;
+ display: inline-flex;
+ align-items: center;
+ gap: 6px;
+ transition: all 0.2s;
+ }.btn-primary {
+ background: var(--accent);
+ color: #ffffff;
+ }.btn-primary:hover {
+ background: var(--accent-hover);
+ }.btn-secondary {
+ background: #ffffff;
+ border-color: var(--border);
+ color: var(--text);
+ }.btn-secondary:hover {
+ background: #f1f5f9;
+ }.save-alert {
+ color: var(--success);
+ font-weight: 700;
+ font-size: 0.95rem;
+ display: none;
+ }
 
-    section.task-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ /* Адаптивность для экранов от 375 px без горизонтального скролла */
+ @media (max-width: 640px) {
+ body {
+ padding: 12px 8px;
+ }.container {
+ width: 100%;
+ }
+ header.task-header, section.task-card,.variant-selector-box {
+ padding: 16px 12px;
+ }.student-info {
+ grid-template-columns: 1fr;
+ gap: 12px;
+ }.variant-tabs {
+ flex-direction: column;
+ }.v-tab-btn {
+ width: 100%;
+ text-align: center;
+ }
+ h1 {
+ font-size: 1.35rem;
+ }.action-panel {
+ flex-direction: column;
+ align-items: stretch;
+ }.btn {
+ width: 100%;
+ justify-content: center;
+ }
+ }
 
-    h2 {
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: var(--accent-hover);
-      margin-bottom: 14px;
-      border-bottom: 2px solid var(--accent-soft);
-      padding-bottom: 8px;
-    }
-
-    h3 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--text);
-      margin: 18px 0 10px;
-    }
-
-    p {
-      margin-bottom: 12px;
-      font-size: 0.96rem;
-    }
-
-    ul, ol {
-      margin-left: 20px;
-      margin-bottom: 14px;
-      font-size: 0.95rem;
-    }
-
-    li {
-      margin-bottom: 6px;
-    }
-
-    pre, code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 13.5px;
-    }
-
-    code {
-      background: #f1f5f9;
-      color: #0369a1;
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-
-    pre {
-      background: #0f172a;
-      color: #f8fafc;
-      padding: 14px;
-      border-radius: 8px;
-      overflow-x: auto;
-      margin: 12px 0;
-      line-height: 1.45;
-    }
-
-    .spec-box {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-left: 4px solid var(--accent);
-      padding: 14px 18px;
-      border-radius: 0 8px 8px 0;
-      margin: 14px 0;
-    }
-
-    .question-block {
-      margin-top: 18px;
-      padding-top: 14px;
-      border-top: 1px dashed var(--border);
-    }
-
-    .question-label {
-      font-weight: 700;
-      font-size: 0.95rem;
-      color: var(--text);
-      margin-bottom: 8px;
-      display: block;
-    }
-
-    textarea.answer-area {
-      width: 100%;
-      min-height: 120px;
-      padding: 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-family: ui-monospace, Consolas, monospace;
-      font-size: 0.92rem;
-      line-height: 1.5;
-      color: var(--text);
-      background: #ffffff;
-      outline: none;
-      resize: vertical;
-    }
-
-    textarea.answer-area:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-soft);
-    }
-
-    /* Action Panel */
-    .action-panel {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 40px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .btn {
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: 1px solid transparent;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
-    }
-
-    .btn-primary {
-      background: var(--accent);
-      color: #ffffff;
-    }
-
-    .btn-primary:hover {
-      background: var(--accent-hover);
-    }
-
-    .btn-secondary {
-      background: #ffffff;
-      border-color: var(--border);
-      color: var(--text);
-    }
-
-    .btn-secondary:hover {
-      background: #f1f5f9;
-    }
-
-    .save-alert {
-      color: var(--success);
-      font-weight: 700;
-      font-size: 0.95rem;
-      display: none;
-    }
-
-    /* Адаптивность для экранов от 375 px без горизонтального скролла */
-    @media (max-width: 640px) {
-      body {
-        padding: 12px 8px;
-      }
-      .container {
-        width: 100%;
-      }
-      header.task-header, section.task-card, .variant-selector-box {
-        padding: 16px 12px;
-      }
-      .student-info {
-        grid-template-columns: 1fr;
-        gap: 12px;
-      }
-      .variant-tabs {
-        flex-direction: column;
-      }
-      .v-tab-btn {
-        width: 100%;
-        text-align: center;
-      }
-      h1 {
-        font-size: 1.35rem;
-      }
-      .action-panel {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .btn {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-
-    /* Стили для печати (@media print) */
-    @media print {
-      body {
-        background: #ffffff;
-        color: #000000;
-        padding: 0;
-      }
-      .container {
-        max-width: 100%;
-        margin: 0;
-      }
-      .variant-selector-box, .action-panel, .v-tab-btn {
-        display: none !important;
-      }
-      header.task-header, section.task-card {
-        border: 1px solid #000000;
-        box-shadow: none;
-        page-break-inside: avoid;
-        margin-bottom: 14px;
-        padding: 14px;
-      }
-      .variant-container {
-        display: none !important;
-      }
-      .variant-container.active {
-        display: block !important;
-      }
-      textarea.answer-area {
-        border: 1px solid #000000;
-        background: transparent;
-        color: #000000;
-        min-height: 90px;
-        resize: none;
-        overflow: visible;
-      }
-      input {
-        border: 1px solid #000000 !important;
-        background: transparent !important;
-        color: #000000 !important;
-      }
-      input::placeholder, textarea::placeholder {
-        color: transparent !important;
-      }
-    }
-  </style>
+ /* Стили для печати (@media print) */
+ @media print {
+ body {
+ background: #ffffff;
+ color: #000000;
+ padding: 0;
+ }.container {
+ max-width: 100%;
+ margin: 0;
+ }.variant-selector-box,.action-panel,.v-tab-btn {
+ display: none !important;
+ }
+ header.task-header, section.task-card {
+ border: 1px solid #000000;
+ box-shadow: none;
+ page-break-inside: avoid;
+ margin-bottom: 14px;
+ padding: 14px;
+ }.variant-container {
+ display: none !important;
+ }.variant-container.active {
+ display: block !important;
+ }
+ textarea.answer-area {
+ border: 1px solid #000000;
+ background: transparent;
+ color: #000000;
+ min-height: 90px;
+ resize: none;
+ overflow: visible;
+ }
+ input {
+ border: 1px solid #000000 !important;
+ background: transparent !important;
+ color: #000000 !important;
+ }
+ input::placeholder, textarea::placeholder {
+ color: transparent !important;
+ }
+ }
+ </style>
 </head>
 <body>
-  <div class="container">
-    <header class="task-header">
-      <h1>Рабочий лист: Организация интерфейса с пользователем — контроль</h1>
-      <div class="meta-subtitle">Дисциплина «ОП.08 Основы проектирования баз данных» — Занятие №24 (СИЭУиП)</div>
+ <div class="container">
+ <header class="task-header">
+ <h1>Рабочий лист: Организация интерфейса с пользователем — контроль</h1>
+ <div class="meta-subtitle">Дисциплина «ОП.08 Основы проектирования баз данных» — Занятие №24 (СИЭУиП)</div>
 
-      <div class="student-info">
-        <div class="info-group">
-          <label for="studentFio">ФИО студента</label>
-          <input type="text" id="studentFio">
-        </div>
-        <div class="info-group">
-          <label for="studentGroup">Учебная группа</label>
-          <input type="text" id="studentGroup">
-        </div>
-      </div>
-    </header>
+ <div class="student-info">
+ <div class="info-group">
+ <label for="studentFio">ФИО студента</label>
+ <input type="text" id="studentFio">
+ </div>
+ <div class="info-group">
+ <label for="studentGroup">Учебная группа</label>
+ <input type="text" id="studentGroup">
+ </div>
+ </div>
+ </header>
 
-    <div class="variant-selector-box">
-      <div style="font-weight: 700; margin-bottom: 10px; font-size: 0.92rem; color: var(--text-muted); text-transform: uppercase;">
-        Выберите назначенный практический вариант:
-      </div>
-      <div class="variant-tabs">
-        <button type="button" class="v-tab-btn active" data-target="v1">Вариант 1 (Регистрация корпоративного клиента: ИНН/ОГРН)</button>
-        <button type="button" class="v-tab-btn" data-target="v2">Вариант 2 (Банковский перевод: IBAN/БИК и баланс)</button>
-        <button type="button" class="v-tab-btn" data-target="v3">Вариант 3 (Онлайн-заказ: email/телефон и триггер остатков)</button>
-        <button type="button" class="v-tab-btn" data-target="v4">Вариант 4 (Бронирование отеля: интервалы дат и EXCLUDE gist)</button>
-      </div>
-    </div>
+ <div class="variant-selector-box">
+ <div style="font-weight: 700; margin-bottom: 10px; font-size: 0.92rem; color: var(--text-muted); text-transform: uppercase;">
+ Выберите назначенный практический вариант:
+ </div>
+ <div class="variant-tabs">
+ <button type="button" class="v-tab-btn active" data-target="v1">Вариант 1 (Регистрация корпоративного клиента: ИНН/ОГРН)</button>
+ <button type="button" class="v-tab-btn" data-target="v2">Вариант 2 (Банковский перевод: IBAN/БИК и баланс)</button>
+ <button type="button" class="v-tab-btn" data-target="v3">Вариант 3 (Онлайн-заказ: email/телефон и триггер остатков)</button>
+ <button type="button" class="v-tab-btn" data-target="v4">Вариант 4 (Бронирование отеля: интервалы дат и EXCLUDE gist)</button>
+ </div>
+ </div>
 
-    <!-- ВАРИАНТ 1 -->
-    <div id="v1" class="variant-container active">
-      <section class="task-card">
-        <h2>Вариант 1. Форма регистрации корпоративного клиента (ИНН, ОГРН, unique_violation)</h2>
-        <div class="spec-box">
-          <strong>Предметная область:</strong> Регистрация юридических лиц в корпоративном портале B2B. Форма принимает ИНН компании (строго 10 цифр с вычислением контрольного разряда) и ОГРН (строго 13 цифр). В базе данных поле <code>inn</code> защищено уникальным ограничением <code>clients_inn_key</code>.
-        </div>
+ <!-- ВАРИАНТ 1 -->
+ <div id="v1" class="variant-container active">
+ <section class="task-card">
+ <h2>Вариант 1. Форма регистрации корпоративного клиента (ИНН, ОГРН, unique_violation)</h2>
+ <div class="spec-box">
+ <strong>Предметная область:</strong> Регистрация юридических лиц в корпоративном портале B2B. Форма принимает ИНН компании (строго 10 цифр с вычислением контрольного разряда) и ОГРН (строго 13 цифр). В базе данных поле <code>inn</code> защищено уникальным ограничением <code>clients_inn_key</code>.
+ </div>
 
-        <h3>Часть 1. Клиентская валидация (Frontend UX)</h3>
-        <p>Разработайте JavaScript-логику валидации формы:</p>
-        <ol>
-          <li>Составьте регулярные выражения с обязательными граничными якорями <code>^</code> и <code>$</code> для формата ИНН (10 цифр) и ОГРН (13 цифр).</li>
-          <li>Опишите функцию проверки контрольной суммы 10-го знака ИНН юрлица по массиву весовых коэффициентов <code>[2, 4, 10, 3, 5, 9, 4, 6, 8]</code>.</li>
-          <li>Опишите логику мгновенной подсветки поля (зеленая рамка / красная рамка с текстом подсказки) и условие блокировки кнопки отправки формы (<code>disabled</code>).</li>
-        </ol>
-        <div class="question-block">
-          <label class="question-label" for="v1_ans1">Ваш ответ по клиентской валидации и алгоритму ИНН-10:</label>
-          <textarea id="v1_ans1" class="answer-area"></textarea>
-        </div>
+ <h3>Часть 1. Клиентская валидация (Frontend UX)</h3>
+ <p>Разработайте JavaScript-логику валидации формы:</p>
+ <ol>
+ <li>Составьте регулярные выражения с обязательными граничными якорями <code>^</code> и <code>$</code> для формата ИНН (10 цифр) и ОГРН (13 цифр).</li>
+ <li>Опишите функцию проверки контрольной суммы 10-го знака ИНН юрлица по массиву весовых коэффициентов <code>[2, 4, 10, 3, 5, 9, 4, 6, 8]</code>.</li>
+ <li>Опишите логику мгновенной подсветки поля (зеленая рамка / красная рамка с текстом подсказки) и условие блокировки кнопки отправки формы (<code>disabled</code>).</li>
+ </ol>
+ <div class="question-block">
+ <label class="question-label" for="v1_ans1">Ваш ответ по клиентской валидации и алгоритму ИНН-10:</label>
+ <textarea id="v1_ans1" class="answer-area"></textarea>
+ </div>
 
-        <h3>Часть 2. Серверный контур и перехват ошибки СУБД (SQLSTATE 23505)</h3>
-        <p>В схеме базы данных определена таблица:</p>
-        <pre><code>CREATE TABLE corporate_clients (
-    client_id BIGSERIAL PRIMARY KEY,
-    company_name VARCHAR(255) NOT NULL,
-    inn CHAR(10) NOT NULL CONSTRAINT clients_inn_key UNIQUE,
-    ogrn CHAR(13) NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT chk_inn_digits CHECK (inn ~ '^\d{10}$'),
-    CONSTRAINT chk_ogrn_digits CHECK (ogrn ~ '^\d{13}$')
-);</code></pre>
-        <p>Два разных оператора одновременно попытались зарегистрировать одно и то же юридическое лицо. Ядро СУБД выбросило системное исключение:</p>
-        <pre><code>ERROR: duplicate key value violates unique constraint "clients_inn_key"
+ <h3>Часть 2. Серверный контур и перехват ошибки СУБД (SQLSTATE 23505)</h3>
+ <p>В схеме базы данных определена таблица:</p>
+ <pre><code>CREATE TABLE corporate_clients (
+ client_id BIGSERIAL PRIMARY KEY,
+ company_name VARCHAR(255) NOT NULL,
+ inn CHAR(10) NOT NULL CONSTRAINT clients_inn_key UNIQUE,
+ ogrn CHAR(13) NOT NULL,
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ CONSTRAINT chk_inn_digits CHECK (inn ~ '^\d{10}$'),
+ CONSTRAINT chk_ogrn_digits CHECK (ogrn ~ '^\d{13}$'));</code></pre>
+ <p>Два разных оператора одновременно попытались зарегистрировать одно и то же юридическое лицо. Ядро СУБД выбросило системное исключение:</p>
+ <pre><code>ERROR: duplicate key value violates unique constraint "clients_inn_key"
 DETAIL: Key (inn)=(7701234567) already exists.
 SQLSTATE: 23505</code></pre>
-        <ol>
-          <li>Почему категорически запрещено показывать пользователю этот технический текст? Какие риски ИБ и UX он несет?</li>
-          <li>Напишите обработчик ошибки на бэкенде (Error Mapper), который перехватывает код <code>23505</code> и возвращает пользователю дружественное сообщение: <em>«Клиент с данным ИНН уже зарегистрирован»</em>.</li>
-        </ol>
-        <div class="question-block">
-          <label class="question-label" for="v1_ans2">Ваш ответ по обработке исключения СУБД 23505 и Error Mapping:</label>
-          <textarea id="v1_ans2" class="answer-area"></textarea>
-        </div>
+ <ol>
+ <li>Почему категорически запрещено показывать пользователю этот технический текст? Какие риски ИБ и UX он несет?</li>
+ <li>Напишите обработчик ошибки на бэкенде (Error Mapper), который перехватывает код <code>23505</code> и возвращает пользователю дружественное сообщение: <em>«Клиент с данным ИНН уже зарегистрирован»</em>.</li>
+ </ol>
+ <div class="question-block">
+ <label class="question-label" for="v1_ans2">Ваш ответ по обработке исключения СУБД 23505 и Error Mapping:</label>
+ <textarea id="v1_ans2" class="answer-area"></textarea>
+ </div>
 
-        <h3>Часть 3. Защита от инъекций и самопроверка</h3>
-        <p>Напишите параметризованный запрос (Prepared Statement) для добавления нового клиента и объясните, почему он полностью защищает от SQL-инъекций даже при наличии специальных символов в названии компании.</p>
-        <div class="question-block">
-          <label class="question-label" for="v1_ans3">Ваш ответ по Prepared Statement и самопроверке:</label>
-          <textarea id="v1_ans3" class="answer-area"></textarea>
-        </div>
-      </section>
-    </div>
+ <h3>Часть 3. Защита от инъекций и самопроверка</h3>
+ <p>Напишите параметризованный запрос (Prepared Statement) для добавления нового клиента и объясните, почему он полностью защищает от SQL-инъекций даже при наличии специальных символов в названии компании.</p>
+ <div class="question-block">
+ <label class="question-label" for="v1_ans3">Ваш ответ по Prepared Statement и самопроверке:</label>
+ <textarea id="v1_ans3" class="answer-area"></textarea>
+ </div>
+ </section>
+ </div>
 
-    <!-- ВАРИАНТ 2 -->
-    <div id="v2" class="variant-container">
-      <section class="task-card">
-        <h2>Вариант 2. Банковский перевод (IBAN/БИК, сумма &lt;= 0, insufficient funds)</h2>
-        <div class="spec-box">
-          <strong>Предметная область:</strong> Экранная форма межбанковского перевода денежных средств. Включает поля: расчетный счет получателя (20 цифр), БИК банка (9 цифр, начинается с 04), сумма перевода в рублях.
-        </div>
+ <!-- ВАРИАНТ 2 -->
+ <div id="v2" class="variant-container">
+ <section class="task-card">
+ <h2>Вариант 2. Банковский перевод (IBAN/БИК, сумма &lt;= 0, insufficient funds)</h2>
+ <div class="spec-box">
+ <strong>Предметная область:</strong> Экранная форма межбанковского перевода денежных средств. Включает поля: расчетный счет получателя (20 цифр), БИК банка (9 цифр, начинается с 04), сумма перевода в рублях.
+ </div>
 
-        <h3>Часть 1. Клиентская валидация (Frontend UX)</h3>
-        <ol>
-          <li>Составьте регулярные выражения для проверки БИК (строго 9 цифр, начинается с 04) и расчетного счета (20 цифр) с якорями <code>^</code> и <code>$</code>.</li>
-          <li>Опишите клиентскую валидацию поля суммы: запрет ввода нечисловых символов, мгновенная блокировка отправки при сумме <code>amount &lt;= 0</code>, вывод подсказки: <em>«Сумма перевода должна быть строго больше нуля»</em>.</li>
-          <li>Как организовать автоформатирование счета блоками по 4 цифры для удобства восприятия клиентом?</li>
-        </ol>
-        <div class="question-block">
-          <label class="question-label" for="v2_ans1">Ваш ответ по клиентской валидации перевода:</label>
-          <textarea id="v2_ans1" class="answer-area"></textarea>
-        </div>
+ <h3>Часть 1. Клиентская валидация (Frontend UX)</h3>
+ <ol>
+ <li>Составьте регулярные выражения для проверки БИК (строго 9 цифр, начинается с 04) и расчетного счета (20 цифр) с якорями <code>^</code> и <code>$</code>.</li>
+ <li>Опишите клиентскую валидацию поля суммы: запрет ввода нечисловых символов, мгновенная блокировка отправки при сумме <code>amount &lt;= 0</code>, вывод подсказки: <em>«Сумма перевода должна быть строго больше нуля»</em>.</li>
+ <li>Как организовать автоформатирование счета блоками по 4 цифры для удобства восприятия клиентом?</li>
+ </ol>
+ <div class="question-block">
+ <label class="question-label" for="v2_ans1">Ваш ответ по клиентской валидации перевода:</label>
+ <textarea id="v2_ans1" class="answer-area"></textarea>
+ </div>
 
-        <h3>Часть 2. Серверный контур: ограничение CHECK и блокировка транзакции</h3>
-        <p>Схема таблицы банковских счетов:</p>
-        <pre><code>CREATE TABLE bank_accounts (
-    account_id BIGSERIAL PRIMARY KEY,
-    account_number CHAR(20) NOT NULL UNIQUE,
-    bik CHAR(9) NOT NULL,
-    balance NUMERIC(15,2) NOT NULL DEFAULT 0.00,
-    CONSTRAINT chk_positive_balance CHECK (balance >= 0.00)
-);</code></pre>
-        <p>Злоумышленник отправил запрос через <code>curl</code> в обход браузера на сумму 1 000 000 руб. при реальном остатке на счете 500 руб. СУБД выбросила исключение <code>check_violation (SQLSTATE 23514)</code>.</p>
-        <p>А при параллельном списании денег в двух банкоматах возник конфликт транзакций <code>serialization_failure (SQLSTATE 40001)</code>.</p>
-        <ol>
-          <li>Составьте таблицу маппинга ошибок (SQLSTATE -> Дружественное сообщение для пользователя).</li>
-          <li>Напишите SQL-запрос с конструкцией <code>SELECT ... FOR UPDATE</code> для корректной пессимистической блокировки счета отправителя на время выполнения перевода.</li>
-        </ol>
-        <div class="question-block">
-          <label class="question-label" for="v2_ans2">Ваш ответ по серверным ограничениям, транзакциям и Error Mapping:</label>
-          <textarea id="v2_ans2" class="answer-area"></textarea>
-        </div>
+ <h3>Часть 2. Серверный контур: ограничение CHECK и блокировка транзакции</h3>
+ <p>Схема таблицы банковских счетов:</p>
+ <pre><code>CREATE TABLE bank_accounts (
+ account_id BIGSERIAL PRIMARY KEY,
+ account_number CHAR(20) NOT NULL UNIQUE,
+ bik CHAR(9) NOT NULL,
+ balance NUMERIC(15,2) NOT NULL DEFAULT 0.00,
+ CONSTRAINT chk_positive_balance CHECK (balance >= 0.00));</code></pre>
+ <p>Злоумышленник отправил запрос через <code>curl</code> в обход браузера на сумму 1 000 000 руб. при реальном остатке на счете 500 руб. СУБД выбросила исключение <code>check_violation (SQLSTATE 23514)</code>.</p>
+ <p>А при параллельном списании денег в двух банкоматах возник конфликт транзакций <code>serialization_failure (SQLSTATE 40001)</code>.</p>
+ <ol>
+ <li>Составьте таблицу маппинга ошибок (SQLSTATE -> Дружественное сообщение для пользователя).</li>
+ <li>Напишите SQL-запрос с конструкцией <code>SELECT... FOR UPDATE</code> для корректной пессимистической блокировки счета отправителя на время выполнения перевода.</li>
+ </ol>
+ <div class="question-block">
+ <label class="question-label" for="v2_ans2">Ваш ответ по серверным ограничениям, транзакциям и Error Mapping:</label>
+ <textarea id="v2_ans2" class="answer-area"></textarea>
+ </div>
 
-        <h3>Часть 3. Защита от инъекций и самопроверка</h3>
-        <p>Почему конкатенация строк в финансовой транзакции категорически недопустима? Приведите пример опасного запроса и покажите его безопасный аналог на Prepared Statement.</p>
-        <div class="question-block">
-          <label class="question-label" for="v2_ans3">Ваш ответ по безопасности транзакций:</label>
-          <textarea id="v2_ans3" class="answer-area"></textarea>
-        </div>
-      </section>
-    </div>
+ <h3>Часть 3. Защита от инъекций и самопроверка</h3>
+ <p>Почему конкатенация строк в финансовой транзакции категорически недопустима? Приведите пример опасного запроса и покажите его безопасный аналог на Prepared Statement.</p>
+ <div class="question-block">
+ <label class="question-label" for="v2_ans3">Ваш ответ по безопасности транзакций:</label>
+ <textarea id="v2_ans3" class="answer-area"></textarea>
+ </div>
+ </section>
+ </div>
 
-    <!-- ВАРИАНТ 3 -->
-    <div id="v3" class="variant-container">
-      <section class="task-card">
-        <h2>Вариант 3. Оформление заказа в онлайн-магазине (Email, телефон, триггер остатков)</h2>
-        <div class="spec-box">
-          <strong>Предметная область:</strong> Экранная форма оформления покупки в интернет-магазине. Поля: email покупателя, мобильный телефон по маске +7, количество заказываемого товара.
-        </div>
+ <!-- ВАРИАНТ 3 -->
+ <div id="v3" class="variant-container">
+ <section class="task-card">
+ <h2>Вариант 3. Оформление заказа в онлайн-магазине (Email, телефон, триггер остатков)</h2>
+ <div class="spec-box">
+ <strong>Предметная область:</strong> Экранная форма оформления покупки в интернет-магазине. Поля: email покупателя, мобильный телефон по маске +7, количество заказываемого товара.
+ </div>
 
-        <h3>Часть 1. Клиентская валидация (Frontend UX)</h3>
-        <ol>
-          <li>Составьте регулярное выражение для международной проверки адреса электронной почты (RFC-совместимый базовый шаблон).</li>
-          <li>Составьте шаблон маски мобильного телефона РФ в формате <code>+7 (XXX) XXX-XX-XX</code> и регулярное выражение для очищенных 11 цифр.</li>
-          <li>Опишите логику валидации поля количества (целое положительное число от 1 до 99).</li>
-        </ol>
-        <div class="question-block">
-          <label class="question-label" for="v3_ans1">Ваш ответ по клиентской валидации email, телефона и количества:</label>
-          <textarea id="v3_ans1" class="answer-area"></textarea>
-        </div>
+ <h3>Часть 1. Клиентская валидация (Frontend UX)</h3>
+ <ol>
+ <li>Составьте регулярное выражение для международной проверки адреса электронной почты (RFC-совместимый базовый шаблон).</li>
+ <li>Составьте шаблон маски мобильного телефона РФ в формате <code>+7 (XXX) XXX-XX-XX</code> и регулярное выражение для очищенных 11 цифр.</li>
+ <li>Опишите логику валидации поля количества (целое положительное число от 1 до 99).</li>
+ </ol>
+ <div class="question-block">
+ <label class="question-label" for="v3_ans1">Ваш ответ по клиентской валидации email, телефона и количества:</label>
+ <textarea id="v3_ans1" class="answer-area"></textarea>
+ </div>
 
-        <h3>Часть 2. Серверный триггер остатков и перехват исключения P0001</h3>
-        <p>Два покупателя одновременно нажали кнопку «Купить» на последнюю единицу товара на складе. В СУБД сработал серверный триггер:</p>
-        <pre><code>CREATE OR REPLACE FUNCTION trg_check_inventory() RETURNS TRIGGER AS <div class="formula">DECLARE v<sub>stock</sub> INT;
+ <h3>Часть 2. Серверный триггер остатков и перехват исключения P0001</h3>
+ <p>Два покупателя одновременно нажали кнопку «Купить» на последнюю единицу товара на складе. В СУБД сработал серверный триггер:</p>
+ <pre><code>CREATE OR REPLACE FUNCTION trg_check_inventory() RETURNS TRIGGER AS <div class="formula">DECLARE v<sub>stock</sub> INT;
 BEGIN
-    SELECT stock<sub>quantity</sub> INTO v<sub>stock</sub> FROM warehouse WHERE product<sub>id</sub> = NEW.product<sub>id</sub> FOR UPDATE;
-    IF v<sub>stock</sub> &lt; NEW.quantity THEN
-        RAISE EXCEPTION 'OUT<sub>OF</sub><sub>STOCK</sub>: Недостаточно товара на складе' USING ERRCODE = 'P0001';
-    END IF;
-    UPDATE warehouse SET stock<sub>quantity</sub> = stock<sub>quantity</sub> - NEW.quantity WHERE product<sub>id</sub> = NEW.product<sub>id</sub>;
-    RETURN NEW;
+ SELECT stock<sub>quantity</sub> INTO v<sub>stock</sub> FROM warehouse WHERE product<sub>id</sub> = NEW.product<sub>id</sub> FOR UPDATE;
+ IF v<sub>stock</sub> &lt; NEW.quantity THEN
+ RAISE EXCEPTION 'OUT<sub>OF</sub><sub>STOCK</sub>: Недостаточно товара на складе' USING ERRCODE = 'P0001';
+ END IF;
+ UPDATE warehouse SET stock<sub>quantity</sub> = stock<sub>quantity</sub> - NEW.quantity WHERE product<sub>id</sub> = NEW.product<sub>id</sub>;
+ RETURN NEW;
 END;</div> LANGUAGE plpgsql;</code></pre>
-        <ol>
-          <li>Как ядро СУБД обработает одновременную покупку благодаря <code>FOR UPDATE</code>? Что произойдет со вторым покупателем?</li>
-          <li>Спроектируйте перехватчик исключения <code>SQLSTATE P0001</code> на бэкенде: какое дружественное сообщение увидит второй покупатель на экране оформления заказа?</li>
-        </ol>
-        <div class="question-block">
-          <label class="question-label" for="v3_ans2">Ваш ответ по работе триггера и дружественному маппингу ошибки:</label>
-          <textarea id="v3_ans2" class="answer-area"></textarea>
-        </div>
+ <ol>
+ <li>Как ядро СУБД обработает одновременную покупку благодаря <code>FOR UPDATE</code>? Что произойдет со вторым покупателем?</li>
+ <li>Спроектируйте перехватчик исключения <code>SQLSTATE P0001</code> на бэкенде: какое дружественное сообщение увидит второй покупатель на экране оформления заказа?</li>
+ </ol>
+ <div class="question-block">
+ <label class="question-label" for="v3_ans2">Ваш ответ по работе триггера и дружественному маппингу ошибки:</label>
+ <textarea id="v3_ans2" class="answer-area"></textarea>
+ </div>
 
-        <h3>Часть 3. Защита от инъекций и самопроверка</h3>
-        <p>Опишите, как Prepared Statement обрабатывает вредоносные символы в поле email (например, <code>' OR 1=1; DROP TABLE orders; --</code>). Почему СУБД не выполняет этот код?</p>
-        <div class="question-block">
-          <label class="question-label" for="v3_ans3">Ваш ответ по механизму защиты Prepared Statement:</label>
-          <textarea id="v3_ans3" class="answer-area"></textarea>
-        </div>
-      </section>
-    </div>
+ <h3>Часть 3. Защита от инъекций и самопроверка</h3>
+ <p>Опишите, как Prepared Statement обрабатывает вредоносные символы в поле email (например, <code>' OR 1=1; DROP TABLE orders; --</code>). Почему СУБД не выполняет этот код?</p>
+ <div class="question-block">
+ <label class="question-label" for="v3_ans3">Ваш ответ по механизму защиты Prepared Statement:</label>
+ <textarea id="v3_ans3" class="answer-area"></textarea>
+ </div>
+ </section>
+ </div>
 
-    <!-- ВАРИАНТ 4 -->
-    <div id="v4" class="variant-container">
-      <section class="task-card">
-        <h2>Вариант 4. Форма бронирования отеля (Интервалы дат, EXCLUDE gist overlap)</h2>
-        <div class="spec-box">
-          <strong>Предметная область:</strong> Веб-интерфейс бронирования гостиничных номеров. Поля: выбор категории номера, дата заезда (check-in), дата выезда (check-out).
-        </div>
+ <!-- ВАРИАНТ 4 -->
+ <div id="v4" class="variant-container">
+ <section class="task-card">
+ <h2>Вариант 4. Форма бронирования отеля (Интервалы дат, EXCLUDE gist overlap)</h2>
+ <div class="spec-box">
+ <strong>Предметная область:</strong> Веб-интерфейс бронирования гостиничных номеров. Поля: выбор категории номера, дата заезда (check-in), дата выезда (check-out).
+ </div>
 
-        <h3>Часть 1. Клиентская валидация (Frontend UX)</h3>
-        <ol>
-          <li>Опишите клиентскую валидацию интервала дат: проверка условия <code>Дата_выезда > Дата_заезда</code>, запрет бронирования в прошлом (дата заезда не может быть раньше сегодняшнего дня).</li>
-          <li>Как реализовать мгновенную обратную связь в интерфейсе при выборе недопустимой даты выезда (до даты заезда)?</li>
-          <li>Почему клиентский календарь не может гарантировать 100% отсутствие двойного бронирования номеров?</li>
-        </ol>
-        <div class="question-block">
-          <label class="question-label" for="v4_ans1">Ваш ответ по клиентскому контролю дат бронирования:</label>
-          <textarea id="v4_ans1" class="answer-area"></textarea>
-        </div>
+ <h3>Часть 1. Клиентская валидация (Frontend UX)</h3>
+ <ol>
+ <li>Опишите клиентскую валидацию интервала дат: проверка условия <code>Дата_выезда > Дата_заезда</code>, запрет бронирования в прошлом (дата заезда не может быть раньше сегодняшнего дня).</li>
+ <li>Как реализовать мгновенную обратную связь в интерфейсе при выборе недопустимой даты выезда (до даты заезда)?</li>
+ <li>Почему клиентский календарь не может гарантировать 100% отсутствие двойного бронирования номеров?</li>
+ </ol>
+ <div class="question-block">
+ <label class="question-label" for="v4_ans1">Ваш ответ по клиентскому контролю дат бронирования:</label>
+ <textarea id="v4_ans1" class="answer-area"></textarea>
+ </div>
 
-        <h3>Часть 2. Серверный контур: ограничение EXCLUDE gist и перехват 23P01</h3>
-        <p>Для предотвращения овербукинга в таблице отеля создано ограничение исключения интервалов:</p>
-        <pre><code>CREATE EXTENSION IF NOT EXISTS btree_gist;
+ <h3>Часть 2. Серверный контур: ограничение EXCLUDE gist и перехват 23P01</h3>
+ <p>Для предотвращения овербукинга в таблице отеля создано ограничение исключения интервалов:</p>
+ <pre><code>CREATE EXTENSION IF NOT EXISTS btree_gist;
 
 CREATE TABLE room_bookings (
-    booking_id BIGSERIAL PRIMARY KEY,
-    room_id INT NOT NULL,
-    stay_dates DATERANGE NOT NULL,
-    guest_name VARCHAR(100) NOT NULL,
-    CONSTRAINT chk_no_overlap EXCLUDE USING gist (
-        room_id WITH =,
-        stay_dates WITH &amp;&amp;
-    )
-);</code></pre>
-        <p>Два гостя параллельно отправили заявки на пересекающиеся даты. База данных отвергла вторую транзакцию системной ошибкой:</p>
-        <pre><code>ERROR: conflicting key value violates exclusion constraint "chk_no_overlap"
+ booking_id BIGSERIAL PRIMARY KEY,
+ room_id INT NOT NULL,
+ stay_dates DATERANGE NOT NULL,
+ guest_name VARCHAR(100) NOT NULL,
+ CONSTRAINT chk_no_overlap EXCLUDE USING gist (
+ room_id WITH =,
+ stay_dates WITH &amp;&amp;));</code></pre>
+ <p>Два гостя параллельно отправили заявки на пересекающиеся даты. База данных отвергла вторую транзакцию системной ошибкой:</p>
+ <pre><code>ERROR: conflicting key value violates exclusion constraint "chk_no_overlap"
 DETAIL: Key (room_id, stay_dates)=(101, [2026-10-10, 2026-10-15)) conflicts with existing key...
 SQLSTATE: 23P01</code></pre>
-        <ol>
-          <li>Какую информацию раскрывает злоумышленнику это техническое сообщение СУБД?</li>
-          <li>Составьте код модуля Error Mapping, который перехватывает <code>SQLSTATE 23P01</code> и выводит гостю подсказку: <em>«Выбранный номер уже занят на эти даты. Пожалуйста, выберите другие даты или другой номер»</em>.</li>
-        </ol>
-        <div class="question-block">
-          <label class="question-label" for="v4_ans2">Ваш ответ по ограничению EXCLUDE gist и маппингу ошибки 23P01:</label>
-          <textarea id="v4_ans2" class="answer-area"></textarea>
-        </div>
+ <ol>
+ <li>Какую информацию раскрывает злоумышленнику это техническое сообщение СУБД?</li>
+ <li>Составьте код модуля Error Mapping, который перехватывает <code>SQLSTATE 23P01</code> и выводит гостю подсказку: <em>«Выбранный номер уже занят на эти даты. Пожалуйста, выберите другие даты или другой номер»</em>.</li>
+ </ol>
+ <div class="question-block">
+ <label class="question-label" for="v4_ans2">Ваш ответ по ограничению EXCLUDE gist и маппингу ошибки 23P01:</label>
+ <textarea id="v4_ans2" class="answer-area"></textarea>
+ </div>
 
-        <h3>Часть 3. Защита от инъекций и самопроверка</h3>
-        <p>Сформулируйте параметризованный запрос для вставки бронирования с приведением типов <code>1::int, daterange(2::date, $3::date, '[)')</code> и обоснуйте его надежность.</p>
-        <div class="question-block">
-          <label class="question-label" for="v4_ans3">Ваш ответ по параметризованному запросу бронирования:</label>
-          <textarea id="v4_ans3" class="answer-area"></textarea>
-        </div>
-      </section>
-    </div>
+ <h3>Часть 3. Защита от инъекций и самопроверка</h3>
+ <p>Сформулируйте параметризованный запрос для вставки бронирования с приведением типов <code>1::int, daterange(2::date, $3::date, '[)')</code> и обоснуйте его надежность.</p>
+ <div class="question-block">
+ <label class="question-label" for="v4_ans3">Ваш ответ по параметризованному запросу бронирования:</label>
+ <textarea id="v4_ans3" class="answer-area"></textarea>
+ </div>
+ </section>
+ </div>
 
-    <!-- КНОПКИ ДЕЙСТВИЙ -->
-    <div class="action-panel">
-      <button type="button" class="btn btn-primary" id="saveBtn">Сохранить ответы</button>
-      <button type="button" class="btn btn-secondary" id="printBtn">Печать / Экспорт в PDF</button>
-      <button type="button" class="btn btn-secondary" id="clearBtn">Очистить форму</button>
-      <span class="save-alert" id="saveMsg">✓ Ответы успешно сохранены в браузере</span>
-    </div>
-  </div>
+ <!-- КНОПКИ ДЕЙСТВИЙ -->
+ <div class="action-panel">
+ <button type="button" class="btn btn-primary" id="saveBtn">Сохранить ответы</button>
+ <button type="button" class="btn btn-secondary" id="printBtn">Печать / Экспорт в PDF</button>
+ <button type="button" class="btn btn-secondary" id="clearBtn">Очистить форму</button>
+ <span class="save-alert" id="saveMsg">✓ Ответы успешно сохранены в браузере</span>
+ </div>
+ </div>
 
-  <script>
-    (function() {
-      const STORAGE_KEY = 'worksheet_db_lesson_24_data';
-      const TAB_KEY = 'worksheet_db_lesson_24_tab';
+ <script>
+ (function() {
+ const STORAGE_KEY = 'worksheet_db_lesson_24_data';
+ const TAB_KEY = 'worksheet_db_lesson_24_tab';
 
-      const tabBtns = document.querySelectorAll('.v-tab-btn');
-      const varContainers = document.querySelectorAll('.variant-container');
+ const tabBtns = document.querySelectorAll('.v-tab-btn');
+ const varContainers = document.querySelectorAll('.variant-container');
 
-      function switchTab(targetId) {
-        tabBtns.forEach(btn => {
-          btn.classList.toggle('active', btn.getAttribute('data-target') === targetId);
-        });
-        varContainers.forEach(box => {
-          box.classList.toggle('active', box.id === targetId);
-        });
-        localStorage.setItem(TAB_KEY, targetId);
-      }
+ function switchTab(targetId) {
+ tabBtns.forEach(btn => {
+ btn.classList.toggle('active', btn.getAttribute('data-target') === targetId);
+ });
+ varContainers.forEach(box => {
+ box.classList.toggle('active', box.id === targetId);
+ });
+ localStorage.setItem(TAB_KEY, targetId);
+ }
 
-      tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          switchTab(btn.getAttribute('data-target'));
-        });
-      });
+ tabBtns.forEach(btn => {
+ btn.addEventListener('click', () => {
+ switchTab(btn.getAttribute('data-target'));
+ });
+ });
 
-      function getAllInputs() {
-        return document.querySelectorAll('input[type="text"], textarea');
-      }
+ function getAllInputs() {
+ return document.querySelectorAll('input[type="text"], textarea');
+ }
 
-      function saveData() {
-        const payload = {};
-        getAllInputs().forEach(el => {
-          if (el.id) payload[el.id] = el.value;
-        });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-        const msg = document.getElementById('saveMsg');
-        if (msg) {
-          msg.style.display = 'inline';
-          setTimeout(() => { msg.style.display = 'none'; }, 2500);
-        }
-      }
+ function saveData() {
+ const payload = {};
+ getAllInputs().forEach(el => {
+ if (el.id) payload[el.id] = el.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+ const msg = document.getElementById('saveMsg');
+ if (msg) {
+ msg.style.display = 'inline';
+ setTimeout(() => { msg.style.display = 'none'; }, 2500);
+ }
+ }
 
-      function loadData() {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          try {
-            const data = JSON.parse(raw);
-            Object.keys(data).forEach(id => {
-              const el = document.getElementById(id);
-              if (el) el.value = data[id];
-            });
-          } catch (e) {
-            console.error('Ошибка загрузки сохраненных данных:', e);
-          }
-        }
-        const savedTab = localStorage.getItem(TAB_KEY);
-        if (savedTab && document.getElementById(savedTab)) {
-          switchTab(savedTab);
-        }
-      }
+ function loadData() {
+ const raw = localStorage.getItem(STORAGE_KEY);
+ if (raw) {
+ try {
+ const data = JSON.parse(raw);
+ Object.keys(data).forEach(id => {
+ const el = document.getElementById(id);
+ if (el) el.value = data[id];
+ });
+ } catch (e) {
+ console.error('Ошибка загрузки сохраненных данных:', e);
+ }
+ }
+ const savedTab = localStorage.getItem(TAB_KEY);
+ if (savedTab && document.getElementById(savedTab)) {
+ switchTab(savedTab);
+ }
+ }
 
-      function clearData() {
-        if (confirm('Вы уверены, что хотите полностью очистить все поля рабочего листа?')) {
-          localStorage.removeItem(STORAGE_KEY);
-          getAllInputs().forEach(el => { el.value = ''; });
-        }
-      }
+ function clearData() {
+ if (confirm('Вы уверены, что хотите полностью очистить все поля рабочего листа?')) {
+ localStorage.removeItem(STORAGE_KEY);
+ getAllInputs().forEach(el => { el.value = ''; });
+ }
+ }
 
-      document.getElementById('saveBtn').addEventListener('click', saveData);
-      document.getElementById('clearBtn').addEventListener('click', clearData);
-      document.getElementById('printBtn').addEventListener('click', () => {
-        saveData();
-        window.print();
-      });
+ document.getElementById('saveBtn').addEventListener('click', saveData);
+ document.getElementById('clearBtn').addEventListener('click', clearData);
+ document.getElementById('printBtn').addEventListener('click', () => {
+ saveData();
+ window.print();
+ });
 
-      document.addEventListener('input', (e) => {
-        if (e.target.matches('input[type="text"], textarea')) {
-          const payload = {};
-          getAllInputs().forEach(el => {
-            if (el.id) payload[el.id] = el.value;
-          });
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-        }
-      });
+ document.addEventListener('input', (e) => {
+ if (e.target.matches('input[type="text"], textarea')) {
+ const payload = {};
+ getAllInputs().forEach(el => {
+ if (el.id) payload[el.id] = el.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+ }
+ });
 
-      window.addEventListener('DOMContentLoaded', loadData);
-    })();
-  </script>
+ window.addEventListener('DOMContentLoaded', loadData);
+ })();
+ </script>
 </body>
 </html>

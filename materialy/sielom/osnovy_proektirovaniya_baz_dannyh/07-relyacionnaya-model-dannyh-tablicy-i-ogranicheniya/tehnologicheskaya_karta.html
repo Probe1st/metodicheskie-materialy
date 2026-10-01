@@ -1,405 +1,389 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Технологическая карта занятия: Реляционная модель данных: таблицы и ограничения</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --text-muted: #475569;
-      --border: #e2e8f0;
-      --accent: #0284c7;
-      --accent-dark: #0369a1;
-      --accent-soft: #f0f9ff;
-    }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Технологическая карта занятия: Реляционная модель данных: таблицы и ограничения</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card-bg: #ffffff;
+ --text: #0f172a;
+ --text-muted: #475569;
+ --border: #e2e8f0;
+ --accent: #0284c7;
+ --accent-dark: #0369a1;
+ --accent-soft: #f0f9ff;
+ }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ }
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.55;
-      padding: 24px 16px;
-    }
+ body {
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+ background-color: var(--bg);
+ color: var(--text);
+ line-height: 1.55;
+ padding: 24px 16px;
+ }.container {
+ max-width: 1040px;
+ margin: 0 auto;
+ }
 
-    .container {
-      max-width: 1040px;
-      margin: 0 auto;
-    }
+ header.tk-header {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    header.tk-header {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ h1 {
+ font-size: 2rem;
+ font-weight: 800;
+ color: var(--text);
+ margin-bottom: 8px;
+ }.subtitle {
+ font-size: 1.05rem;
+ color: var(--text-muted);
+ }
 
-    h1 {
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 8px;
-    }
+ section {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    .subtitle {
-      font-size: 1.05rem;
-      color: var(--text-muted);
-    }
+ h2 {
+ font-size: 1.35rem;
+ font-weight: 700;
+ color: var(--accent-dark);
+ margin-bottom: 14px;
+ border-left: 4px solid var(--accent);
+ padding-left: 12px;
+ }.meta-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+ gap: 12px 20px;
+ font-size: 0.95rem;
+ margin-bottom: 16px;
+ }.meta-item {
+ display: flex;
+ flex-direction: column;
+ gap: 2px;
+ }.meta-label {
+ font-size: 0.8rem;
+ text-transform: uppercase;
+ font-weight: 700;
+ color: var(--text-muted);
+ letter-spacing: 0.05em;
+ }.meta-val {
+ color: var(--text);
+ font-weight: 500;
+ }
 
-    section {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ table.tk-table {
+ width: 100%;
+ border-collapse: collapse;
+ margin-top: 14px;
+ font-size: 0.92rem;
+ }
 
-    h2 {
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: var(--accent-dark);
-      margin-bottom: 14px;
-      border-left: 4px solid var(--accent);
-      padding-left: 12px;
-    }
+ table.tk-table th, table.tk-table td {
+ border: 1px solid var(--border);
+ padding: 10px 12px;
+ vertical-align: top;
+ }
 
-    .meta-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 12px 20px;
-      font-size: 0.95rem;
-      margin-bottom: 16px;
-    }
-
-    .meta-item {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .meta-label {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      font-weight: 700;
-      color: var(--text-muted);
-      letter-spacing: 0.05em;
-    }
-
-    .meta-val {
-      color: var(--text);
-      font-weight: 500;
-    }
-
-    table.tk-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 14px;
-      font-size: 0.92rem;
-    }
-
-    table.tk-table th, table.tk-table td {
-      border: 1px solid var(--border);
-      padding: 10px 12px;
-      vertical-align: top;
-    }
-
-    table.tk-table th {
-      background-color: #f1f5f9;
-      color: #334155;
-      font-weight: 700;
-      text-align: left;
-    }
-
-    .badge-stage {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 4px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      background: #e0f2fe;
-      color: #0369a1;
-      margin-bottom: 4px;
-    }
-
-    .competence-tag {
-      display: inline-block;
-      padding: 2px 6px;
-      background: #f1f5f9;
-      border-radius: 4px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: #475569;
-      margin-right: 4px;
-      margin-top: 4px;
-    }
-  </style>
+ table.tk-table th {
+ background-color: #f1f5f9;
+ color: #334155;
+ font-weight: 700;
+ text-align: left;
+ }.badge-stage {
+ display: inline-block;
+ padding: 3px 8px;
+ border-radius: 4px;
+ font-size: 0.8rem;
+ font-weight: 700;
+ background: #e0f2fe;
+ color: #0369a1;
+ margin-bottom: 4px;
+ }.competence-tag {
+ display: inline-block;
+ padding: 2px 6px;
+ background: #f1f5f9;
+ border-radius: 4px;
+ font-size: 0.8rem;
+ font-weight: 600;
+ color: #475569;
+ margin-right: 4px;
+ margin-top: 4px;
+ }
+ </style>
 </head>
 <body>
-  <div class="container">
-    <header class="tk-header">
-      <h1>Технологическая карта занятия</h1>
-      <div class="subtitle">ОП.08 Основы проектирования баз данных — Занятие 07: Реляционная модель данных: таблицы и ограничения</div>
-    </header>
+ <div class="container">
+ <header class="tk-header">
+ <h1>Технологическая карта занятия</h1>
+ <div class="subtitle">ОП.08 Основы проектирования баз данных — Занятие 07: Реляционная модель данных: таблицы и ограничения</div>
+ </header>
 
-    <section>
-      <h2>Паспорт учебного занятия</h2>
-      <div class="meta-grid">
-        <div class="meta-item">
-          <span class="meta-label">Дисциплина</span>
-          <span class="meta-val">ОП.08 Основы проектирования баз данных</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Специальность</span>
-          <span class="meta-val">09.02.06 Сетевое и системное администрирование</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Тематический раздел</span>
-          <span class="meta-val">Тема 2. Взаимосвязи в моделях и реляционный подход к построению моделей (§2.2 с.7 программы)</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Тема урока</span>
-          <span class="meta-val">Реляционная модель данных: таблицы и ограничения (Занятие №07)</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Регламент времени</span>
-          <span class="meta-val">2 академических часа (80 минут основной / 60 минут сокращенный)</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Используемые технологии</span>
-          <span class="meta-val">Проблемное обучение, ИКТ, технология развивающего обучения, кейс-метод</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Цель занятия</span>
-          <span class="meta-val">Сформировать систему профессиональных компетенций по теоретическим основам РМД (отношения, кортежи, атрибуты, домены, 1НФ) и практическому проектированию реляционных схем с тремя видами целостности (сущности, ссылочной, семантической).</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Дидактические средства</span>
-          <span class="meta-val">Интерактивная презентация (15 слайдов, мем Bobby Tables), интерактивный рабочий лист zanyatie.html, критериальная рубрика .rubrika.md</span>
-        </div>
-      </div>
-    </section>
+ <section>
+ <h2>Паспорт учебного занятия</h2>
+ <div class="meta-grid">
+ <div class="meta-item">
+ <span class="meta-label">Дисциплина</span>
+ <span class="meta-val">ОП.08 Основы проектирования баз данных</span>
+ </div>
+ <div class="meta-item">
+ <span class="meta-label">Специальность</span>
+ <span class="meta-val">09.02.06 Сетевое и системное администрирование</span>
+ </div>
+ <div class="meta-item">
+ <span class="meta-label">Тематический раздел</span>
+ <span class="meta-val">Тема 2. Взаимосвязи в моделях и реляционный подход к построению моделей</span>
+ </div>
+ <div class="meta-item">
+ <span class="meta-label">Тема урока</span>
+ <span class="meta-val">Реляционная модель данных: таблицы и ограничения (Занятие №07)</span>
+ </div>
+ <div class="meta-item">
+ <span class="meta-label">Регламент времени</span>
+ <span class="meta-val">2 академических часа (80 минут основной / 60 минут сокращенный)</span>
+ </div>
+ <div class="meta-item">
+ <span class="meta-label">Используемые технологии</span>
+ <span class="meta-val">Проблемное обучение, ИКТ, технология развивающего обучения, кейс-метод</span>
+ </div>
+ <div class="meta-item">
+ <span class="meta-label">Цель занятия</span>
+ <span class="meta-val">Сформировать систему профессиональных компетенций по теоретическим основам РМД (отношения, кортежи, атрибуты, домены, 1НФ) и практическому проектированию реляционных схем с тремя видами целостности (сущности, ссылочной, семантической).</span>
+ </div>
+ <div class="meta-item">
+ <span class="meta-label">Дидактические средства</span>
+ <span class="meta-val">Интерактивная презентация (15 слайдов, мем Bobby Tables), интерактивный рабочий лист zanyatie.html, критериальная рубрика.rubrika.md</span>
+ </div>
+ </div>
+ </section>
 
-    <!-- Основной регламент 80 минут -->
-    <section>
-      <h2>Поминутная структура занятия — Основной регламент (80 минут)</h2>
-      <table class="tk-table">
-        <thead>
-          <tr>
-            <th style="width: 14%;">Этап и время</th>
-            <th style="width: 18%;">Цель этапа</th>
-            <th style="width: 32%;">Деятельность преподавателя</th>
-            <th style="width: 26%;">Деятельность студентов</th>
-            <th style="width: 10%;">Компетенции</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 1</span><br>
-              <strong>Организационный и мотивационный</strong><br>
-              <em>5 мин (00:00–00:05)</em>
-            </td>
-            <td>Организация внимания, формулирование проблемной ситуации, постановка цели</td>
-            <td>
-              Приветствует обучающихся, отмечает явку. Задает вводный проблемный вопрос: «Почему таблица в реляционной СУБД — это строго математическое множество, а не лист в Excel? Что произойдет, если в таблице пациентов перепутать строки или допустить две одинаковые записи?». Объявляет тему, структуру занятия и регламент 4-балльного оценивания.
-            </td>
-            <td>
-              Готовят рабочие места, включают ПК, включаются в обсуждение проблемного кейса, формулируют гипотезы об опасности неуникальных строк и хаотичного порядка данных.
-            </td>
-            <td>
-              <span class="competence-tag">ОК 01</span>
-              <span class="competence-tag">ОК 02</span>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 2</span><br>
-              <strong>Теоретический блок</strong><br>
-              <em>35 мин (00:05–00:40)</em>
-            </td>
-            <td>Освоение понятий РМД, 4 свойств отношений и 3 уровней целостности</td>
-            <td>
-              Излагает новый материал с демонстрацией слайдов 1–14 презентации:
-              <br>1) Реляционная революция Эдгара Кодда (1970).
-              <br>2) Терминологический мост: отношение = таблица, кортеж = строка, атрибут = столбец, домен = тип данных + CHECK.
-              <br>3) Заголовок и тело отношения; арность (статическая) и мощность/кардинальность (динамическая).
-              <br>4) 4 свойства отношений: уникальность (PK), отсутствие порядка строк и столбцов, атомарность (1НФ).
-              <br>5) Ограничения целостности: целостность сущности (Primary Key, NOT NULL), ссылочная целостность (Foreign Key, orphaned rows, правила RESTRICT, CASCADE, SET NULL), семантическая целостность (CHECK).
-              <br>Демонстрирует сквозной DDL-скрипт связи таблиц. Отвечает на вопросы.
-            </td>
-            <td>
-              Слушают объяснение, фиксируют ключевые понятия в конспектах, сопоставляют теоретические термины с конструкциями SQL, анализируют синтаксис внешних ключей и опций каскадирования, задают уточняющие вопросы.
-            </td>
-            <td>
-              <span class="competence-tag">ОК 01</span>
-              <span class="competence-tag">ОК 02</span>
-              <span class="competence-tag">ОК 09</span>
-              <span class="competence-tag">ПК 1.1</span>
-              <span class="competence-tag">ПК 1.2</span>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 3</span><br>
-              <strong>Закрепление и практическая работа</strong><br>
-              <em>25 мин (00:40–01:05)</em>
-            </td>
-            <td>Формирование практических навыков проектирования связанных таблиц с ограничениями</td>
-            <td>
-              Демонстрирует слайд 15 (мем xkcd #327 Bobby Tables), раскрывая важность валидации и типизации на уровне СУБД.
-              <br>Инструктирует обучающихся по выполнению заданий в интерактивном рабочем листе <code>zanyatie.html</code> по 4 отраслевым вариантам:
-              <br>• Вар. 1: Склад (Товары и Складские_остатки, CHECK quantity &ge; 0).
-              <br>• Вар. 2: Клиника (Пациенты и Назначения, CHECK dosage_mg, NOT NULL).
-              <br>• Вар. 3: Автосервис (Автомобили и Акты_дефектовки, VIN vs ID, UNIQUE).
-              <br>• Вар. 4: Онлайн-курсы (Студенты и Сдача_заданий, составной/суррогатный FK, CHECK score 0..100).
-              <br>Осуществляет индивидуальное консультирование, контролирует правильность выбора типов ключей и формулировок CHECK.
-            </td>
-            <td>
-              Открывают <code>zanyatie.html</code> в браузере, указывают ФИО и учебную группу. Выбирают вариант кейса. Заполняют поля спецификации отношений, определяют типы полей, проектируют первичные и внешние ключи, формулируют предикаты CHECK и правила ON DELETE. Отвечают на вопросы самопроверки. Данные сохраняются в LocalStorage.
-            </td>
-            <td>
-              <span class="competence-tag">ОК 01</span>
-              <span class="competence-tag">ОК 02</span>
-              <span class="competence-tag">ОК 04</span>
-              <span class="competence-tag">ПК 1.1</span>
-              <span class="competence-tag">ПК 1.3</span>
-              <span class="competence-tag">ПК 1.5</span>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 4</span><br>
-              <strong>Подведение итогов, рефлексия, ДЗ</strong><br>
-              <em>15 мин (01:05–01:20)</em>
-            </td>
-            <td>Критериальная оценка работ, систематизация знаний, инструктаж по резервному ДЗ</td>
-            <td>
-              Организует публичный разбор решений по каждому варианту. Сопоставляет ответы обучающихся с закрытой 4-балльной рубрикой (<code>.rubrika.md</code>). Разбирает типичные ошибки: создание внешнего ключа на неуникальное поле, забытые проверки на неотрицательность, злоупотребление CASCADE.
-              <br>Озвучивает баллы. Проводит рефлексию. Дает инструктаж по резервному дистанционному заданию (<code>domashnee_zadanie.html</code>) для пропустивших пару.
-            </td>
-            <td>
-              Участвуют в анализе решений, сопоставляют свои схемы с эталонными требованиями рубрики, проводят самопроверку, сохраняют итоговый документ или готовят печатную форму. Фиксируют статус резервного ДЗ.
-            </td>
-            <td>
-              <span class="competence-tag">ОК 01</span>
-              <span class="competence-tag">ОК 04</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
+ <!-- Основной регламент 80 минут -->
+ <section>
+ <h2>Поминутная структура занятия — Основной регламент (80 минут)</h2>
+ <table class="tk-table">
+ <thead>
+ <tr>
+ <th style="width: 14%;">Этап и время</th>
+ <th style="width: 18%;">Цель этапа</th>
+ <th style="width: 32%;">Деятельность преподавателя</th>
+ <th style="width: 26%;">Деятельность студентов</th>
+ <th style="width: 10%;">Компетенции</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 1</span><br>
+ <strong>Организационный и мотивационный</strong><br>
+ <em>5 мин (00:00–00:05)</em>
+ </td>
+ <td>Организация внимания, формулирование проблемной ситуации, постановка цели</td>
+ <td>
+ Приветствует обучающихся, отмечает явку. Задает вводный проблемный вопрос: «Почему таблица в реляционной СУБД — это строго математическое множество, а не лист в Excel? Что произойдет, если в таблице пациентов перепутать строки или допустить две одинаковые записи?». Объявляет тему, структуру занятия и регламент 4-балльного оценивания.
+ </td>
+ <td>
+ Готовят рабочие места, включают ПК, включаются в обсуждение проблемного кейса, формулируют гипотезы об опасности неуникальных строк и хаотичного порядка данных.
+ </td>
+ <td>
+ <span class="competence-tag">ОК 01</span>
+ <span class="competence-tag">ОК 02</span>
+ </td>
+ </tr>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 2</span><br>
+ <strong>Теоретический блок</strong><br>
+ <em>35 мин (00:05–00:40)</em>
+ </td>
+ <td>Освоение понятий РМД, 4 свойств отношений и 3 уровней целостности</td>
+ <td>
+ Излагает новый материал с демонстрацией слайдов 1–14 презентации:
+ <br>1) Реляционная революция Эдгара Кодда (1970).
+ <br>2) Терминологический мост: отношение = таблица, кортеж = строка, атрибут = столбец, домен = тип данных + CHECK.
+ <br>3) Заголовок и тело отношения; арность (статическая) и мощность/кардинальность (динамическая).
+ <br>4) 4 свойства отношений: уникальность (PK), отсутствие порядка строк и столбцов, атомарность (1НФ).
+ <br>5) Ограничения целостности: целостность сущности (Primary Key, NOT NULL), ссылочная целостность (Foreign Key, orphaned rows, правила RESTRICT, CASCADE, SET NULL), семантическая целостность (CHECK).
+ <br>Демонстрирует сквозной DDL-скрипт связи таблиц. Отвечает на вопросы.
+ </td>
+ <td>
+ Слушают объяснение, фиксируют ключевые понятия в конспектах, сопоставляют теоретические термины с конструкциями SQL, анализируют синтаксис внешних ключей и опций каскадирования, задают уточняющие вопросы.
+ </td>
+ <td>
+ <span class="competence-tag">ОК 01</span>
+ <span class="competence-tag">ОК 02</span>
+ <span class="competence-tag">ОК 09</span>
+ <span class="competence-tag">ПК 1.1</span>
+ <span class="competence-tag">ПК 1.2</span>
+ </td>
+ </tr>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 3</span><br>
+ <strong>Закрепление и практическая работа</strong><br>
+ <em>25 мин (00:40–01:05)</em>
+ </td>
+ <td>Формирование практических навыков проектирования связанных таблиц с ограничениями</td>
+ <td>
+ Демонстрирует слайд 15 (мем xkcd #327 Bobby Tables), раскрывая важность валидации и типизации на уровне СУБД.
+ <br>Инструктирует обучающихся по выполнению заданий в интерактивном рабочем листе <code>zanyatie.html</code> по 4 отраслевым вариантам:
+ <br>• Вар. 1: Склад (Товары и Складские_остатки, CHECK quantity &ge; 0).
+ <br>• Вар. 2: Клиника (Пациенты и Назначения, CHECK dosage_mg, NOT NULL).
+ <br>• Вар. 3: Автосервис (Автомобили и Акты_дефектовки, VIN vs ID, UNIQUE).
+ <br>• Вар. 4: Онлайн-курсы (Студенты и Сдача_заданий, составной/суррогатный FK, CHECK score 0..100).
+ <br>Осуществляет индивидуальное консультирование, контролирует правильность выбора типов ключей и формулировок CHECK.
+ </td>
+ <td>
+ Открывают <code>zanyatie.html</code> в браузере, указывают ФИО и учебную группу. Выбирают вариант кейса. Заполняют поля спецификации отношений, определяют типы полей, проектируют первичные и внешние ключи, формулируют предикаты CHECK и правила ON DELETE. Отвечают на вопросы самопроверки. Данные сохраняются в LocalStorage.
+ </td>
+ <td>
+ <span class="competence-tag">ОК 01</span>
+ <span class="competence-tag">ОК 02</span>
+ <span class="competence-tag">ОК 04</span>
+ <span class="competence-tag">ПК 1.1</span>
+ <span class="competence-tag">ПК 1.3</span>
+ <span class="competence-tag">ПК 1.5</span>
+ </td>
+ </tr>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 4</span><br>
+ <strong>Подведение итогов, рефлексия, ДЗ</strong><br>
+ <em>15 мин (01:05–01:20)</em>
+ </td>
+ <td>Критериальная оценка работ, систематизация знаний, инструктаж по резервному ДЗ</td>
+ <td>
+ Организует публичный разбор решений по каждому варианту. Сопоставляет ответы обучающихся с закрытой 4-балльной рубрикой (<code>.rubrika.md</code>). Разбирает типичные ошибки: создание внешнего ключа на неуникальное поле, забытые проверки на неотрицательность, злоупотребление CASCADE.
+ <br>Озвучивает баллы. Проводит рефлексию. Дает инструктаж по резервному дистанционному заданию (<code>domashnee_zadanie.html</code>) для пропустивших пару.
+ </td>
+ <td>
+ Участвуют в анализе решений, сопоставляют свои схемы с эталонными требованиями рубрики, проводят самопроверку, сохраняют итоговый документ или готовят печатную форму. Фиксируют статус резервного ДЗ.
+ </td>
+ <td>
+ <span class="competence-tag">ОК 01</span>
+ <span class="competence-tag">ОК 04</span>
+ </td>
+ </tr>
+ </tbody>
+ </table>
+ </section>
 
-    <!-- Сокращенный регламент 60 минут -->
-    <section>
-      <h2>Поминутная структура занятия — Сокращенный регламент (60 минут)</h2>
-      <table class="tk-table">
-        <thead>
-          <tr>
-            <th style="width: 14%;">Этап и время</th>
-            <th style="width: 18%;">Цель этапа</th>
-            <th style="width: 32%;">Деятельность преподавателя</th>
-            <th style="width: 26%;">Деятельность студентов</th>
-            <th style="width: 10%;">Компетенции</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 1</span><br>
-              <strong>Организационный и мотивационный</strong><br>
-              <em>5 мин (00:00–00:05)</em>
-            </td>
-            <td>Быстрое включение в работу, проблематизация темы</td>
-            <td>
-              Приветствие, перекличка. Экспресс-вопрос: «Что произойдет со складом, если в таблице остатков разрешить отрицательные числа, а при удалении товара стереть всю историю?». Формулировка темы и регламента 4-балльного оценивания.
-            </td>
-            <td>
-              Включение в учебный ритм, формулирование выводов о необходимости ограничений целостности СУБД.
-            </td>
-            <td>
-              <span class="competence-tag">ОК 01</span>
-              <span class="competence-tag">ОК 02</span>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 2</span><br>
-              <strong>Интенсивный теоретический блок</strong><br>
-              <em>25 мин (00:05–00:30)</em>
-            </td>
-            <td>Освоение ключевых механизмов РМД в сжатом концентрированном формате</td>
-            <td>
-              Излагает теоретическое ядро темы с акцентом на практическое применение:
-              <br>• Сопоставление терминов: отношение = таблица, кортеж = строка, атрибут = поле, домен = допустимые значения.
-              <br>• Атомарность 1НФ и уникальность строк (Primary Key).
-              <br>• Ссылочная целостность: Foreign Key, предотвращение висячих строк, разница RESTRICT vs CASCADE.
-              <br>• Ограничение CHECK (предикаты диапазонов и знаков).
-              <br>Краткая демонстрация слайдов и эталонного DDL-кода.
-            </td>
-            <td>
-              Воспринимают концентрированный материал, фиксируют соответствие терминов, правила внешних ключей и синтаксис CHECK в рабочих тетрадях / электронных конспектах.
-            </td>
-            <td>
-              <span class="competence-tag">ОК 01</span>
-              <span class="competence-tag">ОК 02</span>
-              <span class="competence-tag">ОК 09</span>
-              <span class="competence-tag">ПК 1.1</span>
-              <span class="competence-tag">ПК 1.2</span>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 3</span><br>
-              <strong>Практическая работа по кейсам</strong><br>
-              <em>18 мин (00:30–00:48)</em>
-            </td>
-            <td>Экспресс-проектирование пары реляционных таблиц с ограничениями</td>
-            <td>
-              Организует работу в <code>zanyatie.html</code> по 4 вариантам. Делает акцент на главном: безошибочно связать родительскую и дочернюю таблицы, выбрать правильный ключ и задать бизнес-предикат CHECK. Консультирует студентов в оперативном темпе.
-            </td>
-            <td>
-              Заполняют поля электронного рабочего листа, проектируют связи PK-FK, формулируют правила ON DELETE и предикаты CHECK под конкретную предметную область (Склад, Клиника, Автосервис, Курсы).
-            </td>
-            <td>
-              <span class="competence-tag">ОК 01</span>
-              <span class="competence-tag">ОК 02</span>
-              <span class="competence-tag">ОК 04</span>
-              <span class="competence-tag">ПК 1.1</span>
-              <span class="competence-tag">ПК 1.3</span>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 4</span><br>
-              <strong>Итоги, оценка и инструктаж</strong><br>
-              <em>12 мин (00:48–01:00)</em>
-            </td>
-            <td>Экспресс-оценка по рубрике, фиксация результатов, разъяснение резервного ДЗ</td>
-            <td>
-              Проводит блиц-проверку ключевых элементов: правильность внешнего ключа и предикатов CHECK. Оценивает работы по 4-балльной шкале. Напоминает назначение резервного домашнего задания (<code>domashnee_zadanie.html</code>).
-            </td>
-            <td>
-              Проводят самооценку по критериям рубрики, сохраняют заполненный лист в браузере (LocalStorage), фиксируют комментарии преподавателя.
-            </td>
-            <td>
-              <span class="competence-tag">ОК 01</span>
-              <span class="competence-tag">ОК 04</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-  </div>
+ <!-- Сокращенный регламент 60 минут -->
+ <section>
+ <h2>Поминутная структура занятия — Сокращенный регламент (60 минут)</h2>
+ <table class="tk-table">
+ <thead>
+ <tr>
+ <th style="width: 14%;">Этап и время</th>
+ <th style="width: 18%;">Цель этапа</th>
+ <th style="width: 32%;">Деятельность преподавателя</th>
+ <th style="width: 26%;">Деятельность студентов</th>
+ <th style="width: 10%;">Компетенции</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 1</span><br>
+ <strong>Организационный и мотивационный</strong><br>
+ <em>5 мин (00:00–00:05)</em>
+ </td>
+ <td>Быстрое включение в работу, проблематизация темы</td>
+ <td>
+ Приветствие, перекличка. Экспресс-вопрос: «Что произойдет со складом, если в таблице остатков разрешить отрицательные числа, а при удалении товара стереть всю историю?». Формулировка темы и регламента 4-балльного оценивания.
+ </td>
+ <td>
+ Включение в учебный ритм, формулирование выводов о необходимости ограничений целостности СУБД.
+ </td>
+ <td>
+ <span class="competence-tag">ОК 01</span>
+ <span class="competence-tag">ОК 02</span>
+ </td>
+ </tr>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 2</span><br>
+ <strong>Интенсивный теоретический блок</strong><br>
+ <em>25 мин (00:05–00:30)</em>
+ </td>
+ <td>Освоение ключевых механизмов РМД в сжатом концентрированном формате</td>
+ <td>
+ Излагает теоретическое ядро темы с акцентом на практическое применение:
+ <br>• Сопоставление терминов: отношение = таблица, кортеж = строка, атрибут = поле, домен = допустимые значения.
+ <br>• Атомарность 1НФ и уникальность строк (Primary Key).
+ <br>• Ссылочная целостность: Foreign Key, предотвращение висячих строк, разница RESTRICT vs CASCADE.
+ <br>• Ограничение CHECK (предикаты диапазонов и знаков).
+ <br>Краткая демонстрация слайдов и эталонного DDL-кода.
+ </td>
+ <td>
+ Воспринимают концентрированный материал, фиксируют соответствие терминов, правила внешних ключей и синтаксис CHECK в рабочих тетрадях / электронных конспектах.
+ </td>
+ <td>
+ <span class="competence-tag">ОК 01</span>
+ <span class="competence-tag">ОК 02</span>
+ <span class="competence-tag">ОК 09</span>
+ <span class="competence-tag">ПК 1.1</span>
+ <span class="competence-tag">ПК 1.2</span>
+ </td>
+ </tr>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 3</span><br>
+ <strong>Практическая работа по кейсам</strong><br>
+ <em>18 мин (00:30–00:48)</em>
+ </td>
+ <td>Экспресс-проектирование пары реляционных таблиц с ограничениями</td>
+ <td>
+ Организует работу в <code>zanyatie.html</code> по 4 вариантам. Делает акцент на главном: безошибочно связать родительскую и дочернюю таблицы, выбрать правильный ключ и задать бизнес-предикат CHECK. Консультирует студентов в оперативном темпе.
+ </td>
+ <td>
+ Заполняют поля электронного рабочего листа, проектируют связи PK-FK, формулируют правила ON DELETE и предикаты CHECK под конкретную предметную область (Склад, Клиника, Автосервис, Курсы).
+ </td>
+ <td>
+ <span class="competence-tag">ОК 01</span>
+ <span class="competence-tag">ОК 02</span>
+ <span class="competence-tag">ОК 04</span>
+ <span class="competence-tag">ПК 1.1</span>
+ <span class="competence-tag">ПК 1.3</span>
+ </td>
+ </tr>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 4</span><br>
+ <strong>Итоги, оценка и инструктаж</strong><br>
+ <em>12 мин (00:48–01:00)</em>
+ </td>
+ <td>Экспресс-оценка по рубрике, фиксация результатов, разъяснение резервного ДЗ</td>
+ <td>
+ Проводит блиц-проверку ключевых элементов: правильность внешнего ключа и предикатов CHECK. Оценивает работы по 4-балльной шкале. Напоминает назначение резервного домашнего задания (<code>domashnee_zadanie.html</code>).
+ </td>
+ <td>
+ Проводят самооценку по критериям рубрики, сохраняют заполненный лист в браузере (LocalStorage), фиксируют комментарии преподавателя.
+ </td>
+ <td>
+ <span class="competence-tag">ОК 01</span>
+ <span class="competence-tag">ОК 04</span>
+ </td>
+ </tr>
+ </tbody>
+ </table>
+ </section>
+ </div>
 </body>
 </html>

@@ -1,732 +1,686 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Рабочий лист: Основные этапы проектирования БД</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --text-muted: #475569;
-      --border: #cbd5e1;
-      --accent: #0284c7;
-      --accent-hover: #0369a1;
-      --accent-soft: #f0f9ff;
-      --danger: #ef4444;
-      --success: #10b981;
-    }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Рабочий лист: Основные этапы проектирования БД</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card-bg: #ffffff;
+ --text: #0f172a;
+ --text-muted: #475569;
+ --border: #cbd5e1;
+ --accent: #0284c7;
+ --accent-hover: #0369a1;
+ --accent-soft: #f0f9ff;
+ --danger: #ef4444;
+ --success: #10b981;
+ }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ }
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      padding: 24px 16px;
-      min-width: 320px;
-    }
+ body {
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+ background-color: var(--bg);
+ color: var(--text);
+ line-height: 1.6;
+ padding: 24px 16px;
+ min-width: 320px;
+ }.container {
+ max-width: 960px;
+ margin: 0 auto;
+ width: 100%;
+ }
 
-    .container {
-      max-width: 960px;
-      margin: 0 auto;
-      width: 100%;
-    }
+ header.task-header {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    header.task-header {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ h1 {
+ font-size: 2rem;
+ font-weight: 800;
+ color: var(--text);
+ margin-bottom: 8px;
+ word-break: break-word;
+ }.subtitle {
+ font-size: 1.05rem;
+ color: var(--text-muted);
+ }.student-meta {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 16px;
+ margin-top: 20px;
+ padding-top: 16px;
+ border-top: 1px solid var(--border);
+ }.meta-field {
+ display: flex;
+ flex-direction: column;
+ gap: 6px;
+ }.meta-field label {
+ font-size: 0.85rem;
+ font-weight: 600;
+ color: var(--text-muted);
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+ }.meta-field input {
+ padding: 8px 12px;
+ border: 1px solid var(--border);
+ border-radius: 6px;
+ font-size: 0.95rem;
+ color: var(--text);
+ outline: none;
+ width: 100%;
+ }.meta-field input:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 2px var(--accent-soft);
+ }.variant-selector-box {
+ margin-top: 20px;
+ padding-top: 16px;
+ border-top: 1px solid var(--border);
+ }.variant-tabs {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+ gap: 10px;
+ margin-top: 10px;
+ }.v-tab-btn {
+ padding: 10px 12px;
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ background: #f8fafc;
+ font-size: 0.9rem;
+ font-weight: 600;
+ cursor: pointer;
+ text-align: center;
+ transition: all 0.2s ease;
+ color: var(--text);
+ }.v-tab-btn:hover {
+ background: #f1f5f9;
+ border-color: var(--accent);
+ }.v-tab-btn.active {
+ background: var(--accent);
+ color: #ffffff;
+ border-color: var(--accent-hover);
+ box-shadow: 0 2px 4px rgba(2, 132, 199, 0.25);
+ }.variant-container {
+ display: none;
+ }.variant-container.active {
+ display: block;
+ }
 
-    h1 {
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 8px;
-      word-break: break-word;
-    }
+ section.task-section {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    .subtitle {
-      font-size: 1.05rem;
-      color: var(--text-muted);
-    }
+ h2 {
+ font-size: 1.35rem;
+ font-weight: 700;
+ color: var(--accent);
+ margin-bottom: 12px;
+ border-left: 4px solid var(--accent);
+ padding-left: 10px;
+ }
 
-    .student-meta {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 20px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
+ h3 {
+ font-size: 1.1rem;
+ font-weight: 600;
+ color: #1e293b;
+ margin: 18px 0 8px 0;
+ }
 
-    .meta-field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+ p {
+ margin-bottom: 12px;
+ color: #334155;
+ }.case-badge {
+ display: inline-block;
+ padding: 4px 10px;
+ border-radius: 6px;
+ background-color: var(--accent-soft);
+ color: var(--accent-hover);
+ font-size: 0.88rem;
+ font-weight: 700;
+ margin-bottom: 12px;
+ }.stage-card {
+ background: #f8fafc;
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ padding: 16px;
+ margin-bottom: 16px;
+ }.stage-card h4 {
+ font-size: 1rem;
+ font-weight: 700;
+ color: #0f172a;
+ margin-bottom: 8px;
+ }.stage-desc {
+ font-size: 0.9rem;
+ color: var(--text-muted);
+ margin-bottom: 10px;
+ }
 
-    .meta-field label {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
+ textarea.input-area {
+ width: 100%;
+ min-height: 80px;
+ padding: 10px 12px;
+ border: 1px solid var(--border);
+ border-radius: 6px;
+ font-size: 0.95rem;
+ font-family: inherit;
+ color: var(--text);
+ resize: vertical;
+ line-height: 1.5;
+ }
 
-    .meta-field input {
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.95rem;
-      color: var(--text);
-      outline: none;
-      width: 100%;
-    }
+ textarea.input-area:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 2px var(--accent-soft);
+ outline: none;
+ }.actions-bar {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 12px;
+ align-items: center;
+ margin-top: 24px;
+ padding: 16px 20px;
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ }
 
-    .meta-field input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-soft);
-    }
+ button.btn {
+ padding: 10px 18px;
+ border-radius: 6px;
+ font-size: 0.95rem;
+ font-weight: 600;
+ cursor: pointer;
+ border: 1px solid transparent;
+ transition: all 0.2s ease;
+ }
 
-    .variant-selector-box {
-      margin-top: 20px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
+ button.btn-primary {
+ background-color: var(--accent);
+ color: #ffffff;
+ }
 
-    .variant-tabs {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 10px;
-      margin-top: 10px;
-    }
+ button.btn-primary:hover {
+ background-color: var(--accent-hover);
+ }
 
-    .v-tab-btn {
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: #f8fafc;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.2s ease;
-      color: var(--text);
-    }
+ button.btn-danger {
+ background-color: #fee2e2;
+ color: #b91c1c;
+ border-color: #fca5a5;
+ }
 
-    .v-tab-btn:hover {
-      background: #f1f5f9;
-      border-color: var(--accent);
-    }
+ button.btn-danger:hover {
+ background-color: #fecaca;
+ }
 
-    .v-tab-btn.active {
-      background: var(--accent);
-      color: #ffffff;
-      border-color: var(--accent-hover);
-      box-shadow: 0 2px 4px rgba(2, 132, 199, 0.25);
-    }
+ button.btn-secondary {
+ background-color: #f1f5f9;
+ color: #475569;
+ border-color: #cbd5e1;
+ }
 
-    .variant-container {
-      display: none;
-    }
+ button.btn-secondary:hover {
+ background-color: #e2e8f0;
+ }.status-msg {
+ font-size: 0.92rem;
+ font-weight: 600;
+ color: #16a34a;
+ display: none;
+ }
 
-    .variant-container.active {
-      display: block;
-    }
+ /* Print Styles */
+ @media print {
+ body {
+ background-color: #ffffff;
+ color: #000000;
+ padding: 0;
+ }.actions-bar,.variant-selector-box {
+ display: none !important;
+ }.variant-container {
+ display: none !important;
+ }.variant-container.active {
+ display: block !important;
+ }
+ section.task-section, header.task-header {
+ border: 1px solid #94a3b8;
+ box-shadow: none;
+ page-break-inside: avoid;
+ margin-bottom: 16px;
+ padding: 16px;
+ }
+ input::placeholder, textarea::placeholder {
+ color: transparent !important;
+ }
+ textarea.input-area {
+ border: 1px solid #64748b;
+ color: #000000;
+ min-height: 80px;
+ height: auto;
+ }
+ }
 
-    section.task-section {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-
-    h2 {
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 12px;
-      border-left: 4px solid var(--accent);
-      padding-left: 10px;
-    }
-
-    h3 {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #1e293b;
-      margin: 18px 0 8px 0;
-    }
-
-    p {
-      margin-bottom: 12px;
-      color: #334155;
-    }
-
-    .case-badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 6px;
-      background-color: var(--accent-soft);
-      color: var(--accent-hover);
-      font-size: 0.88rem;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-
-    .stage-card {
-      background: #f8fafc;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-
-    .stage-card h4 {
-      font-size: 1rem;
-      font-weight: 700;
-      color: #0f172a;
-      margin-bottom: 8px;
-    }
-
-    .stage-desc {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      margin-bottom: 10px;
-    }
-
-    textarea.input-area {
-      width: 100%;
-      min-height: 80px;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.95rem;
-      font-family: inherit;
-      color: var(--text);
-      resize: vertical;
-      line-height: 1.5;
-    }
-
-    textarea.input-area:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-soft);
-      outline: none;
-    }
-
-    .actions-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: center;
-      margin-top: 24px;
-      padding: 16px 20px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-    }
-
-    button.btn {
-      padding: 10px 18px;
-      border-radius: 6px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: 1px solid transparent;
-      transition: all 0.2s ease;
-    }
-
-    button.btn-primary {
-      background-color: var(--accent);
-      color: #ffffff;
-    }
-
-    button.btn-primary:hover {
-      background-color: var(--accent-hover);
-    }
-
-    button.btn-danger {
-      background-color: #fee2e2;
-      color: #b91c1c;
-      border-color: #fca5a5;
-    }
-
-    button.btn-danger:hover {
-      background-color: #fecaca;
-    }
-
-    button.btn-secondary {
-      background-color: #f1f5f9;
-      color: #475569;
-      border-color: #cbd5e1;
-    }
-
-    button.btn-secondary:hover {
-      background-color: #e2e8f0;
-    }
-
-    .status-msg {
-      font-size: 0.92rem;
-      font-weight: 600;
-      color: #16a34a;
-      display: none;
-    }
-
-    /* Print Styles */
-    @media print {
-      body {
-        background-color: #ffffff;
-        color: #000000;
-        padding: 0;
-      }
-      .actions-bar, .variant-selector-box {
-        display: none !important;
-      }
-      .variant-container {
-        display: none !important;
-      }
-      .variant-container.active {
-        display: block !important;
-      }
-      section.task-section, header.task-header {
-        border: 1px solid #94a3b8;
-        box-shadow: none;
-        page-break-inside: avoid;
-        margin-bottom: 16px;
-        padding: 16px;
-      }
-      input::placeholder, textarea::placeholder {
-        color: transparent !important;
-      }
-      textarea.input-area {
-        border: 1px solid #64748b;
-        color: #000000;
-        min-height: 80px;
-        height: auto;
-      }
-    }
-
-    /* Mobile 375px adaptation */
-    @media (max-width: 600px) {
-      body {
-        padding: 12px 8px;
-      }
-      header.task-header, section.task-section {
-        padding: 16px 14px;
-      }
-      h1 {
-        font-size: 1.45rem;
-      }
-      .student-meta {
-        grid-template-columns: 1fr;
-      }
-      .variant-tabs {
-        grid-template-columns: 1fr;
-      }
-      .actions-bar {
-        flex-direction: column;
-      }
-      button.btn {
-        width: 100%;
-      }
-    }
-  </style>
+ /* Mobile 375px adaptation */
+ @media (max-width: 600px) {
+ body {
+ padding: 12px 8px;
+ }
+ header.task-header, section.task-section {
+ padding: 16px 14px;
+ }
+ h1 {
+ font-size: 1.45rem;
+ }.student-meta {
+ grid-template-columns: 1fr;
+ }.variant-tabs {
+ grid-template-columns: 1fr;
+ }.actions-bar {
+ flex-direction: column;
+ }
+ button.btn {
+ width: 100%;
+ }
+ }
+ </style>
 </head>
 <body>
-  <div class="container">
-    <header class="task-header">
-      <h1>Интерактивный рабочий лист: Основные этапы проектирования БД</h1>
-      <div class="subtitle">Дисциплина «ОП.08 Основы проектирования баз данных» — Занятие 13</div>
+ <div class="container">
+ <header class="task-header">
+ <h1>Интерактивный рабочий лист: Основные этапы проектирования БД</h1>
+ <div class="subtitle">Дисциплина «ОП.08 Основы проектирования баз данных» — Занятие 13</div>
 
-      <div class="student-meta">
-        <div class="meta-field">
-          <label for="studentFio">ФИО обучающегося:</label>
-          <input type="text" id="studentFio" placeholder="">
-        </div>
-        <div class="meta-field">
-          <label for="studentGroup">Учебная группа:</label>
-          <input type="text" id="studentGroup" placeholder="">
-        </div>
-      </div>
+ <div class="student-meta">
+ <div class="meta-field">
+ <label for="studentFio">ФИО обучающегося:</label>
+ <input type="text" id="studentFio" placeholder="">
+ </div>
+ <div class="meta-field">
+ <label for="studentGroup">Учебная группа:</label>
+ <input type="text" id="studentGroup" placeholder="">
+ </div>
+ </div>
 
-      <div class="variant-selector-box">
-        <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
-          Выберите назначенный вариант разработки карты DBLC:
-        </label>
-        <div class="variant-tabs">
-          <button class="v-tab-btn active" data-v="v1">Вариант 1: Аптечная сеть</button>
-          <button class="v-tab-btn" data-v="v2">Вариант 2: Каршеринг</button>
-          <button class="v-tab-btn" data-v="v3">Вариант 3: Маркетплейс OLAP</button>
-          <button class="v-tab-btn" data-v="v4">Вариант 4: Медклиника (152-ФЗ)</button>
-        </div>
-      </div>
-    </header>
+ <div class="variant-selector-box">
+ <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+ Выберите назначенный вариант разработки карты DBLC:
+ </label>
+ <div class="variant-tabs">
+ <button class="v-tab-btn active" data-v="v1">Вариант 1: Аптечная сеть</button>
+ <button class="v-tab-btn" data-v="v2">Вариант 2: Каршеринг</button>
+ <button class="v-tab-btn" data-v="v3">Вариант 3: Маркетплейс OLAP</button>
+ <button class="v-tab-btn" data-v="v4">Вариант 4: Медклиника (152-ФЗ)</button>
+ </div>
+ </div>
+ </header>
 
-    <!-- ВАРИАНТ 1: СЕТЬ АПТЕК С ЦЕНТРАЛЬНЫМ СКЛАДОМ -->
-    <div id="v1" class="variant-container active">
-      <section class="task-section">
-        <div class="case-badge">Отрасль: Фармацевтика и логистика лекарственных средств</div>
-        <h2>Вариант 1: Разработка БД «Сеть аптек с центральным складом»</h2>
-        <p>
-          <strong>Технический контекст:</strong> Фармацевтическая сеть состоит из центрального логистического склада и 50 розничных аптечных пунктов. Требуется спроектировать базу данных для строгого учета серий лекарств, сроков годности (контроль FEFO), работы с поставщиками и отпуска рецептурных препаратов по бланкам строгой отчетности.
-        </p>
+ <!-- ВАРИАНТ 1: СЕТЬ АПТЕК С ЦЕНТРАЛЬНЫМ СКЛАДОМ -->
+ <div id="v1" class="variant-container active">
+ <section class="task-section">
+ <div class="case-badge">Отрасль: Фармацевтика и логистика лекарственных средств</div>
+ <h2>Вариант 1: Разработка БД «Сеть аптек с центральным складом»</h2>
+ <p>
+ <strong>Технический контекст:</strong> Фармацевтическая сеть состоит из центрального логистического склада и 50 розничных аптечных пунктов. Требуется спроектировать базу данных для строгого учета серий лекарств, сроков годности (контроль FEFO), работы с поставщиками и отпуска рецептурных препаратов по бланкам строгой отчетности.
+ </p>
 
-        <h3>1. Карта 5 этапов жизненного цикла базы данных (DBLC):</h3>
-        
-        <div class="stage-card">
-          <h4>Этап 1: Системный анализ и сбор требований</h4>
-          <div class="stage-desc">
-            Специфицируйте входные документы (рецептурные бланки, прайс-листы поставщиков, товарные накладные ТТН), нормативные требования Минздрава и итоговое ТЗ:
-          </div>
-          <textarea id="v1_stage1" class="input-area" placeholder=""></textarea>
-        </div>
+ <h3>1. Карта 5 этапов жизненного цикла базы данных (DBLC):</h3>
+ 
+ <div class="stage-card">
+ <h4>Этап 1: Системный анализ и сбор требований</h4>
+ <div class="stage-desc">
+ Специфицируйте входные документы (рецептурные бланки, прайс-листы поставщиков, товарные накладные ТТН), нормативные требования Минздрава и итоговое ТЗ:
+ </div>
+ <textarea id="v1_stage1" class="input-area" placeholder=""></textarea>
+ </div>
 
-        <div class="stage-card">
-          <h4>Этап 2: Концептуальное (инфологическое) проектирование</h4>
-          <div class="stage-desc">
-            Перечислите ключевые сущности («Аптека», «Препарат», «Партия_товара», «Поставщик», «Рецепт») и обоснуйте независимость модели от СУБД:
-          </div>
-          <textarea id="v1_stage2" class="input-area" placeholder=""></textarea>
-        </div>
+ <div class="stage-card">
+ <h4>Этап 2: Концептуальное (инфологическое) проектирование</h4>
+ <div class="stage-desc">
+ Перечислите ключевые сущности («Аптека», «Препарат», «Партия_товара», «Поставщик», «Рецепт») и обоснуйте независимость модели от СУБД:
+ </div>
+ <textarea id="v1_stage2" class="input-area" placeholder=""></textarea>
+ </div>
 
-        <div class="stage-card">
-          <h4>Этап 3: Логическое проектирование (реляционная модель)</h4>
-          <div class="stage-desc">
-            Опишите таблицы, первичные и внешние ключи, нормализацию до 3НФ и правила целостности связей для партий и рецептов:
-          </div>
-          <textarea id="v1_stage3" class="input-area" placeholder=""></textarea>
-        </div>
+ <div class="stage-card">
+ <h4>Этап 3: Логическое проектирование (реляционная модель)</h4>
+ <div class="stage-desc">
+ Опишите таблицы, первичные и внешние ключи, нормализацию до 3НФ и правила целостности связей для партий и рецептов:
+ </div>
+ <textarea id="v1_stage3" class="input-area" placeholder=""></textarea>
+ </div>
 
-        <div class="stage-card">
-          <h4>Этап 4: Физическое проектирование (привязка к СУБД)</h4>
-          <div class="stage-desc">
-            Специфицируйте DDL-скрипт, типы данных для сроков годности и цен, структуру B-Tree индексов для ускорения поиска годных партий и партиционирование:
-          </div>
-          <textarea id="v1_stage4" class="input-area" placeholder=""></textarea>
-        </div>
+ <div class="stage-card">
+ <h4>Этап 4: Физическое проектирование (привязка к СУБД)</h4>
+ <div class="stage-desc">
+ Специфицируйте DDL-скрипт, типы данных для сроков годности и цен, структуру B-Tree индексов для ускорения поиска годных партий и партиционирование:
+ </div>
+ <textarea id="v1_stage4" class="input-area" placeholder=""></textarea>
+ </div>
 
-        <div class="stage-card">
-          <h4>Этап 5: Эксплуатация, администрирование и сопровождение</h4>
-          <div class="stage-desc">
-            Разработайте план резервного копирования (RPO/RTO) и схему синхронизации/репликации данных между центральным складом и аптеками:
-          </div>
-          <textarea id="v1_stage5" class="input-area" placeholder=""></textarea>
-        </div>
+ <div class="stage-card">
+ <h4>Этап 5: Эксплуатация, администрирование и сопровождение</h4>
+ <div class="stage-desc">
+ Разработайте план резервного копирования (RPO/RTO) и схему синхронизации/репликации данных между центральным складом и аптеками:
+ </div>
+ <textarea id="v1_stage5" class="input-area" placeholder=""></textarea>
+ </div>
 
-        <h3>2. Контрольный проблемный вопрос:</h3>
-        <p>
-          Почему при отпуске рецептурного препарата правило ссылочной целостности для внешнего ключа рецепта обязано быть <code>ON DELETE RESTRICT</code>, а каскадное удаление (<code>CASCADE</code>) является грубейшей ошибкой?
-        </p>
-        <textarea id="v1_check" class="input-area" style="min-height: 100px;" placeholder=""></textarea>
-      </section>
-    </div>
+ <h3>2. Контрольный проблемный вопрос:</h3>
+ <p>
+ Почему при отпуске рецептурного препарата правило ссылочной целостности для внешнего ключа рецепта обязано быть <code>ON DELETE RESTRICT</code>, а каскадное удаление (<code>CASCADE</code>) является грубейшей ошибкой?
+ </p>
+ <textarea id="v1_check" class="input-area" style="min-height: 100px;" placeholder=""></textarea>
+ </section>
+ </div>
 
-    <!-- ВАРИАНТ 2: КАРШЕРИНГОВАЯ КОМПАНИЯ -->
-    <div id="v2" class="variant-container">
-      <section class="task-section">
-        <div class="case-badge">Отрасль: Городской транспорт, HighLoad и IoT-телеметрия</div>
-        <h2>Вариант 2: Разработка БД «Каршеринговая компания»</h2>
-        <p>
-          <strong>Технический контекст:</strong> Каршеринг с парком 5 000 автомобилей в мегаполисе. Бортовые контроллеры передают телеметрию (GPS-координаты, скорость, уровень топлива) каждые 3 секунды. Нефункциональное требование (SLA): время отклика валидации аренды и статуса авто в радиусе поиска строго <strong>&lt; 100 мс</strong> при 10 000 одновременных сессий.
-        </p>
+ <!-- ВАРИАНТ 2: КАРШЕРИНГОВАЯ КОМПАНИЯ -->
+ <div id="v2" class="variant-container">
+ <section class="task-section">
+ <div class="case-badge">Отрасль: Городской транспорт, HighLoad и IoT-телеметрия</div>
+ <h2>Вариант 2: Разработка БД «Каршеринговая компания»</h2>
+ <p>
+ <strong>Технический контекст:</strong> Каршеринг с парком 5 000 автомобилей в мегаполисе. Бортовые контроллеры передают телеметрию (GPS-координаты, скорость, уровень топлива) каждые 3 секунды. Нефункциональное требование (SLA): время отклика валидации аренды и статуса авто в радиусе поиска строго <strong>&lt; 100 мс</strong> при 10 000 одновременных сессий.
+ </p>
 
-        <h3>1. Карта 5 этапов жизненного цикла базы данных (DBLC):</h3>
+ <h3>1. Карта 5 этапов жизненного цикла базы данных (DBLC):</h3>
 
-        <div class="stage-card">
-          <h4>Этап 1: Системный анализ и спецификация SLA</h4>
-          <div class="stage-desc">
-            Опишите входящие потоки данных с CAN-шины авто, тарифные сетки и формализуйте нефункциональные требования (SLA &lt; 100 мс):
-          </div>
-          <textarea id="v2_stage1" class="input-area" placeholder=""></textarea>
-        </div>
+ <div class="stage-card">
+ <h4>Этап 1: Системный анализ и спецификация SLA</h4>
+ <div class="stage-desc">
+ Опишите входящие потоки данных с CAN-шины авто, тарифные сетки и формализуйте нефункциональные требования (SLA &lt; 100 мс):
+ </div>
+ <textarea id="v2_stage1" class="input-area" placeholder=""></textarea>
+ </div>
 
-        <div class="stage-card">
-          <h4>Этап 2: Концептуальное проектирование гео-сущностей</h4>
-          <div class="stage-desc">
-            Выделите сущности («Пользователь», «Автомобиль», «Аренда», «Телеметрический_трек», «Геозона») и связи между ними:
-          </div>
-          <textarea id="v2_stage2" class="input-area" placeholder=""></textarea>
-        </div>
+ <div class="stage-card">
+ <h4>Этап 2: Концептуальное проектирование гео-сущностей</h4>
+ <div class="stage-desc">
+ Выделите сущности («Пользователь», «Автомобиль», «Аренда», «Телеметрический_трек», «Геозона») и связи между ними:
+ </div>
+ <textarea id="v2_stage2" class="input-area" placeholder=""></textarea>
+ </div>
 
-        <div class="stage-card">
-          <h4>Этап 3: Логическое проектирование</h4>
-          <div class="stage-desc">
-            Спроектируйте реляционные таблицы, выделите сущность временных рядов (Time-Series) для трекинга и проведите нормализацию справочников:
-          </div>
-          <textarea id="v2_stage3" class="input-area" placeholder=""></textarea>
-        </div>
+ <div class="stage-card">
+ <h4>Этап 3: Логическое проектирование</h4>
+ <div class="stage-desc">
+ Спроектируйте реляционные таблицы, выделите сущность временных рядов (Time-Series) для трекинга и проведите нормализацию справочников:
+ </div>
+ <textarea id="v2_stage3" class="input-area" placeholder=""></textarea>
+ </div>
 
-        <div class="stage-card">
-          <h4>Этап 4: Физическое проектирование (индексы и шардинг)</h4>
-          <div class="stage-desc">
-            Обоснуйте выбор СУБД с поддержкой геоданных (PostgreSQL + PostGIS/TimescaleDB), использование пространственных GiST-индексов и партиционирование телеметрии по дням:
-          </div>
-          <textarea id="v2_stage4" class="input-area" placeholder=""></textarea>
-        </div>
+ <div class="stage-card">
+ <h4>Этап 4: Физическое проектирование (индексы и шардинг)</h4>
+ <div class="stage-desc">
+ Обоснуйте выбор СУБД с поддержкой геоданных (PostgreSQL + PostGIS/TimescaleDB), использование пространственных GiST-индексов и партиционирование телеметрии по дням:
+ </div>
+ <textarea id="v2_stage4" class="input-area" placeholder=""></textarea>
+ </div>
 
-        <div class="stage-card">
-          <h4>Этап 5: Эксплуатация, администрирование и High Availability</h4>
-          <div class="stage-desc">
-            Специфицируйте регламент очистки/архивации исторических треков старше 90 дней, мониторинг Latency через <code>pg_stat_statements</code> и failover:
-          </div>
-          <textarea id="v2_stage5" class="input-area" placeholder=""></textarea>
-        </div>
+ <div class="stage-card">
+ <h4>Этап 5: Эксплуатация, администрирование и High Availability</h4>
+ <div class="stage-desc">
+ Специфицируйте регламент очистки/архивации исторических треков старше 90 дней, мониторинг Latency через <code>pg_stat_statements</code> и failover:
+ </div>
+ <textarea id="v2_stage5" class="input-area" placeholder=""></textarea>
+ </div>
 
-        <h3>2. Контрольный проблемный вопрос:</h3>
-        <p>
-          Почему сохранение всей телеметрии (140 млн строк в сутки) в единую непартиционированную реляционную таблицу приведет к полному нарушению SLA (&gt; 100 мс) уже через две недели работы?
-        </p>
-        <textarea id="v2_check" class="input-area" style="min-height: 100px;" placeholder=""></textarea>
-      </section>
-    </div>
+ <h3>2. Контрольный проблемный вопрос:</h3>
+ <p>
+ Почему сохранение всей телеметрии (140 млн строк в сутки) в единую непартиционированную реляционную таблицу приведет к полному нарушению SLA (&gt; 100 мс) уже через две недели работы?
+ </p>
+ <textarea id="v2_check" class="input-area" style="min-height: 100px;" placeholder=""></textarea>
+ </section>
+ </div>
 
-    <!-- ВАРИАНТ 3: АНАЛИТИЧЕСКАЯ СИСТЕМА МАРКЕТПЛЕЙСА -->
-    <div id="v3" class="variant-container">
-      <section class="task-section">
-        <div class="case-badge">Отрасль: E-Commerce, Big Data и витрины данных DWH</div>
-        <h2>Вариант 3: Разработка БД «Аналитическая система маркетплейса»</h2>
-        <p>
-          <strong>Технический контекст:</strong> Аналитическое хранилище данных (Data Warehouse) крупного маркетплейса. Входы: кликстрим веб-сайта и мобильного приложения (просмотры, клики, скроллы), события добавления в корзину, транзакции оплат. Задача — построение витрин данных под OLAP-отчеты (LTV, воронка конверсии, ABC-анализ) с использованием осознанной денормализации.
-        </p>
+ <!-- ВАРИАНТ 3: АНАЛИТИЧЕСКАЯ СИСТЕМА МАРКЕТПЛЕЙСА -->
+ <div id="v3" class="variant-container">
+ <section class="task-section">
+ <div class="case-badge">Отрасль: E-Commerce, Big Data и витрины данных DWH</div>
+ <h2>Вариант 3: Разработка БД «Аналитическая система маркетплейса»</h2>
+ <p>
+ <strong>Технический контекст:</strong> Аналитическое хранилище данных (Data Warehouse) крупного маркетплейса. Входы: кликстрим веб-сайта и мобильного приложения (просмотры, клики, скроллы), события добавления в корзину, транзакции оплат. Задача — построение витрин данных под OLAP-отчеты (LTV, воронка конверсии, ABC-анализ) с использованием осознанной денормализации.
+ </p>
 
-        <h3>1. Карта 5 этапов жизненного цикла базы данных (DBLC):</h3>
+ <h3>1. Карта 5 этапов жизненного цикла базы данных (DBLC):</h3>
 
-        <div class="stage-card">
-          <h4>Этап 1: Системный анализ аналитических требований</h4>
-          <div class="stage-desc">
-            Определите источники кликстрима, логи сессий пользователей, финансовые отчеты и формализуйте перечень ключевых бизнес-метрик:
-          </div>
-          <textarea id="v3_stage1" class="input-area" placeholder=""></textarea>
-        </div>
+ <div class="stage-card">
+ <h4>Этап 1: Системный анализ аналитических требований</h4>
+ <div class="stage-desc">
+ Определите источники кликстрима, логи сессий пользователей, финансовые отчеты и формализуйте перечень ключевых бизнес-метрик:
+ </div>
+ <textarea id="v3_stage1" class="input-area" placeholder=""></textarea>
+ </div>
 
-        <div class="stage-card">
-          <h4>Этап 2: Концептуальное проектирование (Факты и Измерения)</h4>
-          <div class="stage-desc">
-            Выделите таблицы фактов («Покупка», «Просмотр») и таблицы измерений («Пользователь», «Товар», «Категория», «Время»):
-          </div>
-          <textarea id="v3_stage2" class="input-area" placeholder=""></textarea>
-        </div>
+ <div class="stage-card">
+ <h4>Этап 2: Концептуальное проектирование (Факты и Измерения)</h4>
+ <div class="stage-desc">
+ Выделите таблицы фактов («Покупка», «Просмотр») и таблицы измерений («Пользователь», «Товар», «Категория», «Время»):
+ </div>
+ <textarea id="v3_stage2" class="input-area" placeholder=""></textarea>
+ </div>
 
-        <div class="stage-card">
-          <h4>Этап 3: Логический этап и осознанная денормализация</h4>
-          <div class="stage-desc">
-            Опишите схему «Звезда» (Star Schema), приведите доказательство целесообразности денормализации измерений ради ускорения OLAP-агрегаций:
-          </div>
-          <textarea id="v3_stage3" class="input-area" placeholder=""></textarea>
-        </div>
+ <div class="stage-card">
+ <h4>Этап 3: Логический этап и осознанная денормализация</h4>
+ <div class="stage-desc">
+ Опишите схему «Звезда» (Star Schema), приведите доказательство целесообразности денормализации измерений ради ускорения OLAP-агрегаций:
+ </div>
+ <textarea id="v3_stage3" class="input-area" placeholder=""></textarea>
+ </div>
 
-        <div class="stage-card">
-          <h4>Этап 4: Физическое проектирование в колоночной СУБД</h4>
-          <div class="stage-desc">
-            Обоснуйте выбор колоночной СУБД (ClickHouse) или партиционированного PostgreSQL, ключи сортировки (ORDER BY) и сжатие данных:
-          </div>
-          <textarea id="v3_stage4" class="input-area" placeholder=""></textarea>
-        </div>
+ <div class="stage-card">
+ <h4>Этап 4: Физическое проектирование в колоночной СУБД</h4>
+ <div class="stage-desc">
+ Обоснуйте выбор колоночной СУБД (ClickHouse) или партиционированного PostgreSQL, ключи сортировки (ORDER BY) и сжатие данных:
+ </div>
+ <textarea id="v3_stage4" class="input-area" placeholder=""></textarea>
+ </div>
 
-        <div class="stage-card">
-          <h4>Этап 5: Эксплуатация, ETL-пайплайны и мониторинг</h4>
-          <div class="stage-desc">
-            Опишите регламент пакетной загрузки данных (batch ETL), сжатие архивных слоев на S3 и мониторинг скорости аналитических запросов:
-          </div>
-          <textarea id="v3_stage5" class="input-area" placeholder=""></textarea>
-        </div>
+ <div class="stage-card">
+ <h4>Этап 5: Эксплуатация, ETL-пайплайны и мониторинг</h4>
+ <div class="stage-desc">
+ Опишите регламент пакетной загрузки данных (batch ETL), сжатие архивных слоев на S3 и мониторинг скорости аналитических запросов:
+ </div>
+ <textarea id="v3_stage5" class="input-area" placeholder=""></textarea>
+ </div>
 
-        <h3>2. Контрольный проблемный вопрос:</h3>
-        <p>
-          В чем фундаментальное противоречие между требованиями к логической модели в транзакционной системе (OLTP) и аналитическом хранилище (OLAP)? Почему 3НФ противопоказана витринам данных?
-        </p>
-        <textarea id="v3_check" class="input-area" style="min-height: 100px;" placeholder=""></textarea>
-      </section>
-    </div>
+ <h3>2. Контрольный проблемный вопрос:</h3>
+ <p>
+ В чем фундаментальное противоречие между требованиями к логической модели в транзакционной системе (OLTP) и аналитическом хранилище (OLAP)? Почему 3НФ противопоказана витринам данных?
+ </p>
+ <textarea id="v3_check" class="input-area" style="min-height: 100px;" placeholder=""></textarea>
+ </section>
+ </div>
 
-    <!-- ВАРИАНТ 4: ЧАСТНАЯ МЕДИЦИНСКАЯ КЛИНИКА -->
-    <div id="v4" class="variant-container">
-      <section class="task-section">
-        <div class="case-badge">Отрасль: Здравоохранение, защита информации по 152-ФЗ</div>
-        <h2>Вариант 4: Разработка БД «Частная медицинская клиника»</h2>
-        <p>
-          <strong>Технический контекст:</strong> База данных многопрофильной клиники. Обрабатываются специальные категории персональных данных (сведения о здоровье, диагнозы по МКБ-10, анализы). Требуется спроектировать архитектуру в строгом соответствии с требованиями Федерального закона №152-ФЗ и стандартами ИСПДн (шифрование TDE, разделение контуров, неизменяемый аудит доступа).
-        </p>
+ <!-- ВАРИАНТ 4: ЧАСТНАЯ МЕДИЦИНСКАЯ КЛИНИКА -->
+ <div id="v4" class="variant-container">
+ <section class="task-section">
+ <div class="case-badge">Отрасль: Здравоохранение, защита информации по 152-ФЗ</div>
+ <h2>Вариант 4: Разработка БД «Частная медицинская клиника»</h2>
+ <p>
+ <strong>Технический контекст:</strong> База данных многопрофильной клиники. Обрабатываются специальные категории персональных данных (сведения о здоровье, диагнозы по МКБ-10, анализы). Требуется спроектировать архитектуру в строгом соответствии с требованиями Федерального закона №152-ФЗ и стандартами ИСПДн (шифрование TDE, разделение контуров, неизменяемый аудит доступа).
+ </p>
 
-        <h3>1. Карта 5 этапов жизненного цикла базы данных (DBLC):</h3>
+ <h3>1. Карта 5 этапов жизненного цикла базы данных (DBLC):</h3>
 
-        <div class="stage-card">
-          <h4>Этап 1: Системный анализ и регуляторные требования 152-ФЗ</h4>
-          <div class="stage-desc">
-            Специфицируйте входящие медицинские карты (форма 025/у), бланки согласий на обработку ПДн, модель угроз безопасности и ТЗ:
-          </div>
-          <textarea id="v4_stage1" class="input-area" placeholder=""></textarea>
-        </div>
+ <div class="stage-card">
+ <h4>Этап 1: Системный анализ и регуляторные требования 152-ФЗ</h4>
+ <div class="stage-desc">
+ Специфицируйте входящие медицинские карты (форма 025/у), бланки согласий на обработку ПДн, модель угроз безопасности и ТЗ:
+ </div>
+ <textarea id="v4_stage1" class="input-area" placeholder=""></textarea>
+ </div>
 
-        <div class="stage-card">
-          <h4>Этап 2: Концептуальное проектирование с разграничением доменов</h4>
-          <div class="stage-desc">
-            Выделите сущности («Пациент», «Врач», «Прием», «Медицинская_запись», «Диагноз») и определите их атрибутивный состав:
-          </div>
-          <textarea id="v4_stage2" class="input-area" placeholder=""></textarea>
-        </div>
+ <div class="stage-card">
+ <h4>Этап 2: Концептуальное проектирование с разграничением доменов</h4>
+ <div class="stage-desc">
+ Выделите сущности («Пациент», «Врач», «Прием», «Медицинская_запись», «Диагноз») и определите их атрибутивный состав:
+ </div>
+ <textarea id="v4_stage2" class="input-area" placeholder=""></textarea>
+ </div>
 
-        <div class="stage-card">
-          <h4>Этап 3: Логическое проектирование и обезличивание</h4>
-          <div class="stage-desc">
-            Опишите реляционную модель с разделением открытых ПДн (ФИО, паспорт) и медицинских записей через суррогатные идентификаторы (UUID):
-          </div>
-          <textarea id="v4_stage3" class="input-area" placeholder=""></textarea>
-        </div>
+ <div class="stage-card">
+ <h4>Этап 3: Логическое проектирование и обезличивание</h4>
+ <div class="stage-desc">
+ Опишите реляционную модель с разделением открытых ПДн (ФИО, паспорт) и медицинских записей через суррогатные идентификаторы (UUID):
+ </div>
+ <textarea id="v4_stage3" class="input-area" placeholder=""></textarea>
+ </div>
 
-        <div class="stage-card">
-          <h4>Этап 4: Физическое проектирование (TDE и журнал аудита)</h4>
-          <div class="stage-desc">
-            Специфицируйте прозрачное шифрование табличных пространств (TDE), неизменяемый партиционированный журнал аудита обращений и индексы:
-          </div>
-          <textarea id="v4_stage4" class="input-area" placeholder=""></textarea>
-        </div>
+ <div class="stage-card">
+ <h4>Этап 4: Физическое проектирование (TDE и журнал аудита)</h4>
+ <div class="stage-desc">
+ Специфицируйте прозрачное шифрование табличных пространств (TDE), неизменяемый партиционированный журнал аудита обращений и индексы:
+ </div>
+ <textarea id="v4_stage4" class="input-area" placeholder=""></textarea>
+ </div>
 
-        <div class="stage-card">
-          <h4>Этап 5: Эксплуатация, администрирование и безопасность</h4>
-          <div class="stage-desc">
-            Разработайте регламент зашифрованного резервного копирования, процедуру периодического аудита журналов безопасности и сроки хранения:
-          </div>
-          <textarea id="v4_stage5" class="input-area" placeholder=""></textarea>
-        </div>
+ <div class="stage-card">
+ <h4>Этап 5: Эксплуатация, администрирование и безопасность</h4>
+ <div class="stage-desc">
+ Разработайте регламент зашифрованного резервного копирования, процедуру периодического аудита журналов безопасности и сроки хранения:
+ </div>
+ <textarea id="v4_stage5" class="input-area" placeholder=""></textarea>
+ </div>
 
-        <h3>2. Контрольный проблемный вопрос:</h3>
-        <p>
-          Почему с точки зрения безопасности 152-ФЗ и архитектуры БД хранение паспортных данных и диагнозов пациентов в одной плоской реляционной таблице считается критической уязвимостью?
-        </p>
-        <textarea id="v4_check" class="input-area" style="min-height: 100px;" placeholder=""></textarea>
-      </section>
-    </div>
+ <h3>2. Контрольный проблемный вопрос:</h3>
+ <p>
+ Почему с точки зрения безопасности 152-ФЗ и архитектуры БД хранение паспортных данных и диагнозов пациентов в одной плоской реляционной таблице считается критической уязвимостью?
+ </p>
+ <textarea id="v4_check" class="input-area" style="min-height: 100px;" placeholder=""></textarea>
+ </section>
+ </div>
 
-    <!-- Панель действий -->
-    <div class="actions-bar">
-      <button class="btn btn-primary" id="saveBtn">Сохранить данные</button>
-      <button class="btn btn-danger" id="clearBtn">Очистить рабочий лист</button>
-      <button class="btn btn-secondary" id="printBtn">&#x1F5B6; Версия для печати / PDF</button>
-      <span class="status-msg" id="saveStatus">Данные успешно сохранены в памяти браузера!</span>
-    </div>
-  </div>
+ <!-- Панель действий -->
+ <div class="actions-bar">
+ <button class="btn btn-primary" id="saveBtn">Сохранить данные</button>
+ <button class="btn btn-danger" id="clearBtn">Очистить рабочий лист</button>
+ <button class="btn btn-secondary" id="printBtn">&#x1F5B6; Версия для печати / PDF</button>
+ <span class="status-msg" id="saveStatus">Данные успешно сохранены в памяти браузера!</span>
+ </div>
+ </div>
 
-  <script>
-    (function() {
-      const STORAGE_KEY = 'db_hw13_student_worksheet';
-      const tabBtns = document.querySelectorAll('.v-tab-btn');
-      const containers = {
-        v1: document.getElementById('v1'),
-        v2: document.getElementById('v2'),
-        v3: document.getElementById('v3'),
-        v4: document.getElementById('v4')
-      };
+ <script>
+ (function() {
+ const STORAGE_KEY = 'db_hw13_student_worksheet';
+ const tabBtns = document.querySelectorAll('.v-tab-btn');
+ const containers = {
+ v1: document.getElementById('v1'),
+ v2: document.getElementById('v2'),
+ v3: document.getElementById('v3'),
+ v4: document.getElementById('v4')
+ };
 
-      // Переключение вкладок
-      tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          tabBtns.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          const target = btn.getAttribute('data-v');
-          Object.keys(containers).forEach(key => {
-            if (key === target) containers[key].classList.add('active');
-            else containers[key].classList.remove('active');
-          });
-          saveData();
-        });
-      });
+ // Переключение вкладок
+ tabBtns.forEach(btn => {
+ btn.addEventListener('click', () => {
+ tabBtns.forEach(b => b.classList.remove('active'));
+ btn.classList.add('active');
+ const target = btn.getAttribute('data-v');
+ Object.keys(containers).forEach(key => {
+ if (key === target) containers[key].classList.add('active');
+ else containers[key].classList.remove('active');
+ });
+ saveData();
+ });
+ });
 
-      function getAllInputs() {
-        return document.querySelectorAll('input, textarea');
-      }
+ function getAllInputs() {
+ return document.querySelectorAll('input, textarea');
+ }
 
-      function saveData() {
-        const activeTab = document.querySelector('.v-tab-btn.active')?.getAttribute('data-v') || 'v1';
-        const data = {
-          activeVariant: activeTab,
-          fields: {}
-        };
-        getAllInputs().forEach(el => {
-          if (el.id) {
-            data.fields[el.id] = el.value;
-          }
-        });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        const status = document.getElementById('saveStatus');
-        status.style.display = 'inline';
-        setTimeout(() => { status.style.display = 'none'; }, 3000);
-      }
+ function saveData() {
+ const activeTab = document.querySelector('.v-tab-btn.active')?.getAttribute('data-v') | 'v1';
+ const data = {
+ activeVariant: activeTab,
+ fields: {}
+ };
+ getAllInputs().forEach(el => {
+ if (el.id) {
+ data.fields[el.id] = el.value;
+ }
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ const status = document.getElementById('saveStatus');
+ status.style.display = 'inline';
+ setTimeout(() => { status.style.display = 'none'; }, 3000);
+ }
 
-      function loadData() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (!saved) return;
-        try {
-          const data = JSON.parse(saved);
-          if (data.activeVariant && containers[data.activeVariant]) {
-            tabBtns.forEach(b => {
-              if (b.getAttribute('data-v') === data.activeVariant) b.classList.add('active');
-              else b.classList.remove('active');
-            });
-            Object.keys(containers).forEach(key => {
-              if (key === data.activeVariant) containers[key].classList.add('active');
-              else containers[key].classList.remove('active');
-            });
-          }
-          if (data.fields) {
-            Object.keys(data.fields).forEach(id => {
-              const el = document.getElementById(id);
-              if (el) el.value = data.fields[id];
-            });
-          }
-        } catch (e) {
-          console.error('Ошибка загрузки данных из localStorage', e);
-        }
-      }
+ function loadData() {
+ const saved = localStorage.getItem(STORAGE_KEY);
+ if (!saved) return;
+ try {
+ const data = JSON.parse(saved);
+ if (data.activeVariant && containers[data.activeVariant]) {
+ tabBtns.forEach(b => {
+ if (b.getAttribute('data-v') === data.activeVariant) b.classList.add('active');
+ else b.classList.remove('active');
+ });
+ Object.keys(containers).forEach(key => {
+ if (key === data.activeVariant) containers[key].classList.add('active');
+ else containers[key].classList.remove('active');
+ });
+ }
+ if (data.fields) {
+ Object.keys(data.fields).forEach(id => {
+ const el = document.getElementById(id);
+ if (el) el.value = data.fields[id];
+ });
+ }
+ } catch (e) {
+ console.error('Ошибка загрузки данных из localStorage', e);
+ }
+ }
 
-      function clearData() {
-        if (confirm('Вы действительно хотите очистить все введенные данные рабочего листа?')) {
-          localStorage.removeItem(STORAGE_KEY);
-          getAllInputs().forEach(el => {
-            if (el.id === 'studentFio' || el.id === 'studentGroup' || el.tagName === 'TEXTAREA') {
-              el.value = '';
-            }
-          });
-          saveData();
-        }
-      }
+ function clearData() {
+ if (confirm('Вы действительно хотите очистить все введенные данные рабочего листа?')) {
+ localStorage.removeItem(STORAGE_KEY);
+ getAllInputs().forEach(el => {
+ if (el.id === 'studentFio' | el.id === 'studentGroup' | el.tagName === 'TEXTAREA') {
+ el.value = '';
+ }
+ });
+ saveData();
+ }
+ }
 
-      document.getElementById('saveBtn').addEventListener('click', saveData);
-      document.getElementById('clearBtn').addEventListener('click', clearData);
-      document.getElementById('printBtn').addEventListener('click', () => {
-        saveData();
-        window.print();
-      });
+ document.getElementById('saveBtn').addEventListener('click', saveData);
+ document.getElementById('clearBtn').addEventListener('click', clearData);
+ document.getElementById('printBtn').addEventListener('click', () => {
+ saveData();
+ window.print();
+ });
 
-      // Автосохранение при вводе
-      document.addEventListener('input', (e) => {
-        if (e.target.matches('input, textarea')) {
-          const activeTab = document.querySelector('.v-tab-btn.active')?.getAttribute('data-v') || 'v1';
-          const data = {
-            activeVariant: activeTab,
-            fields: {}
-          };
-          getAllInputs().forEach(el => {
-            if (el.id) data.fields[el.id] = el.value;
-          });
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        }
-      });
+ // Автосохранение при вводе
+ document.addEventListener('input', (e) => {
+ if (e.target.matches('input, textarea')) {
+ const activeTab = document.querySelector('.v-tab-btn.active')?.getAttribute('data-v') | 'v1';
+ const data = {
+ activeVariant: activeTab,
+ fields: {}
+ };
+ getAllInputs().forEach(el => {
+ if (el.id) data.fields[el.id] = el.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ }
+ });
 
-      loadData();
-    })();
-  </script>
+ loadData();
+ })();
+ </script>
 </body>
 </html>

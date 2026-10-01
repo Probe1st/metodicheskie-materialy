@@ -1,492 +1,466 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="color-scheme" content="light">
-  <title>Формы представления чисел в ЭВМ. Кодирование текстовой и графической информации</title>
-  <style>
-    :root {
-      --bg: #f1f5f9;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #1d4ed8;
-      --accent-soft: #eff6ff;
-      --code-bg: #0f172a;
-      --code-text: #f8fafc;
-      --warn-bg: #fffbeb;
-      --warn-border: #fde68a;
-      --warn-text: #92400e;
-      --input-bg: #f8fafc;
-      --input-focus: #ffffff;
-      --radius: 12px;
-      --shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      padding: 24px 16px;
-    }
-    .container { max-width: 900px; margin: 0 auto; }
-    header {
-      background: var(--card);
-      padding: 28px;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      border: 1px solid var(--line);
-      margin-bottom: 24px;
-    }
-    h1 {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: #0f172a;
-      line-height: 1.3;
-      margin-bottom: 8px;
-    }
-    .notice {
-      background: var(--warn-bg);
-      border: 1px solid var(--warn-border);
-      color: var(--warn-text);
-      padding: 12px 16px;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      margin-top: 12px;
-    }
-    .card {
-      background: var(--card);
-      padding: 28px;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      border: 1px solid var(--line);
-      margin-bottom: 24px;
-    }
-    h2 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 14px;
-      padding-bottom: 6px;
-      border-bottom: 2px solid var(--accent-soft);
-    }
-    h3 { font-size: 1.05rem; font-weight: 600; margin: 16px 0 8px 0; color: #1e293b; }
-    p { margin-bottom: 12px; font-size: 1rem; }
-    .form-group {
-      margin-top: 14px;
-      margin-bottom: 14px;
-    }
-    label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 6px;
-      font-size: 0.95rem;
-    }
-    .form-control {
-      width: 100%;
-      min-height: 80px;
-      max-height: 800px;
-      padding: 10px 12px;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      background: var(--input-bg);
-      font-family: inherit;
-      font-size: 0.95rem;
-      line-height: 1.5;
-      resize: vertical;
-      transition: border-color 0.2s, background 0.2s;
-    }
-    .form-control:focus {
-      outline: none;
-      border-color: var(--accent);
-      background: var(--input-focus);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-    }
-    .input-single-line {
-      min-height: 40px !important;
-      height: 40px !important;
-      resize: none !important;
-    }
-    .input-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    @media (max-width: 600px) {
-      .input-row { grid-template-columns: 1fr; }
-    }
-    .actions-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin: 20px 0;
-      padding: 16px;
-      background: var(--card);
-      border-radius: var(--radius);
-      border: 1px solid var(--line);
-      box-shadow: var(--shadow);
-      align-items: center;
-      justify-content: space-between;
-    }
-    .btn {
-      padding: 10px 20px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      transition: background 0.2s, transform 0.1s;
-    }
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-primary:hover { background: #1e40af; }
-    .btn-danger { background: #ef4444; color: #fff; }
-    .btn-danger:hover { background: #dc2626; }
-    .btn:active { transform: scale(0.98); }
-    .save-status {
-      font-size: 0.88rem;
-      color: var(--muted);
-      font-style: italic;
-    }
-    .sample-box {
-      background: #f8fafc;
-      border-left: 4px solid var(--accent);
-      padding: 14px 16px;
-      margin: 14px 0;
-      border-radius: 0 8px 8px 0;
-    }
-    .sample-box pre {
-      background: var(--code-bg);
-      color: var(--code-text);
-      padding: 10px 12px;
-      border-radius: 6px;
-      overflow-x: auto;
-      font-size: 0.88rem;
-      margin-top: 8px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 12px 0 16px 0;
-      font-size: 0.92rem;
-    }
-    th, td {
-      border: 1px solid var(--line);
-      padding: 8px 10px;
-      text-align: left;
-    }
-    th { background: var(--accent-soft); font-weight: 600; }
-    .print-text-replica { display: none; }
-    
-    @media print {
-      body { background: #fff; padding: 0; }
-      .actions-bar, .notice { display: none !important; }
-      .card { box-shadow: none; border: 1px solid #999; break-inside: avoid; margin-bottom: 20px; padding: 16px; }
-      .form-control { display: none !important; }
-      .print-text-replica {
-        display: block !important;
-        border: 1px solid #475569 !important;
-        background: #fff !important;
-        min-height: 80px !important;
-        padding: 8px 10px !important;
-        white-space: pre-wrap !important;
-        word-break: break-word !important;
-        font-size: 10pt !important;
-        line-height: 1.45 !important;
-        font-family: inherit !important;
-        margin-top: 4px !important;
-        border-radius: 4px !important;
-      }
-      .form-group textarea.input-single-line + .print-text-replica {
-        min-height: 34px !important;
-      }
-      .form-control::placeholder {
-        color: transparent !important;
-        opacity: 0 !important;
-      }
-      header { box-shadow: none; border: 1px solid #999; padding: 16px; margin-bottom: 16px; }
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <meta name="color-scheme" content="light">
+ <title>Формы представления чисел в ЭВМ. Кодирование текстовой и графической информации</title>
+ <style>
+ :root {
+ --bg: #f1f5f9;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #1d4ed8;
+ --accent-soft: #eff6ff;
+ --code-bg: #0f172a;
+ --code-text: #f8fafc;
+ --warn-bg: #fffbeb;
+ --warn-border: #fde68a;
+ --warn-text: #92400e;
+ --input-bg: #f8fafc;
+ --input-focus: #ffffff;
+ --radius: 12px;
+ --shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+ body {
+ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+ background-color: var(--bg);
+ color: var(--text);
+ line-height: 1.6;
+ padding: 24px 16px;
+ }.container { max-width: 900px; margin: 0 auto; }
+ header {
+ background: var(--card);
+ padding: 28px;
+ border-radius: var(--radius);
+ box-shadow: var(--shadow);
+ border: 1px solid var(--line);
+ margin-bottom: 24px;
+ }
+ h1 {
+ font-size: 1.75rem;
+ font-weight: 700;
+ color: #0f172a;
+ line-height: 1.3;
+ margin-bottom: 8px;
+ }.notice {
+ background: var(--warn-bg);
+ border: 1px solid var(--warn-border);
+ color: var(--warn-text);
+ padding: 12px 16px;
+ border-radius: 8px;
+ font-size: 0.95rem;
+ margin-top: 12px;
+ }.card {
+ background: var(--card);
+ padding: 28px;
+ border-radius: var(--radius);
+ box-shadow: var(--shadow);
+ border: 1px solid var(--line);
+ margin-bottom: 24px;
+ }
+ h2 {
+ font-size: 1.25rem;
+ font-weight: 700;
+ color: var(--accent);
+ margin-bottom: 14px;
+ padding-bottom: 6px;
+ border-bottom: 2px solid var(--accent-soft);
+ }
+ h3 { font-size: 1.05rem; font-weight: 600; margin: 16px 0 8px 0; color: #1e293b; }
+ p { margin-bottom: 12px; font-size: 1rem; }.form-group {
+ margin-top: 14px;
+ margin-bottom: 14px;
+ }
+ label {
+ display: block;
+ font-weight: 600;
+ margin-bottom: 6px;
+ font-size: 0.95rem;
+ }.form-control {
+ width: 100%;
+ min-height: 80px;
+ max-height: 800px;
+ padding: 10px 12px;
+ border: 1px solid var(--line);
+ border-radius: 6px;
+ background: var(--input-bg);
+ font-family: inherit;
+ font-size: 0.95rem;
+ line-height: 1.5;
+ resize: vertical;
+ transition: border-color 0.2s, background 0.2s;
+ }.form-control:focus {
+ outline: none;
+ border-color: var(--accent);
+ background: var(--input-focus);
+ box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+ }.input-single-line {
+ min-height: 40px !important;
+ height: 40px !important;
+ resize: none !important;
+ }.input-row {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 16px;
+ }
+ @media (max-width: 600px) {.input-row { grid-template-columns: 1fr; }
+ }.actions-bar {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 12px;
+ margin: 20px 0;
+ padding: 16px;
+ background: var(--card);
+ border-radius: var(--radius);
+ border: 1px solid var(--line);
+ box-shadow: var(--shadow);
+ align-items: center;
+ justify-content: space-between;
+ }.btn {
+ padding: 10px 20px;
+ font-size: 0.95rem;
+ font-weight: 600;
+ border-radius: 6px;
+ border: none;
+ cursor: pointer;
+ display: inline-flex;
+ align-items: center;
+ gap: 8px;
+ transition: background 0.2s, transform 0.1s;
+ }.btn-primary { background: var(--accent); color: #fff; }.btn-primary:hover { background: #1e40af; }.btn-danger { background: #ef4444; color: #fff; }.btn-danger:hover { background: #dc2626; }.btn:active { transform: scale(0.98); }.save-status {
+ font-size: 0.88rem;
+ color: var(--muted);
+ font-style: italic;
+ }.sample-box {
+ background: #f8fafc;
+ border-left: 4px solid var(--accent);
+ padding: 14px 16px;
+ margin: 14px 0;
+ border-radius: 0 8px 8px 0;
+ }.sample-box pre {
+ background: var(--code-bg);
+ color: var(--code-text);
+ padding: 10px 12px;
+ border-radius: 6px;
+ overflow-x: auto;
+ font-size: 0.88rem;
+ margin-top: 8px;
+ }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ margin: 12px 0 16px 0;
+ font-size: 0.92rem;
+ }
+ th, td {
+ border: 1px solid var(--line);
+ padding: 8px 10px;
+ text-align: left;
+ }
+ th { background: var(--accent-soft); font-weight: 600; }.print-text-replica { display: none; }
+ 
+ @media print {
+ body { background: #fff; padding: 0; }.actions-bar,.notice { display: none !important; }.card { box-shadow: none; border: 1px solid #999; break-inside: avoid; margin-bottom: 20px; padding: 16px; }.form-control { display: none !important; }.print-text-replica {
+ display: block !important;
+ border: 1px solid #475569 !important;
+ background: #fff !important;
+ min-height: 80px !important;
+ padding: 8px 10px !important;
+ white-space: pre-wrap !important;
+ word-break: break-word !important;
+ font-size: 10pt !important;
+ line-height: 1.45 !important;
+ font-family: inherit !important;
+ margin-top: 4px !important;
+ border-radius: 4px !important;
+ }.form-group textarea.input-single-line +.print-text-replica {
+ min-height: 34px !important;
+ }.form-control::placeholder {
+ color: transparent !important;
+ opacity: 0 !important;
+ }
+ header { box-shadow: none; border: 1px solid #999; padding: 16px; margin-bottom: 16px; }
+ }
+ </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Формы представления чисел в ЭВМ. Кодирование текстовой и графической информации</h1>
-      <p>Индивидуальный рабочий лист для аудиторного выполнения и сдачи практической схемы-протокола цифрового кодирования данных.</p>
-      
-      <div class="notice">
-        <strong>Внимание:</strong> Все поля бланка автоматически сохраняются в памяти браузера (localStorage). При печати или экспорте в PDF служебные кнопки скрываются, а все ваши ответы сохраняются в чистовом виде.
-      </div>
+ <div class="container">
+ <header>
+ <h1>Формы представления чисел в ЭВМ. Кодирование текстовой и графической информации</h1>
+ <p>Индивидуальный рабочий лист для аудиторного выполнения и сдачи практической схемы-протокола цифрового кодирования данных.</p>
+ 
+ <div class="notice">
+ <strong>Внимание:</strong> Все поля бланка автоматически сохраняются в памяти браузера (localStorage). При печати или экспорте в PDF служебные кнопки скрываются, а все ваши ответы сохраняются в чистовом виде.
+ </div>
 
-      <div class="input-row" style="margin-top: 18px;">
-        <div class="form-group">
-          <label for="studentName">Фамилия, Имя, Отчество обучающегося:</label>
-          <textarea id="studentName" class="form-control input-single-line" placeholder=""></textarea>
-          <div class="print-text-replica" id="replica_studentName"></div>
-        </div>
-        <div class="form-group">
-          <label for="studentGroup">Учебная группа:</label>
-          <textarea id="studentGroup" class="form-control input-single-line" placeholder=""></textarea>
-          <div class="print-text-replica" id="replica_studentGroup"></div>
-        </div>
-      </div>
-    </header>
+ <div class="input-row" style="margin-top: 18px;">
+ <div class="form-group">
+ <label for="studentName">Фамилия, Имя, Отчество обучающегося:</label>
+ <textarea id="studentName" class="form-control input-single-line" placeholder=""></textarea>
+ <div class="print-text-replica" id="replica_studentName"></div>
+ </div>
+ <div class="form-group">
+ <label for="studentGroup">Учебная группа:</label>
+ <textarea id="studentGroup" class="form-control input-single-line" placeholder=""></textarea>
+ <div class="print-text-replica" id="replica_studentGroup"></div>
+ </div>
+ </div>
+ </header>
 
-    <div class="actions-bar">
-      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-        <button type="button" class="btn btn-primary" onclick="window.print()">Распечатать / Сохранить в PDF</button>
-        <button type="button" class="btn btn-danger" onclick="confirmReset()">Очистить все поля</button>
-      </div>
-      <div id="saveStatus" class="save-status">Изменения сохранены локально</div>
-    </div>
+ <div class="actions-bar">
+ <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+ <button type="button" class="btn btn-primary" onclick="window.print()">Распечатать / Сохранить в PDF</button>
+ <button type="button" class="btn btn-danger" onclick="confirmReset()">Очистить все поля</button>
+ </div>
+ <div id="saveStatus" class="save-status">Изменения сохранены локально</div>
+ </div>
 
-    <main>
-      <!-- Task 1: Numbers -->
-      <section class="card">
-        <h2>Задание 1. Кодирование чисел: дополнительный код и стандарт IEEE 754</h2>
-        <p>1.1. Переведите отрицательное десятичное число <strong>-77<sub>10</sub></strong> в 8-разрядный дополнительный код. Опишите пошагово этапы: нахождение прямого кода модуля, инвертирование битов (обратный код) и прибавление единицы к младшему разряду. Выполните проверку по весу старшего знакового разряда (-128).</p>
-        <p>1.2. Переведите вещественное число <strong>-6.25<sub>10</sub></strong> в 32-битный формат с плавающей точкой стандарта IEEE 754 Single. Выделите три ключевых поля: знаковый бит S, смещенный 8-битный порядок E (со смещением +127) и 23-битную мантиссу M (с учетом отбрасывания неявной единицы). Запишите итоговое 32-битное слово в двоичной форме и в шестнадцатеричном виде (HEX).</p>
-        
-        <div class="sample-box">
-          <strong>Ориентир формата записи IEEE 754:</strong>
-          <pre>Знак: S = 1 (число отрицательное)
+ <main>
+ <!-- Task 1: Numbers -->
+ <section class="card">
+ <h2>Задание 1. Кодирование чисел: дополнительный код и стандарт IEEE 754</h2>
+ <p>1.1. Переведите отрицательное десятичное число <strong>-77<sub>10</sub></strong> в 8-разрядный дополнительный код. Опишите пошагово этапы: нахождение прямого кода модуля, инвертирование битов (обратный код) и прибавление единицы к младшему разряду. Выполните проверку по весу старшего знакового разряда (-128).</p>
+ <p>1.2. Переведите вещественное число <strong>-6.25<sub>10</sub></strong> в 32-битный формат с плавающей точкой стандарта IEEE 754 Single. Выделите три ключевых поля: знаковый бит S, смещенный 8-битный порядок E (со смещением +127) и 23-битную мантиссу M (с учетом отбрасывания неявной единицы). Запишите итоговое 32-битное слово в двоичной форме и в шестнадцатеричном виде (HEX).</p>
+ 
+ <div class="sample-box">
+ <strong>Ориентир формата записи IEEE 754:</strong>
+ <pre>Знак: S = 1 (число отрицательное)
 Модуль: 6.25_10 = 110.01_2 = 1.1001_2 * 2^2 (e = 2)
 Смещенный порядок: E = 2 + 127 = 129_10 = 10000001_2
 Мантисса (23 бита): 10010000000000000000000_2
 HEX: 0xC0C80000</pre>
-        </div>
+ </div>
 
-        <div class="form-group">
-          <label for="task1_solution">Ваше пошаговое решение и аппаратный анализ (Задание 1):</label>
-          <textarea id="task1_solution" class="form-control" style="min-height: 140px;" placeholder=""></textarea>
-          <div class="print-text-replica" id="replica_task1_solution"></div>
-        </div>
-      </section>
+ <div class="form-group">
+ <label for="task1_solution">Ваше пошаговое решение и аппаратный анализ (Задание 1):</label>
+ <textarea id="task1_solution" class="form-control" style="min-height: 140px;" placeholder=""></textarea>
+ <div class="print-text-replica" id="replica_task1_solution"></div>
+ </div>
+ </section>
 
-      <!-- Task 2: Text Encoding -->
-      <section class="card">
-        <h2>Задание 2. Сравнительный анализ кодирования текста (Windows-1251 vs UTF-8)</h2>
-        <p>Дана символьная строка: <code>"Микрокод ALU (16 бит)"</code>.</p>
-        <p>2.1. Определите общее количество символов в строке, выделив отдельно число кириллических букв и число символов стандартного набора ASCII (латинские буквы, пробелы, скобки, цифры).</p>
-        <p>2.2. Рассчитайте информационный объем данной строки в байтах в однобайтовой кодовой странице <strong>Windows-1251 (CP1251)</strong>.</p>
-        <p>2.3. Рассчитайте точный информационный объем данной строки в байтах в стандарте <strong>UTF-8</strong>, опираясь на архитектурные правила префиксов Unicode (1 байт для ASCII <code>0x00..0x7F</code>, 2 байта для кириллицы <code>U+0400..U+04FF</code>). Объясните разницу в расходе памяти.</p>
+ <!-- Task 2: Text Encoding -->
+ <section class="card">
+ <h2>Задание 2. Сравнительный анализ кодирования текста (Windows-1251 vs UTF-8)</h2>
+ <p>Дана символьная строка: <code>"Микрокод ALU (16 бит)"</code>.</p>
+ <p>2.1. Определите общее количество символов в строке, выделив отдельно число кириллических букв и число символов стандартного набора ASCII (латинские буквы, пробелы, скобки, цифры).</p>
+ <p>2.2. Рассчитайте информационный объем данной строки в байтах в однобайтовой кодовой странице <strong>Windows-1251 (CP1251)</strong>.</p>
+ <p>2.3. Рассчитайте точный информационный объем данной строки в байтах в стандарте <strong>UTF-8</strong>, опираясь на архитектурные правила префиксов Unicode (1 байт для ASCII <code>0x00..0x7F</code>, 2 байта для кириллицы <code>U+0400..U+04FF</code>). Объясните разницу в расходе памяти.</p>
 
-        <div class="form-group">
-          <label for="task2_solution">Ваш посимвольный расчет и объяснение (Задание 2):</label>
-          <textarea id="task2_solution" class="form-control" style="min-height: 120px;" placeholder=""></textarea>
-          <div class="print-text-replica" id="replica_task2_solution"></div>
-        </div>
-      </section>
+ <div class="form-group">
+ <label for="task2_solution">Ваш посимвольный расчет и объяснение (Задание 2):</label>
+ <textarea id="task2_solution" class="form-control" style="min-height: 120px;" placeholder=""></textarea>
+ <div class="print-text-replica" id="replica_task2_solution"></div>
+ </div>
+ </section>
 
-      <!-- Task 3: Graphics Encoding -->
-      <section class="card">
-        <h2>Задание 3. Кодирование растровой графики и расчет видеопамяти</h2>
-        <p>Рассчитайте информационный объем несжатых пиксельных данных для значка интерфейса размером <strong>16 × 16 пикселей</strong> (N = 256 пикселей):</p>
-        <p>3.1. В монохромном режиме с битовой глубиной b = 1 бит/пиксель (2<sup>1</sup> = 2 цвета). Приведите объем в битах и байтах.</p>
-        <p>3.2. В полноцветном режиме TrueColor с битовой глубиной b = 24 бит/пиксель (2<sup>24</sup> ≈ 16.7 млн цветов, по 8 бит на каналы R, G, B). Приведите объем в битах и байтах.</p>
-        <p>3.3. Объясните, требуется ли для TrueColor таблица цветов (палитра) и как аппаратное требование выравнивания строк растра (scanline padding до кратности 4 байтам) влияет на реальный размер структуры растра в памяти.</p>
+ <!-- Task 3: Graphics Encoding -->
+ <section class="card">
+ <h2>Задание 3. Кодирование растровой графики и расчет видеопамяти</h2>
+ <p>Рассчитайте информационный объем несжатых пиксельных данных для значка интерфейса размером <strong>16 × 16 пикселей</strong> (N = 256 пикселей):</p>
+ <p>3.1. В монохромном режиме с битовой глубиной b = 1 бит/пиксель (2<sup>1</sup> = 2 цвета). Приведите объем в битах и байтах.</p>
+ <p>3.2. В полноцветном режиме TrueColor с битовой глубиной b = 24 бит/пиксель (2<sup>24</sup> ≈ 16.7 млн цветов, по 8 бит на каналы R, G, B). Приведите объем в битах и байтах.</p>
+ <p>3.3. Объясните, требуется ли для TrueColor таблица цветов (палитра) и как аппаратное требование выравнивания строк растра (scanline padding до кратности 4 байтам) влияет на реальный размер структуры растра в памяти.</p>
 
-        <div class="form-group">
-          <label for="task3_solution">Ваш расчет объема растра и обоснование (Задание 3):</label>
-          <textarea id="task3_solution" class="form-control" style="min-height: 130px;" placeholder=""></textarea>
-          <div class="print-text-replica" id="replica_task3_solution"></div>
-        </div>
-      </section>
+ <div class="form-group">
+ <label for="task3_solution">Ваш расчет объема растра и обоснование (Задание 3):</label>
+ <textarea id="task3_solution" class="form-control" style="min-height: 130px;" placeholder=""></textarea>
+ <div class="print-text-replica" id="replica_task3_solution"></div>
+ </div>
+ </section>
 
-      <!-- Task 4: Individual Product (4 Variants) -->
-      <section class="card">
-        <h2>Задание 4. Индивидуальная схема-протокол цифрового кодирования (по вариантам)</h2>
-        <p>Выберите номер своего варианта согласно указанию преподавателя (варианты 1–4). Выполните полный комплекс расчетно-аналитических действий:</p>
-        
-        <table>
-          <thead>
-            <tr>
-              <th>Параметр / Вариант</th>
-              <th>Вариант 1</th>
-              <th>Вариант 2</th>
-              <th>Вариант 3</th>
-              <th>Вариант 4</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>Вещественное число (IEEE 754)</strong></td>
-              <td>-13.5<sub>10</sub></td>
-              <td>+25.625<sub>10</sub></td>
-              <td>-18.75<sub>10</sub></td>
-              <td>+42.375<sub>10</sub></td>
-            </tr>
-            <tr>
-              <td><strong>Целое число (16 бит доп. код)</strong></td>
-              <td>-345<sub>10</sub></td>
-              <td>-520<sub>10</sub></td>
-              <td>-675<sub>10</sub></td>
-              <td>-840<sub>10</sub></td>
-            </tr>
-            <tr>
-              <td><strong>Текстовая строка</strong></td>
-              <td>«Архитектура ЭВМ (CPU: 64-bit)»</td>
-              <td>«Аппаратные узлы: ALU & FPU (32 бита)»</td>
-              <td>«Шина данных (Bus: 16-bit, 2.4 ГГц)»</td>
-              <td>«Регистр флагов (EFLAGS: 32 бита, ZF=1)»</td>
-            </tr>
-            <tr>
-              <td><strong>Растровый значок</strong></td>
-              <td>16 × 16, монохром (1 бит) и TrueColor (24 бита)</td>
-              <td>16 × 16, монохром (1 бит) и TrueColor (24 бита)</td>
-              <td>16 × 16, монохром (1 бит) и TrueColor (24 бита)</td>
-              <td>16 × 16, монохром (1 бит) и TrueColor (24 бита)</td>
-            </tr>
-          </tbody>
-        </table>
+ <!-- Task 4: Individual Product (4 Variants) -->
+ <section class="card">
+ <h2>Задание 4. Индивидуальная схема-протокол цифрового кодирования (по вариантам)</h2>
+ <p>Выберите номер своего варианта согласно указанию преподавателя (варианты 1–4). Выполните полный комплекс расчетно-аналитических действий:</p>
+ 
+ <table>
+ <thead>
+ <tr>
+ <th>Параметр / Вариант</th>
+ <th>Вариант 1</th>
+ <th>Вариант 2</th>
+ <th>Вариант 3</th>
+ <th>Вариант 4</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>Вещественное число (IEEE 754)</strong></td>
+ <td>-13.5<sub>10</sub></td>
+ <td>+25.625<sub>10</sub></td>
+ <td>-18.75<sub>10</sub></td>
+ <td>+42.375<sub>10</sub></td>
+ </tr>
+ <tr>
+ <td><strong>Целое число (16 бит доп. код)</strong></td>
+ <td>-345<sub>10</sub></td>
+ <td>-520<sub>10</sub></td>
+ <td>-675<sub>10</sub></td>
+ <td>-840<sub>10</sub></td>
+ </tr>
+ <tr>
+ <td><strong>Текстовая строка</strong></td>
+ <td>«Архитектура ЭВМ (CPU: 64-bit)»</td>
+ <td>«Аппаратные узлы: ALU & FPU (32 бита)»</td>
+ <td>«Шина данных (Bus: 16-bit, 2.4 ГГц)»</td>
+ <td>«Регистр флагов (EFLAGS: 32 бита, ZF=1)»</td>
+ </tr>
+ <tr>
+ <td><strong>Растровый значок</strong></td>
+ <td>16 × 16, монохром (1 бит) и TrueColor (24 бита)</td>
+ <td>16 × 16, монохром (1 бит) и TrueColor (24 бита)</td>
+ <td>16 × 16, монохром (1 бит) и TrueColor (24 бита)</td>
+ <td>16 × 16, монохром (1 бит) и TrueColor (24 бита)</td>
+ </tr>
+ </tbody>
+ </table>
 
-        <div class="sample-box">
-          <strong>Открытые критерии оценивания индивидуального продукта (4-балльная шкала):</strong>
-          <ul style="margin-left: 20px; margin-top: 6px;">
-            <li><strong>Корректность (0–2 балла):</strong> безошибочность 32-битного кода IEEE 754 (знак, порядок, мантисса, HEX), 16-битного дополнительного кода, точный подсчет байтов CP1251/UTF-8 и объема растра в битах и байтах.</li>
-            <li><strong>Объяснение (0–1 балл):</strong> логически связное инженерное обоснование смещения +127, префиксов UTF-8, битовой глубины.</li>
-            <li><strong>Проверка (0–1 балл):</strong> строгая десятичная обратная проверка для всех полученных двоичных и шестнадцатеричных структур.</li>
-          </ul>
-        </div>
+ <div class="sample-box">
+ <strong>Открытые критерии оценивания индивидуального продукта (4-балльная шкала):</strong>
+ <ul style="margin-left: 20px; margin-top: 6px;">
+ <li><strong>Корректность (0–2 балла):</strong> безошибочность 32-битного кода IEEE 754 (знак, порядок, мантисса, HEX), 16-битного дополнительного кода, точный подсчет байтов CP1251/UTF-8 и объема растра в битах и байтах.</li>
+ <li><strong>Объяснение (0–1 балл):</strong> логически связное инженерное обоснование смещения +127, префиксов UTF-8, битовой глубины.</li>
+ <li><strong>Проверка (0–1 балл):</strong> строгая десятичная обратная проверка для всех полученных двоичных и шестнадцатеричных структур.</li>
+ </ul>
+ </div>
 
-        <div class="form-group">
-          <label for="variantSelect">Выбранный вариант:</label>
-          <textarea id="variantSelect" class="form-control input-single-line" placeholder="Номер варианта (1, 2, 3 или 4)"></textarea>
-          <div class="print-text-replica" id="replica_variantSelect"></div>
-        </div>
+ <div class="form-group">
+ <label for="variantSelect">Выбранный вариант:</label>
+ <textarea id="variantSelect" class="form-control input-single-line" placeholder="Номер варианта (1, 2, 3 или 4)"></textarea>
+ <div class="print-text-replica" id="replica_variantSelect"></div>
+ </div>
 
-        <div class="form-group">
-          <label for="variant_num_solution">1. Численный блок (IEEE 754 32-бит + 16-битный дополнительный код с HEX-кодами и проверкой):</label>
-          <textarea id="variant_num_solution" class="form-control" style="min-height: 140px;" placeholder=""></textarea>
-          <div class="print-text-replica" id="replica_variant_num_solution"></div>
-        </div>
+ <div class="form-group">
+ <label for="variant_num_solution">1. Численный блок (IEEE 754 32-бит + 16-битный дополнительный код с HEX-кодами и проверкой):</label>
+ <textarea id="variant_num_solution" class="form-control" style="min-height: 140px;" placeholder=""></textarea>
+ <div class="print-text-replica" id="replica_variant_num_solution"></div>
+ </div>
 
-        <div class="form-group">
-          <label for="variant_text_solution">2. Текстовый блок (посимвольный разбор, байты CP1251 vs UTF-8, инженерное сравнение):</label>
-          <textarea id="variant_text_solution" class="form-control" style="min-height: 120px;" placeholder=""></textarea>
-          <div class="print-text-replica" id="replica_variant_text_solution"></div>
-        </div>
+ <div class="form-group">
+ <label for="variant_text_solution">2. Текстовый блок (посимвольный разбор, байты CP1251 vs UTF-8, инженерное сравнение):</label>
+ <textarea id="variant_text_solution" class="form-control" style="min-height: 120px;" placeholder=""></textarea>
+ <div class="print-text-replica" id="replica_variant_text_solution"></div>
+ </div>
 
-        <div class="form-group">
-          <label for="variant_gfx_solution">3. Графический блок (расчет объема в битах и байтах, обоснование палитры и выравнивания):</label>
-          <textarea id="variant_gfx_solution" class="form-control" style="min-height: 120px;" placeholder=""></textarea>
-          <div class="print-text-replica" id="replica_variant_gfx_solution"></div>
-        </div>
+ <div class="form-group">
+ <label for="variant_gfx_solution">3. Графический блок (расчет объема в битах и байтах, обоснование палитры и выравнивания):</label>
+ <textarea id="variant_gfx_solution" class="form-control" style="min-height: 120px;" placeholder=""></textarea>
+ <div class="print-text-replica" id="replica_variant_gfx_solution"></div>
+ </div>
 
-        <div class="form-group">
-          <label for="variant_verification">4. Обратная проверка и вывод о применимости форматов кодирования:</label>
-          <textarea id="variant_verification" class="form-control" style="min-height: 100px;" placeholder=""></textarea>
-          <div class="print-text-replica" id="replica_variant_verification"></div>
-        </div>
-      </section>
-    </main>
-  </div>
+ <div class="form-group">
+ <label for="variant_verification">4. Обратная проверка и вывод о применимости форматов кодирования:</label>
+ <textarea id="variant_verification" class="form-control" style="min-height: 100px;" placeholder=""></textarea>
+ <div class="print-text-replica" id="replica_variant_verification"></div>
+ </div>
+ </section>
+ </main>
+ </div>
 
-  <script>
-    const STORAGE_KEY = 'sie_arch_lesson05_worksheet';
-    const fields = [
-      'studentName',
-      'studentGroup',
-      'task1_solution',
-      'task2_solution',
-      'task3_solution',
-      'variantSelect',
-      'variant_num_solution',
-      'variant_text_solution',
-      'variant_gfx_solution',
-      'variant_verification'
-    ];
+ <script>
+ const STORAGE_KEY = 'sie_arch_lesson05_worksheet';
+ const fields = [
+ 'studentName',
+ 'studentGroup',
+ 'task1_solution',
+ 'task2_solution',
+ 'task3_solution',
+ 'variantSelect',
+ 'variant_num_solution',
+ 'variant_text_solution',
+ 'variant_gfx_solution',
+ 'variant_verification'
+ ];
 
-    function updateReplicas() {
-      fields.forEach(id => {
-        const el = document.getElementById(id);
-        const replica = document.getElementById('replica_' + id);
-        if (el && replica) {
-          replica.textContent = el.value || ' ';
-        }
-      });
-    }
+ function updateReplicas() {
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ const replica = document.getElementById('replica_' + id);
+ if (el && replica) {
+ replica.textContent = el.value | ' ';
+ }
+ });
+ }
 
-    function autoExpand(el) {
-      if (el.classList.contains('input-single-line')) return;
-      el.style.height = 'auto';
-      el.style.height = Math.max(el.scrollHeight, 80) + 'px';
-    }
+ function autoExpand(el) {
+ if (el.classList.contains('input-single-line')) return;
+ el.style.height = 'auto';
+ el.style.height = Math.max(el.scrollHeight, 80) + 'px';
+ }
 
-    function saveData() {
-      const data = {};
-      fields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) data[id] = el.value;
-      });
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      updateReplicas();
-      const status = document.getElementById('saveStatus');
-      if (status) {
-        status.textContent = 'Сохранено автоматически: ' + new Date().toLocaleTimeString();
-      }
-    }
+ function saveData() {
+ const data = {};
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) data[id] = el.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ updateReplicas();
+ const status = document.getElementById('saveStatus');
+ if (status) {
+ status.textContent = 'Сохранено автоматически: ' + new Date().toLocaleTimeString();
+ }
+ }
 
-    function loadData() {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) {
-        updateReplicas();
-        return;
-      }
-      try {
-        const data = JSON.parse(raw);
-        fields.forEach(id => {
-          const el = document.getElementById(id);
-          if (el && data[id] !== undefined) {
-            el.value = data[id];
-            autoExpand(el);
-          }
-        });
-      } catch (e) {
-        console.error('Ошибка загрузки сохраненных данных:', e);
-      }
-      updateReplicas();
-    }
+ function loadData() {
+ const raw = localStorage.getItem(STORAGE_KEY);
+ if (!raw) {
+ updateReplicas();
+ return;
+ }
+ try {
+ const data = JSON.parse(raw);
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el && data[id] !== undefined) {
+ el.value = data[id];
+ autoExpand(el);
+ }
+ });
+ } catch (e) {
+ console.error('Ошибка загрузки сохраненных данных:', e);
+ }
+ updateReplicas();
+ }
 
-    function confirmReset() {
-      if (confirm('Вы действительно хотите очистить все введенные ответы? Это действие нельзя отменить.')) {
-        localStorage.removeItem(STORAGE_KEY);
-        fields.forEach(id => {
-          const el = document.getElementById(id);
-          if (el) {
-            el.value = '';
-            if (!el.classList.contains('input-single-line')) {
-              el.style.height = '80px';
-            }
-          }
-        });
-        updateReplicas();
-        const status = document.getElementById('saveStatus');
-        if (status) status.textContent = 'Все поля очищены';
-      }
-    }
+ function confirmReset() {
+ if (confirm('Вы действительно хотите очистить все введенные ответы? Это действие нельзя отменить.')) {
+ localStorage.removeItem(STORAGE_KEY);
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) {
+ el.value = '';
+ if (!el.classList.contains('input-single-line')) {
+ el.style.height = '80px';
+ }
+ }
+ });
+ updateReplicas();
+ const status = document.getElementById('saveStatus');
+ if (status) status.textContent = 'Все поля очищены';
+ }
+ }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      loadData();
-      fields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-          el.addEventListener('input', () => {
-            autoExpand(el);
-            saveData();
-          });
-        }
-      });
-    });
+ window.addEventListener('DOMContentLoaded', () => {
+ loadData();
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) {
+ el.addEventListener('input', () => {
+ autoExpand(el);
+ saveData();
+ });
+ }
+ });
+ });
 
-    window.addEventListener('beforeprint', () => {
-      updateReplicas();
-    });
-  </script>
+ window.addEventListener('beforeprint', () => {
+ updateReplicas();
+ });
+ </script>
 </body>
 </html>

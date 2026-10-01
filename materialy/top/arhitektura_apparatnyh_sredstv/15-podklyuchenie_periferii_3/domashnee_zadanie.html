@@ -1,276 +1,253 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Домашнее задание - Конструкция, подключение и инсталляция периферийных устройств — часть 3</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #1e40af;
-      --accent-soft: #eff6ff;
-      --radius: 12px;
-      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-      --success: #059669;
-      --warn: #d97706;
-      --danger: #dc2626;
-      --code-bg: #0f172a;
-      --code-text: #f8fafc;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.6;
-      font-size: 15px;
-      padding: 24px 16px;
-    }
-    .container {
-      max-width: 920px;
-      margin: 0 auto;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow);
-    }
-    h1 {
-      font-size: clamp(20px, 3.2vw, 25px);
-      color: var(--accent);
-      margin-bottom: 12px;
-      line-height: 1.3;
-    }
-    h2 {
-      font-size: 18px;
-      color: var(--accent);
-      margin: 22px 0 10px;
-      border-bottom: 1.5px solid var(--accent-soft);
-      padding-bottom: 6px;
-    }
-    h3 {
-      font-size: 15.5px;
-      margin: 16px 0 6px;
-      color: #1e293b;
-    }
-    p, ul, ol { margin-bottom: 12px; }
-    ul, ol { padding-left: 22px; }
-    li { margin-bottom: 6px; }
-    .reserve-banner {
-      background: #fef3c7;
-      border: 1.5px solid var(--warn);
-      color: #92400e;
-      padding: 14px 18px;
-      border-radius: var(--radius);
-      margin-bottom: 20px;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .reserve-banner strong {
-      color: #78350f;
-    }
-    .code-box {
-      background: var(--code-bg);
-      color: var(--code-text);
-      padding: 14px;
-      border-radius: 8px;
-      font-family: ui-monospace, Menlo, Monaco, Consolas, monospace;
-      font-size: 13.5px;
-      overflow-x: auto;
-      margin: 12px 0;
-      line-height: 1.5;
-    }
-    .sample-box {
-      background: #f0fdf4;
-      border: 1.5px solid #86efac;
-      border-radius: var(--radius);
-      padding: 18px;
-      margin: 16px 0;
-    }
-    .sample-box h4 {
-      color: #15803d;
-      margin-bottom: 8px;
-      font-size: 16px;
-    }
-    .student-fields {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 16px;
-      margin-bottom: 18px;
-    }
-    @media (max-width: 600px) {
-      .student-fields { grid-template-columns: 1fr; }
-    }
-    .field-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    label {
-      font-size: 13.5px;
-      font-weight: 600;
-      color: var(--muted);
-    }
-    input[type="text"], textarea {
-      width: 100%;
-      padding: 10px 14px;
-      border: 1.5px solid var(--line);
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 14.5px;
-      color: var(--text);
-      background: #fafafa;
-      transition: border-color 0.15s, background-color 0.15s;
-    }
-    input[type="text"]:focus, textarea:focus {
-      outline: none;
-      border-color: var(--accent);
-      background: #ffffff;
-    }
-    textarea {
-      min-height: 110px;
-      resize: vertical;
-    }
-    .print-mirror {
-      display: none;
-      white-space: pre-wrap;
-      word-break: break-word;
-      font-size: 14px;
-      line-height: 1.5;
-      padding: 8px 12px;
-      border: 1.5px solid #cbd5e1;
-      border-radius: 8px;
-      background: #fafafa;
-      min-height: 50px;
-    }
-    .btn-wrap {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 20px;
-    }
-    button {
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: background 0.15s;
-    }
-    .btn-save { background: var(--accent); color: white; }
-    .btn-save:hover { background: #1d4ed8; }
-    .btn-print { background: var(--success); color: white; }
-    .btn-print:hover { background: #047857; }
-    .btn-clear { background: #fee2e2; color: var(--danger); border: 1px solid #fecaca; }
-    .btn-clear:hover { background: #fecaca; }
-    .status-alert {
-      font-size: 13.5px;
-      color: var(--success);
-      font-weight: 500;
-      margin-top: 8px;
-      display: none;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 14px 0;
-      font-size: 13.5px;
-    }
-    th, td {
-      border: 1px solid var(--line);
-      padding: 8px 10px;
-      text-align: left;
-      vertical-align: top;
-    }
-    th {
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-weight: 700;
-    }
-    @media print {
-      body { background: #fff; padding: 0; font-size: 10pt; color: #000; }
-      .container { max-width: 100%; }
-      .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 12pt; padding: 12pt; }
-      .reserve-banner, .btn-wrap, .status-alert { display: none !important; }
-      textarea { display: none !important; }
-      .print-mirror { display: block !important; }
-      input::placeholder, textarea::placeholder { color: transparent !important; }
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <title>Домашнее задание - Конструкция, подключение и инсталляция периферийных устройств — часть 3</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #1e40af;
+ --accent-soft: #eff6ff;
+ --radius: 12px;
+ --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+ --success: #059669;
+ --warn: #d97706;
+ --danger: #dc2626;
+ --code-bg: #0f172a;
+ --code-text: #f8fafc;
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+ body {
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+ line-height: 1.6;
+ font-size: 15px;
+ padding: 24px 16px;
+ }.container {
+ max-width: 920px;
+ margin: 0 auto;
+ }.card {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 24px;
+ margin-bottom: 20px;
+ box-shadow: var(--shadow);
+ }
+ h1 {
+ font-size: clamp(20px, 3.2vw, 25px);
+ color: var(--accent);
+ margin-bottom: 12px;
+ line-height: 1.3;
+ }
+ h2 {
+ font-size: 18px;
+ color: var(--accent);
+ margin: 22px 0 10px;
+ border-bottom: 1.5px solid var(--accent-soft);
+ padding-bottom: 6px;
+ }
+ h3 {
+ font-size: 15.5px;
+ margin: 16px 0 6px;
+ color: #1e293b;
+ }
+ p, ul, ol { margin-bottom: 12px; }
+ ul, ol { padding-left: 22px; }
+ li { margin-bottom: 6px; }.reserve-banner {
+ background: #fef3c7;
+ border: 1.5px solid var(--warn);
+ color: #92400e;
+ padding: 14px 18px;
+ border-radius: var(--radius);
+ margin-bottom: 20px;
+ font-weight: 500;
+ display: flex;
+ align-items: center;
+ gap: 12px;
+ }.reserve-banner strong {
+ color: #78350f;
+ }.code-box {
+ background: var(--code-bg);
+ color: var(--code-text);
+ padding: 14px;
+ border-radius: 8px;
+ font-family: ui-monospace, Menlo, Monaco, Consolas, monospace;
+ font-size: 13.5px;
+ overflow-x: auto;
+ margin: 12px 0;
+ line-height: 1.5;
+ }.sample-box {
+ background: #f0fdf4;
+ border: 1.5px solid #86efac;
+ border-radius: var(--radius);
+ padding: 18px;
+ margin: 16px 0;
+ }.sample-box h4 {
+ color: #15803d;
+ margin-bottom: 8px;
+ font-size: 16px;
+ }.student-fields {
+ display: grid;
+ grid-template-columns: 2fr 1fr;
+ gap: 16px;
+ margin-bottom: 18px;
+ }
+ @media (max-width: 600px) {.student-fields { grid-template-columns: 1fr; }
+ }.field-group {
+ display: flex;
+ flex-direction: column;
+ gap: 6px;
+ }
+ label {
+ font-size: 13.5px;
+ font-weight: 600;
+ color: var(--muted);
+ }
+ input[type="text"], textarea {
+ width: 100%;
+ padding: 10px 14px;
+ border: 1.5px solid var(--line);
+ border-radius: 8px;
+ font-family: inherit;
+ font-size: 14.5px;
+ color: var(--text);
+ background: #fafafa;
+ transition: border-color 0.15s, background-color 0.15s;
+ }
+ input[type="text"]:focus, textarea:focus {
+ outline: none;
+ border-color: var(--accent);
+ background: #ffffff;
+ }
+ textarea {
+ min-height: 110px;
+ resize: vertical;
+ }.print-mirror {
+ display: none;
+ white-space: pre-wrap;
+ word-break: break-word;
+ font-size: 14px;
+ line-height: 1.5;
+ padding: 8px 12px;
+ border: 1.5px solid #cbd5e1;
+ border-radius: 8px;
+ background: #fafafa;
+ min-height: 50px;
+ }.btn-wrap {
+ display: flex;
+ gap: 12px;
+ flex-wrap: wrap;
+ margin-top: 20px;
+ }
+ button {
+ padding: 10px 20px;
+ border-radius: 8px;
+ font-size: 14px;
+ font-weight: 600;
+ cursor: pointer;
+ border: none;
+ transition: background 0.15s;
+ }.btn-save { background: var(--accent); color: white; }.btn-save:hover { background: #1d4ed8; }.btn-print { background: var(--success); color: white; }.btn-print:hover { background: #047857; }.btn-clear { background: #fee2e2; color: var(--danger); border: 1px solid #fecaca; }.btn-clear:hover { background: #fecaca; }.status-alert {
+ font-size: 13.5px;
+ color: var(--success);
+ font-weight: 500;
+ margin-top: 8px;
+ display: none;
+ }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ margin: 14px 0;
+ font-size: 13.5px;
+ }
+ th, td {
+ border: 1px solid var(--line);
+ padding: 8px 10px;
+ text-align: left;
+ vertical-align: top;
+ }
+ th {
+ background: var(--accent-soft);
+ color: var(--accent);
+ font-weight: 700;
+ }
+ @media print {
+ body { background: #fff; padding: 0; font-size: 10pt; color: #000; }.container { max-width: 100%; }.card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 12pt; padding: 12pt; }.reserve-banner,.btn-wrap,.status-alert { display: none !important; }
+ textarea { display: none !important; }.print-mirror { display: block !important; }
+ input::placeholder, textarea::placeholder { color: transparent !important; }
+ }
+ </style>
 </head>
 <body>
 <div class="container">
 
-  <!-- РЕЗЕРВНАЯ ПЛАШКА -->
-  <div class="reserve-banner">
-    <div>
-      <strong>Резервное дистанционное задание.</strong> Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
-    </div>
-  </div>
+ <!-- РЕЗЕРВНАЯ ПЛАШКА -->
+ <div class="reserve-banner">
+ <div>
+ <strong>Резервное дистанционное задание.</strong> Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+ </div>
+ </div>
 
-  <div class="card">
-    <!-- СТРОГИЙ ЗАГОЛОВОК H1 -->
-    <h1>Домашнее задание - Конструкция, подключение и инсталляция периферийных устройств — часть 3</h1>
-    <p><strong>Дисциплина:</strong> ОП.02 Архитектура аппаратных средств</p>
-    <p><strong>Тематический фокус:</strong> Логический анализ аппаратных протоколов диагностического стенда, выявление корневой причины отказа (Root Cause) периферийного тракта и разработка регламента инженерного восстановления.</p>
-  </div>
+ <div class="card">
+ <!-- СТРОГИЙ ЗАГОЛОВОК H1 -->
+ <h1>Домашнее задание - Конструкция, подключение и инсталляция периферийных устройств — часть 3</h1>
+ <p><strong>Дисциплина:</strong> ОП.02 Архитектура аппаратных средств</p>
+ <p><strong>Тематический фокус:</strong> Логический анализ аппаратных протоколов диагностического стенда, выявление корневой причины отказа (Root Cause) периферийного тракта и разработка регламента инженерного восстановления.</p>
+ </div>
 
-  <!-- ДАННЫЕ ОБУЧАЮЩЕГОСЯ БЕЗ ВЫМЫШЛЕННЫХ ПЛЕЙСХОЛДЕРОВ -->
-  <div class="card">
-    <h2>Сведения об обучающемся</h2>
-    <div class="student-fields">
-      <div class="field-group">
-        <label for="hw_fio">Фамилия, Имя, Отчество обучающегося:</label>
-        <input type="text" id="hw_fio" placeholder="">
-      </div>
-      <div class="field-group">
-        <label for="hw_group">Учебная группа:</label>
-        <input type="text" id="hw_group" placeholder="">
-      </div>
-    </div>
-  </div>
+ <!-- ДАННЫЕ ОБУЧАЮЩЕГОСЯ БЕЗ ВЫМЫШЛЕННЫХ ПЛЕЙСХОЛДЕРОВ -->
+ <div class="card">
+ <h2>Сведения об обучающемся</h2>
+ <div class="student-fields">
+ <div class="field-group">
+ <label for="hw_fio">Фамилия, Имя, Отчество обучающегося:</label>
+ <input type="text" id="hw_fio" placeholder="">
+ </div>
+ <div class="field-group">
+ <label for="hw_group">Учебная группа:</label>
+ <input type="text" id="hw_group" placeholder="">
+ </div>
+ </div>
+ </div>
 
-  <!-- ДЕМОНСТРАЦИОННЫЙ ЭТАЛОННЫЙ ПРИМЕР (ОТЛИЧНЫЙ ОТ ЗАДАНИЯ) -->
-  <div class="card">
-    <h2>1. Эталонный демонстрационный пример инженерного анализа</h2>
-    <div class="sample-box">
-      <h4>Кейс: Спонтанное отключение внешней звуковой карты USB Audio Class 2.0 при записи многоканального звука</h4>
-      <p><strong>Симптомы:</strong> Звуковой интерфейс подключается к порту ноутбука. При воспроизведении аудио работает нормально. При включении фантомного питания +48 В для двух конденсаторных микрофонов и начале записи через 10 секунд звук заикается, карта щелкает реле и перезагружается.</p>
-      <p><strong>Протокол измерений тестером USB:</strong></p>
-      <ul>
-        <li>Холостой ход: напряжение VBUS = 5.08 В, ток I = 0.22 А.</li>
-        <li>Включение +48 В и 2 микрофонов: напряжение VBUS = 4.62 В, ток I = 0.88 А.</li>
-        <li>Пиковая нагрузка (запись 96 кГц / 24 бит): напряжение VBUS проседает до <strong>4.38 В</strong>, ток подскакивает до 1.05 А, после чего напряжение кратковременно падает до 0 В (срабатывание электронной защиты порта).</li>
-      </ul>
-      <p><strong>Логический анализ и Root Cause:</strong> Порт ноутбука рассчитан на стандартные 0.9 А (USB 3.0), а сопротивление комплектного тонкого шнура длиной 1.8 м составляет 0.72 Ом. Падение напряжения на кабеле при токе 1.05 А составляет Δ U = 1.05 · 0.72 = 0.756 В, в результате чего на вход внутренних DC-DC преобразователей звуковой карты приходит менее 4.4 В. Происходит срабатывание супервизора питания (Brownout Reset).</p>
-      <p><strong>Инженерное решение:</strong> Замена кабеля на короткий (0.5 м) калибра 20 AWG (R ≈ 0.08 Ом) либо использование внешнего стабилизированного блока питания постоянного тока 5 В / 2 А через отдельное гнездо DC Jack карты.</p>
-    </div>
-  </div>
+ <!-- ДЕМОНСТРАЦИОННЫЙ ЭТАЛОННЫЙ ПРИМЕР (ОТЛИЧНЫЙ ОТ ЗАДАНИЯ) -->
+ <div class="card">
+ <h2>1. Эталонный демонстрационный пример инженерного анализа</h2>
+ <div class="sample-box">
+ <h4>Кейс: Спонтанное отключение внешней звуковой карты USB Audio Class 2.0 при записи многоканального звука</h4>
+ <p><strong>Симптомы:</strong> Звуковой интерфейс подключается к порту ноутбука. При воспроизведении аудио работает нормально. При включении фантомного питания +48 В для двух конденсаторных микрофонов и начале записи через 10 секунд звук заикается, карта щелкает реле и перезагружается.</p>
+ <p><strong>Протокол измерений тестером USB:</strong></p>
+ <ul>
+ <li>Холостой ход: напряжение VBUS = 5.08 В, ток I = 0.22 А.</li>
+ <li>Включение +48 В и 2 микрофонов: напряжение VBUS = 4.62 В, ток I = 0.88 А.</li>
+ <li>Пиковая нагрузка (запись 96 кГц / 24 бит): напряжение VBUS проседает до <strong>4.38 В</strong>, ток подскакивает до 1.05 А, после чего напряжение кратковременно падает до 0 В (срабатывание электронной защиты порта).</li>
+ </ul>
+ <p><strong>Логический анализ и Root Cause:</strong> Порт ноутбука рассчитан на стандартные 0.9 А (USB 3.0), а сопротивление комплектного тонкого шнура длиной 1.8 м составляет 0.72 Ом. Падение напряжения на кабеле при токе 1.05 А составляет Δ U = 1.05 · 0.72 = 0.756 В, в результате чего на вход внутренних DC-DC преобразователей звуковой карты приходит менее 4.4 В. Происходит срабатывание супервизора питания (Brownout Reset).</p>
+ <p><strong>Инженерное решение:</strong> Замена кабеля на короткий (0.5 м) калибра 20 AWG (R ≈ 0.08 Ом) либо использование внешнего стабилизированного блока питания постоянного тока 5 В / 2 А через отдельное гнездо DC Jack карты.</p>
+ </div>
+ </div>
 
-  <!-- ИНДИВИДУАЛЬНОЕ ОЦЕНИВАЕМОЕ ЗАДАНИЕ ДЛЯ САМОСТОЯТЕЛЬНОГО РАЗБОРА -->
-  <div class="card">
-    <h2>2. Практическое задание: аудит диагностического протокола шины и локализация отказа</h2>
-    <p>Внимательно изучите представленный протокол регистрации аппаратных событий диагностического стенда, развернутого для анализа работы скоростного периферийного контроллера:</p>
+ <!-- ИНДИВИДУАЛЬНОЕ ОЦЕНИВАЕМОЕ ЗАДАНИЕ ДЛЯ САМОСТОЯТЕЛЬНОГО РАЗБОРА -->
+ <div class="card">
+ <h2>2. Практическое задание: аудит диагностического протокола шины и локализация отказа</h2>
+ <p>Внимательно изучите представленный протокол регистрации аппаратных событий диагностического стенда, развернутого для анализа работы скоростного периферийного контроллера:</p>
 
-    <div class="code-box">[00:00.000] HOST: USB Port Connect Event on Port 2 (RootHub xHCI 00:14.0)
+ <div class="code-box">[00:00.000] HOST: USB Port Connect Event on Port 2 (RootHub xHCI 00:14.0)
 [00:00.020] HOST: Port Reset Issued (SE0 asserted for 15 ms)
 [00:00.040] HOST: Port Reset Complete. Status: High-Speed Capable, Device connected at Full-Speed (12 Mbps).
 [00:00.042] HOST: Sending GET_DESCRIPTOR (Device, Length=8) to Default Address 0...
-[00:00.045] DEV:  Response Packet: ACK received, DATA0 (12 01 00 02 00 00 00 40...)
+[00:00.045] DEV: Response Packet: ACK received, DATA0 (12 01 00 02 00 00 00 40...)
 [00:00.050] HOST: Sending SET_ADDRESS (Address = 0x05)...
-[00:00.052] DEV:  Handshake ACK received. Device now in Addressed State.
+[00:00.052] DEV: Handshake ACK received. Device now in Addressed State.
 [00:00.055] HOST: Sending GET_DESCRIPTOR (Configuration, Length=255) to Address 0x05...
-[00:00.058] DEV:  Response: Configuration 1, 2 Interfaces, Bulk Endpoints (EP1 IN, EP2 OUT).
+[00:00.058] DEV: Response: Configuration 1, 2 Interfaces, Bulk Endpoints (EP1 IN, EP2 OUT).
 [00:00.060] HOST: Driver 'FastBridge.sys' loaded for VID_10EC & PID_8156.
 [00:01.120] TEST: Starting Heavy Full-Duplex Data Transfer (Target Rate: 2.1 Gbps)...
 [00:03.450] SENS: Temperature sensor read: ASIC T = 62.4 °C | VBUS = 4.92 V, Current = 0.38 A
@@ -279,134 +256,134 @@
 [00:09.210] ASIC: Thermal Threshold Exceeded (&gt; 85 °C). Internal Junction Alert!
 [00:09.215] ASIC: State Machine: Initiating Link Speed Demotion (2500BASE-T -&gt; 100BASE-TX).
 [00:09.300] HOST: Bulk In Transfer Timeout (Endpoint 1). Error 0x000000AA (CRC/Frame Error).
-[00:09.350] OS:   Kernel Event: Driver FastBridge.sys reported hardware link degradation. Network throughput dropped to 94 Mbps.
+[00:09.350] OS: Kernel Event: Driver FastBridge.sys reported hardware link degradation. Network throughput dropped to 94 Mbps.
 [00:12.000] SENS: Temperature sensor read: ASIC T = 71.0 °C | VBUS = 4.96 V, Current = 0.18 A</div>
 
-    <h3>Вопрос 1. Логический анализ протокола и уровень отказа (до 2 баллов)</h3>
-    <p>На каком уровне модели диагностики произошел первичный сбой? Подтвердите ответ цитатами из лога, указав точные временные метки событий, когда устройство перешло из нормального режима в деградировавшее состояние.</p>
-    <div class="field-group">
-      <textarea id="hw_ans_1" placeholder=""></textarea>
-      <div class="print-mirror" id="hw_ans_1_mirror"></div>
-    </div>
+ <h3>Вопрос 1. Логический анализ протокола и уровень отказа (до 2 баллов)</h3>
+ <p>На каком уровне модели диагностики произошел первичный сбой? Подтвердите ответ цитатами из лога, указав точные временные метки событий, когда устройство перешло из нормального режима в деградировавшее состояние.</p>
+ <div class="field-group">
+ <textarea id="hw_ans_1" placeholder=""></textarea>
+ <div class="print-mirror" id="hw_ans_1_mirror"></div>
+ </div>
 
-    <h3>Вопрос 2. Инструментальные замеры и причинно-следственный анализ (1 балл)</h3>
-    <p>Проанализируйте показания питающего напряжения VBUS и температуры ASIC. Является ли дефицит питания причиной сбоя? Какова прямая физическая связь между температурой чипа, падением пропускной способности с 2.1 Гбит/с до 94 Мбит/с и ошибками CRC?</p>
-    <div class="field-group">
-      <textarea id="hw_ans_2" placeholder=""></textarea>
-      <div class="print-mirror" id="hw_ans_2_mirror"></div>
-    </div>
+ <h3>Вопрос 2. Инструментальные замеры и причинно-следственный анализ (1 балл)</h3>
+ <p>Проанализируйте показания питающего напряжения VBUS и температуры ASIC. Является ли дефицит питания причиной сбоя? Какова прямая физическая связь между температурой чипа, падением пропускной способности с 2.1 Гбит/с до 94 Мбит/с и ошибками CRC?</p>
+ <div class="field-group">
+ <textarea id="hw_ans_2" placeholder=""></textarea>
+ <div class="print-mirror" id="hw_ans_2_mirror"></div>
+ </div>
 
-    <h3>Вопрос 3. Инженерный план устранения и чек-лист верификации (1 балл)</h3>
-    <p>Предложите исчерпывающий комплекс мер по долговременной ликвидации выявленной аппаратной проблемы и составьте контрольный чек-лист из 4 пунктов для подтверждения стабильности работы устройства под непрерывной максимальной нагрузкой.</p>
-    <div class="field-group">
-      <textarea id="hw_ans_3" placeholder=""></textarea>
-      <div class="print-mirror" id="hw_ans_3_mirror"></div>
-    </div>
+ <h3>Вопрос 3. Инженерный план устранения и чек-лист верификации (1 балл)</h3>
+ <p>Предложите исчерпывающий комплекс мер по долговременной ликвидации выявленной аппаратной проблемы и составьте контрольный чек-лист из 4 пунктов для подтверждения стабильности работы устройства под непрерывной максимальной нагрузкой.</p>
+ <div class="field-group">
+ <textarea id="hw_ans_3" placeholder=""></textarea>
+ <div class="print-mirror" id="hw_ans_3_mirror"></div>
+ </div>
 
-    <div class="btn-wrap">
-      <button type="button" class="btn-save" onclick="saveHomework()">Сохранить ответы</button>
-      <button type="button" class="btn-print" onclick="prepareAndPrint()">Печать / Сохранить в PDF</button>
-      <button type="button" class="btn-clear" onclick="clearHomework()">Очистить поля</button>
-    </div>
-    <div class="status-alert" id="hw_status">Ответы успешно сохранены в памяти браузера!</div>
-  </div>
+ <div class="btn-wrap">
+ <button type="button" class="btn-save" onclick="saveHomework()">Сохранить ответы</button>
+ <button type="button" class="btn-print" onclick="prepareAndPrint()">Печать / Сохранить в PDF</button>
+ <button type="button" class="btn-clear" onclick="clearHomework()">Очистить поля</button>
+ </div>
+ <div class="status-alert" id="hw_status">Ответы успешно сохранены в памяти браузера!</div>
+ </div>
 
-  <!-- КРИТЕРИИ ОЦЕНИВАНИЯ -->
-  <div class="card">
-    <h2>Критерии оценивания домашнего задания (4-балльная шкала)</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Балл</th>
-          <th>Критерий и глубина технического обоснования</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>4 балла</strong></td>
-          <td>Безошибочно определен уровень отказа (L1/L3: перегрев микросхемы контроллера RTL8156 и срабатывание аппаратного термозащитного троттлинга на отметке 87.2 °C при таймкоде 00:09.210); доказано отсутствие дефицита VBUS (напряжение 4.85 В стабильно выше нормы 4.75 В); раскрыт механизм перехода с 2500BASE-T на 100BASE-TX; сформирован детальный план доработки теплоотвода (радиатор, термоинтерфейс 6 Вт/(м·К), алюминиевый корпус) и составлен валидный чек-лист стресс-тестирования iperf3.</td>
-        </tr>
-        <tr>
-          <td><strong>3 балла</strong></td>
-          <td>Правильно определен перегрев контроллера как первопричина, но допущены неточности в описании тайм-аутов Bulk-трансфера или предложен поверхностный план устранения без указания характеристик термоинтерфейса.</td>
-        </tr>
-        <tr>
-          <td><strong>2 балла</strong></td>
-          <td>Сбой назван «ошибкой сетевого кабеля» или «проблемой в операционной системе», хотя указан факт нагрева микросхемы; отсутствуют расчеты и чек-лист верификации.</td>
-        </tr>
-        <tr>
-          <td><strong>0–1 балл</strong></td>
-          <td>Грубые ошибки, отсутствие технической аргументации либо попытка объяснить проблему переустановкой Windows / «вирусами».</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+ <!-- КРИТЕРИИ ОЦЕНИВАНИЯ -->
+ <div class="card">
+ <h2>Критерии оценивания домашнего задания (4-балльная шкала)</h2>
+ <table>
+ <thead>
+ <tr>
+ <th>Балл</th>
+ <th>Критерий и глубина технического обоснования</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>4 балла</strong></td>
+ <td>Безошибочно определен уровень отказа (L1/L3: перегрев микросхемы контроллера RTL8156 и срабатывание аппаратного термозащитного троттлинга на отметке 87.2 °C при таймкоде 00:09.210); доказано отсутствие дефицита VBUS (напряжение 4.85 В стабильно выше нормы 4.75 В); раскрыт механизм перехода с 2500BASE-T на 100BASE-TX; сформирован детальный план доработки теплоотвода (радиатор, термоинтерфейс 6 Вт/(м·К), алюминиевый корпус) и составлен валидный чек-лист стресс-тестирования iperf3.</td>
+ </tr>
+ <tr>
+ <td><strong>3 балла</strong></td>
+ <td>Правильно определен перегрев контроллера как первопричина, но допущены неточности в описании тайм-аутов Bulk-трансфера или предложен поверхностный план устранения без указания характеристик термоинтерфейса.</td>
+ </tr>
+ <tr>
+ <td><strong>2 балла</strong></td>
+ <td>Сбой назван «ошибкой сетевого кабеля» или «проблемой в операционной системе», хотя указан факт нагрева микросхемы; отсутствуют расчеты и чек-лист верификации.</td>
+ </tr>
+ <tr>
+ <td><strong>0–1 балл</strong></td>
+ <td>Грубые ошибки, отсутствие технической аргументации либо попытка объяснить проблему переустановкой Windows / «вирусами».</td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
 
 </div>
 
 <script>
-  const STORAGE_KEY = 'top_hw_15_peripheral_diagnostics_v1';
+ const STORAGE_KEY = 'top_hw_15_peripheral_diagnostics_v1';
 
-  function saveHomework() {
-    const data = {
-      fio: document.getElementById('hw_fio').value,
-      group: document.getElementById('hw_group').value,
-      ans1: document.getElementById('hw_ans_1').value,
-      ans2: document.getElementById('hw_ans_2').value,
-      ans3: document.getElementById('hw_ans_3').value
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    updateMirrors();
-    const status = document.getElementById('hw_status');
-    status.style.display = 'block';
-    setTimeout(() => { status.style.display = 'none'; }, 3000);
-  }
+ function saveHomework() {
+ const data = {
+ fio: document.getElementById('hw_fio').value,
+ group: document.getElementById('hw_group').value,
+ ans1: document.getElementById('hw_ans_1').value,
+ ans2: document.getElementById('hw_ans_2').value,
+ ans3: document.getElementById('hw_ans_3').value
+ };
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ updateMirrors();
+ const status = document.getElementById('hw_status');
+ status.style.display = 'block';
+ setTimeout(() => { status.style.display = 'none'; }, 3000);
+ }
 
-  function loadHomework() {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    try {
-      const data = JSON.parse(raw);
-      if (data.fio) document.getElementById('hw_fio').value = data.fio;
-      if (data.group) document.getElementById('hw_group').value = data.group;
-      if (data.ans1) document.getElementById('hw_ans_1').value = data.ans1;
-      if (data.ans2) document.getElementById('hw_ans_2').value = data.ans2;
-      if (data.ans3) document.getElementById('hw_ans_3').value = data.ans3;
-      updateMirrors();
-    } catch (e) {
-      console.error('Ошибка загрузки данных', e);
-    }
-  }
+ function loadHomework() {
+ const raw = localStorage.getItem(STORAGE_KEY);
+ if (!raw) return;
+ try {
+ const data = JSON.parse(raw);
+ if (data.fio) document.getElementById('hw_fio').value = data.fio;
+ if (data.group) document.getElementById('hw_group').value = data.group;
+ if (data.ans1) document.getElementById('hw_ans_1').value = data.ans1;
+ if (data.ans2) document.getElementById('hw_ans_2').value = data.ans2;
+ if (data.ans3) document.getElementById('hw_ans_3').value = data.ans3;
+ updateMirrors();
+ } catch (e) {
+ console.error('Ошибка загрузки данных', e);
+ }
+ }
 
-  function updateMirrors() {
-    document.getElementById('hw_ans_1_mirror').textContent = document.getElementById('hw_ans_1').value;
-    document.getElementById('hw_ans_2_mirror').textContent = document.getElementById('hw_ans_2').value;
-    document.getElementById('hw_ans_3_mirror').textContent = document.getElementById('hw_ans_3').value;
-  }
+ function updateMirrors() {
+ document.getElementById('hw_ans_1_mirror').textContent = document.getElementById('hw_ans_1').value;
+ document.getElementById('hw_ans_2_mirror').textContent = document.getElementById('hw_ans_2').value;
+ document.getElementById('hw_ans_3_mirror').textContent = document.getElementById('hw_ans_3').value;
+ }
 
-  function clearHomework() {
-    if (confirm('Вы действительно хотите очистить все введённые ответы домашнего задания?')) {
-      localStorage.removeItem(STORAGE_KEY);
-      document.getElementById('hw_fio').value = '';
-      document.getElementById('hw_group').value = '';
-      document.getElementById('hw_ans_1').value = '';
-      document.getElementById('hw_ans_2').value = '';
-      document.getElementById('hw_ans_3').value = '';
-      updateMirrors();
-    }
-  }
+ function clearHomework() {
+ if (confirm('Вы действительно хотите очистить все введённые ответы домашнего задания?')) {
+ localStorage.removeItem(STORAGE_KEY);
+ document.getElementById('hw_fio').value = '';
+ document.getElementById('hw_group').value = '';
+ document.getElementById('hw_ans_1').value = '';
+ document.getElementById('hw_ans_2').value = '';
+ document.getElementById('hw_ans_3').value = '';
+ updateMirrors();
+ }
+ }
 
-  function prepareAndPrint() {
-    saveHomework();
-    updateMirrors();
-    window.print();
-  }
+ function prepareAndPrint() {
+ saveHomework();
+ updateMirrors();
+ window.print();
+ }
 
-  document.getElementById('hw_ans_1').addEventListener('input', updateMirrors);
-  document.getElementById('hw_ans_2').addEventListener('input', updateMirrors);
-  document.getElementById('hw_ans_3').addEventListener('input', updateMirrors);
+ document.getElementById('hw_ans_1').addEventListener('input', updateMirrors);
+ document.getElementById('hw_ans_2').addEventListener('input', updateMirrors);
+ document.getElementById('hw_ans_3').addEventListener('input', updateMirrors);
 
-  window.addEventListener('DOMContentLoaded', loadHomework);
+ window.addEventListener('DOMContentLoaded', loadHomework);
 </script>
 </body>
 </html>

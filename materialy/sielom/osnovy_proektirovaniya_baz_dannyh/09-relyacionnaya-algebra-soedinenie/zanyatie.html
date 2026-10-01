@@ -1,732 +1,675 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Рабочий лист: Реляционная алгебра — Соединение</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --text-muted: #475569;
-      --border: #cbd5e1;
-      --accent: #0284c7;
-      --accent-hover: #0369a1;
-      --accent-soft: #f0f9ff;
-      --danger: #ef4444;
-      --success: #10b981;
-    }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Рабочий лист: Реляционная алгебра — Соединение</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card-bg: #ffffff;
+ --text: #0f172a;
+ --text-muted: #475569;
+ --border: #cbd5e1;
+ --accent: #0284c7;
+ --accent-hover: #0369a1;
+ --accent-soft: #f0f9ff;
+ --danger: #ef4444;
+ --success: #10b981;
+ }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ }
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      padding: 24px 16px;
-      min-width: 320px;
-    }
+ body {
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+ background-color: var(--bg);
+ color: var(--text);
+ line-height: 1.6;
+ padding: 24px 16px;
+ min-width: 320px;
+ }.container {
+ max-width: 960px;
+ margin: 0 auto;
+ width: 100%;
+ }
 
-    .container {
-      max-width: 960px;
-      margin: 0 auto;
-      width: 100%;
-    }
+ header.task-header {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    header.task-header {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ h1 {
+ font-size: 2rem;
+ font-weight: 800;
+ color: var(--text);
+ margin-bottom: 8px;
+ word-break: break-word;
+ }.subtitle {
+ font-size: 1.05rem;
+ color: var(--text-muted);
+ }.student-meta {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 16px;
+ margin-top: 20px;
+ padding-top: 16px;
+ border-top: 1px solid var(--border);
+ }.meta-field {
+ display: flex;
+ flex-direction: column;
+ gap: 6px;
+ }.meta-field label {
+ font-size: 0.85rem;
+ font-weight: 600;
+ color: var(--text-muted);
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+ }.meta-field input {
+ padding: 8px 12px;
+ border: 1px solid var(--border);
+ border-radius: 6px;
+ font-size: 0.95rem;
+ color: var(--text);
+ outline: none;
+ width: 100%;
+ }.meta-field input:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 2px var(--accent-soft);
+ }.variant-selector-box {
+ margin-top: 20px;
+ padding-top: 16px;
+ border-top: 1px solid var(--border);
+ }.variant-tabs {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+ gap: 10px;
+ margin-top: 10px;
+ }.v-tab-btn {
+ padding: 10px 12px;
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ background: #f8fafc;
+ font-size: 0.9rem;
+ font-weight: 600;
+ cursor: pointer;
+ text-align: center;
+ transition: all 0.2s ease;
+ color: var(--text-muted);
+ }.v-tab-btn:hover {
+ background: #f1f5f9;
+ color: var(--text);
+ }.v-tab-btn.active {
+ background: var(--accent);
+ color: #ffffff;
+ border-color: var(--accent-hover);
+ box-shadow: 0 2px 4px rgba(2, 132, 199, 0.25);
+ }
 
-    h1 {
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 8px;
-      word-break: break-word;
-    }
+ section.task-section {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    .subtitle {
-      font-size: 1.05rem;
-      color: var(--text-muted);
-    }
+ h2 {
+ font-size: 1.35rem;
+ font-weight: 700;
+ color: var(--text);
+ margin-bottom: 12px;
+ }
 
-    .student-meta {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 20px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
+ h3 {
+ font-size: 1.1rem;
+ font-weight: 600;
+ color: var(--accent-hover);
+ margin-top: 16px;
+ margin-bottom: 8px;
+ }.case-box {
+ background-color: var(--accent-soft);
+ border-left: 4px solid var(--accent);
+ padding: 14px 18px;
+ border-radius: 6px;
+ margin-bottom: 16px;
+ font-size: 0.95rem;
+ }
 
-    .meta-field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+ table.data-table {
+ width: 100%;
+ border-collapse: collapse;
+ margin: 12px 0 16px 0;
+ font-size: 0.9rem;
+ }
 
-    .meta-field label {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
+ table.data-table th, table.data-table td {
+ border: 1px solid var(--border);
+ padding: 6px 10px;
+ text-align: left;
+ }
 
-    .meta-field input {
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.95rem;
-      color: var(--text);
-      outline: none;
-      width: 100%;
-    }
+ table.data-table th {
+ background-color: #f1f5f9;
+ font-weight: 600;
+ color: var(--text);
+ }.grid-2tables {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 16px;
+ margin-bottom: 16px;
+ }
 
-    .meta-field input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-soft);
-    }
+ textarea.input-area {
+ width: 100%;
+ min-height: 100px;
+ padding: 10px 12px;
+ border: 1px solid var(--border);
+ border-radius: 6px;
+ font-family: inherit;
+ font-size: 0.95rem;
+ color: var(--text);
+ outline: none;
+ resize: vertical;
+ margin-top: 8px;
+ margin-bottom: 14px;
+ }
 
-    .variant-selector-box {
-      margin-top: 20px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
+ textarea.input-area:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 2px var(--accent-soft);
+ }.actions-bar {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ margin-bottom: 40px;
+ gap: 12px;
+ flex-wrap: wrap;
+ }.btn {
+ padding: 10px 18px;
+ border-radius: 8px;
+ font-size: 0.92rem;
+ font-weight: 600;
+ cursor: pointer;
+ border: none;
+ transition: background-color 0.2s ease;
+ }.btn-primary {
+ background: var(--accent);
+ color: #ffffff;
+ }.btn-primary:hover {
+ background: var(--accent-hover);
+ }.btn-danger {
+ background: #fee2e2;
+ color: #b91c1c;
+ border: 1px solid #fca5a5;
+ }.btn-danger:hover {
+ background: #fecaca;
+ }.btn-outline {
+ background: #f8fafc;
+ color: var(--text);
+ border: 1px solid var(--border);
+ }.btn-outline:hover {
+ background: #f1f5f9;
+ }.status-alert {
+ display: none;
+ padding: 10px 14px;
+ border-radius: 6px;
+ background-color: #f0fdf4;
+ border: 1px solid #86efac;
+ color: #166534;
+ font-size: 0.9rem;
+ width: 100%;
+ }.variant-content {
+ display: none;
+ }.variant-content.active {
+ display: block;
+ }
 
-    .variant-tabs {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 10px;
-      margin-top: 10px;
-    }
+ @media (max-width: 480px) {
+ body {
+ padding: 12px 8px;
+ }
+ header.task-header, section.task-section {
+ padding: 16px 14px;
+ }
+ h1 {
+ font-size: 1.45rem;
+ }.student-meta {
+ grid-template-columns: 1fr;
+ }.variant-tabs {
+ grid-template-columns: 1fr;
+ }.grid-2tables {
+ grid-template-columns: 1fr;
+ }.actions-bar {
+ flex-direction: column;
+ align-items: stretch;
+ }.actions-bar button {
+ width: 100%;
+ }
+ }
 
-    .v-tab-btn {
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: #f8fafc;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.2s ease;
-      color: var(--text-muted);
-    }
-
-    .v-tab-btn:hover {
-      background: #f1f5f9;
-      color: var(--text);
-    }
-
-    .v-tab-btn.active {
-      background: var(--accent);
-      color: #ffffff;
-      border-color: var(--accent-hover);
-      box-shadow: 0 2px 4px rgba(2, 132, 199, 0.25);
-    }
-
-    section.task-section {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-
-    h2 {
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 12px;
-    }
-
-    h3 {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--accent-hover);
-      margin-top: 16px;
-      margin-bottom: 8px;
-    }
-
-    .case-box {
-      background-color: var(--accent-soft);
-      border-left: 4px solid var(--accent);
-      padding: 14px 18px;
-      border-radius: 6px;
-      margin-bottom: 16px;
-      font-size: 0.95rem;
-    }
-
-    table.data-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 12px 0 16px 0;
-      font-size: 0.9rem;
-    }
-
-    table.data-table th, table.data-table td {
-      border: 1px solid var(--border);
-      padding: 6px 10px;
-      text-align: left;
-    }
-
-    table.data-table th {
-      background-color: #f1f5f9;
-      font-weight: 600;
-      color: var(--text);
-    }
-
-    .grid-2tables {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-
-    textarea.input-area {
-      width: 100%;
-      min-height: 100px;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-family: inherit;
-      font-size: 0.95rem;
-      color: var(--text);
-      outline: none;
-      resize: vertical;
-      margin-top: 8px;
-      margin-bottom: 14px;
-    }
-
-    textarea.input-area:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-soft);
-    }
-
-    .actions-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 40px;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      padding: 10px 18px;
-      border-radius: 8px;
-      font-size: 0.92rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: background-color 0.2s ease;
-    }
-
-    .btn-primary {
-      background: var(--accent);
-      color: #ffffff;
-    }
-    .btn-primary:hover {
-      background: var(--accent-hover);
-    }
-
-    .btn-danger {
-      background: #fee2e2;
-      color: #b91c1c;
-      border: 1px solid #fca5a5;
-    }
-    .btn-danger:hover {
-      background: #fecaca;
-    }
-
-    .btn-outline {
-      background: #f8fafc;
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-    .btn-outline:hover {
-      background: #f1f5f9;
-    }
-
-    .status-alert {
-      display: none;
-      padding: 10px 14px;
-      border-radius: 6px;
-      background-color: #f0fdf4;
-      border: 1px solid #86efac;
-      color: #166534;
-      font-size: 0.9rem;
-      width: 100%;
-    }
-
-    .variant-content {
-      display: none;
-    }
-
-    .variant-content.active {
-      display: block;
-    }
-
-    @media (max-width: 480px) {
-      body {
-        padding: 12px 8px;
-      }
-      header.task-header, section.task-section {
-        padding: 16px 14px;
-      }
-      h1 {
-        font-size: 1.45rem;
-      }
-      .student-meta {
-        grid-template-columns: 1fr;
-      }
-      .variant-tabs {
-        grid-template-columns: 1fr;
-      }
-      .grid-2tables {
-        grid-template-columns: 1fr;
-      }
-      .actions-bar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .actions-bar button {
-        width: 100%;
-      }
-    }
-
-    @media print {
-      body {
-        background-color: #ffffff !important;
-        color: #000000 !important;
-        padding: 0 !important;
-      }
-      .container {
-        max-width: 100% !important;
-        margin: 0 !important;
-      }
-      header.task-header, section.task-section {
-        box-shadow: none !important;
-        border: 1px solid #64748b !important;
-        page-break-inside: avoid;
-        margin-bottom: 16px !important;
-        padding: 14px 18px !important;
-      }
-      .variant-selector-box, .actions-bar, .status-alert {
-        display: none !important;
-      }
-      .variant-content {
-        display: none !important;
-      }
-      .variant-content.active {
-        display: block !important;
-      }
-      textarea {
-        border: 1px solid #475569 !important;
-        min-height: 80px !important;
-        height: auto !important;
-        color: #000000 !important;
-        resize: none;
-        overflow: visible !important;
-        white-space: pre-wrap !important;
-      }
-      input {
-        border: 1px solid #475569 !important;
-        color: #000000 !important;
-      }
-      input::placeholder, textarea::placeholder {
-        color: transparent !important;
-      }
-      .case-box {
-        background-color: #f8fafc !important;
-        border-left: 3px solid #000000 !important;
-        color: #000000 !important;
-      }
-    }
-  </style>
+ @media print {
+ body {
+ background-color: #ffffff !important;
+ color: #000000 !important;
+ padding: 0 !important;
+ }.container {
+ max-width: 100% !important;
+ margin: 0 !important;
+ }
+ header.task-header, section.task-section {
+ box-shadow: none !important;
+ border: 1px solid #64748b !important;
+ page-break-inside: avoid;
+ margin-bottom: 16px !important;
+ padding: 14px 18px !important;
+ }.variant-selector-box,.actions-bar,.status-alert {
+ display: none !important;
+ }.variant-content {
+ display: none !important;
+ }.variant-content.active {
+ display: block !important;
+ }
+ textarea {
+ border: 1px solid #475569 !important;
+ min-height: 80px !important;
+ height: auto !important;
+ color: #000000 !important;
+ resize: none;
+ overflow: visible !important;
+ white-space: pre-wrap !important;
+ }
+ input {
+ border: 1px solid #475569 !important;
+ color: #000000 !important;
+ }
+ input::placeholder, textarea::placeholder {
+ color: transparent !important;
+ }.case-box {
+ background-color: #f8fafc !important;
+ border-left: 3px solid #000000 !important;
+ color: #000000 !important;
+ }
+ }
+ </style>
 </head>
 <body>
 
 <div class="container">
 
-  <header class="task-header">
-    <h1>Рабочий лист: Реляционная алгебра — Соединение</h1>
-    <div class="subtitle">
-      Дисциплина: ОП.08 Основы проектирования баз данных<br>
-      Тема: Тема 2. Взаимосвязи в моделях и реляционный подход к построению моделей (§2.2 с.7 программы)
-    </div>
+ <header class="task-header">
+ <h1>Рабочий лист: Реляционная алгебра — Соединение</h1>
+ <div class="subtitle">
+ Дисциплина: ОП.08 Основы проектирования баз данных<br>
+ Тема: Тема 2. Взаимосвязи в моделях и реляционный подход к построению моделей
+ </div>
 
-    <div class="student-meta">
-      <div class="meta-field">
-        <label for="student_fio">ФИО студента</label>
-        <input type="text" id="student_fio" autocomplete="off">
-      </div>
-      <div class="meta-field">
-        <label for="student_group">Учебная группа</label>
-        <input type="text" id="student_group" autocomplete="off">
-      </div>
-    </div>
+ <div class="student-meta">
+ <div class="meta-field">
+ <label for="student_fio">ФИО студента</label>
+ <input type="text" id="student_fio" autocomplete="off">
+ </div>
+ <div class="meta-field">
+ <label for="student_group">Учебная группа</label>
+ <input type="text" id="student_group" autocomplete="off">
+ </div>
+ </div>
 
-    <div class="variant-selector-box">
-      <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Выберите назначенный вариант:</div>
-      <div class="variant-tabs">
-        <button type="button" class="v-tab-btn active" data-v="1">Вариант 1: Клиенты и Счета</button>
-        <button type="button" class="v-tab-btn" data-v="2">Вариант 2: Преподаватели и Кафедры</button>
-        <button type="button" class="v-tab-btn" data-v="3">Вариант 3: Студенты и Экзамены</button>
-        <button type="button" class="v-tab-btn" data-v="4">Вариант 4: Склад и Поставки</button>
-      </div>
-    </div>
-  </header>
+ <div class="variant-selector-box">
+ <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Выберите назначенный вариант:</div>
+ <div class="variant-tabs">
+ <button type="button" class="v-tab-btn active" data-v="1">Вариант 1: Клиенты и Счета</button>
+ <button type="button" class="v-tab-btn" data-v="2">Вариант 2: Преподаватели и Кафедры</button>
+ <button type="button" class="v-tab-btn" data-v="3">Вариант 3: Студенты и Экзамены</button>
+ <button type="button" class="v-tab-btn" data-v="4">Вариант 4: Склад и Поставки</button>
+ </div>
+ </div>
+ </header>
 
-  <!-- ВАРИАНТ 1 -->
-  <main id="variant1" class="variant-content active">
-    <section class="task-section">
-      <h2>Вариант 1. Отношения «Клиенты» и «Счета»</h2>
-      <div class="case-box">
-        <strong>Предметная область:</strong> Автоматизированная банковская система. Отношение <code>Клиенты</code> хранит персональные данные физических лиц. Отношение <code>Счета</code> содержит открытые расчетные и депозитные счета.
-      </div>
+ <!-- ВАРИАНТ 1 -->
+ <main id="variant1" class="variant-content active">
+ <section class="task-section">
+ <h2>Вариант 1. Отношения «Клиенты» и «Счета»</h2>
+ <div class="case-box">
+ <strong>Предметная область:</strong> Автоматизированная банковская система. Отношение <code>Клиенты</code> хранит персональные данные физических лиц. Отношение <code>Счета</code> содержит открытые расчетные и депозитные счета.
+ </div>
 
-      <div class="grid-2tables">
-        <div>
-          <h4>Отношение R: Клиенты</h4>
-          <table class="data-table">
-            <thead><tr><th>ID_клиента</th><th>ФИО</th><th>Город</th></tr></thead>
-            <tbody>
-              <tr><td>1</td><td>Смирнов А.</td><td>Москва</td></tr>
-              <tr><td>2</td><td>Кузнецов Б.</td><td>Тюмень</td></tr>
-              <tr><td>3</td><td>Попов В.</td><td>Сургут</td></tr>
-              <tr><td>4</td><td>Соколов Г.</td><td>Ханты-Мансийск</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div>
-          <h4>Отношение S: Счета</h4>
-          <table class="data-table">
-            <thead><tr><th>Номер_счета</th><th>ID_клиента</th><th>Остаток_руб</th></tr></thead>
-            <tbody>
-              <tr><td>40817-01</td><td>1</td><td>150 000</td></tr>
-              <tr><td>40817-02</td><td>1</td><td>320 000</td></tr>
-              <tr><td>40817-03</td><td>3</td><td>50 000</td></tr>
-              <tr><td>40817-04</td><td>5</td><td>800 000</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+ <div class="grid-2tables">
+ <div>
+ <h4>Отношение R: Клиенты</h4>
+ <table class="data-table">
+ <thead><tr><th>ID_клиента</th><th>ФИО</th><th>Город</th></tr></thead>
+ <tbody>
+ <tr><td>1</td><td>Смирнов А.</td><td>Москва</td></tr>
+ <tr><td>2</td><td>Кузнецов Б.</td><td>Тюмень</td></tr>
+ <tr><td>3</td><td>Попов В.</td><td>Сургут</td></tr>
+ <tr><td>4</td><td>Соколов Г.</td><td>Ханты-Мансийск</td></tr>
+ </tbody>
+ </table>
+ </div>
+ <div>
+ <h4>Отношение S: Счета</h4>
+ <table class="data-table">
+ <thead><tr><th>Номер_счета</th><th>ID_клиента</th><th>Остаток_руб</th></tr></thead>
+ <tbody>
+ <tr><td>40817-01</td><td>1</td><td>150 000</td></tr>
+ <tr><td>40817-02</td><td>1</td><td>320 000</td></tr>
+ <tr><td>40817-03</td><td>3</td><td>50 000</td></tr>
+ <tr><td>40817-04</td><td>5</td><td>800 000</td></tr>
+ </tbody>
+ </table>
+ </div>
+ </div>
 
-      <h3>Часть 1. Естественное соединение (Natural Join, R ⋈ S) — 2 балла</h3>
-      <p style="font-size: 0.92rem; color: var(--text-muted);">
-        Постройте результирующее отношение. Зафиксируйте схему (названия колонок без дублирования ключа), перечислите все строки и укажите мощность (кол-во строк).
-      </p>
-      <textarea id="v1_ans1" class="input-area"></textarea>
+ <h3>Часть 1. Естественное соединение (Natural Join, R ⋈ S) — 2 балла</h3>
+ <p style="font-size: 0.92rem; color: var(--text-muted);">
+ Постройте результирующее отношение. Зафиксируйте схему (названия колонок без дублирования ключа), перечислите все строки и укажите мощность (кол-во строк).
+ </p>
+ <textarea id="v1_ans1" class="input-area"></textarea>
 
-      <h3>Часть 2. Левое внешнее соединение (Left Outer Join, R ⟕ S) — 1 балл</h3>
-      <p style="font-size: 0.92rem; color: var(--text-muted);">
-        Постройте результат левого соединения. Какие клиенты не имеют открытых счетов и какие значения принимают атрибуты счета для этих клиентов?
-      </p>
-      <textarea id="v1_ans2" class="input-area"></textarea>
+ <h3>Часть 2. Левое внешнее соединение (Left Outer Join, R ⟕ S) — 1 балл</h3>
+ <p style="font-size: 0.92rem; color: var(--text-muted);">
+ Постройте результат левого соединения. Какие клиенты не имеют открытых счетов и какие значения принимают атрибуты счета для этих клиентов?
+ </p>
+ <textarea id="v1_ans2" class="input-area"></textarea>
 
-      <h3>Часть 3. Самопроверка и антисоединение — 1 балл</h3>
-      <p style="font-size: 0.92rem; color: var(--text-muted);">
-        Как с помощью операции антисоединения (R ▷ S) получить список «спящих» клиентов без счетов? Какие кортежи войдут в результат?
-      </p>
-      <textarea id="v1_ans3" class="input-area"></textarea>
-    </section>
-  </main>
+ <h3>Часть 3. Самопроверка и антисоединение — 1 балл</h3>
+ <p style="font-size: 0.92rem; color: var(--text-muted);">
+ Как с помощью операции антисоединения (R ▷ S) получить список «спящих» клиентов без счетов? Какие кортежи войдут в результат?
+ </p>
+ <textarea id="v1_ans3" class="input-area"></textarea>
+ </section>
+ </main>
 
-  <!-- ВАРИАНТ 2 -->
-  <main id="variant2" class="variant-content">
-    <section class="task-section">
-      <h2>Вариант 2. Отношения «Преподаватели» и «Кафедры»</h2>
-      <div class="case-box">
-        <strong>Предметная область:</strong> Университетская кадровая подсистема. Отношение <code>Преподаватели</code> хранит данные о научно-педагогических работниках и номерах их кафедр. Отношение <code>Кафедры</code> хранит перечень структурных подразделений вуза.
-      </div>
+ <!-- ВАРИАНТ 2 -->
+ <main id="variant2" class="variant-content">
+ <section class="task-section">
+ <h2>Вариант 2. Отношения «Преподаватели» и «Кафедры»</h2>
+ <div class="case-box">
+ <strong>Предметная область:</strong> Университетская кадровая подсистема. Отношение <code>Преподаватели</code> хранит данные о научно-педагогических работниках и номерах их кафедр. Отношение <code>Кафедры</code> хранит перечень структурных подразделений вуза.
+ </div>
 
-      <div class="grid-2tables">
-        <div>
-          <h4>Отношение R: Преподаватели</h4>
-          <table class="data-table">
-            <thead><tr><th>Таб_номер</th><th>ФИО</th><th>Должность</th><th>Кафедра_код</th></tr></thead>
-            <tbody>
-              <tr><td>101</td><td>Волков Д.</td><td>Профессор</td><td>10</td></tr>
-              <tr><td>102</td><td>Морозов Е.</td><td>Доцент</td><td>10</td></tr>
-              <tr><td>103</td><td>Новиков Ж.</td><td>Ассистент</td><td>20</td></tr>
-              <tr><td>104</td><td>Федоров З.</td><td>Доцент</td><td>99</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div>
-          <h4>Отношение S: Кафедры</h4>
-          <table class="data-table">
-            <thead><tr><th>ID_кафедры</th><th>Название</th><th>Заведующий</th></tr></thead>
-            <tbody>
-              <tr><td>10</td><td>Информационные системы</td><td>Волков Д.</td></tr>
-              <tr><td>20</td><td>Высшая математика</td><td>Ковалев Н.</td></tr>
-              <tr><td>30</td><td>Иностранные языки</td><td>Павлова О.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+ <div class="grid-2tables">
+ <div>
+ <h4>Отношение R: Преподаватели</h4>
+ <table class="data-table">
+ <thead><tr><th>Таб_номер</th><th>ФИО</th><th>Должность</th><th>Кафедра_код</th></tr></thead>
+ <tbody>
+ <tr><td>101</td><td>Волков Д.</td><td>Профессор</td><td>10</td></tr>
+ <tr><td>102</td><td>Морозов Е.</td><td>Доцент</td><td>10</td></tr>
+ <tr><td>103</td><td>Новиков Ж.</td><td>Ассистент</td><td>20</td></tr>
+ <tr><td>104</td><td>Федоров З.</td><td>Доцент</td><td>99</td></tr>
+ </tbody>
+ </table>
+ </div>
+ <div>
+ <h4>Отношение S: Кафедры</h4>
+ <table class="data-table">
+ <thead><tr><th>ID_кафедры</th><th>Название</th><th>Заведующий</th></tr></thead>
+ <tbody>
+ <tr><td>10</td><td>Информационные системы</td><td>Волков Д.</td></tr>
+ <tr><td>20</td><td>Высшая математика</td><td>Ковалев Н.</td></tr>
+ <tr><td>30</td><td>Иностранные языки</td><td>Павлова О.</td></tr>
+ </tbody>
+ </table>
+ </div>
+ </div>
 
-      <h3>Часть 1. Эквисоединение по номеру кафедры (R ⋈_{Кафедра_код = ID_кафедры} S) — 2 балла</h3>
-      <p style="font-size: 0.92rem; color: var(--text-muted);">
-        Постройте таблицу результата. Обратите внимание: имена ключевых атрибутов различаются. Будут ли оба столбца присутствовать в схеме эквисоединения?
-      </p>
-      <textarea id="v2_ans1" class="input-area"></textarea>
+ <h3>Часть 1. Эквисоединение по номеру кафедры (R ⋈_{Кафедра_код = ID_кафедры} S) — 2 балла</h3>
+ <p style="font-size: 0.92rem; color: var(--text-muted);">
+ Постройте таблицу результата. Обратите внимание: имена ключевых атрибутов различаются. Будут ли оба столбца присутствовать в схеме эквисоединения?
+ </p>
+ <textarea id="v2_ans1" class="input-area"></textarea>
 
-      <h3>Часть 2. Правое внешнее соединение (Right Outer Join, R ⟖ S) — 1 балл</h3>
-      <p style="font-size: 0.92rem; color: var(--text-muted);">
-        Постройте таблицу правого внешнего соединения. Какая кафедра не имеет закрепленных преподавателей в отношении R? Какие поля будут заполнены NULL?
-      </p>
-      <textarea id="v2_ans2" class="input-area"></textarea>
+ <h3>Часть 2. Правое внешнее соединение (Right Outer Join, R ⟖ S) — 1 балл</h3>
+ <p style="font-size: 0.92rem; color: var(--text-muted);">
+ Постройте таблицу правого внешнего соединения. Какая кафедра не имеет закрепленных преподавателей в отношении R? Какие поля будут заполнены NULL?
+ </p>
+ <textarea id="v2_ans2" class="input-area"></textarea>
 
-      <h3>Часть 3. Самопроверка и анализ ссылочной целостности — 1 балл</h3>
-      <p style="font-size: 0.92rem; color: var(--text-muted);">
-        У преподавателя Федорова (104) указан код кафедры 99, которого нет в таблице Кафедры. Что произойдет с этой строкой в INNER JOIN и в LEFT JOIN? Какое ограничение СУБД защищает от этой ситуации?
-      </p>
-      <textarea id="v2_ans3" class="input-area"></textarea>
-    </section>
-  </main>
+ <h3>Часть 3. Самопроверка и анализ ссылочной целостности — 1 балл</h3>
+ <p style="font-size: 0.92rem; color: var(--text-muted);">
+ У преподавателя Федорова (104) указан код кафедры 99, которого нет в таблице Кафедры. Что произойдет с этой строкой в INNER JOIN и в LEFT JOIN? Какое ограничение СУБД защищает от этой ситуации?
+ </p>
+ <textarea id="v2_ans3" class="input-area"></textarea>
+ </section>
+ </main>
 
-  <!-- ВАРИАНТ 3 -->
-  <main id="variant3" class="variant-content">
-    <section class="task-section">
-      <h2>Вариант 3. Отношения «Студенты» и «Сданные_экзамены»</h2>
-      <div class="case-box">
-        <strong>Предметная область:</strong> Деканатная сессионная ведомость. Отношение <code>Студенты</code> содержит список учащихся. Отношение <code>Сданные_экзамены</code> фиксирует факты прохождения промежуточной аттестации.
-      </div>
+ <!-- ВАРИАНТ 3 -->
+ <main id="variant3" class="variant-content">
+ <section class="task-section">
+ <h2>Вариант 3. Отношения «Студенты» и «Сданные_экзамены»</h2>
+ <div class="case-box">
+ <strong>Предметная область:</strong> Деканатная сессионная ведомость. Отношение <code>Студенты</code> содержит список учащихся. Отношение <code>Сданные_экзамены</code> фиксирует факты прохождения промежуточной аттестации.
+ </div>
 
-      <div class="grid-2tables">
-        <div>
-          <h4>Отношение R: Студенты</h4>
-          <table class="data-table">
-            <thead><tr><th>Студент_ID</th><th>ФИО</th><th>Группа</th></tr></thead>
-            <tbody>
-              <tr><td>201</td><td>Семенов И.</td><td>СА-201</td></tr>
-              <tr><td>202</td><td>Егоров К.</td><td>СА-201</td></tr>
-              <tr><td>203</td><td>Романов Л.</td><td>СА-202</td></tr>
-              <tr><td>204</td><td>Белов М.</td><td>СА-202</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div>
-          <h4>Отношение S: Сданные_экзамены</h4>
-          <table class="data-table">
-            <thead><tr><th>Экзамен_ID</th><th>Студент_ID</th><th>Дисциплина</th><th>Оценка</th></tr></thead>
-            <tbody>
-              <tr><td>Э-1</td><td>201</td><td>Базы данных</td><td>5</td></tr>
-              <tr><td>Э-2</td><td>201</td><td>Операционные системы</td><td>4</td></tr>
-              <tr><td>Э-3</td><td>203</td><td>Базы данных</td><td>3</td></tr>
-              <tr><td>Э-4</td><td>205</td><td>Базы данных</td><td>4</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+ <div class="grid-2tables">
+ <div>
+ <h4>Отношение R: Студенты</h4>
+ <table class="data-table">
+ <thead><tr><th>Студент_ID</th><th>ФИО</th><th>Группа</th></tr></thead>
+ <tbody>
+ <tr><td>201</td><td>Семенов И.</td><td>СА-201</td></tr>
+ <tr><td>202</td><td>Егоров К.</td><td>СА-201</td></tr>
+ <tr><td>203</td><td>Романов Л.</td><td>СА-202</td></tr>
+ <tr><td>204</td><td>Белов М.</td><td>СА-202</td></tr>
+ </tbody>
+ </table>
+ </div>
+ <div>
+ <h4>Отношение S: Сданные_экзамены</h4>
+ <table class="data-table">
+ <thead><tr><th>Экзамен_ID</th><th>Студент_ID</th><th>Дисциплина</th><th>Оценка</th></tr></thead>
+ <tbody>
+ <tr><td>Э-1</td><td>201</td><td>Базы данных</td><td>5</td></tr>
+ <tr><td>Э-2</td><td>201</td><td>Операционные системы</td><td>4</td></tr>
+ <tr><td>Э-3</td><td>203</td><td>Базы данных</td><td>3</td></tr>
+ <tr><td>Э-4</td><td>205</td><td>Базы данных</td><td>4</td></tr>
+ </tbody>
+ </table>
+ </div>
+ </div>
 
-      <h3>Часть 1. Полное внешнее соединение (Full Outer Join, R ⟗ S) — 2 балла</h3>
-      <p style="font-size: 0.92rem; color: var(--text-muted);">
-        Постройте полное результирующее отношение. Сформулируйте полную схему и все кортежи, явно указав маркеры NULL с левой и с правой стороны.
-      </p>
-      <textarea id="v3_ans1" class="input-area"></textarea>
+ <h3>Часть 1. Полное внешнее соединение (Full Outer Join, R ⟗ S) — 2 балла</h3>
+ <p style="font-size: 0.92rem; color: var(--text-muted);">
+ Постройте полное результирующее отношение. Сформулируйте полную схему и все кортежи, явно указав маркеры NULL с левой и с правой стороны.
+ </p>
+ <textarea id="v3_ans1" class="input-area"></textarea>
 
-      <h3>Часть 2. Обработка маркера NULL и выявление аномалий — 1 балл</h3>
-      <p style="font-size: 0.92rem; color: var(--text-muted);">
-        Назовите студентов, которые не сдавали ни одного экзамена, и экзамены, привязанные к несуществующему студенту. Как трехзначная логика 3VL обрабатывает строку 205?
-      </p>
-      <textarea id="v3_ans2" class="input-area"></textarea>
+ <h3>Часть 2. Обработка маркера NULL и выявление аномалий — 1 балл</h3>
+ <p style="font-size: 0.92rem; color: var(--text-muted);">
+ Назовите студентов, которые не сдавали ни одного экзамена, и экзамены, привязанные к несуществующему студенту. Как трехзначная логика 3VL обрабатывает строку 205?
+ </p>
+ <textarea id="v3_ans2" class="input-area"></textarea>
 
-      <h3>Часть 3. Самопроверка: формула и полусоединение — 1 балл</h3>
-      <p style="font-size: 0.92rem; color: var(--text-muted);">
-        Запишите формулу получения списка студентов, сдавших ХОТЯ БЫ ОДИН экзамен, через операцию полусоединения (Semi-Join). Сколько строк будет в результате и почему Семенов (201) встретится ровно один раз?
-      </p>
-      <textarea id="v3_ans3" class="input-area"></textarea>
-    </section>
-  </main>
+ <h3>Часть 3. Самопроверка: формула и полусоединение — 1 балл</h3>
+ <p style="font-size: 0.92rem; color: var(--text-muted);">
+ Запишите формулу получения списка студентов, сдавших ХОТЯ БЫ ОДИН экзамен, через операцию полусоединения (Semi-Join). Сколько строк будет в результате и почему Семенов (201) встретится ровно один раз?
+ </p>
+ <textarea id="v3_ans3" class="input-area"></textarea>
+ </section>
+ </main>
 
-  <!-- ВАРИАНТ 4 -->
-  <main id="variant4" class="variant-content">
-    <section class="task-section">
-      <h2>Вариант 4. Отношения «Склад» и «Поставки»</h2>
-      <div class="case-box">
-        <strong>Предметная область:</strong> Логистический комплекс торговой сети. Отношение <code>Склад</code> содержит каталог товарных номенклатур на основном складе. Отношение <code>Поставки</code> содержит журнал приходных партий за текущий квартал.
-      </div>
+ <!-- ВАРИАНТ 4 -->
+ <main id="variant4" class="variant-content">
+ <section class="task-section">
+ <h2>Вариант 4. Отношения «Склад» и «Поставки»</h2>
+ <div class="case-box">
+ <strong>Предметная область:</strong> Логистический комплекс торговой сети. Отношение <code>Склад</code> содержит каталог товарных номенклатур на основном складе. Отношение <code>Поставки</code> содержит журнал приходных партий за текущий квартал.
+ </div>
 
-      <div class="grid-2tables">
-        <div>
-          <h4>Отношение R: Склад</h4>
-          <table class="data-table">
-            <thead><tr><th>Артикул</th><th>Наименование_товара</th><th>Категория</th><th>Мин_остаток</th></tr></thead>
-            <tbody>
-              <tr><td>АРТ-10</td><td>Маршрутизатор Cisco</td><td>Сетевое</td><td>5</td></tr>
-              <tr><td>АРТ-20</td><td>Коммутатор HP</td><td>Сетевое</td><td>10</td></tr>
-              <tr><td>АРТ-30</td><td>Серверный шкаф 42U</td><td>Оборудование</td><td>2</td></tr>
-              <tr><td>АРТ-40</td><td>Патч-корд UTP 3м</td><td>Кабели</td><td>100</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div>
-          <h4>Отношение S: Поставки</h4>
-          <table class="data-table">
-            <thead><tr><th>Номер_накладной</th><th>Артикул</th><th>Количество</th><th>Дата</th></tr></thead>
-            <tbody>
-              <tr><td>Н-501</td><td>АРТ-10</td><td>20</td><td>15.01</td></tr>
-              <tr><td>Н-502</td><td>АРТ-10</td><td>15</td><td>02.02</td></tr>
-              <tr><td>Н-503</td><td>АРТ-40</td><td>500</td><td>10.02</td></tr>
-              <tr><td>Н-504</td><td>АРТ-99</td><td>50</td><td>14.02</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+ <div class="grid-2tables">
+ <div>
+ <h4>Отношение R: Склад</h4>
+ <table class="data-table">
+ <thead><tr><th>Артикул</th><th>Наименование_товара</th><th>Категория</th><th>Мин_остаток</th></tr></thead>
+ <tbody>
+ <tr><td>АРТ-10</td><td>Маршрутизатор Cisco</td><td>Сетевое</td><td>5</td></tr>
+ <tr><td>АРТ-20</td><td>Коммутатор HP</td><td>Сетевое</td><td>10</td></tr>
+ <tr><td>АРТ-30</td><td>Серверный шкаф 42U</td><td>Оборудование</td><td>2</td></tr>
+ <tr><td>АРТ-40</td><td>Патч-корд UTP 3м</td><td>Кабели</td><td>100</td></tr>
+ </tbody>
+ </table>
+ </div>
+ <div>
+ <h4>Отношение S: Поставки</h4>
+ <table class="data-table">
+ <thead><tr><th>Номер_накладной</th><th>Артикул</th><th>Количество</th><th>Дата</th></tr></thead>
+ <tbody>
+ <tr><td>Н-501</td><td>АРТ-10</td><td>20</td><td>15.01</td></tr>
+ <tr><td>Н-502</td><td>АРТ-10</td><td>15</td><td>02.02</td></tr>
+ <tr><td>Н-503</td><td>АРТ-40</td><td>500</td><td>10.02</td></tr>
+ <tr><td>Н-504</td><td>АРТ-99</td><td>50</td><td>14.02</td></tr>
+ </tbody>
+ </table>
+ </div>
+ </div>
 
-      <h3>Часть 1. Естественное соединение каталога и журнала поставок (R ⋈ S) — 2 балла</h3>
-      <p style="font-size: 0.92rem; color: var(--text-muted);">
-        Постройте таблицу результата. Определите точное число кортежей. Почему для маршрутизатора Cisco получилось две строки в результирующем отношении?
-      </p>
-      <textarea id="v4_ans1" class="input-area"></textarea>
+ <h3>Часть 1. Естественное соединение каталога и журнала поставок (R ⋈ S) — 2 балла</h3>
+ <p style="font-size: 0.92rem; color: var(--text-muted);">
+ Постройте таблицу результата. Определите точное число кортежей. Почему для маршрутизатора Cisco получилось две строки в результирующем отношении?
+ </p>
+ <textarea id="v4_ans1" class="input-area"></textarea>
 
-      <h3>Часть 2. Антисоединение для поиска неликвидных товаров (R ▷ S) — 1 балл</h3>
-      <p style="font-size: 0.92rem; color: var(--text-muted);">
-        Постройте результат антисоединения R ▷ S. Какие товары являются неликвидными (по которым не было поставок)? Какова схема отношения результата?
-      </p>
-      <textarea id="v4_ans2" class="input-area"></textarea>
+ <h3>Часть 2. Антисоединение для поиска неликвидных товаров (R ▷ S) — 1 балл</h3>
+ <p style="font-size: 0.92rem; color: var(--text-muted);">
+ Постройте результат антисоединения R ▷ S. Какие товары являются неликвидными (по которым не было поставок)? Какова схема отношения результата?
+ </p>
+ <textarea id="v4_ans2" class="input-area"></textarea>
 
-      <h3>Часть 3. Самопроверка: физический план Hash Join — 1 балл</h3>
-      <p style="font-size: 0.92rem; color: var(--text-muted);">
-        Как алгоритм Hash Join в ядре СУБД обработает соединение этих двух таблиц? Какая таблица будет выбрана для построения хэш-таблицы (Build-фаза) и почему?
-      </p>
-      <textarea id="v4_ans3" class="input-area"></textarea>
-    </section>
-  </main>
+ <h3>Часть 3. Самопроверка: физический план Hash Join — 1 балл</h3>
+ <p style="font-size: 0.92rem; color: var(--text-muted);">
+ Как алгоритм Hash Join в ядре СУБД обработает соединение этих двух таблиц? Какая таблица будет выбрана для построения хэш-таблицы (Build-фаза) и почему?
+ </p>
+ <textarea id="v4_ans3" class="input-area"></textarea>
+ </section>
+ </main>
 
-  <div class="actions-bar">
-    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-      <button type="button" class="btn btn-primary" id="saveBtn">Сохранить решение</button>
-      <button type="button" class="btn btn-outline" id="printBtn">Распечатать в PDF</button>
-    </div>
-    <button type="button" class="btn btn-danger" id="clearBtn">Очистить поля</button>
-  </div>
-  <div id="statusAlert" class="status-alert">Данные успешно сохранены в локальном хранилище браузера!</div>
+ <div class="actions-bar">
+ <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+ <button type="button" class="btn btn-primary" id="saveBtn">Сохранить решение</button>
+ <button type="button" class="btn btn-outline" id="printBtn">Распечатать в PDF</button>
+ </div>
+ <button type="button" class="btn btn-danger" id="clearBtn">Очистить поля</button>
+ </div>
+ <div id="statusAlert" class="status-alert">Данные успешно сохранены в локальном хранилище браузера!</div>
 
 </div>
 
 <script>
-  (function() {
-    const STORAGE_KEY = 'zanyatie_db_09_join_state';
+ (function() {
+ const STORAGE_KEY = 'zanyatie_db_09_join_state';
 
-    const inputIds = [
-      'student_fio', 'student_group',
-      'v1_ans1', 'v1_ans2', 'v1_ans3',
-      'v2_ans1', 'v2_ans2', 'v2_ans3',
-      'v3_ans1', 'v3_ans2', 'v3_ans3',
-      'v4_ans1', 'v4_ans2', 'v4_ans3'
-    ];
+ const inputIds = [
+ 'student_fio', 'student_group',
+ 'v1_ans1', 'v1_ans2', 'v1_ans3',
+ 'v2_ans1', 'v2_ans2', 'v2_ans3',
+ 'v3_ans1', 'v3_ans2', 'v3_ans3',
+ 'v4_ans1', 'v4_ans2', 'v4_ans3'
+ ];
 
-    let currentVariant = '1';
+ let currentVariant = '1';
 
-    function initTabs() {
-      const tabs = document.querySelectorAll('.v-tab-btn');
-      tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-          const v = tab.getAttribute('data-v');
-          selectVariant(v);
-        });
-      });
-    }
+ function initTabs() {
+ const tabs = document.querySelectorAll('.v-tab-btn');
+ tabs.forEach(tab => {
+ tab.addEventListener('click', () => {
+ const v = tab.getAttribute('data-v');
+ selectVariant(v);
+ });
+ });
+ }
 
-    function selectVariant(v) {
-      currentVariant = v;
-      document.querySelectorAll('.v-tab-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.getAttribute('data-v') === v);
-      });
-      document.querySelectorAll('.variant-content').forEach(vc => {
-        vc.classList.remove('active');
-      });
-      const activeContent = document.getElementById('variant' + v);
-      if (activeContent) {
-        activeContent.classList.add('active');
-      }
-      saveToStorage();
-    }
+ function selectVariant(v) {
+ currentVariant = v;
+ document.querySelectorAll('.v-tab-btn').forEach(btn => {
+ btn.classList.toggle('active', btn.getAttribute('data-v') === v);
+ });
+ document.querySelectorAll('.variant-content').forEach(vc => {
+ vc.classList.remove('active');
+ });
+ const activeContent = document.getElementById('variant' + v);
+ if (activeContent) {
+ activeContent.classList.add('active');
+ }
+ saveToStorage();
+ }
 
-    function loadFromStorage() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return;
-        const state = JSON.parse(raw);
-        inputIds.forEach(id => {
-          const el = document.getElementById(id);
-          if (el && state[id] !== undefined) {
-            el.value = state[id];
-          }
-        });
-        if (state._variant) {
-          selectVariant(state._variant);
-        }
-      } catch (e) {
-        console.error('Ошибка чтения localStorage', e);
-      }
-    }
+ function loadFromStorage() {
+ try {
+ const raw = localStorage.getItem(STORAGE_KEY);
+ if (!raw) return;
+ const state = JSON.parse(raw);
+ inputIds.forEach(id => {
+ const el = document.getElementById(id);
+ if (el && state[id] !== undefined) {
+ el.value = state[id];
+ }
+ });
+ if (state._variant) {
+ selectVariant(state._variant);
+ }
+ } catch (e) {
+ console.error('Ошибка чтения localStorage', e);
+ }
+ }
 
-    function saveToStorage() {
-      const state = { _variant: currentVariant };
-      inputIds.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) state[id] = el.value;
-      });
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
+ function saveToStorage() {
+ const state = { _variant: currentVariant };
+ inputIds.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) state[id] = el.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+ }
 
-    document.getElementById('saveBtn').addEventListener('click', () => {
-      saveToStorage();
-      const alert = document.getElementById('statusAlert');
-      if (alert) {
-        alert.style.display = 'block';
-        setTimeout(() => { alert.style.display = 'none'; }, 3000);
-      }
-    });
+ document.getElementById('saveBtn').addEventListener('click', () => {
+ saveToStorage();
+ const alert = document.getElementById('statusAlert');
+ if (alert) {
+ alert.style.display = 'block';
+ setTimeout(() => { alert.style.display = 'none'; }, 3000);
+ }
+ });
 
-    document.getElementById('printBtn').addEventListener('click', () => {
-      window.print();
-    });
+ document.getElementById('printBtn').addEventListener('click', () => {
+ window.print();
+ });
 
-    document.getElementById('clearBtn').addEventListener('click', () => {
-      if (confirm('Вы уверены, что хотите полностью очистить все введенные ответы?')) {
-        localStorage.removeItem(STORAGE_KEY);
-        inputIds.forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.value = '';
-        });
-        alert('Все поля очищены.');
-      }
-    });
+ document.getElementById('clearBtn').addEventListener('click', () => {
+ if (confirm('Вы уверены, что хотите полностью очистить все введенные ответы?')) {
+ localStorage.removeItem(STORAGE_KEY);
+ inputIds.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) el.value = '';
+ });
+ alert('Все поля очищены.');
+ }
+ });
 
-    // Auto-save on input
-    inputIds.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener('input', () => {
-          saveToStorage();
-        });
-      }
-    });
+ // Auto-save on input
+ inputIds.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) {
+ el.addEventListener('input', () => {
+ saveToStorage();
+ });
+ }
+ });
 
-    window.addEventListener('DOMContentLoaded', () => {
-      initTabs();
-      loadFromStorage();
-    });
-  })();
+ window.addEventListener('DOMContentLoaded', () => {
+ initTabs();
+ loadFromStorage();
+ });
+ })();
 </script>
 
 </body>

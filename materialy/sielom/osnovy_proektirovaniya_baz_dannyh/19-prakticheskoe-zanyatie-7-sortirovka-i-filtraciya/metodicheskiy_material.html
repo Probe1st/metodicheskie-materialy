@@ -1,273 +1,257 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="color-scheme" content="light">
-  <title>Методический материал — Практическое занятие №7: сортировка и фильтрация</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #0284c7;
-      --accent-soft: #f0f9ff;
-      --accent-dark: #0369a1;
-      --warn: #b45309;
-      --warn-soft: #fffbeb;
-      --danger: #b91c1c;
-      --danger-soft: #fef2f2;
-      --success: #15803d;
-      --success-soft: #f0fdf4;
-      --code-bg: #0f172a;
-      --code-text: #f8fafc;
-      --radius: 12px;
-      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-    }
-    * { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      line-height: 1.65;
-      font-size: 16px;
-    }
-    .page {
-      width: min(100% - 32px, 980px);
-      margin: 32px auto 80px;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 32px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow);
-    }
-    h1 {
-      margin: 0 0 12px;
-      font-size: clamp(24px, 4vw, 32px);
-      color: var(--text);
-      line-height: 1.25;
-    }
-    .lead {
-      color: var(--muted);
-      margin: 0;
-      font-size: 16px;
-    }
-    h2 {
-      margin: 0 0 16px;
-      font-size: 21px;
-      color: var(--accent-dark);
-      border-bottom: 2px solid var(--accent-soft);
-      padding-bottom: 8px;
-    }
-    h3 {
-      font-size: 18px;
-      margin: 22px 0 12px;
-      color: var(--text);
-    }
-    p, ul, ol {
-      margin: 0 0 16px;
-    }
-    ul, ol {
-      padding-left: 24px;
-    }
-    li {
-      margin-bottom: 8px;
-    }
-    .timing-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-      font-size: 15px;
-    }
-    .timing-table th, .timing-table td {
-      border: 1px solid var(--line);
-      padding: 10px 14px;
-      text-align: left;
-      vertical-align: top;
-    }
-    .timing-table th {
-      background: #f1f5f9;
-      font-weight: 700;
-      color: var(--text);
-    }
-    .badge {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 600;
-    }
-    .badge-blue { background: var(--accent-soft); color: var(--accent-dark); }
-    .badge-amber { background: var(--warn-soft); color: var(--warn); }
-    .badge-green { background: var(--success-soft); color: var(--success); }
-    .callout {
-      border-left: 4px solid var(--accent);
-      background: var(--accent-soft);
-      padding: 16px 20px;
-      border-radius: 0 8px 8px 0;
-      margin-bottom: 20px;
-    }
-    .callout-warn {
-      border-left-color: var(--warn);
-      background: var(--warn-soft);
-    }
-    .callout-danger {
-      border-left-color: var(--danger);
-      background: var(--danger-soft);
-    }
-    pre {
-      background: var(--code-bg);
-      color: var(--code-text);
-      padding: 16px;
-      border-radius: 8px;
-      overflow-x: auto;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 14px;
-      line-height: 1.5;
-      margin: 0 0 16px;
-    }
-    code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.9em;
-      background: #f1f5f9;
-      color: #0f172a;
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-    pre code {
-      background: transparent;
-      color: inherit;
-      padding: 0;
-    }
-    @media (max-width: 640px) {
-      .card { padding: 20px 16px; }
-      .timing-table { font-size: 13px; }
-      .timing-table th, .timing-table td { padding: 8px 6px; }
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <meta name="color-scheme" content="light">
+ <title>Методический материал — Практическое занятие №7: сортировка и фильтрация</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #0284c7;
+ --accent-soft: #f0f9ff;
+ --accent-dark: #0369a1;
+ --warn: #b45309;
+ --warn-soft: #fffbeb;
+ --danger: #b91c1c;
+ --danger-soft: #fef2f2;
+ --success: #15803d;
+ --success-soft: #f0fdf4;
+ --code-bg: #0f172a;
+ --code-text: #f8fafc;
+ --radius: 12px;
+ --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+ }
+ * { box-sizing: border-box; }
+ html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+ body {
+ margin: 0;
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+ line-height: 1.65;
+ font-size: 16px;
+ }.page {
+ width: min(100% - 32px, 980px);
+ margin: 32px auto 80px;
+ }.card {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 32px;
+ margin-bottom: 24px;
+ box-shadow: var(--shadow);
+ }
+ h1 {
+ margin: 0 0 12px;
+ font-size: clamp(24px, 4vw, 32px);
+ color: var(--text);
+ line-height: 1.25;
+ }.lead {
+ color: var(--muted);
+ margin: 0;
+ font-size: 16px;
+ }
+ h2 {
+ margin: 0 0 16px;
+ font-size: 21px;
+ color: var(--accent-dark);
+ border-bottom: 2px solid var(--accent-soft);
+ padding-bottom: 8px;
+ }
+ h3 {
+ font-size: 18px;
+ margin: 22px 0 12px;
+ color: var(--text);
+ }
+ p, ul, ol {
+ margin: 0 0 16px;
+ }
+ ul, ol {
+ padding-left: 24px;
+ }
+ li {
+ margin-bottom: 8px;
+ }.timing-table {
+ width: 100%;
+ border-collapse: collapse;
+ margin-bottom: 20px;
+ font-size: 15px;
+ }.timing-table th,.timing-table td {
+ border: 1px solid var(--line);
+ padding: 10px 14px;
+ text-align: left;
+ vertical-align: top;
+ }.timing-table th {
+ background: #f1f5f9;
+ font-weight: 700;
+ color: var(--text);
+ }.badge {
+ display: inline-block;
+ padding: 3px 8px;
+ border-radius: 6px;
+ font-size: 13px;
+ font-weight: 600;
+ }.badge-blue { background: var(--accent-soft); color: var(--accent-dark); }.badge-amber { background: var(--warn-soft); color: var(--warn); }.badge-green { background: var(--success-soft); color: var(--success); }.callout {
+ border-left: 4px solid var(--accent);
+ background: var(--accent-soft);
+ padding: 16px 20px;
+ border-radius: 0 8px 8px 0;
+ margin-bottom: 20px;
+ }.callout-warn {
+ border-left-color: var(--warn);
+ background: var(--warn-soft);
+ }.callout-danger {
+ border-left-color: var(--danger);
+ background: var(--danger-soft);
+ }
+ pre {
+ background: var(--code-bg);
+ color: var(--code-text);
+ padding: 16px;
+ border-radius: 8px;
+ overflow-x: auto;
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 14px;
+ line-height: 1.5;
+ margin: 0 0 16px;
+ }
+ code {
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 0.9em;
+ background: #f1f5f9;
+ color: #0f172a;
+ padding: 2px 6px;
+ border-radius: 4px;
+ }
+ pre code {
+ background: transparent;
+ color: inherit;
+ padding: 0;
+ }
+ @media (max-width: 640px) {.card { padding: 20px 16px; }.timing-table { font-size: 13px; }.timing-table th,.timing-table td { padding: 8px 6px; }
+ }
+ </style>
 </head>
 <body>
-  <div class="page">
-    <div class="card">
-      <h1>Методическое руководство для преподавателя</h1>
-      <p class="lead">Тема 3. Этапы проектирования баз данных — Практическое занятие №7: сортировка и фильтрация (Занятие №19)</p>
-    </div>
+ <div class="page">
+ <div class="card">
+ <h1>Методическое руководство для преподавателя</h1>
+ <p class="lead">Тема 3. Этапы проектирования баз данных — Практическое занятие №7: сортировка и фильтрация (Занятие №19)</p>
+ </div>
 
-    <!-- Раздел 1. Дидактический тайминг -->
-    <div class="card">
-      <h2>1. Дидактический регламент и детальный тайминг занятия</h2>
-      <p>Дисциплина «ОП.08 Основы проектирования баз данных». Практическое занятие рассчитано на 2 академических часа. Ниже представлены два взаимосогласованных сценария реализации: основной регламент (80 минут) и сокращенный регламент (60 минут).</p>
-      
-      <table class="timing-table">
-        <thead>
-          <tr>
-            <th>Этап занятия</th>
-            <th>Основной регламент (80 мин)</th>
-            <th>Сокращенный регламент (60 мин)</th>
-            <th>Дидактический фокус и действия преподавателя</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>1. Организационный момент и постановка инженерной проблемы</strong></td>
-            <td><span class="badge badge-blue">6 минут</span></td>
-            <td><span class="badge badge-amber">4 минуты</span></td>
-            <td>Приветствие, проверка готовности ПК и СУБД. Мотивационный кейс: падение производительности веб-приложения при выборке 20-й страницы каталога (деградация <code>OFFSET 100000</code> и сброс сортировки на диск).</td>
-          </tr>
-          <tr>
-            <td><strong>2. Актуализация опорных знаний и алгоритмический базис</strong></td>
-            <td><span class="badge badge-blue">14 минут</span></td>
-            <td><span class="badge badge-amber">10 минут</span></td>
-            <td>Фронтальный блиц-опрос. Разбор физики сортировки: внешняя сортировка слиянием (External Merge Sort), параметр <code>work_mem</code>, фаза генерации серий (runs) и n-путевое слияние (Merge Passes). Сравнение in-memory Quicksort и disk External Sort.</td>
-          </tr>
-          <tr>
-            <td><strong>3. Инструктаж по многоуровневой сортировке, NULL и Collation</strong></td>
-            <td><span class="badge badge-blue">16 минут</span></td>
-            <td><span class="badge badge-amber">12 минут</span></td>
-            <td>Демонстрация презентации. Разбор синтаксиса: многоуровневый <code>ORDER BY col1 ASC, col2 DESC</code>, поведение <code>NULLS FIRST / NULLS LAST</code> в SQL стандартах и диалектах. Правила сравнения строк и локали (Collation, ICU vs libc, буква «Ё»).</td>
-          </tr>
-          <tr>
-            <td><strong>4. Самостоятельная практическая работа в интерактивном листе</strong></td>
-            <td><span class="badge badge-blue">32 минуты</span></td>
-            <td><span class="badge badge-amber">26 минут</span></td>
-            <td>Студенты выполняют 4 дифференцированных практических кейса в <code>zanyatie.html</code> (Каталог товаров, Авиарейсы, Реестр договоров, Электронный журнал). Преподаватель проводит индивидуальные консультации и аудит SQL-запросов.</td>
-          </tr>
-          <tr>
-            <td><strong>5. Экспертный разбор типичных ошибок, рефлексия и критериальное оценивание</strong></td>
-            <td><span class="badge badge-blue">12 минут</span></td>
-            <td><span class="badge badge-amber">8 минут</span></td>
-            <td>Разбор ключевых граблей (опасность OFFSET при пагинации, неустойчивая сортировка без первичного ключа, скрытый disk spill). Оценивание по рубрике (4-балльная шкала). Инструктаж по сохранению работы в PDF и резервному ДЗ.</td>
-          </tr>
-        </tbody>
-      </table>
+ <!-- Раздел 1. Дидактический тайминг -->
+ <div class="card">
+ <h2>1. Дидактический регламент и детальный тайминг занятия</h2>
+ <p>Дисциплина «ОП.08 Основы проектирования баз данных». Практическое занятие рассчитано на 2 академических часа. Ниже представлены два взаимосогласованных сценария реализации: основной регламент (80 минут) и сокращенный регламент (60 минут).</p>
+ 
+ <table class="timing-table">
+ <thead>
+ <tr>
+ <th>Этап занятия</th>
+ <th>Основной регламент (80 мин)</th>
+ <th>Сокращенный регламент (60 мин)</th>
+ <th>Дидактический фокус и действия преподавателя</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>1. Организационный момент и постановка инженерной проблемы</strong></td>
+ <td><span class="badge badge-blue">6 минут</span></td>
+ <td><span class="badge badge-amber">4 минуты</span></td>
+ <td>Приветствие, проверка готовности ПК и СУБД. Мотивационный кейс: падение производительности веб-приложения при выборке 20-й страницы каталога (деградация <code>OFFSET 100000</code> и сброс сортировки на диск).</td>
+ </tr>
+ <tr>
+ <td><strong>2. Актуализация опорных знаний и алгоритмический базис</strong></td>
+ <td><span class="badge badge-blue">14 минут</span></td>
+ <td><span class="badge badge-amber">10 минут</span></td>
+ <td>Фронтальный блиц-опрос. Разбор физики сортировки: внешняя сортировка слиянием (External Merge Sort), параметр <code>work_mem</code>, фаза генерации серий (runs) и n-путевое слияние (Merge Passes). Сравнение in-memory Quicksort и disk External Sort.</td>
+ </tr>
+ <tr>
+ <td><strong>3. Инструктаж по многоуровневой сортировке, NULL и Collation</strong></td>
+ <td><span class="badge badge-blue">16 минут</span></td>
+ <td><span class="badge badge-amber">12 минут</span></td>
+ <td>Демонстрация презентации. Разбор синтаксиса: многоуровневый <code>ORDER BY col1 ASC, col2 DESC</code>, поведение <code>NULLS FIRST / NULLS LAST</code> в SQL стандартах и диалектах. Правила сравнения строк и локали (Collation, ICU vs libc, буква «Ё»).</td>
+ </tr>
+ <tr>
+ <td><strong>4. Самостоятельная практическая работа в интерактивном листе</strong></td>
+ <td><span class="badge badge-blue">32 минуты</span></td>
+ <td><span class="badge badge-amber">26 минут</span></td>
+ <td>Студенты выполняют 4 дифференцированных практических кейса в <code>zanyatie.html</code> (Каталог товаров, Авиарейсы, Реестр договоров, Электронный журнал). Преподаватель проводит индивидуальные консультации и аудит SQL-запросов.</td>
+ </tr>
+ <tr>
+ <td><strong>5. Экспертный разбор типичных ошибок, рефлексия и критериальное оценивание</strong></td>
+ <td><span class="badge badge-blue">12 минут</span></td>
+ <td><span class="badge badge-amber">8 минут</span></td>
+ <td>Разбор ключевых граблей (опасность OFFSET при пагинации, неустойчивая сортировка без первичного ключа, скрытый disk spill). Оценивание по рубрике (4-балльная шкала). Инструктаж по сохранению работы в PDF и резервному ДЗ.</td>
+ </tr>
+ </tbody>
+ </table>
 
-      <div class="callout callout-warn">
-        <strong>Особенности сокращенного регламента (60 минут):</strong> Этап глубокого детального расчета дисковых проходов алгоритма External Merge Sort с ручным рисованием графа слияния переносится на домашнее изучение по конспекту (<code>lekciya.html</code>), а в классе разбирается базовый принцип <code>work_mem</code> и вывод плана <code>EXPLAIN ANALYZE (Sort Method: external merge Disk)</code>.
-      </div>
-    </div>
+ <div class="callout callout-warn">
+ <strong>Особенности сокращенного регламента (60 минут):</strong> Этап глубокого детального расчета дисковых проходов алгоритма External Merge Sort с ручным рисованием графа слияния переносится на домашнее изучение по конспекту (<code>lekciya.html</code>), а в классе разбирается базовый принцип <code>work_mem</code> и вывод плана <code>EXPLAIN ANALYZE (Sort Method: external merge Disk)</code>.
+ </div>
+ </div>
 
-    <!-- Раздел 2. Теоретико-методический базис темы -->
-    <div class="card">
-      <h2>2. Теоретико-методический фундамент сортировки и фильтрации</h2>
-      
-      <h3>2.1. Многоуровневая сортировка кортежей (Multi-Column ORDER BY)</h3>
-      <p>В реляционной теории отношения представляют собой неупорядоченные множества кортежей. Порядок строк на физическом диске не гарантирован. Единственным легитимным способом гарантировать порядок результирующего набора является явное указание предложения <code>ORDER BY</code>.</p>
-      <p>Многоуровневая сортировка выполняется слева направо по принципу лексикографической иерархии:</p>
-      <pre><code>SELECT product_id, category_id, rating, price 
+ <!-- Раздел 2. Теоретико-методический базис темы -->
+ <div class="card">
+ <h2>2. Теоретико-методический фундамент сортировки и фильтрации</h2>
+ 
+ <h3>2.1. Многоуровневая сортировка кортежей (Multi-Column ORDER BY)</h3>
+ <p>В реляционной теории отношения представляют собой неупорядоченные множества кортежей. Порядок строк на физическом диске не гарантирован. Единственным легитимным способом гарантировать порядок результирующего набора является явное указание предложения <code>ORDER BY</code>.</p>
+ <p>Многоуровневая сортировка выполняется слева направо по принципу лексикографической иерархии:</p>
+ <pre><code>SELECT product_id, category_id, rating, price 
 FROM products 
 WHERE is_available = TRUE 
 ORDER BY category_id ASC, rating DESC, price ASC;</code></pre>
-      <p>СУБД сначала группирует строки по первому критерию (<code>category_id</code>). Если значения первого критерия совпадают (коллизия), сравнение переходит ко второму полю (<code>rating</code>). Если совпадают и они — к третьему полю (<code>price</code>). Если после всех критериев остаются дубликаты, а первичный ключ не включен в <code>ORDER BY</code>, результирующий порядок строк является <em>неустойчивым (non-deterministic)</em>.</p>
+ <p>СУБД сначала группирует строки по первому критерию (<code>category_id</code>). Если значения первого критерия совпадают (коллизия), сравнение переходит ко второму полю (<code>rating</code>). Если совпадают и они — к третьему полю (<code>price</code>). Если после всех критериев остаются дубликаты, а первичный ключ не включен в <code>ORDER BY</code>, результирующий порядок строк является <em>неустойчивым (non-deterministic)</em>.</p>
 
-      <h3>2.2. Трехзначная логика и поведение NULL-значений (NULLS FIRST / NULLS LAST)</h3>
-      <p>В реляционной модели значение <code>NULL</code> обозначает отсутствие данных или неизвестность (unknown). Значение <code>NULL</code> не равно ничему, включая другой <code>NULL</code> (<code>NULL = NULL</code> возвращает <code>UNKNOWN</code>). Однако при сортировке СУБД обязана позиционировать кортежи с <code>NULL</code>.</p>
-      <ul>
-        <li><strong>Стандарт ANSI SQL-92:</strong> СУБД может считать <code>NULL</code> либо самым большим значением (больше любого существующего), либо самым маленьким, но обязана вести себя консистентно.</li>
-        <li><strong>Поведение PostgreSQL / Oracle:</strong> По умолчанию <code>NULL</code> считается «наибольшим» значением. Поэтому при <code>ASC</code> значения <code>NULL</code> выводятся в конце (<code>NULLS LAST</code>), а при <code>DESC</code> — в самом начале (<code>NULLS FIRST</code>).</li>
-        <li><strong>Поведение MySQL / MariaDB:</strong> По умолчанию <code>NULL</code> считается «наименьшим» значением (при <code>ASC</code> — в начале, при <code>DESC</code> — в конце).</li>
-        <li><strong>Явное управление (SQL-99):</strong> Для кроссплатформенной стабильности необходимо явно указывать спецификатор: <code>ORDER BY rating DESC NULLS LAST</code> или <code>ORDER BY flight_gate ASC NULLS FIRST</code>.</li>
-      </ul>
+ <h3>2.2. Трехзначная логика и поведение NULL-значений (NULLS FIRST / NULLS LAST)</h3>
+ <p>В реляционной модели значение <code>NULL</code> обозначает отсутствие данных или неизвестность (unknown). Значение <code>NULL</code> не равно ничему, включая другой <code>NULL</code> (<code>NULL = NULL</code> возвращает <code>UNKNOWN</code>). Однако при сортировке СУБД обязана позиционировать кортежи с <code>NULL</code>.</p>
+ <ul>
+ <li><strong>Стандарт ANSI SQL-92:</strong> СУБД может считать <code>NULL</code> либо самым большим значением (больше любого существующего), либо самым маленьким, но обязана вести себя консистентно.</li>
+ <li><strong>Поведение PostgreSQL / Oracle:</strong> По умолчанию <code>NULL</code> считается «наибольшим» значением. Поэтому при <code>ASC</code> значения <code>NULL</code> выводятся в конце (<code>NULLS LAST</code>), а при <code>DESC</code> — в самом начале (<code>NULLS FIRST</code>).</li>
+ <li><strong>Поведение MySQL / MariaDB:</strong> По умолчанию <code>NULL</code> считается «наименьшим» значением (при <code>ASC</code> — в начале, при <code>DESC</code> — в конце).</li>
+ <li><strong>Явное управление (SQL-99):</strong> Для кроссплатформенной стабильности необходимо явно указывать спецификатор: <code>ORDER BY rating DESC NULLS LAST</code> или <code>ORDER BY flight_gate ASC NULLS FIRST</code>.</li>
+ </ul>
 
-      <h3>2.3. Локали и правила сравнения символов (Collation)</h3>
-      <p>Сортировка текстовых полей напрямую зависит от установленного правила сопоставления символов (<strong>Collation</strong>). Collation определяет таблицу весов символов, регистрозависимость (case sensitivity) и акцентозависимость (accent sensitivity).</p>
-      <ul>
-        <li><strong>Collation <code>"C"</code> / <code>POSIX</code>:</strong> Сортировка по бинарным кодам байтов UTF-8 / ASCII. Заглавные латинские буквы идут раньше строчных, а русские буквы сортируются по кодам таблицы. Буква «Ё» (код U+0401) окажется в начале алфавита, перед «А»!</li>
-        <li><strong>Локаль <code>"ru_RU.UTF-8"</code> / <code>ICU</code>:</strong> Алфавитная сортировка с учетом правил русского языка, где буква «е» и «ё» упорядочиваются корректно, а регистр игнорируется на первичном уровне сравнения (case-insensitive tie-breaking).</li>
-        <li><strong>Синтаксис явной локали:</strong> <code>ORDER BY last_name COLLATE "ru_RU" ASC</code>.</li>
-      </ul>
+ <h3>2.3. Локали и правила сравнения символов (Collation)</h3>
+ <p>Сортировка текстовых полей напрямую зависит от установленного правила сопоставления символов (<strong>Collation</strong>). Collation определяет таблицу весов символов, регистрозависимость (case sensitivity) и акцентозависимость (accent sensitivity).</p>
+ <ul>
+ <li><strong>Collation <code>"C"</code> / <code>POSIX</code>:</strong> Сортировка по бинарным кодам байтов UTF-8 / ASCII. Заглавные латинские буквы идут раньше строчных, а русские буквы сортируются по кодам таблицы. Буква «Ё» (код U+0401) окажется в начале алфавита, перед «А»!</li>
+ <li><strong>Локаль <code>"ru_RU.UTF-8"</code> / <code>ICU</code>:</strong> Алфавитная сортировка с учетом правил русского языка, где буква «е» и «ё» упорядочиваются корректно, а регистр игнорируется на первичном уровне сравнения (case-insensitive tie-breaking).</li>
+ <li><strong>Синтаксис явной локали:</strong> <code>ORDER BY last_name COLLATE "ru_RU" ASC</code>.</li>
+ </ul>
 
-      <h3>2.4. Физический алгоритм сортировки: External Merge Sort и work_mem</h3>
-      <p>Когда СУБД получает команду на сортировку массива кортежей, планировщик оценивает объем данных и доступную оперативную память, выделяемую процессу (параметр <code>work_mem</code> в PostgreSQL или <code>sort_buffer_size</code> в MySQL).</p>
-      <ol>
-        <li><strong>In-Memory Sort (Quicksort / Top-N Heapsort):</strong> Если весь набор данных (или только ключи с указателями на строки — tuple pointers) умещается в <code>work_mem</code>, СУБД применяет быструю сортировку в ОЗУ. При наличии <code>LIMIT k</code> применяется алгоритм Top-N Heapsort с кучей размера k, что дает сложность O(N log k) без сортировки всей таблицы.</li>
-        <li><strong>External Merge Sort (Внешняя сортировка слиянием):</strong> Если объем данных превышает <code>work_mem</code>:
-          <ul>
-            <li><strong>Фаза 1 (Run Generation):</strong> Данные порциями считываются в память, сортируются в пределах <code>work_mem</code> и сбрасываются во временные файлы на диск в виде отсортированных серий (Runs).</li>
-            <li><strong>Фаза 2 (Merge Passes):</strong> СУБД выполняет многопутевое слияние (Multi-way Merge) отсортированных серий с диска с использованием очереди с приоритетом (K-way Tournament Tree / Min-Heap). Если число серий велико, слияние происходит в несколько проходов.</li>
-            <li><strong>План EXPLAIN:</strong> <code>Sort Method: external merge Disk: 14256kB</code>. Сброс на диск резко увеличивает задержку (I/O latency) в сотни раз!</li>
-          </ul>
-        </li>
-      </ol>
+ <h3>2.4. Физический алгоритм сортировки: External Merge Sort и work_mem</h3>
+ <p>Когда СУБД получает команду на сортировку массива кортежей, планировщик оценивает объем данных и доступную оперативную память, выделяемую процессу (параметр <code>work_mem</code> в PostgreSQL или <code>sort_buffer_size</code> в MySQL).</p>
+ <ol>
+ <li><strong>In-Memory Sort (Quicksort / Top-N Heapsort):</strong> Если весь набор данных (или только ключи с указателями на строки — tuple pointers) умещается в <code>work_mem</code>, СУБД применяет быструю сортировку в ОЗУ. При наличии <code>LIMIT k</code> применяется алгоритм Top-N Heapsort с кучей размера k, что дает сложность O(N log k) без сортировки всей таблицы.</li>
+ <li><strong>External Merge Sort (Внешняя сортировка слиянием):</strong> Если объем данных превышает <code>work_mem</code>:
+ <ul>
+ <li><strong>Фаза 1 (Run Generation):</strong> Данные порциями считываются в память, сортируются в пределах <code>work_mem</code> и сбрасываются во временные файлы на диск в виде отсортированных серий (Runs).</li>
+ <li><strong>Фаза 2 (Merge Passes):</strong> СУБД выполняет многопутевое слияние (Multi-way Merge) отсортированных серий с диска с использованием очереди с приоритетом (K-way Tournament Tree / Min-Heap). Если число серий велико, слияние происходит в несколько проходов.</li>
+ <li><strong>План EXPLAIN:</strong> <code>Sort Method: external merge Disk: 14256kB</code>. Сброс на диск резко увеличивает задержку (I/O latency) в сотни раз!</li>
+ </ul>
+ </li>
+ </ol>
 
-      <h3>2.5. Пагинация данных: LIMIT / OFFSET vs Keyset Pagination</h3>
-      <p>Реализация постраничного вывода (Pagination) — классическая задача веб-разработки и проектирования БД.</p>
-      <ul>
-        <li><strong>Смещение (Offset Pagination):</strong> <code>SELECT * FROM items ORDER BY id LIMIT 20 OFFSET 100000;</code><br>
-        <strong>Проблема:</strong> СУБД вынуждена прочитать и отсортировать все 100 020 строк, отбросить первые 100 000 и вернуть последние 20. Сложность составляет O(N), где N = OFFSET + LIMIT. При росте номера страницы сервер перегружается I/O операциями. Кроме того, при вставке новой строки между запросами пользователь видит дубликаты на стыке страниц.</li>
-        <li><strong>Курсорная пагинация (Keyset / Seek Method):</strong> <code>SELECT * FROM items WHERE (created_at, id) &lt; (last<sub>created</sub>,last_id) ORDER BY created_at DESC, id DESC LIMIT 20;</code><br>
-        <strong>Преимущество:</strong> Поиск точки старта выполняется по B-Tree индексу за время O(log N), после чего извлекаются ровно 20 строк. Сложность константна независимо от глубины страниц (O(1) относительно глубины пагинации).</li>
-      </ul>
+ <h3>2.5. Пагинация данных: LIMIT / OFFSET vs Keyset Pagination</h3>
+ <p>Реализация постраничного вывода (Pagination) — классическая задача веб-разработки и проектирования БД.</p>
+ <ul>
+ <li><strong>Смещение (Offset Pagination):</strong> <code>SELECT * FROM items ORDER BY id LIMIT 20 OFFSET 100000;</code><br>
+ <strong>Проблема:</strong> СУБД вынуждена прочитать и отсортировать все 100 020 строк, отбросить первые 100 000 и вернуть последние 20. Сложность составляет O(N), где N = OFFSET + LIMIT. При росте номера страницы сервер перегружается I/O операциями. Кроме того, при вставке новой строки между запросами пользователь видит дубликаты на стыке страниц.</li>
+ <li><strong>Курсорная пагинация (Keyset / Seek Method):</strong> <code>SELECT * FROM items WHERE (created_at, id) &lt; (last<sub>created</sub>,last_id) ORDER BY created_at DESC, id DESC LIMIT 20;</code><br>
+ <strong>Преимущество:</strong> Поиск точки старта выполняется по B-Tree индексу за время O(log N), после чего извлекаются ровно 20 строк. Сложность константна независимо от глубины страниц (O(1) относительно глубины пагинации).</li>
+ </ul>
 
-      <h3>2.6. Индексная поддержка предикатной фильтрации и сортировки</h3>
-      <p>Оптимальное выполнение запроса с фильтрацией и сортировкой достигается созданием <strong>составного B-Tree индекса</strong>, поддерживающего правило «Равенство → Сортировка → Диапазон» (Equality, Sort, Range — ESR):</p>
-      <pre><code>-- Запрос:
+ <h3>2.6. Индексная поддержка предикатной фильтрации и сортировки</h3>
+ <p>Оптимальное выполнение запроса с фильтрацией и сортировкой достигается созданием <strong>составного B-Tree индекса</strong>, поддерживающего правило «Равенство → Сортировка → Диапазон» (Equality, Sort, Range — ESR):</p>
+ <pre><code>-- Запрос:
 SELECT * FROM orders 
 WHERE client_id = 42 AND status = 'COMPLETED' 
 ORDER BY order_date DESC 
@@ -276,47 +260,47 @@ LIMIT 10;
 -- Идеальный составной индекс:
 CREATE INDEX idx_orders_client_status_date 
 ON orders (client_id, status, order_date DESC);</code></pre>
-      <p>Благодаря такому индексу СУБД использует узел <code>Index Scan</code>, двигаясь по дереву в уже отсортированном порядке без дополнительной операции в памяти <code>Sort</code> (zero-cost ordering).</p>
-    </div>
+ <p>Благодаря такому индексу СУБД использует узел <code>Index Scan</code>, двигаясь по дереву в уже отсортированном порядке без дополнительной операции в памяти <code>Sort</code> (zero-cost ordering).</p>
+ </div>
 
-    <!-- Раздел 3. Методические приемы и типовые ошибки -->
-    <div class="card">
-      <h2>3. Педагогические приемы и разбор типовых студенческих ошибок</h2>
+ <!-- Раздел 3. Методические приемы и типовые ошибки -->
+ <div class="card">
+ <h2>3. Педагогические приемы и разбор типовых студенческих ошибок</h2>
 
-      <h3>Педагогический прием «Предсказание плана выполнения до запуска»</h3>
-      <p>Преподаватель проецирует на экран SQL-запрос с фильтрацией и <code>ORDER BY</code> по двум таблицам и просит студентов предсказать:</p>
-      <ol>
-        <li>Будет ли выполнен <code>Index Scan</code> или <code>Seq Scan</code> + <code>Sort</code>?</li>
-        <li>Где окажутся значения <code>NULL</code>: вверху или внизу списка?</li>
-        <li>Какой метод сортировки покажет <code>EXPLAIN ANALYZE</code> при <code>work_mem = '4MB'</code> на таблице в 1 000 000 записей?</li>
-      </ol>
-      <p>Фиксация гипотез перед демонстрацией консоли включает когнитивное внимание и предотвращает пассивное запоминание.</p>
+ <h3>Педагогический прием «Предсказание плана выполнения до запуска»</h3>
+ <p>Преподаватель проецирует на экран SQL-запрос с фильтрацией и <code>ORDER BY</code> по двум таблицам и просит студентов предсказать:</p>
+ <ol>
+ <li>Будет ли выполнен <code>Index Scan</code> или <code>Seq Scan</code> + <code>Sort</code>?</li>
+ <li>Где окажутся значения <code>NULL</code>: вверху или внизу списка?</li>
+ <li>Какой метод сортировки покажет <code>EXPLAIN ANALYZE</code> при <code>work_mem = '4MB'</code> на таблице в 1 000 000 записей?</li>
+ </ol>
+ <p>Фиксация гипотез перед демонстрацией консоли включает когнитивное внимание и предотвращает пассивное запоминание.</p>
 
-      <h3>Классификатор типовых студенческих ошибок</h3>
-      <div class="callout callout-danger">
-        <h4>Ошибка 1: Иллюзия естественного порядка (Heavily Implicit Order)</h4>
-        <p><strong>Суть:</strong> Студент считает, что если строки вставлялись по порядку (auto-increment id), они всегда вернутся отсортированными без <code>ORDER BY</code>.<br>
-        <strong>Контрпример:</strong> Достаточно выполнить операцию <code>VACUUM</code>, параллельное сканирование (Parallel Seq Scan) или обновить несколько строк (<code>UPDATE</code>), чтобы СУБД вернула строки в абсолютно произвольном порядке физических страниц кучи.</p>
-      </div>
+ <h3>Классификатор типовых студенческих ошибок</h3>
+ <div class="callout callout-danger">
+ <h4>Ошибка 1: Иллюзия естественного порядка (Heavily Implicit Order)</h4>
+ <p><strong>Суть:</strong> Студент считает, что если строки вставлялись по порядку (auto-increment id), они всегда вернутся отсортированными без <code>ORDER BY</code>.<br>
+ <strong>Контрпример:</strong> Достаточно выполнить операцию <code>VACUUM</code>, параллельное сканирование (Parallel Seq Scan) или обновить несколько строк (<code>UPDATE</code>), чтобы СУБД вернула строки в абсолютно произвольном порядке физических страниц кучи.</p>
+ </div>
 
-      <div class="callout callout-danger">
-        <h4>Ошибка 2: Недетерминированная пагинация (Non-deterministic Paging)</h4>
-        <p><strong>Суть:</strong> Сортировка по нетерминальному полю без уникального суффикса: <code>ORDER BY date DESC LIMIT 10 OFFSET 10</code>. Если 20 строк имеют одинаковую дату, при переходе со страницы 1 на страницу 2 СУБД может произвольно перетасовать эквивалентные строки, и клиент потеряет часть данных либо увидит дубли.<br>
-        <strong>Решение:</strong> Всегда добавлять первичный ключ последним критерием (tie-breaker): <code>ORDER BY date DESC, id DESC</code>.</p>
-      </div>
+ <div class="callout callout-danger">
+ <h4>Ошибка 2: Недетерминированная пагинация (Non-deterministic Paging)</h4>
+ <p><strong>Суть:</strong> Сортировка по нетерминальному полю без уникального суффикса: <code>ORDER BY date DESC LIMIT 10 OFFSET 10</code>. Если 20 строк имеют одинаковую дату, при переходе со страницы 1 на страницу 2 СУБД может произвольно перетасовать эквивалентные строки, и клиент потеряет часть данных либо увидит дубли.<br>
+ <strong>Решение:</strong> Всегда добавлять первичный ключ последним критерием (tie-breaker): <code>ORDER BY date DESC, id DESC</code>.</p>
+ </div>
 
-      <div class="callout callout-danger">
-        <h4>Ошибка 3: Ловушка неявного приведения типов и функций в WHERE (SARGability)</h4>
-        <p><strong>Суть:</strong> Оборачивание поля в функцию: <code>WHERE EXTRACT(YEAR FROM created_at) = 2026</code> или <code>WHERE lower(status) = 'active'</code>. СУБД отключает B-Tree индекс и делает полный <code>Seq Scan</code>.<br>
-        <strong>Решение:</strong> Использовать диапазонные предикаты: <code>WHERE created_at &gt;= '2026-01-01' AND created_at &lt; '2027-01-01'</code> или создавать функциональный индекс (Expression Index).</p>
-      </div>
+ <div class="callout callout-danger">
+ <h4>Ошибка 3: Ловушка неявного приведения типов и функций в WHERE (SARGability)</h4>
+ <p><strong>Суть:</strong> Оборачивание поля в функцию: <code>WHERE EXTRACT(YEAR FROM created_at) = 2026</code> или <code>WHERE lower(status) = 'active'</code>. СУБД отключает B-Tree индекс и делает полный <code>Seq Scan</code>.<br>
+ <strong>Решение:</strong> Использовать диапазонные предикаты: <code>WHERE created_at &gt;= '2026-01-01' AND created_at &lt; '2027-01-01'</code> или создавать функциональный индекс (Expression Index).</p>
+ </div>
 
-      <div class="callout callout-danger">
-        <h4>Ошибка 4: Забытое позиционирование NULL в сортировке по убыванию</h4>
-        <p><strong>Суть:</strong> При сортировке товаров по рейтингу <code>ORDER BY rating DESC</code> в PostgreSQL товары с <code>NULL</code> (без отзывов) окажутся на самых первых строчках витрины магазина.<br>
-        <strong>Решение:</strong> Явное указание <code>ORDER BY rating DESC NULLS LAST</code>.</p>
-      </div>
-    </div>
-  </div>
+ <div class="callout callout-danger">
+ <h4>Ошибка 4: Забытое позиционирование NULL в сортировке по убыванию</h4>
+ <p><strong>Суть:</strong> При сортировке товаров по рейтингу <code>ORDER BY rating DESC</code> в PostgreSQL товары с <code>NULL</code> (без отзывов) окажутся на самых первых строчках витрины магазина.<br>
+ <strong>Решение:</strong> Явное указание <code>ORDER BY rating DESC NULLS LAST</code>.</p>
+ </div>
+ </div>
+ </div>
 </body>
 </html>

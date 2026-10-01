@@ -1,649 +1,593 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Рабочий лист: Средства проектирования структур БД — ограничения</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --text-muted: #475569;
-      --border: #cbd5e1;
-      --accent: #0284c7;
-      --accent-hover: #0369a1;
-      --accent-soft: #f0f9ff;
-      --danger: #ef4444;
-      --danger-soft: #fee2e2;
-      --success: #10b981;
-      --success-soft: #dcfce7;
-      --warn: #f59e0b;
-      --warn-soft: #fef3c7;
-    }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Рабочий лист: Средства проектирования структур БД — ограничения</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card-bg: #ffffff;
+ --text: #0f172a;
+ --text-muted: #475569;
+ --border: #cbd5e1;
+ --accent: #0284c7;
+ --accent-hover: #0369a1;
+ --accent-soft: #f0f9ff;
+ --danger: #ef4444;
+ --danger-soft: #fee2e2;
+ --success: #10b981;
+ --success-soft: #dcfce7;
+ --warn: #f59e0b;
+ --warn-soft: #fef3c7;
+ }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ }
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      padding: 24px 16px;
-      min-width: 320px;
-    }
+ body {
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+ background-color: var(--bg);
+ color: var(--text);
+ line-height: 1.6;
+ padding: 24px 16px;
+ min-width: 320px;
+ }.container {
+ max-width: 960px;
+ margin: 0 auto;
+ width: 100%;
+ }
 
-    .container {
-      max-width: 960px;
-      margin: 0 auto;
-      width: 100%;
-    }
+ header.task-header {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    header.task-header {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ h1 {
+ font-size: 1.75rem;
+ font-weight: 800;
+ color: var(--text);
+ margin-bottom: 8px;
+ word-break: break-word;
+ }.meta-subtitle {
+ font-size: 0.95rem;
+ color: var(--text-muted);
+ margin-bottom: 16px;
+ }.student-info {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 16px;
+ padding-top: 16px;
+ border-top: 1px solid var(--border);
+ }.info-group {
+ display: flex;
+ flex-direction: column;
+ gap: 6px;
+ }.info-group label {
+ font-size: 0.82rem;
+ font-weight: 700;
+ color: var(--text-muted);
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+ }.info-group input {
+ padding: 8px 12px;
+ border: 1px solid var(--border);
+ border-radius: 6px;
+ font-size: 0.95rem;
+ color: var(--text);
+ outline: none;
+ background: #ffffff;
+ }.info-group input:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 2px var(--accent-soft);
+ }
 
-    h1 {
-      font-size: 1.75rem;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 8px;
-      word-break: break-word;
-    }
+ /* Variant Selector */.variant-selector-box {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 16px 20px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }.variant-tabs {
+ display: flex;
+ gap: 10px;
+ flex-wrap: wrap;
+ }.v-tab-btn {
+ padding: 10px 16px;
+ background: #f1f5f9;
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ font-size: 0.9rem;
+ font-weight: 600;
+ color: var(--text);
+ cursor: pointer;
+ transition: all 0.2s;
+ }.v-tab-btn:hover {
+ background: var(--accent-soft);
+ border-color: var(--accent);
+ }.v-tab-btn.active {
+ background: var(--accent);
+ color: #ffffff;
+ border-color: var(--accent-hover);
+ }.variant-container {
+ display: none;
+ }.variant-container.active {
+ display: block;
+ }
 
-    .meta-subtitle {
-      font-size: 0.95rem;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-    }
+ section.task-card {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    .student-info {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
+ h2 {
+ font-size: 1.35rem;
+ font-weight: 700;
+ color: var(--accent-hover);
+ margin-bottom: 14px;
+ border-bottom: 2px solid var(--accent-soft);
+ padding-bottom: 8px;
+ }
 
-    .info-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+ h3 {
+ font-size: 1.1rem;
+ font-weight: 700;
+ color: var(--text);
+ margin: 18px 0 10px;
+ }
 
-    .info-group label {
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
+ p {
+ margin-bottom: 12px;
+ font-size: 0.96rem;
+ }
 
-    .info-group input {
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.95rem;
-      color: var(--text);
-      outline: none;
-      background: #ffffff;
-    }
+ ul, ol {
+ margin-left: 20px;
+ margin-bottom: 14px;
+ font-size: 0.95rem;
+ }
 
-    .info-group input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-soft);
-    }
+ li {
+ margin-bottom: 6px;
+ }
 
-    /* Variant Selector */
-    .variant-selector-box {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px 20px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ pre, code {
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 13.5px;
+ }
 
-    .variant-tabs {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+ code {
+ background: #f1f5f9;
+ color: #0369a1;
+ padding: 2px 6px;
+ border-radius: 4px;
+ }
 
-    .v-tab-btn {
-      padding: 10px 16px;
-      background: #f1f5f9;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--text);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
+ pre {
+ background: #0f172a;
+ color: #f8fafc;
+ padding: 14px;
+ border-radius: 8px;
+ overflow-x: auto;
+ margin: 12px 0;
+ line-height: 1.45;
+ }.spec-box {
+ background: #f8fafc;
+ border: 1px solid #e2e8f0;
+ border-left: 4px solid var(--accent);
+ padding: 14px 18px;
+ border-radius: 0 8px 8px 0;
+ margin: 14px 0;
+ }.question-block {
+ margin-top: 18px;
+ padding-top: 14px;
+ border-top: 1px dashed var(--border);
+ }.question-label {
+ font-weight: 700;
+ font-size: 0.95rem;
+ color: var(--text);
+ margin-bottom: 8px;
+ display: block;
+ }
 
-    .v-tab-btn:hover {
-      background: var(--accent-soft);
-      border-color: var(--accent);
-    }
+ textarea.answer-area {
+ width: 100%;
+ min-height: 120px;
+ padding: 12px;
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ font-family: ui-monospace, Consolas, monospace;
+ font-size: 0.92rem;
+ line-height: 1.5;
+ color: var(--text);
+ background: #ffffff;
+ outline: none;
+ resize: vertical;
+ }
 
-    .v-tab-btn.active {
-      background: var(--accent);
-      color: #ffffff;
-      border-color: var(--accent-hover);
-    }
+ textarea.answer-area:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 2px var(--accent-soft);
+ }
 
-    .variant-container {
-      display: none;
-    }
+ /* Action Panel */.action-panel {
+ display: flex;
+ gap: 12px;
+ margin-bottom: 40px;
+ flex-wrap: wrap;
+ align-items: center;
+ }.btn {
+ padding: 10px 20px;
+ border-radius: 8px;
+ font-size: 0.95rem;
+ font-weight: 600;
+ cursor: pointer;
+ border: 1px solid transparent;
+ display: inline-flex;
+ align-items: center;
+ gap: 6px;
+ transition: all 0.2s;
+ }.btn-primary {
+ background: var(--accent);
+ color: #ffffff;
+ }.btn-primary:hover {
+ background: var(--accent-hover);
+ }.btn-secondary {
+ background: #ffffff;
+ border-color: var(--border);
+ color: var(--text);
+ }.btn-secondary:hover {
+ background: #f1f5f9;
+ }.save-alert {
+ color: var(--success);
+ font-weight: 700;
+ font-size: 0.95rem;
+ display: none;
+ }
 
-    .variant-container.active {
-      display: block;
-    }
+ /* Адаптивность для экранов от 375 px без горизонтального скролла */
+ @media (max-width: 640px) {
+ body {
+ padding: 12px 8px;
+ }.container {
+ width: 100%;
+ }
+ header.task-header, section.task-card,.variant-selector-box {
+ padding: 16px 12px;
+ }.student-info {
+ grid-template-columns: 1fr;
+ gap: 12px;
+ }.variant-tabs {
+ flex-direction: column;
+ }.v-tab-btn {
+ width: 100%;
+ text-align: center;
+ }
+ h1 {
+ font-size: 1.35rem;
+ }.action-panel {
+ flex-direction: column;
+ align-items: stretch;
+ }.btn {
+ width: 100%;
+ justify-content: center;
+ }
+ }
 
-    section.task-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-
-    h2 {
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: var(--accent-hover);
-      margin-bottom: 14px;
-      border-bottom: 2px solid var(--accent-soft);
-      padding-bottom: 8px;
-    }
-
-    h3 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--text);
-      margin: 18px 0 10px;
-    }
-
-    p {
-      margin-bottom: 12px;
-      font-size: 0.96rem;
-    }
-
-    ul, ol {
-      margin-left: 20px;
-      margin-bottom: 14px;
-      font-size: 0.95rem;
-    }
-
-    li {
-      margin-bottom: 6px;
-    }
-
-    pre, code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 13.5px;
-    }
-
-    code {
-      background: #f1f5f9;
-      color: #0369a1;
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-
-    pre {
-      background: #0f172a;
-      color: #f8fafc;
-      padding: 14px;
-      border-radius: 8px;
-      overflow-x: auto;
-      margin: 12px 0;
-      line-height: 1.45;
-    }
-
-    .spec-box {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-left: 4px solid var(--accent);
-      padding: 14px 18px;
-      border-radius: 0 8px 8px 0;
-      margin: 14px 0;
-    }
-
-    .question-block {
-      margin-top: 18px;
-      padding-top: 14px;
-      border-top: 1px dashed var(--border);
-    }
-
-    .question-label {
-      font-weight: 700;
-      font-size: 0.95rem;
-      color: var(--text);
-      margin-bottom: 8px;
-      display: block;
-    }
-
-    textarea.answer-area {
-      width: 100%;
-      min-height: 120px;
-      padding: 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-family: ui-monospace, Consolas, monospace;
-      font-size: 0.92rem;
-      line-height: 1.5;
-      color: var(--text);
-      background: #ffffff;
-      outline: none;
-      resize: vertical;
-    }
-
-    textarea.answer-area:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-soft);
-    }
-
-    /* Action Panel */
-    .action-panel {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 40px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .btn {
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: 1px solid transparent;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
-    }
-
-    .btn-primary {
-      background: var(--accent);
-      color: #ffffff;
-    }
-
-    .btn-primary:hover {
-      background: var(--accent-hover);
-    }
-
-    .btn-secondary {
-      background: #ffffff;
-      border-color: var(--border);
-      color: var(--text);
-    }
-
-    .btn-secondary:hover {
-      background: #f1f5f9;
-    }
-
-    .save-alert {
-      color: var(--success);
-      font-weight: 700;
-      font-size: 0.95rem;
-      display: none;
-    }
-
-    /* Адаптивность для экранов от 375 px без горизонтального скролла */
-    @media (max-width: 640px) {
-      body {
-        padding: 12px 8px;
-      }
-      .container {
-        width: 100%;
-      }
-      header.task-header, section.task-card, .variant-selector-box {
-        padding: 16px 12px;
-      }
-      .student-info {
-        grid-template-columns: 1fr;
-        gap: 12px;
-      }
-      .variant-tabs {
-        flex-direction: column;
-      }
-      .v-tab-btn {
-        width: 100%;
-        text-align: center;
-      }
-      h1 {
-        font-size: 1.35rem;
-      }
-      .action-panel {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .btn {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-
-    /* Стили для печати (@media print) */
-    @media print {
-      body {
-        background: #ffffff;
-        color: #000000;
-        padding: 0;
-      }
-      .container {
-        max-width: 100%;
-        margin: 0;
-      }
-      .variant-selector-box, .action-panel, .v-tab-btn {
-        display: none !important;
-      }
-      header.task-header, section.task-card {
-        border: 1px solid #000000;
-        box-shadow: none;
-        page-break-inside: avoid;
-        margin-bottom: 14px;
-        padding: 14px;
-      }
-      .variant-container {
-        display: none !important;
-      }
-      .variant-container.active {
-        display: block !important;
-      }
-      textarea.answer-area {
-        border: 1px solid #000000;
-        background: transparent;
-        color: #000000;
-        min-height: 90px;
-        resize: none;
-        overflow: visible;
-      }
-      input {
-        border: 1px solid #000000 !important;
-        background: transparent !important;
-        color: #000000 !important;
-      }
-      input::placeholder, textarea::placeholder {
-        color: transparent !important;
-      }
-    }
-  </style>
+ /* Стили для печати (@media print) */
+ @media print {
+ body {
+ background: #ffffff;
+ color: #000000;
+ padding: 0;
+ }.container {
+ max-width: 100%;
+ margin: 0;
+ }.variant-selector-box,.action-panel,.v-tab-btn {
+ display: none !important;
+ }
+ header.task-header, section.task-card {
+ border: 1px solid #000000;
+ box-shadow: none;
+ page-break-inside: avoid;
+ margin-bottom: 14px;
+ padding: 14px;
+ }.variant-container {
+ display: none !important;
+ }.variant-container.active {
+ display: block !important;
+ }
+ textarea.answer-area {
+ border: 1px solid #000000;
+ background: transparent;
+ color: #000000;
+ min-height: 90px;
+ resize: none;
+ overflow: visible;
+ }
+ input {
+ border: 1px solid #000000 !important;
+ background: transparent !important;
+ color: #000000 !important;
+ }
+ input::placeholder, textarea::placeholder {
+ color: transparent !important;
+ }
+ }
+ </style>
 </head>
 <body>
-  <div class="container">
-    <header class="task-header">
-      <h1>Рабочий лист: Средства проектирования структур БД — ограничения</h1>
-      <div class="meta-subtitle">Дисциплина «ОП.08 Основы проектирования баз данных» — Занятие №22 (СИЭУиП)</div>
+ <div class="container">
+ <header class="task-header">
+ <h1>Рабочий лист: Средства проектирования структур БД — ограничения</h1>
+ <div class="meta-subtitle">Дисциплина «ОП.08 Основы проектирования баз данных» — Занятие №22 (СИЭУиП)</div>
 
-      <div class="student-info">
-        <div class="info-group">
-          <label for="studentFio">ФИО студента</label>
-          <input type="text" id="studentFio">
-        </div>
-        <div class="info-group">
-          <label for="studentGroup">Учебная группа</label>
-          <input type="text" id="studentGroup">
-        </div>
-      </div>
-    </header>
+ <div class="student-info">
+ <div class="info-group">
+ <label for="studentFio">ФИО студента</label>
+ <input type="text" id="studentFio">
+ </div>
+ <div class="info-group">
+ <label for="studentGroup">Учебная группа</label>
+ <input type="text" id="studentGroup">
+ </div>
+ </div>
+ </header>
 
-    <div class="variant-selector-box">
-      <div style="font-weight: 700; margin-bottom: 10px; font-size: 0.92rem; color: var(--text-muted); text-transform: uppercase;">
-        Выберите назначенный практический вариант:
-      </div>
-      <div class="variant-tabs">
-        <button type="button" class="v-tab-btn active" data-target="v1">Вариант 1 (Конференц-залы и EXCLUDE gist)</button>
-        <button type="button" class="v-tab-btn" data-target="v2">Вариант 2 (Банковский портал, СНИЛС и regex)</button>
-        <button type="button" class="v-tab-btn" data-target="v3">Вариант 3 (Отели, люксы и циклический FK)</button>
-        <button type="button" class="v-tab-btn" data-target="v4">Вариант 4 (Электронный магазин, скидки и SKU)</button>
-      </div>
-    </div>
+ <div class="variant-selector-box">
+ <div style="font-weight: 700; margin-bottom: 10px; font-size: 0.92rem; color: var(--text-muted); text-transform: uppercase;">
+ Выберите назначенный практический вариант:
+ </div>
+ <div class="variant-tabs">
+ <button type="button" class="v-tab-btn active" data-target="v1">Вариант 1 (Конференц-залы и EXCLUDE gist)</button>
+ <button type="button" class="v-tab-btn" data-target="v2">Вариант 2 (Банковский портал, СНИЛС и regex)</button>
+ <button type="button" class="v-tab-btn" data-target="v3">Вариант 3 (Отели, люксы и циклический FK)</button>
+ <button type="button" class="v-tab-btn" data-target="v4">Вариант 4 (Электронный магазин, скидки и SKU)</button>
+ </div>
+ </div>
 
-    <!-- ВАРИАНТ 1 -->
-    <div id="v1" class="variant-container active">
-      <section class="task-card">
-        <h2>Вариант 1. Система бронирования конференц-залов бизнес-центра</h2>
-        <div class="spec-box">
-          <p><strong>Техническое задание:</strong> Спроектируйте таблицу <code>conference_room_bookings</code> для автоматизированного учета бронирования залов. Бизнес-требования исключают человеческий фактор и наложения встреч:</p>
-          <ol>
-            <li>Каждая бронь привязана к конкретному номеру зала <code>room_id (INT NOT NULL)</code>.</li>
-            <li>Временной диапазон задается интервальным типом <code>booking_slot (TSRANGE NOT NULL)</code>.</li>
-            <li>Обязательно ограничение <code>CHECK</code> на валидность границ интервала: начало встречи должно быть строго меньше окончания встречи (<code>lower(booking_slot) &lt; upper(booking_slot)</code>), а интервал не должен быть пустым.</li>
-            <li>Ограничение <code>EXCLUDE USING gist</code> обязано гарантировать, что для одного и того же зала <code>room_id</code> (оператор <code>=</code>) временные интервалы <code>booking_slot</code> ни в коем случае НЕ пересекаются (оператор перекрытия <code>&amp;&amp;</code>).</li>
-            <li>Укажите подготовительную системную команду активации расширения PostgreSQL, необходимого для поддержки оператора равенства в индексе GiST.</li>
-          </ol>
-        </div>
+ <!-- ВАРИАНТ 1 -->
+ <div id="v1" class="variant-container active">
+ <section class="task-card">
+ <h2>Вариант 1. Система бронирования конференц-залов бизнес-центра</h2>
+ <div class="spec-box">
+ <p><strong>Техническое задание:</strong> Спроектируйте таблицу <code>conference_room_bookings</code> для автоматизированного учета бронирования залов. Бизнес-требования исключают человеческий фактор и наложения встреч:</p>
+ <ol>
+ <li>Каждая бронь привязана к конкретному номеру зала <code>room_id (INT NOT NULL)</code>.</li>
+ <li>Временной диапазон задается интервальным типом <code>booking_slot (TSRANGE NOT NULL)</code>.</li>
+ <li>Обязательно ограничение <code>CHECK</code> на валидность границ интервала: начало встречи должно быть строго меньше окончания встречи (<code>lower(booking_slot) &lt; upper(booking_slot)</code>), а интервал не должен быть пустым.</li>
+ <li>Ограничение <code>EXCLUDE USING gist</code> обязано гарантировать, что для одного и того же зала <code>room_id</code> (оператор <code>=</code>) временные интервалы <code>booking_slot</code> ни в коем случае НЕ пересекаются (оператор перекрытия <code>&amp;&amp;</code>).</li>
+ <li>Укажите подготовительную системную команду активации расширения PostgreSQL, необходимого для поддержки оператора равенства в индексе GiST.</li>
+ </ol>
+ </div>
 
-        <div class="question-block">
-          <label for="v1_ans_ddl" class="question-label">1. Напишите полный синтаксически корректный DDL-скрипт создания таблицы с ограничениями CHECK и EXCLUDE USING gist:</label>
-          <textarea id="v1_ans_ddl" class="answer-area" placeholder="CREATE EXTENSION ...&#10;CREATE TABLE conference_room_bookings (...);"></textarea>
-        </div>
+ <div class="question-block">
+ <label for="v1_ans_ddl" class="question-label">1. Напишите полный синтаксически корректный DDL-скрипт создания таблицы с ограничениями CHECK и EXCLUDE USING gist:</label>
+ <textarea id="v1_ans_ddl" class="answer-area" placeholder="CREATE EXTENSION...&#10;CREATE TABLE conference_room_bookings (...);"></textarea>
+ </div>
 
-        <div class="question-block">
-          <label for="v1_ans_race" class="question-label">2. Объясните, почему традиционная проверка SELECT COUNT(*) перед INSERT в коде бэкенда уязвима к Race Condition при одновременных запросах, а EXCLUDE гарантирует 100% защиту:</label>
-          <textarea id="v1_ans_race" class="answer-area" placeholder="Анализ состояния гонки и механизма изоляции транзакций на уровне СУБД..."></textarea>
-        </div>
+ <div class="question-block">
+ <label for="v1_ans_race" class="question-label">2. Объясните, почему традиционная проверка SELECT COUNT(*) перед INSERT в коде бэкенда уязвима к Race Condition при одновременных запросах, а EXCLUDE гарантирует 100% защиту:</label>
+ <textarea id="v1_ans_race" class="answer-area" placeholder="Анализ состояния гонки и механизма изоляции транзакций на уровне СУБД..."></textarea>
+ </div>
 
-        <div class="question-block">
-          <label for="v1_ans_sql" class="question-label">3. Напишите тестовый сценарий (два запроса INSERT), где первая вставка проходит успешно, а вторая завершается аппаратным исключением exclusion_violation:</label>
-          <textarea id="v1_ans_sql" class="answer-area" placeholder="INSERT INTO conference_room_bookings ...&#10;INSERT INTO conference_room_bookings ..."></textarea>
-        </div>
-      </section>
-    </div>
+ <div class="question-block">
+ <label for="v1_ans_sql" class="question-label">3. Напишите тестовый сценарий (два запроса INSERT), где первая вставка проходит успешно, а вторая завершается аппаратным исключением exclusion_violation:</label>
+ <textarea id="v1_ans_sql" class="answer-area" placeholder="INSERT INTO conference_room_bookings...&#10;INSERT INTO conference_room_bookings..."></textarea>
+ </div>
+ </section>
+ </div>
 
-    <!-- ВАРИАНТ 2 -->
-    <div id="v2" class="variant-container">
-      <section class="task-card">
-        <h2>Вариант 2. Регистрация пользователей банковского портала</h2>
-        <div class="spec-box">
-          <p><strong>Техническое задание:</strong> Спроектируйте таблицу профилей клиентов интернет-банкинга <code>bank_clients</code> со строгими ограничениями формата персональных данных:</p>
-          <ol>
-            <li>Поле <code>snils (CHAR(14) NOT NULL)</code>: валидация формата страхового номера СНИЛС по регулярному выражению POSIX <code>^\d{3}-\d{3}-\d{3} \d{2}$</code> (три группы по 3 цифры через дефис, затем пробел и 2 контрольные цифры).</li>
-            <li>Поля паспорта РФ: <code>passport_series (CHAR(4) NOT NULL)</code> — строго 4 цифры (<code>^\d{4}</code>), <code>passport<sub>number</sub> (CHAR(6) NOT NULL)</code> — строго 6 цифр (<code>^d{6}</code>).</li>
-            <li>Поле <code>birth_date (DATE NOT NULL)</code>: ограничение совершеннолетия (клиент должен быть старше 18 лет на момент регистрации: <code>birth_date &lt;= CURRENT_DATE - INTERVAL '18 years'</code>).</li>
-            <li>Поле <code>phone_number (VARCHAR(12) NOT NULL)</code>: международный мобильный формат РФ (<code>^\+7\d{10}$</code>).</li>
-          </ol>
-        </div>
+ <!-- ВАРИАНТ 2 -->
+ <div id="v2" class="variant-container">
+ <section class="task-card">
+ <h2>Вариант 2. Регистрация пользователей банковского портала</h2>
+ <div class="spec-box">
+ <p><strong>Техническое задание:</strong> Спроектируйте таблицу профилей клиентов интернет-банкинга <code>bank_clients</code> со строгими ограничениями формата персональных данных:</p>
+ <ol>
+ <li>Поле <code>snils (CHAR(14) NOT NULL)</code>: валидация формата страхового номера СНИЛС по регулярному выражению POSIX <code>^\d{3}-\d{3}-\d{3} \d{2}$</code> (три группы по 3 цифры через дефис, затем пробел и 2 контрольные цифры).</li>
+ <li>Поля паспорта РФ: <code>passport_series (CHAR(4) NOT NULL)</code> — строго 4 цифры (<code>^\d{4}</code>), <code>passport<sub>number</sub> (CHAR(6) NOT NULL)</code> — строго 6 цифр (<code>^d{6}</code>).</li>
+ <li>Поле <code>birth_date (DATE NOT NULL)</code>: ограничение совершеннолетия (клиент должен быть старше 18 лет на момент регистрации: <code>birth_date &lt;= CURRENT_DATE - INTERVAL '18 years'</code>).</li>
+ <li>Поле <code>phone_number (VARCHAR(12) NOT NULL)</code>: международный мобильный формат РФ (<code>^\+7\d{10}$</code>).</li>
+ </ol>
+ </div>
 
-        <div class="question-block">
-          <label for="v2_ans_ddl" class="question-label">1. Напишите DDL-скрипт создания таблицы с именованными ограничениями CHECK (или CREATE DOMAIN) и оператором regex (~):</label>
-          <textarea id="v2_ans_ddl" class="answer-area" placeholder="CREATE TABLE bank_clients (...);"></textarea>
-        </div>
+ <div class="question-block">
+ <label for="v2_ans_ddl" class="question-label">1. Напишите DDL-скрипт создания таблицы с именованными ограничениями CHECK (или CREATE DOMAIN) и оператором regex (~):</label>
+ <textarea id="v2_ans_ddl" class="answer-area" placeholder="CREATE TABLE bank_clients (...);"></textarea>
+ </div>
 
-        <div class="question-block">
-          <label for="v2_ans_anchors" class="question-label">2. Что произойдет, если в регулярном выражении опустить символы якорей ^ и $? Приведите конкретный пример строки, которая ошибочно пройдет валидацию:</label>
-          <textarea id="v2_ans_anchors" class="answer-area" placeholder="Объяснение семантики поиска подстроки против строгого соответствия..."></textarea>
-        </div>
+ <div class="question-block">
+ <label for="v2_ans_anchors" class="question-label">2. Что произойдет, если в регулярном выражении опустить символы якорей ^ и $? Приведите конкретный пример строки, которая ошибочно пройдет валидацию:</label>
+ <textarea id="v2_ans_anchors" class="answer-area" placeholder="Объяснение семантики поиска подстроки против строгого соответствия..."></textarea>
+ </div>
 
-        <div class="question-block">
-          <label for="v2_ans_null" class="question-label">3. Поясните, как трехзначная логика SQL (TRUE, FALSE, UNKNOWN) обрабатывает предикаты CHECK, если одно из полей окажется NULL (при отсутствии NOT NULL):</label>
-          <textarea id="v2_ans_null" class="answer-area" placeholder="Поведение СУБД при UNKNOWN в ограничениях CHECK..."></textarea>
-        </div>
-      </section>
-    </div>
+ <div class="question-block">
+ <label for="v2_ans_null" class="question-label">3. Поясните, как трехзначная логика SQL (TRUE, FALSE, UNKNOWN) обрабатывает предикаты CHECK, если одно из полей окажется NULL (при отсутствии NOT NULL):</label>
+ <textarea id="v2_ans_null" class="answer-area" placeholder="Поведение СУБД при UNKNOWN в ограничениях CHECK..."></textarea>
+ </div>
+ </section>
+ </div>
 
-    <!-- ВАРИАНТ 3 -->
-    <div id="v3" class="variant-container">
-      <section class="task-card">
-        <h2>Вариант 3. Отели и гостиничные комплексы — циклические связи</h2>
-        <div class="spec-box">
-          <p><strong>Техническое задание:</strong> Смоделируйте структуру гостиничного комплекса с циклической зависимостью 1:1 / 1:N:</p>
-          <ol>
-            <li>Таблица <code>hotels</code>: поля <code>hotel_id (INT PRIMARY KEY)</code>, <code>hotel_name (VARCHAR(100) NOT NULL)</code>, <code>presidential_suite_id (INT NOT NULL)</code>. Отель обязан иметь главный президентский номер-люкс.</li>
-            <li>Таблица <code>hotel_rooms</code>: поля <code>room_id (INT PRIMARY KEY)</code>, <code>hotel_id (INT NOT NULL REFERENCES hotels(hotel_id))</code>, <code>room_number (VARCHAR(20) NOT NULL)</code>. Номер принадлежит отелю.</li>
-            <li>Возникает парадокс «курицы и яйца»: ни одну таблицу нельзя заполнить первой, так как оба внешних ключа объявлены как <code>NOT NULL</code>.</li>
-            <li>Требуется настроить внешний ключ <code>hotels.presidential_suite_id REFERENCES hotel_rooms(room_id)</code> как <code>DEFERRABLE INITIALLY DEFERRED</code> для отложенной проверки в конце транзакции.</li>
-          </ol>
-        </div>
+ <!-- ВАРИАНТ 3 -->
+ <div id="v3" class="variant-container">
+ <section class="task-card">
+ <h2>Вариант 3. Отели и гостиничные комплексы — циклические связи</h2>
+ <div class="spec-box">
+ <p><strong>Техническое задание:</strong> Смоделируйте структуру гостиничного комплекса с циклической зависимостью 1:1 / 1:N:</p>
+ <ol>
+ <li>Таблица <code>hotels</code>: поля <code>hotel_id (INT PRIMARY KEY)</code>, <code>hotel_name (VARCHAR(100) NOT NULL)</code>, <code>presidential_suite_id (INT NOT NULL)</code>. Отель обязан иметь главный президентский номер-люкс.</li>
+ <li>Таблица <code>hotel_rooms</code>: поля <code>room_id (INT PRIMARY KEY)</code>, <code>hotel_id (INT NOT NULL REFERENCES hotels(hotel_id))</code>, <code>room_number (VARCHAR(20) NOT NULL)</code>. Номер принадлежит отелю.</li>
+ <li>Возникает парадокс «курицы и яйца»: ни одну таблицу нельзя заполнить первой, так как оба внешних ключа объявлены как <code>NOT NULL</code>.</li>
+ <li>Требуется настроить внешний ключ <code>hotels.presidential_suite_id REFERENCES hotel_rooms(room_id)</code> как <code>DEFERRABLE INITIALLY DEFERRED</code> для отложенной проверки в конце транзакции.</li>
+ </ol>
+ </div>
 
-        <div class="question-block">
-          <label for="v3_ans_ddl" class="question-label">1. Напишите полный DDL-скрипт создания таблиц с циклическим отложенным внешним ключом DEFERRABLE INITIALLY DEFERRED:</label>
-          <textarea id="v3_ans_ddl" class="answer-area" placeholder="CREATE TABLE hotels ...&#10;CREATE TABLE hotel_rooms ...&#10;ALTER TABLE hotels ADD CONSTRAINT ..."></textarea>
-        </div>
+ <div class="question-block">
+ <label for="v3_ans_ddl" class="question-label">1. Напишите полный DDL-скрипт создания таблиц с циклическим отложенным внешним ключом DEFERRABLE INITIALLY DEFERRED:</label>
+ <textarea id="v3_ans_ddl" class="answer-area" placeholder="CREATE TABLE hotels...&#10;CREATE TABLE hotel_rooms...&#10;ALTER TABLE hotels ADD CONSTRAINT..."></textarea>
+ </div>
 
-        <div class="question-block">
-          <label for="v3_ans_tx" class="question-label">2. Напишите транзакцию (BEGIN ... COMMIT), выполняющую атомарную бесконфликтную вставку нового отеля и его главного президентского номера:</label>
-          <textarea id="v3_ans_tx" class="answer-area" placeholder="BEGIN;&#10;  INSERT INTO hotels ...&#10;  INSERT INTO hotel_rooms ...&#10;COMMIT;"></textarea>
-        </div>
+ <div class="question-block">
+ <label for="v3_ans_tx" class="question-label">2. Напишите транзакцию (BEGIN... COMMIT), выполняющую атомарную бесконфликтную вставку нового отеля и его главного президентского номера:</label>
+ <textarea id="v3_ans_tx" class="answer-area" placeholder="BEGIN;&#10; INSERT INTO hotels...&#10; INSERT INTO hotel_rooms...&#10;COMMIT;"></textarea>
+ </div>
 
-        <div class="question-block">
-          <label for="v3_ans_diff" class="question-label">3. В чем отличие режимов INITIALLY DEFERRED и INITIALLY IMMEDIATE? В какой момент времени СУБД генерирует ошибку в каждом из режимов?</label>
-          <textarea id="v3_ans_diff" class="answer-area" placeholder="Сравнение режимов транзакционной отложенности..."></textarea>
-        </div>
-      </section>
-    </div>
+ <div class="question-block">
+ <label for="v3_ans_diff" class="question-label">3. В чем отличие режимов INITIALLY DEFERRED и INITIALLY IMMEDIATE? В какой момент времени СУБД генерирует ошибку в каждом из режимов?</label>
+ <textarea id="v3_ans_diff" class="answer-area" placeholder="Сравнение режимов транзакционной отложенности..."></textarea>
+ </div>
+ </section>
+ </div>
 
-    <!-- ВАРИАНТ 4 -->
-    <div id="v4" class="variant-container">
-      <section class="task-card">
-        <h2>Вариант 4. Электронный маркетплейс: ценообразование и артикулы</h2>
-        <div class="spec-box">
-          <p><strong>Техническое задание:</strong> Спроектируйте каталог товаров интернет-магазина <code>marketplace_goods</code> со сложной бизнес-логикой ограничений:</p>
-          <ol>
-            <li>Поле <code>sku (VARCHAR(20) NOT NULL)</code>: артикул товара строго формата <code>3 заглавные буквы, дефис, 6 цифр</code> (например, <code>'ELC-109283'</code>). Валидация через POSIX regex.</li>
-            <li>Поле <code>base_price (NUMERIC(10,2) NOT NULL)</code>: базовая стоимость строго больше 0.</li>
-            <li>Поле <code>discount_percent (NUMERIC(5,2))</code>: процент скидки должен находиться в диапазоне <code>BETWEEN 0 AND 90</code> (не может быть отрицательным и не может превышать 90%).</li>
-            <li>Поле <code>sale_price (NUMERIC(10,2))</code>: цена по акции. Если указана, то должна быть строго меньше <code>base_price</code> (<code>sale_price &lt; base_price</code>).</li>
-            <li>Логическая непротиворечивость: если задана <code>sale_price</code>, то <code>discount_percent</code> не должен быть NULL, и наоборот (связанная пара скидочных реквизитов).</li>
-          </ol>
-        </div>
+ <!-- ВАРИАНТ 4 -->
+ <div id="v4" class="variant-container">
+ <section class="task-card">
+ <h2>Вариант 4. Электронный маркетплейс: ценообразование и артикулы</h2>
+ <div class="spec-box">
+ <p><strong>Техническое задание:</strong> Спроектируйте каталог товаров интернет-магазина <code>marketplace_goods</code> со сложной бизнес-логикой ограничений:</p>
+ <ol>
+ <li>Поле <code>sku (VARCHAR(20) NOT NULL)</code>: артикул товара строго формата <code>3 заглавные буквы, дефис, 6 цифр</code> (например, <code>'ELC-109283'</code>). Валидация через POSIX regex.</li>
+ <li>Поле <code>base_price (NUMERIC(10,2) NOT NULL)</code>: базовая стоимость строго больше 0.</li>
+ <li>Поле <code>discount_percent (NUMERIC(5,2))</code>: процент скидки должен находиться в диапазоне <code>BETWEEN 0 AND 90</code> (не может быть отрицательным и не может превышать 90%).</li>
+ <li>Поле <code>sale_price (NUMERIC(10,2))</code>: цена по акции. Если указана, то должна быть строго меньше <code>base_price</code> (<code>sale_price &lt; base_price</code>).</li>
+ <li>Логическая непротиворечивость: если задана <code>sale_price</code>, то <code>discount_percent</code> не должен быть NULL, и наоборот (связанная пара скидочных реквизитов).</li>
+ </ol>
+ </div>
 
-        <div class="question-block">
-          <label for="v4_ans_ddl" class="question-label">1. Напишите DDL-скрипт таблицы с полным набором именованных ограничений CHECK и валидацией артикула SKU:</label>
-          <textarea id="v4_ans_ddl" class="answer-area" placeholder="CREATE TABLE marketplace_goods (...);"></textarea>
-        </div>
+ <div class="question-block">
+ <label for="v4_ans_ddl" class="question-label">1. Напишите DDL-скрипт таблицы с полным набором именованных ограничений CHECK и валидацией артикула SKU:</label>
+ <textarea id="v4_ans_ddl" class="answer-area" placeholder="CREATE TABLE marketplace_goods (...);"></textarea>
+ </div>
 
-        <div class="question-block">
-          <label for="v4_ans_deadlock" class="question-label">2. Приведите пример взаимно противоречивых предикатов CHECK (логический тупик), при которых ни одна строка не сможет быть добавлена в таблицу:</label>
-          <textarea id="v4_ans_deadlock" class="answer-area" placeholder="Пример логического конфликта предикатов..."></textarea>
-        </div>
+ <div class="question-block">
+ <label for="v4_ans_deadlock" class="question-label">2. Приведите пример взаимно противоречивых предикатов CHECK (логический тупик), при которых ни одна строка не сможет быть добавлена в таблицу:</label>
+ <textarea id="v4_ans_deadlock" class="answer-area" placeholder="Пример логического конфликта предикатов..."></textarea>
+ </div>
 
-        <div class="question-block">
-          <label for="v4_ans_test" class="question-label">3. Составьте 3 проверочных тестовых запроса INSERT: корректная запись, отклонение по неверному формату SKU и отклонение по завышенной скидочной цене:</label>
-          <textarea id="v4_ans_test" class="answer-area" placeholder="-- Тест 1 (успех)&#10;-- Тест 2 (ошибка SKU)&#10;-- Тест 3 (ошибка скидки)"></textarea>
-        </div>
-      </section>
-    </div>
+ <div class="question-block">
+ <label for="v4_ans_test" class="question-label">3. Составьте 3 проверочных тестовых запроса INSERT: корректная запись, отклонение по неверному формату SKU и отклонение по завышенной скидочной цене:</label>
+ <textarea id="v4_ans_test" class="answer-area" placeholder="-- Тест 1 (успех)&#10;-- Тест 2 (ошибка SKU)&#10;-- Тест 3 (ошибка скидки)"></textarea>
+ </div>
+ </section>
+ </div>
 
-    <div class="action-panel">
-      <button type="button" class="btn btn-primary" id="saveBtn">Сохранить работу</button>
-      <button type="button" class="btn btn-secondary" id="printBtn">Печать / Сохранить в PDF</button>
-      <button type="button" class="btn btn-secondary" id="clearBtn">Очистить рабочий лист</button>
-      <span class="save-alert" id="saveAlert">✓ Данные успешно сохранены в LocalStorage</span>
-    </div>
-  </div>
+ <div class="action-panel">
+ <button type="button" class="btn btn-primary" id="saveBtn">Сохранить работу</button>
+ <button type="button" class="btn btn-secondary" id="printBtn">Печать / Сохранить в PDF</button>
+ <button type="button" class="btn btn-secondary" id="clearBtn">Очистить рабочий лист</button>
+ <span class="save-alert" id="saveAlert">✓ Данные успешно сохранены в LocalStorage</span>
+ </div>
+ </div>
 
-  <script>
-    (function() {
-      const STORAGE_KEY = 'worksheet_db_lesson_22_saved_data';
-      const tabBtns = document.querySelectorAll('.v-tab-btn');
-      const containers = document.querySelectorAll('.variant-container');
+ <script>
+ (function() {
+ const STORAGE_KEY = 'worksheet_db_lesson_22_saved_data';
+ const tabBtns = document.querySelectorAll('.v-tab-btn');
+ const containers = document.querySelectorAll('.variant-container');
 
-      function getAllInputs() {
-        return document.querySelectorAll('input[type="text"], textarea');
-      }
+ function getAllInputs() {
+ return document.querySelectorAll('input[type="text"], textarea');
+ }
 
-      function getActiveVariant() {
-        const activeContainer = document.querySelector('.variant-container.active');
-        return activeContainer ? activeContainer.id : 'v1';
-      }
+ function getActiveVariant() {
+ const activeContainer = document.querySelector('.variant-container.active');
+ return activeContainer ? activeContainer.id : 'v1';
+ }
 
-      tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          tabBtns.forEach(b => b.classList.remove('active'));
-          containers.forEach(c => c.classList.remove('active'));
-          btn.classList.add('active');
-          const target = btn.getAttribute('data-target');
-          const activeEl = document.getElementById(target);
-          if (activeEl) activeEl.classList.add('active');
-          saveData();
-        });
-      });
+ tabBtns.forEach(btn => {
+ btn.addEventListener('click', () => {
+ tabBtns.forEach(b => b.classList.remove('active'));
+ containers.forEach(c => c.classList.remove('active'));
+ btn.classList.add('active');
+ const target = btn.getAttribute('data-target');
+ const activeEl = document.getElementById(target);
+ if (activeEl) activeEl.classList.add('active');
+ saveData();
+ });
+ });
 
-      function saveData() {
-        const data = {
-          activeVariant: getActiveVariant(),
-          fields: {}
-        };
-        getAllInputs().forEach(el => {
-          if (el.id) data.fields[el.id] = el.value;
-        });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        const alertBox = document.getElementById('saveAlert');
-        if (alertBox) {
-          alertBox.style.display = 'inline';
-          setTimeout(() => { alertBox.style.display = 'none'; }, 2500);
-        }
-      }
+ function saveData() {
+ const data = {
+ activeVariant: getActiveVariant(),
+ fields: {}
+ };
+ getAllInputs().forEach(el => {
+ if (el.id) data.fields[el.id] = el.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ const alertBox = document.getElementById('saveAlert');
+ if (alertBox) {
+ alertBox.style.display = 'inline';
+ setTimeout(() => { alertBox.style.display = 'none'; }, 2500);
+ }
+ }
 
-      function loadData() {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return;
-        try {
-          const parsed = JSON.parse(raw);
-          if (parsed.activeVariant) {
-            tabBtns.forEach(b => {
-              if (b.getAttribute('data-target') === parsed.activeVariant) {
-                b.click();
-              }
-            });
-          }
-          if (parsed.fields) {
-            Object.keys(parsed.fields).forEach(id => {
-              const el = document.getElementById(id);
-              if (el) el.value = parsed.fields[id];
-            });
-          }
-        } catch (e) {
-          console.error('Ошибка восстановления сохраненных данных:', e);
-        }
-      }
+ function loadData() {
+ const raw = localStorage.getItem(STORAGE_KEY);
+ if (!raw) return;
+ try {
+ const parsed = JSON.parse(raw);
+ if (parsed.activeVariant) {
+ tabBtns.forEach(b => {
+ if (b.getAttribute('data-target') === parsed.activeVariant) {
+ b.click();
+ }
+ });
+ }
+ if (parsed.fields) {
+ Object.keys(parsed.fields).forEach(id => {
+ const el = document.getElementById(id);
+ if (el) el.value = parsed.fields[id];
+ });
+ }
+ } catch (e) {
+ console.error('Ошибка восстановления сохраненных данных:', e);
+ }
+ }
 
-      function clearData() {
-        if (confirm('Вы уверены, что хотите полностью очистить все поля рабочего листа?')) {
-          localStorage.removeItem(STORAGE_KEY);
-          getAllInputs().forEach(el => { el.value = ''; });
-        }
-      }
+ function clearData() {
+ if (confirm('Вы уверены, что хотите полностью очистить все поля рабочего листа?')) {
+ localStorage.removeItem(STORAGE_KEY);
+ getAllInputs().forEach(el => { el.value = ''; });
+ }
+ }
 
-      document.getElementById('saveBtn').addEventListener('click', saveData);
-      document.getElementById('clearBtn').addEventListener('click', clearData);
-      document.getElementById('printBtn').addEventListener('click', () => {
-        saveData();
-        window.print();
-      });
+ document.getElementById('saveBtn').addEventListener('click', saveData);
+ document.getElementById('clearBtn').addEventListener('click', clearData);
+ document.getElementById('printBtn').addEventListener('click', () => {
+ saveData();
+ window.print();
+ });
 
-      // Автосохранение при вводе
-      document.addEventListener('input', (e) => {
-        if (e.target.matches('input, textarea')) {
-          const data = {
-            activeVariant: getActiveVariant(),
-            fields: {}
-          };
-          getAllInputs().forEach(el => {
-            if (el.id) data.fields[el.id] = el.value;
-          });
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        }
-      });
+ // Автосохранение при вводе
+ document.addEventListener('input', (e) => {
+ if (e.target.matches('input, textarea')) {
+ const data = {
+ activeVariant: getActiveVariant(),
+ fields: {}
+ };
+ getAllInputs().forEach(el => {
+ if (el.id) data.fields[el.id] = el.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ }
+ });
 
-      window.addEventListener('DOMContentLoaded', loadData);
-    })();
-  </script>
+ window.addEventListener('DOMContentLoaded', loadData);
+ })();
+ </script>
 </body>
 </html>

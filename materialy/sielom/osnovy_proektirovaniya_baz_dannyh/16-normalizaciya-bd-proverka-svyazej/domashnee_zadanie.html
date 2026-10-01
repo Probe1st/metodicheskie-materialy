@@ -1,480 +1,434 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Домашнее задание - Нормализация БД: проверка связей</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --text-muted: #475569;
-      --border: #cbd5e1;
-      --accent: #0284c7;
-      --accent-hover: #0369a1;
-      --accent-soft: #f0f9ff;
-      --warn: #f59e0b;
-      --warn-soft: #fef3c7;
-      --warn-text: #92400e;
-      --success: #16a34a;
-      --success-soft: #dcfce7;
-      --danger: #dc2626;
-      --danger-soft: #fee2e2;
-    }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Домашнее задание - Нормализация БД: проверка связей</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card-bg: #ffffff;
+ --text: #0f172a;
+ --text-muted: #475569;
+ --border: #cbd5e1;
+ --accent: #0284c7;
+ --accent-hover: #0369a1;
+ --accent-soft: #f0f9ff;
+ --warn: #f59e0b;
+ --warn-soft: #fef3c7;
+ --warn-text: #92400e;
+ --success: #16a34a;
+ --success-soft: #dcfce7;
+ --danger: #dc2626;
+ --danger-soft: #fee2e2;
+ }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ }
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      padding: 24px 16px;
-      min-width: 320px;
-    }
+ body {
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+ background-color: var(--bg);
+ color: var(--text);
+ line-height: 1.6;
+ padding: 24px 16px;
+ min-width: 320px;
+ }.container {
+ max-width: 920px;
+ margin: 0 auto;
+ width: 100%;
+ }
 
-    .container {
-      max-width: 920px;
-      margin: 0 auto;
-      width: 100%;
-    }
+ header.hw-header {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    header.hw-header {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ h1 {
+ font-size: 1.85rem;
+ font-weight: 800;
+ color: var(--text);
+ margin-bottom: 12px;
+ word-break: break-word;
+ }.reserve-notice {
+ display: inline-block;
+ background-color: var(--warn-soft);
+ color: var(--warn-text);
+ padding: 10px 16px;
+ border-radius: 8px;
+ font-size: 0.95rem;
+ font-weight: 600;
+ margin-bottom: 14px;
+ border-left: 4px solid var(--warn);
+ line-height: 1.45;
+ }.instruction {
+ font-size: 0.98rem;
+ color: var(--text-muted);
+ line-height: 1.55;
+ margin-bottom: 12px;
+ }.student-meta {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 16px;
+ margin-top: 18px;
+ padding-top: 16px;
+ border-top: 1px solid var(--border);
+ }.meta-field {
+ display: flex;
+ flex-direction: column;
+ gap: 6px;
+ }.meta-field label {
+ font-size: 0.85rem;
+ font-weight: 600;
+ color: var(--text-muted);
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+ }.meta-field input {
+ padding: 8px 12px;
+ border: 1px solid var(--border);
+ border-radius: 6px;
+ font-size: 0.95rem;
+ color: var(--text);
+ outline: none;
+ background: #ffffff;
+ }.meta-field input:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 2px var(--accent-soft);
+ }
 
-    h1 {
-      font-size: 1.85rem;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 12px;
-      word-break: break-word;
-    }
+ section.task-section {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    .reserve-notice {
-      display: inline-block;
-      background-color: var(--warn-soft);
-      color: var(--warn-text);
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      margin-bottom: 14px;
-      border-left: 4px solid var(--warn);
-      line-height: 1.45;
-    }
+ h2 {
+ font-size: 1.35rem;
+ font-weight: 700;
+ color: var(--accent-hover);
+ margin-bottom: 12px;
+ }.model-card {
+ background: #f1f5f9;
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ padding: 16px;
+ margin-bottom: 16px;
+ font-size: 0.95rem;
+ }.model-card h3 {
+ font-size: 1.05rem;
+ margin-bottom: 8px;
+ color: var(--text);
+ }.formula-tag {
+ display: inline-block;
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+ background: #e2e8f0;
+ padding: 2px 8px;
+ border-radius: 4px;
+ font-size: 0.92rem;
+ color: #0f172a;
+ }
 
-    .instruction {
-      font-size: 0.98rem;
-      color: var(--text-muted);
-      line-height: 1.55;
-      margin-bottom: 12px;
-    }
+ textarea.input-area {
+ width: 100%;
+ min-height: 120px;
+ padding: 12px;
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ font-family: inherit;
+ font-size: 0.95rem;
+ line-height: 1.5;
+ color: var(--text);
+ resize: vertical;
+ background-color: #ffffff;
+ outline: none;
+ margin-top: 8px;
+ }
 
-    .student-meta {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 18px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
+ textarea.input-area:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 2px var(--accent-soft);
+ }.btn-group {
+ display: flex;
+ gap: 12px;
+ margin-top: 24px;
+ flex-wrap: wrap;
+ }.btn {
+ padding: 10px 20px;
+ font-size: 0.95rem;
+ font-weight: 600;
+ border-radius: 6px;
+ cursor: pointer;
+ border: none;
+ transition: background 0.2s, transform 0.1s;
+ }.btn:active {
+ transform: translateY(1px);
+ }.btn-primary {
+ background-color: var(--accent);
+ color: #ffffff;
+ }.btn-primary:hover {
+ background-color: var(--accent-hover);
+ }.btn-secondary {
+ background-color: #e2e8f0;
+ color: var(--text);
+ }.btn-secondary:hover {
+ background-color: #cbd5e1;
+ }.btn-danger {
+ background-color: var(--danger-soft);
+ color: var(--danger);
+ border: 1px solid #fca5a5;
+ }.btn-danger:hover {
+ background-color: #fecaca;
+ }.save-status {
+ display: none;
+ color: var(--success);
+ font-size: 0.9rem;
+ font-weight: 600;
+ align-self: center;
+ margin-left: 8px;
+ }
 
-    .meta-field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ margin: 12px 0;
+ font-size: 0.9rem;
+ }
 
-    .meta-field label {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
+ th, td {
+ border: 1px solid var(--border);
+ padding: 8px 12px;
+ text-align: left;
+ }
 
-    .meta-field input {
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.95rem;
-      color: var(--text);
-      outline: none;
-      background: #ffffff;
-    }
+ th {
+ background: #f8fafc;
+ font-weight: 700;
+ }
 
-    .meta-field input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-soft);
-    }
+ @media (max-width: 600px) {.student-meta {
+ grid-template-columns: 1fr;
+ }
+ body {
+ padding: 12px 8px;
+ }
+ header.hw-header, section.task-section {
+ padding: 16px;
+ }
+ h1 {
+ font-size: 1.4rem;
+ }
+ }
 
-    section.task-section {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-
-    h2 {
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: var(--accent-hover);
-      margin-bottom: 12px;
-    }
-
-    .model-card {
-      background: #f1f5f9;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 16px;
-      font-size: 0.95rem;
-    }
-
-    .model-card h3 {
-      font-size: 1.05rem;
-      margin-bottom: 8px;
-      color: var(--text);
-    }
-
-    .formula-tag {
-      display: inline-block;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
-      background: #e2e8f0;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 0.92rem;
-      color: #0f172a;
-    }
-
-    textarea.input-area {
-      width: 100%;
-      min-height: 120px;
-      padding: 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 0.95rem;
-      line-height: 1.5;
-      color: var(--text);
-      resize: vertical;
-      background-color: #ffffff;
-      outline: none;
-      margin-top: 8px;
-    }
-
-    textarea.input-area:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-soft);
-    }
-
-    .btn-group {
-      display: flex;
-      gap: 12px;
-      margin-top: 24px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      padding: 10px 20px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      border-radius: 6px;
-      cursor: pointer;
-      border: none;
-      transition: background 0.2s, transform 0.1s;
-    }
-
-    .btn:active {
-      transform: translateY(1px);
-    }
-
-    .btn-primary {
-      background-color: var(--accent);
-      color: #ffffff;
-    }
-
-    .btn-primary:hover {
-      background-color: var(--accent-hover);
-    }
-
-    .btn-secondary {
-      background-color: #e2e8f0;
-      color: var(--text);
-    }
-
-    .btn-secondary:hover {
-      background-color: #cbd5e1;
-    }
-
-    .btn-danger {
-      background-color: var(--danger-soft);
-      color: var(--danger);
-      border: 1px solid #fca5a5;
-    }
-
-    .btn-danger:hover {
-      background-color: #fecaca;
-    }
-
-    .save-status {
-      display: none;
-      color: var(--success);
-      font-size: 0.9rem;
-      font-weight: 600;
-      align-self: center;
-      margin-left: 8px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 12px 0;
-      font-size: 0.9rem;
-    }
-
-    th, td {
-      border: 1px solid var(--border);
-      padding: 8px 12px;
-      text-align: left;
-    }
-
-    th {
-      background: #f8fafc;
-      font-weight: 700;
-    }
-
-    @media (max-width: 600px) {
-      .student-meta {
-        grid-template-columns: 1fr;
-      }
-      body {
-        padding: 12px 8px;
-      }
-      header.hw-header, section.task-section {
-        padding: 16px;
-      }
-      h1 {
-        font-size: 1.4rem;
-      }
-    }
-
-    @media print {
-      body {
-        background: #ffffff;
-        color: #000000;
-        padding: 0;
-      }
-      .container {
-        max-width: 100%;
-        margin: 0;
-      }
-      header.hw-header, section.task-section {
-        border: 1px solid #000000;
-        box-shadow: none;
-        page-break-inside: avoid;
-        margin-bottom: 16px;
-        padding: 16px;
-      }
-      .btn-group, .save-status {
-        display: none !important;
-      }
-      textarea.input-area {
-        border: 1px solid #000000;
-        background: transparent;
-        color: #000000;
-        min-height: 100px;
-        resize: none;
-        overflow: visible;
-      }
-      input::placeholder, textarea::placeholder {
-        color: transparent !important;
-      }
-      .reserve-notice {
-        border: 1px solid #000000;
-        background: none;
-        color: #000000;
-      }
-    }
-  </style>
+ @media print {
+ body {
+ background: #ffffff;
+ color: #000000;
+ padding: 0;
+ }.container {
+ max-width: 100%;
+ margin: 0;
+ }
+ header.hw-header, section.task-section {
+ border: 1px solid #000000;
+ box-shadow: none;
+ page-break-inside: avoid;
+ margin-bottom: 16px;
+ padding: 16px;
+ }.btn-group,.save-status {
+ display: none !important;
+ }
+ textarea.input-area {
+ border: 1px solid #000000;
+ background: transparent;
+ color: #000000;
+ min-height: 100px;
+ resize: none;
+ overflow: visible;
+ }
+ input::placeholder, textarea::placeholder {
+ color: transparent !important;
+ }.reserve-notice {
+ border: 1px solid #000000;
+ background: none;
+ color: #000000;
+ }
+ }
+ </style>
 </head>
 <body>
-  <div class="container">
-    <header class="hw-header">
-      <h1>Домашнее задание - Нормализация БД: проверка связей</h1>
-      
-      <div class="reserve-notice">
-        Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
-      </div>
+ <div class="container">
+ <header class="hw-header">
+ <h1>Домашнее задание - Нормализация БД: проверка связей</h1>
+ 
+ <div class="reserve-notice">
+ Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+ </div>
 
-      <p class="instruction">
-        Данное задание представляет собой резервный дистанционный практикум по дисциплине «ОП.08 Основы проектирования баз данных» (СИЭУиП) по теме «Нормализация БД: проверка связей». Задание направлено на математическую и практическую проверку декомпозиции схемы отношений на соединение без потерь данных по критерию Риссанена.
-      </p>
+ <p class="instruction">
+ Данное задание представляет собой резервный дистанционный практикум по дисциплине «ОП.08 Основы проектирования баз данных» (СИЭУиП) по теме «Нормализация БД: проверка связей». Задание направлено на математическую и практическую проверку декомпозиции схемы отношений на соединение без потерь данных по критерию Риссанена.
+ </p>
 
-      <div class="student-meta">
-        <div class="meta-field">
-          <label for="hwStudentFio">ФИО студента</label>
-          <input type="text" id="hwStudentFio">
-        </div>
-        <div class="meta-field">
-          <label for="hwStudentGroup">Учебная группа</label>
-          <input type="text" id="hwStudentGroup">
-        </div>
-      </div>
-    </header>
+ <div class="student-meta">
+ <div class="meta-field">
+ <label for="hwStudentFio">ФИО студента</label>
+ <input type="text" id="hwStudentFio">
+ </div>
+ <div class="meta-field">
+ <label for="hwStudentGroup">Учебная группа</label>
+ <input type="text" id="hwStudentGroup">
+ </div>
+ </div>
+ </header>
 
-    <!-- Задание 1 -->
-    <section class="task-section">
-      <h2>Задание 1. Формулировка и инженерный смысл критерия Риссанена</h2>
-      <div class="model-card">
-        <h3>Теоретическая база проверки бинарной декомпозиции</h3>
-        <p>Пусть задана схема отношения <code>R</code> и множество функциональных зависимостей <code>F</code>. Схема <code>R</code> декомпозирована на два отношения <code>R₁</code> и <code>R₂</code>, при этом <code>R₁ ∪ R₂ = R</code>.</p>
-        <p>Объясните строгое математическое условие теоремы Риссанена и сформулируйте инженерное правило проверки общих атрибутов.</p>
-      </div>
+ <!-- Задание 1 -->
+ <section class="task-section">
+ <h2>Задание 1. Формулировка и инженерный смысл критерия Риссанена</h2>
+ <div class="model-card">
+ <h3>Теоретическая база проверки бинарной декомпозиции</h3>
+ <p>Пусть задана схема отношения <code>R</code> и множество функциональных зависимостей <code>F</code>. Схема <code>R</code> декомпозирована на два отношения <code>R₁</code> и <code>R₂</code>, при этом <code>R₁ ∪ R₂ = R</code>.</p>
+ <p>Объясните строгое математическое условие теоремы Риссанена и сформулируйте инженерное правило проверки общих атрибутов.</p>
+ </div>
 
-      <label for="ansTask1"><strong>Ваш ответ и объяснение критерия:</strong></label>
-      <textarea id="ansTask1" class="input-area" placeholder="Сформулируйте условие (R₁ ∩ R₂ → R₁) ∈ F⁺ ИЛИ (R₁ ∩ R₂ → R₂) ∈ F⁺ и объясните роль суперключа..."></textarea>
-    </section>
+ <label for="ansTask1"><strong>Ваш ответ и объяснение критерия:</strong></label>
+ <textarea id="ansTask1" class="input-area" placeholder="Сформулируйте условие (R₁ ∩ R₂ → R₁) ∈ F⁺ ИЛИ (R₁ ∩ R₂ → R₂) ∈ F⁺ и объясните роль суперключа..."></textarea>
+ </section>
 
-    <!-- Задание 2 -->
-    <section class="task-section">
-      <h2>Задание 2. Проверка бинарной декомпозиции по критерию Риссанена</h2>
-      <div class="model-card">
-        <h3>Исходная схема отношения</h3>
-        <p>Дано отношение <code>R(A, B, C, D)</code> со следующим множеством функциональных зависимостей:</p>
-        <p class="formula-tag">F = { A → B, &nbsp; B → C, &nbsp; C → D }</p>
-        <p style="margin-top: 8px;">Анализируются два варианта бинарной декомпозиции схемы <code>R</code>:</p>
-        <ul>
-          <li><strong>Вариант декомпозиции I:</strong> <code>R₁(A, B, C)</code> и <code>R₂(C, D)</code>.</li>
-          <li><strong>Вариант декомпозиции II:</strong> <code>R₁(A, B)</code> и <code>R₃(B, C, D)</code>.</li>
-        </ul>
-      </div>
+ <!-- Задание 2 -->
+ <section class="task-section">
+ <h2>Задание 2. Проверка бинарной декомпозиции по критерию Риссанена</h2>
+ <div class="model-card">
+ <h3>Исходная схема отношения</h3>
+ <p>Дано отношение <code>R(A, B, C, D)</code> со следующим множеством функциональных зависимостей:</p>
+ <p class="formula-tag">F = { A → B, &nbsp; B → C, &nbsp; C → D }</p>
+ <p style="margin-top: 8px;">Анализируются два варианта бинарной декомпозиции схемы <code>R</code>:</p>
+ <ul>
+ <li><strong>Вариант декомпозиции I:</strong> <code>R₁(A, B, C)</code> и <code>R₂(C, D)</code>.</li>
+ <li><strong>Вариант декомпозиции II:</strong> <code>R₁(A, B)</code> и <code>R₃(B, C, D)</code>.</li>
+ </ul>
+ </div>
 
-      <label for="ansTask2"><strong>Пошаговый расчет и вывод по каждому варианту:</strong></label>
-      <textarea id="ansTask2" class="input-area" placeholder="Для каждого варианта: 1) найдите пересечение схем; 2) вычислите замыкание пересечения; 3) проверьте вхождение подсхем в замыкание; 4) сделайте вывод о наличии или отсутствии потерь..."></textarea>
-    </section>
+ <label for="ansTask2"><strong>Пошаговый расчет и вывод по каждому варианту:</strong></label>
+ <textarea id="ansTask2" class="input-area" placeholder="Для каждого варианта: 1) найдите пересечение схем; 2) вычислите замыкание пересечения; 3) проверьте вхождение подсхем в замыкание; 4) сделайте вывод о наличии или отсутствии потерь..."></textarea>
+ </section>
 
-    <!-- Задание 3 -->
-    <section class="task-section">
-      <h2>Задание 3. Демонстрация генерации ложных кортежей (контрпример)</h2>
-      <div class="model-card">
-        <h3>Построение числового контрпримера</h3>
-        <p>Если для схемы <code>R(A, B, C)</code> с зависимостью <code>A → B</code> выбрать декомпозицию <code>R₁(A, B)</code> и <code>R₂(B, C)</code>, критерий Риссанена нарушается.</p>
-        <p>Задайте конкретную таблицу исходных данных из 2 кортежей, постройте проекции на <code>R₁</code> и <code>R₂</code>, выполните естественное соединение <code>R₁ ⋈ R₂</code> и укажите, какие конкретно ложные кортежи (Spurious Tuples) возникли в результате.</p>
-      </div>
+ <!-- Задание 3 -->
+ <section class="task-section">
+ <h2>Задание 3. Демонстрация генерации ложных кортежей (контрпример)</h2>
+ <div class="model-card">
+ <h3>Построение числового контрпримера</h3>
+ <p>Если для схемы <code>R(A, B, C)</code> с зависимостью <code>A → B</code> выбрать декомпозицию <code>R₁(A, B)</code> и <code>R₂(B, C)</code>, критерий Риссанена нарушается.</p>
+ <p>Задайте конкретную таблицу исходных данных из 2 кортежей, постройте проекции на <code>R₁</code> и <code>R₂</code>, выполните естественное соединение <code>R₁ ⋈ R₂</code> и укажите, какие конкретно ложные кортежи (Spurious Tuples) возникли в результате.</p>
+ </div>
 
-      <label for="ansTask3"><strong>Таблица данных и фиксация ложных строк:</strong></label>
-      <textarea id="ansTask3" class="input-area" placeholder="Приведите значения исходного отношения, проекций R1 и R2, а также итогового соединения R1 ⋈ R2 с явным выделением ложных кортежей..."></textarea>
-    </section>
+ <label for="ansTask3"><strong>Таблица данных и фиксация ложных строк:</strong></label>
+ <textarea id="ansTask3" class="input-area" placeholder="Приведите значения исходного отношения, проекций R1 и R2, а также итогового соединения R1 ⋈ R2 с явным выделением ложных кортежей..."></textarea>
+ </section>
 
-    <!-- Задание 4 -->
-    <section class="task-section">
-      <h2>Задание 4. Практический инженерный кейс (Служба доставки)</h2>
-      <div class="model-card">
-        <h3>Предметная область: Логистика и доставка заказов</h3>
-        <p>Таблица диспетчеризации службы доставки содержит атрибуты:</p>
-        <p class="formula-tag">R(Номер_заказа, Курьер_ID, Тип_транспорта, Зона_доставки)</p>
-        <p style="margin-top: 8px;">Бизнес-правила предметной области:</p>
-        <ul>
-          <li>Каждый заказ имеет уникальный <code>Номер_заказа</code>, по которому однозначно определяются назначенный <code>Курьер_ID</code> и <code>Зона_доставки</code>: <code>Номер_заказа → {Курьер_ID, Зона_доставки}</code>.</li>
-          <li>Каждый курьер имеет закрепленный <code>Тип_транспорта</code> (пеший, велосипед, автомобиль): <code>Курьер_ID → Тип_транспорта</code>.</li>
-        </ul>
-      </div>
+ <!-- Задание 4 -->
+ <section class="task-section">
+ <h2>Задание 4. Практический инженерный кейс (Служба доставки)</h2>
+ <div class="model-card">
+ <h3>Предметная область: Логистика и доставка заказов</h3>
+ <p>Таблица диспетчеризации службы доставки содержит атрибуты:</p>
+ <p class="formula-tag">R(Номер_заказа, Курьер_ID, Тип_транспорта, Зона_доставки)</p>
+ <p style="margin-top: 8px;">Бизнес-правила предметной области:</p>
+ <ul>
+ <li>Каждый заказ имеет уникальный <code>Номер_заказа</code>, по которому однозначно определяются назначенный <code>Курьер_ID</code> и <code>Зона_доставки</code>: <code>Номер_заказа → {Курьер_ID, Зона_доставки}</code>.</li>
+ <li>Каждый курьер имеет закрепленный <code>Тип_транспорта</code> (пеший, велосипед, автомобиль): <code>Курьер_ID → Тип_транспорта</code>.</li>
+ </ul>
+ </div>
 
-      <label for="ansTask4"><strong>Синтез декомпозиции и доказательство соединения без потерь:</strong></label>
-      <textarea id="ansTask4" class="input-area" placeholder="1) Определите первичный ключ R; 2) Предложите разбиение на 2 таблицы, устраняющее избыточность типа транспорта курьера; 3) Докажите по Риссанену, что предложенное разбиение является соединением без потерь..."></textarea>
-    </section>
+ <label for="ansTask4"><strong>Синтез декомпозиции и доказательство соединения без потерь:</strong></label>
+ <textarea id="ansTask4" class="input-area" placeholder="1) Определите первичный ключ R; 2) Предложите разбиение на 2 таблицы, устраняющее избыточность типа транспорта курьера; 3) Докажите по Риссанену, что предложенное разбиение является соединением без потерь..."></textarea>
+ </section>
 
-    <!-- Задание 5 -->
-    <section class="task-section">
-      <h2>Задание 5. Самопроверка и профессиональные выводы</h2>
-      <label for="ansTask5"><strong>Ответьте на контрольные вопросы:</strong></label>
-      <textarea id="ansTask5" class="input-area" placeholder="1. Почему при соединении с потерями кортежей становится больше, а не меньше? 2. В чем разница между соединением без потерь и сохранением функциональных зависимостей? 3. Когда в реальных ИТ-системах сознательно денормализуют базы данных?"></textarea>
+ <!-- Задание 5 -->
+ <section class="task-section">
+ <h2>Задание 5. Самопроверка и профессиональные выводы</h2>
+ <label for="ansTask5"><strong>Ответьте на контрольные вопросы:</strong></label>
+ <textarea id="ansTask5" class="input-area" placeholder="1. Почему при соединении с потерями кортежей становится больше, а не меньше? 2. В чем разница между соединением без потерь и сохранением функциональных зависимостей? 3. Когда в реальных ИТ-системах сознательно денормализуют базы данных?"></textarea>
 
-      <div class="btn-group">
-        <button type="button" class="btn btn-primary" id="hwSaveBtn">Сохранить решение</button>
-        <button type="button" class="btn btn-secondary" id="hwPrintBtn">Распечатать / Сохранить в PDF</button>
-        <button type="button" class="btn btn-danger" id="hwClearBtn">Очистить поля</button>
-        <span class="save-status" id="hwSaveStatus">✓ Данные успешно сохранены</span>
-      </div>
-    </section>
-  </div>
+ <div class="btn-group">
+ <button type="button" class="btn btn-primary" id="hwSaveBtn">Сохранить решение</button>
+ <button type="button" class="btn btn-secondary" id="hwPrintBtn">Распечатать / Сохранить в PDF</button>
+ <button type="button" class="btn btn-danger" id="hwClearBtn">Очистить поля</button>
+ <span class="save-status" id="hwSaveStatus">✓ Данные успешно сохранены</span>
+ </div>
+ </section>
+ </div>
 
-  <script>
-    (function() {
-      const STORAGE_KEY = 'sieup_db_lesson16_homework';
+ <script>
+ (function() {
+ const STORAGE_KEY = 'sieup_db_lesson16_homework';
 
-      function getAllInputs() {
-        return document.querySelectorAll('input, textarea');
-      }
+ function getAllInputs() {
+ return document.querySelectorAll('input, textarea');
+ }
 
-      function saveData() {
-        const data = {};
-        getAllInputs().forEach(el => {
-          if (el.id) data[el.id] = el.value;
-        });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        const status = document.getElementById('hwSaveStatus');
-        if (status) {
-          status.style.display = 'inline';
-          setTimeout(() => { status.style.display = 'none'; }, 3000);
-        }
-      }
+ function saveData() {
+ const data = {};
+ getAllInputs().forEach(el => {
+ if (el.id) data[el.id] = el.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ const status = document.getElementById('hwSaveStatus');
+ if (status) {
+ status.style.display = 'inline';
+ setTimeout(() => { status.style.display = 'none'; }, 3000);
+ }
+ }
 
-      function loadData() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (!saved) return;
-        try {
-          const data = JSON.parse(saved);
-          Object.keys(data).forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.value = data[id];
-          });
-        } catch (e) {
-          console.error('Ошибка загрузки сохраненных данных:', e);
-        }
-      }
+ function loadData() {
+ const saved = localStorage.getItem(STORAGE_KEY);
+ if (!saved) return;
+ try {
+ const data = JSON.parse(saved);
+ Object.keys(data).forEach(id => {
+ const el = document.getElementById(id);
+ if (el) el.value = data[id];
+ });
+ } catch (e) {
+ console.error('Ошибка загрузки сохраненных данных:', e);
+ }
+ }
 
-      function clearData() {
-        if (confirm('Вы действительно хотите полностью очистить все введенные данные домашнего задания?')) {
-          localStorage.removeItem(STORAGE_KEY);
-          getAllInputs().forEach(el => { el.value = ''; });
-        }
-      }
+ function clearData() {
+ if (confirm('Вы действительно хотите полностью очистить все введенные данные домашнего задания?')) {
+ localStorage.removeItem(STORAGE_KEY);
+ getAllInputs().forEach(el => { el.value = ''; });
+ }
+ }
 
-      document.getElementById('hwSaveBtn').addEventListener('click', saveData);
-      document.getElementById('hwClearBtn').addEventListener('click', clearData);
-      document.getElementById('hwPrintBtn').addEventListener('click', () => {
-        saveData();
-        window.print();
-      });
+ document.getElementById('hwSaveBtn').addEventListener('click', saveData);
+ document.getElementById('hwClearBtn').addEventListener('click', clearData);
+ document.getElementById('hwPrintBtn').addEventListener('click', () => {
+ saveData();
+ window.print();
+ });
 
-      // Автосохранение при вводе
-      document.addEventListener('input', (e) => {
-        if (e.target.matches('input, textarea')) {
-          const data = {};
-          getAllInputs().forEach(el => {
-            if (el.id) data[el.id] = el.value;
-          });
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        }
-      });
+ // Автосохранение при вводе
+ document.addEventListener('input', (e) => {
+ if (e.target.matches('input, textarea')) {
+ const data = {};
+ getAllInputs().forEach(el => {
+ if (el.id) data[el.id] = el.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ }
+ });
 
-      window.addEventListener('DOMContentLoaded', loadData);
-    })();
-  </script>
+ window.addEventListener('DOMContentLoaded', loadData);
+ })();
+ </script>
 </body>
 </html>

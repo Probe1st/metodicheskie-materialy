@@ -1,698 +1,662 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Презентация: Принципы организации ЭВМ</title>
-  <style>
-    :root {
-      --bg: #0f172a;
-      --card-bg: #1e293b;
-      --text: #f8fafc;
-      --muted: #94a3b8;
-      --accent: #38bdf8;
-      --accent-soft: rgba(56, 189, 248, 0.15);
-      --accent-border: #0284c7;
-      --line: #334155;
-      --ok: #4ade80;
-      --warn: #fbbf24;
-      --danger: #f87171;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-    .pres-container {
-      width: 100%;
-      max-width: 1050px;
-      aspect-ratio: 16 / 9;
-      min-height: 560px;
-      background: var(--card-bg);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      overflow: hidden;
-    }
-    .slide {
-      display: none;
-      flex: 1;
-      padding: 36px 44px;
-      flex-direction: column;
-      justify-content: flex-start;
-      overflow-y: auto;
-    }
-    .slide.active {
-      display: flex;
-    }
-    /* СЛАЙД 1: СТРОГО только название темы крупным шрифтом */
-    .slide-1 {
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-    }
-    .slide-1 h1 {
-      font-size: clamp(32px, 5.5vw, 54px);
-      color: var(--accent);
-      line-height: 1.25;
-      max-width: 900px;
-      font-weight: 800;
-    }
-    .slide-title {
-      font-size: clamp(19px, 2.7vw, 24px);
-      color: var(--accent);
-      margin-bottom: 16px;
-      border-bottom: 2px solid var(--accent-border);
-      padding-bottom: 8px;
-      font-weight: 700;
-    }
-    .slide-content {
-      font-size: 15.5px;
-      line-height: 1.6;
-      color: var(--text);
-    }
-    .slide-content p {
-      margin-bottom: 12px;
-    }
-    .slide-content ul, .slide-content ol {
-      padding-left: 24px;
-      margin-bottom: 14px;
-    }
-    .slide-content li {
-      margin-bottom: 8px;
-    }
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 10px;
-    }
-    .grid-3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 14px;
-      margin-top: 10px;
-    }
-    .box {
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 14px 16px;
-    }
-    .box h4 {
-      color: var(--accent);
-      font-size: 15.5px;
-      margin-bottom: 6px;
-    }
-    .box p {
-      font-size: 13.5px;
-      margin-bottom: 4px;
-      color: #cbd5e1;
-    }
-    .highlight {
-      background: var(--accent-soft);
-      border-left: 4px solid var(--accent);
-      padding: 10px 14px;
-      border-radius: 0 8px 8px 0;
-      margin: 10px 0;
-      font-size: 14.5px;
-    }
-    .highlight-warn {
-      background: rgba(251, 191, 36, 0.15);
-      border-left: 4px solid var(--warn);
-      padding: 10px 14px;
-      border-radius: 0 8px 8px 0;
-      margin: 10px 0;
-      color: #fef08a;
-      font-size: 14.5px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-      font-size: 13.5px;
-    }
-    th, td {
-      border: 1px solid var(--line);
-      padding: 8px 10px;
-      text-align: left;
-    }
-    th {
-      background: rgba(56, 189, 248, 0.2);
-      color: var(--accent);
-    }
-    .meme-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-    }
-    .meme-img {
-      max-height: 280px;
-      max-width: 90%;
-      object-fit: contain;
-      border-radius: 8px;
-      border: 1px solid var(--line);
-      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
-      margin-bottom: 12px;
-    }
-    .attribution {
-      font-size: 12px;
-      color: var(--muted);
-      text-align: center;
-      line-height: 1.4;
-      max-width: 700px;
-    }
-    .attribution a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-    .controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 24px;
-      background: rgba(15, 23, 42, 0.8);
-      border-top: 1px solid var(--line);
-    }
-    .controls-btns {
-      display: flex;
-      gap: 10px;
-    }
-    .nav-btn {
-      background: var(--card-bg);
-      border: 1px solid var(--accent-border);
-      color: var(--accent);
-      padding: 6px 14px;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 13.5px;
-      transition: all .15s;
-    }
-    .nav-btn:hover {
-      background: var(--accent);
-      color: #0f172a;
-    }
-    .slide-num {
-      font-size: 14px;
-      color: var(--muted);
-      font-weight: 600;
-    }
-    pre.code-diagram {
-      background: #090d16;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 12px;
-      font-family: ui-monospace, monospace;
-      font-size: 12.5px;
-      line-height: 1.35;
-      color: #38bdf8;
-      overflow-x: auto;
-      margin: 8px 0;
-    }
-    @media (max-width: 768px) {
-      .pres-container { aspect-ratio: auto; min-height: 520px; }
-      .slide { padding: 20px 16px; }
-      .grid-2, .grid-3 { grid-template-columns: 1fr; }
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Презентация: Принципы организации ЭВМ</title>
+ <style>
+ :root {
+ --bg: #0f172a;
+ --card-bg: #1e293b;
+ --text: #f8fafc;
+ --muted: #94a3b8;
+ --accent: #38bdf8;
+ --accent-soft: rgba(56, 189, 248, 0.15);
+ --accent-border: #0284c7;
+ --line: #334155;
+ --ok: #4ade80;
+ --warn: #fbbf24;
+ --danger: #f87171;
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+ body {
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+ min-height: 100vh;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ justify-content: center;
+ padding: 16px;
+ }.pres-container {
+ width: 100%;
+ max-width: 1050px;
+ aspect-ratio: 16 / 9;
+ min-height: 560px;
+ background: var(--card-bg);
+ border: 1px solid var(--line);
+ border-radius: 16px;
+ box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+ display: flex;
+ flex-direction: column;
+ position: relative;
+ overflow: hidden;
+ }.slide {
+ display: none;
+ flex: 1;
+ padding: 36px 44px;
+ flex-direction: column;
+ justify-content: flex-start;
+ overflow-y: auto;
+ }.slide.active {
+ display: flex;
+ }
+ /* СЛАЙД 1: СТРОГО только название темы крупным шрифтом */.slide-1 {
+ justify-content: center;
+ align-items: center;
+ text-align: center;
+ }.slide-1 h1 {
+ font-size: clamp(32px, 5.5vw, 54px);
+ color: var(--accent);
+ line-height: 1.25;
+ max-width: 900px;
+ font-weight: 800;
+ }.slide-title {
+ font-size: clamp(19px, 2.7vw, 24px);
+ color: var(--accent);
+ margin-bottom: 16px;
+ border-bottom: 2px solid var(--accent-border);
+ padding-bottom: 8px;
+ font-weight: 700;
+ }.slide-content {
+ font-size: 15.5px;
+ line-height: 1.6;
+ color: var(--text);
+ }.slide-content p {
+ margin-bottom: 12px;
+ }.slide-content ul,.slide-content ol {
+ padding-left: 24px;
+ margin-bottom: 14px;
+ }.slide-content li {
+ margin-bottom: 8px;
+ }.grid-2 {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 16px;
+ margin-top: 10px;
+ }.grid-3 {
+ display: grid;
+ grid-template-columns: 1fr 1fr 1fr;
+ gap: 14px;
+ margin-top: 10px;
+ }.box {
+ background: rgba(15, 23, 42, 0.6);
+ border: 1px solid var(--line);
+ border-radius: 10px;
+ padding: 14px 16px;
+ }.box h4 {
+ color: var(--accent);
+ font-size: 15.5px;
+ margin-bottom: 6px;
+ }.box p {
+ font-size: 13.5px;
+ margin-bottom: 4px;
+ color: #cbd5e1;
+ }.highlight {
+ background: var(--accent-soft);
+ border-left: 4px solid var(--accent);
+ padding: 10px 14px;
+ border-radius: 0 8px 8px 0;
+ margin: 10px 0;
+ font-size: 14.5px;
+ }.highlight-warn {
+ background: rgba(251, 191, 36, 0.15);
+ border-left: 4px solid var(--warn);
+ padding: 10px 14px;
+ border-radius: 0 8px 8px 0;
+ margin: 10px 0;
+ color: #fef08a;
+ font-size: 14.5px;
+ }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ margin-top: 10px;
+ font-size: 13.5px;
+ }
+ th, td {
+ border: 1px solid var(--line);
+ padding: 8px 10px;
+ text-align: left;
+ }
+ th {
+ background: rgba(56, 189, 248, 0.2);
+ color: var(--accent);
+ }.meme-wrap {
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ justify-content: center;
+ height: 100%;
+ }.meme-img {
+ max-height: 280px;
+ max-width: 90%;
+ object-fit: contain;
+ border-radius: 8px;
+ border: 1px solid var(--line);
+ box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+ margin-bottom: 12px;
+ }.attribution {
+ font-size: 12px;
+ color: var(--muted);
+ text-align: center;
+ line-height: 1.4;
+ max-width: 700px;
+ }.attribution a {
+ color: var(--accent);
+ text-decoration: none;
+ }.controls {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ padding: 12px 24px;
+ background: rgba(15, 23, 42, 0.8);
+ border-top: 1px solid var(--line);
+ }.controls-btns {
+ display: flex;
+ gap: 10px;
+ }.nav-btn {
+ background: var(--card-bg);
+ border: 1px solid var(--accent-border);
+ color: var(--accent);
+ padding: 6px 14px;
+ border-radius: 6px;
+ font-weight: 600;
+ cursor: pointer;
+ font-size: 13.5px;
+ transition: all.15s;
+ }.nav-btn:hover {
+ background: var(--accent);
+ color: #0f172a;
+ }.slide-num {
+ font-size: 14px;
+ color: var(--muted);
+ font-weight: 600;
+ }
+ pre.code-diagram {
+ background: #090d16;
+ border: 1px solid var(--line);
+ border-radius: 8px;
+ padding: 12px;
+ font-family: ui-monospace, monospace;
+ font-size: 12.5px;
+ line-height: 1.35;
+ color: #38bdf8;
+ overflow-x: auto;
+ margin: 8px 0;
+ }
+ @media (max-width: 768px) {.pres-container { aspect-ratio: auto; min-height: 520px; }.slide { padding: 20px 16px; }.grid-2,.grid-3 { grid-template-columns: 1fr; }
+ }
+ </style>
 </head>
 <body>
 
 <div class="pres-container">
 
-  <!-- СЛАЙД 1: СТРОГО ТОЛЬКО НАЗВАНИЕ ТЕМЫ КРУПНЫМ ШРИФТОМ -->
-  <div class="slide slide-1 active" id="slide-1">
-    <h1>Принципы организации ЭВМ</h1>
-  </div>
+ <!-- СЛАЙД 1: СТРОГО ТОЛЬКО НАЗВАНИЕ ТЕМЫ КРУПНЫМ ШРИФТОМ -->
+ <div class="slide slide-1 active" id="slide-1">
+ <h1>Принципы организации ЭВМ</h1>
+ </div>
 
-  <!-- СЛАЙД 2: ПРОБЛЕМА УНИВЕРСАЛЬНЫХ ВЫЧИСЛЕНИЙ -->
-  <div class="slide" id="slide-2">
-    <div class="slide-title">1. Проблема: от жестких схем к универсальному компьютеру</div>
-    <div class="slide-content">
-      <p>До 1945 года электронные вычислители (ENIAC, Z3, Harvard Mark I) проектировались для жестко заданных математических задач либо перепрограммировались вручную перекоммутацией сотен кабелей и тумблеров.</p>
-      <div class="grid-2">
-        <div class="box">
-          <h4>Схемотехническое программирование (ENIAC)</h4>
-          <p>• Для смены расчетной баллистической таблицы инженеры вручную переставляли сотни штекеров и реле в течение нескольких дней.</p>
-          <p>• Программа являлась физической конфигурацией проводов.</p>
-        </div>
-        <div class="box">
-          <h4>Концепция Джона фон Неймана (1945)</h4>
-          <p>• Электронный вычислитель должен быть аппаратно неизменным универсальным процессором.</p>
-          <p>• Алгоритм задачи кодируется в виде последовательности числовых инструкций, хранящихся в общей памяти.</p>
-        </div>
-      </div>
-      <div class="highlight">
-        <strong>Цель лекции:</strong> Понять, как процессор, память и системные шины взаимодействуют для автоматического потактового исполнения программ.
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 2: ПРОБЛЕМА УНИВЕРСАЛЬНЫХ ВЫЧИСЛЕНИЙ -->
+ <div class="slide" id="slide-2">
+ <div class="slide-title">1. Проблема: от жестких схем к универсальному компьютеру</div>
+ <div class="slide-content">
+ <p>До 1945 года электронные вычислители (ENIAC, Z3, Harvard Mark I) проектировались для жестко заданных математических задач либо перепрограммировались вручную перекоммутацией сотен кабелей и тумблеров.</p>
+ <div class="grid-2">
+ <div class="box">
+ <h4>Схемотехническое программирование (ENIAC)</h4>
+ <p>• Для смены расчетной баллистической таблицы инженеры вручную переставляли сотни штекеров и реле в течение нескольких дней.</p>
+ <p>• Программа являлась физической конфигурацией проводов.</p>
+ </div>
+ <div class="box">
+ <h4>Концепция Джона фон Неймана (1945)</h4>
+ <p>• Электронный вычислитель должен быть аппаратно неизменным универсальным процессором.</p>
+ <p>• Алгоритм задачи кодируется в виде последовательности числовых инструкций, хранящихся в общей памяти.</p>
+ </div>
+ </div>
+ <div class="highlight">
+ <strong>Цель лекции:</strong> Понять, как процессор, память и системные шины взаимодействуют для автоматического потактового исполнения программ.
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 3: ПРИНЦИПЫ ФОН НЕЙМАНА -->
-  <div class="slide" id="slide-3">
-    <div class="slide-title">2. Фундаментальные принципы фон Неймана</div>
-    <div class="slide-content">
-      <ul>
-        <li><strong>Двоичное кодирование:</strong> Любая информация (данные и команды) кодируется в двоичной системе счисления с помощью битов (0 и 1).</li>
-        <li><strong>Программное управление:</strong> Вычисления выполняются автоматически процессором под управлением последовательности машинных команд.</li>
-        <li><strong>Однородность памяти:</strong> Программы и данные размещаются в одном общем запоминающем устройстве. Машина не отличает команду от данных по физической форме битов.</li>
-        <li><strong>Адресность памяти:</strong> Память состоит из ячеек (байт), имеющих уникальные числовые адреса. Возможен мгновенный произвольный доступ по номеру ячейки.</li>
-        <li><strong>Последовательное выполнение:</strong> Команды извлекаются по порядку возрастания адресов с помощью регистра Program Counter (PC / IP), за исключением команд переходов.</li>
-      </ul>
-    </div>
-  </div>
+ <!-- СЛАЙД 3: ПРИНЦИПЫ ФОН НЕЙМАНА -->
+ <div class="slide" id="slide-3">
+ <div class="slide-title">2. Фундаментальные принципы фон Неймана</div>
+ <div class="slide-content">
+ <ul>
+ <li><strong>Двоичное кодирование:</strong> Любая информация (данные и команды) кодируется в двоичной системе счисления с помощью битов (0 и 1).</li>
+ <li><strong>Программное управление:</strong> Вычисления выполняются автоматически процессором под управлением последовательности машинных команд.</li>
+ <li><strong>Однородность памяти:</strong> Программы и данные размещаются в одном общем запоминающем устройстве. Машина не отличает команду от данных по физической форме битов.</li>
+ <li><strong>Адресность памяти:</strong> Память состоит из ячеек (байт), имеющих уникальные числовые адреса. Возможен мгновенный произвольный доступ по номеру ячейки.</li>
+ <li><strong>Последовательное выполнение:</strong> Команды извлекаются по порядку возрастания адресов с помощью регистра Program Counter (PC / IP), за исключением команд переходов.</li>
+ </ul>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 4: СТРУКТУРА МАШИНЫ ФОН НЕЙМАНА -->
-  <div class="slide" id="slide-4">
-    <div class="slide-title">3. Классическая пятиблочная структура ЭВМ</div>
-    <div class="slide-content">
-      <pre class="code-diagram">
+ <!-- СЛАЙД 4: СТРУКТУРА МАШИНЫ ФОН НЕЙМАНА -->
+ <div class="slide" id="slide-4">
+ <div class="slide-title">3. Классическая пятиблочная структура ЭВМ</div>
+ <div class="slide-content">
+ <pre class="code-diagram">
 +-----------------------------------------------------------+
-|              ЦЕНТРАЛЬНЫЙ ПРОЦЕССОР (CPU)                  |
-|  +--------------------+         +-----------------------+ |
-|  |  Устройство        |         |  Арифметико-логическое| |
-|  |  управления (УУ /  | <-----> |  устройство (АЛУ /    | |
-|  |  Control Unit, CU) |         |  ALU) + Регистры (AX) | |
-|  +---------+----------+         +-----------+-----------+ |
+| ЦЕНТРАЛЬНЫЙ ПРОЦЕССОР (CPU) | +--------------------+ +-----------------------+ | Устройство | Арифметико-логическое| управления (УУ / | <-----> | устройство (АЛУ / | Control Unit, CU) | ALU) + Регистры (AX) | +---------+----------+ +-----------+-----------+ |
 +------------|--------------------------------|-------------+
-             |            СИСТЕМНАЯ МАГИСТРАЛЬ|
-             |  Шина адреса (Address Bus, AB) | (однонаправленная CPU->MEM)
-             |================================+=============+
-             |  Шина данных (Data Bus, DB)    | (двунаправленная CPU<=>MEM/IO)
-             |================================+=============+
-             |  Шина управления (Control Bus) | (стробы MREAD, MWRITE, CLK...)
-             |================================+=============+
-             |                                |
-  +----------+---------+            +---------+-------------+
-  | Запоминающее       |            | Устройства ввода-     |
-  | устройство (ЗУ/RAM)|            | вывода (УВВ / IO)     |
-  +--------------------+            +-----------------------+
-      </pre>
-      <p style="font-size: 14px; color: #cbd5e1;">Все функциональные модули связываются между собой через общую системную шину (магистрально-модульный принцип).</p>
-    </div>
-  </div>
+ | СИСТЕМНАЯ МАГИСТРАЛЬ| Шина адреса (Address Bus, AB) | (однонаправленная CPU->MEM)
+ |================================+=============+
+ | Шина данных (Data Bus, DB) | (двунаправленная CPU<=>MEM/IO)
+ |================================+=============+
+ | Шина управления (Control Bus) | (стробы MREAD, MWRITE, CLK...)
+ |================================+=============+
+ |
+ +----------+---------+ +---------+-------------+
+ | Запоминающее | Устройства ввода- | устройство (ЗУ/RAM)| вывода (УВВ / IO) |
+ +--------------------+ +-----------------------+
+ </pre>
+ <p style="font-size: 14px; color: #cbd5e1;">Все функциональные модули связываются между собой через общую системную шину (магистрально-модульный принцип).</p>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 5: ШИНА АДРЕСА -->
-  <div class="slide" id="slide-5">
-    <div class="slide-title">4. Системные шины: Шина адреса (Address Bus)</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="box">
-          <h4>Назначение и направление</h4>
-          <p>• Передает двоичный номер адресуемой ячейки памяти или номер порта ввода-вывода.</p>
-          <p>• <strong>Строго однонаправленная:</strong> сигнал генерирует процессор (Master) и принимает контроллер памяти или периферии (Slave).</p>
-        </div>
-        <div class="box">
-          <h4>Формула емкости памяти</h4>
-          <p>Разрядность шины N бит определяет предел физической адресации:</p>
-          <p style="color: var(--ok); font-weight: bold; font-size: 15px;"><div class="formula">V<sub>max</sub> = 2<sup>N</sup>  байт</div></p>
-        </div>
-      </div>
-      <table style="margin-top: 14px;">
-        <thead>
-          <tr>
-            <th>Поколение процессора</th>
-            <th>Разрядность шины адреса</th>
-            <th>Максимальный объем адресуемого ОЗУ</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Intel 8086 (1978 г.)</td><td>20 бит</td><td>2<sup>20</sup> байт = 1 МБ</td></tr>
-          <tr><td>Intel 80386 (1985 г.)</td><td>32 бита</td><td>2<sup>32</sup> байт = 4 ГБ</td></tr>
-          <tr><td>Современные x86-64 (AMD64 / Intel 64)</td><td>48 бит / 57 бит (5-level paging)</td><td>256 Терабайт / 128 Петабайт</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+ <!-- СЛАЙД 5: ШИНА АДРЕСА -->
+ <div class="slide" id="slide-5">
+ <div class="slide-title">4. Системные шины: Шина адреса (Address Bus)</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="box">
+ <h4>Назначение и направление</h4>
+ <p>• Передает двоичный номер адресуемой ячейки памяти или номер порта ввода-вывода.</p>
+ <p>• <strong>Строго однонаправленная:</strong> сигнал генерирует процессор (Master) и принимает контроллер памяти или периферии (Slave).</p>
+ </div>
+ <div class="box">
+ <h4>Формула емкости памяти</h4>
+ <p>Разрядность шины N бит определяет предел физической адресации:</p>
+ <p style="color: var(--ok); font-weight: bold; font-size: 15px;"><div class="formula">V<sub>max</sub> = 2<sup>N</sup> байт</div></p>
+ </div>
+ </div>
+ <table style="margin-top: 14px;">
+ <thead>
+ <tr>
+ <th>Поколение процессора</th>
+ <th>Разрядность шины адреса</th>
+ <th>Максимальный объем адресуемого ОЗУ</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr><td>Intel 8086 (1978 г.)</td><td>20 бит</td><td>2<sup>20</sup> байт = 1 МБ</td></tr>
+ <tr><td>Intel 80386 (1985 г.)</td><td>32 бита</td><td>2<sup>32</sup> байт = 4 ГБ</td></tr>
+ <tr><td>Современные x86-64 (AMD64 / Intel 64)</td><td>48 бит / 57 бит (5-level paging)</td><td>256 Терабайт / 128 Петабайт</td></tr>
+ </tbody>
+ </table>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 6: ШИНА ДАННЫХ И УПРАВЛЕНИЯ -->
-  <div class="slide" id="slide-6">
-    <div class="slide-title">5. Шина данных (DB) и Шина управления (CB)</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="box">
-          <h4>Шина данных (Data Bus, DB)</h4>
-          <p>• <strong>Двунаправленная:</strong> пересылает коды команд и числовые операнды между CPU, RAM и IO.</p>
-          <p>• Разрядность (8, 16, 32, 64 бита) определяет ширину машинного слова, передаваемого за один такт шины.</p>
-          <p>• Использует <em>тристабильные буферы (Hi-Z)</em> для предотвращения коротких замыканий неактивных модулей.</p>
-        </div>
-        <div class="box">
-          <h4>Шина управления (Control Bus, CB)</h4>
-          <p>• Передает управляющие стробы и синхронизирующие импульсы:</p>
-          <p><code>#MEMR</code> — строб чтения из памяти;</p>
-          <p><code>#MEMW</code> — строб записи в память;</p>
-          <p><code>CLK</code> — тактовый генератор частоты;</p>
-          <p><code>READY / WAIT</code> — такт подтверждения готовности;</p>
-          <p><code>RESET</code> — сброс процессора в исходное состояние;</p>
-          <p><code>INTR / #INTA</code> — запрос и подтверждение прерывания.</p>
-        </div>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 6: ШИНА ДАННЫХ И УПРАВЛЕНИЯ -->
+ <div class="slide" id="slide-6">
+ <div class="slide-title">5. Шина данных (DB) и Шина управления (CB)</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="box">
+ <h4>Шина данных (Data Bus, DB)</h4>
+ <p>• <strong>Двунаправленная:</strong> пересылает коды команд и числовые операнды между CPU, RAM и IO.</p>
+ <p>• Разрядность (8, 16, 32, 64 бита) определяет ширину машинного слова, передаваемого за один такт шины.</p>
+ <p>• Использует <em>тристабильные буферы (Hi-Z)</em> для предотвращения коротких замыканий неактивных модулей.</p>
+ </div>
+ <div class="box">
+ <h4>Шина управления (Control Bus, CB)</h4>
+ <p>• Передает управляющие стробы и синхронизирующие импульсы:</p>
+ <p><code>#MEMR</code> — строб чтения из памяти;</p>
+ <p><code>#MEMW</code> — строб записи в память;</p>
+ <p><code>CLK</code> — тактовый генератор частоты;</p>
+ <p><code>READY / WAIT</code> — такт подтверждения готовности;</p>
+ <p><code>RESET</code> — сброс процессора в исходное состояние;</p>
+ <p><code>INTR / #INTA</code> — запрос и подтверждение прерывания.</p>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 7: МАШИННЫЙ ЦИКЛ КОМАНДЫ (FETCH-DECODE) -->
-  <div class="slide" id="slide-7">
-    <div class="slide-title">6. Машинный цикл команды: Fetch & Decode</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="box">
-          <h4>Фаза 1: FETCH (Выборка команды)</h4>
-          <p>1. Адрес команды из счетчика <code>PC (IP)</code> передается в регистр адреса <code>MAR</code>.</p>
-          <p>2. Значение MAR выставляется на шину адреса, активируется строб <code>#MEMR = 0</code>.</p>
-          <p>3. ОЗУ считывает байты инструкции и передает их по шине данных в регистр <code>MDR</code>.</p>
-          <p>4. Опкод инструкции перемещается в регистр команд <code>IR</code>.</p>
-          <p>5. Счетчик команд <code>PC</code> автоматически увеличивается на длину выбранной инструкции.</p>
-        </div>
-        <div class="box">
-          <h4>Фаза 2: DECODE (Декодирование)</h4>
-          <p>1. Опкод из <code>IR</code> поступает в аппаратный дешифратор команд устройства управления (УУ).</p>
-          <p>2. УУ распознает тип операции (пересылка, сложение, логика, переход).</p>
-          <p>3. Определяются адреса операндов (регистровые, непосредственные, прямые по ОЗУ).</p>
-          <p>4. Генерируется микропрограмма управляющих импульсов для АЛУ и шин.</p>
-        </div>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 7: МАШИННЫЙ ЦИКЛ КОМАНДЫ (FETCH-DECODE) -->
+ <div class="slide" id="slide-7">
+ <div class="slide-title">6. Машинный цикл команды: Fetch & Decode</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="box">
+ <h4>Фаза 1: FETCH (Выборка команды)</h4>
+ <p>1. Адрес команды из счетчика <code>PC (IP)</code> передается в регистр адреса <code>MAR</code>.</p>
+ <p>2. Значение MAR выставляется на шину адреса, активируется строб <code>#MEMR = 0</code>.</p>
+ <p>3. ОЗУ считывает байты инструкции и передает их по шине данных в регистр <code>MDR</code>.</p>
+ <p>4. Опкод инструкции перемещается в регистр команд <code>IR</code>.</p>
+ <p>5. Счетчик команд <code>PC</code> автоматически увеличивается на длину выбранной инструкции.</p>
+ </div>
+ <div class="box">
+ <h4>Фаза 2: DECODE (Декодирование)</h4>
+ <p>1. Опкод из <code>IR</code> поступает в аппаратный дешифратор команд устройства управления (УУ).</p>
+ <p>2. УУ распознает тип операции (пересылка, сложение, логика, переход).</p>
+ <p>3. Определяются адреса операндов (регистровые, непосредственные, прямые по ОЗУ).</p>
+ <p>4. Генерируется микропрограмма управляющих импульсов для АЛУ и шин.</p>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 8: МАШИННЫЙ ЦИКЛ (EXECUTE-WRITEBACK) -->
-  <div class="slide" id="slide-8">
-    <div class="slide-title">7. Машинный цикл команды: Execute & Writeback</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="box">
-          <h4>Фаза 3: EXECUTE (Выполнение)</h4>
-          <p>• Арифметико-логическое устройство (АЛУ) производит требуемую математическую или логическую операцию над операндами.</p>
-          <p>• Если команда требует чтения операнда из ОЗУ (например, <code>[1000h]</code>), генерируется дополнительный шинный цикл чтения памяти.</p>
-          <p>• При командах перехода (JMP, JNZ) в этой фазе вычисляется новый целевой адрес счетчика команд <code>PC</code>.</p>
-        </div>
-        <div class="box">
-          <h4>Фаза 4: WRITEBACK (Обратная запись)</h4>
-          <p>• Результат операции фиксируется в целевом регистре процессора (AX, BX и т.д.) либо записывается в ОЗУ через MAR и MDR по стробу <code>#MEMW</code>.</p>
-          <p>• Обновляются флаги в регистре состояния <code>FLAGS</code>:</p>
-          <p><code>ZF (Zero Flag)</code> — равен ли результат нулю;</p>
-          <p><code>CF (Carry Flag)</code> — возник ли арифметический перенос;</p>
-          <p><code>SF (Sign Flag)</code> — знак полученного числа (старший бит).</p>
-        </div>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 8: МАШИННЫЙ ЦИКЛ (EXECUTE-WRITEBACK) -->
+ <div class="slide" id="slide-8">
+ <div class="slide-title">7. Машинный цикл команды: Execute & Writeback</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="box">
+ <h4>Фаза 3: EXECUTE (Выполнение)</h4>
+ <p>• Арифметико-логическое устройство (АЛУ) производит требуемую математическую или логическую операцию над операндами.</p>
+ <p>• Если команда требует чтения операнда из ОЗУ (например, <code>[1000h]</code>), генерируется дополнительный шинный цикл чтения памяти.</p>
+ <p>• При командах перехода (JMP, JNZ) в этой фазе вычисляется новый целевой адрес счетчика команд <code>PC</code>.</p>
+ </div>
+ <div class="box">
+ <h4>Фаза 4: WRITEBACK (Обратная запись)</h4>
+ <p>• Результат операции фиксируется в целевом регистре процессора (AX, BX и т.д.) либо записывается в ОЗУ через MAR и MDR по стробу <code>#MEMW</code>.</p>
+ <p>• Обновляются флаги в регистре состояния <code>FLAGS</code>:</p>
+ <p><code>ZF (Zero Flag)</code> — равен ли результат нулю;</p>
+ <p><code>CF (Carry Flag)</code> — возник ли арифметический перенос;</p>
+ <p><code>SF (Sign Flag)</code> — знак полученного числа (старший бит).</p>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 9: СЛУЖЕБНЫЕ РЕГИСТРЫ ПРОЦЕССОРА -->
-  <div class="slide" id="slide-9">
-    <div class="slide-title">8. Внутренние служебные регистры процессора</div>
-    <div class="slide-content">
-      <table>
-        <thead>
-          <tr>
-            <th>Регистр</th>
-            <th>Полное название</th>
-            <th>Функциональная роль в цикле команды</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>PC / IP</strong></td>
-            <td>Program Counter / Instruction Pointer</td>
-            <td>Указывает адрес следующей инструкции в ОЗУ. Инкрементируется автоматически в фазе Fetch.</td>
-          </tr>
-          <tr>
-            <td><strong>MAR</strong></td>
-            <td>Memory Address Register</td>
-            <td>Буфер адреса. Напрямую соединен с внешней системной шиной адреса (AB).</td>
-          </tr>
-          <tr>
-            <td><strong>MDR</strong></td>
-            <td>Memory Data Register</td>
-            <td>Двунаправленный буфер данных. Соединен с внешней системной шиной данных (DB).</td>
-          </tr>
-          <tr>
-            <td><strong>IR</strong></td>
-            <td>Instruction Register</td>
-            <td>Регистр команд. Удерживает машинный код инструкции во время фазы декодирования.</td>
-          </tr>
-          <tr>
-            <td><strong>FLAGS / PSW</strong></td>
-            <td>Program Status Word</td>
-            <td>Фиксирует признаки результата последней операции АЛУ (ZF, CF, SF, OF) для условных переходов.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+ <!-- СЛАЙД 9: СЛУЖЕБНЫЕ РЕГИСТРЫ ПРОЦЕССОРА -->
+ <div class="slide" id="slide-9">
+ <div class="slide-title">8. Внутренние служебные регистры процессора</div>
+ <div class="slide-content">
+ <table>
+ <thead>
+ <tr>
+ <th>Регистр</th>
+ <th>Полное название</th>
+ <th>Функциональная роль в цикле команды</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>PC / IP</strong></td>
+ <td>Program Counter / Instruction Pointer</td>
+ <td>Указывает адрес следующей инструкции в ОЗУ. Инкрементируется автоматически в фазе Fetch.</td>
+ </tr>
+ <tr>
+ <td><strong>MAR</strong></td>
+ <td>Memory Address Register</td>
+ <td>Буфер адреса. Напрямую соединен с внешней системной шиной адреса (AB).</td>
+ </tr>
+ <tr>
+ <td><strong>MDR</strong></td>
+ <td>Memory Data Register</td>
+ <td>Двунаправленный буфер данных. Соединен с внешней системной шиной данных (DB).</td>
+ </tr>
+ <tr>
+ <td><strong>IR</strong></td>
+ <td>Instruction Register</td>
+ <td>Регистр команд. Удерживает машинный код инструкции во время фазы декодирования.</td>
+ </tr>
+ <tr>
+ <td><strong>FLAGS / PSW</strong></td>
+ <td>Program Status Word</td>
+ <td>Фиксирует признаки результата последней операции АЛУ (ZF, CF, SF, OF) для условных переходов.</td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 10: ПОШАГОВАЯ ТРАССИРОВКА КОМАНДЫ -->
-  <div class="slide" id="slide-10">
-    <div class="slide-title">9. Потактовая трассировка: MOV AX, [1000h]</div>
-    <div class="slide-content">
-      <p style="font-size: 14.5px;">Пример выполнения команды загрузки слова из памяти в регистр аккумулятора AX:</p>
-      <table>
-        <thead>
-          <tr>
-            <th>Такт</th>
-            <th>Фаза</th>
-            <th>Шина адреса (AB)</th>
-            <th>Шина данных (DB)</th>
-            <th>Шина управления (CB)</th>
-            <th>Действие узлов CPU</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>T1</td>
-            <td>Fetch (1)</td>
-            <td>0100h (из PC)</td>
-            <td>Hi-Z (ожидание)</td>
-            <td>#MEMR = 0 (чтение)</td>
-            <td>PC &rarr; MAR, отправка адреса</td>
-          </tr>
-          <tr>
-            <td>T2</td>
-            <td>Fetch (2)</td>
-            <td>0100h</td>
-            <td>Опкод MOV AX,[..]</td>
-            <td>#MEMR = 0, READY=1</td>
-            <td>DB &rarr; MDR &rarr; IR, инкремент PC</td>
-          </tr>
-          <tr>
-            <td>T3</td>
-            <td>Decode</td>
-            <td>1000h (операнд)</td>
-            <td>Hi-Z</td>
-            <td>Неактивна</td>
-            <td>Дешифрация опкода, адрес &rarr; MAR</td>
-          </tr>
-          <tr>
-            <td>T4</td>
-            <td>Execute</td>
-            <td>1000h</td>
-            <td>Hi-Z &rarr; Слово данных</td>
-            <td>#MEMR = 0 (чтение ОЗУ)</td>
-            <td>Память считывает ячейку 1000h</td>
-          </tr>
-          <tr>
-            <td>T5</td>
-            <td>Writeback</td>
-            <td>Снят</td>
-            <td>Значение ячейки</td>
-            <td>#MEMR = 1 (деактивация)</td>
-            <td>MDR &rarr; Регистр AX. Команда завершена.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+ <!-- СЛАЙД 10: ПОШАГОВАЯ ТРАССИРОВКА КОМАНДЫ -->
+ <div class="slide" id="slide-10">
+ <div class="slide-title">9. Потактовая трассировка: MOV AX, [1000h]</div>
+ <div class="slide-content">
+ <p style="font-size: 14.5px;">Пример выполнения команды загрузки слова из памяти в регистр аккумулятора AX:</p>
+ <table>
+ <thead>
+ <tr>
+ <th>Такт</th>
+ <th>Фаза</th>
+ <th>Шина адреса (AB)</th>
+ <th>Шина данных (DB)</th>
+ <th>Шина управления (CB)</th>
+ <th>Действие узлов CPU</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>T1</td>
+ <td>Fetch (1)</td>
+ <td>0100h (из PC)</td>
+ <td>Hi-Z (ожидание)</td>
+ <td>#MEMR = 0 (чтение)</td>
+ <td>PC &rarr; MAR, отправка адреса</td>
+ </tr>
+ <tr>
+ <td>T2</td>
+ <td>Fetch (2)</td>
+ <td>0100h</td>
+ <td>Опкод MOV AX,[..]</td>
+ <td>#MEMR = 0, READY=1</td>
+ <td>DB &rarr; MDR &rarr; IR, инкремент PC</td>
+ </tr>
+ <tr>
+ <td>T3</td>
+ <td>Decode</td>
+ <td>1000h (операнд)</td>
+ <td>Hi-Z</td>
+ <td>Неактивна</td>
+ <td>Дешифрация опкода, адрес &rarr; MAR</td>
+ </tr>
+ <tr>
+ <td>T4</td>
+ <td>Execute</td>
+ <td>1000h</td>
+ <td>Hi-Z &rarr; Слово данных</td>
+ <td>#MEMR = 0 (чтение ОЗУ)</td>
+ <td>Память считывает ячейку 1000h</td>
+ </tr>
+ <tr>
+ <td>T5</td>
+ <td>Writeback</td>
+ <td>Снят</td>
+ <td>Значение ячейки</td>
+ <td>#MEMR = 1 (деактивация)</td>
+ <td>MDR &rarr; Регистр AX. Команда завершена.</td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 11: УЗКОЕ МЕСТО ФОН НЕЙМАНА -->
-  <div class="slide" id="slide-11">
-    <div class="slide-title">10. «Узкое место фон Неймана» (Von Neumann Bottleneck)</div>
-    <div class="slide-content">
-      <div class="highlight-warn">
-        <strong>Физическая суть проблемы:</strong> Вычислительное ядро процессора способно выполнять миллиарды операций в секунду (частота 4–5 ГГц), но системная шина и память DRAM разделены расстоянием и работают с латентностью 40–70 наносекунд.
-      </div>
-      <div class="grid-2">
-        <div class="box">
-          <h4>Проблема «Memory Wall»</h4>
-          <p>• При прямом обращении к ОЗУ процессор вынужден простаивать до <strong>200–300 тактов</strong> (такты ожидания, wait states / memory stalls).</p>
-          <p>• Общая шина для команд и данных физически не способна одновременно передавать инструкцию и операнд.</p>
-        </div>
-        <div class="box">
-          <h4>Аппаратные пути преодоления</h4>
-          <p>• <strong>Многоуровневый кэш (L1, L2, L3)</strong> на кристалле процессора (SRAM со временем доступа 1–10 тактов).</p>
-          <p>• <strong>Аппаратный конвейер</strong> команд (Instruction Pipeline).</p>
-          <p>• <strong>Предсказание ветвлений</strong> (Branch Prediction) и спекулятивная предвыборка (Prefetch).</p>
-        </div>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 11: УЗКОЕ МЕСТО ФОН НЕЙМАНА -->
+ <div class="slide" id="slide-11">
+ <div class="slide-title">10. «Узкое место фон Неймана» (Von Neumann Bottleneck)</div>
+ <div class="slide-content">
+ <div class="highlight-warn">
+ <strong>Физическая суть проблемы:</strong> Вычислительное ядро процессора способно выполнять миллиарды операций в секунду (частота 4–5 ГГц), но системная шина и память DRAM разделены расстоянием и работают с латентностью 40–70 наносекунд.
+ </div>
+ <div class="grid-2">
+ <div class="box">
+ <h4>Проблема «Memory Wall»</h4>
+ <p>• При прямом обращении к ОЗУ процессор вынужден простаивать до <strong>200–300 тактов</strong> (такты ожидания, wait states / memory stalls).</p>
+ <p>• Общая шина для команд и данных физически не способна одновременно передавать инструкцию и операнд.</p>
+ </div>
+ <div class="box">
+ <h4>Аппаратные пути преодоления</h4>
+ <p>• <strong>Многоуровневый кэш (L1, L2, L3)</strong> на кристалле процессора (SRAM со временем доступа 1–10 тактов).</p>
+ <p>• <strong>Аппаратный конвейер</strong> команд (Instruction Pipeline).</p>
+ <p>• <strong>Предсказание ветвлений</strong> (Branch Prediction) и спекулятивная предвыборка (Prefetch).</p>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 12: ГАРВАРДСКАЯ АРХИТЕКТУРА -->
-  <div class="slide" id="slide-12">
-    <div class="slide-title">11. Гарвардская архитектура: раздельные шины</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="box">
-          <h4>Принстонская модель (фон Нейман)</h4>
-          <p>• Единое адресное пространство для команд и данных.</p>
-          <p>• Одна общая шина адреса и шина данных.</p>
-          <p>• Простота разводки чипа, но последовательный доступ.</p>
-          <p>• <em>Применение:</em> Системная шина ПК и серверов.</p>
-        </div>
-        <div class="box">
-          <h4>Гарвардская модель</h4>
-          <p>• Физически раздельная память программ (Flash) и данных (SRAM).</p>
-          <p>• Две независимые шинные пары: шина инструкций и шина данных.</p>
-          <p>• Полная одновременность: выборка команды параллельна чтению операнда.</p>
-          <p>• <em>Применение:</em> Микроконтроллеры (AVR, PIC, STM32), DSP.</p>
-        </div>
-      </div>
-      <div class="highlight" style="margin-top: 14px;">
-        <strong>Модифицированная гарвардская архитектура в современных ПК:</strong> На кристалле ЦПУ кэш L1 разделен на гарвардские блоки L1I (инструкции) и L1D (данные) с раздельными шинами, а наружу к ОЗУ DDR5 выходит единая шина фон Неймана.
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 12: ГАРВАРДСКАЯ АРХИТЕКТУРА -->
+ <div class="slide" id="slide-12">
+ <div class="slide-title">11. Гарвардская архитектура: раздельные шины</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="box">
+ <h4>Принстонская модель (фон Нейман)</h4>
+ <p>• Единое адресное пространство для команд и данных.</p>
+ <p>• Одна общая шина адреса и шина данных.</p>
+ <p>• Простота разводки чипа, но последовательный доступ.</p>
+ <p>• <em>Применение:</em> Системная шина ПК и серверов.</p>
+ </div>
+ <div class="box">
+ <h4>Гарвардская модель</h4>
+ <p>• Физически раздельная память программ (Flash) и данных (SRAM).</p>
+ <p>• Две независимые шинные пары: шина инструкций и шина данных.</p>
+ <p>• Полная одновременность: выборка команды параллельна чтению операнда.</p>
+ <p>• <em>Применение:</em> Микроконтроллеры (AVR, PIC, STM32), DSP.</p>
+ </div>
+ </div>
+ <div class="highlight" style="margin-top: 14px;">
+ <strong>Модифицированная гарвардская архитектура в современных ПК:</strong> На кристалле ЦПУ кэш L1 разделен на гарвардские блоки L1I (инструкции) и L1D (данные) с раздельными шинами, а наружу к ОЗУ DDR5 выходит единая шина фон Неймана.
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 13: СРАВНИТЕЛЬНЫЙ АНАЛИЗ АРХИТЕКТУР -->
-  <div class="slide" id="slide-13">
-    <div class="slide-title">12. Сравнение архитектур: критерии выбора</div>
-    <div class="slide-content">
-      <table>
-        <thead>
-          <tr>
-            <th>Критерий сравнения</th>
-            <th>Фон-неймановская (Принстонская)</th>
-            <th>Гарвардская архитектура</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Параллелизм шины</strong></td>
-            <td>Низкий (поочередный доступ к командам и данным)</td>
-            <td>Высокий (одновременная выборка команды и операнда)</td>
-          </tr>
-          <tr>
-            <td><strong>Гибкость памяти</strong></td>
-            <td>Максимальная: свободный баланс между кодом и данными</td>
-            <td>Жесткая: фиксированный объем Flash под код и SRAM под данные</td>
-          </tr>
-          <tr>
-            <td><strong>Аппаратная сложность</strong></td>
-            <td>Минимальное число выводов микросхемы</td>
-            <td>Удвоенное число проводников и выводов кристалла</td>
-          </tr>
-          <tr>
-            <td><strong>Детерминизм времени</strong></td>
-            <td>Сложно предсказуем из-за очередей шины и кэш-промахов</td>
-            <td>Высокий детерминизм (жесткое реальное время)</td>
-          </tr>
-          <tr>
-            <td><strong>Целевой класс ЭВМ</strong></td>
-            <td>ПК, серверы, рабочие станции, мобильные SoC</td>
-            <td>Встраиваемые микроконтроллеры, DSP, контроллеры приводов</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+ <!-- СЛАЙД 13: СРАВНИТЕЛЬНЫЙ АНАЛИЗ АРХИТЕКТУР -->
+ <div class="slide" id="slide-13">
+ <div class="slide-title">12. Сравнение архитектур: критерии выбора</div>
+ <div class="slide-content">
+ <table>
+ <thead>
+ <tr>
+ <th>Критерий сравнения</th>
+ <th>Фон-неймановская (Принстонская)</th>
+ <th>Гарвардская архитектура</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>Параллелизм шины</strong></td>
+ <td>Низкий (поочередный доступ к командам и данным)</td>
+ <td>Высокий (одновременная выборка команды и операнда)</td>
+ </tr>
+ <tr>
+ <td><strong>Гибкость памяти</strong></td>
+ <td>Максимальная: свободный баланс между кодом и данными</td>
+ <td>Жесткая: фиксированный объем Flash под код и SRAM под данные</td>
+ </tr>
+ <tr>
+ <td><strong>Аппаратная сложность</strong></td>
+ <td>Минимальное число выводов микросхемы</td>
+ <td>Удвоенное число проводников и выводов кристалла</td>
+ </tr>
+ <tr>
+ <td><strong>Детерминизм времени</strong></td>
+ <td>Сложно предсказуем из-за очередей шины и кэш-промахов</td>
+ <td>Высокий детерминизм (жесткое реальное время)</td>
+ </tr>
+ <tr>
+ <td><strong>Целевой класс ЭВМ</strong></td>
+ <td>ПК, серверы, рабочие станции, мобильные SoC</td>
+ <td>Встраиваемые микроконтроллеры, DSP, контроллеры приводов</td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 14: ТИПОВЫЕ ИНЖЕНЕРНЫЕ ОШИБКИ -->
-  <div class="slide" id="slide-14">
-    <div class="slide-title">13. Типовые инженерные ошибки в понимании ЭВМ</div>
-    <div class="slide-content">
-      <ul>
-        <li><strong>«Адрес и данные могут идти по одной шине без разделения во времени»:</strong> Ошибка. Либо используются физически раздельные шины AB и DB, либо мультиплексированная шина (как в i8086), где в первом такте передается адрес, а во втором — данные по стробу ALE (Address Latch Enable).</li>
-        <li><strong>«Команды физически помечены в памяти как исполняемый код»:</strong> Ошибка. В силу принципа однородности памяти байты не имеют аппаратных меток. Что именно исполняет процессор, определяется исключительно указателем команд PC/IP.</li>
-        <li><strong>«Команда условного перехода сама вычисляет условие»:</strong> Ошибка. Инструкция JNZ/JZ лишь считывает состояние флага ZF в регистре флагов, установленного предшествующей инструкцией (SUB, CMP, TEST).</li>
-        <li><strong>«Чем выше гигагерцы процессора, тем меньше влияние шины памяти»:</strong> Ошибка. Чем быстрее процессор, тем острее становится проблема Von Neumann Bottleneck, так как процессор теряет больше тактов в ожидании ответа DRAM.</li>
-      </ul>
-    </div>
-  </div>
+ <!-- СЛАЙД 14: ТИПОВЫЕ ИНЖЕНЕРНЫЕ ОШИБКИ -->
+ <div class="slide" id="slide-14">
+ <div class="slide-title">13. Типовые инженерные ошибки в понимании ЭВМ</div>
+ <div class="slide-content">
+ <ul>
+ <li><strong>«Адрес и данные могут идти по одной шине без разделения во времени»:</strong> Ошибка. Либо используются физически раздельные шины AB и DB, либо мультиплексированная шина (как в i8086), где в первом такте передается адрес, а во втором — данные по стробу ALE (Address Latch Enable).</li>
+ <li><strong>«Команды физически помечены в памяти как исполняемый код»:</strong> Ошибка. В силу принципа однородности памяти байты не имеют аппаратных меток. Что именно исполняет процессор, определяется исключительно указателем команд PC/IP.</li>
+ <li><strong>«Команда условного перехода сама вычисляет условие»:</strong> Ошибка. Инструкция JNZ/JZ лишь считывает состояние флага ZF в регистре флагов, установленного предшествующей инструкцией (SUB, CMP, TEST).</li>
+ <li><strong>«Чем выше гигагерцы процессора, тем меньше влияние шины памяти»:</strong> Ошибка. Чем быстрее процессор, тем острее становится проблема Von Neumann Bottleneck, так как процессор теряет больше тактов в ожидании ответа DRAM.</li>
+ </ul>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 15: РЕАЛЬНЫЙ ИНТЕРНЕТ-МЕМ С ПОЛНОЙ АТРИБУЦИЕЙ И BASE64 -->
-  <div class="slide" id="slide-15">
-    <div class="slide-title">14. Резюме: архитектура ЭВМ и суровая реальность</div>
-    <div class="meme-wrap">
-      <img class="meme-img" src="data:image/jpeg;base64,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" alt="XKCD: Compiling">
-      <div class="attribution">
-        <strong>Мем:</strong> «Compiling» (xkcd #303) — культовый веб-комикс о реальном использовании вычислительных ресурсов разработчиками во время компиляции.<br>
-        <strong>Автор:</strong> Рэндалл Манро (Randall Munroe), проект xkcd (выпуск #303).<br>
-        <strong>Лицензия:</strong> Creative Commons Attribution-NonCommercial 2.5 Generic (CC BY-NC 2.5).<br>
-        <strong>Атрибуция:</strong> Изображение встроено автономно в формате Data URI (data:image/jpeg;base64) без сторонних сетевых запросов.
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 15: РЕАЛЬНЫЙ ИНТЕРНЕТ-МЕМ С ПОЛНОЙ АТРИБУЦИЕЙ И BASE64 -->
+ <div class="slide" id="slide-15">
+ <div class="slide-title">14. Резюме: архитектура ЭВМ и суровая реальность</div>
+ <div class="meme-wrap">
+ <img class="meme-img" src="data:image/jpeg;base64,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" alt="XKCD: Compiling">
+ <div class="attribution">
+ <strong>Мем:</strong> «Compiling» (xkcd #303) — культовый веб-комикс о реальном использовании вычислительных ресурсов разработчиками во время компиляции.<br>
+ <strong>Автор:</strong> Рэндалл Манро (Randall Munroe), проект xkcd (выпуск #303).<br>
+ <strong>Лицензия:</strong> Creative Commons Attribution-NonCommercial 2.5 Generic (CC BY-NC 2.5).<br>
+ <strong>Атрибуция:</strong> Изображение встроено автономно в формате Data URI (data:image/jpeg;base64) без сторонних сетевых запросов.
+ </div>
+ </div>
+ </div>
 
-  <!-- ПАНЕЛЬ УПРАВЛЕНИЯ СЛАЙДАМИ -->
-  <div class="controls">
-    <div class="controls-btns">
-      <button type="button" class="nav-btn" id="btn_prev" onclick="prevSlide()">← Назад</button>
-      <button type="button" class="nav-btn" id="btn_next" onclick="nextSlide()">Вперед →</button>
-    </div>
-    <div class="slide-num" id="slide_indicator">Слайд 1 из 15</div>
-  </div>
+ <!-- ПАНЕЛЬ УПРАВЛЕНИЯ СЛАЙДАМИ -->
+ <div class="controls">
+ <div class="controls-btns">
+ <button type="button" class="nav-btn" id="btn_prev" onclick="prevSlide()">← Назад</button>
+ <button type="button" class="nav-btn" id="btn_next" onclick="nextSlide()">Вперед →</button>
+ </div>
+ <div class="slide-num" id="slide_indicator">Слайд 1 из 15</div>
+ </div>
 
 </div>
 
 <script>
-  let currentSlide = 1;
-  const totalSlides = 15;
+ let currentSlide = 1;
+ const totalSlides = 15;
 
-  function showSlide(n) {
-    if (n < 1) n = 1;
-    if (n > totalSlides) n = totalSlides;
-    currentSlide = n;
+ function showSlide(n) {
+ if (n < 1) n = 1;
+ if (n > totalSlides) n = totalSlides;
+ currentSlide = n;
 
-    for (let i = 1; i <= totalSlides; i++) {
-      const el = document.getElementById('slide-' + i);
-      if (el) {
-        el.classList.remove('active');
-        if (i === currentSlide) {
-          el.classList.add('active');
-        }
-      }
-    }
+ for (let i = 1; i <= totalSlides; i++) {
+ const el = document.getElementById('slide-' + i);
+ if (el) {
+ el.classList.remove('active');
+ if (i === currentSlide) {
+ el.classList.add('active');
+ }
+ }
+ }
 
-    const ind = document.getElementById('slide_indicator');
-    if (ind) {
-      ind.textContent = 'Слайд ' + currentSlide + ' из ' + totalSlides;
-    }
-  }
+ const ind = document.getElementById('slide_indicator');
+ if (ind) {
+ ind.textContent = 'Слайд ' + currentSlide + ' из ' + totalSlides;
+ }
+ }
 
-  function nextSlide() {
-    if (currentSlide < totalSlides) {
-      showSlide(currentSlide + 1);
-    }
-  }
+ function nextSlide() {
+ if (currentSlide < totalSlides) {
+ showSlide(currentSlide + 1);
+ }
+ }
 
-  function prevSlide() {
-    if (currentSlide > 1) {
-      showSlide(currentSlide - 1);
-    }
-  }
+ function prevSlide() {
+ if (currentSlide > 1) {
+ showSlide(currentSlide - 1);
+ }
+ }
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowRight' || e.key === 'Space' || e.key === 'PageDown') {
-      nextSlide();
-    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
-      prevSlide();
-    } else if (e.key === 'Home') {
-      showSlide(1);
-    } else if (e.key === 'End') {
-      showSlide(totalSlides);
-    }
-  });
+ document.addEventListener('keydown', (e) => {
+ if (e.key === 'ArrowRight' | e.key === 'Space' | e.key === 'PageDown') {
+ nextSlide();
+ } else if (e.key === 'ArrowLeft' | e.key === 'PageUp') {
+ prevSlide();
+ } else if (e.key === 'Home') {
+ showSlide(1);
+ } else if (e.key === 'End') {
+ showSlide(totalSlides);
+ }
+ });
 </script>
 </body>
 </html>

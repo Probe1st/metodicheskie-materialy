@@ -1,497 +1,474 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Рабочий лист студента: Логические основы ЭВМ, элементы и узлы</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #1e40af;
-      --accent-soft: #eff6ff;
-      --ok: #059669;
-      --warn: #d97706;
-      --danger: #dc2626;
-      --radius: 14px;
-      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.6;
-      font-size: 15px;
-      padding: 20px 14px;
-    }
-    .page {
-      max-width: 960px;
-      margin: 0 auto;
-    }
-    .header-card, .student-card, .task-card, .actions-card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow);
-    }
-    h1 {
-      font-size: clamp(20px, 3.2vw, 26px);
-      color: var(--accent);
-      margin-bottom: 8px;
-    }
-    .desc {
-      color: var(--muted);
-      font-size: 14.5px;
-    }
-    .student-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-    }
-    label {
-      display: block;
-      font-weight: 600;
-      font-size: 13.5px;
-      margin-bottom: 6px;
-      color: #1e293b;
-    }
-    input[type="text"], input[type="date"], select, textarea {
-      width: 100%;
-      border: 1.5px solid var(--line);
-      border-radius: 8px;
-      padding: 9px 12px;
-      font: inherit;
-      font-size: 14px;
-      background: #fff;
-      color: var(--text);
-      outline: none;
-      transition: border-color .15s, box-shadow .15s;
-    }
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
-    }
-    textarea {
-      min-height: 90px;
-      resize: vertical;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 14px 0;
-      font-size: 14px;
-    }
-    th, td {
-      border: 1px solid var(--line);
-      padding: 8px 10px;
-      text-align: center;
-    }
-    th {
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-weight: 700;
-    }
-    td.left { text-align: left; }
-    .badge {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 12.5px;
-      font-weight: 600;
-      background: #e2e8f0;
-      color: #334155;
-    }
-    .variant-section {
-      display: none;
-      margin-top: 10px;
-    }
-    .variant-section.active {
-      display: block;
-    }
-    .variant-badge {
-      background: #e0e7ff;
-      color: #3730a3;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 700;
-      display: inline-block;
-      margin-bottom: 12px;
-    }
-    .btn-group {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    button {
-      padding: 10px 18px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      border: none;
-      transition: background-color .15s;
-    }
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-    }
-    .btn-primary:hover {
-      background: #1d4ed8;
-    }
-    .btn-secondary {
-      background: #e2e8f0;
-      color: #1e293b;
-    }
-    .btn-secondary:hover {
-      background: #cbd5e1;
-    }
-    .btn-danger {
-      background: #fee2e2;
-      color: #b91c1c;
-    }
-    .btn-danger:hover {
-      background: #fca5a5;
-    }
-    .status-msg {
-      margin-top: 10px;
-      font-size: 13.5px;
-      font-weight: 500;
-    }
-    .note {
-      background: var(--accent-soft);
-      border-left: 4px solid var(--accent);
-      padding: 10px 14px;
-      border-radius: 0 6px 6px 0;
-      margin: 10px 0 14px;
-      font-size: 13.5px;
-    }
-    @media print {
-      body { background: #fff; padding: 0; font-size: 10pt; }
-      .page { max-width: 100%; }
-      .header-card, .student-card, .task-card {
-        box-shadow: none;
-        border: 1px solid #94a3b8;
-        break-inside: avoid;
-        margin-bottom: 12pt;
-      }
-      .actions-card, .btn-group { display: none !important; }
-      input::placeholder, textarea::placeholder { color: transparent !important; }
-      input[type="text"], textarea {
-        border: 1px solid #64748b !important;
-        background: transparent !important;
-        min-height: 45px;
-      }
-      .variant-section { display: none !important; }
-      .variant-section.active { display: block !important; }
-    }
-    @media (max-width: 480px) {
-      body { padding: 10px 6px; }
-      .header-card, .student-card, .task-card, .actions-card { padding: 16px 12px; }
-      table { font-size: 12.5px; }
-      th, td { padding: 5px 4px; }
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <title>Рабочий лист студента: Логические основы ЭВМ, элементы и узлы</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #1e40af;
+ --accent-soft: #eff6ff;
+ --ok: #059669;
+ --warn: #d97706;
+ --danger: #dc2626;
+ --radius: 14px;
+ --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+ body {
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+ line-height: 1.6;
+ font-size: 15px;
+ padding: 20px 14px;
+ }.page {
+ max-width: 960px;
+ margin: 0 auto;
+ }.header-card,.student-card,.task-card,.actions-card {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 24px;
+ margin-bottom: 20px;
+ box-shadow: var(--shadow);
+ }
+ h1 {
+ font-size: clamp(20px, 3.2vw, 26px);
+ color: var(--accent);
+ margin-bottom: 8px;
+ }.desc {
+ color: var(--muted);
+ font-size: 14.5px;
+ }.student-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+ gap: 16px;
+ }
+ label {
+ display: block;
+ font-weight: 600;
+ font-size: 13.5px;
+ margin-bottom: 6px;
+ color: #1e293b;
+ }
+ input[type="text"], input[type="date"], select, textarea {
+ width: 100%;
+ border: 1.5px solid var(--line);
+ border-radius: 8px;
+ padding: 9px 12px;
+ font: inherit;
+ font-size: 14px;
+ background: #fff;
+ color: var(--text);
+ outline: none;
+ transition: border-color.15s, box-shadow.15s;
+ }
+ input:focus, select:focus, textarea:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+ }
+ textarea {
+ min-height: 90px;
+ resize: vertical;
+ }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ margin: 14px 0;
+ font-size: 14px;
+ }
+ th, td {
+ border: 1px solid var(--line);
+ padding: 8px 10px;
+ text-align: center;
+ }
+ th {
+ background: var(--accent-soft);
+ color: var(--accent);
+ font-weight: 700;
+ }
+ td.left { text-align: left; }.badge {
+ display: inline-block;
+ padding: 3px 8px;
+ border-radius: 6px;
+ font-size: 12.5px;
+ font-weight: 600;
+ background: #e2e8f0;
+ color: #334155;
+ }.variant-section {
+ display: none;
+ margin-top: 10px;
+ }.variant-section.active {
+ display: block;
+ }.variant-badge {
+ background: #e0e7ff;
+ color: #3730a3;
+ padding: 4px 10px;
+ border-radius: 6px;
+ font-size: 13px;
+ font-weight: 700;
+ display: inline-block;
+ margin-bottom: 12px;
+ }.btn-group {
+ display: flex;
+ gap: 10px;
+ flex-wrap: wrap;
+ }
+ button {
+ padding: 10px 18px;
+ border-radius: 8px;
+ font-weight: 600;
+ font-size: 14px;
+ cursor: pointer;
+ border: none;
+ transition: background-color.15s;
+ }.btn-primary {
+ background: var(--accent);
+ color: #fff;
+ }.btn-primary:hover {
+ background: #1d4ed8;
+ }.btn-secondary {
+ background: #e2e8f0;
+ color: #1e293b;
+ }.btn-secondary:hover {
+ background: #cbd5e1;
+ }.btn-danger {
+ background: #fee2e2;
+ color: #b91c1c;
+ }.btn-danger:hover {
+ background: #fca5a5;
+ }.status-msg {
+ margin-top: 10px;
+ font-size: 13.5px;
+ font-weight: 500;
+ }.note {
+ background: var(--accent-soft);
+ border-left: 4px solid var(--accent);
+ padding: 10px 14px;
+ border-radius: 0 6px 6px 0;
+ margin: 10px 0 14px;
+ font-size: 13.5px;
+ }
+ @media print {
+ body { background: #fff; padding: 0; font-size: 10pt; }.page { max-width: 100%; }.header-card,.student-card,.task-card {
+ box-shadow: none;
+ border: 1px solid #94a3b8;
+ break-inside: avoid;
+ margin-bottom: 12pt;
+ }.actions-card,.btn-group { display: none !important; }
+ input::placeholder, textarea::placeholder { color: transparent !important; }
+ input[type="text"], textarea {
+ border: 1px solid #64748b !important;
+ background: transparent !important;
+ min-height: 45px;
+ }.variant-section { display: none !important; }.variant-section.active { display: block !important; }
+ }
+ @media (max-width: 480px) {
+ body { padding: 10px 6px; }.header-card,.student-card,.task-card,.actions-card { padding: 16px 12px; }
+ table { font-size: 12.5px; }
+ th, td { padding: 5px 4px; }
+ }
+ </style>
 </head>
 <body>
 <div class="page">
 
-  <!-- ШАПКА -->
-  <div class="header-card">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
-      <span class="badge">ММКЦТ «Академия TOP»</span>
-      <span class="badge">ОП.02 Архитектура аппаратных средств • Практикум</span>
-    </div>
-    <h1>Интерактивный рабочий лист студента</h1>
-    <p class="desc">Тема: Раздел 3. Логические основы ЭВМ, элементы и узлы. Синтез таблиц истинности, булевых уравнений и схемотехнический анализ цифровых автоматов.</p>
-  </div>
+ <!-- ШАПКА -->
+ <div class="header-card">
+ <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+ <span class="badge">ММКЦТ «Академия TOP»</span>
+ <span class="badge">ОП.02 Архитектура аппаратных средств • Практикум</span>
+ </div>
+ <h1>Интерактивный рабочий лист студента</h1>
+ <p class="desc">Тема: Раздел 3. Логические основы ЭВМ, элементы и узлы. Синтез таблиц истинности, булевых уравнений и схемотехнический анализ цифровых автоматов.</p>
+ </div>
 
-  <!-- ДАННЫЕ СТУДЕНТА -->
-  <div class="student-card">
-    <div class="student-grid">
-      <div>
-        <label for="student_fio">Фамилия и имя студента</label>
-        <input type="text" id="student_fio" autocomplete="name">
-      </div>
-      <div>
-        <label for="student_group">Учебная группа</label>
-        <input type="text" id="student_group" autocomplete="off">
-      </div>
-      <div>
-        <label for="variant_select">Выбор инженерного варианта</label>
-        <select id="variant_select" onchange="switchVariant()">
-          <option value="1">Вариант 1: Схема мажоритарного голосования 2 из 3</option>
-          <option value="2">Вариант 2: Одноразрядный полный двоичный сумматор</option>
-          <option value="3">Вариант 3: Мультиплексор 4-в-1 с адресной коммутацией</option>
-          <option value="4">Вариант 4: Синхронный D-триггер с динамическим тактом</option>
-        </select>
-      </div>
-      <div>
-        <label for="task_date">Дата выполнения</label>
-        <input type="date" id="task_date">
-      </div>
-    </div>
-  </div>
+ <!-- ДАННЫЕ СТУДЕНТА -->
+ <div class="student-card">
+ <div class="student-grid">
+ <div>
+ <label for="student_fio">Фамилия и имя студента</label>
+ <input type="text" id="student_fio" autocomplete="name">
+ </div>
+ <div>
+ <label for="student_group">Учебная группа</label>
+ <input type="text" id="student_group" autocomplete="off">
+ </div>
+ <div>
+ <label for="variant_select">Выбор инженерного варианта</label>
+ <select id="variant_select" onchange="switchVariant()">
+ <option value="1">Вариант 1: Схема мажоритарного голосования 2 из 3</option>
+ <option value="2">Вариант 2: Одноразрядный полный двоичный сумматор</option>
+ <option value="3">Вариант 3: Мультиплексор 4-в-1 с адресной коммутацией</option>
+ <option value="4">Вариант 4: Синхронный D-триггер с динамическим тактом</option>
+ </select>
+ </div>
+ <div>
+ <label for="task_date">Дата выполнения</label>
+ <input type="date" id="task_date">
+ </div>
+ </div>
+ </div>
 
-  <!-- ВАРИАНТ 1 -->
-  <div class="task-card variant-section active" id="sec_variant_1">
-    <div class="variant-badge">Вариант 1: Схема мажоритарного голосования «2 из 3» (Majority Gate)</div>
-    <p><strong>Контекст:</strong> В бортовых вычислителях космических аппаратов и авионики для защиты от сбоев применяется троированное резервирование (TMR). Мажоритарный элемент M(A, B, C) выдает 1, если на входах присутствует большинство единиц (хотя бы две единицы).</p>
+ <!-- ВАРИАНТ 1 -->
+ <div class="task-card variant-section active" id="sec_variant_1">
+ <div class="variant-badge">Вариант 1: Схема мажоритарного голосования «2 из 3» (Majority Gate)</div>
+ <p><strong>Контекст:</strong> В бортовых вычислителях космических аппаратов и авионики для защиты от сбоев применяется троированное резервирование (TMR). Мажоритарный элемент M(A, B, C) выдает 1, если на входах присутствует большинство единиц (хотя бы две единицы).</p>
 
-    <div class="note">
-      <strong>Критерий 1 (2 б.):</strong> Постройте таблицу истинности для всех 8 комбинаций сигналов A, B, C.
-    </div>
+ <div class="note">
+ <strong>Критерий 1 (2 б.):</strong> Постройте таблицу истинности для всех 8 комбинаций сигналов A, B, C.
+ </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>№ набора</th>
-          <th>Вход A</th>
-          <th>Вход B</th>
-          <th>Вход C</th>
-          <th>Выход M(A,B,C)</th>
-          <th>Минтерм (для единичных наборов)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td>0</td><td>0</td><td>0</td><td>0</td><td><input type="text" id="v1_m0" style="text-align:center; padding:4px;" maxlength="1"></td><td>—</td></tr>
-        <tr><td>1</td><td>0</td><td>0</td><td>1</td><td><input type="text" id="v1_m1" style="text-align:center; padding:4px;" maxlength="1"></td><td>—</td></tr>
-        <tr><td>2</td><td>0</td><td>1</td><td>0</td><td><input type="text" id="v1_m2" style="text-align:center; padding:4px;" maxlength="1"></td><td>—</td></tr>
-        <tr><td>3</td><td>0</td><td>1</td><td>1</td><td><input type="text" id="v1_m3" style="text-align:center; padding:4px;" maxlength="1"></td><td><input type="text" id="v1_term3" style="text-align:center; padding:4px;"></td></tr>
-        <tr><td>4</td><td>1</td><td>0</td><td>0</td><td><input type="text" id="v1_m4" style="text-align:center; padding:4px;" maxlength="1"></td><td>—</td></tr>
-        <tr><td>5</td><td>1</td><td>0</td><td>1</td><td><input type="text" id="v1_m5" style="text-align:center; padding:4px;" maxlength="1"></td><td><input type="text" id="v1_term5" style="text-align:center; padding:4px;"></td></tr>
-        <tr><td>6</td><td>1</td><td>1</td><td>0</td><td><input type="text" id="v1_m6" style="text-align:center; padding:4px;" maxlength="1"></td><td><input type="text" id="v1_term6" style="text-align:center; padding:4px;"></td></tr>
-        <tr><td>7</td><td>1</td><td>1</td><td>1</td><td><input type="text" id="v1_m7" style="text-align:center; padding:4px;" maxlength="1"></td><td><input type="text" id="v1_term7" style="text-align:center; padding:4px;"></td></tr>
-      </tbody>
-    </table>
+ <table>
+ <thead>
+ <tr>
+ <th>№ набора</th>
+ <th>Вход A</th>
+ <th>Вход B</th>
+ <th>Вход C</th>
+ <th>Выход M(A,B,C)</th>
+ <th>Минтерм (для единичных наборов)</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr><td>0</td><td>0</td><td>0</td><td>0</td><td><input type="text" id="v1_m0" style="text-align:center; padding:4px;" maxlength="1"></td><td>—</td></tr>
+ <tr><td>1</td><td>0</td><td>0</td><td>1</td><td><input type="text" id="v1_m1" style="text-align:center; padding:4px;" maxlength="1"></td><td>—</td></tr>
+ <tr><td>2</td><td>0</td><td>1</td><td>0</td><td><input type="text" id="v1_m2" style="text-align:center; padding:4px;" maxlength="1"></td><td>—</td></tr>
+ <tr><td>3</td><td>0</td><td>1</td><td>1</td><td><input type="text" id="v1_m3" style="text-align:center; padding:4px;" maxlength="1"></td><td><input type="text" id="v1_term3" style="text-align:center; padding:4px;"></td></tr>
+ <tr><td>4</td><td>1</td><td>0</td><td>0</td><td><input type="text" id="v1_m4" style="text-align:center; padding:4px;" maxlength="1"></td><td>—</td></tr>
+ <tr><td>5</td><td>1</td><td>0</td><td>1</td><td><input type="text" id="v1_m5" style="text-align:center; padding:4px;" maxlength="1"></td><td><input type="text" id="v1_term5" style="text-align:center; padding:4px;"></td></tr>
+ <tr><td>6</td><td>1</td><td>1</td><td>0</td><td><input type="text" id="v1_m6" style="text-align:center; padding:4px;" maxlength="1"></td><td><input type="text" id="v1_term6" style="text-align:center; padding:4px;"></td></tr>
+ <tr><td>7</td><td>1</td><td>1</td><td>1</td><td><input type="text" id="v1_m7" style="text-align:center; padding:4px;" maxlength="1"></td><td><input type="text" id="v1_term7" style="text-align:center; padding:4px;"></td></tr>
+ </tbody>
+ </table>
 
-    <div style="margin-top:16px;">
-      <label for="v1_expr"><strong>Критерий 2 (1 б.):</strong> Аналитическое уравнение (СДНФ, минимизация и преобразование в базис И-НЕ):</label>
-      <textarea id="v1_expr" placeholder="Запишите СДНФ, примените склеивание термов и переведите в базис Шеффера с помощью законов де Моргана..."></textarea>
-    </div>
+ <div style="margin-top:16px;">
+ <label for="v1_expr"><strong>Критерий 2 (1 б.):</strong> Аналитическое уравнение (СДНФ, минимизация и преобразование в базис И-НЕ):</label>
+ <textarea id="v1_expr" placeholder="Запишите СДНФ, примените склеивание термов и переведите в базис Шеффера с помощью законов де Моргана..."></textarea>
+ </div>
 
-    <div style="margin-top:16px;">
-      <label for="v1_analysis"><strong>Критерий 3 (1 б.):</strong> Инженерный анализ: функциональная полнота базиса И-НЕ и надежность TMR:</label>
-      <textarea id="v1_analysis" placeholder="Докажите функциональную полноту базиса И-НЕ и объясните, как схема мажорирования парирует радиационные сбои SEU в процессорах..."></textarea>
-    </div>
-  </div>
+ <div style="margin-top:16px;">
+ <label for="v1_analysis"><strong>Критерий 3 (1 б.):</strong> Инженерный анализ: функциональная полнота базиса И-НЕ и надежность TMR:</label>
+ <textarea id="v1_analysis" placeholder="Докажите функциональную полноту базиса И-НЕ и объясните, как схема мажорирования парирует радиационные сбои SEU в процессорах..."></textarea>
+ </div>
+ </div>
 
-  <!-- ВАРИАНТ 2 -->
-  <div class="task-card variant-section" id="sec_variant_2">
-    <div class="variant-badge">Вариант 2: Одноразрядный полный двоичный сумматор с переносом (Full Adder)</div>
-    <p><strong>Контекст:</strong> Полный сумматор является базовой ячейкой АЛУ любого процессора, выполняя сложение разрядов A, B и входного бита переноса C<sub>in</sub>.</p>
+ <!-- ВАРИАНТ 2 -->
+ <div class="task-card variant-section" id="sec_variant_2">
+ <div class="variant-badge">Вариант 2: Одноразрядный полный двоичный сумматор с переносом (Full Adder)</div>
+ <p><strong>Контекст:</strong> Полный сумматор является базовой ячейкой АЛУ любого процессора, выполняя сложение разрядов A, B и входного бита переноса C<sub>in</sub>.</p>
 
-    <div class="note">
-      <strong>Критерий 1 (2 б.):</strong> Заполните полную таблицу истинности для сигналов суммы S и выходного переноса C<sub>out</sub>.
-    </div>
+ <div class="note">
+ <strong>Критерий 1 (2 б.):</strong> Заполните полную таблицу истинности для сигналов суммы S и выходного переноса C<sub>out</sub>.
+ </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>№</th>
-          <th>Вход A</th>
-          <th>Вход B</th>
-          <th>Вход C<sub>in</sub></th>
-          <th>Сумма S</th>
-          <th>Перенос C<sub>out</sub></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td>0</td><td>0</td><td>0</td><td>0</td><td><input type="text" id="v2_s0" style="text-align:center; padding:4px;" maxlength="1"></td><td><input type="text" id="v2_c0" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
-        <tr><td>1</td><td>0</td><td>0</td><td>1</td><td><input type="text" id="v2_s1" style="text-align:center; padding:4px;" maxlength="1"></td><td><input type="text" id="v2_c1" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
-        <tr><td>2</td><td>0</td><td>1</td><td>0</td><td><input type="text" id="v2_s2" style="text-align:center; padding:4px;" maxlength="1"></td><td><input type="text" id="v2_c2" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
-        <tr><td>3</td><td>0</td><td>1</td><td>1</td><td><input type="text" id="v2_s3" style="text-align:center; padding:4px;" maxlength="1"></td><td><input type="text" id="v2_c3" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
-        <tr><td>4</td><td>1</td><td>0</td><td>0</td><td><input type="text" id="v2_s4" style="text-align:center; padding:4px;" maxlength="1"></td><td><input type="text" id="v2_c4" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
-        <tr><td>5</td><td>1</td><td>0</td><td>1</td><td><input type="text" id="v2_s5" style="text-align:center; padding:4px;" maxlength="1"></td><td><input type="text" id="v2_c5" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
-        <tr><td>6</td><td>1</td><td>1</td><td>0</td><td><input type="text" id="v2_s6" style="text-align:center; padding:4px;" maxlength="1"></td><td><input type="text" id="v2_c6" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
-        <tr><td>7</td><td>1</td><td>1</td><td>1</td><td><input type="text" id="v2_s7" style="text-align:center; padding:4px;" maxlength="1"></td><td><input type="text" id="v2_c7" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
-      </tbody>
-    </table>
+ <table>
+ <thead>
+ <tr>
+ <th>№</th>
+ <th>Вход A</th>
+ <th>Вход B</th>
+ <th>Вход C<sub>in</sub></th>
+ <th>Сумма S</th>
+ <th>Перенос C<sub>out</sub></th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr><td>0</td><td>0</td><td>0</td><td>0</td><td><input type="text" id="v2_s0" style="text-align:center; padding:4px;" maxlength="1"></td><td><input type="text" id="v2_c0" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
+ <tr><td>1</td><td>0</td><td>0</td><td>1</td><td><input type="text" id="v2_s1" style="text-align:center; padding:4px;" maxlength="1"></td><td><input type="text" id="v2_c1" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
+ <tr><td>2</td><td>0</td><td>1</td><td>0</td><td><input type="text" id="v2_s2" style="text-align:center; padding:4px;" maxlength="1"></td><td><input type="text" id="v2_c2" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
+ <tr><td>3</td><td>0</td><td>1</td><td>1</td><td><input type="text" id="v2_s3" style="text-align:center; padding:4px;" maxlength="1"></td><td><input type="text" id="v2_c3" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
+ <tr><td>4</td><td>1</td><td>0</td><td>0</td><td><input type="text" id="v2_s4" style="text-align:center; padding:4px;" maxlength="1"></td><td><input type="text" id="v2_c4" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
+ <tr><td>5</td><td>1</td><td>0</td><td>1</td><td><input type="text" id="v2_s5" style="text-align:center; padding:4px;" maxlength="1"></td><td><input type="text" id="v2_c5" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
+ <tr><td>6</td><td>1</td><td>1</td><td>0</td><td><input type="text" id="v2_s6" style="text-align:center; padding:4px;" maxlength="1"></td><td><input type="text" id="v2_c6" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
+ <tr><td>7</td><td>1</td><td>1</td><td>1</td><td><input type="text" id="v2_s7" style="text-align:center; padding:4px;" maxlength="1"></td><td><input type="text" id="v2_c7" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
+ </tbody>
+ </table>
 
-    <div style="margin-top:16px;">
-      <label for="v2_expr"><strong>Критерий 2 (1 б.):</strong> Булевы выражения S и C<sub>out</sub>, синтез каскада на полусумматорах (XOR, И, ИЛИ):</label>
-      <textarea id="v2_expr" placeholder="Запишите формулы для S и Cout через операции XOR, AND, OR. Опишите соединение двух полусумматоров..."></textarea>
-    </div>
+ <div style="margin-top:16px;">
+ <label for="v2_expr"><strong>Критерий 2 (1 б.):</strong> Булевы выражения S и C<sub>out</sub>, синтез каскада на полусумматорах (XOR, И, ИЛИ):</label>
+ <textarea id="v2_expr" placeholder="Запишите формулы для S и Cout через операции XOR, AND, OR. Опишите соединение двух полусумматоров..."></textarea>
+ </div>
 
-    <div style="margin-top:16px;">
-      <label for="v2_analysis"><strong>Критерий 3 (1 б.):</strong> Инженерный анализ: расчет времени задержки t<sub>pd</sub> в Ripple Carry Adder и архитектура CLA:</label>
-      <textarea id="v2_analysis" placeholder="Рассчитайте задержку распространения переноса для 64-битного сумматора и объясните принцип работы сумматора с ускоренным переносом CLA..."></textarea>
-    </div>
-  </div>
+ <div style="margin-top:16px;">
+ <label for="v2_analysis"><strong>Критерий 3 (1 б.):</strong> Инженерный анализ: расчет времени задержки t<sub>pd</sub> в Ripple Carry Adder и архитектура CLA:</label>
+ <textarea id="v2_analysis" placeholder="Рассчитайте задержку распространения переноса для 64-битного сумматора и объясните принцип работы сумматора с ускоренным переносом CLA..."></textarea>
+ </div>
+ </div>
 
-  <!-- ВАРИАНТ 3 -->
-  <div class="task-card variant-section" id="sec_variant_3">
-    <div class="variant-badge">Вариант 3: Мультиплексор 4-в-1 (MUX 4:1) с управляющими адресными линиями</div>
-    <p><strong>Контекст:</strong> Мультиплексоры используются для маршрутизации шин данных внутри процессора и служат универсальными программируемыми логическими блоками (LUT) в микросхемах ПЛИС.</p>
+ <!-- ВАРИАНТ 3 -->
+ <div class="task-card variant-section" id="sec_variant_3">
+ <div class="variant-badge">Вариант 3: Мультиплексор 4-в-1 (MUX 4:1) с управляющими адресными линиями</div>
+ <p><strong>Контекст:</strong> Мультиплексоры используются для маршрутизации шин данных внутри процессора и служат универсальными программируемыми логическими блоками (LUT) в микросхемах ПЛИС.</p>
 
-    <div class="note">
-      <strong>Критерий 1 (2 б.):</strong> Заполните таблицу адресной коммутации каналов мультиплексора.
-    </div>
+ <div class="note">
+ <strong>Критерий 1 (2 б.):</strong> Заполните таблицу адресной коммутации каналов мультиплексора.
+ </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Старший адрес A<sub>1</sub></th>
-          <th>Младший адрес A<sub>0</sub></th>
-          <th>Коммутируемый входной канал данных</th>
-          <th>Логическое состояние выхода Y</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td>0</td><td>0</td><td>Канал 0 (D<sub>0</sub>)</td><td><input type="text" id="v3_y0" style="text-align:center; padding:4px;"></td></tr>
-        <tr><td>0</td><td>1</td><td>Канал 1 (D<sub>1</sub>)</td><td><input type="text" id="v3_y1" style="text-align:center; padding:4px;"></td></tr>
-        <tr><td>1</td><td>0</td><td>Канал 2 (D<sub>2</sub>)</td><td><input type="text" id="v3_y2" style="text-align:center; padding:4px;"></td></tr>
-        <tr><td>1</td><td>1</td><td>Канал 3 (D<sub>3</sub>)</td><td><input type="text" id="v3_y3" style="text-align:center; padding:4px;"></td></tr>
-      </tbody>
-    </table>
+ <table>
+ <thead>
+ <tr>
+ <th>Старший адрес A<sub>1</sub></th>
+ <th>Младший адрес A<sub>0</sub></th>
+ <th>Коммутируемый входной канал данных</th>
+ <th>Логическое состояние выхода Y</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr><td>0</td><td>0</td><td>Канал 0 (D<sub>0</sub>)</td><td><input type="text" id="v3_y0" style="text-align:center; padding:4px;"></td></tr>
+ <tr><td>0</td><td>1</td><td>Канал 1 (D<sub>1</sub>)</td><td><input type="text" id="v3_y1" style="text-align:center; padding:4px;"></td></tr>
+ <tr><td>1</td><td>0</td><td>Канал 2 (D<sub>2</sub>)</td><td><input type="text" id="v3_y2" style="text-align:center; padding:4px;"></td></tr>
+ <tr><td>1</td><td>1</td><td>Канал 3 (D<sub>3</sub>)</td><td><input type="text" id="v3_y3" style="text-align:center; padding:4px;"></td></tr>
+ </tbody>
+ </table>
 
-    <div style="margin-top:16px;">
-      <label for="v3_expr"><strong>Критерий 2 (1 б.):</strong> Логическое уравнение мультиплексора и схемотехнический базис (конъюнкторы, инверторы, дизъюнктор):</label>
-      <textarea id="v3_expr" placeholder="Запишите полное булево уравнение Y(A1, A0, D0, D1, D2, D3) и перечислите необходимые вентили..."></textarea>
-    </div>
+ <div style="margin-top:16px;">
+ <label for="v3_expr"><strong>Критерий 2 (1 б.):</strong> Логическое уравнение мультиплексора и схемотехнический базис (конъюнкторы, инверторы, дизъюнктор):</label>
+ <textarea id="v3_expr" placeholder="Запишите полное булево уравнение Y(A1, A0, D0, D1, D2, D3) и перечислите необходимые вентили..."></textarea>
+ </div>
 
-    <div style="margin-top:16px;">
-      <label for="v3_analysis"><strong>Критерий 3 (1 б.):</strong> Инженерный анализ: доказательство полноты MUX как универсального генератора функций LUT:</label>
-      <textarea id="v3_analysis" placeholder="Объясните, как реализовать произвольную логическую функцию трех переменных F(X,Y,Z) на одном мультиплексоре MUX 4:1..."></textarea>
-    </div>
-  </div>
+ <div style="margin-top:16px;">
+ <label for="v3_analysis"><strong>Критерий 3 (1 б.):</strong> Инженерный анализ: доказательство полноты MUX как универсального генератора функций LUT:</label>
+ <textarea id="v3_analysis" placeholder="Объясните, как реализовать произвольную логическую функцию трех переменных F(X,Y,Z) на одном мультиплексоре MUX 4:1..."></textarea>
+ </div>
+ </div>
 
-  <!-- ВАРИАНТ 4 -->
-  <div class="task-card variant-section" id="sec_variant_4">
-    <div class="variant-badge">Вариант 4: Синхронный D-триггер с динамическим тактовым управлением (D Flip-Flop)</div>
-    <p><strong>Контекст:</strong> D-триггеры являются элементарными ячейками статической памяти и регистров процессора, фиксируя данные строго по фронту тактового сигнала.</p>
+ <!-- ВАРИАНТ 4 -->
+ <div class="task-card variant-section" id="sec_variant_4">
+ <div class="variant-badge">Вариант 4: Синхронный D-триггер с динамическим тактовым управлением (D Flip-Flop)</div>
+ <p><strong>Контекст:</strong> D-триггеры являются элементарными ячейками статической памяти и регистров процессора, фиксируя данные строго по фронту тактового сигнала.</p>
 
-    <div class="note">
-      <strong>Критерий 1 (2 б.):</strong> Заполните матрицу состояний и переходов Q(t) → Q(t+1) при тактовом фронте uparrow.
-    </div>
+ <div class="note">
+ <strong>Критерий 1 (2 б.):</strong> Заполните матрицу состояний и переходов Q(t) → Q(t+1) при тактовом фронте uparrow.
+ </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Режим работы</th>
-          <th>Сигнал такта CLK</th>
-          <th>Вход данных D</th>
-          <th>Текущее Q(t)</th>
-          <th>Следующее состояние Q(t+1)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td>Хранение</td><td>0 / 1 / спад</td><td>Любое (X)</td><td>0</td><td><input type="text" id="v4_q0" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
-        <tr><td>Хранение</td><td>0 / 1 / спад</td><td>Любое (X)</td><td>1</td><td><input type="text" id="v4_q1" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
-        <tr><td>Запись 0</td><td>Фронт (0 → 1)</td><td>0</td><td>0</td><td><input type="text" id="v4_q2" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
-        <tr><td>Запись 0</td><td>Фронт (0 → 1)</td><td>0</td><td>1</td><td><input type="text" id="v4_q3" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
-        <tr><td>Запись 1</td><td>Фронт (0 → 1)</td><td>1</td><td>0</td><td><input type="text" id="v4_q4" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
-        <tr><td>Запись 1</td><td>Фронт (0 → 1)</td><td>1</td><td>1</td><td><input type="text" id="v4_q5" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
-      </tbody>
-    </table>
+ <table>
+ <thead>
+ <tr>
+ <th>Режим работы</th>
+ <th>Сигнал такта CLK</th>
+ <th>Вход данных D</th>
+ <th>Текущее Q(t)</th>
+ <th>Следующее состояние Q(t+1)</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr><td>Хранение</td><td>0 / 1 / спад</td><td>Любое (X)</td><td>0</td><td><input type="text" id="v4_q0" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
+ <tr><td>Хранение</td><td>0 / 1 / спад</td><td>Любое (X)</td><td>1</td><td><input type="text" id="v4_q1" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
+ <tr><td>Запись 0</td><td>Фронт (0 → 1)</td><td>0</td><td>0</td><td><input type="text" id="v4_q2" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
+ <tr><td>Запись 0</td><td>Фронт (0 → 1)</td><td>0</td><td>1</td><td><input type="text" id="v4_q3" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
+ <tr><td>Запись 1</td><td>Фронт (0 → 1)</td><td>1</td><td>0</td><td><input type="text" id="v4_q4" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
+ <tr><td>Запись 1</td><td>Фронт (0 → 1)</td><td>1</td><td>1</td><td><input type="text" id="v4_q5" style="text-align:center; padding:4px;" maxlength="1"></td></tr>
+ </tbody>
+ </table>
 
-    <div style="margin-top:16px;">
-      <label for="v4_expr"><strong>Критерий 2 (1 б.):</strong> Архитектура двухступенчатого Master-Slave D-триггера и временная диаграмма:</label>
-      <textarea id="v4_expr" placeholder="Опишите принцип работы ведущей (Master) и ведомой (Slave) защелок при нулевом, фронтовом и единичном тактовом сигнале..."></textarea>
-    </div>
+ <div style="margin-top:16px;">
+ <label for="v4_expr"><strong>Критерий 2 (1 б.):</strong> Архитектура двухступенчатого Master-Slave D-триггера и временная диаграмма:</label>
+ <textarea id="v4_expr" placeholder="Опишите принцип работы ведущей (Master) и ведомой (Slave) защелок при нулевом, фронтовом и единичном тактовом сигнале..."></textarea>
+ </div>
 
-    <div style="margin-top:16px;">
-      <label for="v4_analysis"><strong>Критерий 3 (1 б.):</strong> Инженерный анализ: t<sub>setup</sub>, t<sub>hold</sub>, физика метастабильности и методы устранения:</label>
-      <textarea id="v4_analysis" placeholder="Сформулируйте определения Setup Time и Hold Time. Объясните природу метастабильности и работу двухкаскадного синхронизатора..."></textarea>
-    </div>
-  </div>
+ <div style="margin-top:16px;">
+ <label for="v4_analysis"><strong>Критерий 3 (1 б.):</strong> Инженерный анализ: t<sub>setup</sub>, t<sub>hold</sub>, физика метастабильности и методы устранения:</label>
+ <textarea id="v4_analysis" placeholder="Сформулируйте определения Setup Time и Hold Time. Объясните природу метастабильности и работу двухкаскадного синхронизатора..."></textarea>
+ </div>
+ </div>
 
-  <!-- КНОПКИ ДЕЙСТВИЙ -->
-  <div class="actions-card">
-    <div class="btn-group">
-      <button type="button" class="btn-primary" onclick="saveSheet()">Сохранить в браузере</button>
-      <button type="button" class="btn-secondary" onclick="window.print()">Печать / Экспорт в PDF</button>
-      <button type="button" class="btn-danger" onclick="clearSheet()">Очистить рабочий лист</button>
-    </div>
-    <div id="save_status" class="status-msg"></div>
-  </div>
+ <!-- КНОПКИ ДЕЙСТВИЙ -->
+ <div class="actions-card">
+ <div class="btn-group">
+ <button type="button" class="btn-primary" onclick="saveSheet()">Сохранить в браузере</button>
+ <button type="button" class="btn-secondary" onclick="window.print()">Печать / Экспорт в PDF</button>
+ <button type="button" class="btn-danger" onclick="clearSheet()">Очистить рабочий лист</button>
+ </div>
+ <div id="save_status" class="status-msg"></div>
+ </div>
 
 </div>
 
 <script>
-  const STORAGE_KEY = 'top_arch_lab05_worksheet';
+ const STORAGE_KEY = 'top_arch_lab05_worksheet';
 
-  const allInputIds = [
-    'student_fio', 'student_group', 'variant_select', 'task_date',
-    // Variant 1
-    'v1_m0', 'v1_m1', 'v1_m2', 'v1_m3', 'v1_m4', 'v1_m5', 'v1_m6', 'v1_m7',
-    'v1_term3', 'v1_term5', 'v1_term6', 'v1_term7', 'v1_expr', 'v1_analysis',
-    // Variant 2
-    'v2_s0', 'v2_s1', 'v2_s2', 'v2_s3', 'v2_s4', 'v2_s5', 'v2_s6', 'v2_s7',
-    'v2_c0', 'v2_c1', 'v2_c2', 'v2_c3', 'v2_c4', 'v2_c5', 'v2_c6', 'v2_c7',
-    'v2_expr', 'v2_analysis',
-    // Variant 3
-    'v3_y0', 'v3_y1', 'v3_y2', 'v3_y3', 'v3_expr', 'v3_analysis',
-    // Variant 4
-    'v4_q0', 'v4_q1', 'v4_q2', 'v4_q3', 'v4_q4', 'v4_q5', 'v4_expr', 'v4_analysis'
-  ];
+ const allInputIds = [
+ 'student_fio', 'student_group', 'variant_select', 'task_date',
+ // Variant 1
+ 'v1_m0', 'v1_m1', 'v1_m2', 'v1_m3', 'v1_m4', 'v1_m5', 'v1_m6', 'v1_m7',
+ 'v1_term3', 'v1_term5', 'v1_term6', 'v1_term7', 'v1_expr', 'v1_analysis',
+ // Variant 2
+ 'v2_s0', 'v2_s1', 'v2_s2', 'v2_s3', 'v2_s4', 'v2_s5', 'v2_s6', 'v2_s7',
+ 'v2_c0', 'v2_c1', 'v2_c2', 'v2_c3', 'v2_c4', 'v2_c5', 'v2_c6', 'v2_c7',
+ 'v2_expr', 'v2_analysis',
+ // Variant 3
+ 'v3_y0', 'v3_y1', 'v3_y2', 'v3_y3', 'v3_expr', 'v3_analysis',
+ // Variant 4
+ 'v4_q0', 'v4_q1', 'v4_q2', 'v4_q3', 'v4_q4', 'v4_q5', 'v4_expr', 'v4_analysis'
+ ];
 
-  function switchVariant() {
-    const sel = document.getElementById('variant_select').value;
-    for (let i = 1; i <= 4; i++) {
-      const sec = document.getElementById('sec_variant_' + i);
-      if (sec) {
-        if (i.toString() === sel) {
-          sec.classList.add('active');
-        } else {
-          sec.classList.remove('active');
-        }
-      }
-    }
-  }
+ function switchVariant() {
+ const sel = document.getElementById('variant_select').value;
+ for (let i = 1; i <= 4; i++) {
+ const sec = document.getElementById('sec_variant_' + i);
+ if (sec) {
+ if (i.toString() === sel) {
+ sec.classList.add('active');
+ } else {
+ sec.classList.remove('active');
+ }
+ }
+ }
+ }
 
-  function saveSheet() {
-    const data = {};
-    allInputIds.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) data[id] = el.value;
-    });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    const status = document.getElementById('save_status');
-    status.textContent = 'Рабочий лист успешно сохранен (' + new Date().toLocaleTimeString() + ')';
-    status.style.color = '#059669';
-  }
+ function saveSheet() {
+ const data = {};
+ allInputIds.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) data[id] = el.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ const status = document.getElementById('save_status');
+ status.textContent = 'Рабочий лист успешно сохранен (' + new Date().toLocaleTimeString() + ')';
+ status.style.color = '#059669';
+ }
 
-  function loadSheet() {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    try {
-      const data = JSON.parse(raw);
-      allInputIds.forEach(id => {
-        const el = document.getElementById(id);
-        if (el && data[id] !== undefined) el.value = data[id];
-      });
-      switchVariant();
-    } catch (e) {
-      console.error('Ошибка загрузки данных:', e);
-    }
-  }
+ function loadSheet() {
+ const raw = localStorage.getItem(STORAGE_KEY);
+ if (!raw) return;
+ try {
+ const data = JSON.parse(raw);
+ allInputIds.forEach(id => {
+ const el = document.getElementById(id);
+ if (el && data[id] !== undefined) el.value = data[id];
+ });
+ switchVariant();
+ } catch (e) {
+ console.error('Ошибка загрузки данных:', e);
+ }
+ }
 
-  function clearSheet() {
-    if (confirm('Вы уверены, что хотите полностью очистить заполненные поля рабочего листа? Все внесенные данные будут сброшены.')) {
-      localStorage.removeItem(STORAGE_KEY);
-      allInputIds.forEach(id => {
-        const el = document.getElementById(id);
-        if (el && id !== 'variant_select') el.value = '';
-      });
-      const status = document.getElementById('save_status');
-      status.textContent = 'Все поля успешно очищены.';
-      status.style.color = '#dc2626';
-    }
-  }
+ function clearSheet() {
+ if (confirm('Вы уверены, что хотите полностью очистить заполненные поля рабочего листа? Все внесенные данные будут сброшены.')) {
+ localStorage.removeItem(STORAGE_KEY);
+ allInputIds.forEach(id => {
+ const el = document.getElementById(id);
+ if (el && id !== 'variant_select') el.value = '';
+ });
+ const status = document.getElementById('save_status');
+ status.textContent = 'Все поля успешно очищены.';
+ status.style.color = '#dc2626';
+ }
+ }
 
-  window.addEventListener('DOMContentLoaded', () => {
-    loadSheet();
-    if (!document.getElementById('task_date').value) {
-      document.getElementById('task_date').value = new Date().toISOString().split('T')[0];
-    }
-  });
+ window.addEventListener('DOMContentLoaded', () => {
+ loadSheet();
+ if (!document.getElementById('task_date').value) {
+ document.getElementById('task_date').value = new Date().toISOString().split('T')[0];
+ }
+ });
 </script>
 </body>
 </html>

@@ -1,453 +1,445 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Порты USB и IEEE-1394. Порты SCSI. Порты IDE. Семейство АТХ. Микросхемы системной логики — Конспект лекции</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #1e40af;
-      --accent-soft: #eff6ff;
-      --code-bg: #0f172a;
-      --code-text: #f1f5f9;
-      --success: #059669;
-      --warn: #d97706;
-      --danger: #dc2626;
-      --radius: 14px;
-      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.65;
-      font-size: 16px;
-      padding: 24px 16px;
-    }
-    .container {
-      max-width: 940px;
-      margin: 0 auto;
-    }
-    header {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 28px 24px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow);
-    }
-    h1 {
-      font-size: clamp(24px, 4vw, 32px);
-      line-height: 1.25;
-      color: var(--accent);
-      margin-bottom: 12px;
-    }
-    .lead {
-      color: var(--muted);
-      font-size: 16.5px;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow);
-    }
-    h2 {
-      font-size: 20px;
-      color: var(--accent);
-      margin: 20px 0 12px;
-      border-bottom: 2px solid var(--accent-soft);
-      padding-bottom: 6px;
-    }
-    h3 {
-      font-size: 17px;
-      margin: 16px 0 8px;
-      color: #1e293b;
-    }
-    p, ul, ol { margin-bottom: 14px; }
-    ul, ol { padding-left: 24px; }
-    li { margin-bottom: 6px; }
-    .note {
-      background: var(--accent-soft);
-      border-left: 4px solid var(--accent);
-      padding: 14px 18px;
-      border-radius: 0 8px 8px 0;
-      margin: 16px 0;
-    }
-    .note-warn {
-      background: #fef3c7;
-      border-left: 4px solid var(--warn);
-      color: #92400e;
-    }
-    .note-danger {
-      background: #fee2e2;
-      border-left: 4px solid var(--danger);
-      color: #991b1b;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 16px 0;
-      font-size: 14.5px;
-    }
-    th, td {
-      border: 1px solid var(--line);
-      padding: 10px 12px;
-      text-align: left;
-      vertical-align: top;
-    }
-    th {
-      background: var(--accent-soft);
-      font-weight: 600;
-      color: var(--accent);
-    }
-    code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 14px;
-      background: #e2e8f0;
-      padding: 2px 6px;
-      border-radius: 4px;
-      color: #0f172a;
-    }
-    .formula {
-      font-family: ui-monospace, Menlo, Consolas, monospace;
-      background: var(--code-bg);
-      color: var(--code-text);
-      padding: 12px 16px;
-      border-radius: 8px;
-      margin: 14px 0;
-      overflow-x: auto;
-    }
-    @media print {
-      body { background: #fff; padding: 0; font-size: 11pt; }
-      .card, header { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 12pt; }
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <title>Порты USB и IEEE-1394. Порты SCSI. Порты IDE. Семейство АТХ. Микросхемы системной логики — Конспект лекции</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #1e40af;
+ --accent-soft: #eff6ff;
+ --code-bg: #0f172a;
+ --code-text: #f1f5f9;
+ --success: #059669;
+ --warn: #d97706;
+ --danger: #dc2626;
+ --radius: 14px;
+ --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+ body {
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+ line-height: 1.65;
+ font-size: 16px;
+ padding: 24px 16px;
+ }.container {
+ max-width: 940px;
+ margin: 0 auto;
+ }
+ header {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 28px 24px;
+ margin-bottom: 20px;
+ box-shadow: var(--shadow);
+ }
+ h1 {
+ font-size: clamp(24px, 4vw, 32px);
+ line-height: 1.25;
+ color: var(--accent);
+ margin-bottom: 12px;
+ }.lead {
+ color: var(--muted);
+ font-size: 16.5px;
+ }.card {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 24px;
+ margin-bottom: 20px;
+ box-shadow: var(--shadow);
+ }
+ h2 {
+ font-size: 20px;
+ color: var(--accent);
+ margin: 20px 0 12px;
+ border-bottom: 2px solid var(--accent-soft);
+ padding-bottom: 6px;
+ }
+ h3 {
+ font-size: 17px;
+ margin: 16px 0 8px;
+ color: #1e293b;
+ }
+ p, ul, ol { margin-bottom: 14px; }
+ ul, ol { padding-left: 24px; }
+ li { margin-bottom: 6px; }.note {
+ background: var(--accent-soft);
+ border-left: 4px solid var(--accent);
+ padding: 14px 18px;
+ border-radius: 0 8px 8px 0;
+ margin: 16px 0;
+ }.note-warn {
+ background: #fef3c7;
+ border-left: 4px solid var(--warn);
+ color: #92400e;
+ }.note-danger {
+ background: #fee2e2;
+ border-left: 4px solid var(--danger);
+ color: #991b1b;
+ }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ margin: 16px 0;
+ font-size: 14.5px;
+ }
+ th, td {
+ border: 1px solid var(--line);
+ padding: 10px 12px;
+ text-align: left;
+ vertical-align: top;
+ }
+ th {
+ background: var(--accent-soft);
+ font-weight: 600;
+ color: var(--accent);
+ }
+ code {
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 14px;
+ background: #e2e8f0;
+ padding: 2px 6px;
+ border-radius: 4px;
+ color: #0f172a;
+ }.formula {
+ font-family: ui-monospace, Menlo, Consolas, monospace;
+ background: var(--code-bg);
+ color: var(--code-text);
+ padding: 12px 16px;
+ border-radius: 8px;
+ margin: 14px 0;
+ overflow-x: auto;
+ }
+ @media print {
+ body { background: #fff; padding: 0; font-size: 11pt; }.card, header { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 12pt; }
+ }
+ </style>
 </head>
 <body>
 <div class="container">
 
-  <header>
-    <h1>Порты USB и IEEE-1394. Порты SCSI. Порты IDE. Семейство АТХ. Микросхемы системной логики</h1>
-    <p class="lead">Фундаментальный конспект лекции по дисциплине «Архитектура аппаратных средств» (СИЭУиП, занятие 16). Комплексный разбор архитектуры периферийных и дисковых интерфейсов, эволюции чипсетов (северный/южный мост &rarr; PCH) и электропитания современного компьютера по стандартам ATX12V и ATX 3.0.</p>
-  </header>
+ <header>
+ <h1>Порты USB и IEEE-1394. Порты SCSI. Порты IDE. Семейство АТХ. Микросхемы системной логики</h1>
+ <p class="lead">Фундаментальный конспект лекции по дисциплине «Архитектура аппаратных средств» (СИЭУиП, занятие 16). Комплексный разбор архитектуры периферийных и дисковых интерфейсов, эволюции чипсетов (северный/южный мост &rarr; PCH) и электропитания современного компьютера по стандартам ATX12V и ATX 3.0.</p>
+ </header>
 
-  <!-- РАЗДЕЛ 1: ИНТЕРФЕЙСЫ ПЕРЕДАЧИ ДАННЫХ USB И FIREWIRE -->
-  <div class="card">
-    <h2>1. Периферийные интерфейсы: USB от 1.1 до USB4 и IEEE-1394 FireWire</h2>
-    <p>Исторически подключение внешних периферийных устройств к ПК требовало использования множества специализированных портов (COM/RS-232, LPT/IEEE-1284, PS/2, игровой порт DA-15), каждый из которых требовал выделения физических ресурсов прерываний и адресов ввода-вывода. Создание универсальных последовательных шин решило проблему дефицита линий и обеспечило поддержку технологии «горячего подключения» (Hot-Plug / Plug-and-Play).</p>
+ <!-- РАЗДЕЛ 1: ИНТЕРФЕЙСЫ ПЕРЕДАЧИ ДАННЫХ USB И FIREWIRE -->
+ <div class="card">
+ <h2>1. Периферийные интерфейсы: USB от 1.1 до USB4 и IEEE-1394 FireWire</h2>
+ <p>Исторически подключение внешних периферийных устройств к ПК требовало использования множества специализированных портов (COM/RS-232, LPT/IEEE-1284, PS/2, игровой порт DA-15), каждый из которых требовал выделения физических ресурсов прерываний и адресов ввода-вывода. Создание универсальных последовательных шин решило проблему дефицита линий и обеспечило поддержку технологии «горячего подключения» (Hot-Plug / Plug-and-Play).</p>
 
-    <h3>1.1. Эволюция стандарта USB (Universal Serial Bus)</h3>
-    <p>Шина USB организована по древовидной топологии («звезда из звезд»), во главе которой находится хост-контроллер (Host Controller) с корневым концентратором (Root Hub). К одной шине допускается подключение до 127 физических устройств через каскадирование концентраторов (до 5 уровней хабов).</p>
+ <h3>1.1. Эволюция стандарта USB (Universal Serial Bus)</h3>
+ <p>Шина USB организована по древовидной топологии («звезда из звезд»), во главе которой находится хост-контроллер (Host Controller) с корневым концентратором (Root Hub). К одной шине допускается подключение до 127 физических устройств через каскадирование концентраторов (до 5 уровней хабов).</p>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Спецификация</th>
-          <th>Маркетинговое обозначение</th>
-          <th>Сырая скорость (бит/с)</th>
-          <th>Кодирование / Линии</th>
-          <th>Полезная скорость</th>
-          <th>Электропитание</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>USB 1.1</strong> (1998)</td>
-          <td>Low-Speed / Full-Speed</td>
-          <td>1.5 Мбит/с / 12 Мбит/с</td>
-          <td>NRZI с бит-стаффингом, 1 диф. пара (D+/D-)</td>
-          <td>~0.15 МБ/с / ~1.2 МБ/с</td>
-          <td>5 В, до 500 мА (2.5 Вт)</td>
-        </tr>
-        <tr>
-          <td><strong>USB 2.0</strong> (2000)</td>
-          <td>High-Speed</td>
-          <td>480 Мбит/с</td>
-          <td>NRZI, полудуплекс (1 пара D+/D-)</td>
-          <td>~35–43 МБ/с (с учетом квитирования и фреймов)</td>
-          <td>5 В, до 500 мА (2.5 Вт)</td>
-        </tr>
-        <tr>
-          <td><strong>USB 3.2 Gen 1</strong> (USB 3.0, 2008)</td>
-          <td>SuperSpeed 5Gbps</td>
-          <td>5.0 Гбит/с</td>
-          <td>8b/10b (оверхед 20%), 2 дуплексные диф. пары (SSTX/SSRX)</td>
-          <td>~450 МБ/с</td>
-          <td>5 В, до 900 мА (4.5 Вт)</td>
-        </tr>
-        <tr>
-          <td><strong>USB 3.2 Gen 2</strong> (USB 3.1, 2013)</td>
-          <td>SuperSpeed 10Gbps</td>
-          <td>10.0 Гбит/с</td>
-          <td>128b/132b (оверхед ~3%), 2 диф. пары</td>
-          <td>~1050–1100 МБ/с</td>
-          <td>5 В, до 1.5 А / Type-C PD</td>
-        </tr>
-        <tr>
-          <td><strong>USB 3.2 Gen 2x2</strong> (2017)</td>
-          <td>SuperSpeed 20Gbps</td>
-          <td>20.0 Гбит/с</td>
-          <td>128b/132b, двухполосный режим (dual-lane Type-C)</td>
-          <td>~2000–2100 МБ/с</td>
-          <td>Type-C PD (до 100 Вт)</td>
-        </tr>
-        <tr>
-          <td><strong>USB4 Gen 3x2 / 4</strong> (2019/2022)</td>
-          <td>USB4 40Gbps / 80Gbps</td>
-          <td>40 / 80 (до 120) Гбит/с</td>
-          <td>Туннелирование протоколов PCIe, DP, USB3; PAM-3 в USB4 v2</td>
-          <td>~3.8 ГБ/с (PCIe туннель)</td>
-          <td>USB PD 3.1 EPR (до 240 Вт: 48 В, 5 А)</td>
-        </tr>
-      </tbody>
-    </table>
+ <table>
+ <thead>
+ <tr>
+ <th>Спецификация</th>
+ <th>Маркетинговое обозначение</th>
+ <th>Сырая скорость (бит/с)</th>
+ <th>Кодирование / Линии</th>
+ <th>Полезная скорость</th>
+ <th>Электропитание</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>USB 1.1</strong> (1998)</td>
+ <td>Low-Speed / Full-Speed</td>
+ <td>1.5 Мбит/с / 12 Мбит/с</td>
+ <td>NRZI с бит-стаффингом, 1 диф. пара (D+/D-)</td>
+ <td>~0.15 МБ/с / ~1.2 МБ/с</td>
+ <td>5 В, до 500 мА (2.5 Вт)</td>
+ </tr>
+ <tr>
+ <td><strong>USB 2.0</strong> (2000)</td>
+ <td>High-Speed</td>
+ <td>480 Мбит/с</td>
+ <td>NRZI, полудуплекс (1 пара D+/D-)</td>
+ <td>~35–43 МБ/с (с учетом квитирования и фреймов)</td>
+ <td>5 В, до 500 мА (2.5 Вт)</td>
+ </tr>
+ <tr>
+ <td><strong>USB 3.2 Gen 1</strong> (USB 3.0, 2008)</td>
+ <td>SuperSpeed 5Gbps</td>
+ <td>5.0 Гбит/с</td>
+ <td>8b/10b (оверхед 20%), 2 дуплексные диф. пары (SSTX/SSRX)</td>
+ <td>~450 МБ/с</td>
+ <td>5 В, до 900 мА (4.5 Вт)</td>
+ </tr>
+ <tr>
+ <td><strong>USB 3.2 Gen 2</strong> (USB 3.1, 2013)</td>
+ <td>SuperSpeed 10Gbps</td>
+ <td>10.0 Гбит/с</td>
+ <td>128b/132b (оверхед ~3%), 2 диф. пары</td>
+ <td>~1050–1100 МБ/с</td>
+ <td>5 В, до 1.5 А / Type-C PD</td>
+ </tr>
+ <tr>
+ <td><strong>USB 3.2 Gen 2x2</strong> (2017)</td>
+ <td>SuperSpeed 20Gbps</td>
+ <td>20.0 Гбит/с</td>
+ <td>128b/132b, двухполосный режим (dual-lane Type-C)</td>
+ <td>~2000–2100 МБ/с</td>
+ <td>Type-C PD (до 100 Вт)</td>
+ </tr>
+ <tr>
+ <td><strong>USB4 Gen 3x2 / 4</strong> (2019/2022)</td>
+ <td>USB4 40Gbps / 80Gbps</td>
+ <td>40 / 80 (до 120) Гбит/с</td>
+ <td>Туннелирование протоколов PCIe, DP, USB3; PAM-3 в USB4 v2</td>
+ <td>~3.8 ГБ/с (PCIe туннель)</td>
+ <td>USB PD 3.1 EPR (до 240 Вт: 48 В, 5 А)</td>
+ </tr>
+ </tbody>
+ </table>
 
-    <h3>1.2. Физический уровень USB: дифференциальная сигнализация и разъем Type-C</h3>
-    <p>В USB 1.1/2.0 передача ведется по витой паре <code>D+</code> и <code>D-</code>. Используется дифференциальное напряжение:</p>
-    <div class="formula">
-      V_diff = V(D+) - V(D-)<br>
-      Если V_diff > +200 мВ &rarr; логическое состояние "J" (или "K" в зависимости от скорости).<br>
-      Если V_diff < -200 мВ &rarr; противоположное логическое состояние.<br>
-      Синфазная помеха (Common-Mode Noise) наводится на оба провода одинаково и взаимно вычитается в дифференциальном приемнике.
-    </div>
+ <h3>1.2. Физический уровень USB: дифференциальная сигнализация и разъем Type-C</h3>
+ <p>В USB 1.1/2.0 передача ведется по витой паре <code>D+</code> и <code>D-</code>. Используется дифференциальное напряжение:</p>
+ <div class="formula">
+ V_diff = V(D+) - V(D-)<br>
+ Если V_diff > +200 мВ &rarr; логическое состояние "J" (или "K" в зависимости от скорости).<br>
+ Если V_diff < -200 мВ &rarr; противоположное логическое состояние.<br>
+ Синфазная помеха (Common-Mode Noise) наводится на оба провода одинаково и взаимно вычитается в дифференциальном приемнике.
+ </div>
 
-    <p><strong>Разъем USB Type-C</strong> имеет 24 симметричных контакта с зеркальной распиновкой (вращательная инвариантность):</p>
-    <ul>
-      <li><code>VBUS</code> (4 контакта) и <code>GND</code> (4 контакта) — силовые шины питания повышенной мощности;</li>
-      <li><code>CC1 / CC2</code> (Configuration Channel) — определение ориентации разъема, роли устройств (Host/Device/Dual-Role) и согласование профилей питания Power Delivery;</li>
-      <li><code>TX1+/TX1-, RX1+/RX1-, TX2+/TX2-, RX2+/RX2-</code> — 4 скоростные дифференциальные пары SuperSpeed / USB4;</li>
-      <li><code>D+ / D-</code> — унаследованная пара USB 2.0 High-Speed для обратной совместимости;</li>
-      <li><code>SBU1 / SBU2</code> (Sideband Use) — вспомогательные сигналы для альтернативных режимов (Alt Mode).</li>
-    </ul>
+ <p><strong>Разъем USB Type-C</strong> имеет 24 симметричных контакта с зеркальной распиновкой (вращательная инвариантность):</p>
+ <ul>
+ <li><code>VBUS</code> (4 контакта) и <code>GND</code> (4 контакта) — силовые шины питания повышенной мощности;</li>
+ <li><code>CC1 / CC2</code> (Configuration Channel) — определение ориентации разъема, роли устройств (Host/Device/Dual-Role) и согласование профилей питания Power Delivery;</li>
+ <li><code>TX1+/TX1-, RX1+/RX1-, TX2+/TX2-, RX2+/RX2-</code> — 4 скоростные дифференциальные пары SuperSpeed / USB4;</li>
+ <li><code>D+ / D-</code> — унаследованная пара USB 2.0 High-Speed для обратной совместимости;</li>
+ <li><code>SBU1 / SBU2</code> (Sideband Use) — вспомогательные сигналы для альтернативных режимов (Alt Mode).</li>
+ </ul>
 
-    <div class="note">
-      <strong>USB Power Delivery (USB PD) и Alt Mode:</strong><br>
-      Протокол USB PD 3.0/3.1 согласует напряжение и ток по шине <code>CC</code>: стандартный диапазон SPR обеспечивает до 100 Вт (20 В &times; 5 А), а расширенный EPR (Extended Power Range) — до 240 Вт (48 В &times; 5 А). Технология <strong>DisplayPort Alt Mode</strong> переназначает высокоскоростные линии TX/RX разъема Type-C на прямую передачу нативных видеопотоков DisplayPort (HBR3 / UHBR) без декодирования процессором.
-    </div>
+ <div class="note">
+ <strong>USB Power Delivery (USB PD) и Alt Mode:</strong><br>
+ Протокол USB PD 3.0/3.1 согласует напряжение и ток по шине <code>CC</code>: стандартный диапазон SPR обеспечивает до 100 Вт (20 В &times; 5 А), а расширенный EPR (Extended Power Range) — до 240 Вт (48 В &times; 5 А). Технология <strong>DisplayPort Alt Mode</strong> переназначает высокоскоростные линии TX/RX разъема Type-C на прямую передачу нативных видеопотоков DisplayPort (HBR3 / UHBR) без декодирования процессором.
+ </div>
 
-    <h3>1.3. Интерфейс IEEE-1394 (FireWire / i.Link)</h3>
-    <p>Разработан компанией Apple и стандартизован IEEE в 1995 году (IEEE-1394a — FireWire 400 со скоростью 400 Мбит/с, IEEE-1394b — FireWire 800 со скоростью 800 Мбит/с и разъемом 9-pin). Главные архитектурные отличия FireWire от USB 2.0:</p>
-    <ul>
-      <li><strong>Одноранговая архитектура (Peer-to-Peer):</strong> устройства FireWire могут обмениваться данными напрямую (например, видеокамера &rarr; внешний HDD) без участия и прерывания центрального процессора хост-компьютера. В USB хост-контроллер обязан жестко управлять каждой транзакцией (Master-Slave).</li>
-      <li><strong>Изохронная передача данных (Isochronous Transfer):</strong> гарантированное выделение таймслота шины с фиксированной полосой пропускания и минимальным джиттером, что критично для несжатого видеопотока DV/HDV и многоканального студийного звука. В USB 2.0 передача пакетов зависит от занятости хоста.</li>
-      <li><strong>Причина вытеснения:</strong> высокая стоимость лицензирования патентного пула FireWire, сложность контроллеров на каждом периферийном устройстве и появление бесплатного, более быстрого USB 3.0 (5 Гбит/с) и Thunderbolt вытеснили FireWire с потребительского и профессионального рынка.</li>
-    </ul>
-  </div>
+ <h3>1.3. Интерфейс IEEE-1394 (FireWire / i.Link)</h3>
+ <p>Разработан компанией Apple и стандартизован IEEE в 1995 году (IEEE-1394a — FireWire 400 со скоростью 400 Мбит/с, IEEE-1394b — FireWire 800 со скоростью 800 Мбит/с и разъемом 9-pin). Главные архитектурные отличия FireWire от USB 2.0:</p>
+ <ul>
+ <li><strong>Одноранговая архитектура (Peer-to-Peer):</strong> устройства FireWire могут обмениваться данными напрямую (например, видеокамера &rarr; внешний HDD) без участия и прерывания центрального процессора хост-компьютера. В USB хост-контроллер обязан жестко управлять каждой транзакцией (Master-Slave).</li>
+ <li><strong>Изохронная передача данных (Isochronous Transfer):</strong> гарантированное выделение таймслота шины с фиксированной полосой пропускания и минимальным джиттером, что критично для несжатого видеопотока DV/HDV и многоканального студийного звука. В USB 2.0 передача пакетов зависит от занятости хоста.</li>
+ <li><strong>Причина вытеснения:</strong> высокая стоимость лицензирования патентного пула FireWire, сложность контроллеров на каждом периферийном устройстве и появление бесплатного, более быстрого USB 3.0 (5 Гбит/с) и Thunderbolt вытеснили FireWire с потребительского и профессионального рынка.</li>
+ </ul>
+ </div>
 
-  <!-- РАЗДЕЛ 2: ДИСКОВЫЕ ИНТЕРФЕЙСЫ -->
-  <div class="card">
-    <h2>2. Дисковые интерфейсы накопителей: PATA IDE, SCSI, SATA III и SAS</h2>
-    <p>Подсистема хранения данных прошла путь от параллельных многопроводных шлейфов с аппаратной адресацией перемычками до скоростных последовательных протоколов с очередями команд и аппаратной виртуализацией.</p>
+ <!-- РАЗДЕЛ 2: ДИСКОВЫЕ ИНТЕРФЕЙСЫ -->
+ <div class="card">
+ <h2>2. Дисковые интерфейсы накопителей: PATA IDE, SCSI, SATA III и SAS</h2>
+ <p>Подсистема хранения данных прошла путь от параллельных многопроводных шлейфов с аппаратной адресацией перемычками до скоростных последовательных протоколов с очередями команд и аппаратной виртуализацией.</p>
 
-    <h3>2.1. Параллельный интерфейс ATA / IDE (PATA)</h3>
-    <p>Интерфейс <strong>IDE (Integrated Drive Electronics)</strong>, позже стандартизованный как ATA (Advanced Technology Attachment):</p>
-    <ul>
-      <li><strong>Контроллер на диске:</strong> электроника позиционирования головок и контроллер жесткого диска вынесены непосредственно на плату накопителя (интегрированы), в отличие от ранних контроллеров ST-506/ESDI.</li>
-      <li><strong>Шлейфы и заземление:</strong> исходно использовался 40-жильный шлейф. С переходом на протокол Ultra ATA/66 (UDMA 4) и выше (до Ultra ATA/133) был введен <strong>80-жильный шлейф</strong> при сохранении 40-контактного разъема: между каждым сигнальным проводом был введен экранирующий провод заземления (GND) для подавления емкостных перекрестных помех (Crosstalk) на высокой частоте.</li>
-      <li><strong>Аппаратная адресация Master/Slave:</strong> на одном канале IDE (шлейфе) могут находиться не более двух устройств. Выбор роли осуществляется перемычками (джамперами) на корпусе накопителя:
-        <ul>
-          <li><code>Master</code> — главное ведущее устройство на канале;</li>
-          <li><code>Slave</code> — ведомое устройство;</li>
-          <li><code>Cable Select (CS)</code> — роль определяется позицией накопителя на шлейфе (концевой разъем — Master, промежуточный — Slave, контакт 28 заземлен на одном разъеме).</li>
-        </ul>
-      </li>
-      <li><strong>Недостаток PATA:</strong> взаимная блокировка устройств на одном канале: пока одно устройство выполняет чтение или запись, шина занята, и второе устройство простаивает. Предельная скорость PATA — 133 МБ/с (Ultra DMA Mode 6).</li>
-    </ul>
+ <h3>2.1. Параллельный интерфейс ATA / IDE (PATA)</h3>
+ <p>Интерфейс <strong>IDE (Integrated Drive Electronics)</strong>, позже стандартизованный как ATA (Advanced Technology Attachment):</p>
+ <ul>
+ <li><strong>Контроллер на диске:</strong> электроника позиционирования головок и контроллер жесткого диска вынесены непосредственно на плату накопителя (интегрированы), в отличие от ранних контроллеров ST-506/ESDI.</li>
+ <li><strong>Шлейфы и заземление:</strong> исходно использовался 40-жильный шлейф. С переходом на протокол Ultra ATA/66 (UDMA 4) и выше (до Ultra ATA/133) был введен <strong>80-жильный шлейф</strong> при сохранении 40-контактного разъема: между каждым сигнальным проводом был введен экранирующий провод заземления (GND) для подавления емкостных перекрестных помех (Crosstalk) на высокой частоте.</li>
+ <li><strong>Аппаратная адресация Master/Slave:</strong> на одном канале IDE (шлейфе) могут находиться не более двух устройств. Выбор роли осуществляется перемычками (джамперами) на корпусе накопителя:
+ <ul>
+ <li><code>Master</code> — главное ведущее устройство на канале;</li>
+ <li><code>Slave</code> — ведомое устройство;</li>
+ <li><code>Cable Select (CS)</code> — роль определяется позицией накопителя на шлейфе (концевой разъем — Master, промежуточный — Slave, контакт 28 заземлен на одном разъеме).</li>
+ </ul>
+ </li>
+ <li><strong>Недостаток PATA:</strong> взаимная блокировка устройств на одном канале: пока одно устройство выполняет чтение или запись, шина занята, и второе устройство простаивает. Предельная скорость PATA — 133 МБ/с (Ultra DMA Mode 6).</li>
+ </ul>
 
-    <h3>2.2. Интерфейс SCSI (Small Computer System Interface)</h3>
-    <p>SCSI — параллельный серверный интерфейс с интеллектуальной шиной и собственной системой команд (SCSI Command Set):</p>
-    <ul>
-      <li><strong>Шинная топология и адресация:</strong> к шине Narrow SCSI (8 бит) подключалось до 8 устройств (ID 0–7), к Wide SCSI (16 бит) — до 16 устройств (ID 0–15). Хост-адаптер обычно занимал ID 7 (наивысший приоритет арбитража).</li>
-      <li><strong>Обязательная терминация шины (Terminator):</strong> на обоих физических концах параллельного SCSI-кабеля должны быть установлены пассивные или активные терминаторы (набор согласованных резисторов под напряжением 2.85 В). Терминаторы поглощают энергию бегущей электромагнитной волны и предотвращают паразитные переотражения сигнала от разомкнутого конца кабеля.</li>
-      <li><strong>Очередь команд:</strong> SCSI впервые реализовал аппаратную очередь команд и возможность отсоединения устройства от шины (Disconnect/Reselect) во время физического позиционирования магнитных головок, что позволяло параллельно опрашивать другие накопители на шине.</li>
-    </ul>
+ <h3>2.2. Интерфейс SCSI (Small Computer System Interface)</h3>
+ <p>SCSI — параллельный серверный интерфейс с интеллектуальной шиной и собственной системой команд (SCSI Command Set):</p>
+ <ul>
+ <li><strong>Шинная топология и адресация:</strong> к шине Narrow SCSI (8 бит) подключалось до 8 устройств (ID 0–7), к Wide SCSI (16 бит) — до 16 устройств (ID 0–15). Хост-адаптер обычно занимал ID 7 (наивысший приоритет арбитража).</li>
+ <li><strong>Обязательная терминация шины (Terminator):</strong> на обоих физических концах параллельного SCSI-кабеля должны быть установлены пассивные или активные терминаторы (набор согласованных резисторов под напряжением 2.85 В). Терминаторы поглощают энергию бегущей электромагнитной волны и предотвращают паразитные переотражения сигнала от разомкнутого конца кабеля.</li>
+ <li><strong>Очередь команд:</strong> SCSI впервые реализовал аппаратную очередь команд и возможность отсоединения устройства от шины (Disconnect/Reselect) во время физического позиционирования магнитных головок, что позволяло параллельно опрашивать другие накопители на шине.</li>
+ </ul>
 
-    <h3>2.3. Последовательные интерфейсы: SATA III и Serial Attached SCSI (SAS)</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Параметр</th>
-          <th>SATA III (Revision 3.0)</th>
-          <th>SAS-3 / SAS-4</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Топология</strong></td>
-          <td>Точка-точка (1 порт &rarr; 1 накопитель)</td>
-          <td>Точка-точка + SAS Expander (коммутаторы до 65 535 дисков)</td>
-        </tr>
-        <tr>
-          <td><strong>Скорость передачи</strong></td>
-          <td>6.0 Гбит/с (теоретическая: 600 МБ/с, полезная: ~550 МБ/с)</td>
-          <td>SAS-3: 12 Гбит/с (~1.2 ГБ/с на канал); SAS-4: 22.5 Гбит/с</td>
-        </tr>
-        <tr>
-          <td><strong>Канальное кодирование</strong></td>
-          <td>8b/10b (оверхед 20%)</td>
-          <td>8b/10b (SAS-3: 128b/150b)</td>
-        </tr>
-        <tr>
-          <td><strong>Режим дуплекса</strong></td>
-          <td>Полудуплекс (Half-Duplex)</td>
-          <td>Полнодуплекс (Full-Duplex) с поддержкой Dual-Port (2 пути)</td>
-        </tr>
-        <tr>
-          <td><strong>Протокол и глубина очереди</strong></td>
-          <td>AHCI / NCQ (Native Command Queuing, до 32 команд)</td>
-          <td>SSP (Serial SCSI Protocol), глубина очереди до 254+ команд на LUN</td>
-        </tr>
-        <tr>
-          <td><strong>Совместимость</strong></td>
-          <td>Принимает только диски SATA</td>
-          <td>Обратная совместимость: контроллер SAS поддерживает диски SATA (протокол STP), но диск SAS нельзя включить в порт SATA!</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+ <h3>2.3. Последовательные интерфейсы: SATA III и Serial Attached SCSI (SAS)</h3>
+ <table>
+ <thead>
+ <tr>
+ <th>Параметр</th>
+ <th>SATA III (Revision 3.0)</th>
+ <th>SAS-3 / SAS-4</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>Топология</strong></td>
+ <td>Точка-точка (1 порт &rarr; 1 накопитель)</td>
+ <td>Точка-точка + SAS Expander (коммутаторы до 65 535 дисков)</td>
+ </tr>
+ <tr>
+ <td><strong>Скорость передачи</strong></td>
+ <td>6.0 Гбит/с (теоретическая: 600 МБ/с, полезная: ~550 МБ/с)</td>
+ <td>SAS-3: 12 Гбит/с (~1.2 ГБ/с на канал); SAS-4: 22.5 Гбит/с</td>
+ </tr>
+ <tr>
+ <td><strong>Канальное кодирование</strong></td>
+ <td>8b/10b (оверхед 20%)</td>
+ <td>8b/10b (SAS-3: 128b/150b)</td>
+ </tr>
+ <tr>
+ <td><strong>Режим дуплекса</strong></td>
+ <td>Полудуплекс (Half-Duplex)</td>
+ <td>Полнодуплекс (Full-Duplex) с поддержкой Dual-Port (2 пути)</td>
+ </tr>
+ <tr>
+ <td><strong>Протокол и глубина очереди</strong></td>
+ <td>AHCI / NCQ (Native Command Queuing, до 32 команд)</td>
+ <td>SSP (Serial SCSI Protocol), глубина очереди до 254+ команд на LUN</td>
+ </tr>
+ <tr>
+ <td><strong>Совместимость</strong></td>
+ <td>Принимает только диски SATA</td>
+ <td>Обратная совместимость: контроллер SAS поддерживает диски SATA (протокол STP), но диск SAS нельзя включить в порт SATA!</td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
 
-  <!-- РАЗДЕЛ 3: СИСТЕМНАЯ ЛОГИКА -->
-  <div class="card">
-    <h2>3. Эволюция микросхем системной логики (чипсетов): MCH/ICH &rarr; PCH &rarr; SoC</h2>
-    <p><strong>Чипсет (Chipset)</strong> — набор специализированных микросхем, связывающих процессор с памятью, графической подсистемой и всей периферией компьютера.</p>
+ <!-- РАЗДЕЛ 3: СИСТЕМНАЯ ЛОГИКА -->
+ <div class="card">
+ <h2>3. Эволюция микросхем системной логики (чипсетов): MCH/ICH &rarr; PCH &rarr; SoC</h2>
+ <p><strong>Чипсет (Chipset)</strong> — набор специализированных микросхем, связывающих процессор с памятью, графической подсистемой и всей периферией компьютера.</p>
 
-    <h3>3.1. Классическая двухмостовая архитектура (Northbridge MCH + Southbridge ICH)</h3>
-    <p>До конца 2000-х годов (архитектуры Intel Core 2 Duo, Pentium 4, Socket 775) системная плата содержала две ключевые микросхемы:</p>
-    <ul>
-      <li><strong>Северный мост (Northbridge / MCH — Memory Controller Hub):</strong>
-        <ul>
-          <li>Подключался к процессору через быструю параллельную системную шину <strong>FSB (Front Side Bus)</strong>;</li>
-          <li>Содержал в себе контроллер оперативной памяти (DDR/DDR2/DDR3);</li>
-          <li>Управлял скоростной графической шиной (AGP или процессорными линиями PCI Express x16);</li>
-          <li>Работал на высокой частоте, потреблял значительную мощность и требовал массивного активного или пассивного радиатора.</li>
-        </ul>
-      </li>
-      <li><strong>Южный мост (Southbridge / ICH — I/O Controller Hub):</strong>
-        <ul>
-          <li>Связывался с северным мостом через выделенный межчиповый линк (Intel Hub Interface, затем DMI или VIA V-Link);</li>
-          <li>Управлял медленной периферией: контроллеры PATA/SATA, USB, Ethernet MAC, встроенный звук (AC'97 / HD Audio), шина PCI и мост на Super I/O (LPC).</li>
-        </ul>
-      </li>
-    </ul>
+ <h3>3.1. Классическая двухмостовая архитектура (Northbridge MCH + Southbridge ICH)</h3>
+ <p>До конца 2000-х годов (архитектуры Intel Core 2 Duo, Pentium 4, Socket 775) системная плата содержала две ключевые микросхемы:</p>
+ <ul>
+ <li><strong>Северный мост (Northbridge / MCH — Memory Controller Hub):</strong>
+ <ul>
+ <li>Подключался к процессору через быструю параллельную системную шину <strong>FSB (Front Side Bus)</strong>;</li>
+ <li>Содержал в себе контроллер оперативной памяти (DDR/DDR2/DDR3);</li>
+ <li>Управлял скоростной графической шиной (AGP или процессорными линиями PCI Express x16);</li>
+ <li>Работал на высокой частоте, потреблял значительную мощность и требовал массивного активного или пассивного радиатора.</li>
+ </ul>
+ </li>
+ <li><strong>Южный мост (Southbridge / ICH — I/O Controller Hub):</strong>
+ <ul>
+ <li>Связывался с северным мостом через выделенный межчиповый линк (Intel Hub Interface, затем DMI или VIA V-Link);</li>
+ <li>Управлял медленной периферией: контроллеры PATA/SATA, USB, Ethernet MAC, встроенный звук (AC'97 / HD Audio), шина PCI и мост на Super I/O (LPC).</li>
+ </ul>
+ </li>
+ </ul>
 
-    <div class="note-warn">
-      <strong>Узкое место двухмостовой схемы:</strong><br>
-      Шина FSB являлась критическим «бутылочным горлышком». При любых обращениях к оперативной памяти процессор был вынужден передавать запросы наружу через контактные ножки сокета на северный мост, что создавало высокую задержку (Latency) и ограничивало пропускную способность.
-    </div>
+ <div class="note-warn">
+ <strong>Узкое место двухмостовой схемы:</strong><br>
+ Шина FSB являлась критическим «бутылочным горлышком». При любых обращениях к оперативной памяти процессор был вынужден передавать запросы наружу через контактные ножки сокета на северный мост, что создавало высокую задержку (Latency) и ограничивало пропускную способность.
+ </div>
 
-    <h3>3.2. Современная одномостовая архитектура: PCH (Platform Controller Hub) и интеграция в CPU</h3>
-    <p>С выходом микроархитектур Intel Nehalem / Sandy Bridge и AMD K8 / Zen произошла фундаментальная интеграция компонентов:</p>
-    <ol>
-      <li><strong>Интеграция контроллеров в кристалл процессора (System Agent / IOD):</strong>
-        <ul>
-          <li>Контроллер оперативной памяти (IMC) перенесен внутрь процессора, что снизило задержки доступа к ОЗУ с 80–100 нс до 40–55 нс.</li>
-          <li>Контроллер линий PCI Express для дискретной видеокарты (x16) и прямого скоростного накопителя M.2 NVMe (x4) также встроен в кристалл процессора.</li>
-          <li>Северный мост как отдельная микросхема на материнской плате полностью ликвидирован.</li>
-        </ul>
-      </li>
-      <li><strong>Появление PCH (Platform Controller Hub):</strong>
-        <ul>
-          <li>Оставшиеся функции южного моста и вторичный коммутатор PCIe объединены в одну микросхему — <strong>PCH</strong> (чипсет в современном понимании, например, Intel Z790/B760 или AMD B650/X670).</li>
-          <li>Процессор связывается с PCH по специализированной высокоскоростной шине <strong>DMI (Direct Media Interface)</strong> у Intel (например, DMI 4.0 x8 с пропускной способностью ~15.75 ГБ/с) или PCIe Uplink у AMD.</li>
-          <li>PCH предоставляет чипсетные линии PCIe (для вторичных разъемов M.2, Wi-Fi и карт расширения), порты SATA III, контроллеры USB 3.2/USB4, сетевой контроллер LAN и аудиоподсистему.</li>
-        </ul>
-      </li>
-    </ol>
-  </div>
+ <h3>3.2. Современная одномостовая архитектура: PCH (Platform Controller Hub) и интеграция в CPU</h3>
+ <p>С выходом микроархитектур Intel Nehalem / Sandy Bridge и AMD K8 / Zen произошла фундаментальная интеграция компонентов:</p>
+ <ol>
+ <li><strong>Интеграция контроллеров в кристалл процессора (System Agent / IOD):</strong>
+ <ul>
+ <li>Контроллер оперативной памяти (IMC) перенесен внутрь процессора, что снизило задержки доступа к ОЗУ с 80–100 нс до 40–55 нс.</li>
+ <li>Контроллер линий PCI Express для дискретной видеокарты (x16) и прямого скоростного накопителя M.2 NVMe (x4) также встроен в кристалл процессора.</li>
+ <li>Северный мост как отдельная микросхема на материнской плате полностью ликвидирован.</li>
+ </ul>
+ </li>
+ <li><strong>Появление PCH (Platform Controller Hub):</strong>
+ <ul>
+ <li>Оставшиеся функции южного моста и вторичный коммутатор PCIe объединены в одну микросхему — <strong>PCH</strong> (чипсет в современном понимании, например, Intel Z790/B760 или AMD B650/X670).</li>
+ <li>Процессор связывается с PCH по специализированной высокоскоростной шине <strong>DMI (Direct Media Interface)</strong> у Intel (например, DMI 4.0 x8 с пропускной способностью ~15.75 ГБ/с) или PCIe Uplink у AMD.</li>
+ <li>PCH предоставляет чипсетные линии PCIe (для вторичных разъемов M.2, Wi-Fi и карт расширения), порты SATA III, контроллеры USB 3.2/USB4, сетевой контроллер LAN и аудиоподсистему.</li>
+ </ul>
+ </li>
+ </ol>
+ </div>
 
-  <!-- РАЗДЕЛ 4: СТАНДАРТЫ ATX И ЭЛЕКТРОПИТАНИЕ -->
-  <div class="card">
-    <h2>4. Стандарты семейства ATX и спецификации блоков питания ATX12V / ATX 3.0</h2>
+ <!-- РАЗДЕЛ 4: СТАНДАРТЫ ATX И ЭЛЕКТРОПИТАНИЕ -->
+ <div class="card">
+ <h2>4. Стандарты семейства ATX и спецификации блоков питания ATX12V / ATX 3.0</h2>
 
-    <h3>4.1. Форм-факторы материнских плат семейства ATX</h3>
-    <p>Спецификация ATX (Advanced Technology Extended) была представлена компанией Intel в 1995 году на замену устаревшему стандарту Baby-AT. Главные нововведения: стандартизованная панель портов ввода-вывода (I/O Shield), программное управление питанием и продуманная аэродинамика охлаждения.</p>
+ <h3>4.1. Форм-факторы материнских плат семейства ATX</h3>
+ <p>Спецификация ATX (Advanced Technology Extended) была представлена компанией Intel в 1995 году на замену устаревшему стандарту Baby-AT. Главные нововведения: стандартизованная панель портов ввода-вывода (I/O Shield), программное управление питанием и продуманная аэродинамика охлаждения.</p>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Форм-фактор</th>
-          <th>Физические габариты</th>
-          <th>Макс. число слотов расширения</th>
-          <th>Сфера применения</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>E-ATX (Extended ATX)</strong></td>
-          <td>305 &times; 330 мм (12 &times; 13 дюймов)</td>
-          <td>7–8 слотов</td>
-          <td>Двухпроцессорные рабочие станции, серверы, энтузиастские ПК</td>
-        </tr>
-        <tr>
-          <td><strong>Standard ATX</strong></td>
-          <td>305 &times; 244 мм (12 &times; 9.6 дюймов)</td>
-          <td>До 7 слотов</td>
-          <td>Полноразмерные настольные и игровые ПК, рабочие станции</td>
-        </tr>
-        <tr>
-          <td><strong>MicroATX (mATX)</strong></td>
-          <td>244 &times; 244 мм (9.6 &times; 9.6 дюймов)</td>
-          <td>До 4 слотов</td>
-          <td>Массовый офисный и домашний сегмент, компактные Midi-Tower</td>
-        </tr>
-        <tr>
-          <td><strong>Mini-ITX</strong></td>
-          <td>170 &times; 170 мм (6.7 &times; 6.7 дюймов)</td>
-          <td>Строго 1 слот</td>
-          <td>Сверхкомпактные системы SFF (Small Form Factor), HTPC, тонкие клиенты</td>
-        </tr>
-      </tbody>
-    </table>
+ <table>
+ <thead>
+ <tr>
+ <th>Форм-фактор</th>
+ <th>Физические габариты</th>
+ <th>Макс. число слотов расширения</th>
+ <th>Сфера применения</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>E-ATX (Extended ATX)</strong></td>
+ <td>305 &times; 330 мм (12 &times; 13 дюймов)</td>
+ <td>7–8 слотов</td>
+ <td>Двухпроцессорные рабочие станции, серверы, энтузиастские ПК</td>
+ </tr>
+ <tr>
+ <td><strong>Standard ATX</strong></td>
+ <td>305 &times; 244 мм (12 &times; 9.6 дюймов)</td>
+ <td>До 7 слотов</td>
+ <td>Полноразмерные настольные и игровые ПК, рабочие станции</td>
+ </tr>
+ <tr>
+ <td><strong>MicroATX (mATX)</strong></td>
+ <td>244 &times; 244 мм (9.6 &times; 9.6 дюймов)</td>
+ <td>До 4 слотов</td>
+ <td>Массовый офисный и домашний сегмент, компактные Midi-Tower</td>
+ </tr>
+ <tr>
+ <td><strong>Mini-ITX</strong></td>
+ <td>170 &times; 170 мм (6.7 &times; 6.7 дюймов)</td>
+ <td>Строго 1 слот</td>
+ <td>Сверхкомпактные системы SFF (Small Form Factor), HTPC, тонкие клиенты</td>
+ </tr>
+ </tbody>
+ </table>
 
-    <h3>4.2. Линии напряжений и управляющие сигналы блока питания</h3>
-    <p>Блок питания стандарта ATX является импульсным преобразователем переменного сетевого напряжения (~230 В / 50 Гц) в стабилизированные постоянные напряжения низкого уровня:</p>
-    <ul>
-      <li><strong>Линия +12 В (+12V):</strong> основная силовая линия современного компьютера. От нее питаются самые энергоемкие узлы через импульсные VRM-преобразователи материнской платы: процессор (CPU), графический процессор (GPU), двигатели шпинделей HDD и вентиляторы.</li>
-      <li><strong>Линия +5 В (+5V):</strong> питание микросхем логики, контроллеров накопителей 2.5" SSD/HDD, портов USB (5 В, до 500/900 мА).</li>
-      <li><strong>Линия +3.3 В (+3.3V):</strong> питание микросхем чипсета, модулей оперативной памяти DDR, контроллеров PCIe/M.2.</li>
-      <li><strong>Дежурная линия +5VSB (+5V Standby):</strong> напряжение подается непрерывно при включении БП в розетку (даже при выключенном ПК). Питает контроллер управления Super I/O / Embedded Controller, сетевую карту (для функции Wake-on-LAN), контроллер питания USB и микросхему RTC/BIOS.</li>
-    </ul>
+ <h3>4.2. Линии напряжений и управляющие сигналы блока питания</h3>
+ <p>Блок питания стандарта ATX является импульсным преобразователем переменного сетевого напряжения (~230 В / 50 Гц) в стабилизированные постоянные напряжения низкого уровня:</p>
+ <ul>
+ <li><strong>Линия +12 В (+12V):</strong> основная силовая линия современного компьютера. От нее питаются самые энергоемкие узлы через импульсные VRM-преобразователи материнской платы: процессор (CPU), графический процессор (GPU), двигатели шпинделей HDD и вентиляторы.</li>
+ <li><strong>Линия +5 В (+5V):</strong> питание микросхем логики, контроллеров накопителей 2.5" SSD/HDD, портов USB (5 В, до 500/900 мА).</li>
+ <li><strong>Линия +3.3 В (+3.3V):</strong> питание микросхем чипсета, модулей оперативной памяти DDR, контроллеров PCIe/M.2.</li>
+ <li><strong>Дежурная линия +5VSB (+5V Standby):</strong> напряжение подается непрерывно при включении БП в розетку (даже при выключенном ПК). Питает контроллер управления Super I/O / Embedded Controller, сетевую карту (для функции Wake-on-LAN), контроллер питания USB и микросхему RTC/BIOS.</li>
+ </ul>
 
-    <h3>4.3. Управляющие логические сигналы PS_ON# и Power_Good</h3>
-    <ul>
-      <li><code>PS_ON#</code> (Power Supply On, контакт 16 основного разъема 24-pin, зеленый провод): логический сигнал включения БП с активным низким уровнем (Active Low). В дежурном режиме подтянут к уровню +5 В. При нажатии кнопки включения на корпусе плата кратковременно замыкает <code>PS_ON#</code> на <code>GND</code> (землю). Контроллер БП запускает силовой генератор и выдает рабочие напряжения.</li>
-      <li><code>Power_Good / PWR_OK</code> (контакт 8 разъема 24-pin, серый провод): контрольный сигнал от БП материнской плате. После запуска БП измеряет уровень напряжений +12 В, +5 В и +3.3 В. Если в течение 100–500 мс все напряжения стабилизировались в пределах &plusmn;5%, БП подает логическую единицу (+5 В) на провод <code>PWR_OK</code>. Только получив этот сигнал, процессор снимает внутренний сигнал сброса <code>RESET#</code> и начинает исполнение кода BIOS/UEFI. При просадке напряжения БП сбрасывает <code>PWR_OK</code> в 0, мгновенно останавливая CPU во избежание порчи данных в ОЗУ.</li>
-    </ul>
+ <h3>4.3. Управляющие логические сигналы PS_ON# и Power_Good</h3>
+ <ul>
+ <li><code>PS_ON#</code> (Power Supply On, контакт 16 основного разъема 24-pin, зеленый провод): логический сигнал включения БП с активным низким уровнем (Active Low). В дежурном режиме подтянут к уровню +5 В. При нажатии кнопки включения на корпусе плата кратковременно замыкает <code>PS_ON#</code> на <code>GND</code> (землю). Контроллер БП запускает силовой генератор и выдает рабочие напряжения.</li>
+ <li><code>Power_Good / PWR_OK</code> (контакт 8 разъема 24-pin, серый провод): контрольный сигнал от БП материнской плате. После запуска БП измеряет уровень напряжений +12 В, +5 В и +3.3 В. Если в течение 100–500 мс все напряжения стабилизировались в пределах &plusmn;5%, БП подает логическую единицу (+5 В) на провод <code>PWR_OK</code>. Только получив этот сигнал, процессор снимает внутренний сигнал сброса <code>RESET#</code> и начинает исполнение кода BIOS/UEFI. При просадке напряжения БП сбрасывает <code>PWR_OK</code> в 0, мгновенно останавливая CPU во избежание порчи данных в ОЗУ.</li>
+ </ul>
 
-    <h3>4.4. Стандарт ATX 3.0 и разъемы 12VHPWR / 12V-2x6</h3>
-    <p>С ростом мощности видеокарт до 450–600 Вт стандарт ATX 2.x столкнулся с проблемой импульсных пиковых нагрузок (Power Excursions): современные GPU могут кратковременно (на доли миллисекунд) потреблять в 2–3 раза больше номинальной мощности, что приводило к срабатыванию защиты OCP/OPP и отключению ПК.</p>
-    <div class="note">
-      <strong>Нововведения спецификации Intel ATX 3.0:</strong><br>
-      1. Способность блока питания выдерживать импульсные всплески потребления до <strong>200% от номинала</strong> в течение 100 мкс.<br>
-      2. Разъем <strong>12VHPWR (PCIe 5.0 12+4 pin)</strong>: 12 силовых контактов питания (6 линий +12V и 6 линий GND, ток до 9.2 А на контакт) и 4 сигнальных контакта боковой полосы (Sideband Signals: <code>SENSE0, SENSE1</code>).<br>
-      3. Сигналы <code>SENSE0/1</code> передают видеокарте допустимый лимит мощности БП (150 Вт, 300 Вт, 450 Вт или 600 Вт). Если кабель не подключен или БП маломощный, видеокарта аппаратно ограничивает теплопакет.<br>
-      4. В ревизии <strong>ATX 3.1</strong> разъем модернизирован до <strong>12V-2x6</strong>: контакты датчиков укорочены, а силовые штыри удлинены. Это гарантирует, что если штекер вставлен не до конца, сигналы SENSE разомкнутся первыми, и подача высокой мощности отключится, исключая перегрев и оплавление разъема.
-    </div>
-  </div>
+ <h3>4.4. Стандарт ATX 3.0 и разъемы 12VHPWR / 12V-2x6</h3>
+ <p>С ростом мощности видеокарт до 450–600 Вт стандарт ATX 2.x столкнулся с проблемой импульсных пиковых нагрузок (Power Excursions): современные GPU могут кратковременно (на доли миллисекунд) потреблять в 2–3 раза больше номинальной мощности, что приводило к срабатыванию защиты OCP/OPP и отключению ПК.</p>
+ <div class="note">
+ <strong>Нововведения спецификации Intel ATX 3.0:</strong><br>
+ 1. Способность блока питания выдерживать импульсные всплески потребления до <strong>200% от номинала</strong> в течение 100 мкс.<br>
+ 2. Разъем <strong>12VHPWR (PCIe 5.0 12+4 pin)</strong>: 12 силовых контактов питания (6 линий +12V и 6 линий GND, ток до 9.2 А на контакт) и 4 сигнальных контакта боковой полосы (Sideband Signals: <code>SENSE0, SENSE1</code>).<br>
+ 3. Сигналы <code>SENSE0/1</code> передают видеокарте допустимый лимит мощности БП (150 Вт, 300 Вт, 450 Вт или 600 Вт). Если кабель не подключен или БП маломощный, видеокарта аппаратно ограничивает теплопакет.<br>
+ 4. В ревизии <strong>ATX 3.1</strong> разъем модернизирован до <strong>12V-2x6</strong>: контакты датчиков укорочены, а силовые штыри удлинены. Это гарантирует, что если штекер вставлен не до конца, сигналы SENSE разомкнутся первыми, и подача высокой мощности отключится, исключая перегрев и оплавление разъема.
+ </div>
+ </div>
 
-  <!-- РАЗДЕЛ 5: САМОПРОВЕРКА -->
-  <div class="card">
-    <h2>5. Контрольные вопросы для самопроверки</h2>
-    <ol>
-      <li>В чем заключается физический принцип подавления синфазных помех в дифференциальной паре USB D+/D-?</li>
-      <li>Почему стандарт IEEE-1394 FireWire обеспечивал стабильную передачу видеопотока без задержек по сравнению с USB 2.0?</li>
-      <li>Для какой цели в шлейфе Ultra ATA/66 число жил было увеличено с 40 до 80 при сохранении 40-контактного разъема?</li>
-      <li>Что произойдет на шине SCSI, если на одном из физических концов кабеля отсутствует терминатор?</li>
-      <li>Почему накопитель SAS нельзя подключить к материнской плате с портами SATA III, хотя обратное подключение (диск SATA в контроллер SAS) аппаратно возможно?</li>
-      <li>Какая фундаментальная архитектурная проблема системной шины FSB привела к отказу от классического северного моста (MCH) в пользу интеграции контроллера памяти в кристалл CPU?</li>
-      <li>Какую функцию выполняет сигнал Power_Good (PWR_OK) и почему процессору запрещено стартовать до появления этого сигнала?</li>
-      <li>Какие усовершенствования внесены в разъем питания 12V-2x6 стандарта ATX 3.1 для предотвращения термического повреждения контактов?</li>
-    </ol>
-  </div>
+ <!-- РАЗДЕЛ 5: САМОПРОВЕРКА -->
+ <div class="card">
+ <h2>5. Контрольные вопросы для самопроверки</h2>
+ <ol>
+ <li>В чем заключается физический принцип подавления синфазных помех в дифференциальной паре USB D+/D-?</li>
+ <li>Почему стандарт IEEE-1394 FireWire обеспечивал стабильную передачу видеопотока без задержек по сравнению с USB 2.0?</li>
+ <li>Для какой цели в шлейфе Ultra ATA/66 число жил было увеличено с 40 до 80 при сохранении 40-контактного разъема?</li>
+ <li>Что произойдет на шине SCSI, если на одном из физических концов кабеля отсутствует терминатор?</li>
+ <li>Почему накопитель SAS нельзя подключить к материнской плате с портами SATA III, хотя обратное подключение (диск SATA в контроллер SAS) аппаратно возможно?</li>
+ <li>Какая фундаментальная архитектурная проблема системной шины FSB привела к отказу от классического северного моста (MCH) в пользу интеграции контроллера памяти в кристалл CPU?</li>
+ <li>Какую функцию выполняет сигнал Power_Good (PWR_OK) и почему процессору запрещено стартовать до появления этого сигнала?</li>
+ <li>Какие усовершенствования внесены в разъем питания 12V-2x6 стандарта ATX 3.1 для предотвращения термического повреждения контактов?</li>
+ </ol>
+ </div>
 
 </div>
 </body>

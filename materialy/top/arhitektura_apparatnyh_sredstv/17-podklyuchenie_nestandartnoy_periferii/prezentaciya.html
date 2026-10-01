@@ -1,697 +1,660 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Презентация: Конструкция, подключение и инсталляция нестандартных периферийных устройств</title>
-  <style>
-    :root {
-      --bg: #0b0f19;
-      --card-bg: #161e2e;
-      --text: #f1f5f9;
-      --muted: #94a3b8;
-      --accent: #38bdf8;
-      --accent-secondary: #818cf8;
-      --line: #2d3748;
-      --border-radius: 16px;
-      --success: #34d399;
-      --warn: #fbbf24;
-      --danger: #f87171;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      overflow: hidden;
-      height: 100vh;
-      width: 100vw;
-      display: flex;
-      flex-direction: column;
-    }
-    .pres-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      position: relative;
-    }
-    .slide {
-      display: none;
-      flex: 1;
-      padding: 40px 60px;
-      overflow-y: auto;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .slide.active {
-      display: flex;
-    }
-    .slide-1 {
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-    }
-    .slide-1 h1 {
-      font-size: clamp(28px, 4.5vw, 48px);
-      line-height: 1.25;
-      color: #ffffff;
-      font-weight: 800;
-      max-width: 1100px;
-      margin: 0;
-      background: linear-gradient(135deg, #ffffff 0%, #38bdf8 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .slide-title {
-      font-size: clamp(20px, 2.8vw, 32px);
-      color: var(--accent);
-      margin-bottom: 24px;
-      font-weight: 700;
-      border-bottom: 2px solid var(--line);
-      padding-bottom: 12px;
-    }
-    .slide-content {
-      font-size: clamp(14px, 1.6vw, 18px);
-      line-height: 1.6;
-      color: var(--text);
-    }
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-    }
-    .grid-4 {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-    }
-    .card-box {
-      background: var(--card-bg);
-      border: 1px solid var(--line);
-      border-radius: var(--border-radius);
-      padding: 20px;
-    }
-    .card-box h3 {
-      font-size: 18px;
-      color: var(--accent);
-      margin-bottom: 10px;
-    }
-    .card-box p, .card-box ul {
-      font-size: 14.5px;
-      color: #cbd5e1;
-      margin-bottom: 8px;
-    }
-    .card-box ul {
-      padding-left: 18px;
-    }
-    .badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 700;
-      background: rgba(56, 189, 248, 0.15);
-      color: var(--accent);
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .badge-warn {
-      background: rgba(251, 191, 36, 0.15);
-      color: var(--warn);
-    }
-    .badge-danger {
-      background: rgba(248, 113, 113, 0.15);
-      color: var(--danger);
-    }
-    .code-term {
-      font-family: ui-monospace, monospace;
-      background: #0f172a;
-      color: #38bdf8;
-      padding: 14px;
-      border-radius: 8px;
-      font-size: 13.5px;
-      line-height: 1.5;
-      overflow-x: auto;
-      margin-top: 10px;
-    }
-    .flow-diagram {
-      background: #0f172a;
-      color: #34d399;
-      font-family: ui-monospace, monospace;
-      padding: 16px;
-      border-radius: 8px;
-      font-size: 13px;
-      line-height: 1.4;
-      white-space: pre;
-      overflow-x: auto;
-    }
-    .meme-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
-    .meme-img {
-      max-width: 480px;
-      max-height: 52vh;
-      border-radius: 12px;
-      border: 1px solid var(--line);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-      margin-bottom: 12px;
-      object-fit: contain;
-    }
-    .attribution {
-      font-size: 12.5px;
-      color: var(--muted);
-      max-width: 650px;
-      line-height: 1.4;
-    }
-    .controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 30px;
-      background: #080c14;
-      border-top: 1px solid var(--line);
-      z-index: 100;
-    }
-    .controls-btns {
-      display: flex;
-      gap: 12px;
-    }
-    .nav-btn {
-      background: var(--card-bg);
-      border: 1px solid var(--line);
-      color: var(--text);
-      padding: 8px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      transition: all 0.2s ease;
-    }
-    .nav-btn:hover:not(:disabled) {
-      background: var(--accent);
-      color: #0b0f19;
-      border-color: var(--accent);
-    }
-    .nav-btn:disabled {
-      opacity: 0.35;
-      cursor: not-allowed;
-    }
-    .slide-counter {
-      color: var(--muted);
-      font-size: 14px;
-      font-weight: 500;
-    }
-    @media (max-width: 900px) {
-      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
-      .slide { padding: 20px; }
-      .controls { padding: 10px 16px; }
-    }
-    @media print {
-      body { overflow: visible; height: auto; background: white; color: black; }
-      .slide { display: block !important; page-break-after: always; padding: 20px; height: auto; }
-      .controls { display: none; }
-      .card-box { background: #f8fafc; border-color: #cbd5e1; color: black; }
-      .slide-1 h1 { color: black; -webkit-text-fill-color: initial; background: none; }
-      .code-term, .flow-diagram { background: #f1f5f9; color: #0f172a; }
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <title>Презентация: Конструкция, подключение и инсталляция нестандартных периферийных устройств</title>
+ <style>
+ :root {
+ --bg: #0b0f19;
+ --card-bg: #161e2e;
+ --text: #f1f5f9;
+ --muted: #94a3b8;
+ --accent: #38bdf8;
+ --accent-secondary: #818cf8;
+ --line: #2d3748;
+ --border-radius: 16px;
+ --success: #34d399;
+ --warn: #fbbf24;
+ --danger: #f87171;
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+ body {
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+ overflow: hidden;
+ height: 100vh;
+ width: 100vw;
+ display: flex;
+ flex-direction: column;
+ }.pres-container {
+ flex: 1;
+ display: flex;
+ flex-direction: column;
+ height: 100%;
+ position: relative;
+ }.slide {
+ display: none;
+ flex: 1;
+ padding: 40px 60px;
+ overflow-y: auto;
+ flex-direction: column;
+ justify-content: center;
+ }.slide.active {
+ display: flex;
+ }.slide-1 {
+ justify-content: center;
+ align-items: center;
+ text-align: center;
+ }.slide-1 h1 {
+ font-size: clamp(28px, 4.5vw, 48px);
+ line-height: 1.25;
+ color: #ffffff;
+ font-weight: 800;
+ max-width: 1100px;
+ margin: 0;
+ background: linear-gradient(135deg, #ffffff 0%, #38bdf8 100%);
+ -webkit-background-clip: text;
+ -webkit-text-fill-color: transparent;
+ }.slide-title {
+ font-size: clamp(20px, 2.8vw, 32px);
+ color: var(--accent);
+ margin-bottom: 24px;
+ font-weight: 700;
+ border-bottom: 2px solid var(--line);
+ padding-bottom: 12px;
+ }.slide-content {
+ font-size: clamp(14px, 1.6vw, 18px);
+ line-height: 1.6;
+ color: var(--text);
+ }.grid-2 {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 20px;
+ }.grid-3 {
+ display: grid;
+ grid-template-columns: repeat(3, 1fr);
+ gap: 16px;
+ }.grid-4 {
+ display: grid;
+ grid-template-columns: repeat(4, 1fr);
+ gap: 14px;
+ }.card-box {
+ background: var(--card-bg);
+ border: 1px solid var(--line);
+ border-radius: var(--border-radius);
+ padding: 20px;
+ }.card-box h3 {
+ font-size: 18px;
+ color: var(--accent);
+ margin-bottom: 10px;
+ }.card-box p,.card-box ul {
+ font-size: 14.5px;
+ color: #cbd5e1;
+ margin-bottom: 8px;
+ }.card-box ul {
+ padding-left: 18px;
+ }.badge {
+ display: inline-block;
+ padding: 4px 10px;
+ border-radius: 6px;
+ font-size: 12px;
+ font-weight: 700;
+ background: rgba(56, 189, 248, 0.15);
+ color: var(--accent);
+ margin-bottom: 10px;
+ text-transform: uppercase;
+ letter-spacing: 0.5px;
+ }.badge-warn {
+ background: rgba(251, 191, 36, 0.15);
+ color: var(--warn);
+ }.badge-danger {
+ background: rgba(248, 113, 113, 0.15);
+ color: var(--danger);
+ }.code-term {
+ font-family: ui-monospace, monospace;
+ background: #0f172a;
+ color: #38bdf8;
+ padding: 14px;
+ border-radius: 8px;
+ font-size: 13.5px;
+ line-height: 1.5;
+ overflow-x: auto;
+ margin-top: 10px;
+ }.flow-diagram {
+ background: #0f172a;
+ color: #34d399;
+ font-family: ui-monospace, monospace;
+ padding: 16px;
+ border-radius: 8px;
+ font-size: 13px;
+ line-height: 1.4;
+ white-space: pre;
+ overflow-x: auto;
+ }.meme-wrap {
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ justify-content: center;
+ text-align: center;
+ }.meme-img {
+ max-width: 480px;
+ max-height: 52vh;
+ border-radius: 12px;
+ border: 1px solid var(--line);
+ box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+ margin-bottom: 12px;
+ object-fit: contain;
+ }.attribution {
+ font-size: 12.5px;
+ color: var(--muted);
+ max-width: 650px;
+ line-height: 1.4;
+ }.controls {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ padding: 12px 30px;
+ background: #080c14;
+ border-top: 1px solid var(--line);
+ z-index: 100;
+ }.controls-btns {
+ display: flex;
+ gap: 12px;
+ }.nav-btn {
+ background: var(--card-bg);
+ border: 1px solid var(--line);
+ color: var(--text);
+ padding: 8px 16px;
+ border-radius: 8px;
+ cursor: pointer;
+ font-size: 14px;
+ font-weight: 600;
+ transition: all 0.2s ease;
+ }.nav-btn:hover:not(:disabled) {
+ background: var(--accent);
+ color: #0b0f19;
+ border-color: var(--accent);
+ }.nav-btn:disabled {
+ opacity: 0.35;
+ cursor: not-allowed;
+ }.slide-counter {
+ color: var(--muted);
+ font-size: 14px;
+ font-weight: 500;
+ }
+ @media (max-width: 900px) {.grid-2,.grid-3,.grid-4 { grid-template-columns: 1fr; }.slide { padding: 20px; }.controls { padding: 10px 16px; }
+ }
+ @media print {
+ body { overflow: visible; height: auto; background: white; color: black; }.slide { display: block !important; page-break-after: always; padding: 20px; height: auto; }.controls { display: none; }.card-box { background: #f8fafc; border-color: #cbd5e1; color: black; }.slide-1 h1 { color: black; -webkit-text-fill-color: initial; background: none; }.code-term,.flow-diagram { background: #f1f5f9; color: #0f172a; }
+ }
+ </style>
 </head>
 <body>
 
 <div class="pres-container">
 
-  <!-- СЛАЙД 1: СТРОГО ТОЛЬКО НАЗВАНИЕ ТЕМЫ -->
-  <div class="slide slide-1 active" id="slide-1">
-    <h1>Конструкция, подключение и инсталляция нестандартных периферийных устройств</h1>
-  </div>
+ <!-- СЛАЙД 1: СТРОГО ТОЛЬКО НАЗВАНИЕ ТЕМЫ -->
+ <div class="slide slide-1 active" id="slide-1">
+ <h1>Конструкция, подключение и инсталляция нестандартных периферийных устройств</h1>
+ </div>
 
-  <!-- СЛАЙД 2: ЦЕЛИ И СТРУКТУРА ПАРЫ (ПРАКТИКА + ЗАЧЕТНЫЙ ТРЕНИНГ) -->
-  <div class="slide" id="slide-2">
-    <div class="slide-title">2. Цели практической работы и предзачетного практикума</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="card-box">
-          <span class="badge">Блок 1: Официальная практика (45 мин)</span>
-          <h3>Пусконаладка нестандартной периферии</h3>
-          <ul>
-            <li>Аппаратное сопряжение контроллеров с нестандартными узлами (датчики, актуаторы).</li>
-            <li>Калибровка кинематики шаговых двигателей (Steps/mm) и Z-offset в аддитивных системах.</li>
-            <li>Метрологическая калибровка аналоговых каналов с токовой петлей 4–20 мА.</li>
-            <li>Юстировка систем пространственного трекинга 6DoF (Lighthouse) и шины IEEE-488 (GPIB).</li>
-          </ul>
-        </div>
-        <div class="card-box">
-          <span class="badge badge-warn">Блок 2: Предзачетный тренинг (35 мин)</span>
-          <h3>Интенсивное повторение тем 01–16</h3>
-          <ul>
-            <li>Консолидация знаний перед дифференцированным зачетом на следующем занятии.</li>
-            <li>Расчетные архитектурные задачи: шины PCIe, пропускная способность DDR4/DDR5.</li>
-            <li>Видеоинтерфейсы DisplayPort / HDMI, расчет битрейта и сжатие DSC.</li>
-            <li>Механизмы прямого доступа к памяти DMA и опрос прерываний MSI-X.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 2: ЦЕЛИ И СТРУКТУРА ПАРЫ (ПРАКТИКА + ЗАЧЕТНЫЙ ТРЕНИНГ) -->
+ <div class="slide" id="slide-2">
+ <div class="slide-title">2. Цели практической работы и предзачетного практикума</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="card-box">
+ <span class="badge">Блок 1: Официальная практика (45 мин)</span>
+ <h3>Пусконаладка нестандартной периферии</h3>
+ <ul>
+ <li>Аппаратное сопряжение контроллеров с нестандартными узлами (датчики, актуаторы).</li>
+ <li>Калибровка кинематики шаговых двигателей (Steps/mm) и Z-offset в аддитивных системах.</li>
+ <li>Метрологическая калибровка аналоговых каналов с токовой петлей 4–20 мА.</li>
+ <li>Юстировка систем пространственного трекинга 6DoF (Lighthouse) и шины IEEE-488 (GPIB).</li>
+ </ul>
+ </div>
+ <div class="card-box">
+ <span class="badge badge-warn">Блок 2: Предзачетный тренинг (35 мин)</span>
+ <h3>Интенсивное повторение тем 01–16</h3>
+ <ul>
+ <li>Консолидация знаний перед дифференцированным зачетом на следующем занятии.</li>
+ <li>Расчетные архитектурные задачи: шины PCIe, пропускная способность DDR4/DDR5.</li>
+ <li>Видеоинтерфейсы DisplayPort / HDMI, расчет битрейта и сжатие DSC.</li>
+ <li>Механизмы прямого доступа к памяти DMA и опрос прерываний MSI-X.</li>
+ </ul>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 3: ВАРИАНТ 1 — КИНЕМАТИКА CoreXY И ШАГОВЫЕ ДВИГАТЕЛИ -->
-  <div class="slide" id="slide-3">
-    <div class="slide-title">3. Аддитивные системы: расчет кинематики и Steps/mm</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="card-box">
-          <span class="badge">Математический расчет</span>
-          <h3>Формула шагов на миллиметр (Steps/mm)</h3>
-          <p><div class="formula">Steps/mm = frac{Шагов/об × Микрошаг}{Зубья шкива × Шаг ремня (мм)}</div></p>
-          <div class="code-term">
+ <!-- СЛАЙД 3: ВАРИАНТ 1 — КИНЕМАТИКА CoreXY И ШАГОВЫЕ ДВИГАТЕЛИ -->
+ <div class="slide" id="slide-3">
+ <div class="slide-title">3. Аддитивные системы: расчет кинематики и Steps/mm</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="card-box">
+ <span class="badge">Математический расчет</span>
+ <h3>Формула шагов на миллиметр (Steps/mm)</h3>
+ <p><div class="formula">Steps/mm = frac{Шагов/об × Микрошаг}{Зубья шкива × Шаг ремня (мм)}</div></p>
+ <div class="code-term">
 Двигатель NEMA 17: 200 шагов на оборот (1.8°)
 Драйвер TMC2209: интерполяция 1/16 микрошага
 Шкив GT2: 20 зубьев, шаг зуба 2 мм (периметр 40 мм)
 Steps/mm = (200 * 16) / (20 * 2) = 3200 / 40 = 80.0 шаг/мм
 Ходовой винт оси Z (Tr8x8): (200 * 16) / 8 = 400.0 шаг/мм
-          </div>
-        </div>
-        <div class="card-box">
-          <span class="badge">Диагностика кинематики</span>
-          <h3>Ошибки шага и пропуск импульсов</h3>
-          <ul>
-            <li><strong>Пропуск шагов:</strong> Перегрев драйвера шагового двигателя (ток V<sub>ref</sub> завышен) или недостаточный крутящий момент (ток занижен).</li>
-            <li><strong>Натяжение ремней CoreXY:</strong> Разность натяжения ремней А и В искажает круглые контуры в эллипсы под углом 45°.</li>
-            <li><strong>Плавность хода:</strong> Аппаратный StealthChop2 снижает акустический шум, но на высоких скоростях требует переключения в SpreadCycle.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+ </div>
+ </div>
+ <div class="card-box">
+ <span class="badge">Диагностика кинематики</span>
+ <h3>Ошибки шага и пропуск импульсов</h3>
+ <ul>
+ <li><strong>Пропуск шагов:</strong> Перегрев драйвера шагового двигателя (ток V<sub>ref</sub> завышен) или недостаточный крутящий момент (ток занижен).</li>
+ <li><strong>Натяжение ремней CoreXY:</strong> Разность натяжения ремней А и В искажает круглые контуры в эллипсы под углом 45°.</li>
+ <li><strong>Плавность хода:</strong> Аппаратный StealthChop2 снижает акустический шум, но на высоких скоростях требует переключения в SpreadCycle.</li>
+ </ul>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 4: ЮСТИРОВКА ВЫСОТЫ СОПЛА Z-OFFSET -->
-  <div class="slide" id="slide-4">
-    <div class="slide-title">4. Калибровка нулевой точки и высоты сопла Z-offset</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="card-box">
-          <span class="badge">Алгоритм калибровки</span>
-          <h3>Определение Z-offset</h3>
-          <p>Разница между физической координатой срабатывания концевика и касанием сопла стола:</p>
-          <div class="flow-diagram">1. G28: автопарковка Z -> z_trigger = 0.00 мм
+ <!-- СЛАЙД 4: ЮСТИРОВКА ВЫСОТЫ СОПЛА Z-OFFSET -->
+ <div class="slide" id="slide-4">
+ <div class="slide-title">4. Калибровка нулевой точки и высоты сопла Z-offset</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="card-box">
+ <span class="badge">Алгоритм калибровки</span>
+ <h3>Определение Z-offset</h3>
+ <p>Разница между физической координатой срабатывания концевика и касанием сопла стола:</p>
+ <div class="flow-diagram">1. G28: автопарковка Z -> z_trigger = 0.00 мм
 2. Ручное опускание сопла с шагом 0.05 мм
 3. Контроль калибровочным щупом (0.10 мм)
 4. z_contact = -1.85 мм
 5. Z_offset = z_contact = -1.85 мм
 6. M851 Z-1.85 -> M500 (сохранение в EEPROM)</div>
-        </div>
-        <div class="card-box">
-          <span class="badge badge-danger">Аппаратные риски</span>
-          <h3>Последствия неверного Z-offset</h3>
-          <ul>
-            <li><strong>Z-offset занижен (&lt; 0.1 мм):</strong> Сопло царапает ультрабазу / PEI-покрытие стола. Пробка расплава (clogging), перегрев шагового двигателя экструдера.</li>
-            <li><strong>Z-offset завышен (&gt; 0.3 мм):</strong> Отсутствие адгезии первого слоя, отрыв детали при печати, скопление расплава («валенок») на хотэнде.</li>
-            <li><strong>Температурный дрейф:</strong> Нагрев сопла до 250°C удлиняет термобарьер на 0.05–0.08 мм за счет теплового расширения!</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+ </div>
+ <div class="card-box">
+ <span class="badge badge-danger">Аппаратные риски</span>
+ <h3>Последствия неверного Z-offset</h3>
+ <ul>
+ <li><strong>Z-offset занижен (&lt; 0.1 мм):</strong> Сопло царапает ультрабазу / PEI-покрытие стола. Пробка расплава (clogging), перегрев шагового двигателя экструдера.</li>
+ <li><strong>Z-offset завышен (&gt; 0.3 мм):</strong> Отсутствие адгезии первого слоя, отрыв детали при печати, скопление расплава («валенок») на хотэнде.</li>
+ <li><strong>Температурный дрейф:</strong> Нагрев сопла до 250°C удлиняет термобарьер на 0.05–0.08 мм за счет теплового расширения!</li>
+ </ul>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 5: PID-РЕГУЛИРОВАНИЕ ХОТЭНДА -->
-  <div class="slide" id="slide-5">
-    <div class="slide-title">5. Юстировка температурного контура хотэнда (PID)</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="card-box">
-          <span class="badge">Математическая модель</span>
-          <h3>Уравнение PID-регулятора</h3>
-          <p><div class="formula">u(t) = K<sub>p</sub>   e(t) + K<sub>i</sub> int<sub>0</sub><sup>t</sup> e(τ)dτ + K<sub>d</sub> frac{de(t)}{dt}</div></p>
-          <div class="code-term">
+ <!-- СЛАЙД 5: PID-РЕГУЛИРОВАНИЕ ХОТЭНДА -->
+ <div class="slide" id="slide-5">
+ <div class="slide-title">5. Юстировка температурного контура хотэнда (PID)</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="card-box">
+ <span class="badge">Математическая модель</span>
+ <h3>Уравнение PID-регулятора</h3>
+ <p><div class="formula">u(t) = K<sub>p</sub> e(t) + K<sub>i</sub> int<sub>0</sub><sup>t</sup> e(τ)dτ + K<sub>d</sub> frac{de(t)}{dt}</div></p>
+ <div class="code-term">
 Запуск автокалибровки Циглера-Никольса:
-M303 E0 S210 C8
-...
-Kp: 22.45  (Пропорциональный коэффициент)
-Ki:  1.82  (Интегральный коэффициент)
-Kd: 69.15  (Дифференциальный коэффициент)
+M303 E0 S210 C8...
+Kp: 22.45 (Пропорциональный коэффициент)
+Ki: 1.82 (Интегральный коэффициент)
+Kd: 69.15 (Дифференциальный коэффициент)
 M301 P22.45 I1.82 D69.15 -> M500
-          </div>
-        </div>
-        <div class="card-box">
-          <span class="badge">Физический смысл коэффициентов</span>
-          <h3>Влияние на стабильность температуры</h3>
-          <ul>
-            <li><strong>K<sub>p</sub>:</strong> Быстрый набор температуры, при завышении — постоянные незатухающие автоколебания.</li>
-            <li><strong>K<sub>i</sub>:</strong> Компенсация внешней теплоотдачи (сквозняки, массивный стол), при завышении — перелет (overshoot) до 15°C.</li>
-            <li><strong>K<sub>d</sub>:</strong> Реакция на скорость обдува сопла турбиной охлаждения детали.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+ </div>
+ </div>
+ <div class="card-box">
+ <span class="badge">Физический смысл коэффициентов</span>
+ <h3>Влияние на стабильность температуры</h3>
+ <ul>
+ <li><strong>K<sub>p</sub>:</strong> Быстрый набор температуры, при завышении — постоянные незатухающие автоколебания.</li>
+ <li><strong>K<sub>i</sub>:</strong> Компенсация внешней теплоотдачи (сквозняки, массивный стол), при завышении — перелет (overshoot) до 15°C.</li>
+ <li><strong>K<sub>d</sub>:</strong> Реакция на скорость обдува сопла турбиной охлаждения детали.</li>
+ </ul>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 6: ВАРИАНТ 2 — ТОКОВАЯ ПЕТЛЯ 4-20 мА И АЦП -->
-  <div class="slide" id="slide-6">
-    <div class="slide-title">6. Промышленный сбор данных: токовая петля 4–20 мА</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="card-box">
-          <span class="badge">Схема преобразования ток-напряжение</span>
-          <h3>Прецизионный шунт R<sub>sh</sub> = 150 Ω</h3>
-          <p>Вход АЦП микроконтроллера STM32/ESP32: диапазон 0... 3.3 В, 12 бит (4096 квантов):</p>
-          <div class="code-term">
-I = 4.0 мА:  U = 0.004 * 150 = 0.60 В -> Код АЦП:  744
+ <!-- СЛАЙД 6: ВАРИАНТ 2 — ТОКОВАЯ ПЕТЛЯ 4-20 мА И АЦП -->
+ <div class="slide" id="slide-6">
+ <div class="slide-title">6. Промышленный сбор данных: токовая петля 4–20 мА</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="card-box">
+ <span class="badge">Схема преобразования ток-напряжение</span>
+ <h3>Прецизионный шунт R<sub>sh</sub> = 150 Ω</h3>
+ <p>Вход АЦП микроконтроллера STM32/ESP32: диапазон 0... 3.3 В, 12 бит (4096 квантов):</p>
+ <div class="code-term">
+I = 4.0 мА: U = 0.004 * 150 = 0.60 В -> Код АЦП: 744
 I = 12.0 мА: U = 0.012 * 150 = 1.80 В -> Код АЦП: 2234
 I = 20.0 мА: U = 0.020 * 150 = 3.00 В -> Код АЦП: 3723
 Диапазон измерений: 3723 - 744 = 2979 кодов
-          </div>
-        </div>
-        <div class="card-box">
-          <span class="badge badge-warn">Концепция «Живого нуля» (Live Zero)</span>
-          <h3>Аппаратная диагностика линии</h3>
-          <ul>
-            <li><strong>Ток 4 мА:</strong> Минимальное рабочее значение шкалы датчика (например, 0 бар). Позволяет питать электронику датчика по той же паре проводов!</li>
-            <li><strong>Ток &lt; 3.5 мА (Код АЦП &lt; 650):</strong> Однозначный признак обрыва кабеля или потери питания полевого датчика.</li>
-            <li><strong>Ток &gt; 21.0 мА (Код АЦП &gt; 3900):</strong> Короткое замыкание в линии или заклинивание чувствительной мембраны.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+ </div>
+ </div>
+ <div class="card-box">
+ <span class="badge badge-warn">Концепция «Живого нуля» (Live Zero)</span>
+ <h3>Аппаратная диагностика линии</h3>
+ <ul>
+ <li><strong>Ток 4 мА:</strong> Минимальное рабочее значение шкалы датчика (например, 0 бар). Позволяет питать электронику датчика по той же паре проводов!</li>
+ <li><strong>Ток &lt; 3.5 мА (Код АЦП &lt; 650):</strong> Однозначный признак обрыва кабеля или потери питания полевого датчика.</li>
+ <li><strong>Ток &gt; 21.0 мА (Код АЦП &gt; 3900):</strong> Короткое замыкание в линии или заклинивание чувствительной мембраны.</li>
+ </ul>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 7: ЦИФРОВАЯ ФИЛЬТРАЦИЯ СЕТЕВОЙ ПОМЕХИ 50 ГЦ -->
-  <div class="slide" id="slide-7">
-    <div class="slide-title">7. Подавление синфазных помех 50 Гц в каналах АЦП</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="card-box">
-          <span class="badge">Источники помех</span>
-          <h3>Индустриальная наводка 50 Гц</h3>
-          <ul>
-            <li>Электромагнитные поля силовых кабелей, трансформаторов и частотных приводов наводят синусоидальное напряжение на сигнальные цепи.</li>
-            <li>Амплитуда наводки может достигать 0.5–2 В, полностью разрушая полезный сигнал датчика.</li>
-          </ul>
-        </div>
-        <div class="card-box">
-          <span class="badge">Методы фильтрации</span>
-          <h3>Аппаратно-программные фильтры</h3>
-          <ul>
-            <li><strong>АЦП двойного интегрирования / SigmaΔ:</strong> Время интегрирования выбирается кратным периоду сети: T<sub>int</sub> = 20 мс (для 50 Гц). Интеграл от полного периода синусоиды строго равен 0.</li>
-            <li><strong>Скользящее усреднение (Moving Average):</strong> Окно фильтра в микроконтроллере настраивается на выборку отсчетов за целое число периодов (20 мс, 40 мс).</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 7: ЦИФРОВАЯ ФИЛЬТРАЦИЯ СЕТЕВОЙ ПОМЕХИ 50 ГЦ -->
+ <div class="slide" id="slide-7">
+ <div class="slide-title">7. Подавление синфазных помех 50 Гц в каналах АЦП</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="card-box">
+ <span class="badge">Источники помех</span>
+ <h3>Индустриальная наводка 50 Гц</h3>
+ <ul>
+ <li>Электромагнитные поля силовых кабелей, трансформаторов и частотных приводов наводят синусоидальное напряжение на сигнальные цепи.</li>
+ <li>Амплитуда наводки может достигать 0.5–2 В, полностью разрушая полезный сигнал датчика.</li>
+ </ul>
+ </div>
+ <div class="card-box">
+ <span class="badge">Методы фильтрации</span>
+ <h3>Аппаратно-программные фильтры</h3>
+ <ul>
+ <li><strong>АЦП двойного интегрирования / SigmaΔ:</strong> Время интегрирования выбирается кратным периоду сети: T<sub>int</sub> = 20 мс (для 50 Гц). Интеграл от полного периода синусоиды строго равен 0.</li>
+ <li><strong>Скользящее усреднение (Moving Average):</strong> Окно фильтра в микроконтроллере настраивается на выборку отсчетов за целое число периодов (20 мс, 40 мс).</li>
+ </ul>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 8: ВАРИАНТ 3 — VR-ТРЕКИНГ LIGHTHOUSE И ЗАДЕРЖКА MTP -->
-  <div class="slide" id="slide-8">
-    <div class="slide-title">8. Системы трекинга VR: Lighthouse 2.0 и задержка MTP</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="card-box">
-          <span class="badge">Принцип действия Lighthouse</span>
-          <h3>Лазерная развертка и синхронизация</h3>
-          <p>Базовые станции генерируют не видеокадры, а вспышки ИК-синхронизации и развертывают вращающиеся лазерные лучи (частота 100 Гц):</p>
-          <div class="code-term">
+ <!-- СЛАЙД 8: ВАРИАНТ 3 — VR-ТРЕКИНГ LIGHTHOUSE И ЗАДЕРЖКА MTP -->
+ <div class="slide" id="slide-8">
+ <div class="slide-title">8. Системы трекинга VR: Lighthouse 2.0 и задержка MTP</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="card-box">
+ <span class="badge">Принцип действия Lighthouse</span>
+ <h3>Лазерная развертка и синхронизация</h3>
+ <p>Базовые станции генерируют не видеокадры, а вспышки ИК-синхронизации и развертывают вращающиеся лазерные лучи (частота 100 Гц):</p>
+ <div class="code-term">
 1. Вспышка синхронизации (Sync on Beam)
 2. Прохождение луча через фотодиод шлема
 3. Фиксация задержки времени: Δt = t_сенсор - t_вспышка
 4. Расчет угла: θ = ω * Δt (с точностью до 0.05°)
 5. Sensor Fusion: комплексирование с IMU (1000 Гц)
-          </div>
-        </div>
-        <div class="card-box">
-          <span class="badge badge-danger">Бюджет Motion-to-Photon</span>
-          <h3>Требование кинетоза: MTP &le; 20 мс</h3>
-          <ul>
-            <li><strong>Опрос IMU и трекера:</strong> ~1.0 мс</li>
-            <li><strong>Фильтрация Калмана и расчет позы:</strong> ~1.5 мс</li>
-            <li><strong>Рендеринг сцены GPU (120 fps):</strong> ~8.3 мс</li>
-            <li><strong>Передача по DisplayPort 1.4:</strong> ~1.5 мс</li>
-            <li><strong>Отклик Fast-Switch LCD:</strong> ~3.5 мс</li>
-            <li><strong>Компенсация ATW (Timewarp):</strong> ~2.0 мс</li>
-            <li><strong>Суммарно:</strong> ~17.8 мс (комфортно для вестибулярного аппарата).</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+ </div>
+ </div>
+ <div class="card-box">
+ <span class="badge badge-danger">Бюджет Motion-to-Photon</span>
+ <h3>Требование кинетоза: MTP &le; 20 мс</h3>
+ <ul>
+ <li><strong>Опрос IMU и трекера:</strong> ~1.0 мс</li>
+ <li><strong>Фильтрация Калмана и расчет позы:</strong> ~1.5 мс</li>
+ <li><strong>Рендеринг сцены GPU (120 fps):</strong> ~8.3 мс</li>
+ <li><strong>Передача по DisplayPort 1.4:</strong> ~1.5 мс</li>
+ <li><strong>Отклик Fast-Switch LCD:</strong> ~3.5 мс</li>
+ <li><strong>Компенсация ATW (Timewarp):</strong> ~2.0 мс</li>
+ <li><strong>Суммарно:</strong> ~17.8 мс (комфортно для вестибулярного аппарата).</li>
+ </ul>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 9: ВАРИАНТ 4 — ШИНА IEEE-488 (GPIB) И ВИРТУАЛЬНЫЕ ПОРТЫ -->
-  <div class="slide" id="slide-9">
-    <div class="slide-title">9. Измерительные комплексы: шина IEEE-488 (GPIB)</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="card-box">
-          <span class="badge">Архитектура шины</span>
-          <h3>Параллельная измерительная шина</h3>
-          <ul>
-            <li>8 линий данных DIO1–DIO8 (байтовая передача).</li>
-            <li>3 линии аппаратного квитирования (DAV, NRFD, NDAC): передача идет со скоростью самого медленного прибора на шине.</li>
-            <li>5 линий управления (ATN, IFC, SRQ, REN, EOI).</li>
-            <li>Инверсная TTL-логика с открытым коллектором (0 В = True).</li>
-          </ul>
-        </div>
-        <div class="card-box">
-          <span class="badge">Опрос прерываний SRQ</span>
-          <h3>Аппаратный опрос (Serial Poll)</h3>
-          <p>При завершении измерения осциллограф или мультиметр выставляет линию <code>SRQ = LOW</code>:</p>
-          <div class="flow-diagram">1. Контроллер видит сигнал SRQ (прерывание)
+ <!-- СЛАЙД 9: ВАРИАНТ 4 — ШИНА IEEE-488 (GPIB) И ВИРТУАЛЬНЫЕ ПОРТЫ -->
+ <div class="slide" id="slide-9">
+ <div class="slide-title">9. Измерительные комплексы: шина IEEE-488 (GPIB)</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="card-box">
+ <span class="badge">Архитектура шины</span>
+ <h3>Параллельная измерительная шина</h3>
+ <ul>
+ <li>8 линий данных DIO1–DIO8 (байтовая передача).</li>
+ <li>3 линии аппаратного квитирования (DAV, NRFD, NDAC): передача идет со скоростью самого медленного прибора на шине.</li>
+ <li>5 линий управления (ATN, IFC, SRQ, REN, EOI).</li>
+ <li>Инверсная TTL-логика с открытым коллектором (0 В = True).</li>
+ </ul>
+ </div>
+ <div class="card-box">
+ <span class="badge">Опрос прерываний SRQ</span>
+ <h3>Аппаратный опрос (Serial Poll)</h3>
+ <p>При завершении измерения осциллограф или мультиметр выставляет линию <code>SRQ = LOW</code>:</p>
+ <div class="flow-diagram">1. Контроллер видит сигнал SRQ (прерывание)
 2. Команда SPE (Serial Poll Enable)
 3. Опрос байтов статуса приборов по адресам (1..30)
 4. Прибор с битом RQS (бит 6 = 1) отдает статус
 5. Команда SPD (Serial Poll Disable)
 6. Считывание данных по шине данных DIO1-8</div>
-        </div>
-      </div>
-    </div>
-  </div>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 10: ПРАВИЛА ЗАЗЕМЛЕНИЯ СИГНАЛЬНЫХ ЭКРАНОВ -->
-  <div class="slide" id="slide-10">
-    <div class="slide-title">10. Электромагнитная совместимость: заземление экранов</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="card-box">
-          <span class="badge badge-danger">Ошибка: Заземление с двух сторон</span>
-          <h3>Паразитный контур «Ground Loop»</h3>
-          <p>Разность потенциалов между контурами заземления в разных частях помещения порождает ток промышленной частоты 50 Гц прямо по оплетке кабеля!</p>
-          <div class="flow-diagram">Земля Источника [0 В] ─────────────── Земля Приемника [5 В]
-            │                                    │
-            └───[Экран кабеля: ток 50 Гц!]───────┘
-                     ↓↓ Индукция наводки ↓↓
-               [Сигнальные жилы: искажение данных]</div>
-        </div>
-        <div class="card-box">
-          <span class="badge">Правило: Одноточечное заземление</span>
-          <h3>Экранирование без протекания тока</h3>
-          <ul>
-            <li>Экран кабеля подключается к заземляющей клемме строго в ОДНОЙ точке (со стороны контроллера / ПК).</li>
-            <li>Второй конец экрана изолируется термоусадкой.</li>
-            <li>Ток по экрану протекать не может, при этом экранирующая оплетка работает как замкнутая клетка Фарадея, отводя электростатические наводки в землю.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 10: ПРАВИЛА ЗАЗЕМЛЕНИЯ СИГНАЛЬНЫХ ЭКРАНОВ -->
+ <div class="slide" id="slide-10">
+ <div class="slide-title">10. Электромагнитная совместимость: заземление экранов</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="card-box">
+ <span class="badge badge-danger">Ошибка: Заземление с двух сторон</span>
+ <h3>Паразитный контур «Ground Loop»</h3>
+ <p>Разность потенциалов между контурами заземления в разных частях помещения порождает ток промышленной частоты 50 Гц прямо по оплетке кабеля!</p>
+ <div class="flow-diagram">Земля Источника [0 В] ─────────────── Земля Приемника [5 В]
+ │ │
+ └───[Экран кабеля: ток 50 Гц!]───────┘
+ ↓↓ Индукция наводки ↓↓
+ [Сигнальные жилы: искажение данных]</div>
+ </div>
+ <div class="card-box">
+ <span class="badge">Правило: Одноточечное заземление</span>
+ <h3>Экранирование без протекания тока</h3>
+ <ul>
+ <li>Экран кабеля подключается к заземляющей клемме строго в ОДНОЙ точке (со стороны контроллера / ПК).</li>
+ <li>Второй конец экрана изолируется термоусадкой.</li>
+ <li>Ток по экрану протекать не может, при этом экранирующая оплетка работает как замкнутая клетка Фарадея, отводя электростатические наводки в землю.</li>
+ </ul>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 11: ПРЕДЗАЧЕТНЫЙ ТРЕНИНГ 1 — ШИНА PCIE 4.0 И ОЗУ DDR5 -->
-  <div class="slide" id="slide-11">
-    <div class="slide-title">11. Предзачетный тренинг: расчет шин PCIe и памяти DDR5</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="card-box">
-          <span class="badge">Задача 1: Шина PCIe 4.0 x16</span>
-          <h3>Расчет пропускной способности</h3>
-          <p>Скорость передачи: 16 GT/s. Кодирование 128b/130b.</p>
-          <div class="code-term">
+ <!-- СЛАЙД 11: ПРЕДЗАЧЕТНЫЙ ТРЕНИНГ 1 — ШИНА PCIE 4.0 И ОЗУ DDR5 -->
+ <div class="slide" id="slide-11">
+ <div class="slide-title">11. Предзачетный тренинг: расчет шин PCIe и памяти DDR5</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="card-box">
+ <span class="badge">Задача 1: Шина PCIe 4.0 x16</span>
+ <h3>Расчет пропускной способности</h3>
+ <p>Скорость передачи: 16 GT/s. Кодирование 128b/130b.</p>
+ <div class="code-term">
 Полоса 1 линии = 16 * (128/130) / 8 = 1.969 ГБ/с
 Для слота x16 в одном направлении:
 1.969 * 16 ≈ 31.5 ГБ/с
 В дуплексном режиме (чтение + запись):
 31.5 * 2 = 63.0 ГБ/с
-          </div>
-        </div>
-        <div class="card-box">
-          <span class="badge">Задача 2: Память DDR5-5600</span>
-          <h3>Двухканальный режим ОЗУ</h3>
-          <p>Ширина шины модуля DDR5: 2x 32-битных субканала (всего 64 бита = 8 байт).</p>
-          <div class="code-term">
+ </div>
+ </div>
+ <div class="card-box">
+ <span class="badge">Задача 2: Память DDR5-5600</span>
+ <h3>Двухканальный режим ОЗУ</h3>
+ <p>Ширина шины модуля DDR5: 2x 32-битных субканала (всего 64 бита = 8 байт).</p>
+ <div class="code-term">
 Пропускная способность 1 модуля:
 5600 MT/s * 8 байт = 44 800 МБ/с = 44.8 ГБ/с
 В двухканальном комплекте (2 модуля):
 44.8 * 2 = 89.6 ГБ/с
 Сравнение: DDR4-3200 2-ch = 3200 * 8 * 2 = 51.2 ГБ/с
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+ </div>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 12: ПРЕДЗАЧЕТНЫЙ ТРЕНИНГ 2 — ВИДЕОПОТОКИ И СЖАТИЕ DSC -->
-  <div class="slide" id="slide-12">
-    <div class="slide-title">12. Предзачетный тренинг: видеопотоки и компрессия DSC</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="card-box">
-          <span class="badge">Задача 3: Поток 4K 144Hz 10-bit HDR</span>
-          <h3>Расчет битрейта без сжатия</h3>
-          <p>Разрешение 3840 × 2160, 144 Гц, 10 бит на канал RGB (30 bpp), коэффициент гашения кадра 1.2:</p>
-          <div class="code-term">
+ <!-- СЛАЙД 12: ПРЕДЗАЧЕТНЫЙ ТРЕНИНГ 2 — ВИДЕОПОТОКИ И СЖАТИЕ DSC -->
+ <div class="slide" id="slide-12">
+ <div class="slide-title">12. Предзачетный тренинг: видеопотоки и компрессия DSC</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="card-box">
+ <span class="badge">Задача 3: Поток 4K 144Hz 10-bit HDR</span>
+ <h3>Расчет битрейта без сжатия</h3>
+ <p>Разрешение 3840 × 2160, 144 Гц, 10 бит на канал RGB (30 bpp), коэффициент гашения кадра 1.2:</p>
+ <div class="code-term">
 Битрейт = 3840 * 2160 * 1.2 * 144 * 30 ≈ 42.98 Гбит/с
 Предел полезной полосы DisplayPort 1.4: 25.92 Гбит/с
 Вывод: Несжатый поток не помещается в кабель!
 Решение: Display Stream Compression (DSC 1.2a, 3:1)
 Поток со сжатием: 42.98 / 3 ≈ 14.33 Гбит/с (успешно).
-          </div>
-        </div>
-        <div class="card-box">
-          <span class="badge">Архитектурный смысл DSC</span>
-          <h3>Визуально обратимое сжатие в реальном времени</h3>
-          <ul>
-            <li>Аппаратный энкодер в GPU и декодер в скалере монитора кодируют поток построчно с задержкой менее одной строки пикселей (&lt; 5 мкс).</li>
-            <li>Отсутствие видимых артефактов компрессии и нулевая задержка кадра для VR и киберспорта.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+ </div>
+ </div>
+ <div class="card-box">
+ <span class="badge">Архитектурный смысл DSC</span>
+ <h3>Визуально обратимое сжатие в реальном времени</h3>
+ <ul>
+ <li>Аппаратный энкодер в GPU и декодер в скалере монитора кодируют поток построчно с задержкой менее одной строки пикселей (&lt; 5 мкс).</li>
+ <li>Отсутствие видимых артефактов компрессии и нулевая задержка кадра для VR и киберспорта.</li>
+ </ul>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 13: СТРУКТУРА БИЛЕТА ДИФФЕРЕНЦИРОВАННОГО ЗАЧЕТА -->
-  <div class="slide" id="slide-13">
-    <div class="slide-title">13. Структура билета дифференцированного зачета (пара 18)</div>
-    <div class="slide-content">
-      <div class="card-box" style="margin-bottom:16px;">
-        <h3>10-балльная структура билета дифференцированного зачета</h3>
-        <div class="grid-3">
-          <div>
-            <span class="badge">Блок 1 (3 балла)</span>
-            <p><strong>Логика и процессоры:</strong> логические вентили, сумматоры, регистры, конвейер CPU, предсказание ветвлений, суперскалярность.</p>
-          </div>
-          <div>
-            <span class="badge">Блок 2 (3 балла)</span>
-            <p><strong>Память и шины:</strong> расчет пропускной способности PCIe/DDR, организация кэш-памяти L1/L2/L3, контроллеры накопителей NVMe/SATA.</p>
-          </div>
-          <div>
-            <span class="badge">Блок 3 (4 балла)</span>
-            <p><strong>Периферия и расчеты:</strong> видеопотоки DP/HDMI/DSC, прямой доступ к памяти DMA, нестандартная периферия (CoreXY, VR, DAQ, токовая петля).</p>
-          </div>
-        </div>
-      </div>
-      <div class="card-box">
-        <h3>Критериальная шкала перевода баллов в отметку</h3>
-        <p><strong>9–10 баллов:</strong> «5» (отлично) | <strong>7–8 баллов:</strong> «4» (хорошо) | <strong>5–6 баллов:</strong> «3» (удовлетворительно) | <strong>0–4 балла:</strong> «2» (незачет).</p>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 13: СТРУКТУРА БИЛЕТА ДИФФЕРЕНЦИРОВАННОГО ЗАЧЕТА -->
+ <div class="slide" id="slide-13">
+ <div class="slide-title">13. Структура билета дифференцированного зачета (пара 18)</div>
+ <div class="slide-content">
+ <div class="card-box" style="margin-bottom:16px;">
+ <h3>10-балльная структура билета дифференцированного зачета</h3>
+ <div class="grid-3">
+ <div>
+ <span class="badge">Блок 1 (3 балла)</span>
+ <p><strong>Логика и процессоры:</strong> логические вентили, сумматоры, регистры, конвейер CPU, предсказание ветвлений, суперскалярность.</p>
+ </div>
+ <div>
+ <span class="badge">Блок 2 (3 балла)</span>
+ <p><strong>Память и шины:</strong> расчет пропускной способности PCIe/DDR, организация кэш-памяти L1/L2/L3, контроллеры накопителей NVMe/SATA.</p>
+ </div>
+ <div>
+ <span class="badge">Блок 3 (4 балла)</span>
+ <p><strong>Периферия и расчеты:</strong> видеопотоки DP/HDMI/DSC, прямой доступ к памяти DMA, нестандартная периферия (CoreXY, VR, DAQ, токовая петля).</p>
+ </div>
+ </div>
+ </div>
+ <div class="card-box">
+ <h3>Критериальная шкала перевода баллов в отметку</h3>
+ <p><strong>9–10 баллов:</strong> «5» (отлично) | <strong>7–8 баллов:</strong> «4» (хорошо) | <strong>5–6 баллов:</strong> «3» (удовлетворительно) | <strong>0–4 балла:</strong> «2» (незачет).</p>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 14: ПРАКТИКУМ В РАБОЧЕМ ЛИСТЕ -->
-  <div class="slide" id="slide-14">
-    <div class="slide-title">14. Практикум в рабочем листе: 4 варианта оборудования</div>
-    <div class="slide-content">
-      <div class="grid-4">
-        <div class="card-box">
-          <span class="badge">Вариант 1</span>
-          <h3>3D-принтер CoreXY</h3>
-          <p>Расчет Steps/mm, юстировка высоты сопла Z-offset и автонастройка PID-регулятора хотэнда.</p>
-        </div>
-        <div class="card-box">
-          <span class="badge">Вариант 2</span>
-          <h3>Контроллер DAQ 4–20 мА</h3>
-          <p>Калибровка нуля и шкалы токовой петли на шунте 150 Ом, фильтрация сетевой помехи 50 Гц.</p>
-        </div>
-        <div class="card-box">
-          <span class="badge">Вариант 3</span>
-          <h3>VR-трекинг 6DoF</h3>
-          <p>Калибровка пространства Lighthouse 2.0, Bluetooth-синхронизация и аудит бюджета MTP.</p>
-        </div>
-        <div class="card-box">
-          <span class="badge">Вариант 4</span>
-          <h3>Лаборатория GPIB</h3>
-          <p>Шина IEEE-488, адресация приборов, протокол квитирования и опрос прерываний SRQ.</p>
-        </div>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 14: ПРАКТИКУМ В РАБОЧЕМ ЛИСТЕ -->
+ <div class="slide" id="slide-14">
+ <div class="slide-title">14. Практикум в рабочем листе: 4 варианта оборудования</div>
+ <div class="slide-content">
+ <div class="grid-4">
+ <div class="card-box">
+ <span class="badge">Вариант 1</span>
+ <h3>3D-принтер CoreXY</h3>
+ <p>Расчет Steps/mm, юстировка высоты сопла Z-offset и автонастройка PID-регулятора хотэнда.</p>
+ </div>
+ <div class="card-box">
+ <span class="badge">Вариант 2</span>
+ <h3>Контроллер DAQ 4–20 мА</h3>
+ <p>Калибровка нуля и шкалы токовой петли на шунте 150 Ом, фильтрация сетевой помехи 50 Гц.</p>
+ </div>
+ <div class="card-box">
+ <span class="badge">Вариант 3</span>
+ <h3>VR-трекинг 6DoF</h3>
+ <p>Калибровка пространства Lighthouse 2.0, Bluetooth-синхронизация и аудит бюджета MTP.</p>
+ </div>
+ <div class="card-box">
+ <span class="badge">Вариант 4</span>
+ <h3>Лаборатория GPIB</h3>
+ <p>Шина IEEE-488, адресация приборов, протокол квитирования и опрос прерываний SRQ.</p>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 15: ИНТЕРНЕТ-МЕМ СО СВОБОДНОЙ ЛИЦЕНЗИЕЙ -->
-  <div class="slide" id="slide-15">
-    <div class="slide-title">15. Системное мышление: взгляд архитектора ЭВМ</div>
-    <div class="meme-wrap">
-      <img class="meme-img" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAIAAgADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7pooorrPJCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP//Z" alt="Binary Math Joke Meme">
-      <div class="attribution">
-        <strong>Мем:</strong> «Mathjoke (10 types of people in the world) — В мире существует 10 типов людей: те, кто понимает двоичную систему счисления, и те, кто её не понимает».<br>
-        <strong>Автор:</strong> MjolnirPants (Wikimedia Commons).<br>
-        <strong>Лицензия:</strong> Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).<br>
-        <strong>Автономность:</strong> Изображение встроено автономно в формате Base64 Data URI (<code>data:image/jpeg;base64,...</code>) без внешних сетевых запросов.
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 15: ИНТЕРНЕТ-МЕМ СО СВОБОДНОЙ ЛИЦЕНЗИЕЙ -->
+ <div class="slide" id="slide-15">
+ <div class="slide-title">15. Системное мышление: взгляд архитектора ЭВМ</div>
+ <div class="meme-wrap">
+ <img class="meme-img" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAIAAgADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7pooorrPJCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP//Z" alt="Binary Math Joke Meme">
+ <div class="attribution">
+ <strong>Мем:</strong> «Mathjoke (10 types of people in the world) — В мире существует 10 типов людей: те, кто понимает двоичную систему счисления, и те, кто её не понимает».<br>
+ <strong>Автор:</strong> MjolnirPants (Wikimedia Commons).<br>
+ <strong>Лицензия:</strong> Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).<br>
+ <strong>Автономность:</strong> Изображение встроено автономно в формате Base64 Data URI (<code>data:image/jpeg;base64,...</code>) без внешних сетевых запросов.
+ </div>
+ </div>
+ </div>
 
-  <!-- ПАНЕЛЬ УПРАВЛЕНИЯ СЛАЙДАМИ -->
-  <div class="controls">
-    <div class="controls-btns">
-      <button type="button" class="nav-btn" id="btn_prev" onclick="prevSlide()">← Назад</button>
-      <button type="button" class="nav-btn" id="btn_next" onclick="nextSlide()">Вперед →</button>
-    </div>
-    <div class="slide-counter" id="slide_counter">Слайд 1 из 15</div>
-  </div>
+ <!-- ПАНЕЛЬ УПРАВЛЕНИЯ СЛАЙДАМИ -->
+ <div class="controls">
+ <div class="controls-btns">
+ <button type="button" class="nav-btn" id="btn_prev" onclick="prevSlide()">← Назад</button>
+ <button type="button" class="nav-btn" id="btn_next" onclick="nextSlide()">Вперед →</button>
+ </div>
+ <div class="slide-counter" id="slide_counter">Слайд 1 из 15</div>
+ </div>
 
 </div>
 
 <script>
-  let currentSlide = 1;
-  const totalSlides = 15;
+ let currentSlide = 1;
+ const totalSlides = 15;
 
-  function showSlide(n) {
-    if (n < 1) n = 1;
-    if (n > totalSlides) n = totalSlides;
-    currentSlide = n;
+ function showSlide(n) {
+ if (n < 1) n = 1;
+ if (n > totalSlides) n = totalSlides;
+ currentSlide = n;
 
-    for (let i = 1; i <= totalSlides; i++) {
-      const el = document.getElementById('slide-' + i);
-      if (el) {
-        if (i === currentSlide) {
-          el.classList.add('active');
-        } else {
-          el.classList.remove('active');
-        }
-      }
-    }
+ for (let i = 1; i <= totalSlides; i++) {
+ const el = document.getElementById('slide-' + i);
+ if (el) {
+ if (i === currentSlide) {
+ el.classList.add('active');
+ } else {
+ el.classList.remove('active');
+ }
+ }
+ }
 
-    document.getElementById('slide_counter').textContent = 'Слайд ' + currentSlide + ' из ' + totalSlides;
-    document.getElementById('btn_prev').disabled = (currentSlide === 1);
-    document.getElementById('btn_next').disabled = (currentSlide === totalSlides);
-  }
+ document.getElementById('slide_counter').textContent = 'Слайд ' + currentSlide + ' из ' + totalSlides;
+ document.getElementById('btn_prev').disabled = (currentSlide === 1);
+ document.getElementById('btn_next').disabled = (currentSlide === totalSlides);
+ }
 
-  function prevSlide() {
-    if (currentSlide > 1) showSlide(currentSlide - 1);
-  }
+ function prevSlide() {
+ if (currentSlide > 1) showSlide(currentSlide - 1);
+ }
 
-  function nextSlide() {
-    if (currentSlide < totalSlides) showSlide(currentSlide + 1);
-  }
+ function nextSlide() {
+ if (currentSlide < totalSlides) showSlide(currentSlide + 1);
+ }
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
-      nextSlide();
-    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
-      prevSlide();
-    } else if (e.key === 'Home') {
-      showSlide(1);
-    } else if (e.key === 'End') {
-      showSlide(totalSlides);
-    }
-  });
+ document.addEventListener('keydown', (e) => {
+ if (e.key === 'ArrowRight' | e.key === ' ' | e.key === 'PageDown') {
+ nextSlide();
+ } else if (e.key === 'ArrowLeft' | e.key === 'PageUp') {
+ prevSlide();
+ } else if (e.key === 'Home') {
+ showSlide(1);
+ } else if (e.key === 'End') {
+ showSlide(totalSlides);
+ }
+ });
 
-  showSlide(1);
+ showSlide(1);
 </script>
 
 </body>

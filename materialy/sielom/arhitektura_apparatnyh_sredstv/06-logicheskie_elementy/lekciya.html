@@ -1,512 +1,477 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Кодирование звуковой и видео информации. Логические элементы. Базовые схемы. Триггеры. Регистры. Счетчики. Сумматоры. Шифраторы и дешифраторы. Мультиплексоры. Компараторы кодов</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text-main: #0f172a;
-      --text-muted: #475569;
-      --border: #cbd5e1;
-      --accent: #2563eb;
-      --accent-soft: #eff6ff;
-      --accent-dark: #1d4ed8;
-      --success-bg: #f0fdf4;
-      --success-border: #bbf7d0;
-      --success-text: #166534;
-      --warn-bg: #fffbeb;
-      --warn-border: #fde68a;
-      --warn-text: #92400e;
-      --code-bg: #0f172a;
-      --code-text: #f8fafc;
-      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-    }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Кодирование звуковой и видео информации. Логические элементы. Базовые схемы. Триггеры. Регистры. Счетчики. Сумматоры. Шифраторы и дешифраторы. Мультиплексоры. Компараторы кодов</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card-bg: #ffffff;
+ --text-main: #0f172a;
+ --text-muted: #475569;
+ --border: #cbd5e1;
+ --accent: #2563eb;
+ --accent-soft: #eff6ff;
+ --accent-dark: #1d4ed8;
+ --success-bg: #f0fdf4;
+ --success-border: #bbf7d0;
+ --success-text: #166534;
+ --warn-bg: #fffbeb;
+ --warn-border: #fde68a;
+ --warn-text: #92400e;
+ --code-bg: #0f172a;
+ --code-text: #f8fafc;
+ --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+ --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+ }
 
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+ *, *::before, *::after {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ }
 
-    body {
-      font-family: var(--font-sans);
-      background-color: var(--bg);
-      color: var(--text-main);
-      line-height: 1.65;
-      padding: 24px 16px;
-    }
+ body {
+ font-family: var(--font-sans);
+ background-color: var(--bg);
+ color: var(--text-main);
+ line-height: 1.65;
+ padding: 24px 16px;
+ }.container {
+ max-width: 920px;
+ margin: 0 auto;
+ background: var(--card-bg);
+ border-radius: 12px;
+ border: 1px solid var(--border);
+ padding: 36px 44px;
+ box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+ }
 
-    .container {
-      max-width: 920px;
-      margin: 0 auto;
-      background: var(--card-bg);
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      padding: 36px 44px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    }
+ header {
+ border-bottom: 2px solid var(--accent);
+ padding-bottom: 20px;
+ margin-bottom: 32px;
+ }
 
-    header {
-      border-bottom: 2px solid var(--accent);
-      padding-bottom: 20px;
-      margin-bottom: 32px;
-    }
+ h1 {
+ font-size: 26px;
+ font-weight: 800;
+ color: var(--text-main);
+ line-height: 1.3;
+ margin-bottom: 12px;
+ }.lead {
+ font-size: 16px;
+ color: var(--text-muted);
+ line-height: 1.5;
+ }
 
-    h1 {
-      font-size: 26px;
-      font-weight: 800;
-      color: var(--text-main);
-      line-height: 1.3;
-      margin-bottom: 12px;
-    }
+ h2 {
+ font-size: 20px;
+ font-weight: 700;
+ color: var(--text-main);
+ margin-top: 36px;
+ margin-bottom: 16px;
+ padding-bottom: 6px;
+ border-bottom: 1px solid var(--border);
+ }
 
-    .lead {
-      font-size: 16px;
-      color: var(--text-muted);
-      line-height: 1.5;
-    }
+ h3 {
+ font-size: 17px;
+ font-weight: 600;
+ color: var(--accent-dark);
+ margin-top: 24px;
+ margin-bottom: 10px;
+ }
 
-    h2 {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--text-main);
-      margin-top: 36px;
-      margin-bottom: 16px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--border);
-    }
+ p {
+ margin-bottom: 14px;
+ font-size: 15px;
+ }
 
-    h3 {
-      font-size: 17px;
-      font-weight: 600;
-      color: var(--accent-dark);
-      margin-top: 24px;
-      margin-bottom: 10px;
-    }
+ ul, ol {
+ margin-left: 24px;
+ margin-bottom: 16px;
+ font-size: 15px;
+ }
 
-    p {
-      margin-bottom: 14px;
-      font-size: 15px;
-    }
+ li {
+ margin-bottom: 6px;
+ }
 
-    ul, ol {
-      margin-left: 24px;
-      margin-bottom: 16px;
-      font-size: 15px;
-    }
+ strong {
+ color: var(--text-main);
+ }.callout {
+ background: var(--accent-soft);
+ border-left: 4px solid var(--accent);
+ padding: 16px 20px;
+ border-radius: 0 8px 8px 0;
+ margin: 20px 0;
+ font-size: 14.5px;
+ }.callout-warn {
+ background: var(--warn-bg);
+ border-left: 4px solid #f59e0b;
+ padding: 16px 20px;
+ border-radius: 0 8px 8px 0;
+ margin: 20px 0;
+ font-size: 14.5px;
+ color: var(--warn-text);
+ }.callout-success {
+ background: var(--success-bg);
+ border-left: 4px solid #22c55e;
+ padding: 16px 20px;
+ border-radius: 0 8px 8px 0;
+ margin: 20px 0;
+ font-size: 14.5px;
+ color: var(--success-text);
+ }.formula-block {
+ background: #f1f5f9;
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ padding: 14px 20px;
+ font-family: var(--font-mono);
+ font-size: 14.5px;
+ margin: 16px 0;
+ text-align: center;
+ color: #0f172a;
+ }
 
-    li {
-      margin-bottom: 6px;
-    }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ font-size: 14px;
+ margin: 20px 0;
+ }
 
-    strong {
-      color: var(--text-main);
-    }
+ th, td {
+ border: 1px solid var(--border);
+ padding: 9px 12px;
+ text-align: left;
+ vertical-align: top;
+ }
 
-    .callout {
-      background: var(--accent-soft);
-      border-left: 4px solid var(--accent);
-      padding: 16px 20px;
-      border-radius: 0 8px 8px 0;
-      margin: 20px 0;
-      font-size: 14.5px;
-    }
+ th {
+ background: #f1f5f9;
+ font-weight: 600;
+ color: var(--text-main);
+ }
 
-    .callout-warn {
-      background: var(--warn-bg);
-      border-left: 4px solid #f59e0b;
-      padding: 16px 20px;
-      border-radius: 0 8px 8px 0;
-      margin: 20px 0;
-      font-size: 14.5px;
-      color: var(--warn-text);
-    }
+ tr:nth-child(even) td {
+ background: #f8fafc;
+ }.scheme-card {
+ background: #ffffff;
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ padding: 16px;
+ margin: 18px 0;
+ box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+ }.scheme-title {
+ font-weight: 700;
+ font-size: 14.5px;
+ color: var(--accent-dark);
+ margin-bottom: 10px;
+ }.flex-flow {
+ display: flex;
+ flex-wrap: wrap;
+ align-items: center;
+ gap: 10px;
+ font-family: var(--font-mono);
+ font-size: 13.5px;
+ margin: 10px 0;
+ }.flow-node {
+ background: #f8fafc;
+ border: 1px solid #94a3b8;
+ border-radius: 6px;
+ padding: 6px 12px;
+ font-weight: 600;
+ color: var(--text-main);
+ }.flow-node.highlight {
+ background: #eff6ff;
+ border-color: var(--accent);
+ color: var(--accent-dark);
+ }.flow-node.storage {
+ background: #fef3c7;
+ border-color: #d97706;
+ color: #92400e;
+ }.flow-arrow {
+ color: var(--accent);
+ font-weight: 700;
+ font-size: 16px;
+ }.qa-box {
+ background: #f8fafc;
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ padding: 16px 20px;
+ margin-top: 14px;
+ margin-bottom: 14px;
+ }.qa-question {
+ font-weight: 700;
+ color: var(--text-main);
+ margin-bottom: 8px;
+ font-size: 14.5px;
+ }.qa-answer {
+ font-size: 14px;
+ color: var(--text-muted);
+ }
 
-    .callout-success {
-      background: var(--success-bg);
-      border-left: 4px solid #22c55e;
-      padding: 16px 20px;
-      border-radius: 0 8px 8px 0;
-      margin: 20px 0;
-      font-size: 14.5px;
-      color: var(--success-text);
-    }
-
-    .formula-block {
-      background: #f1f5f9;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 14px 20px;
-      font-family: var(--font-mono);
-      font-size: 14.5px;
-      margin: 16px 0;
-      text-align: center;
-      color: #0f172a;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-      margin: 20px 0;
-    }
-
-    th, td {
-      border: 1px solid var(--border);
-      padding: 9px 12px;
-      text-align: left;
-      vertical-align: top;
-    }
-
-    th {
-      background: #f1f5f9;
-      font-weight: 600;
-      color: var(--text-main);
-    }
-
-    tr:nth-child(even) td {
-      background: #f8fafc;
-    }
-
-    .scheme-card {
-      background: #ffffff;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px;
-      margin: 18px 0;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-    }
-
-    .scheme-title {
-      font-weight: 700;
-      font-size: 14.5px;
-      color: var(--accent-dark);
-      margin-bottom: 10px;
-    }
-
-    .flex-flow {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
-      font-family: var(--font-mono);
-      font-size: 13.5px;
-      margin: 10px 0;
-    }
-
-    .flow-node {
-      background: #f8fafc;
-      border: 1px solid #94a3b8;
-      border-radius: 6px;
-      padding: 6px 12px;
-      font-weight: 600;
-      color: var(--text-main);
-    }
-
-    .flow-node.highlight {
-      background: #eff6ff;
-      border-color: var(--accent);
-      color: var(--accent-dark);
-    }
-
-    .flow-node.storage {
-      background: #fef3c7;
-      border-color: #d97706;
-      color: #92400e;
-    }
-
-    .flow-arrow {
-      color: var(--accent);
-      font-weight: 700;
-      font-size: 16px;
-    }
-
-    .qa-box {
-      background: #f8fafc;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px 20px;
-      margin-top: 14px;
-      margin-bottom: 14px;
-    }
-
-    .qa-question {
-      font-weight: 700;
-      color: var(--text-main);
-      margin-bottom: 8px;
-      font-size: 14.5px;
-    }
-
-    .qa-answer {
-      font-size: 14px;
-      color: var(--text-muted);
-    }
-
-    @media (max-width: 680px) {
-      .container {
-        padding: 20px 16px;
-      }
-      h1 {
-        font-size: 21px;
-      }
-      .flex-flow {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .flow-arrow {
-        text-align: center;
-        transform: rotate(90deg);
-      }
-    }
-  </style>
+ @media (max-width: 680px) {.container {
+ padding: 20px 16px;
+ }
+ h1 {
+ font-size: 21px;
+ }.flex-flow {
+ flex-direction: column;
+ align-items: stretch;
+ }.flow-arrow {
+ text-align: center;
+ transform: rotate(90deg);
+ }
+ }
+ </style>
 </head>
 <body>
 
 <div class="container">
-  <header>
-    <h1>Кодирование звуковой и видео информации. Логические элементы. Базовые схемы. Триггеры. Регистры. Счетчики. Сумматоры. Шифраторы и дешифраторы. Мультиплексоры. Компараторы кодов</h1>
-    <p class="lead">Фундаментальный конспект: физические и математические принципы оцифровки непрерывных сигналов мультимедиа, архитектура комбинационных узлов обработки данных и последовательностных схем хранения и счета в ЭВМ.</p>
-  </header>
+ <header>
+ <h1>Кодирование звуковой и видео информации. Логические элементы. Базовые схемы. Триггеры. Регистры. Счетчики. Сумматоры. Шифраторы и дешифраторы. Мультиплексоры. Компараторы кодов</h1>
+ <p class="lead">Фундаментальный конспект: физические и математические принципы оцифровки непрерывных сигналов мультимедиа, архитектура комбинационных узлов обработки данных и последовательностных схем хранения и счета в ЭВМ.</p>
+ </header>
 
-  <!-- РАЗДЕЛ 1: КОДИРОВАНИЕ ЗВУКА И ВИДЕО -->
-  <section>
-    <h2>1. Физические основы и алгоритмы оцифровки звуковой и видеоинформации</h2>
+ <!-- РАЗДЕЛ 1: КОДИРОВАНИЕ ЗВУКА И ВИДЕО -->
+ <section>
+ <h2>1. Физические основы и алгоритмы оцифровки звуковой и видеоинформации</h2>
 
-    <p>Реальные звуковые волны и световые потоки представляют собой <strong>непрерывные (аналоговые) сигналы</strong>. Компьютерная архитектура оперирует исключительно дискретными двоичными кодами. Преобразование аналогового сигнала в цифровую форму выполняется с помощью электронных аналого-цифровых преобразователей (АЦП, ADC), а обратный процесс — цифро-аналоговых преобразователей (ЦАП, DAC).</p>
+ <p>Реальные звуковые волны и световые потоки представляют собой <strong>непрерывные (аналоговые) сигналы</strong>. Компьютерная архитектура оперирует исключительно дискретными двоичными кодами. Преобразование аналогового сигнала в цифровую форму выполняется с помощью электронных аналого-цифровых преобразователей (АЦП, ADC), а обратный процесс — цифро-аналоговых преобразователей (ЦАП, DAC).</p>
 
-    <h3>1.1. Оцифровка звука: импульсно-кодовая модуляция (PCM)</h3>
-    <p>Базовым стандартом цифрового звука является импульсно-кодовая модуляция (Pulse Code Modulation, PCM). Процесс оцифровки состоит из двух неразрывных этапов:</p>
-    <ol>
-      <li><strong>Дискретизация по времени (Sampling):</strong> непрерывный сигнал измеряется через строго равные промежутки времени T<sub>s</sub>. Величина f<sub>s</sub> = 1 / T<sub>s</sub> называется <em>частотой дискретизации</em> (измеряется в герцах, Гц).</li>
-      <li><strong>Квантование по уровню (Quantization):</strong> мгновенное аналоговое значение напряжения в точке замера округляется до ближайшего разрешенного уровня из конечного набора и кодируется b-разрядным двоичным числом. Параметр b называется <em>глубиной квантования</em> (разрядностью, битами). Количество доступных дискретных уровней напряжения равно N = 2<sup>b</sup>.</li>
-    </ol>
+ <h3>1.1. Оцифровка звука: импульсно-кодовая модуляция (PCM)</h3>
+ <p>Базовым стандартом цифрового звука является импульсно-кодовая модуляция (Pulse Code Modulation, PCM). Процесс оцифровки состоит из двух неразрывных этапов:</p>
+ <ol>
+ <li><strong>Дискретизация по времени (Sampling):</strong> непрерывный сигнал измеряется через строго равные промежутки времени T<sub>s</sub>. Величина f<sub>s</sub> = 1 / T<sub>s</sub> называется <em>частотой дискретизации</em> (измеряется в герцах, Гц).</li>
+ <li><strong>Квантование по уровню (Quantization):</strong> мгновенное аналоговое значение напряжения в точке замера округляется до ближайшего разрешенного уровня из конечного набора и кодируется b-разрядным двоичным числом. Параметр b называется <em>глубиной квантования</em> (разрядностью, битами). Количество доступных дискретных уровней напряжения равно N = 2<sup>b</sup>.</li>
+ </ol>
 
-    <div class="callout">
-      <strong>Теорема Котельникова (Найквиста — Шеннона):</strong><br>
-      Для точного и однозначного восстановления непрерывного аналогового сигнала без внесения паразитных искажений частота дискретизации f<sub>s</sub> должна быть строго больше либо равна удвоенной максимальной частоте спектра исходного сигнала:<br>
-      <div class="formula-block">f_s &ge; 2 &times; f_max</div>
-      Если это условие нарушается (f<sub>s</sub> &lt; 2 f<sub>max</sub>), возникает эффект наложения спектров — <em>алиасинг (aliasing)</em>, приводящий к появлению фантомных низкочастотных звуковых артефактов.
-    </div>
+ <div class="callout">
+ <strong>Теорема Котельникова (Найквиста — Шеннона):</strong><br>
+ Для точного и однозначного восстановления непрерывного аналогового сигнала без внесения паразитных искажений частота дискретизации f<sub>s</sub> должна быть строго больше либо равна удвоенной максимальной частоте спектра исходного сигнала:<br>
+ <div class="formula-block">f_s &ge; 2 &times; f_max</div>
+ Если это условие нарушается (f<sub>s</sub> &lt; 2 f<sub>max</sub>), возникает эффект наложения спектров — <em>алиасинг (aliasing)</em>, приводящий к появлению фантомных низкочастотных звуковых артефактов.
+ </div>
 
-    <p>Для человеческого уха диапазон слышимых звуковых частот составляет примерно от 20 Гц до 20 кГц (f<sub>max</sub> = 20 кГц). Следовательно, минимальная частота дискретизации должна быть не менее 40 кГц. В промышленном стандарте CD-DA (Audio CD) выбрана частота f<sub>s</sub> = 44.1 кГц, обеспечивающая технологический запас для низкочастотных аналоговых фильтров среза. В студийной аппаратуре и DVD/Blu-ray применяются частоты 48 кГц, 96 кГц и 192 кГц.</p>
+ <p>Для человеческого уха диапазон слышимых звуковых частот составляет примерно от 20 Гц до 20 кГц (f<sub>max</sub> = 20 кГц). Следовательно, минимальная частота дискретизации должна быть не менее 40 кГц. В промышленном стандарте CD-DA (Audio CD) выбрана частота f<sub>s</sub> = 44.1 кГц, обеспечивающая технологический запас для низкочастотных аналоговых фильтров среза. В студийной аппаратуре и DVD/Blu-ray применяются частоты 48 кГц, 96 кГц и 192 кГц.</p>
 
-    <div class="formula-block">
-      Битрейт аудиопотока (бит/с) = f_s &times; b &times; k<br>
-      Объем аудиофайла (байты) = (f_s &times; b &times; k &times; t) / 8
-    </div>
-    <p>где k — количество независимых звуковых каналов (1 — моно, 2 — стерео, 6 — 5.1-аудио), t — продолжительность звучания в секундах.</p>
+ <div class="formula-block">
+ Битрейт аудиопотока (бит/с) = f_s &times; b &times; k<br>
+ Объем аудиофайла (байты) = (f_s &times; b &times; k &times; t) / 8
+ </div>
+ <p>где k — количество независимых звуковых каналов (1 — моно, 2 — стерео, 6 — 5.1-аудио), t — продолжительность звучания в секундах.</p>
 
-    <div class="callout-success">
-      <strong>Разобранный пример расчета звука:</strong><br>
-      Рассчитаем битрейт и объем 3 минут несжатого стереозвука формата Audio CD (f<sub>s</sub> = 44.1 кГц = 44100 Гц, b = 16 бит, стерео k = 2):<br>
-      1) Поток в секунду: Битрейт = 44100 × 16 × 2 = 1 411 200 бит/с ≈ 1411.2 кбит/с ≈ 176.4 КБ/с.<br>
-      2) Объем за t = 180 с: 176 400 байт/с × 180 с = 31 752 000 байт ≈ 30.28 МиБ.
-    </div>
+ <div class="callout-success">
+ <strong>Разобранный пример расчета звука:</strong><br>
+ Рассчитаем битрейт и объем 3 минут несжатого стереозвука формата Audio CD (f<sub>s</sub> = 44.1 кГц = 44100 Гц, b = 16 бит, стерео k = 2):<br>
+ 1) Поток в секунду: Битрейт = 44100 × 16 × 2 = 1 411 200 бит/с ≈ 1411.2 кбит/с ≈ 176.4 КБ/с.<br>
+ 2) Объем за t = 180 с: 176 400 байт/с × 180 с = 31 752 000 байт ≈ 30.28 МиБ.
+ </div>
 
-    <h3>1.2. Оцифровка видеоинформации</h3>
-    <p>Видеопоток в цифровой архитектуре строится как непрерывная последовательность растровых графических кадров, сменяющихся с фиксированной частотой кадров (Frame Rate, FPS). Каждый кадр представляет собой матрицу пикселей размерностью W × H.</p>
-    <p>Цвет каждого пикселя в несжатом формате кодируется тремя цветовыми компонентами RGB (TrueColor, 24 бита на пиксель: по 8 бит на красный, зеленый и синий каналы) либо 32 битами (RGB + Alpha-канал прозрачности):</p>
-    <div class="formula-block">
-      Битрейт несжатого видео (бит/с) = W &times; H &times; b_pixel &times; FPS<br>
-      Поток в байтах в секунду = (W &times; H &times; b_pixel &times; FPS) / 8
-    </div>
+ <h3>1.2. Оцифровка видеоинформации</h3>
+ <p>Видеопоток в цифровой архитектуре строится как непрерывная последовательность растровых графических кадров, сменяющихся с фиксированной частотой кадров (Frame Rate, FPS). Каждый кадр представляет собой матрицу пикселей размерностью W × H.</p>
+ <p>Цвет каждого пикселя в несжатом формате кодируется тремя цветовыми компонентами RGB (TrueColor, 24 бита на пиксель: по 8 бит на красный, зеленый и синий каналы) либо 32 битами (RGB + Alpha-канал прозрачности):</p>
+ <div class="formula-block">
+ Битрейт несжатого видео (бит/с) = W &times; H &times; b_pixel &times; FPS<br>
+ Поток в байтах в секунду = (W &times; H &times; b_pixel &times; FPS) / 8
+ </div>
 
-    <div class="callout-warn">
-      <strong>Колоссальный объем сырого видеопотока:</strong><br>
-      Для формата Full HD (1920&times;1080 пикселей, 24 бит/пиксель, 60 кадров/с):<br>
-      Битрейт = 1920 × 1080 × 24 × 60 = 2 985 984 000 бит/с ≈ 2.986 Гбит/с ≈ 373.25 Мбайт/с.<br>
-      Один час такого видео займет более 1.34 терабайта дискового пространства! Именно поэтому передача и хранение видео в реальных архитектурах невозможны без аппаратных видеокодеков с межкадровым и внутрикадровым сжатием (H.264/AVC, H.265/HEVC, AV1).
-    </div>
-  </section>
+ <div class="callout-warn">
+ <strong>Колоссальный объем сырого видеопотока:</strong><br>
+ Для формата Full HD (1920&times;1080 пикселей, 24 бит/пиксель, 60 кадров/с):<br>
+ Битрейт = 1920 × 1080 × 24 × 60 = 2 985 984 000 бит/с ≈ 2.986 Гбит/с ≈ 373.25 Мбайт/с.<br>
+ Один час такого видео займет более 1.34 терабайта дискового пространства! Именно поэтому передача и хранение видео в реальных архитектурах невозможны без аппаратных видеокодеков с межкадровым и внутрикадровым сжатием (H.264/AVC, H.265/HEVC, AV1).
+ </div>
+ </section>
 
-  <!-- РАЗДЕЛ 2: КЛАССИФИКАЦИЯ ЦИФРОВЫХ УЗЛОВ -->
-  <section>
-    <h2>2. Архитектурное разделение: комбинационные узлы против последовательностных</h2>
+ <!-- РАЗДЕЛ 2: КЛАССИФИКАЦИЯ ЦИФРОВЫХ УЗЛОВ -->
+ <section>
+ <h2>2. Архитектурное разделение: комбинационные узлы против последовательностных</h2>
 
-    <p>Все цифровые микросхемы ЭВМ строго делятся на два фундаментальных класса по принципу зависимости выходного сигнала от времени и предыстории работы:</p>
+ <p>Все цифровые микросхемы ЭВМ строго делятся на два фундаментальных класса по принципу зависимости выходного сигнала от времени и предыстории работы:</p>
 
-    <table>
-      <thead>
-        <tr>
-          <th style="width: 20%;">Параметр сравнения</th>
-          <th style="width: 40%;">Комбинационные логические узлы</th>
-          <th style="width: 40%;">Последовательностные узлы (устройства хранения)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Зависимость выхода</strong></td>
-          <td>Выход Y(t) определяется <em>исключительно</em> текущей комбинацией входных сигналов X(t) в данный момент времени.</td>
-          <td>Выход Y(t) зависит как от текущих входов X(t), так и от предшествующего внутреннего состояния Q(t) (предыстории).</td>
-        </tr>
-        <tr>
-          <td><strong>Внутренняя память</strong></td>
-          <td><strong>Отсутствует.</strong> Схема не запоминает предыдущие сигналы. При снятии входного воздействия состояние не сохраняется.</td>
-          <td><strong>Присутствует.</strong> Схема способна сохранять битовое состояние неограниченно долго при наличии питания.</td>
-        </tr>
-        <tr>
-          <td><strong>Обратная связь</strong></td>
-          <td>Строго ациклическая структура (прямой тракт сигнала от входа к выходу без петель обратной связи).</td>
-          <td>Обязательно содержит замкнутые петли положительной обратной связи, обеспечивающие бистабильность (самоподхват).</td>
-        </tr>
-        <tr>
-          <td><strong>Тактирование (Clock)</strong></td>
-          <td>В базовой структуре асинхронны. Результат появляется на выходе через время задержки распространения вентилей t<sub>pd</sub>.</td>
-          <td>Как правило, синхронные узлы: смена состояний происходит строго по перепаду (фронту) импульса генератора тактовой частоты.</td>
-        </tr>
-        <tr>
-          <td><strong>Базовые элементы</strong></td>
-          <td>Логические вентили: NOT, AND, OR, NAND, NOR, XOR.</td>
-          <td>Триггеры (RS, D, T, JK), построенные из вентилей с перекрестной обратной связью.</td>
-        </tr>
-        <tr>
-          <td><strong>Примеры узлов в ЭВМ</strong></td>
-          <td>Сумматоры, шифраторы, дешифраторы, мультиплексоры, демультиплексоры, цифровые компараторы кодов, АЛУ.</td>
-          <td>Регистры общего назначения (GPR), программный счетчик (PC/IP), регистр флагов, счетчики тактов, кэш-память (SRAM).</td>
-        </tr>
-      </tbody>
-    </table>
-  </section>
+ <table>
+ <thead>
+ <tr>
+ <th style="width: 20%;">Параметр сравнения</th>
+ <th style="width: 40%;">Комбинационные логические узлы</th>
+ <th style="width: 40%;">Последовательностные узлы (устройства хранения)</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>Зависимость выхода</strong></td>
+ <td>Выход Y(t) определяется <em>исключительно</em> текущей комбинацией входных сигналов X(t) в данный момент времени.</td>
+ <td>Выход Y(t) зависит как от текущих входов X(t), так и от предшествующего внутреннего состояния Q(t) (предыстории).</td>
+ </tr>
+ <tr>
+ <td><strong>Внутренняя память</strong></td>
+ <td><strong>Отсутствует.</strong> Схема не запоминает предыдущие сигналы. При снятии входного воздействия состояние не сохраняется.</td>
+ <td><strong>Присутствует.</strong> Схема способна сохранять битовое состояние неограниченно долго при наличии питания.</td>
+ </tr>
+ <tr>
+ <td><strong>Обратная связь</strong></td>
+ <td>Строго ациклическая структура (прямой тракт сигнала от входа к выходу без петель обратной связи).</td>
+ <td>Обязательно содержит замкнутые петли положительной обратной связи, обеспечивающие бистабильность (самоподхват).</td>
+ </tr>
+ <tr>
+ <td><strong>Тактирование (Clock)</strong></td>
+ <td>В базовой структуре асинхронны. Результат появляется на выходе через время задержки распространения вентилей t<sub>pd</sub>.</td>
+ <td>Как правило, синхронные узлы: смена состояний происходит строго по перепаду (фронту) импульса генератора тактовой частоты.</td>
+ </tr>
+ <tr>
+ <td><strong>Базовые элементы</strong></td>
+ <td>Логические вентили: NOT, AND, OR, NAND, NOR, XOR.</td>
+ <td>Триггеры (RS, D, T, JK), построенные из вентилей с перекрестной обратной связью.</td>
+ </tr>
+ <tr>
+ <td><strong>Примеры узлов в ЭВМ</strong></td>
+ <td>Сумматоры, шифраторы, дешифраторы, мультиплексоры, демультиплексоры, цифровые компараторы кодов, АЛУ.</td>
+ <td>Регистры общего назначения (GPR), программный счетчик (PC/IP), регистр флагов, счетчики тактов, кэш-память (SRAM).</td>
+ </tr>
+ </tbody>
+ </table>
+ </section>
 
-  <!-- РАЗДЕЛ 3: КОМБИНАЦИОННЫЕ УЗЛЫ -->
-  <section>
-    <h2>3. Комбинационные функциональные узлы процессора</h2>
+ <!-- РАЗДЕЛ 3: КОМБИНАЦИОННЫЕ УЗЛЫ -->
+ <section>
+ <h2>3. Комбинационные функциональные узлы процессора</h2>
 
-    <h3>3.1. Полусумматор (Half Adder) и полный сумматор (Full Adder)</h3>
-    <p>Сумматор — главный узел арифметико-логического устройства (АЛУ), выполняющий сложение двоичных чисел.</p>
-    <ul>
-      <li><strong>Полусумматор (Half Adder):</strong> складывает два однобитных операнда A и B. Имеет 2 выхода: сумму младшего разряда S (Sum) и перенос в старший разряд C (Carry).
-        <div class="formula-block">
-          S = A &oplus; B (вентиль XOR)<br>
-          C = A &and; B (вентиль AND)
-        </div>
-        <em>Ограничение:</em> полусумматор не способен принимать входящий перенос из предыдущего разряда, поэтому годится только для самого младшего бита b<sub>0</sub>.
-      </li>
-      <li><strong>Полный сумматор (Full Adder):</strong> складывает три однобитных сигнала: два разряда чисел A, B и входящий бит переноса из младшего разряда C<sub>in</sub>.
-        <div class="formula-block">
-          S = A &oplus; B &oplus; C_{in}<br>
-          C_{out} = (A &and; B) &or; (C_{in} &and; (A &oplus; B))
-        </div>
-        Полный сумматор строится из двух полусумматоров и одного логического элемента ИЛИ. Соединяя n полных сумматоров последовательно (перенос C<sub>out</sub> каждого разряда подается на вход C<sub>in</sub> следующего), получают параллельный n-разрядный сумматор (Ripple-Carry Adder).
-      </li>
-    </ul>
+ <h3>3.1. Полусумматор (Half Adder) и полный сумматор (Full Adder)</h3>
+ <p>Сумматор — главный узел арифметико-логического устройства (АЛУ), выполняющий сложение двоичных чисел.</p>
+ <ul>
+ <li><strong>Полусумматор (Half Adder):</strong> складывает два однобитных операнда A и B. Имеет 2 выхода: сумму младшего разряда S (Sum) и перенос в старший разряд C (Carry).
+ <div class="formula-block">
+ S = A &oplus; B (вентиль XOR)<br>
+ C = A &and; B (вентиль AND)
+ </div>
+ <em>Ограничение:</em> полусумматор не способен принимать входящий перенос из предыдущего разряда, поэтому годится только для самого младшего бита b<sub>0</sub>.
+ </li>
+ <li><strong>Полный сумматор (Full Adder):</strong> складывает три однобитных сигнала: два разряда чисел A, B и входящий бит переноса из младшего разряда C<sub>in</sub>.
+ <div class="formula-block">
+ S = A &oplus; B &oplus; C_{in}<br>
+ C_{out} = (A &and; B) &or; (C_{in} &and; (A &oplus; B))
+ </div>
+ Полный сумматор строится из двух полусумматоров и одного логического элемента ИЛИ. Соединяя n полных сумматоров последовательно (перенос C<sub>out</sub> каждого разряда подается на вход C<sub>in</sub> следующего), получают параллельный n-разрядный сумматор (Ripple-Carry Adder).
+ </li>
+ </ul>
 
-    <div class="scheme-card">
-      <div class="scheme-title">Структура и путь сигнала в полном сумматоре:</div>
-      <div class="flex-flow">
-        <div class="flow-node">Входы A, B</div>
-        <div class="flow-arrow">&rarr;</div>
-        <div class="flow-node highlight">Полусумматор 1 (S_1, C_1)</div>
-        <div class="flow-arrow">&rarr;</div>
-        <div class="flow-node highlight">Полусумматор 2 (+ C_in)</div>
-        <div class="flow-arrow">&rarr;</div>
-        <div class="flow-node">Выход суммы S</div>
-      </div>
-      <div class="flex-flow" style="margin-top: 6px;">
-        <div class="flow-node">Переносы C_1 и C_2</div>
-        <div class="flow-arrow">&rarr;</div>
-        <div class="flow-node highlight">Элемент ИЛИ (OR)</div>
-        <div class="flow-arrow">&rarr;</div>
-        <div class="flow-node">Выход переноса C_out</div>
-      </div>
-    </div>
+ <div class="scheme-card">
+ <div class="scheme-title">Структура и путь сигнала в полном сумматоре:</div>
+ <div class="flex-flow">
+ <div class="flow-node">Входы A, B</div>
+ <div class="flow-arrow">&rarr;</div>
+ <div class="flow-node highlight">Полусумматор 1 (S_1, C_1)</div>
+ <div class="flow-arrow">&rarr;</div>
+ <div class="flow-node highlight">Полусумматор 2 (+ C_in)</div>
+ <div class="flow-arrow">&rarr;</div>
+ <div class="flow-node">Выход суммы S</div>
+ </div>
+ <div class="flex-flow" style="margin-top: 6px;">
+ <div class="flow-node">Переносы C_1 и C_2</div>
+ <div class="flow-arrow">&rarr;</div>
+ <div class="flow-node highlight">Элемент ИЛИ (OR)</div>
+ <div class="flow-arrow">&rarr;</div>
+ <div class="flow-node">Выход переноса C_out</div>
+ </div>
+ </div>
 
-    <h3>3.2. Шифраторы (Encoder) и дешифраторы (Decoder)</h3>
-    <ul>
-      <li><strong>Дешифратор (Decoder n → 2<sup>n</sup>):</strong> комбинационный узел, преобразующий двоичный код адреса разрядностью n на входе в унитарный сигнал логической «1» на одном из 2<sup>n</sup> выходных линий. Если на вход подан адрес 011<sub>2</sub> = 3, то только выход Y<sub>3</sub> = 1, а остальные выходы равны 0. Дешифраторы применяются для выбора модулей памяти (сигнал Chip Select), дешифрации кода операции команды (Opcode) в Устройстве управления процессора.</li>
-      <li><strong>Шифратор (Encoder 2<sup>n</sup> → n):</strong> узел, выполняющий операцию, обратную дешифратору. При подаче активного уровня на одну из входных линий шифратор формирует на выходе ее двоичный номер. В ЭВМ применяются <em>приоритетные шифраторы</em> (контроллер прерываний PIC/APIC): если активны сразу несколько запросов, шифратор кодирует номер линии с наивысшим приоритетом.</li>
-    </ul>
+ <h3>3.2. Шифраторы (Encoder) и дешифраторы (Decoder)</h3>
+ <ul>
+ <li><strong>Дешифратор (Decoder n → 2<sup>n</sup>):</strong> комбинационный узел, преобразующий двоичный код адреса разрядностью n на входе в унитарный сигнал логической «1» на одном из 2<sup>n</sup> выходных линий. Если на вход подан адрес 011<sub>2</sub> = 3, то только выход Y<sub>3</sub> = 1, а остальные выходы равны 0. Дешифраторы применяются для выбора модулей памяти (сигнал Chip Select), дешифрации кода операции команды (Opcode) в Устройстве управления процессора.</li>
+ <li><strong>Шифратор (Encoder 2<sup>n</sup> → n):</strong> узел, выполняющий операцию, обратную дешифратору. При подаче активного уровня на одну из входных линий шифратор формирует на выходе ее двоичный номер. В ЭВМ применяются <em>приоритетные шифраторы</em> (контроллер прерываний PIC/APIC): если активны сразу несколько запросов, шифратор кодирует номер линии с наивысшим приоритетом.</li>
+ </ul>
 
-    <h3>3.3. Мультиплексор (Multiplexer, MUX) и демультиплексор (DEMUX)</h3>
-    <p><strong>Мультиплексор</strong> («коммутатор данных 2<sup>k</sup> → 1») — устройство с несколькими информационными входами D<sub>0</sub>, D<sub>1</sub>, ..., D<sub>2<sup>k-1</sup></sub>, одной выходной линией Y и группой управляющих адресных входов A<sub>0</sub>, ..., A<sub>k-1</sub>. В зависимости от двоичного кода на адресных входах к выходу подключается один выбранный информационный канал:</p>
-    <div class="formula-block">
-      Для MUX 2 в 1 (1 адресный вход A): Y = (D_0 &and; NOT A) &or; (D_1 &and; A)<br>
-      Для MUX 4 в 1 (2 адреса A_1, A_0): Y = (D_0 &and; NOT A_1 &and; NOT A_0) &or; (D_1 &and; NOT A_1 &and; A_0) &or; (D_2 &and; A_1 &and; NOT A_0) &or; (D_3 &and; A_1 &and; A_0)
-    </div>
-    <p>Мультиплексоры используются в шинах данных процессора для маршрутизации операндов из различных внутренних регистров на вход АЛУ.</p>
+ <h3>3.3. Мультиплексор (Multiplexer, MUX) и демультиплексор (DEMUX)</h3>
+ <p><strong>Мультиплексор</strong> («коммутатор данных 2<sup>k</sup> → 1») — устройство с несколькими информационными входами D<sub>0</sub>, D<sub>1</sub>,..., D<sub>2<sup>k-1</sup></sub>, одной выходной линией Y и группой управляющих адресных входов A<sub>0</sub>,..., A<sub>k-1</sub>. В зависимости от двоичного кода на адресных входах к выходу подключается один выбранный информационный канал:</p>
+ <div class="formula-block">
+ Для MUX 2 в 1 (1 адресный вход A): Y = (D_0 &and; NOT A) &or; (D_1 &and; A)<br>
+ Для MUX 4 в 1 (2 адреса A_1, A_0): Y = (D_0 &and; NOT A_1 &and; NOT A_0) &or; (D_1 &and; NOT A_1 &and; A_0) &or; (D_2 &and; A_1 &and; NOT A_0) &or; (D_3 &and; A_1 &and; A_0)
+ </div>
+ <p>Мультиплексоры используются в шинах данных процессора для маршрутизации операндов из различных внутренних регистров на вход АЛУ.</p>
 
-    <h3>3.4. Компараторы двоичных кодов (Magnitude Comparator)</h3>
-    <p>Компаратор кодов выполняет аппаратное поразрядное сравнение двух двоичных чисел A = a<sub>n-1</sub>... a<sub>0</sub> и B = b<sub>n-1</sub>... b<sub>0</sub>. На выходе вырабатываются три логических признака: A = B, A &gt; B, A &lt; B.</p>
-    <p>Признак равенства одного разряда формируется вентилем эквивалентности (XNOR): e<sub>i</sub> = overline{a<sub>i</sub> ⊕ b<sub>i</sub>} = (a<sub>i</sub> land b<sub>i</sub>) lor (overline{a<sub>i</sub>} land overline{b<sub>i</sub>}). Два n-разрядных слова равны тогда и только тогда, когда равны все соответствующие пары разрядов одновременно:</p>
-    <div class="formula-block">Признак равенства (A = B) = e_{n-1} &and; e_{n-2} &and; \dots &and; e_0</div>
-    <p>Компараторы кодов используются в блоке предсказания ветвлений процессора, схемах защиты памяти (Memory Protection) и контроллерах ассоциативного поиска в кэше (Tag RAM Match).</p>
-  </section>
+ <h3>3.4. Компараторы двоичных кодов (Magnitude Comparator)</h3>
+ <p>Компаратор кодов выполняет аппаратное поразрядное сравнение двух двоичных чисел A = a<sub>n-1</sub>... a<sub>0</sub> и B = b<sub>n-1</sub>... b<sub>0</sub>. На выходе вырабатываются три логических признака: A = B, A &gt; B, A &lt; B.</p>
+ <p>Признак равенства одного разряда формируется вентилем эквивалентности (XNOR): e<sub>i</sub> = overline{a<sub>i</sub> ⊕ b<sub>i</sub>} = (a<sub>i</sub> land b<sub>i</sub>) lor (overline{a<sub>i</sub>} land overline{b<sub>i</sub>}). Два n-разрядных слова равны тогда и только тогда, когда равны все соответствующие пары разрядов одновременно:</p>
+ <div class="formula-block">Признак равенства (A = B) = e_{n-1} &and; e_{n-2} &and; \dots &and; e_0</div>
+ <p>Компараторы кодов используются в блоке предсказания ветвлений процессора, схемах защиты памяти (Memory Protection) и контроллерах ассоциативного поиска в кэше (Tag RAM Match).</p>
+ </section>
 
-  <!-- РАЗДЕЛ 4: ПОСЛЕДОВАТЕЛЬНОСТНЫЕ УЗЛЫ -->
-  <section>
-    <h2>4. Последовательностные узлы и устройства хранения данных</h2>
+ <!-- РАЗДЕЛ 4: ПОСЛЕДОВАТЕЛЬНОСТНЫЕ УЗЛЫ -->
+ <section>
+ <h2>4. Последовательностные узлы и устройства хранения данных</h2>
 
-    <p>Без способности фиксировать и хранить состояние процессор не мог бы выполнять программы. Основой всех запоминающих устройств полупроводниковой электроники является <strong>триггер</strong>.</p>
+ <p>Без способности фиксировать и хранить состояние процессор не мог бы выполнять программы. Основой всех запоминающих устройств полупроводниковой электроники является <strong>триггер</strong>.</p>
 
-    <h3>4.1. Триггеры: элементарные ячейки памяти (1 бит)</h3>
-    <ul>
-      <li><strong>Асинхронный RS-триггер:</strong> состоит из двух логических элементов 2ИЛИ-НЕ (NOR) или 2И-НЕ (NAND), выходы которых взаимно соединены со входами (перекрестная положительная обратная связь).
-        <p>Имеет входы S (Set — установка Q=1) и R (Reset — сброс Q=0). При S=0, R=0 триггер находится в режиме <em>хранения</em> ранее записанного бита (Q<sub>next</sub> = Q). Комбинация S=1, R=1 для триггера на элементах ИЛИ-НЕ является <strong>запрещенной</strong>, так как вызывает конфликт уровней и непредсказуемое состояние при одновременном снятии сигналов (гонка сигналов).</p>
-      </li>
-      <li><strong>D-триггер (Data / Delay):</strong> устраняет проблему запрещенных состояний RS-триггера. Имеет информационный вход данных D и тактовый вход синхронизации C (Clock). Внутренняя схема формирует на внутренних входах S и R взаимоисключающие сигналы (S = D, R = overline{D}).
-        <p>По перепаду тактового сигнала (фронту импульса 0 → 1) триггер защелкивает значение входа D и удерживает его на выходе Q до прихода следующего тактового импульса независимо от любых дальнейших изменений на входе D:</p>
-        <div class="formula-block">Q_{next} = D (строго по фронту тактового сигнала Clock)</div>
-      </li>
-      <li><strong>T-триггер (счетный триггер):</strong> при каждом тактовом импульсе инвертирует свое текущее состояние: Q<sub>next</sub> = overline{Q}. Частота импульсов на выходе Q ровно в 2 раза ниже частоты тактовых импульсов на входе. T-триггер является базовым делителем частоты и элементарным звеном двоичных счетчиков.</li>
-    </ul>
+ <h3>4.1. Триггеры: элементарные ячейки памяти (1 бит)</h3>
+ <ul>
+ <li><strong>Асинхронный RS-триггер:</strong> состоит из двух логических элементов 2ИЛИ-НЕ (NOR) или 2И-НЕ (NAND), выходы которых взаимно соединены со входами (перекрестная положительная обратная связь).
+ <p>Имеет входы S (Set — установка Q=1) и R (Reset — сброс Q=0). При S=0, R=0 триггер находится в режиме <em>хранения</em> ранее записанного бита (Q<sub>next</sub> = Q). Комбинация S=1, R=1 для триггера на элементах ИЛИ-НЕ является <strong>запрещенной</strong>, так как вызывает конфликт уровней и непредсказуемое состояние при одновременном снятии сигналов (гонка сигналов).</p>
+ </li>
+ <li><strong>D-триггер (Data / Delay):</strong> устраняет проблему запрещенных состояний RS-триггера. Имеет информационный вход данных D и тактовый вход синхронизации C (Clock). Внутренняя схема формирует на внутренних входах S и R взаимоисключающие сигналы (S = D, R = overline{D}).
+ <p>По перепаду тактового сигнала (фронту импульса 0 → 1) триггер защелкивает значение входа D и удерживает его на выходе Q до прихода следующего тактового импульса независимо от любых дальнейших изменений на входе D:</p>
+ <div class="formula-block">Q_{next} = D (строго по фронту тактового сигнала Clock)</div>
+ </li>
+ <li><strong>T-триггер (счетный триггер):</strong> при каждом тактовом импульсе инвертирует свое текущее состояние: Q<sub>next</sub> = overline{Q}. Частота импульсов на выходе Q ровно в 2 раза ниже частоты тактовых импульсов на входе. T-триггер является базовым делителем частоты и элементарным звеном двоичных счетчиков.</li>
+ </ul>
 
-    <h3>4.2. Регистры (Registers)</h3>
-    <p><strong>Регистр</strong> — узел для оперативного временного хранения многоразрядного двоичного машинного слова (8, 16, 32, 64 бита). Регистр представляет собой упорядоченный набор D-триггеров, объединенных общим тактовым сигналом записи (CLK/WE — Write Enable) и линией синхронного или асинхронного сброса (RESET).</p>
-    <ul>
-      <li><strong>Параллельный регистр:</strong> все биты слова поступают на входы D<sub>0</sub>... D<sub>n-1</sub> и одновременно записываются по одному фронту такта. Применяется для регистров процессора (RAX, RBX, RCX, RDX).</li>
-      <li><strong>Сдвиговый регистр (Shift Register):</strong> выход каждого триггера подключен ко входу данных соседнего триггера. По каждому тактовому импульсу всё двоичное слово смещается на один разряд влево или вправо. Сдвиговые регистры используются для последовательной передачи данных (SPI, UART, USB) и для быстрых операций умножения/деления числа на степени двойки.</li>
-    </ul>
+ <h3>4.2. Регистры (Registers)</h3>
+ <p><strong>Регистр</strong> — узел для оперативного временного хранения многоразрядного двоичного машинного слова (8, 16, 32, 64 бита). Регистр представляет собой упорядоченный набор D-триггеров, объединенных общим тактовым сигналом записи (CLK/WE — Write Enable) и линией синхронного или асинхронного сброса (RESET).</p>
+ <ul>
+ <li><strong>Параллельный регистр:</strong> все биты слова поступают на входы D<sub>0</sub>... D<sub>n-1</sub> и одновременно записываются по одному фронту такта. Применяется для регистров процессора (RAX, RBX, RCX, RDX).</li>
+ <li><strong>Сдвиговый регистр (Shift Register):</strong> выход каждого триггера подключен ко входу данных соседнего триггера. По каждому тактовому импульсу всё двоичное слово смещается на один разряд влево или вправо. Сдвиговые регистры используются для последовательной передачи данных (SPI, UART, USB) и для быстрых операций умножения/деления числа на степени двойки.</li>
+ </ul>
 
-    <h3>4.3. Счетчики (Counters)</h3>
-    <p><strong>Двоичный счетчик</strong> — последовательностная схема из цепочки счетных триггеров, предназначенная для подсчета числа поступивших тактовых импульсов и фиксации этого значения в виде двоичного кода. Емкость счета n-разрядного счетчика составляет K<sub>count</sub> = 2<sup>n</sup> (например, 4-битный счетчик считает от 0 до 15).</p>
-    <p>В архитектуре процессора счетчик выполняет критически важную роль <strong>программного счетчика (Program Counter, PC / Instruction Pointer, IP)</strong>: после каждого считывания очередной команды счетчик автоматически инкрементируется (PC leftarrow PC + L<sub>instr</sub>), указывая на адрес следующей инструкции в оперативной памяти.</p>
+ <h3>4.3. Счетчики (Counters)</h3>
+ <p><strong>Двоичный счетчик</strong> — последовательностная схема из цепочки счетных триггеров, предназначенная для подсчета числа поступивших тактовых импульсов и фиксации этого значения в виде двоичного кода. Емкость счета n-разрядного счетчика составляет K<sub>count</sub> = 2<sup>n</sup> (например, 4-битный счетчик считает от 0 до 15).</p>
+ <p>В архитектуре процессора счетчик выполняет критически важную роль <strong>программного счетчика (Program Counter, PC / Instruction Pointer, IP)</strong>: после каждого считывания очередной команды счетчик автоматически инкрементируется (PC leftarrow PC + L<sub>instr</sub>), указывая на адрес следующей инструкции в оперативной памяти.</p>
 
-    <div class="scheme-card">
-      <div class="scheme-title">Иерархия усложнения цифровых структур в архитектуре ЭВМ:</div>
-      <div class="flex-flow">
-        <div class="flow-node">Транзисторы (CMOS)</div>
-        <div class="flow-arrow">&rarr;</div>
-        <div class="flow-node">Базовые вентили (NOT, AND, OR)</div>
-        <div class="flow-arrow">&rarr;</div>
-        <div class="flow-node highlight">Комбинационные узлы (Сумматоры, MUX)</div>
-        <div class="flow-arrow">&rarr;</div>
-        <div class="flow-node storage">D-триггеры (1 бит)</div>
-        <div class="flow-arrow">&rarr;</div>
-        <div class="flow-node storage">Регистры и Счетчики (слово)</div>
-        <div class="flow-arrow">&rarr;</div>
-        <div class="flow-node highlight">Процессор (CPU / ALU)</div>
-      </div>
-    </div>
-  </section>
+ <div class="scheme-card">
+ <div class="scheme-title">Иерархия усложнения цифровых структур в архитектуре ЭВМ:</div>
+ <div class="flex-flow">
+ <div class="flow-node">Транзисторы (CMOS)</div>
+ <div class="flow-arrow">&rarr;</div>
+ <div class="flow-node">Базовые вентили (NOT, AND, OR)</div>
+ <div class="flow-arrow">&rarr;</div>
+ <div class="flow-node highlight">Комбинационные узлы (Сумматоры, MUX)</div>
+ <div class="flow-arrow">&rarr;</div>
+ <div class="flow-node storage">D-триггеры (1 бит)</div>
+ <div class="flow-arrow">&rarr;</div>
+ <div class="flow-node storage">Регистры и Счетчики (слово)</div>
+ <div class="flow-arrow">&rarr;</div>
+ <div class="flow-node highlight">Процессор (CPU / ALU)</div>
+ </div>
+ </div>
+ </section>
 
-  <!-- РАЗДЕЛ 5: САМОПРОВЕРКА -->
-  <section>
-    <h2>5. Вопросы и задания для самопроверки</h2>
+ <!-- РАЗДЕЛ 5: САМОПРОВЕРКА -->
+ <section>
+ <h2>5. Вопросы и задания для самопроверки</h2>
 
-    <div class="qa-box">
-      <div class="qa-question">1. В чем состоит принципиальное схемотехническое отличие комбинационной логической схемы от последовательностной?</div>
-      <div class="qa-answer">В комбинационной схеме нет внутренней памяти и замкнутых петель обратной связи; ее выход зависит только от текущих входов. В последовательностной схеме обязательно присутствует обратная связь (триггеры), и выход зависит как от текущих входов, так и от ранее сохраненного состояния.</div>
-    </div>
+ <div class="qa-box">
+ <div class="qa-question">1. В чем состоит принципиальное схемотехническое отличие комбинационной логической схемы от последовательностной?</div>
+ <div class="qa-answer">В комбинационной схеме нет внутренней памяти и замкнутых петель обратной связи; ее выход зависит только от текущих входов. В последовательностной схеме обязательно присутствует обратная связь (триггеры), и выход зависит как от текущих входов, так и от ранее сохраненного состояния.</div>
+ </div>
 
-    <div class="qa-box">
-      <div class="qa-question">2. Почему полусумматор нельзя использовать для сложения средних и старших разрядов многобитных чисел?</div>
-      <div class="qa-answer">Полусумматор имеет всего два входа (A и B) и не может учитывать входящий бит переноса C<sub>in</sub>, сформированный сложением младшего соседнего разряда. Для средних и старших разрядов необходим трехвходовый полный сумматор.</div>
-    </div>
+ <div class="qa-box">
+ <div class="qa-question">2. Почему полусумматор нельзя использовать для сложения средних и старших разрядов многобитных чисел?</div>
+ <div class="qa-answer">Полусумматор имеет всего два входа (A и B) и не может учитывать входящий бит переноса C<sub>in</sub>, сформированный сложением младшего соседнего разряда. Для средних и старших разрядов необходим трехвходовый полный сумматор.</div>
+ </div>
 
-    <div class="qa-box">
-      <div class="qa-question">3. Какую роль играет D-триггер в построении компьютерной памяти?</div>
-      <div class="qa-answer">D-триггер является универсальной синхронной ячейкой статической памяти, сохраняющей 1 бит информации по фронту тактового сигнала. Набор параллельных D-триггеров образует регистры процессора и ячейки кэш-памяти SRAM.</div>
-    </div>
+ <div class="qa-box">
+ <div class="qa-question">3. Какую роль играет D-триггер в построении компьютерной памяти?</div>
+ <div class="qa-answer">D-триггер является универсальной синхронной ячейкой статической памяти, сохраняющей 1 бит информации по фронту тактового сигнала. Набор параллельных D-триггеров образует регистры процессора и ячейки кэш-памяти SRAM.</div>
+ </div>
 
-    <div class="qa-box">
-      <div class="qa-question">4. Согласно теореме Котельникова, какую минимальную частоту дискретизации необходимо выбрать для оцифровки звукового сигнала с максимальной частотой 16 кГц?</div>
-      <div class="qa-answer">По теореме Котельникова f<sub>s</sub> ≥ 2 f<sub>max</sub> = 2 × 16 000 Гц = 32 000 Гц (32 кГц).</div>
-    </div>
-  </section>
+ <div class="qa-box">
+ <div class="qa-question">4. Согласно теореме Котельникова, какую минимальную частоту дискретизации необходимо выбрать для оцифровки звукового сигнала с максимальной частотой 16 кГц?</div>
+ <div class="qa-answer">По теореме Котельникова f<sub>s</sub> ≥ 2 f<sub>max</sub> = 2 × 16 000 Гц = 32 000 Гц (32 кГц).</div>
+ </div>
+ </section>
 </div>
 
 </body>

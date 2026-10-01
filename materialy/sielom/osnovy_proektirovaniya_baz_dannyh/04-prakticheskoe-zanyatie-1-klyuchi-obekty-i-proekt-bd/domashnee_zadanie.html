@@ -1,226 +1,213 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="color-scheme" content="light">
-  <title>Домашнее задание - Практическое занятие №1: ключи, объекты и проект БД, таблицы</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #2563eb;
-      --accent-soft: #eff6ff;
-      --warn: #b45309;
-      --warn-soft: #fefce8;
-      --code-bg: #0f172a;
-      --code-text: #f8fafc;
-      --radius: 12px;
-      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-    }
-    * { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      line-height: 1.6;
-      font-size: 16px;
-    }
-    .page {
-      width: min(100% - 32px, 880px);
-      margin: 28px auto 80px;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 28px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow);
-    }
-    h1 {
-      margin: 0 0 10px;
-      font-size: clamp(22px, 3.5vw, 30px);
-      line-height: 1.25;
-      color: var(--text);
-    }
-    h2 {
-      margin: 0 0 16px;
-      font-size: 19px;
-      color: var(--accent);
-      border-bottom: 2px solid var(--accent-soft);
-      padding-bottom: 8px;
-    }
-    .notice-reserve {
-      background: var(--warn-soft);
-      border-left: 4px solid var(--warn);
-      padding: 14px 18px;
-      border-radius: 4px 8px 8px 4px;
-      margin-bottom: 20px;
-      font-size: 15.5px;
-      color: #713f12;
-      font-weight: 500;
-    }
-    .callout {
-      background: var(--accent-soft);
-      border-left: 4px solid var(--accent);
-      padding: 12px 16px;
-      border-radius: 4px 8px 8px 4px;
-      margin-bottom: 18px;
-    }
-    .example-box {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 16px;
-      background: #f8fafc;
-      margin-bottom: 16px;
-    }
-    .example-title {
-      font-weight: 700;
-      color: #1e3a8a;
-      margin-bottom: 8px;
-    }
-    pre {
-      background: var(--code-bg);
-      color: var(--code-text);
-      padding: 14px;
-      border-radius: 8px;
-      overflow-x: auto;
-      font-family: ui-monospace, Menlo, Consolas, monospace;
-      font-size: 13.5px;
-      line-height: 1.45;
-      margin: 12px 0;
-    }
-    code {
-      font-family: ui-monospace, Menlo, Consolas, monospace;
-      font-size: 0.9em;
-      background: #f1f5f9;
-      color: #0f172a;
-      padding: 2px 5px;
-      border-radius: 4px;
-    }
-    pre code {
-      background: transparent;
-      color: inherit;
-      padding: 0;
-    }
-    .task-card {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 18px;
-      margin-bottom: 18px;
-      background: #ffffff;
-    }
-    .task-header {
-      font-weight: 700;
-      font-size: 16.5px;
-      color: var(--text);
-      margin-bottom: 8px;
-    }
-    @media (max-width: 640px) {
-      .page { width: calc(100% - 20px); margin: 16px auto 60px; }
-      .card { padding: 20px 16px; }
-    }
-    @media print {
-      body { background: white; color: black; font-size: 11pt; }
-      .page { width: 100%; margin: 0; }
-      .card { border: none; box-shadow: none; padding: 10px 0; margin-bottom: 14px; break-inside: avoid; }
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <meta name="color-scheme" content="light">
+ <title>Домашнее задание - Практическое занятие №1: ключи, объекты и проект БД, таблицы</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #2563eb;
+ --accent-soft: #eff6ff;
+ --warn: #b45309;
+ --warn-soft: #fefce8;
+ --code-bg: #0f172a;
+ --code-text: #f8fafc;
+ --radius: 12px;
+ --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+ }
+ * { box-sizing: border-box; }
+ html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+ body {
+ margin: 0;
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+ line-height: 1.6;
+ font-size: 16px;
+ }.page {
+ width: min(100% - 32px, 880px);
+ margin: 28px auto 80px;
+ }.card {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 28px;
+ margin-bottom: 24px;
+ box-shadow: var(--shadow);
+ }
+ h1 {
+ margin: 0 0 10px;
+ font-size: clamp(22px, 3.5vw, 30px);
+ line-height: 1.25;
+ color: var(--text);
+ }
+ h2 {
+ margin: 0 0 16px;
+ font-size: 19px;
+ color: var(--accent);
+ border-bottom: 2px solid var(--accent-soft);
+ padding-bottom: 8px;
+ }.notice-reserve {
+ background: var(--warn-soft);
+ border-left: 4px solid var(--warn);
+ padding: 14px 18px;
+ border-radius: 4px 8px 8px 4px;
+ margin-bottom: 20px;
+ font-size: 15.5px;
+ color: #713f12;
+ font-weight: 500;
+ }.callout {
+ background: var(--accent-soft);
+ border-left: 4px solid var(--accent);
+ padding: 12px 16px;
+ border-radius: 4px 8px 8px 4px;
+ margin-bottom: 18px;
+ }.example-box {
+ border: 1px solid var(--line);
+ border-radius: 8px;
+ padding: 16px;
+ background: #f8fafc;
+ margin-bottom: 16px;
+ }.example-title {
+ font-weight: 700;
+ color: #1e3a8a;
+ margin-bottom: 8px;
+ }
+ pre {
+ background: var(--code-bg);
+ color: var(--code-text);
+ padding: 14px;
+ border-radius: 8px;
+ overflow-x: auto;
+ font-family: ui-monospace, Menlo, Consolas, monospace;
+ font-size: 13.5px;
+ line-height: 1.45;
+ margin: 12px 0;
+ }
+ code {
+ font-family: ui-monospace, Menlo, Consolas, monospace;
+ font-size: 0.9em;
+ background: #f1f5f9;
+ color: #0f172a;
+ padding: 2px 5px;
+ border-radius: 4px;
+ }
+ pre code {
+ background: transparent;
+ color: inherit;
+ padding: 0;
+ }.task-card {
+ border: 1px solid var(--line);
+ border-radius: 8px;
+ padding: 18px;
+ margin-bottom: 18px;
+ background: #ffffff;
+ }.task-header {
+ font-weight: 700;
+ font-size: 16.5px;
+ color: var(--text);
+ margin-bottom: 8px;
+ }
+ @media (max-width: 640px) {.page { width: calc(100% - 20px); margin: 16px auto 60px; }.card { padding: 20px 16px; }
+ }
+ @media print {
+ body { background: white; color: black; font-size: 11pt; }.page { width: 100%; margin: 0; }.card { border: none; box-shadow: none; padding: 10px 0; margin-bottom: 14px; break-inside: avoid; }
+ }
+ </style>
 </head>
 <body>
-  <div class="page">
-    
-    <header class="card">
-      <h1>Домашнее задание - Практическое занятие №1: ключи, объекты и проект БД, таблицы</h1>
-      <div class="notice-reserve">
-        Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
-      </div>
-      <p style="color: var(--muted); margin: 0; font-size: 15px;">
-        <strong>Дисциплина:</strong> ОП.08 Основы проектирования баз данных<br>
-        <strong>Специальность:</strong> 09.02.07 Информационные системы и программирование
-      </p>
-    </header>
+ <div class="page">
+ 
+ <header class="card">
+ <h1>Домашнее задание - Практическое занятие №1: ключи, объекты и проект БД, таблицы</h1>
+ <div class="notice-reserve">
+ Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+ </div>
+ <p style="color: var(--muted); margin: 0; font-size: 15px;">
+ <strong>Дисциплина:</strong> ОП.08 Основы проектирования баз данных<br>
+ <strong>Специальность:</strong> 09.02.07 Информационные системы и программирование
+ </p>
+ </header>
 
-    <section class="card">
-      <h2>1. Назначение и методический регламент</h2>
-      <p>Данное задание является резервным дистанционным материалом. Оно предназначено для обучающихся, пропустивших аудиторное занятие по уважительной причине, находящихся на индивидуальном учебном плане либо направленных преподавателем на повторную аттестацию по теме физического проектирования реляционных таблиц.</p>
-      
-      <div class="callout">
-        <strong>Цель задания:</strong> Закрепить практические навыки проектирования реляционной схемы таблицы, выбора оптимальных физических типов данных, спецификации первичных и альтернативных ключей, а также формализации бизнес-правил через декларативные ограничения целостности <code>CHECK</code>.
-      </div>
-    </section>
+ <section class="card">
+ <h2>1. Назначение и методический регламент</h2>
+ <p>Данное задание является резервным дистанционным материалом. Оно предназначено для обучающихся, пропустивших аудиторное занятие по уважительной причине, находящихся на индивидуальном учебном плане либо направленных преподавателем на повторную аттестацию по теме физического проектирования реляционных таблиц.</p>
+ 
+ <div class="callout">
+ <strong>Цель задания:</strong> Закрепить практические навыки проектирования реляционной схемы таблицы, выбора оптимальных физических типов данных, спецификации первичных и альтернативных ключей, а также формализации бизнес-правил через декларативные ограничения целостности <code>CHECK</code>.
+ </div>
+ </section>
 
-    <section class="card">
-      <h2>2. Содержание резервного задания</h2>
-      
-      <div class="task-card">
-        <div class="task-header">Часть А. Проектирование схемы таблицы учетной системы</div>
-        <p>Спроектируйте физическую структуру реляционной таблицы <code>tovarnye_nakladnye</code> (Товарные накладные оптового склада) в нотации SQL DDL (синтаксис PostgreSQL/ANSI SQL). Таблица должна содержать следующие реквизиты:</p>
-        <ol>
-          <li>Суррогатный первичный идентификатор (<code>BIGINT IDENTITY</code>).</li>
-          <li>Номер накладной (строка фиксированного формата, уникальная в масштабах системы).</li>
-          <li>Внешний ключ на таблицу поставщиков <code>postavshchiki(id_postavshchika)</code> с правилом защиты от удаления (<code>RESTRICT</code>).</li>
-          <li>Дата и время составления накладной (по умолчанию текущий момент).</li>
-          <li>Планируемая дата поставки товара.</li>
-          <li>Фактическая дата приемки товара на склад (может быть не заполнена до момента приемки).</li>
-          <li>Сумма накладной без НДС (денежный тип данных с фиксированной точностью до копеек).</li>
-          <li>Сумма НДС (20% от суммы без НДС).</li>
-          <li>Итоговая сумма с НДС.</li>
-          <li>Статус накладной: <em>'черновик'</em>, <em>'согласована'</em>, <em>'в_пути'</em>, <em>'принята'</em>, <em>'аннулирована'</em>.</li>
-        </ol>
-      </div>
+ <section class="card">
+ <h2>2. Содержание резервного задания</h2>
+ 
+ <div class="task-card">
+ <div class="task-header">Часть А. Проектирование схемы таблицы учетной системы</div>
+ <p>Спроектируйте физическую структуру реляционной таблицы <code>tovarnye_nakladnye</code> (Товарные накладные оптового склада) в нотации SQL DDL (синтаксис PostgreSQL/ANSI SQL). Таблица должна содержать следующие реквизиты:</p>
+ <ol>
+ <li>Суррогатный первичный идентификатор (<code>BIGINT IDENTITY</code>).</li>
+ <li>Номер накладной (строка фиксированного формата, уникальная в масштабах системы).</li>
+ <li>Внешний ключ на таблицу поставщиков <code>postavshchiki(id_postavshchika)</code> с правилом защиты от удаления (<code>RESTRICT</code>).</li>
+ <li>Дата и время составления накладной (по умолчанию текущий момент).</li>
+ <li>Планируемая дата поставки товара.</li>
+ <li>Фактическая дата приемки товара на склад (может быть не заполнена до момента приемки).</li>
+ <li>Сумма накладной без НДС (денежный тип данных с фиксированной точностью до копеек).</li>
+ <li>Сумма НДС (20% от суммы без НДС).</li>
+ <li>Итоговая сумма с НДС.</li>
+ <li>Статус накладной: <em>'черновик'</em>, <em>'согласована'</em>, <em>'в_пути'</em>, <em>'принята'</em>, <em>'аннулирована'</em>.</li>
+ </ol>
+ </div>
 
-      <div class="task-card">
-        <div class="task-header">Часть Б. Проверка корректности и формулирование ограничений CHECK</div>
-        <p>Разработайте и запишите в коде создания таблицы 4 строгих ограничения целостности <code>CHECK</code>:</p>
-        <ul>
-          <li><strong>Ограничение 1 (Темпоральная последовательность дат):</strong> Планируемая дата поставки не может предшествовать дате составления накладной. Фактическая дата приемки (если она заполнена) также обязана быть больше или равна дате составления накладной.</li>
-          <li><strong>Ограничение 2 (Корректность финансовых сумм):</strong> Сумма без НДС строго неотрицательна. Итоговая сумма с НДС обязана быть больше либо равна сумме без НДС.</li>
-          <li><strong>Ограничение 3 (Статусная модель):</strong> Поле статуса накладной может принимать только значения из утвержденного закрытого перечня жизненного цикла документа.</li>
-          <li><strong>Ограничение 4 (Логическая непротиворечивость приемки):</strong> Если статус накладной установлен в <em>'принята'</em>, то фактическая дата приемки не может быть пустой (<code>IS NOT NULL</code>).</li>
-        </ul>
-      </div>
-    </section>
+ <div class="task-card">
+ <div class="task-header">Часть Б. Проверка корректности и формулирование ограничений CHECK</div>
+ <p>Разработайте и запишите в коде создания таблицы 4 строгих ограничения целостности <code>CHECK</code>:</p>
+ <ul>
+ <li><strong>Ограничение 1 (Темпоральная последовательность дат):</strong> Планируемая дата поставки не может предшествовать дате составления накладной. Фактическая дата приемки (если она заполнена) также обязана быть больше или равна дате составления накладной.</li>
+ <li><strong>Ограничение 2 (Корректность финансовых сумм):</strong> Сумма без НДС строго неотрицательна. Итоговая сумма с НДС обязана быть больше либо равна сумме без НДС.</li>
+ <li><strong>Ограничение 3 (Статусная модель):</strong> Поле статуса накладной может принимать только значения из утвержденного закрытого перечня жизненного цикла документа.</li>
+ <li><strong>Ограничение 4 (Логическая непротиворечивость приемки):</strong> Если статус накладной установлен в <em>'принята'</em>, то фактическая дата приемки не может быть пустой (<code>IS NOT NULL</code>).</li>
+ </ul>
+ </div>
+ </section>
 
-    <section class="card">
-      <h2>3. Пример оформления эталонного решения</h2>
-      <p>Ниже приведен образец корректного оформления аналогичной проектной задачи для таблицы договоров аренды:</p>
-      
-      <div class="example-box">
-        <div class="example-title">Эталонный образец: Таблица dogovory_arendy</div>
-        <pre><code>CREATE TABLE dogovory_arendy (
-    id_dogovora BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    nomer_dogovora VARCHAR(30) NOT NULL UNIQUE,
-    id_arendatora INT NOT NULL REFERENCES arendatory(id_arendatora)
-        ON UPDATE CASCADE ON DELETE RESTRICT,
-    data_zaklyucheniya DATE NOT NULL DEFAULT CURRENT_DATE,
-    data_nachala DATE NOT NULL,
-    data_okonchaniya DATE NOT NULL,
-    stoimost_mesyac NUMERIC(10,2) NOT NULL CHECK (stoimost_mesyac > 0),
-    status VARCHAR(20) NOT NULL DEFAULT 'активен'
-        CHECK (status IN ('черновик', 'активен', 'расторгнут', 'завершен')),
-    sozdano_v TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT chk_period CHECK (data_okonchaniya > data_nachala),
-    CONSTRAINT chk_start CHECK (data_nachala >= data_zaklyucheniya)
-);</code></pre>
-      </div>
-    </section>
+ <section class="card">
+ <h2>3. Пример оформления эталонного решения</h2>
+ <p>Ниже приведен образец корректного оформления аналогичной проектной задачи для таблицы договоров аренды:</p>
+ 
+ <div class="example-box">
+ <div class="example-title">Эталонный образец: Таблица dogovory_arendy</div>
+ <pre><code>CREATE TABLE dogovory_arendy (
+ id_dogovora BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+ nomer_dogovora VARCHAR(30) NOT NULL UNIQUE,
+ id_arendatora INT NOT NULL REFERENCES arendatory(id_arendatora)
+ ON UPDATE CASCADE ON DELETE RESTRICT,
+ data_zaklyucheniya DATE NOT NULL DEFAULT CURRENT_DATE,
+ data_nachala DATE NOT NULL,
+ data_okonchaniya DATE NOT NULL,
+ stoimost_mesyac NUMERIC(10,2) NOT NULL CHECK (stoimost_mesyac > 0),
+ status VARCHAR(20) NOT NULL DEFAULT 'активен'
+ CHECK (status IN ('черновик', 'активен', 'расторгнут', 'завершен')),
+ sozdano_v TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ CONSTRAINT chk_period CHECK (data_okonchaniya > data_nachala),
+ CONSTRAINT chk_start CHECK (data_nachala >= data_zaklyucheniya));</code></pre>
+ </div>
+ </section>
 
-    <section class="card">
-      <h2>4. Требования к оформлению и критерии оценивания</h2>
-      <ul>
-        <li>Решение оформляется в текстовом виде (SQL-скрипт с подробными комментариями к каждому ограничению).</li>
-        <li>В пояснительной записке должно быть дано обоснование: почему для накладной выбран суррогатный первичный ключ <code>BIGINT</code>, а номер накладной вынесен в <code>UNIQUE</code>, и почему для финансовых полей использован тип <code>NUMERIC</code> вместо <code>FLOAT</code>.</li>
-        <li>Оценивание производится по стандартной 4-балльной шкале (структура и типы — 2 б., ключи и ссылочная целостность — 1 б., ограничения <code>CHECK</code> — 1 б.).</li>
-      </ul>
-    </section>
+ <section class="card">
+ <h2>4. Требования к оформлению и критерии оценивания</h2>
+ <ul>
+ <li>Решение оформляется в текстовом виде (SQL-скрипт с подробными комментариями к каждому ограничению).</li>
+ <li>В пояснительной записке должно быть дано обоснование: почему для накладной выбран суррогатный первичный ключ <code>BIGINT</code>, а номер накладной вынесен в <code>UNIQUE</code>, и почему для финансовых полей использован тип <code>NUMERIC</code> вместо <code>FLOAT</code>.</li>
+ <li>Оценивание производится по стандартной 4-балльной шкале (структура и типы — 2 б., ключи и ссылочная целостность — 1 б., ограничения <code>CHECK</code> — 1 б.).</li>
+ </ul>
+ </section>
 
-  </div>
+ </div>
 </body>
 </html>

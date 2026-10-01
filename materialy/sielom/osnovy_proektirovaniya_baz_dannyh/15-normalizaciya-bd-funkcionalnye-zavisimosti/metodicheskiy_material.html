@@ -1,540 +1,526 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="color-scheme" content="light">
-  <title>Методический материал — Нормализация БД: функциональные зависимости</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #0284c7;
-      --accent-soft: #f0f9ff;
-      --accent-dark: #0369a1;
-      --warn: #b45309;
-      --warn-soft: #fffbeb;
-      --danger: #b91c1c;
-      --danger-soft: #fef2f2;
-      --success: #15803d;
-      --success-soft: #f0fdf4;
-      --code-bg: #0f172a;
-      --code-text: #f8fafc;
-      --radius: 12px;
-      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-    }
-    * { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      line-height: 1.65;
-      font-size: 16px;
-    }
-    .page {
-      width: min(100% - 32px, 960px);
-      margin: 32px auto 80px;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 32px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow);
-    }
-    h1 {
-      margin: 0 0 12px;
-      font-size: clamp(24px, 4vw, 32px);
-      color: var(--text);
-      line-height: 1.25;
-    }
-    .lead {
-      color: var(--muted);
-      margin: 0;
-      font-size: 16px;
-    }
-    h2 {
-      margin: 0 0 16px;
-      font-size: 21px;
-      color: var(--accent);
-      border-bottom: 2px solid var(--accent-soft);
-      padding-bottom: 8px;
-    }
-    h3 {
-      font-size: 18px;
-      margin: 22px 0 12px;
-      color: var(--text);
-    }
-    h4 {
-      font-size: 16px;
-      margin: 16px 0 8px;
-      color: var(--accent-dark);
-    }
-    p, ul, ol {
-      margin-top: 0;
-      margin-bottom: 12px;
-    }
-    ul, ol {
-      padding-left: 24px;
-    }
-    li {
-      margin-bottom: 6px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 16px 0 20px;
-      font-size: 15px;
-    }
-    th, td {
-      border: 1px solid var(--line);
-      padding: 10px 14px;
-      text-align: left;
-      vertical-align: top;
-    }
-    th {
-      background: #f1f5f9;
-      color: var(--text);
-      font-weight: 600;
-    }
-    tr:nth-child(even) td {
-      background: #f8fafc;
-    }
-    .notice {
-      padding: 16px 20px;
-      border-radius: 8px;
-      margin: 18px 0;
-      border-left: 4px solid var(--accent);
-      background: var(--accent-soft);
-    }
-    .notice-warn {
-      border-left-color: var(--warn);
-      background: var(--warn-soft);
-      color: #78350f;
-    }
-    .notice-danger {
-      border-left-color: var(--danger);
-      background: var(--danger-soft);
-      color: #7f1d1d;
-    }
-    .notice-success {
-      border-left-color: var(--success);
-      background: var(--success-soft);
-      color: #14532d;
-    }
-    code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.9em;
-      background: #e2e8f0;
-      padding: 2px 6px;
-      border-radius: 4px;
-      color: #0f172a;
-    }
-    pre {
-      background: var(--code-bg);
-      color: var(--code-text);
-      padding: 16px 20px;
-      border-radius: 8px;
-      overflow-x: auto;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-    pre code {
-      background: transparent;
-      color: inherit;
-      padding: 0;
-    }
-    .badge {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .badge-primary { background: #e0f2fe; color: #0369a1; }
-    .badge-warn { background: #fef3c7; color: #92400e; }
-    .badge-success { background: #dcfce7; color: #166534; }
-    .formula {
-      background: #f1f5f9;
-      border-left: 3px solid var(--accent);
-      padding: 8px 14px;
-      margin: 10px 0;
-      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-      font-size: 15px;
-      color: #0f172a;
-    }
-    .meta-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid var(--line);
-      font-size: 14px;
-    }
-    .meta-item strong {
-      display: block;
-      color: var(--muted);
-      font-size: 12px;
-      text-transform: uppercase;
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <meta name="color-scheme" content="light">
+ <title>Методический материал — Нормализация БД: функциональные зависимости</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #0284c7;
+ --accent-soft: #f0f9ff;
+ --accent-dark: #0369a1;
+ --warn: #b45309;
+ --warn-soft: #fffbeb;
+ --danger: #b91c1c;
+ --danger-soft: #fef2f2;
+ --success: #15803d;
+ --success-soft: #f0fdf4;
+ --code-bg: #0f172a;
+ --code-text: #f8fafc;
+ --radius: 12px;
+ --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+ }
+ * { box-sizing: border-box; }
+ html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+ body {
+ margin: 0;
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+ line-height: 1.65;
+ font-size: 16px;
+ }.page {
+ width: min(100% - 32px, 960px);
+ margin: 32px auto 80px;
+ }.card {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 32px;
+ margin-bottom: 24px;
+ box-shadow: var(--shadow);
+ }
+ h1 {
+ margin: 0 0 12px;
+ font-size: clamp(24px, 4vw, 32px);
+ color: var(--text);
+ line-height: 1.25;
+ }.lead {
+ color: var(--muted);
+ margin: 0;
+ font-size: 16px;
+ }
+ h2 {
+ margin: 0 0 16px;
+ font-size: 21px;
+ color: var(--accent);
+ border-bottom: 2px solid var(--accent-soft);
+ padding-bottom: 8px;
+ }
+ h3 {
+ font-size: 18px;
+ margin: 22px 0 12px;
+ color: var(--text);
+ }
+ h4 {
+ font-size: 16px;
+ margin: 16px 0 8px;
+ color: var(--accent-dark);
+ }
+ p, ul, ol {
+ margin-top: 0;
+ margin-bottom: 12px;
+ }
+ ul, ol {
+ padding-left: 24px;
+ }
+ li {
+ margin-bottom: 6px;
+ }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ margin: 16px 0 20px;
+ font-size: 15px;
+ }
+ th, td {
+ border: 1px solid var(--line);
+ padding: 10px 14px;
+ text-align: left;
+ vertical-align: top;
+ }
+ th {
+ background: #f1f5f9;
+ color: var(--text);
+ font-weight: 600;
+ }
+ tr:nth-child(even) td {
+ background: #f8fafc;
+ }.notice {
+ padding: 16px 20px;
+ border-radius: 8px;
+ margin: 18px 0;
+ border-left: 4px solid var(--accent);
+ background: var(--accent-soft);
+ }.notice-warn {
+ border-left-color: var(--warn);
+ background: var(--warn-soft);
+ color: #78350f;
+ }.notice-danger {
+ border-left-color: var(--danger);
+ background: var(--danger-soft);
+ color: #7f1d1d;
+ }.notice-success {
+ border-left-color: var(--success);
+ background: var(--success-soft);
+ color: #14532d;
+ }
+ code {
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 0.9em;
+ background: #e2e8f0;
+ padding: 2px 6px;
+ border-radius: 4px;
+ color: #0f172a;
+ }
+ pre {
+ background: var(--code-bg);
+ color: var(--code-text);
+ padding: 16px 20px;
+ border-radius: 8px;
+ overflow-x: auto;
+ font-size: 14px;
+ line-height: 1.5;
+ }
+ pre code {
+ background: transparent;
+ color: inherit;
+ padding: 0;
+ }.badge {
+ display: inline-block;
+ padding: 3px 8px;
+ border-radius: 6px;
+ font-size: 12px;
+ font-weight: 600;
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+ }.badge-primary { background: #e0f2fe; color: #0369a1; }.badge-warn { background: #fef3c7; color: #92400e; }.badge-success { background: #dcfce7; color: #166534; }.formula {
+ background: #f1f5f9;
+ border-left: 3px solid var(--accent);
+ padding: 8px 14px;
+ margin: 10px 0;
+ font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+ font-size: 15px;
+ color: #0f172a;
+ }.meta-row {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+ gap: 12px;
+ margin-top: 16px;
+ padding-top: 16px;
+ border-top: 1px solid var(--line);
+ font-size: 14px;
+ }.meta-item strong {
+ display: block;
+ color: var(--muted);
+ font-size: 12px;
+ text-transform: uppercase;
+ }
+ </style>
 </head>
 <body>
-  <main class="page">
-    <header class="card">
-      <span class="badge badge-primary">Учебно-методическое руководство</span>
-      <h1>Нормализация БД: функциональные зависимости</h1>
-      <p class="lead">Методические указания, теоретический фундамент, аксиоматика Армстронга, алгоритмы замыкания и минимального покрытия, педагогические сценарии для преподавателя.</p>
-      <div class="meta-row">
-        <div class="meta-item">
-          <strong>Дисциплина</strong>
-          ОП.08 Основы проектирования баз данных
-        </div>
-        <div class="meta-item">
-          <strong>Тематический раздел</strong>
-          Тема 3. Этапы проектирования баз данных (§2.2 с.7 программы)
-        </div>
-        <div class="meta-item">
-          <strong>Номер занятия</strong>
-          Занятие 15 (урок с объяснением теории)
-        </div>
-        <div class="meta-item">
-          <strong>Тайминг</strong>
-          80 минут (основной) / 60 минут (сокращенный)
-        </div>
-      </div>
-    </header>
+ <main class="page">
+ <header class="card">
+ <span class="badge badge-primary">Учебно-методическое руководство</span>
+ <h1>Нормализация БД: функциональные зависимости</h1>
+ <p class="lead">Методические указания, теоретический фундамент, аксиоматика Армстронга, алгоритмы замыкания и минимального покрытия, педагогические сценарии для преподавателя.</p>
+ <div class="meta-row">
+ <div class="meta-item">
+ <strong>Дисциплина</strong>
+ ОП.08 Основы проектирования баз данных
+ </div>
+ <div class="meta-item">
+ <strong>Тематический раздел</strong>
+ Тема 3. Этапы проектирования баз данных
+ </div>
+ <div class="meta-item">
+ <strong>Номер занятия</strong>
+ Занятие 15 (урок с объяснением теории)
+ </div>
+ <div class="meta-item">
+ <strong>Тайминг</strong>
+ 80 минут (основной) / 60 минут (сокращенный)
+ </div>
+ </div>
+ </header>
 
-    <!-- РАЗДЕЛ 1: ТАЙМИНГ -->
-    <section class="card">
-      <h2>1. Детальный поминутный тайминг учебного занятия</h2>
-      <p>Занятие ориентировано на формирование строгой математической культуры проектирования реляционных схем. Теория функциональных зависимостей (ФЗ) переводит интуитивное проектирование («мне кажется, эти поля должны быть вместе») в доказательную инженерную дисциплину.</p>
+ <!-- РАЗДЕЛ 1: ТАЙМИНГ -->
+ <section class="card">
+ <h2>1. Детальный поминутный тайминг учебного занятия</h2>
+ <p>Занятие ориентировано на формирование строгой математической культуры проектирования реляционных схем. Теория функциональных зависимостей (ФЗ) переводит интуитивное проектирование («мне кажется, эти поля должны быть вместе») в доказательную инженерную дисциплину.</p>
 
-      <h3>Сравнительная сетка хронометража (80 и 60 минут)</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Этап занятия</th>
-            <th>Основной регламент (80 мин)</th>
-            <th>Сокращенный регламент (60 мин)</th>
-            <th>Ключевое содержание и фокус внимания</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>1. Организационный момент и актуализация опорных знаний</strong></td>
-            <td><strong>10 мин</strong> (00:00–00:10)</td>
-            <td><strong>7 мин</strong> (00:00–00:07)</td>
-            <td>Приветствие, фиксация отсутствующих. Проблемная мотивация: демонстрация «плоской таблицы» с аномалиями модификации, удаления и вставки. Переход от инфологической модели (Занятие 14) к строгому реляционному анализу.</td>
-          </tr>
-          <tr>
-            <td><strong>2. Теоретический блок: ФЗ и аксиоматика Армстронга</strong></td>
-            <td><strong>25 мин</strong> (00:10–00:35)</td>
-            <td><strong>20 мин</strong> (00:07–00:27)</td>
-            <td>Строгое определение ФЗ <code>X → Y</code>. Семантика и контрпримеры. Базовые аксиомы Армстронга (рефлексивность, пополнение, транзитивность) и производные правила (объединение, декомпозиция, псевдотранзитивность). Теорема о полноте и корректности.</td>
-          </tr>
-          <tr>
-            <td><strong>3. Алгоритмический блок: замыкание атрибутов X+ и поиск ключей</strong></td>
-            <td><strong>20 мин</strong> (00:35–00:55)</td>
-            <td><strong>15 мин</strong> (00:27–00:42)</td>
-            <td>Алгоритм вычисления <code>X+</code> за полиномиальное время. Определение суперключа и потенциального (кандидатного) ключа. Алгоритм выделения обязательных атрибутов ключа (L, R, B, N). Пошаговый разбор сквозного примера на доске.</td>
-          </tr>
-          <tr>
-            <td><strong>4. Минимальное покрытие ФЗ (Minimal Cover) и экспресс-практикум</strong></td>
-            <td><strong>15 мин</strong> (00:55–01:10)</td>
-            <td><strong>12 мин</strong> (00:42–00:54)</td>
-            <td>Понятие эквивалентности множеств ФЗ. Три шага канонизации: расщепление правых частей, устранение посторонних атрибутов слева, удаление избыточных зависимостей. Индивидуальная работа студентов в интерактивном листе <code>zanyatie.html</code>.</td>
-          </tr>
-          <tr>
-            <td><strong>5. Разбор типичных ошибок, подведение итогов, рефлексия</strong></td>
-            <td><strong>10 мин</strong> (01:10–01:20)</td>
-            <td><strong>6 мин</strong> (00:54–01:00)</td>
-            <td>Анализ частых студенческих заблуждений. Демонстрация комикса Bobby Tables (xkcd #327) как метафоры разрушения целостности при пренебрежении формальным моделированием. Выставление баллов по критериальной рубрике, инструктаж по резервному ДЗ.</td>
-          </tr>
-        </tbody>
-      </table>
+ <h3>Сравнительная сетка хронометража (80 и 60 минут)</h3>
+ <table>
+ <thead>
+ <tr>
+ <th>Этап занятия</th>
+ <th>Основной регламент (80 мин)</th>
+ <th>Сокращенный регламент (60 мин)</th>
+ <th>Ключевое содержание и фокус внимания</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>1. Организационный момент и актуализация опорных знаний</strong></td>
+ <td><strong>10 мин</strong> (00:00–00:10)</td>
+ <td><strong>7 мин</strong> (00:00–00:07)</td>
+ <td>Приветствие, фиксация отсутствующих. Проблемная мотивация: демонстрация «плоской таблицы» с аномалиями модификации, удаления и вставки. Переход от инфологической модели (Занятие 14) к строгому реляционному анализу.</td>
+ </tr>
+ <tr>
+ <td><strong>2. Теоретический блок: ФЗ и аксиоматика Армстронга</strong></td>
+ <td><strong>25 мин</strong> (00:10–00:35)</td>
+ <td><strong>20 мин</strong> (00:07–00:27)</td>
+ <td>Строгое определение ФЗ <code>X → Y</code>. Семантика и контрпримеры. Базовые аксиомы Армстронга (рефлексивность, пополнение, транзитивность) и производные правила (объединение, декомпозиция, псевдотранзитивность). Теорема о полноте и корректности.</td>
+ </tr>
+ <tr>
+ <td><strong>3. Алгоритмический блок: замыкание атрибутов X+ и поиск ключей</strong></td>
+ <td><strong>20 мин</strong> (00:35–00:55)</td>
+ <td><strong>15 мин</strong> (00:27–00:42)</td>
+ <td>Алгоритм вычисления <code>X+</code> за полиномиальное время. Определение суперключа и потенциального (кандидатного) ключа. Алгоритм выделения обязательных атрибутов ключа (L, R, B, N). Пошаговый разбор сквозного примера на доске.</td>
+ </tr>
+ <tr>
+ <td><strong>4. Минимальное покрытие ФЗ (Minimal Cover) и экспресс-практикум</strong></td>
+ <td><strong>15 мин</strong> (00:55–01:10)</td>
+ <td><strong>12 мин</strong> (00:42–00:54)</td>
+ <td>Понятие эквивалентности множеств ФЗ. Три шага канонизации: расщепление правых частей, устранение посторонних атрибутов слева, удаление избыточных зависимостей. Индивидуальная работа студентов в интерактивном листе <code>zanyatie.html</code>.</td>
+ </tr>
+ <tr>
+ <td><strong>5. Разбор типичных ошибок, подведение итогов, рефлексия</strong></td>
+ <td><strong>10 мин</strong> (01:10–01:20)</td>
+ <td><strong>6 мин</strong> (00:54–01:00)</td>
+ <td>Анализ частых студенческих заблуждений. Демонстрация комикса Bobby Tables (xkcd #327) как метафоры разрушения целостности при пренебрежении формальным моделированием. Выставление баллов по критериальной рубрике, инструктаж по резервному ДЗ.</td>
+ </tr>
+ </tbody>
+ </table>
 
-      <div class="notice notice-warn">
-        <strong>Особенность сокращенного регламента (60 минут):</strong>
-        В 60-минутном формате этап математического доказательства производных правил Армстронга сокращается до демонстрации итоговой таблицы, а в алгоритме минимального покрытия внимание концентрируется на устранении избыточных ФЗ без углубления в доказательство неизбыточности левых частей сложных составных детерминантов.
-      </div>
-    </section>
+ <div class="notice notice-warn">
+ <strong>Особенность сокращенного регламента (60 минут):</strong>
+ В 60-минутном формате этап математического доказательства производных правил Армстронга сокращается до демонстрации итоговой таблицы, а в алгоритме минимального покрытия внимание концентрируется на устранении избыточных ФЗ без углубления в доказательство неизбыточности левых частей сложных составных детерминантов.
+ </div>
+ </section>
 
-    <!-- РАЗДЕЛ 2: ТЕОРИЯ ФУНКЦИОНАЛЬНЫХ ЗАВИСИМОСТЕЙ -->
-    <section class="card">
-      <h2>2. Теоретический фундамент: функциональные зависимости</h2>
-      
-      <h3>2.1. Формальное математическое определение</h3>
-      <p>Пусть <code>R(U)</code> — схема отношения над универсальным множеством атрибутов <code>U = {A₁, A₂, ..., Aₙ}</code>, а <code>r(R)</code> — произвольное корректное (допустимое) мгновенное состояние (экземпляр) отношения. Пусть <code>X ⊆ U</code> и <code>Y ⊆ U</code> — подмножества атрибутов.</p>
-      
-      <div class="formula">
-        Функциональная зависимость X → Y (X функционально определяет Y) выполняется на отношении R, если для любого корректного экземпляра r(R) и любых двух кортежей t₁, t₂ ∈ r:<br>
-        <strong>t₁[X] = t₂[X]  ⟹  t₁[Y] = t₂[Y]</strong>
-      </div>
+ <!-- РАЗДЕЛ 2: ТЕОРИЯ ФУНКЦИОНАЛЬНЫХ ЗАВИСИМОСТЕЙ -->
+ <section class="card">
+ <h2>2. Теоретический фундамент: функциональные зависимости</h2>
+ 
+ <h3>2.1. Формальное математическое определение</h3>
+ <p>Пусть <code>R(U)</code> — схема отношения над универсальным множеством атрибутов <code>U = {A₁, A₂,..., Aₙ}</code>, а <code>r(R)</code> — произвольное корректное (допустимое) мгновенное состояние (экземпляр) отношения. Пусть <code>X ⊆ U</code> и <code>Y ⊆ U</code> — подмножества атрибутов.</p>
+ 
+ <div class="formula">
+ Функциональная зависимость X → Y (X функционально определяет Y) выполняется на отношении R, если для любого корректного экземпляра r(R) и любых двух кортежей t₁, t₂ ∈ r:<br>
+ <strong>t₁[X] = t₂[X] ⟹ t₁[Y] = t₂[Y]</strong>
+ </div>
 
-      <p>Множество атрибутов <code>X</code> называется <strong>детерминантом</strong> (левой частью, Left-Hand Side, LHS), а <code>Y</code> — <strong>зависимой частью</strong> (правой частью, Right-Hand Side, RHS).</p>
+ <p>Множество атрибутов <code>X</code> называется <strong>детерминантом</strong> (левой частью, Left-Hand Side, LHS), а <code>Y</code> — <strong>зависимой частью</strong> (правой частью, Right-Hand Side, RHS).</p>
 
-      <div class="notice notice-danger">
-        <strong>Критический методический акцент:</strong> ФЗ отражает не случайное совпадение значений в текущих строках таблицы, а семантический инвариант предметной области. Отношение может содержать 10 000 строк, где фамилии сотрудников случайно не повторяются, но зависимость <code>Фамилия → Паспорт</code> от этого не возникает, поскольку бизнес-правило допускает однофамильцев.
-      </div>
+ <div class="notice notice-danger">
+ <strong>Критический методический акцент:</strong> ФЗ отражает не случайное совпадение значений в текущих строках таблицы, а семантический инвариант предметной области. Отношение может содержать 10 000 строк, где фамилии сотрудников случайно не повторяются, но зависимость <code>Фамилия → Паспорт</code> от этого не возникает, поскольку бизнес-правило допускает однофамильцев.
+ </div>
 
-      <h3>2.2. Классификация функциональных зависимостей</h3>
-      <ul>
-        <li><strong>Тривиальная зависимость:</strong> ФЗ <code>X → Y</code> тривиальна, если правая часть является подмножеством левой части: <code>Y ⊆ X</code> (например, <code>{Табельный_номер, ФИО} → {ФИО}</code>). Выполняется всегда в силу природы отношений.</li>
-        <li><strong>Нетривиальная зависимость:</strong> ФЗ <code>X → Y</code> нетривиальна, если <code>Y ⊈ X</code> (существует хотя бы один атрибут в <code>Y</code>, не входящий в <code>X</code>).</li>
-        <li><strong>Полностью нетривиальная зависимость:</strong> <code>X ∩ Y = ∅</code> (левая и правая части не имеют общих атрибутов).</li>
-        <li><strong>Полная функциональная зависимость:</strong> зависимость <code>X → Y</code> полная, если <code>Y</code> зависит от <code>X</code>, но не зависит ни от какого собственного подмножества <code>X' ⊂ X</code>. Формально: <code>X → Y</code> и <code>∀ X' ⊂ X: X' ↛ Y</code>.</li>
-        <li><strong>Частичная функциональная зависимость:</strong> зависимость <code>X → Y</code> частичная, если <code>X</code> — составной детерминант, и существует собственное подмножество <code>X' ⊂ X</code>, такое что <code>X' → Y</code>. Частичные зависимости неключевых полей от составного первичного ключа служат причиной нарушения 2НФ.</li>
-        <li><strong>Транзитивная функциональная зависимость:</strong> зависимость <code>X → Z</code> транзитивна, если существуют зависимости <code>X → Y</code> и <code>Y → Z</code>, при этом <code>Y ↛ X</code> (нет обратной зависимости) и <code>Z ⊈ X ∪ Y</code>. Транзитивные зависимости неключевых полей от ключа служат причиной нарушения 3НФ.</li>
-      </ul>
-    </section>
+ <h3>2.2. Классификация функциональных зависимостей</h3>
+ <ul>
+ <li><strong>Тривиальная зависимость:</strong> ФЗ <code>X → Y</code> тривиальна, если правая часть является подмножеством левой части: <code>Y ⊆ X</code> (например, <code>{Табельный_номер, ФИО} → {ФИО}</code>). Выполняется всегда в силу природы отношений.</li>
+ <li><strong>Нетривиальная зависимость:</strong> ФЗ <code>X → Y</code> нетривиальна, если <code>Y ⊈ X</code> (существует хотя бы один атрибут в <code>Y</code>, не входящий в <code>X</code>).</li>
+ <li><strong>Полностью нетривиальная зависимость:</strong> <code>X ∩ Y = ∅</code> (левая и правая части не имеют общих атрибутов).</li>
+ <li><strong>Полная функциональная зависимость:</strong> зависимость <code>X → Y</code> полная, если <code>Y</code> зависит от <code>X</code>, но не зависит ни от какого собственного подмножества <code>X' ⊂ X</code>. Формально: <code>X → Y</code> и <code>∀ X' ⊂ X: X' ↛ Y</code>.</li>
+ <li><strong>Частичная функциональная зависимость:</strong> зависимость <code>X → Y</code> частичная, если <code>X</code> — составной детерминант, и существует собственное подмножество <code>X' ⊂ X</code>, такое что <code>X' → Y</code>. Частичные зависимости неключевых полей от составного первичного ключа служат причиной нарушения 2НФ.</li>
+ <li><strong>Транзитивная функциональная зависимость:</strong> зависимость <code>X → Z</code> транзитивна, если существуют зависимости <code>X → Y</code> и <code>Y → Z</code>, при этом <code>Y ↛ X</code> (нет обратной зависимости) и <code>Z ⊈ X ∪ Y</code>. Транзитивные зависимости неключевых полей от ключа служат причиной нарушения 3НФ.</li>
+ </ul>
+ </section>
 
-    <!-- РАЗДЕЛ 3: АКСИОМАТИКА АРМСТРОНГА -->
-    <section class="card">
-      <h2>3. Система логического вывода: аксиомы Армстронга</h2>
-      <p>В 1974 году Уильям В. Армстронг (William W. Armstrong) сформулировал систему аксиом, позволяющую чисто синтаксически выводить все следствия из заданного множества ФЗ без обращения к непосредственному перебору кортежей.</p>
+ <!-- РАЗДЕЛ 3: АКСИОМАТИКА АРМСТРОНГА -->
+ <section class="card">
+ <h2>3. Система логического вывода: аксиомы Армстронга</h2>
+ <p>В 1974 году Уильям В. Армстронг (William W. Armstrong) сформулировал систему аксиом, позволяющую чисто синтаксически выводить все следствия из заданного множества ФЗ без обращения к непосредственному перебору кортежей.</p>
 
-      <h3>3.1. Базовые аксиомы Армстронга</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Название аксиомы</th>
-            <th>Символическая запись</th>
-            <th>Семантическая интерпретация</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>А1. Рефлексивность (Reflexivity)</strong></td>
-            <td><code>Если Y ⊆ X, то X → Y</code></td>
-            <td>Любой набор атрибутов однозначно определяет сам себя и любое свое подмножество.</td>
-          </tr>
-          <tr>
-            <td><strong>А2. Пополнение (Augmentation)</strong></td>
-            <td><code>Если X → Y, то XZ → YZ (для любого Z)</code></td>
-            <td>Добавление одних и тех же атрибутов к обеим частям зависимости сохраняет ее истинность.</td>
-          </tr>
-          <tr>
-            <td><strong>А3. Транзитивность (Transitivity)</strong></td>
-            <td><code>Если X → Y и Y → Z, то X → Z</code></td>
-            <td>Если X однозначно определяет Y, а Y однозначно определяет Z, то X определяет Z.</td>
-          </tr>
-        </tbody>
-      </table>
+ <h3>3.1. Базовые аксиомы Армстронга</h3>
+ <table>
+ <thead>
+ <tr>
+ <th>Название аксиомы</th>
+ <th>Символическая запись</th>
+ <th>Семантическая интерпретация</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>А1. Рефлексивность (Reflexivity)</strong></td>
+ <td><code>Если Y ⊆ X, то X → Y</code></td>
+ <td>Любой набор атрибутов однозначно определяет сам себя и любое свое подмножество.</td>
+ </tr>
+ <tr>
+ <td><strong>А2. Пополнение (Augmentation)</strong></td>
+ <td><code>Если X → Y, то XZ → YZ (для любого Z)</code></td>
+ <td>Добавление одних и тех же атрибутов к обеим частям зависимости сохраняет ее истинность.</td>
+ </tr>
+ <tr>
+ <td><strong>А3. Транзитивность (Transitivity)</strong></td>
+ <td><code>Если X → Y и Y → Z, то X → Z</code></td>
+ <td>Если X однозначно определяет Y, а Y однозначно определяет Z, то X определяет Z.</td>
+ </tr>
+ </tbody>
+ </table>
 
-      <h3>3.2. Производные правила вывода (Derived Rules)</h3>
-      <p>Базовые аксиомы А1–А3 образуют <em>полный и корректный (sound and complete)</em> базис. Из них строго выводятся удобные вспомогательные правила:</p>
-      
-      <table>
-        <thead>
-          <tr>
-            <th>Правило</th>
-            <th>Формулировка</th>
-            <th>Схема доказательства через А1–А3</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Объединение (Union / Additivity)</strong></td>
-            <td><code>X → Y и X → Z  ⟹  X → YZ</code></td>
-            <td>1) <code>X → Y ⟹ X → XY</code> (пополнение на X, А2).<br>2) <code>X → Z ⟹ XY → YZ</code> (пополнение на Y, А2).<br>3) <code>X → XY и XY → YZ ⟹ X → YZ</code> (транзитивность, А3).</td>
-          </tr>
-          <tr>
-            <td><strong>Декомпозиция (Decomposition / Projectivity)</strong></td>
-            <td><code>X → YZ  ⟹  X → Y и X → Z</code></td>
-            <td>1) <code>Y ⊆ YZ ⟹ YZ → Y</code> (рефлексивность, А1).<br>2) <code>X → YZ и YZ → Y ⟹ X → Y</code> (транзитивность, А3).<br>Аналогично доказывается <code>X → Z</code>.</td>
-          </tr>
-          <tr>
-            <td><strong>Псевдотранзитивность (Pseudotransitivity)</strong></td>
-            <td><code>X → Y и YZ → W  ⟹  XZ → W</code></td>
-            <td>1) <code>X → Y ⟹ XZ → YZ</code> (пополнение на Z, А2).<br>2) <code>XZ → YZ и YZ → W ⟹ XZ → W</code> (транзитивность, А3).</td>
-          </tr>
-          <tr>
-            <td><strong>Композиция (Composition)</strong></td>
-            <td><code>X → Y и Z → W  ⟹  XZ → YW</code></td>
-            <td>1) <code>X → Y ⟹ XZ → YZ</code> (А2).<br>2) <code>Z → W ⟹ YZ → YW</code> (А2).<br>3) <code>XZ → YZ и YZ → YW ⟹ XZ → YW</code> (А3).</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
+ <h3>3.2. Производные правила вывода (Derived Rules)</h3>
+ <p>Базовые аксиомы А1–А3 образуют <em>полный и корректный (sound and complete)</em> базис. Из них строго выводятся удобные вспомогательные правила:</p>
+ 
+ <table>
+ <thead>
+ <tr>
+ <th>Правило</th>
+ <th>Формулировка</th>
+ <th>Схема доказательства через А1–А3</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>Объединение (Union / Additivity)</strong></td>
+ <td><code>X → Y и X → Z ⟹ X → YZ</code></td>
+ <td>1) <code>X → Y ⟹ X → XY</code> (пополнение на X, А2).<br>2) <code>X → Z ⟹ XY → YZ</code> (пополнение на Y, А2).<br>3) <code>X → XY и XY → YZ ⟹ X → YZ</code> (транзитивность, А3).</td>
+ </tr>
+ <tr>
+ <td><strong>Декомпозиция (Decomposition / Projectivity)</strong></td>
+ <td><code>X → YZ ⟹ X → Y и X → Z</code></td>
+ <td>1) <code>Y ⊆ YZ ⟹ YZ → Y</code> (рефлексивность, А1).<br>2) <code>X → YZ и YZ → Y ⟹ X → Y</code> (транзитивность, А3).<br>Аналогично доказывается <code>X → Z</code>.</td>
+ </tr>
+ <tr>
+ <td><strong>Псевдотранзитивность (Pseudotransitivity)</strong></td>
+ <td><code>X → Y и YZ → W ⟹ XZ → W</code></td>
+ <td>1) <code>X → Y ⟹ XZ → YZ</code> (пополнение на Z, А2).<br>2) <code>XZ → YZ и YZ → W ⟹ XZ → W</code> (транзитивность, А3).</td>
+ </tr>
+ <tr>
+ <td><strong>Композиция (Composition)</strong></td>
+ <td><code>X → Y и Z → W ⟹ XZ → YW</code></td>
+ <td>1) <code>X → Y ⟹ XZ → YZ</code> (А2).<br>2) <code>Z → W ⟹ YZ → YW</code> (А2).<br>3) <code>XZ → YZ и YZ → YW ⟹ XZ → YW</code> (А3).</td>
+ </tr>
+ </tbody>
+ </table>
+ </section>
 
-    <!-- РАЗДЕЛ 4: АЛГОРИТМ ЗАМЫКАНИЯ АТРИБУТОВ -->
-    <section class="card">
-      <h2>4. Алгоритм вычисления замыкания множества атрибутов X+</h2>
-      <p><strong>Замыкание множества атрибутов <code>X</code> относительно множества ФЗ <code>F</code></strong> (обозначается <code>X⁺</code> или <code>X⁺_F</code>) — это множество всех атрибутов <code>A ∈ U</code>, функционально зависящих от <code>X</code> в силу правил логического вывода: <code>X⁺ = {A ∈ U | F ⊢ X → A}</code>.</p>
+ <!-- РАЗДЕЛ 4: АЛГОРИТМ ЗАМЫКАНИЯ АТРИБУТОВ -->
+ <section class="card">
+ <h2>4. Алгоритм вычисления замыкания множества атрибутов X+</h2>
+ <p><strong>Замыкание множества атрибутов <code>X</code> относительно множества ФЗ <code>F</code></strong> (обозначается <code>X⁺</code> или <code>X⁺_F</code>) — это множество всех атрибутов <code>A ∈ U</code>, функционально зависящих от <code>X</code> в силу правил логического вывода: <code>X⁺ = {A ∈ U | F ⊢ X → A}</code>.</p>
 
-      <h3>Пошаговый псевдокод алгоритма</h3>
-      <pre><code>Вход: Множество атрибутов U, множество ФЗ F, целевое подмножество атрибутов X ⊆ U.
+ <h3>Пошаговый псевдокод алгоритма</h3>
+ <pre><code>Вход: Множество атрибутов U, множество ФЗ F, целевое подмножество атрибутов X ⊆ U.
 Выход: Замыкание X⁺ относительно F.
 
 1. Инициализация:
-   X⁺ := X;
+ X⁺ := X;
 
 2. Цикл расширения:
-   REPEAT
-      old_X⁺ := X⁺;
-      ДЛЯ КАЖДОЙ ФЗ (LHS → RHS) ИЗ F:
-         ЕСЛИ LHS ⊆ X⁺ ТОГДА
-            X⁺ := X⁺ ∪ RHS;
-   UNTIL X⁺ == old_X⁺;
+ REPEAT
+ old_X⁺ := X⁺;
+ ДЛЯ КАЖДОЙ ФЗ (LHS → RHS) ИЗ F:
+ ЕСЛИ LHS ⊆ X⁺ ТОГДА
+ X⁺ := X⁺ ∪ RHS;
+ UNTIL X⁺ == old_X⁺;
 
 3. ВОЗВРАТ X⁺;</code></pre>
 
-      <div class="notice notice-success">
-        <strong>Вычислительная сложность:</strong> В наивной реализации алгоритм делает не более <code>|U|</code> итераций, на каждой проверяя <code>|F|</code> зависимостей. Итоговая сложность <code>O(|F| · |U|)</code>. Линейный алгоритм Беери-Бернштейна (Beeri & Bernstein, 1979) использует счетчики невключенных атрибутов детерминантов и списки смежности, достигая строго линейного времени <code>O(total_size(F))</code>.
-      </div>
-    </section>
+ <div class="notice notice-success">
+ <strong>Вычислительная сложность:</strong> В наивной реализации алгоритм делает не более <code>|U|</code> итераций, на каждой проверяя <code>|F|</code> зависимостей. Итоговая сложность <code>O(|F| · |U|)</code>. Линейный алгоритм Беери-Бернштейна (Beeri & Bernstein, 1979) использует счетчики невключенных атрибутов детерминантов и списки смежности, достигая строго линейного времени <code>O(total_size(F))</code>.
+ </div>
+ </section>
 
-    <!-- РАЗДЕЛ 5: ОПРЕДЕЛЕНИЕ КЛЮЧЕЙ -->
-    <section class="card">
-      <h2>5. Определение потенциальных ключей отношения</h2>
-      
-      <h3>5.1. Терминологическая иерархия</h3>
-      <ul>
-        <li><strong>Суперключ (Superkey):</strong> Подмножество атрибутов <code>K ⊆ U</code> называется суперключом отношения <code>R(U)</code>, если его замыкание покрывает все отношение: <code>K⁺ = U</code>.</li>
-        <li><strong>Потенциальный (кандидатный) ключ (Candidate Key):</strong> Минимальный суперключ. Подмножество <code>K ⊆ U</code> является потенциальным ключом, если:
-          <ol>
-            <li><code>K⁺ = U</code> (свойство однозначной идентификации);</li>
-            <li>Для любого собственного подмножества <code>K' ⊂ K</code> выполняется <code>(K')⁺ ≠ U</code> (свойство неприводимости/минимальности).</li>
-          </ol>
-        </li>
-        <li><strong>Первичный ключ (Primary Key):</strong> Один из потенциальных ключей, официально назначенный проектировщиком в качестве основного идентификатора кортежа.</li>
-        <li><strong>Первичные (ключевые) и вторичные (неключевые) атрибуты:</strong> Атрибут <code>A ∈ U</code> называется первичным (prime attribute), если он входит в состав <em>хотя бы одного</em> потенциального ключа. В противном случае он является неключевым (non-prime).</li>
-      </ul>
+ <!-- РАЗДЕЛ 5: ОПРЕДЕЛЕНИЕ КЛЮЧЕЙ -->
+ <section class="card">
+ <h2>5. Определение потенциальных ключей отношения</h2>
+ 
+ <h3>5.1. Терминологическая иерархия</h3>
+ <ul>
+ <li><strong>Суперключ (Superkey):</strong> Подмножество атрибутов <code>K ⊆ U</code> называется суперключом отношения <code>R(U)</code>, если его замыкание покрывает все отношение: <code>K⁺ = U</code>.</li>
+ <li><strong>Потенциальный (кандидатный) ключ (Candidate Key):</strong> Минимальный суперключ. Подмножество <code>K ⊆ U</code> является потенциальным ключом, если:
+ <ol>
+ <li><code>K⁺ = U</code> (свойство однозначной идентификации);</li>
+ <li>Для любого собственного подмножества <code>K' ⊂ K</code> выполняется <code>(K')⁺ ≠ U</code> (свойство неприводимости/минимальности).</li>
+ </ol>
+ </li>
+ <li><strong>Первичный ключ (Primary Key):</strong> Один из потенциальных ключей, официально назначенный проектировщиком в качестве основного идентификатора кортежа.</li>
+ <li><strong>Первичные (ключевые) и вторичные (неключевые) атрибуты:</strong> Атрибут <code>A ∈ U</code> называется первичным (prime attribute), если он входит в состав <em>хотя бы одного</em> потенциального ключа. В противном случае он является неключевым (non-prime).</li>
+ </ul>
 
-      <h3>5.2. Эвристический алгоритм классификации атрибутов (L, R, B, N)</h3>
-      <p>Для ускорения поиска ключей и отсечения экспоненциального перебора <code>2^|U|</code> атрибуты отношения разбиваются на 4 непересекающиеся категории по их позиции во множестве ФЗ <code>F</code>:</p>
-      <table>
-        <thead>
-          <tr>
-            <th>Категория</th>
-            <th>Где встречается атрибут в F</th>
-            <th>Роль при поиске потенциальных ключей</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Класс L (Left only)</strong></td>
-            <td>Только в левых частях (LHS), ни разу в правых (RHS).</td>
-            <td><strong>ОБЯЗАН</strong> входить в состав <em>каждого</em> потенциального ключа, так как никакой другой атрибут не может его функционально определить.</td>
-          </tr>
-          <tr>
-            <td><strong>Класс R (Right only)</strong></td>
-            <td>Только в правых частях (RHS), ни разу в левых (LHS).</td>
-            <td><strong>НИКОГДА НЕ МОЖЕТ</strong> входить в минимальный ключ (кроме вырожденного случая, когда нет ФЗ), так как он никого не определяет, но определяется другими.</td>
-          </tr>
-          <tr>
-            <td><strong>Класс N (Neither)</strong></td>
-            <td>Не встречается ни слева, ни справа во множестве ФЗ.</td>
-            <td><strong>ОБЯЗАН</strong> входить в состав <em>каждого</em> ключа, так как независим от всех зависимостей схемы.</td>
-          </tr>
-          <tr>
-            <td><strong>Класс B (Both)</strong></td>
-            <td>Встречается и в левых, и в правых частях зависимостей.</td>
-            <td>Кандидат на участие в ключе. Перебираются комбинации атрибутов <code>B</code> в объединении с гарантированным ядром <code>(L ∪ N)</code>.</td>
-          </tr>
-        </tbody>
-      </table>
+ <h3>5.2. Эвристический алгоритм классификации атрибутов (L, R, B, N)</h3>
+ <p>Для ускорения поиска ключей и отсечения экспоненциального перебора <code>2^|U|</code> атрибуты отношения разбиваются на 4 непересекающиеся категории по их позиции во множестве ФЗ <code>F</code>:</p>
+ <table>
+ <thead>
+ <tr>
+ <th>Категория</th>
+ <th>Где встречается атрибут в F</th>
+ <th>Роль при поиске потенциальных ключей</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>Класс L (Left only)</strong></td>
+ <td>Только в левых частях (LHS), ни разу в правых (RHS).</td>
+ <td><strong>ОБЯЗАН</strong> входить в состав <em>каждого</em> потенциального ключа, так как никакой другой атрибут не может его функционально определить.</td>
+ </tr>
+ <tr>
+ <td><strong>Класс R (Right only)</strong></td>
+ <td>Только в правых частях (RHS), ни разу в левых (LHS).</td>
+ <td><strong>НИКОГДА НЕ МОЖЕТ</strong> входить в минимальный ключ (кроме вырожденного случая, когда нет ФЗ), так как он никого не определяет, но определяется другими.</td>
+ </tr>
+ <tr>
+ <td><strong>Класс N (Neither)</strong></td>
+ <td>Не встречается ни слева, ни справа во множестве ФЗ.</td>
+ <td><strong>ОБЯЗАН</strong> входить в состав <em>каждого</em> ключа, так как независим от всех зависимостей схемы.</td>
+ </tr>
+ <tr>
+ <td><strong>Класс B (Both)</strong></td>
+ <td>Встречается и в левых, и в правых частях зависимостей.</td>
+ <td>Кандидат на участие в ключе. Перебираются комбинации атрибутов <code>B</code> в объединении с гарантированным ядром <code>(L ∪ N)</code>.</td>
+ </tr>
+ </tbody>
+ </table>
 
-      <div class="formula">
-        <strong>Золотое правило поиска ключей:</strong><br>
-        1. Формируем обязательное ядро: Core = L ∪ N.<br>
-        2. Вычисляем замыкание (Core)⁺.<br>
-        3. Если (Core)⁺ = U, то Core — единственный потенциальный ключ отношения!<br>
-        4. Если (Core)⁺ ≠ U, перебираем комбинации Core ∪ {b₁}, затем Core ∪ {b₁, b₂} из атрибутов класса B, отсекая надмножества уже найденных ключей.
-      </div>
-    </section>
+ <div class="formula">
+ <strong>Золотое правило поиска ключей:</strong><br>
+ 1. Формируем обязательное ядро: Core = L ∪ N.<br>
+ 2. Вычисляем замыкание (Core)⁺.<br>
+ 3. Если (Core)⁺ = U, то Core — единственный потенциальный ключ отношения!<br>
+ 4. Если (Core)⁺ ≠ U, перебираем комбинации Core ∪ {b₁}, затем Core ∪ {b₁, b₂} из атрибутов класса B, отсекая надмножества уже найденных ключей.
+ </div>
+ </section>
 
-    <!-- РАЗДЕЛ 6: МИНИМАЛЬНОЕ ПОКРЫТИЕ -->
-    <section class="card">
-      <h2>6. Каноническое (минимальное) покрытие ФЗ (Minimal Cover)</h2>
-      <p>Два множества ФЗ <code>F</code> и <code>G</code> называются <strong>эквивалентными</strong> (<code>F ≡ G</code>), если их замыкания совпадают: <code>F⁺ = G⁺</code> (любая зависимость из <code>F</code> выводима из <code>G</code>, и наоборот). Множество <code>F_c</code> называется <strong>минимальным (каноническим) покрытием</strong> для <code>F</code>, если <code>F_c ≡ F</code> и выполняются три строгих условия:</p>
+ <!-- РАЗДЕЛ 6: МИНИМАЛЬНОЕ ПОКРЫТИЕ -->
+ <section class="card">
+ <h2>6. Каноническое (минимальное) покрытие ФЗ (Minimal Cover)</h2>
+ <p>Два множества ФЗ <code>F</code> и <code>G</code> называются <strong>эквивалентными</strong> (<code>F ≡ G</code>), если их замыкания совпадают: <code>F⁺ = G⁺</code> (любая зависимость из <code>F</code> выводима из <code>G</code>, и наоборот). Множество <code>F_c</code> называется <strong>минимальным (каноническим) покрытием</strong> для <code>F</code>, если <code>F_c ≡ F</code> и выполняются три строгих условия:</p>
 
-      <ol>
-        <li><strong>Синглтон в правой части (Singleton RHS):</strong> Правая часть каждой ФЗ в <code>F_c</code> состоит ровно из одного атрибута: <code>X → A</code>.</li>
-        <li><strong>Отсутствие посторонних атрибутов слева (No extraneous LHS attributes):</strong> Ни в одной ФЗ <code>X → A ∈ F_c</code> нельзя удалить атрибут <code>B ∈ X</code> так, чтобы полученное множество осталось эквивалентным. Формально: для <code>X' = X \ {B}</code> проверяется, выводимо ли <code>X' → A</code> из <code>F_c</code>.</li>
-        <li><strong>Отсутствие избыточных зависимостей (No redundant FDs):</strong> Ни одну зависимость <code>f ∈ F_c</code> нельзя удалить из покрытия. Формально: <code>∀ f ∈ F_c: (F_c \ {f}) ⊬ f</code>.</li>
-      </ol>
+ <ol>
+ <li><strong>Синглтон в правой части (Singleton RHS):</strong> Правая часть каждой ФЗ в <code>F_c</code> состоит ровно из одного атрибута: <code>X → A</code>.</li>
+ <li><strong>Отсутствие посторонних атрибутов слева (No extraneous LHS attributes):</strong> Ни в одной ФЗ <code>X → A ∈ F_c</code> нельзя удалить атрибут <code>B ∈ X</code> так, чтобы полученное множество осталось эквивалентным. Формально: для <code>X' = X \ {B}</code> проверяется, выводимо ли <code>X' → A</code> из <code>F_c</code>.</li>
+ <li><strong>Отсутствие избыточных зависимостей (No redundant FDs):</strong> Ни одну зависимость <code>f ∈ F_c</code> нельзя удалить из покрытия. Формально: <code>∀ f ∈ F_c: (F_c \ {f}) ⊬ f</code>.</li>
+ </ol>
 
-      <h3>Алгоритм построения Minimal Cover</h3>
-      <pre><code>Шаг 1. Расщепление правых частей:
-       Каждую зависимость X → {A₁, A₂, ..., Aₖ} заменяем на набор X → A₁, X → A₂, ..., X → Aₖ.
+ <h3>Алгоритм построения Minimal Cover</h3>
+ <pre><code>Шаг 1. Расщепление правых частей:
+ Каждую зависимость X → {A₁, A₂,..., Aₖ} заменяем на набор X → A₁, X → A₂,..., X → Aₖ.
 
 Шаг 2. Устранение посторонних атрибутов в детерминантах (LHS):
-       Для каждой зависимости X → A, где |X| ≥ 2:
-          Для каждого атрибута B ∈ X:
-             Пусть X' = X \ {B}.
-             Вычисляем замыкание (X')⁺ относительно текущего множества ФЗ.
-             Если A ∈ (X')⁺, то атрибут B является посторонним (избыточным) слева.
-             Заменяем X → A на X' → A.
+ Для каждой зависимости X → A, где |X| ≥ 2:
+ Для каждого атрибута B ∈ X:
+ Пусть X' = X \ {B}.
+ Вычисляем замыкание (X')⁺ относительно текущего множества ФЗ.
+ Если A ∈ (X')⁺, то атрибут B является посторонним (избыточным) слева.
+ Заменяем X → A на X' → A.
 
 Шаг 3. Устранение избыточных зависимостей:
-       Для каждой зависимости f: X → A в текущем множестве:
-          Пусть F' = F \ {f}.
-          Вычисляем замыкание X⁺ относительно F'.
-          Если A ∈ X⁺, то зависимость f избыточна (выводится из оставшихся).
-          Удаляем f: F := F'.</code></pre>
-    </section>
+ Для каждой зависимости f: X → A в текущем множестве:
+ Пусть F' = F \ {f}.
+ Вычисляем замыкание X⁺ относительно F'.
+ Если A ∈ X⁺, то зависимость f избыточна (выводится из оставшихся).
+ Удаляем f: F := F'.</code></pre>
+ </section>
 
-    <!-- РАЗДЕЛ 7: ОШИБКИ И ПЕДАГОГИЧЕСКИЕ ПРИЕМЫ -->
-    <section class="card">
-      <h2>7. Типовые ошибки обучающихся и педагогические приемы</h2>
+ <!-- РАЗДЕЛ 7: ОШИБКИ И ПЕДАГОГИЧЕСКИЕ ПРИЕМЫ -->
+ <section class="card">
+ <h2>7. Типовые ошибки обучающихся и педагогические приемы</h2>
 
-      <h3>7.1. Рейтинг когнитивных затруднений студентов</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Типовая ошибка</th>
-            <th>Суть заблуждения</th>
-            <th>Методический способ преодоления</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>«Стрелка — это присваивание»</strong></td>
-            <td>Студент воспринимает <code>A → B</code> как команду программирования (<code>B = A</code>) или как логическую импликацию истинностных высказываний.</td>
-            <td>Интерпретация через многозначную функцию: <code>A → B</code> означает, что значение A однозначно указывает на строку в справочнике B (как табельный номер однозначно указывает на сотрудника).</td>
-          </tr>
-          <tr>
-            <td><strong>«Вывод ФЗ из одной таблицы»</strong></td>
-            <td>Студент видит 3 строки в учебной таблице и заявляет: «Здесь зарплаты у всех разные, значит Зарплата → Фамилия».</td>
-            <td>Прием «Контрпример из жизни»: предложить мысленный эксперимент — «А если завтра мы наймем второго стажера с такой же зарплатой? Схема БД должна выдерживать любые допустимые бизнес-ситуации».</td>
-          </tr>
-          <tr>
-            <td><strong>Одностороннее пополнение</strong></td>
-            <td>Вместо правила <code>X → Y ⟹ XZ → YZ</code> студент пишет <code>XZ → Y</code> (что верно, но теряет пополнение справа) или ошибочно полагает, что <code>X → Y ⟹ X → YZ</code> (что ложно).</td>
-            <td>Использование весов на весах: если чаша X перевешивает (определяет) Y, то положив гирю Z на обе чаши (XZ и YZ), баланс однозначности сохраняется.</td>
-          </tr>
-          <tr>
-            <td><strong>Пропуск составных ключей</strong></td>
-            <td>Поиск ключа останавливается на первом попавшемся суперключе без проверки минимальности или без поиска альтернативных кандидатных ключей.</td>
-            <td>Табличная методика L-R-B-N: жесткая фиксация обязательного ядра <code>(L ∪ N)</code> отсекает до 90% слепого перебора и гарантирует нахождение ВСЕХ ключей.</td>
-          </tr>
-        </tbody>
-      </table>
+ <h3>7.1. Рейтинг когнитивных затруднений студентов</h3>
+ <table>
+ <thead>
+ <tr>
+ <th>Типовая ошибка</th>
+ <th>Суть заблуждения</th>
+ <th>Методический способ преодоления</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>«Стрелка — это присваивание»</strong></td>
+ <td>Студент воспринимает <code>A → B</code> как команду программирования (<code>B = A</code>) или как логическую импликацию истинностных высказываний.</td>
+ <td>Интерпретация через многозначную функцию: <code>A → B</code> означает, что значение A однозначно указывает на строку в справочнике B (как табельный номер однозначно указывает на сотрудника).</td>
+ </tr>
+ <tr>
+ <td><strong>«Вывод ФЗ из одной таблицы»</strong></td>
+ <td>Студент видит 3 строки в учебной таблице и заявляет: «Здесь зарплаты у всех разные, значит Зарплата → Фамилия».</td>
+ <td>Прием «Контрпример из жизни»: предложить мысленный эксперимент — «А если завтра мы наймем второго стажера с такой же зарплатой? Схема БД должна выдерживать любые допустимые бизнес-ситуации».</td>
+ </tr>
+ <tr>
+ <td><strong>Одностороннее пополнение</strong></td>
+ <td>Вместо правила <code>X → Y ⟹ XZ → YZ</code> студент пишет <code>XZ → Y</code> (что верно, но теряет пополнение справа) или ошибочно полагает, что <code>X → Y ⟹ X → YZ</code> (что ложно).</td>
+ <td>Использование весов на весах: если чаша X перевешивает (определяет) Y, то положив гирю Z на обе чаши (XZ и YZ), баланс однозначности сохраняется.</td>
+ </tr>
+ <tr>
+ <td><strong>Пропуск составных ключей</strong></td>
+ <td>Поиск ключа останавливается на первом попавшемся суперключе без проверки минимальности или без поиска альтернативных кандидатных ключей.</td>
+ <td>Табличная методика L-R-B-N: жесткая фиксация обязательного ядра <code>(L ∪ N)</code> отсекает до 90% слепого перебора и гарантирует нахождение ВСЕХ ключей.</td>
+ </tr>
+ </tbody>
+ </table>
 
-      <h3>7.2. Рекомендуемые педагогические приемы</h3>
-      <ul>
-        <li><strong>Прием «Аномальный шок»:</strong> Начать занятие не с формул, а с таблицы <code>Сотрудники_Проекты(EmpID, ProjID, Dept, Salary, Role)</code>, в которой при увольнении сотрудника теряется информация о проекте (аномалия удаления), а для изменения названия отдела требуется переписать 500 строк (аномалия обновления). Показать, что причина бед — в непризнанных ФЗ.</li>
-        <li><strong>Инструмент «Трассировочная таблица замыкания»:</strong> При вычислении <code>X⁺</code> рисовать на доске таблицу из трех колонок: «Шаг итерации», «Примененная ФЗ», «Текущее замыкание X⁺». Это исключает пропуск шагов и делает логику прозрачной.</li>
-        <li><strong>Прием «Мемори-чек Армстронга»:</strong> Запоминание трех базовых правил через мнемонику:
-          <ul>
-            <li><em>Рефлексивность:</em> «Часть целого всегда известна, если известно целое».</li>
-            <li><em>Пополнение:</em> «Если знаешь ответ, то добавив лишний вопрос к условию и ответу, ответ останется верным».</li>
-            <li><em>Транзитивность:</em> «Друг моего друга — через цепочку однозначности».</li>
-          </ul>
-        </li>
-      </ul>
-    </section>
-  </main>
+ <h3>7.2. Рекомендуемые педагогические приемы</h3>
+ <ul>
+ <li><strong>Прием «Аномальный шок»:</strong> Начать занятие не с формул, а с таблицы <code>Сотрудники_Проекты(EmpID, ProjID, Dept, Salary, Role)</code>, в которой при увольнении сотрудника теряется информация о проекте (аномалия удаления), а для изменения названия отдела требуется переписать 500 строк (аномалия обновления). Показать, что причина бед — в непризнанных ФЗ.</li>
+ <li><strong>Инструмент «Трассировочная таблица замыкания»:</strong> При вычислении <code>X⁺</code> рисовать на доске таблицу из трех колонок: «Шаг итерации», «Примененная ФЗ», «Текущее замыкание X⁺». Это исключает пропуск шагов и делает логику прозрачной.</li>
+ <li><strong>Прием «Мемори-чек Армстронга»:</strong> Запоминание трех базовых правил через мнемонику:
+ <ul>
+ <li><em>Рефлексивность:</em> «Часть целого всегда известна, если известно целое».</li>
+ <li><em>Пополнение:</em> «Если знаешь ответ, то добавив лишний вопрос к условию и ответу, ответ останется верным».</li>
+ <li><em>Транзитивность:</em> «Друг моего друга — через цепочку однозначности».</li>
+ </ul>
+ </li>
+ </ul>
+ </section>
+ </main>
 </body>
 </html>

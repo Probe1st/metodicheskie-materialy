@@ -1,779 +1,716 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Рабочий лист: Реляционная алгебра: выборка и проекция</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --text-muted: #475569;
-      --border: #cbd5e1;
-      --accent: #0284c7;
-      --accent-hover: #0369a1;
-      --accent-soft: #f0f9ff;
-      --danger: #ef4444;
-      --success: #10b981;
-    }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Рабочий лист: Реляционная алгебра: выборка и проекция</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card-bg: #ffffff;
+ --text: #0f172a;
+ --text-muted: #475569;
+ --border: #cbd5e1;
+ --accent: #0284c7;
+ --accent-hover: #0369a1;
+ --accent-soft: #f0f9ff;
+ --danger: #ef4444;
+ --success: #10b981;
+ }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ }
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      padding: 24px 16px;
-      min-width: 320px;
-    }
+ body {
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+ background-color: var(--bg);
+ color: var(--text);
+ line-height: 1.6;
+ padding: 24px 16px;
+ min-width: 320px;
+ }.container {
+ max-width: 920px;
+ margin: 0 auto;
+ width: 100%;
+ }
 
-    .container {
-      max-width: 920px;
-      margin: 0 auto;
-      width: 100%;
-    }
+ header.task-header {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    header.task-header {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ h1 {
+ font-size: 2rem;
+ font-weight: 800;
+ color: var(--text);
+ margin-bottom: 8px;
+ word-break: break-word;
+ }.subtitle {
+ font-size: 1.05rem;
+ color: var(--text-muted);
+ }.student-meta {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 16px;
+ margin-top: 20px;
+ padding-top: 16px;
+ border-top: 1px solid var(--border);
+ }.meta-field {
+ display: flex;
+ flex-direction: column;
+ gap: 6px;
+ }.meta-field label {
+ font-size: 0.85rem;
+ font-weight: 600;
+ color: var(--text-muted);
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+ }.meta-field input {
+ padding: 8px 12px;
+ border: 1px solid var(--border);
+ border-radius: 6px;
+ font-size: 0.95rem;
+ color: var(--text);
+ outline: none;
+ width: 100%;
+ }.meta-field input:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 2px var(--accent-soft);
+ }.variant-selector-box {
+ margin-top: 20px;
+ padding-top: 16px;
+ border-top: 1px solid var(--border);
+ }.variant-tabs {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+ gap: 10px;
+ margin-top: 10px;
+ }.v-tab-btn {
+ padding: 10px 12px;
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ background: #f8fafc;
+ font-size: 0.9rem;
+ font-weight: 600;
+ cursor: pointer;
+ text-align: center;
+ transition: all 0.2s;
+ color: var(--text-muted);
+ }.v-tab-btn:hover {
+ background: #e2e8f0;
+ color: var(--text);
+ }.v-tab-btn.active {
+ background: var(--accent);
+ color: #ffffff;
+ border-color: var(--accent-hover);
+ box-shadow: 0 2px 4px rgba(2, 132, 199, 0.25);
+ }
 
-    h1 {
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 8px;
-      word-break: break-word;
-    }
+ section.task-section {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    .subtitle {
-      font-size: 1.05rem;
-      color: var(--text-muted);
-    }
+ h2 {
+ font-size: 1.35rem;
+ font-weight: 700;
+ color: #0369a1;
+ margin-bottom: 14px;
+ border-left: 4px solid var(--accent);
+ padding-left: 10px;
+ }
 
-    .student-meta {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 20px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
+ h3 {
+ font-size: 1.1rem;
+ font-weight: 600;
+ margin-top: 16px;
+ margin-bottom: 10px;
+ color: var(--text);
+ }
 
-    .meta-field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+ p {
+ margin-bottom: 12px;
+ color: var(--text);
+ }.table-container {
+ width: 100%;
+ overflow-x: auto;
+ margin: 14px 0 18px 0;
+ -webkit-overflow-scrolling: touch;
+ }
 
-    .meta-field label {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
+ table.calc-table {
+ width: 100%;
+ border-collapse: collapse;
+ font-size: 0.92rem;
+ min-width: 480px;
+ }
 
-    .meta-field input {
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.95rem;
-      color: var(--text);
-      outline: none;
-      width: 100%;
-    }
+ table.calc-table th, table.calc-table td {
+ border: 1px solid var(--border);
+ padding: 8px 12px;
+ text-align: left;
+ }
 
-    .meta-field input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-soft);
-    }
+ table.calc-table th {
+ background-color: #f1f5f9;
+ color: #334155;
+ font-weight: 700;
+ }.formula-banner {
+ background-color: var(--accent-soft);
+ border-left: 4px solid var(--accent);
+ padding: 10px 14px;
+ border-radius: 6px;
+ font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+ font-size: 1.05rem;
+ font-weight: 700;
+ color: #0369a1;
+ margin: 12px 0 16px 0;
+ display: inline-block;
+ word-break: break-all;
+ }.task-block {
+ background-color: #f8fafc;
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ padding: 16px;
+ margin-bottom: 16px;
+ }.task-block-title {
+ font-weight: 700;
+ font-size: 0.98rem;
+ color: var(--text);
+ margin-bottom: 8px;
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ }.badge-points {
+ background-color: #e0f2fe;
+ color: #0369a1;
+ font-size: 0.8rem;
+ padding: 2px 8px;
+ border-radius: 12px;
+ font-weight: 700;
+ }
 
-    .variant-selector-box {
-      margin-top: 20px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
+ textarea {
+ width: 100%;
+ border: 1px solid var(--border);
+ border-radius: 6px;
+ padding: 10px 12px;
+ font-size: 0.95rem;
+ font-family: inherit;
+ color: var(--text);
+ outline: none;
+ resize: vertical;
+ min-height: 80px;
+ line-height: 1.5;
+ }
 
-    .variant-tabs {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 10px;
-      margin-top: 10px;
-    }
+ textarea:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 2px var(--accent-soft);
+ }.actions-bar {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 12px;
+ margin-top: 20px;
+ }.btn {
+ padding: 10px 20px;
+ border-radius: 6px;
+ font-size: 0.95rem;
+ font-weight: 600;
+ cursor: pointer;
+ border: 1px solid transparent;
+ transition: all 0.2s;
+ }.btn-primary {
+ background-color: var(--accent);
+ color: #ffffff;
+ }.btn-primary:hover {
+ background-color: var(--accent-hover);
+ }.btn-secondary {
+ background-color: #f1f5f9;
+ color: var(--text);
+ border-color: var(--border);
+ }.btn-secondary:hover {
+ background-color: #e2e8f0;
+ }.btn-danger {
+ background-color: #fee2e2;
+ color: #991b1b;
+ border-color: #fca5a5;
+ }.btn-danger:hover {
+ background-color: #fecaca;
+ }.status-msg {
+ margin-top: 12px;
+ font-size: 0.92rem;
+ font-weight: 600;
+ color: #16a34a;
+ display: none;
+ }.variant-content {
+ display: none;
+ }.variant-content.active {
+ display: block;
+ }
 
-    .v-tab-btn {
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: #f8fafc;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.2s;
-      color: var(--text-muted);
-    }
+ @media (max-width: 600px) {
+ body {
+ padding: 12px 8px;
+ }
+ header.task-header, section.task-section {
+ padding: 16px 12px;
+ }
+ h1 {
+ font-size: 1.45rem;
+ }.student-meta {
+ grid-template-columns: 1fr;
+ }.variant-tabs {
+ grid-template-columns: 1fr;
+ }.actions-bar button {
+ width: 100%;
+ }
+ }
 
-    .v-tab-btn:hover {
-      background: #e2e8f0;
-      color: var(--text);
-    }
-
-    .v-tab-btn.active {
-      background: var(--accent);
-      color: #ffffff;
-      border-color: var(--accent-hover);
-      box-shadow: 0 2px 4px rgba(2, 132, 199, 0.25);
-    }
-
-    section.task-section {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-
-    h2 {
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: #0369a1;
-      margin-bottom: 14px;
-      border-left: 4px solid var(--accent);
-      padding-left: 10px;
-    }
-
-    h3 {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-top: 16px;
-      margin-bottom: 10px;
-      color: var(--text);
-    }
-
-    p {
-      margin-bottom: 12px;
-      color: var(--text);
-    }
-
-    .table-container {
-      width: 100%;
-      overflow-x: auto;
-      margin: 14px 0 18px 0;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    table.calc-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.92rem;
-      min-width: 480px;
-    }
-
-    table.calc-table th, table.calc-table td {
-      border: 1px solid var(--border);
-      padding: 8px 12px;
-      text-align: left;
-    }
-
-    table.calc-table th {
-      background-color: #f1f5f9;
-      color: #334155;
-      font-weight: 700;
-    }
-
-    .formula-banner {
-      background-color: var(--accent-soft);
-      border-left: 4px solid var(--accent);
-      padding: 10px 14px;
-      border-radius: 6px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: #0369a1;
-      margin: 12px 0 16px 0;
-      display: inline-block;
-      word-break: break-all;
-    }
-
-    .task-block {
-      background-color: #f8fafc;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-
-    .task-block-title {
-      font-weight: 700;
-      font-size: 0.98rem;
-      color: var(--text);
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .badge-points {
-      background-color: #e0f2fe;
-      color: #0369a1;
-      font-size: 0.8rem;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-weight: 700;
-    }
-
-    textarea {
-      width: 100%;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 10px 12px;
-      font-size: 0.95rem;
-      font-family: inherit;
-      color: var(--text);
-      outline: none;
-      resize: vertical;
-      min-height: 80px;
-      line-height: 1.5;
-    }
-
-    textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-soft);
-    }
-
-    .actions-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 20px;
-    }
-
-    .btn {
-      padding: 10px 20px;
-      border-radius: 6px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: 1px solid transparent;
-      transition: all 0.2s;
-    }
-
-    .btn-primary {
-      background-color: var(--accent);
-      color: #ffffff;
-    }
-
-    .btn-primary:hover {
-      background-color: var(--accent-hover);
-    }
-
-    .btn-secondary {
-      background-color: #f1f5f9;
-      color: var(--text);
-      border-color: var(--border);
-    }
-
-    .btn-secondary:hover {
-      background-color: #e2e8f0;
-    }
-
-    .btn-danger {
-      background-color: #fee2e2;
-      color: #991b1b;
-      border-color: #fca5a5;
-    }
-
-    .btn-danger:hover {
-      background-color: #fecaca;
-    }
-
-    .status-msg {
-      margin-top: 12px;
-      font-size: 0.92rem;
-      font-weight: 600;
-      color: #16a34a;
-      display: none;
-    }
-
-    .variant-content {
-      display: none;
-    }
-
-    .variant-content.active {
-      display: block;
-    }
-
-    @media (max-width: 600px) {
-      body {
-        padding: 12px 8px;
-      }
-      header.task-header, section.task-section {
-        padding: 16px 12px;
-      }
-      h1 {
-        font-size: 1.45rem;
-      }
-      .student-meta {
-        grid-template-columns: 1fr;
-      }
-      .variant-tabs {
-        grid-template-columns: 1fr;
-      }
-      .actions-bar button {
-        width: 100%;
-      }
-    }
-
-    @media print {
-      body {
-        background: #ffffff !important;
-        color: #000000 !important;
-        padding: 0 !important;
-      }
-      .container {
-        max-width: 100% !important;
-        margin: 0 !important;
-      }
-      header.task-header, section.task-section {
-        box-shadow: none !important;
-        border: 1px solid #475569 !important;
-        page-break-inside: avoid;
-        margin-bottom: 14px !important;
-        padding: 12px 16px !important;
-      }
-      .variant-selector-box, .actions-bar, .status-msg {
-        display: none !important;
-      }
-      .variant-content {
-        display: none !important;
-      }
-      .variant-content.active {
-        display: block !important;
-      }
-      input, textarea {
-        border: 1px solid #475569 !important;
-        color: #000000 !important;
-        background: transparent !important;
-      }
-      input::placeholder, textarea::placeholder {
-        color: transparent !important;
-      }
-      textarea {
-        min-height: 90px !important;
-        height: auto !important;
-        overflow: visible !important;
-        white-space: pre-wrap !important;
-      }
-    }
-  </style>
+ @media print {
+ body {
+ background: #ffffff !important;
+ color: #000000 !important;
+ padding: 0 !important;
+ }.container {
+ max-width: 100% !important;
+ margin: 0 !important;
+ }
+ header.task-header, section.task-section {
+ box-shadow: none !important;
+ border: 1px solid #475569 !important;
+ page-break-inside: avoid;
+ margin-bottom: 14px !important;
+ padding: 12px 16px !important;
+ }.variant-selector-box,.actions-bar,.status-msg {
+ display: none !important;
+ }.variant-content {
+ display: none !important;
+ }.variant-content.active {
+ display: block !important;
+ }
+ input, textarea {
+ border: 1px solid #475569 !important;
+ color: #000000 !important;
+ background: transparent !important;
+ }
+ input::placeholder, textarea::placeholder {
+ color: transparent !important;
+ }
+ textarea {
+ min-height: 90px !important;
+ height: auto !important;
+ overflow: visible !important;
+ white-space: pre-wrap !important;
+ }
+ }
+ </style>
 </head>
 <body>
 
 <div class="container">
 
-  <header class="task-header">
-    <h1>Рабочий лист: Реляционная алгебра: выборка и проекция</h1>
-    <div class="subtitle">ОП.08 Основы проектирования баз данных | Тема 2. Взаимосвязи в моделях и реляционный подход к построению моделей</div>
-    
-    <div class="student-meta">
-      <div class="meta-field">
-        <label for="studentFio">ФИО обучающегося</label>
-        <input type="text" id="studentFio">
-      </div>
-      <div class="meta-field">
-        <label for="studentGroup">Учебная группа</label>
-        <input type="text" id="studentGroup">
-      </div>
-    </div>
+ <header class="task-header">
+ <h1>Рабочий лист: Реляционная алгебра: выборка и проекция</h1>
+ <div class="subtitle">ОП.08 Основы проектирования баз данных | Тема 2. Взаимосвязи в моделях и реляционный подход к построению моделей</div>
+ 
+ <div class="student-meta">
+ <div class="meta-field">
+ <label for="studentFio">ФИО обучающегося</label>
+ <input type="text" id="studentFio">
+ </div>
+ <div class="meta-field">
+ <label for="studentGroup">Учебная группа</label>
+ <input type="text" id="studentGroup">
+ </div>
+ </div>
 
-    <div class="variant-selector-box">
-      <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase;">Выберите назначенный вариант:</div>
-      <div class="variant-tabs">
-        <button type="button" class="v-tab-btn active" data-variant="1">Вариант 1: Сотрудники</button>
-        <button type="button" class="v-tab-btn" data-variant="2">Вариант 2: Студенты</button>
-        <button type="button" class="v-tab-btn" data-variant="3">Вариант 3: Заказы</button>
-        <button type="button" class="v-tab-btn" data-variant="4">Вариант 4: Склад</button>
-      </div>
-    </div>
-  </header>
+ <div class="variant-selector-box">
+ <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase;">Выберите назначенный вариант:</div>
+ <div class="variant-tabs">
+ <button type="button" class="v-tab-btn active" data-variant="1">Вариант 1: Сотрудники</button>
+ <button type="button" class="v-tab-btn" data-variant="2">Вариант 2: Студенты</button>
+ <button type="button" class="v-tab-btn" data-variant="3">Вариант 3: Заказы</button>
+ <button type="button" class="v-tab-btn" data-variant="4">Вариант 4: Склад</button>
+ </div>
+ </div>
+ </header>
 
-  <!-- ==================== ВАРИАНТ 1 ==================== -->
-  <div id="variant-1" class="variant-content active">
-    <section class="task-section">
-      <h2>Вариант 1. Отношение «Сотрудники» (E)</h2>
-      <p>Отношение содержит сведения о сотрудниках инженерно-технического департамента:</p>
-      
-      <div class="table-container">
-        <table class="calc-table">
-          <thead>
-            <tr>
-              <th>Табельный_номер</th>
-              <th>ФИО</th>
-              <th>Должность</th>
-              <th>Стаж_лет</th>
-              <th>Оклад_руб</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>E-01</td><td>Алексеев А.В.</td><td>Инженер</td><td>7</td><td>65000</td></tr>
-            <tr><td>E-02</td><td>Белова М.И.</td><td>Инженер</td><td>3</td><td>52000</td></tr>
-            <tr><td>E-03</td><td>Воронов С.П.</td><td>Ведущий инженер</td><td>9</td><td>85000</td></tr>
-            <tr><td>E-04</td><td>Григорьев Д.А.</td><td>Инженер</td><td>6</td><td>68000</td></tr>
-            <tr><td>E-05</td><td>Дмитриева Е.Н.</td><td>Техник</td><td>2</td><td>40000</td></tr>
-            <tr><td>E-06</td><td>Егоров К.С.</td><td>Инженер</td><td>8</td><td>69000</td></tr>
-          </tbody>
-        </table>
-      </div>
+ <!-- ==================== ВАРИАНТ 1 ==================== -->
+ <div id="variant-1" class="variant-content active">
+ <section class="task-section">
+ <h2>Вариант 1. Отношение «Сотрудники» (E)</h2>
+ <p>Отношение содержит сведения о сотрудниках инженерно-технического департамента:</p>
+ 
+ <div class="table-container">
+ <table class="calc-table">
+ <thead>
+ <tr>
+ <th>Табельный_номер</th>
+ <th>ФИО</th>
+ <th>Должность</th>
+ <th>Стаж_лет</th>
+ <th>Оклад_руб</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr><td>E-01</td><td>Алексеев А.В.</td><td>Инженер</td><td>7</td><td>65000</td></tr>
+ <tr><td>E-02</td><td>Белова М.И.</td><td>Инженер</td><td>3</td><td>52000</td></tr>
+ <tr><td>E-03</td><td>Воронов С.П.</td><td>Ведущий инженер</td><td>9</td><td>85000</td></tr>
+ <tr><td>E-04</td><td>Григорьев Д.А.</td><td>Инженер</td><td>6</td><td>68000</td></tr>
+ <tr><td>E-05</td><td>Дмитриева Е.Н.</td><td>Техник</td><td>2</td><td>40000</td></tr>
+ <tr><td>E-06</td><td>Егоров К.С.</td><td>Инженер</td><td>8</td><td>69000</td></tr>
+ </tbody>
+ </table>
+ </div>
 
-      <div class="task-block">
-        <div class="task-block-title">
-          <span>Задание 1. Вычисление селекции σ<sub>Стаж\_лет > 5 land Оклад\_руб < 70000</sub>(E)</span>
-          <span class="badge-points">2 балла</span>
-        </div>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
-          Проверьте каждый кортеж отношения на конъюнкцию условий (стаж строго больше 5 лет И оклад строго меньше 70 000 руб.). Запишите список отобранных табельных номеров с обоснованием по каждому сотруднику.
-        </p>
-        <textarea id="v1_task1" rows="4"></textarea>
-      </div>
+ <div class="task-block">
+ <div class="task-block-title">
+ <span>Задание 1. Вычисление селекции σ<sub>Стаж\_лет > 5 land Оклад\_руб < 70000</sub>(E)</span>
+ <span class="badge-points">2 балла</span>
+ </div>
+ <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
+ Проверьте каждый кортеж отношения на конъюнкцию условий (стаж строго больше 5 лет И оклад строго меньше 70 000 руб.). Запишите список отобранных табельных номеров с обоснованием по каждому сотруднику.
+ </p>
+ <textarea id="v1_task1" rows="4"></textarea>
+ </div>
 
-      <div class="task-block">
-        <div class="task-block-title">
-          <span>Задание 2. Вычисление проекции π<sub>ФИО, Должность</sub>(E') с устранением дубликатов</span>
-          <span class="badge-points">1 балл</span>
-        </div>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
-          Выполните проекцию на атрибуты ФИО и Должность для отношения, полученного в Задании 1, а также отдельно для случая проекции только на столбец <code>Должность</code>. Обоснуйте правило ликвидации дубликатов кортежей.
-        </p>
-        <textarea id="v1_task2" rows="4"></textarea>
-      </div>
+ <div class="task-block">
+ <div class="task-block-title">
+ <span>Задание 2. Вычисление проекции π<sub>ФИО, Должность</sub>(E') с устранением дубликатов</span>
+ <span class="badge-points">1 балл</span>
+ </div>
+ <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
+ Выполните проекцию на атрибуты ФИО и Должность для отношения, полученного в Задании 1, а также отдельно для случая проекции только на столбец <code>Должность</code>. Обоснуйте правило ликвидации дубликатов кортежей.
+ </p>
+ <textarea id="v1_task2" rows="4"></textarea>
+ </div>
 
-      <div class="task-block">
-        <div class="task-block-title">
-          <span>Задание 3. Суперпозиция операций и самопроверка</span>
-          <span class="badge-points">1 балл</span>
-        </div>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
-          Запишите итоговое отношение суперпозиции π<sub>ФИО, Должность</sub>(σ(E)) (степень, мощность и кортежи). Приведите эквивалентный запрос на языке SQL с ключевыми словами <code>WHERE</code> и <code>SELECT DISTINCT</code>.
-        </p>
-        <textarea id="v1_task3" rows="3"></textarea>
-      </div>
-    </section>
-  </div>
+ <div class="task-block">
+ <div class="task-block-title">
+ <span>Задание 3. Суперпозиция операций и самопроверка</span>
+ <span class="badge-points">1 балл</span>
+ </div>
+ <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
+ Запишите итоговое отношение суперпозиции π<sub>ФИО, Должность</sub>(σ(E)) (степень, мощность и кортежи). Приведите эквивалентный запрос на языке SQL с ключевыми словами <code>WHERE</code> и <code>SELECT DISTINCT</code>.
+ </p>
+ <textarea id="v1_task3" rows="3"></textarea>
+ </div>
+ </section>
+ </div>
 
-  <!-- ==================== ВАРИАНТ 2 ==================== -->
-  <div id="variant-2" class="variant-content">
-    <section class="task-section">
-      <h2>Вариант 2. Отношение «Студенты» (S)</h2>
-      <p>Отношение содержит сводные данные об успеваемости студентов института:</p>
+ <!-- ==================== ВАРИАНТ 2 ==================== -->
+ <div id="variant-2" class="variant-content">
+ <section class="task-section">
+ <h2>Вариант 2. Отношение «Студенты» (S)</h2>
+ <p>Отношение содержит сводные данные об успеваемости студентов института:</p>
 
-      <div class="table-container">
-        <table class="calc-table">
-          <thead>
-            <tr>
-              <th>Номер_билета</th>
-              <th>ФИО_студента</th>
-              <th>Специальность</th>
-              <th>Курс</th>
-              <th>Средний_балл</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>Б-301</td><td>Зайцев П.А.</td><td>ИСП</td><td>3</td><td>4.8</td></tr>
-            <tr><td>Б-302</td><td>Иванова О.В.</td><td>ИСП</td><td>2</td><td>4.9</td></tr>
-            <tr><td>Б-303</td><td>Кузнецов А.М.</td><td>СИС</td><td>3</td><td>4.2</td></tr>
-            <tr><td>Б-304</td><td>Лебедева Н.С.</td><td>ИСП</td><td>3</td><td>4.6</td></tr>
-            <tr><td>Б-305</td><td>Морозов В.Д.</td><td>ЭБУ</td><td>3</td><td>4.5</td></tr>
-            <tr><td>Б-306</td><td>Новиков И.Г.</td><td>ИСП</td><td>4</td><td>4.7</td></tr>
-          </tbody>
-        </table>
-      </div>
+ <div class="table-container">
+ <table class="calc-table">
+ <thead>
+ <tr>
+ <th>Номер_билета</th>
+ <th>ФИО_студента</th>
+ <th>Специальность</th>
+ <th>Курс</th>
+ <th>Средний_балл</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr><td>Б-301</td><td>Зайцев П.А.</td><td>ИСП</td><td>3</td><td>4.8</td></tr>
+ <tr><td>Б-302</td><td>Иванова О.В.</td><td>ИСП</td><td>2</td><td>4.9</td></tr>
+ <tr><td>Б-303</td><td>Кузнецов А.М.</td><td>СИС</td><td>3</td><td>4.2</td></tr>
+ <tr><td>Б-304</td><td>Лебедева Н.С.</td><td>ИСП</td><td>3</td><td>4.6</td></tr>
+ <tr><td>Б-305</td><td>Морозов В.Д.</td><td>ЭБУ</td><td>3</td><td>4.5</td></tr>
+ <tr><td>Б-306</td><td>Новиков И.Г.</td><td>ИСП</td><td>4</td><td>4.7</td></tr>
+ </tbody>
+ </table>
+ </div>
 
-      <div class="task-block">
-        <div class="task-block-title">
-          <span>Задание 1. Вычисление селекции σ<sub>Средний\_балл ≥ 4.5 land Курс = 3</sub>(S)</span>
-          <span class="badge-points">2 балла</span>
-        </div>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
-          Проверьте каждый кортеж на конъюнкцию условий (средний балл не менее 4.5 И курс равен 3). Выпишите номера билетов подошедших студентов с пошаговым обоснованием.
-        </p>
-        <textarea id="v2_task1" rows="4"></textarea>
-      </div>
+ <div class="task-block">
+ <div class="task-block-title">
+ <span>Задание 1. Вычисление селекции σ<sub>Средний\_балл ≥ 4.5 land Курс = 3</sub>(S)</span>
+ <span class="badge-points">2 балла</span>
+ </div>
+ <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
+ Проверьте каждый кортеж на конъюнкцию условий (средний балл не менее 4.5 И курс равен 3). Выпишите номера билетов подошедших студентов с пошаговым обоснованием.
+ </p>
+ <textarea id="v2_task1" rows="4"></textarea>
+ </div>
 
-      <div class="task-block">
-        <div class="task-block-title">
-          <span>Задание 2. Вычисление проекции π<sub>Номер\_билета, Специальность</sub> и π<sub>Специальность</sub></span>
-          <span class="badge-points">1 балл</span>
-        </div>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
-          Спроецируйте результат селекции на Номер_билета и Специальность. Затем поясните, сколько кортежей вернет проекция только на атрибут <code>Специальность</code> и почему дубликаты ИСП схлопнутся.
-        </p>
-        <textarea id="v2_task2" rows="4"></textarea>
-      </div>
+ <div class="task-block">
+ <div class="task-block-title">
+ <span>Задание 2. Вычисление проекции π<sub>Номер\_билета, Специальность</sub> и π<sub>Специальность</sub></span>
+ <span class="badge-points">1 балл</span>
+ </div>
+ <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
+ Спроецируйте результат селекции на Номер_билета и Специальность. Затем поясните, сколько кортежей вернет проекция только на атрибут <code>Специальность</code> и почему дубликаты ИСП схлопнутся.
+ </p>
+ <textarea id="v2_task2" rows="4"></textarea>
+ </div>
 
-      <div class="task-block">
-        <div class="task-block-title">
-          <span>Задание 3. Суперпозиция операций и самопроверка</span>
-          <span class="badge-points">1 балл</span>
-        </div>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
-          Запишите итоговое отношение суперпозиции (степень, мощность и кортежи). Приведите эквивалент на языке SQL. Ответьте на вопрос: почему при селекции количество атрибутов не изменяется?
-        </p>
-        <textarea id="v2_task3" rows="3"></textarea>
-      </div>
-    </section>
-  </div>
+ <div class="task-block">
+ <div class="task-block-title">
+ <span>Задание 3. Суперпозиция операций и самопроверка</span>
+ <span class="badge-points">1 балл</span>
+ </div>
+ <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
+ Запишите итоговое отношение суперпозиции (степень, мощность и кортежи). Приведите эквивалент на языке SQL. Ответьте на вопрос: почему при селекции количество атрибутов не изменяется?
+ </p>
+ <textarea id="v2_task3" rows="3"></textarea>
+ </div>
+ </section>
+ </div>
 
-  <!-- ==================== ВАРИАНТ 3 ==================== -->
-  <div id="variant-3" class="variant-content">
-    <section class="task-section">
-      <h2>Вариант 3. Отношение «Заказы» (O)</h2>
-      <p>Отношение содержит реестр транзакций интернет-магазина компьютерной техники:</p>
+ <!-- ==================== ВАРИАНТ 3 ==================== -->
+ <div id="variant-3" class="variant-content">
+ <section class="task-section">
+ <h2>Вариант 3. Отношение «Заказы» (O)</h2>
+ <p>Отношение содержит реестр транзакций интернет-магазина компьютерной техники:</p>
 
-      <div class="table-container">
-        <table class="calc-table">
-          <thead>
-            <tr>
-              <th>ID_заказа</th>
-              <th>ID_клиента</th>
-              <th>Дата_заказа</th>
-              <th>Статус</th>
-              <th>Сумма_руб</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>Z-501</td><td>CL-10</td><td>2026-10-02</td><td>Оплачен</td><td>25000</td></tr>
-            <tr><td>Z-502</td><td>CL-25</td><td>2026-09-28</td><td>Оплачен</td><td>42000</td></tr>
-            <tr><td>Z-503</td><td>CL-10</td><td>2026-10-05</td><td>Оплачен</td><td>25000</td></tr>
-            <tr><td>Z-504</td><td>CL-44</td><td>2026-10-07</td><td>В обработке</td><td>15000</td></tr>
-            <tr><td>Z-505</td><td>CL-88</td><td>2026-10-09</td><td>Оплачен</td><td>89000</td></tr>
-            <tr><td>Z-506</td><td>CL-10</td><td>2026-10-12</td><td>Отменен</td><td>30000</td></tr>
-          </tbody>
-        </table>
-      </div>
+ <div class="table-container">
+ <table class="calc-table">
+ <thead>
+ <tr>
+ <th>ID_заказа</th>
+ <th>ID_клиента</th>
+ <th>Дата_заказа</th>
+ <th>Статус</th>
+ <th>Сумма_руб</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr><td>Z-501</td><td>CL-10</td><td>2026-10-02</td><td>Оплачен</td><td>25000</td></tr>
+ <tr><td>Z-502</td><td>CL-25</td><td>2026-09-28</td><td>Оплачен</td><td>42000</td></tr>
+ <tr><td>Z-503</td><td>CL-10</td><td>2026-10-05</td><td>Оплачен</td><td>25000</td></tr>
+ <tr><td>Z-504</td><td>CL-44</td><td>2026-10-07</td><td>В обработке</td><td>15000</td></tr>
+ <tr><td>Z-505</td><td>CL-88</td><td>2026-10-09</td><td>Оплачен</td><td>89000</td></tr>
+ <tr><td>Z-506</td><td>CL-10</td><td>2026-10-12</td><td>Отменен</td><td>30000</td></tr>
+ </tbody>
+ </table>
+ </div>
 
-      <div class="task-block">
-        <div class="task-block-title">
-          <span>Задание 1. Вычисление селекции σ<sub>Статус = 'Оплачен' land Дата ∈ Октябрь 2026</sub>(O)</span>
-          <span class="badge-points">2 балла</span>
-        </div>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
-          Проверьте кортежи на статус 'Оплачен' и дату за текущий месяц (2026-10). Выпишите ID_заказов с детальной фиксацией истинности предикатов.
-        </p>
-        <textarea id="v3_task1" rows="4"></textarea>
-      </div>
+ <div class="task-block">
+ <div class="task-block-title">
+ <span>Задание 1. Вычисление селекции σ<sub>Статус = 'Оплачен' land Дата ∈ Октябрь 2026</sub>(O)</span>
+ <span class="badge-points">2 балла</span>
+ </div>
+ <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
+ Проверьте кортежи на статус 'Оплачен' и дату за текущий месяц (2026-10). Выпишите ID_заказов с детальной фиксацией истинности предикатов.
+ </p>
+ <textarea id="v3_task1" rows="4"></textarea>
+ </div>
 
-      <div class="task-block">
-        <div class="task-block-title">
-          <span>Задание 2. Вычисление проекции π<sub>ID\_клиента, Сумма\_руб</sub> и устранение дубликатов</span>
-          <span class="badge-points">1 балл</span>
-        </div>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
-          Выполните проекцию отфильтрованных заказов на ID_клиента и Сумму. Обратите внимание на заказы Z-501 и Z-503 клиента CL-10! Сколько строк останется в отношении и почему?
-        </p>
-        <textarea id="v3_task2" rows="4"></textarea>
-      </div>
+ <div class="task-block">
+ <div class="task-block-title">
+ <span>Задание 2. Вычисление проекции π<sub>ID\_клиента, Сумма\_руб</sub> и устранение дубликатов</span>
+ <span class="badge-points">1 балл</span>
+ </div>
+ <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
+ Выполните проекцию отфильтрованных заказов на ID_клиента и Сумму. Обратите внимание на заказы Z-501 и Z-503 клиента CL-10! Сколько строк останется в отношении и почему?
+ </p>
+ <textarea id="v3_task2" rows="4"></textarea>
+ </div>
 
-      <div class="task-block">
-        <div class="task-block-title">
-          <span>Задание 3. Суперпозиция операций и самопроверка</span>
-          <span class="badge-points">1 балл</span>
-        </div>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
-          Запишите итоговое отношение суперпозиции π(σ(O)). Напишите соответствующий SQL-запрос с ключевыми словами <code>SELECT DISTINCT</code> и <code>WHERE</code>.
-        </p>
-        <textarea id="v3_task3" rows="3"></textarea>
-      </div>
-    </section>
-  </div>
+ <div class="task-block">
+ <div class="task-block-title">
+ <span>Задание 3. Суперпозиция операций и самопроверка</span>
+ <span class="badge-points">1 балл</span>
+ </div>
+ <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
+ Запишите итоговое отношение суперпозиции π(σ(O)). Напишите соответствующий SQL-запрос с ключевыми словами <code>SELECT DISTINCT</code> и <code>WHERE</code>.
+ </p>
+ <textarea id="v3_task3" rows="3"></textarea>
+ </div>
+ </section>
+ </div>
 
-  <!-- ==================== ВАРИАНТ 4 ==================== -->
-  <div id="variant-4" class="variant-content">
-    <section class="task-section">
-      <h2>Вариант 4. Отношение «Склад» (W)</h2>
-      <p>Отношение содержит учет номенклатуры серверного и сетевого оборудования:</p>
+ <!-- ==================== ВАРИАНТ 4 ==================== -->
+ <div id="variant-4" class="variant-content">
+ <section class="task-section">
+ <h2>Вариант 4. Отношение «Склад» (W)</h2>
+ <p>Отношение содержит учет номенклатуры серверного и сетевого оборудования:</p>
 
-      <div class="table-container">
-        <table class="calc-table">
-          <thead>
-            <tr>
-              <th>Артикул</th>
-              <th>Наименование</th>
-              <th>Категория</th>
-              <th>Поставщик</th>
-              <th>Остаток_шт</th>
-              <th>Цена_руб</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>A-101</td><td>Коммутатор 24p</td><td>Сетевое</td><td>NetLink</td><td>0</td><td>45000</td></tr>
-            <tr><td>A-102</td><td>Маршрутизатор Pro</td><td>Сетевое</td><td>CiscoHub</td><td>5</td><td>125000</td></tr>
-            <tr><td>A-103</td><td>Патч-панель 48p</td><td>Пассивное</td><td>NetLink</td><td>14</td><td>12000</td></tr>
-            <tr><td>A-104</td><td>Серверный шкаф 42U</td><td>Шкафы</td><td>RackMaster</td><td>0</td><td>78000</td></tr>
-            <tr><td>A-105</td><td>Оптический кросс</td><td>Сетевое</td><td>NetLink</td><td>0</td><td>18000</td></tr>
-            <tr><td>A-106</td><td>ИБП Онлайн 3kVA</td><td>Питание</td><td>PowerPro</td><td>3</td><td>115000</td></tr>
-          </tbody>
-        </table>
-      </div>
+ <div class="table-container">
+ <table class="calc-table">
+ <thead>
+ <tr>
+ <th>Артикул</th>
+ <th>Наименование</th>
+ <th>Категория</th>
+ <th>Поставщик</th>
+ <th>Остаток_шт</th>
+ <th>Цена_руб</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr><td>A-101</td><td>Коммутатор 24p</td><td>Сетевое</td><td>NetLink</td><td>0</td><td>45000</td></tr>
+ <tr><td>A-102</td><td>Маршрутизатор Pro</td><td>Сетевое</td><td>CiscoHub</td><td>5</td><td>125000</td></tr>
+ <tr><td>A-103</td><td>Патч-панель 48p</td><td>Пассивное</td><td>NetLink</td><td>14</td><td>12000</td></tr>
+ <tr><td>A-104</td><td>Серверный шкаф 42U</td><td>Шкафы</td><td>RackMaster</td><td>0</td><td>78000</td></tr>
+ <tr><td>A-105</td><td>Оптический кросс</td><td>Сетевое</td><td>NetLink</td><td>0</td><td>18000</td></tr>
+ <tr><td>A-106</td><td>ИБП Онлайн 3kVA</td><td>Питание</td><td>PowerPro</td><td>3</td><td>115000</td></tr>
+ </tbody>
+ </table>
+ </div>
 
-      <div class="task-block">
-        <div class="task-block-title">
-          <span>Задание 1. Вычисление селекции σ<sub>Остаток\_шт = 0 lor Цена\_руб > 100000</sub>(W)</span>
-          <span class="badge-points">2 балла</span>
-        </div>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
-          Проверьте кортежи на ДИЗЪЮНКЦИЮ условий (остаток равен 0 ИЛИ цена строго больше 100 000 руб.). Выпишите отобранные артикулы с обоснованием.
-        </p>
-        <textarea id="v4_task1" rows="4"></textarea>
-      </div>
+ <div class="task-block">
+ <div class="task-block-title">
+ <span>Задание 1. Вычисление селекции σ<sub>Остаток\_шт = 0 lor Цена\_руб > 100000</sub>(W)</span>
+ <span class="badge-points">2 балла</span>
+ </div>
+ <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
+ Проверьте кортежи на ДИЗЪЮНКЦИЮ условий (остаток равен 0 ИЛИ цена строго больше 100 000 руб.). Выпишите отобранные артикулы с обоснованием.
+ </p>
+ <textarea id="v4_task1" rows="4"></textarea>
+ </div>
 
-      <div class="task-block">
-        <div class="task-block-title">
-          <span>Задание 2. Вычисление проекции π<sub>Категория, Поставщик</sub> и устранение дубликатов</span>
-          <span class="badge-points">1 балл</span>
-        </div>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
-          Спроецируйте отобранное на шаге 1 отношение на столбцы Категория и Поставщик. Обратите внимание на совпадения пар (Сетевое, NetLink). Объясните поведение реляционной проекции.
-        </p>
-        <textarea id="v4_task2" rows="4"></textarea>
-      </div>
+ <div class="task-block">
+ <div class="task-block-title">
+ <span>Задание 2. Вычисление проекции π<sub>Категория, Поставщик</sub> и устранение дубликатов</span>
+ <span class="badge-points">1 балл</span>
+ </div>
+ <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
+ Спроецируйте отобранное на шаге 1 отношение на столбцы Категория и Поставщик. Обратите внимание на совпадения пар (Сетевое, NetLink). Объясните поведение реляционной проекции.
+ </p>
+ <textarea id="v4_task2" rows="4"></textarea>
+ </div>
 
-      <div class="task-block">
-        <div class="task-block-title">
-          <span>Задание 3. Суперпозиция операций и самопроверка</span>
-          <span class="badge-points">1 балл</span>
-        </div>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
-          Запишите итоговое отношение суперпозиции π(σ(W)). Приведите SQL-запрос с дизъюнктивным фильтром <code>OR</code> и директивой <code>DISTINCT</code>.
-        </p>
-        <textarea id="v4_task3" rows="3"></textarea>
-      </div>
-    </section>
-  </div>
+ <div class="task-block">
+ <div class="task-block-title">
+ <span>Задание 3. Суперпозиция операций и самопроверка</span>
+ <span class="badge-points">1 балл</span>
+ </div>
+ <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 6px;">
+ Запишите итоговое отношение суперпозиции π(σ(W)). Приведите SQL-запрос с дизъюнктивным фильтром <code>OR</code> и директивой <code>DISTINCT</code>.
+ </p>
+ <textarea id="v4_task3" rows="3"></textarea>
+ </div>
+ </section>
+ </div>
 
-  <div class="actions-bar">
-    <button type="button" class="btn btn-primary" id="saveBtn">Сохранить ответы</button>
-    <button type="button" class="btn btn-secondary" id="printBtn">Печать листа</button>
-    <button type="button" class="btn btn-danger" id="clearBtn">Очистить форму</button>
-  </div>
-  <div class="status-msg" id="statusMsg">Ответы успешно сохранены в LocalStorage!</div>
+ <div class="actions-bar">
+ <button type="button" class="btn btn-primary" id="saveBtn">Сохранить ответы</button>
+ <button type="button" class="btn btn-secondary" id="printBtn">Печать листа</button>
+ <button type="button" class="btn btn-danger" id="clearBtn">Очистить форму</button>
+ </div>
+ <div class="status-msg" id="statusMsg">Ответы успешно сохранены в LocalStorage!</div>
 
 </div>
 
 <script>
-  (function() {
-    const fields = [
-      'studentFio', 'studentGroup',
-      'v1_task1', 'v1_task2', 'v1_task3',
-      'v2_task1', 'v2_task2', 'v2_task3',
-      'v3_task1', 'v3_task2', 'v3_task3',
-      'v4_task1', 'v4_task2', 'v4_task3'
-    ];
-    const storageKey = 'db_hw_08_worksheet_data';
-    const tabKey = 'db_hw_08_active_variant';
+ (function() {
+ const fields = [
+ 'studentFio', 'studentGroup',
+ 'v1_task1', 'v1_task2', 'v1_task3',
+ 'v2_task1', 'v2_task2', 'v2_task3',
+ 'v3_task1', 'v3_task2', 'v3_task3',
+ 'v4_task1', 'v4_task2', 'v4_task3'
+ ];
+ const storageKey = 'db_hw_08_worksheet_data';
+ const tabKey = 'db_hw_08_active_variant';
 
-    const tabBtns = document.querySelectorAll('.v-tab-btn');
-    const variantContents = document.querySelectorAll('.variant-content');
+ const tabBtns = document.querySelectorAll('.v-tab-btn');
+ const variantContents = document.querySelectorAll('.variant-content');
 
-    function setActiveVariant(vNum) {
-      tabBtns.forEach(btn => {
-        if (btn.dataset.variant === String(vNum)) {
-          btn.classList.add('active');
-        } else {
-          btn.classList.remove('active');
-        }
-      });
-      variantContents.forEach(c => {
-        if (c.id === 'variant-' + vNum) {
-          c.classList.add('active');
-        } else {
-          c.classList.remove('active');
-        }
-      });
-      localStorage.setItem(tabKey, String(vNum));
-    }
+ function setActiveVariant(vNum) {
+ tabBtns.forEach(btn => {
+ if (btn.dataset.variant === String(vNum)) {
+ btn.classList.add('active');
+ } else {
+ btn.classList.remove('active');
+ }
+ });
+ variantContents.forEach(c => {
+ if (c.id === 'variant-' + vNum) {
+ c.classList.add('active');
+ } else {
+ c.classList.remove('active');
+ }
+ });
+ localStorage.setItem(tabKey, String(vNum));
+ }
 
-    tabBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        setActiveVariant(btn.dataset.variant);
-      });
-    });
+ tabBtns.forEach(btn => {
+ btn.addEventListener('click', () => {
+ setActiveVariant(btn.dataset.variant);
+ });
+ });
 
-    function loadSaved() {
-      try {
-        const savedTab = localStorage.getItem(tabKey);
-        if (savedTab) {
-          setActiveVariant(savedTab);
-        }
+ function loadSaved() {
+ try {
+ const savedTab = localStorage.getItem(tabKey);
+ if (savedTab) {
+ setActiveVariant(savedTab);
+ }
 
-        const raw = localStorage.getItem(storageKey);
-        if (!raw) return;
-        const data = JSON.parse(raw);
-        fields.forEach(id => {
-          const el = document.getElementById(id);
-          if (el && data[id] !== undefined) {
-            el.value = data[id];
-          }
-        });
-      } catch (e) {
-        console.error('Ошибка чтения LocalStorage', e);
-      }
-    }
+ const raw = localStorage.getItem(storageKey);
+ if (!raw) return;
+ const data = JSON.parse(raw);
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el && data[id] !== undefined) {
+ el.value = data[id];
+ }
+ });
+ } catch (e) {
+ console.error('Ошибка чтения LocalStorage', e);
+ }
+ }
 
-    function saveAnswers() {
-      const data = {};
-      fields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) data[id] = el.value;
-      });
-      localStorage.setItem(storageKey, JSON.stringify(data));
-      const msg = document.getElementById('statusMsg');
-      msg.style.display = 'block';
-      setTimeout(() => { msg.style.display = 'none'; }, 3000);
-    }
+ function saveAnswers() {
+ const data = {};
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) data[id] = el.value;
+ });
+ localStorage.setItem(storageKey, JSON.stringify(data));
+ const msg = document.getElementById('statusMsg');
+ msg.style.display = 'block';
+ setTimeout(() => { msg.style.display = 'none'; }, 3000);
+ }
 
-    function clearAnswers() {
-      if (confirm('Вы действительно хотите очистить все введенные ответы рабочего листа?')) {
-        fields.forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.value = '';
-        });
-        localStorage.removeItem(storageKey);
-      }
-    }
+ function clearAnswers() {
+ if (confirm('Вы действительно хотите очистить все введенные ответы рабочего листа?')) {
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) el.value = '';
+ });
+ localStorage.removeItem(storageKey);
+ }
+ }
 
-    document.getElementById('saveBtn').addEventListener('click', saveAnswers);
-    document.getElementById('printBtn').addEventListener('click', () => window.print());
-    document.getElementById('clearBtn').addEventListener('click', clearAnswers);
+ document.getElementById('saveBtn').addEventListener('click', saveAnswers);
+ document.getElementById('printBtn').addEventListener('click', () => window.print());
+ document.getElementById('clearBtn').addEventListener('click', clearAnswers);
 
-    fields.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener('input', () => {
-          const data = {};
-          fields.forEach(fId => {
-            const e = document.getElementById(fId);
-            if (e) data[fId] = e.value;
-          });
-          localStorage.setItem(storageKey, JSON.stringify(data));
-        });
-      }
-    });
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) {
+ el.addEventListener('input', () => {
+ const data = {};
+ fields.forEach(fId => {
+ const e = document.getElementById(fId);
+ if (e) data[fId] = e.value;
+ });
+ localStorage.setItem(storageKey, JSON.stringify(data));
+ });
+ }
+ });
 
-    loadSaved();
-  })();
+ loadSaved();
+ })();
 </script>
 
 </body>

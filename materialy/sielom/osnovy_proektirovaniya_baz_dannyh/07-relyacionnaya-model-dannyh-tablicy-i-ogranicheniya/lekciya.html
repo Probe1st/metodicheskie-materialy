@@ -1,368 +1,333 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Конспект лекции: Реляционная модель данных: таблицы и ограничения</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --text-muted: #475569;
-      --border: #e2e8f0;
-      --accent: #0284c7;
-      --accent-dark: #0369a1;
-      --accent-soft: #f0f9ff;
-      --code-bg: #0f172a;
-      --code-text: #f8fafc;
-      --diagram-bg: #f1f5f9;
-      --diagram-border: #cbd5e1;
-      --success: #16a34a;
-      --warning: #d97706;
-      --danger: #dc2626;
-    }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Конспект лекции: Реляционная модель данных: таблицы и ограничения</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card-bg: #ffffff;
+ --text: #0f172a;
+ --text-muted: #475569;
+ --border: #e2e8f0;
+ --accent: #0284c7;
+ --accent-dark: #0369a1;
+ --accent-soft: #f0f9ff;
+ --code-bg: #0f172a;
+ --code-text: #f8fafc;
+ --diagram-bg: #f1f5f9;
+ --diagram-border: #cbd5e1;
+ --success: #16a34a;
+ --warning: #d97706;
+ --danger: #dc2626;
+ }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ }
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.65;
-      padding: 24px 16px;
-    }
+ body {
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+ background-color: var(--bg);
+ color: var(--text);
+ line-height: 1.65;
+ padding: 24px 16px;
+ }.container {
+ max-width: 1040px;
+ margin: 0 auto;
+ }
 
-    .container {
-      max-width: 1040px;
-      margin: 0 auto;
-    }
+ header.lecture-header {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    header.lecture-header {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ h1 {
+ font-size: 2.1rem;
+ font-weight: 800;
+ color: var(--text);
+ margin-bottom: 8px;
+ }.subtitle {
+ font-size: 1.1rem;
+ color: var(--text-muted);
+ }
 
-    h1 {
-      font-size: 2.1rem;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 8px;
-    }
+ section {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 26px 30px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    .subtitle {
-      font-size: 1.1rem;
-      color: var(--text-muted);
-    }
+ h2 {
+ font-size: 1.45rem;
+ font-weight: 700;
+ color: var(--accent-dark);
+ margin-bottom: 16px;
+ border-left: 4px solid var(--accent);
+ padding-left: 12px;
+ }
 
-    section {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 26px 30px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ h3 {
+ font-size: 1.2rem;
+ font-weight: 600;
+ margin-top: 22px;
+ margin-bottom: 10px;
+ color: var(--text);
+ }
 
-    h2 {
-      font-size: 1.45rem;
-      font-weight: 700;
-      color: var(--accent-dark);
-      margin-bottom: 16px;
-      border-left: 4px solid var(--accent);
-      padding-left: 12px;
-    }
+ p {
+ margin-bottom: 14px;
+ }
 
-    h3 {
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin-top: 22px;
-      margin-bottom: 10px;
-      color: var(--text);
-    }
+ ul, ol {
+ margin-left: 24px;
+ margin-bottom: 14px;
+ }
 
-    p {
-      margin-bottom: 14px;
-    }
+ li {
+ margin-bottom: 6px;
+ }
 
-    ul, ol {
-      margin-left: 24px;
-      margin-bottom: 14px;
-    }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ margin: 18px 0;
+ font-size: 0.95rem;
+ }
 
-    li {
-      margin-bottom: 6px;
-    }
+ th, td {
+ border: 1px solid var(--border);
+ padding: 10px 14px;
+ text-align: left;
+ vertical-align: top;
+ }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 18px 0;
-      font-size: 0.95rem;
-    }
+ th {
+ background-color: #f1f5f9;
+ font-weight: 700;
+ color: #1e293b;
+ }.info-card {
+ background-color: var(--accent-soft);
+ border-left: 4px solid var(--accent);
+ padding: 16px 20px;
+ border-radius: 6px;
+ margin: 18px 0;
+ }.warn-card {
+ background-color: #fffbeb;
+ border-left: 4px solid var(--warning);
+ padding: 16px 20px;
+ border-radius: 6px;
+ margin: 18px 0;
+ }.danger-card {
+ background-color: #fef2f2;
+ border-left: 4px solid var(--danger);
+ padding: 16px 20px;
+ border-radius: 6px;
+ margin: 18px 0;
+ }
 
-    th, td {
-      border: 1px solid var(--border);
-      padding: 10px 14px;
-      text-align: left;
-      vertical-align: top;
-    }
+ code {
+ font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+ background: #f1f5f9;
+ padding: 2px 6px;
+ border-radius: 4px;
+ font-size: 0.9em;
+ color: #0f172a;
+ }
 
-    th {
-      background-color: #f1f5f9;
-      font-weight: 700;
-      color: #1e293b;
-    }
+ pre {
+ background: var(--code-bg);
+ color: var(--code-text);
+ padding: 16px;
+ border-radius: 8px;
+ overflow-x: auto;
+ margin: 16px 0;
+ font-size: 0.9rem;
+ line-height: 1.5;
+ }
 
-    .info-card {
-      background-color: var(--accent-soft);
-      border-left: 4px solid var(--accent);
-      padding: 16px 20px;
-      border-radius: 6px;
-      margin: 18px 0;
-    }
+ pre code {
+ background: transparent;
+ color: inherit;
+ padding: 0;
+ }
 
-    .warn-card {
-      background-color: #fffbeb;
-      border-left: 4px solid var(--warning);
-      padding: 16px 20px;
-      border-radius: 6px;
-      margin: 18px 0;
-    }
-
-    .danger-card {
-      background-color: #fef2f2;
-      border-left: 4px solid var(--danger);
-      padding: 16px 20px;
-      border-radius: 6px;
-      margin: 18px 0;
-    }
-
-    code {
-      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-      background: #f1f5f9;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 0.9em;
-      color: #0f172a;
-    }
-
-    pre {
-      background: var(--code-bg);
-      color: var(--code-text);
-      padding: 16px;
-      border-radius: 8px;
-      overflow-x: auto;
-      margin: 16px 0;
-      font-size: 0.9rem;
-      line-height: 1.5;
-    }
-
-    pre code {
-      background: transparent;
-      color: inherit;
-      padding: 0;
-    }
-
-    /* ASCII / CSS Block diagrams */
-    .term-diagram {
-      background: var(--diagram-bg);
-      border: 2px dashed var(--diagram-border);
-      border-radius: 10px;
-      padding: 20px;
-      margin: 20px 0;
-      font-family: 'SFMono-Regular', Consolas, monospace;
-      font-size: 0.9rem;
-      line-height: 1.4;
-      overflow-x: auto;
-    }
-
-    .flow-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 16px;
-      margin: 18px 0;
-    }
-
-    .flow-card {
-      background: #ffffff;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-    }
-
-    .flow-card h4 {
-      font-size: 1.05rem;
-      color: var(--accent-dark);
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .self-check {
-      background: #f8fafc;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      padding: 20px;
-      margin-top: 20px;
-    }
-
-    .self-check ol {
-      margin-left: 20px;
-      margin-bottom: 0;
-    }
-
-    .self-check li {
-      margin-bottom: 12px;
-      font-weight: 500;
-    }
-
-    .self-check p {
-      font-weight: normal;
-      color: var(--text-muted);
-      margin-top: 4px;
-      margin-bottom: 0;
-    }
-  </style>
+ /* ASCII / CSS Block diagrams */.term-diagram {
+ background: var(--diagram-bg);
+ border: 2px dashed var(--diagram-border);
+ border-radius: 10px;
+ padding: 20px;
+ margin: 20px 0;
+ font-family: 'SFMono-Regular', Consolas, monospace;
+ font-size: 0.9rem;
+ line-height: 1.4;
+ overflow-x: auto;
+ }.flow-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+ gap: 16px;
+ margin: 18px 0;
+ }.flow-card {
+ background: #ffffff;
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ padding: 16px;
+ box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+ }.flow-card h4 {
+ font-size: 1.05rem;
+ color: var(--accent-dark);
+ margin-bottom: 8px;
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ }.self-check {
+ background: #f8fafc;
+ border: 1px solid #cbd5e1;
+ border-radius: 8px;
+ padding: 20px;
+ margin-top: 20px;
+ }.self-check ol {
+ margin-left: 20px;
+ margin-bottom: 0;
+ }.self-check li {
+ margin-bottom: 12px;
+ font-weight: 500;
+ }.self-check p {
+ font-weight: normal;
+ color: var(--text-muted);
+ margin-top: 4px;
+ margin-bottom: 0;
+ }
+ </style>
 </head>
 <body>
-  <div class="container">
-    <header class="lecture-header">
-      <h1>Конспект лекции: Реляционная модель данных: таблицы и ограничения</h1>
-      <div class="subtitle">Учебный конспект по дисциплине «ОП.08 Основы проектирования баз данных» для студентов СИЭУиП</div>
-    </header>
+ <div class="container">
+ <header class="lecture-header">
+ <h1>Конспект лекции: Реляционная модель данных: таблицы и ограничения</h1>
+ <div class="subtitle">Учебный конспект по дисциплине «ОП.08 Основы проектирования баз данных» для студентов СИЭУиП</div>
+ </header>
 
-    <!-- Раздел 1 -->
-    <section>
-      <h2>1. Введение: рождение реляционной модели</h2>
-      <p>
-        В 1970 году британский ученый Эдгар Франк Кодд (сотрудник научно-исследовательской лаборатории IBM в Сан-Хосе) опубликовал статью под названием <em>«A Relational Model of Data for Large Shared Data Banks»</em> («Реляционная модель данных для больших разделяемых банков данных»). Эта публикация перевернула развитие информационных технологий и заложила стандарты, по которым функционирует мировая индустрия баз данных уже более 50 лет.
-      </p>
-      <p>
-        До Кодда преобладали иерархические и сетевые СУБД. В них прикладной программист был вынужден знать физическую структуру файлов, расположение указателей на диске и алгоритмы обхода связей. Кодд применил строгий математический аппарат — <strong>теорию множеств</strong> и <strong>логику предикатов первого порядка</strong>, разделив логическое представление данных и их физическое хранилище на диске.
-      </p>
-      <div class="info-card">
-        <strong>Ключевая идея реляционной модели:</strong><br>
-        Все данные в базе представляются исключительно в виде математических <strong>отношений (relations)</strong>, которые пользователь воспринимает как привычные двумерные таблицы. Взаимосвязи между данными выражаются не скрытыми дисковыми указателями, а равенством значений общих атрибутов.
-      </div>
-    </section>
+ <!-- Раздел 1 -->
+ <section>
+ <h2>1. Введение: рождение реляционной модели</h2>
+ <p>
+ В 1970 году британский ученый Эдгар Франк Кодд (сотрудник научно-исследовательской лаборатории IBM в Сан-Хосе) опубликовал статью под названием <em>«A Relational Model of Data for Large Shared Data Banks»</em> («Реляционная модель данных для больших разделяемых банков данных»). Эта публикация перевернула развитие информационных технологий и заложила стандарты, по которым функционирует мировая индустрия баз данных уже более 50 лет.
+ </p>
+ <p>
+ До Кодда преобладали иерархические и сетевые СУБД. В них прикладной программист был вынужден знать физическую структуру файлов, расположение указателей на диске и алгоритмы обхода связей. Кодд применил строгий математический аппарат — <strong>теорию множеств</strong> и <strong>логику предикатов первого порядка</strong>, разделив логическое представление данных и их физическое хранилище на диске.
+ </p>
+ <div class="info-card">
+ <strong>Ключевая идея реляционной модели:</strong><br>
+ Все данные в базе представляются исключительно в виде математических <strong>отношений (relations)</strong>, которые пользователь воспринимает как привычные двумерные таблицы. Взаимосвязи между данными выражаются не скрытыми дисковыми указателями, а равенством значений общих атрибутов.
+ </div>
+ </section>
 
-    <!-- Раздел 2: Блок-схема соответствия терминов -->
-    <section>
-      <h2>2. Терминологический мост: теория РМД vs практика SQL</h2>
-      <p>
-        В академической теории реляционных баз данных и в промышленной разработке (SQL) для обозначения одних и тех же сущностей используются разные термины. Понимание точного соответствия критически важно для профессионального инженера.
-      </p>
+ <!-- Раздел 2: Блок-схема соответствия терминов -->
+ <section>
+ <h2>2. Терминологический мост: теория РМД vs практика SQL</h2>
+ <p>
+ В академической теории реляционных баз данных и в промышленной разработке (SQL) для обозначения одних и тех же сущностей используются разные термины. Понимание точного соответствия критически важно для профессионального инженера.
+ </p>
 
-      <div class="term-diagram">
+ <div class="term-diagram">
 +---------------------------------------------------------------------------------------------------+
-|                            МАТЕМАТИЧЕСКАЯ МОДЕЛЬ vs ТАБЛИЧНАЯ МОДЕЛЬ SQL                         |
+| МАТЕМАТИЧЕСКАЯ МОДЕЛЬ vs ТАБЛИЧНАЯ МОДЕЛЬ SQL |
 +---------------------------------------------------------------------------------------------------+
-| ТЕОРИЯ РМД (Э. Кодд)        | ПРАКТИКА СУБД (SQL)        | ОПРЕДЕЛЕНИЕ И ПРИМЕР                   |
+| ТЕОРИЯ РМД (Э. Кодд) | ПРАКТИКА СУБД (SQL) | ОПРЕДЕЛЕНИЕ И ПРИМЕР |
 +-----------------------------+----------------------------+----------------------------------------+
-| Отношение (Relation)        | Таблица (Table)            | Множество кортежей (напр. "Товары")    |
-| Кортеж (Tuple)              | Строка / Запись (Row)      | Конкретный экземпляр объекта (1 строка)|
-| Атрибут (Attribute)         | Столбец / Поле (Column)    | Именованное свойство (напр. "price")   |
-| Домен (Domain)              | Тип данных + CHECK         | Множество допустимых значений (INT>0)  |
-| Арность / Степень (Degree)  | Число столбцов таблицы     | Количество атрибутов схемы (n)       |
-| Кардинальность (Cardinality)| Число строк таблицы        | Текущее количество кортежей в таблице  |
-| Заголовок (Heading)         | Структура таблицы (DDL)    | Схема: имена и типы колонок            |
-| Тело отношения (Body)       | Содержимое данных          | Текущий набор записей таблицы          |
+| Отношение (Relation) | Таблица (Table) | Множество кортежей (напр. "Товары") | Кортеж (Tuple) | Строка / Запись (Row) | Конкретный экземпляр объекта (1 строка)| Атрибут (Attribute) | Столбец / Поле (Column) | Именованное свойство (напр. "price") | Домен (Domain) | Тип данных + CHECK | Множество допустимых значений (INT>0) | Арность / Степень (Degree) | Число столбцов таблицы | Количество атрибутов схемы (n) | Кардинальность (Cardinality)| Число строк таблицы | Текущее количество кортежей в таблице | Заголовок (Heading) | Структура таблицы (DDL) | Схема: имена и типы колонок | Тело отношения (Body) | Содержимое данных | Текущий набор записей таблицы |
 +---------------------------------------------------------------------------------------------------+
-      </div>
+ </div>
 
-      <div class="flow-grid">
-        <div class="flow-card">
-          <h4>🏛 Заголовок и тело отношения</h4>
-          <p><strong>Заголовок (Heading):</strong> фиксированное множество пар «Атрибут : Домен». Это скелет отношения, определяемый командой <code>CREATE TABLE</code>.</p>
-          <p><strong>Тело (Body):</strong> динамическое множество кортежей, подчиняющихся заголовку. Тело изменяется при выполнении команд <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>.</p>
-        </div>
-        <div class="flow-card">
-          <h4>📐 Арность и кардинальность</h4>
-          <p><strong>Арность (n):</strong> число столбцов. Отношение из 4 столбцов называется <em>4-арным</em> (тетрарным). Арность статична.</p>
-          <p><strong>Кардинальность (m):</strong> число строк. Если на складе 500 товаров, кардинальность таблицы «Товары» равна 500. При удалении товара кардинальность уменьшается.</p>
-        </div>
-      </div>
-    </section>
+ <div class="flow-grid">
+ <div class="flow-card">
+ <h4>🏛 Заголовок и тело отношения</h4>
+ <p><strong>Заголовок (Heading):</strong> фиксированное множество пар «Атрибут : Домен». Это скелет отношения, определяемый командой <code>CREATE TABLE</code>.</p>
+ <p><strong>Тело (Body):</strong> динамическое множество кортежей, подчиняющихся заголовку. Тело изменяется при выполнении команд <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>.</p>
+ </div>
+ <div class="flow-card">
+ <h4>📐 Арность и кардинальность</h4>
+ <p><strong>Арность (n):</strong> число столбцов. Отношение из 4 столбцов называется <em>4-арным</em> (тетрарным). Арность статична.</p>
+ <p><strong>Кардинальность (m):</strong> число строк. Если на складе 500 товаров, кардинальность таблицы «Товары» равна 500. При удалении товара кардинальность уменьшается.</p>
+ </div>
+ </div>
+ </section>
 
-    <!-- Раздел 3: Фундаментальные свойства отношений -->
-    <section>
-      <h2>3. Четыре фундаментальных свойства отношений</h2>
-      <p>
-        Отношение не является произвольной сеткой ячеек. Будучи математическим множеством, оно обязано строго удовлетворять 4 аксиоматическим свойствам:
-      </p>
+ <!-- Раздел 3: Фундаментальные свойства отношений -->
+ <section>
+ <h2>3. Четыре фундаментальных свойства отношений</h2>
+ <p>
+ Отношение не является произвольной сеткой ячеек. Будучи математическим множеством, оно обязано строго удовлетворять 4 аксиоматическим свойствам:
+ </p>
 
-      <div class="flow-grid">
-        <div class="flow-card" style="border-top: 4px solid var(--accent);">
-          <h4>1. Уникальность кортежей</h4>
-          <p>В теле отношения не может существовать двух абсолютно одинаковых кортежей. В математике множество \{a, b, a\} эквивалентно множеству \{a, b\}. Отсюда вытекает железное правило: <strong>у каждого отношения обязан существовать хотя бы один первичный ключ (Primary Key)</strong>.</p>
-        </div>
-        <div class="flow-card" style="border-top: 4px solid var(--accent-dark);">
-          <h4>2. Отсутствие порядка строк</h4>
-          <p>Кортежи не упорядочены. В реляционной теории нет понятия «первая строка» или «предыдущая запись». Порядок строк при выборке без явного указания предложения <code>ORDER BY</code> не гарантирован ядром СУБД.</p>
-        </div>
-        <div class="flow-card" style="border-top: 4px solid var(--accent-soft);">
-          <h4>3. Отсутствие порядка столбцов</h4>
-          <p>Атрибуты отношения не нумеруются слева направо. Они адресуются строго по уникальным именам. Заголовки (A, B) и (B, A) задают одно и то же отношение.</p>
-        </div>
-        <div class="flow-card" style="border-top: 4px solid var(--success);">
-          <h4>4. Атомарность значений (1НФ)</h4>
-          <p>Значения всех атрибутов должны быть скалярными (неделимыми). В ячейке запрещено хранить списки, перечисления через запятую или вложенные таблицы. Это фундаментальное требование <strong>Первой нормальной формы (1NF)</strong>.</p>
-        </div>
-      </div>
-    </section>
+ <div class="flow-grid">
+ <div class="flow-card" style="border-top: 4px solid var(--accent);">
+ <h4>1. Уникальность кортежей</h4>
+ <p>В теле отношения не может существовать двух абсолютно одинаковых кортежей. В математике множество \{a, b, a\} эквивалентно множеству \{a, b\}. Отсюда вытекает железное правило: <strong>у каждого отношения обязан существовать хотя бы один первичный ключ (Primary Key)</strong>.</p>
+ </div>
+ <div class="flow-card" style="border-top: 4px solid var(--accent-dark);">
+ <h4>2. Отсутствие порядка строк</h4>
+ <p>Кортежи не упорядочены. В реляционной теории нет понятия «первая строка» или «предыдущая запись». Порядок строк при выборке без явного указания предложения <code>ORDER BY</code> не гарантирован ядром СУБД.</p>
+ </div>
+ <div class="flow-card" style="border-top: 4px solid var(--accent-soft);">
+ <h4>3. Отсутствие порядка столбцов</h4>
+ <p>Атрибуты отношения не нумеруются слева направо. Они адресуются строго по уникальным именам. Заголовки (A, B) и (B, A) задают одно и то же отношение.</p>
+ </div>
+ <div class="flow-card" style="border-top: 4px solid var(--success);">
+ <h4>4. Атомарность значений (1НФ)</h4>
+ <p>Значения всех атрибутов должны быть скалярными (неделимыми). В ячейке запрещено хранить списки, перечисления через запятую или вложенные таблицы. Это фундаментальное требование <strong>Первой нормальной формы (1NF)</strong>.</p>
+ </div>
+ </div>
+ </section>
 
-    <!-- Раздел 4: Ограничения целостности -->
-    <section>
-      <h2>4. Ограничения целостности (Integrity Constraints)</h2>
-      <p>
-        Ограничения целостности — это декларируемые бизнес-правила и предикаты, за соблюдением которых непрерывно следит ядро СУБД. Они гарантируют, что в базе никогда не появятся противоречивые, некорректные или мусорные данные.
-      </p>
+ <!-- Раздел 4: Ограничения целостности -->
+ <section>
+ <h2>4. Ограничения целостности (Integrity Constraints)</h2>
+ <p>
+ Ограничения целостности — это декларируемые бизнес-правила и предикаты, за соблюдением которых непрерывно следит ядро СУБД. Они гарантируют, что в базе никогда не появятся противоречивые, некорректные или мусорные данные.
+ </p>
 
-      <h3>4.1. Целостность сущности (Entity Integrity)</h3>
-      <div class="info-card">
-        <strong>Определение:</strong> Ни один атрибут, входящий в состав первичного ключа (Primary Key), не может принимать значение <code>NULL</code>, а само значение первичного ключа должно быть уникальным для каждого кортежа.
-      </div>
-      <p>
-        Первичный ключ идентифицирует строку в физическом мире. Нельзя идентифицировать товар, если его артикул «неизвестен» (NULL) или если двум разным товарам присвоен одинаковый код.
-      </p>
+ <h3>4.1. Целостность сущности (Entity Integrity)</h3>
+ <div class="info-card">
+ <strong>Определение:</strong> Ни один атрибут, входящий в состав первичного ключа (Primary Key), не может принимать значение <code>NULL</code>, а само значение первичного ключа должно быть уникальным для каждого кортежа.
+ </div>
+ <p>
+ Первичный ключ идентифицирует строку в физическом мире. Нельзя идентифицировать товар, если его артикул «неизвестен» (NULL) или если двум разным товарам присвоен одинаковый код.
+ </p>
 
-      <h3>4.2. Ссылочная целостность (Referential Integrity)</h3>
-      <div class="info-card">
-        <strong>Определение:</strong> Внешний ключ (Foreign Key) дочерней таблицы должен ссылаться на существующее значение первичного (или уникального) ключа в родительской таблице, либо иметь значение <code>NULL</code>.
-      </div>
-      <p>
-        Ссылочная целостность защищает от появления «висячих строк» (orphans). Например, запрещено выписать рецепт на пациента с <code>patient_id = 999</code>, если пациента с таким номером нет в таблице <code>Пациенты</code>.
-      </p>
+ <h3>4.2. Ссылочная целостность (Referential Integrity)</h3>
+ <div class="info-card">
+ <strong>Определение:</strong> Внешний ключ (Foreign Key) дочерней таблицы должен ссылаться на существующее значение первичного (или уникального) ключа в родительской таблице, либо иметь значение <code>NULL</code>.
+ </div>
+ <p>
+ Ссылочная целостность защищает от появления «висячих строк» (orphans). Например, запрещено выписать рецепт на пациента с <code>patient_id = 999</code>, если пациента с таким номером нет в таблице <code>Пациенты</code>.
+ </p>
 
-      <div class="term-diagram">
+ <div class="term-diagram">
 +---------------------------------------------------------------------------------------------------+
-|                                 ПРАВИЛА ОБРАБОТКИ ССЫЛОЧНОЙ ЦЕЛОСТНОСТИ                           |
+| ПРАВИЛА ОБРАБОТКИ ССЫЛОЧНОЙ ЦЕЛОСТНОСТИ |
 +---------------------------------------------------------------------------------------------------+
-| ОПЦИЯ               | ПОВЕДЕНИЕ СУБД ПРИ УДАЛЕНИИ РОДИТЕЛЬСКОЙ ЗАПИСИ (ON DELETE)                 |
+| ОПЦИЯ | ПОВЕДЕНИЕ СУБД ПРИ УДАЛЕНИИ РОДИТЕЛЬСКОЙ ЗАПИСИ (ON DELETE) |
 +---------------------+-----------------------------------------------------------------------------+
-| RESTRICT / NO ACTION| ЗАПРЕТ: СУБД выдает ошибку и блокирует удаление родителя, если есть потомки.|
-| CASCADE             | КАСКАД: СУБД автоматически удаляет все связанные строки в дочерней таблице. |
-| SET NULL            | ОБНУЛЕНИЕ: Внешний ключ в дочерних строках становится NULL.                  |
-| SET DEFAULT         | ЗНАЧЕНИЕ ПО УМОЛЧАНИЮ: Внешний ключ принимает дефолтное значение.          |
+| RESTRICT / NO ACTION| ЗАПРЕТ: СУБД выдает ошибку и блокирует удаление родителя, если есть потомки.| CASCADE | КАСКАД: СУБД автоматически удаляет все связанные строки в дочерней таблице. | SET NULL | ОБНУЛЕНИЕ: Внешний ключ в дочерних строках становится NULL. | SET DEFAULT | ЗНАЧЕНИЕ ПО УМОЛЧАНИЮ: Внешний ключ принимает дефолтное значение. |
 +---------------------------------------------------------------------------------------------------+
-      </div>
+ </div>
 
-      <h3>4.3. Семантическая целостность и ограничение CHECK</h3>
-      <p>
-        Ограничение <code>CHECK</code> позволяет задать предикатное правило проверки допустимых значений атрибута:
-      </p>
-      <pre><code>-- Ограничение на неотрицательный остаток на складе
+ <h3>4.3. Семантическая целостность и ограничение CHECK</h3>
+ <p>
+ Ограничение <code>CHECK</code> позволяет задать предикатное правило проверки допустимых значений атрибута:
+ </p>
+ <pre><code>-- Ограничение на неотрицательный остаток на складе
 quantity INT NOT NULL CHECK (quantity &gt;= 0)
 
 -- Ограничение на допустимый диапазон разовой дозировки лекарства
@@ -370,73 +335,71 @@ dosage_mg NUMERIC(6,2) NOT NULL CHECK (dosage_mg &gt; 0 AND dosage_mg &lt;= 500)
 
 -- Ограничение на балльно-рейтинговую оценку студента
 score INT NOT NULL CHECK (score BETWEEN 0 AND 100)</code></pre>
-    </section>
+ </section>
 
-    <!-- Раздел 5: SQL-реализация и DDL -->
-    <section>
-      <h2>5. Практический пример: связывание двух отношений на SQL</h2>
-      <p>
-        Рассмотрим классический пример предметной области «Складской комплекс», состоящий из родительской таблицы <code>Товары</code> и дочерней таблицы <code>Складские_остатки</code>:
-      </p>
-      <pre><code>-- 1. Родительская таблица: Товары (целостность сущности)
+ <!-- Раздел 5: SQL-реализация и DDL -->
+ <section>
+ <h2>5. Практический пример: связывание двух отношений на SQL</h2>
+ <p>
+ Рассмотрим классический пример предметной области «Складской комплекс», состоящий из родительской таблицы <code>Товары</code> и дочерней таблицы <code>Складские_остатки</code>:
+ </p>
+ <pre><code>-- 1. Родительская таблица: Товары (целостность сущности)
 CREATE TABLE products (
-    sku VARCHAR(20) PRIMARY KEY,              -- Артикул: первичный естественный ключ
-    name VARCHAR(150) NOT NULL,               -- Наименование товара
-    category VARCHAR(50) NOT NULL,            -- Категория товара
-    unit_price NUMERIC(10,2) NOT NULL CHECK (unit_price &gt; 0)
-);
+ sku VARCHAR(20) PRIMARY KEY, -- Артикул: первичный естественный ключ
+ name VARCHAR(150) NOT NULL, -- Наименование товара
+ category VARCHAR(50) NOT NULL, -- Категория товара
+ unit_price NUMERIC(10,2) NOT NULL CHECK (unit_price &gt; 0));
 
 -- 2. Дочерняя таблица: Складские остатки (ссылочная и семантическая целостность)
 CREATE TABLE inventory (
-    inventory_id SERIAL PRIMARY KEY,          -- Суррогатный первичный ключ
-    sku VARCHAR(20) NOT NULL,                 -- Внешний ключ на товар
-    warehouse_zone VARCHAR(10) NOT NULL,      -- Зона склада (напр. 'A-12')
-    quantity INT NOT NULL DEFAULT 0,          -- Количество на хранении
-    reserved_qty INT NOT NULL DEFAULT 0,      -- Зарезервировано под заказы
+ inventory_id SERIAL PRIMARY KEY, -- Суррогатный первичный ключ
+ sku VARCHAR(20) NOT NULL, -- Внешний ключ на товар
+ warehouse_zone VARCHAR(10) NOT NULL, -- Зона склада (напр. 'A-12')
+ quantity INT NOT NULL DEFAULT 0, -- Количество на хранении
+ reserved_qty INT NOT NULL DEFAULT 0, -- Зарезервировано под заказы
 
-    -- Ограничение ссылочной целостности: запрет удаления товара с остатками
-    CONSTRAINT fk_inventory_product FOREIGN KEY (sku) 
-        REFERENCES products(sku) 
-        ON DELETE RESTRICT 
-        ON UPDATE CASCADE,
+ -- Ограничение ссылочной целостности: запрет удаления товара с остатками
+ CONSTRAINT fk_inventory_product FOREIGN KEY (sku) 
+ REFERENCES products(sku) 
+ ON DELETE RESTRICT 
+ ON UPDATE CASCADE,
 
-    -- Ограничения семантической целостности (CHECK)
-    CONSTRAINT chk_positive_qty CHECK (quantity &gt;= 0),
-    CONSTRAINT chk_reserved_valid CHECK (reserved_qty &gt;= 0 AND reserved_qty &lt;= quantity),
+ -- Ограничения семантической целостности (CHECK)
+ CONSTRAINT chk_positive_qty CHECK (quantity &gt;= 0),
+ CONSTRAINT chk_reserved_valid CHECK (reserved_qty &gt;= 0 AND reserved_qty &lt;= quantity),
 
-    -- Уникальность размещения: один товар в одной зоне склада хранится единожды
-    CONSTRAINT uq_sku_zone UNIQUE (sku, warehouse_zone)
-);</code></pre>
-    </section>
+ -- Уникальность размещения: один товар в одной зоне склада хранится единожды
+ CONSTRAINT uq_sku_zone UNIQUE (sku, warehouse_zone));</code></pre>
+ </section>
 
-    <!-- Раздел 6: Вопросы для самопроверки -->
-    <section>
-      <h2>6. Вопросы для глубокой самопроверки</h2>
-      <div class="self-check">
-        <ol>
-          <li>
-            <strong>В чем разница между степенью (арностью) и кардинальностью (мощностью) отношения?</strong>
-            <p>Какая из этих характеристик является статической при проектировании, а какая постоянно меняется во время работы СУБД?</p>
-          </li>
-          <li>
-            <strong>Почему в теле истинного математического отношения кортежи не могут дублироваться?</strong>
-            <p>Какое ограничение реляционной СУБД реализует это фундаментальное свойство на практике?</p>
-          </li>
-          <li>
-            <strong>Что произойдет при попытке выполнить команду <code>DELETE FROM products WHERE sku = 'CPU-99';</code>, если для внешнего ключа задано правило <code>ON DELETE RESTRICT</code>, и на складе числится 5 процессоров этой модели?</strong>
-            <p>Какое сообщение об ошибке вернет СУБД и почему?</p>
-          </li>
-          <li>
-            <strong>Почему при проектировании внешнего ключа нельзя сослаться на поле «Фамилия_пациента» в таблице пациентов?</strong>
-            <p>Какому фундаментальному правилу адресации данных это противоречит?</p>
-          </li>
-          <li>
-            <strong>В чем принципиальная разница между естественным первичным ключом (напр. VIN автомобиля) и суррогатным первичным ключом (напр. auto_id)?</strong>
-            <p>Какие риски несет использование естественных ключей при изменении бизнес-процессов?</p>
-          </li>
-        </ol>
-      </div>
-    </section>
-  </div>
+ <!-- Раздел 6: Вопросы для самопроверки -->
+ <section>
+ <h2>6. Вопросы для глубокой самопроверки</h2>
+ <div class="self-check">
+ <ol>
+ <li>
+ <strong>В чем разница между степенью (арностью) и кардинальностью (мощностью) отношения?</strong>
+ <p>Какая из этих характеристик является статической при проектировании, а какая постоянно меняется во время работы СУБД?</p>
+ </li>
+ <li>
+ <strong>Почему в теле истинного математического отношения кортежи не могут дублироваться?</strong>
+ <p>Какое ограничение реляционной СУБД реализует это фундаментальное свойство на практике?</p>
+ </li>
+ <li>
+ <strong>Что произойдет при попытке выполнить команду <code>DELETE FROM products WHERE sku = 'CPU-99';</code>, если для внешнего ключа задано правило <code>ON DELETE RESTRICT</code>, и на складе числится 5 процессоров этой модели?</strong>
+ <p>Какое сообщение об ошибке вернет СУБД и почему?</p>
+ </li>
+ <li>
+ <strong>Почему при проектировании внешнего ключа нельзя сослаться на поле «Фамилия_пациента» в таблице пациентов?</strong>
+ <p>Какому фундаментальному правилу адресации данных это противоречит?</p>
+ </li>
+ <li>
+ <strong>В чем принципиальная разница между естественным первичным ключом (напр. VIN автомобиля) и суррогатным первичным ключом (напр. auto_id)?</strong>
+ <p>Какие риски несет использование естественных ключей при изменении бизнес-процессов?</p>
+ </li>
+ </ol>
+ </div>
+ </section>
+ </div>
 </body>
 </html>

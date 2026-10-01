@@ -1,455 +1,419 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Домашнее задание - Создание, модификация и удаление таблиц</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --text-muted: #475569;
-      --border: #cbd5e1;
-      --accent: #0284c7;
-      --accent-hover: #0369a1;
-      --accent-soft: #f0f9ff;
-      --warn: #f59e0b;
-      --warn-soft: #fef3c7;
-      --warn-text: #92400e;
-      --success: #16a34a;
-      --success-soft: #dcfce7;
-      --danger: #dc2626;
-      --danger-soft: #fee2e2;
-    }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Домашнее задание - Создание, модификация и удаление таблиц</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card-bg: #ffffff;
+ --text: #0f172a;
+ --text-muted: #475569;
+ --border: #cbd5e1;
+ --accent: #0284c7;
+ --accent-hover: #0369a1;
+ --accent-soft: #f0f9ff;
+ --warn: #f59e0b;
+ --warn-soft: #fef3c7;
+ --warn-text: #92400e;
+ --success: #16a34a;
+ --success-soft: #dcfce7;
+ --danger: #dc2626;
+ --danger-soft: #fee2e2;
+ }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ }
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      padding: 24px 16px;
-      min-width: 320px;
-    }
+ body {
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+ background-color: var(--bg);
+ color: var(--text);
+ line-height: 1.6;
+ padding: 24px 16px;
+ min-width: 320px;
+ }.container {
+ max-width: 920px;
+ margin: 0 auto;
+ width: 100%;
+ }
 
-    .container {
-      max-width: 920px;
-      margin: 0 auto;
-      width: 100%;
-    }
+ header.hw-header {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    header.hw-header {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ h1 {
+ font-size: 1.85rem;
+ font-weight: 800;
+ color: var(--text);
+ margin-bottom: 12px;
+ word-break: break-word;
+ }.reserve-notice {
+ display: inline-block;
+ background-color: var(--warn-soft);
+ color: var(--warn-text);
+ padding: 10px 16px;
+ border-radius: 8px;
+ font-size: 0.95rem;
+ font-weight: 600;
+ margin-bottom: 14px;
+ border-left: 4px solid var(--warn);
+ line-height: 1.45;
+ }.instruction {
+ font-size: 0.98rem;
+ color: var(--text-muted);
+ margin-bottom: 16px;
+ }.student-fields {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 16px;
+ padding-top: 16px;
+ border-top: 1px solid var(--border);
+ }.field-group {
+ display: flex;
+ flex-direction: column;
+ gap: 6px;
+ }.field-group label {
+ font-size: 0.82rem;
+ font-weight: 700;
+ color: var(--text-muted);
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+ }.field-group input {
+ padding: 10px 14px;
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ font-size: 1rem;
+ background: #ffffff;
+ color: var(--text);
+ }.field-group input:focus {
+ outline: none;
+ border-color: var(--accent);
+ box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+ }
 
-    h1 {
-      font-size: 1.85rem;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 12px;
-      word-break: break-word;
-    }
+ section.hw-card {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    .reserve-notice {
-      display: inline-block;
-      background-color: var(--warn-soft);
-      color: var(--warn-text);
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      margin-bottom: 14px;
-      border-left: 4px solid var(--warn);
-      line-height: 1.45;
-    }
+ h2 {
+ font-size: 1.35rem;
+ font-weight: 700;
+ color: var(--accent);
+ margin-bottom: 16px;
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ }.spec-block {
+ background: #f8fafc;
+ border: 1px solid #e2e8f0;
+ border-radius: 8px;
+ padding: 16px;
+ margin-bottom: 18px;
+ font-size: 0.95rem;
+ }
 
-    .instruction {
-      font-size: 0.98rem;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-    }
+ ol, ul {
+ margin-left: 20px;
+ margin-bottom: 12px;
+ }
 
-    .student-fields {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
+ li {
+ margin-bottom: 6px;
+ }
 
-    .field-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+ pre {
+ background: #0f172a;
+ color: #f8fafc;
+ padding: 14px 16px;
+ border-radius: 8px;
+ overflow-x: auto;
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 0.88rem;
+ line-height: 1.45;
+ margin: 10px 0 16px;
+ }
 
-    .field-group label {
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
+ code {
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 0.9em;
+ background: #e2e8f0;
+ padding: 2px 6px;
+ border-radius: 4px;
+ color: #0f172a;
+ }
 
-    .field-group input {
-      padding: 10px 14px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 1rem;
-      background: #ffffff;
-      color: var(--text);
-    }
+ pre code {
+ background: transparent;
+ padding: 0;
+ color: inherit;
+ }
 
-    .field-group input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
-    }
+ textarea.solution-input {
+ width: 100%;
+ min-height: 180px;
+ padding: 12px 14px;
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 0.92rem;
+ line-height: 1.5;
+ color: var(--text);
+ background: #ffffff;
+ resize: vertical;
+ margin-top: 8px;
+ }
 
-    section.hw-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ textarea.solution-input:focus {
+ outline: none;
+ border-color: var(--accent);
+ box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+ }.btn-panel {
+ display: flex;
+ gap: 12px;
+ margin-top: 14px;
+ flex-wrap: wrap;
+ }.btn {
+ padding: 10px 20px;
+ border-radius: 8px;
+ font-size: 0.95rem;
+ font-weight: 600;
+ cursor: pointer;
+ border: 1px solid transparent;
+ transition: all 0.2s ease;
+ }.btn-primary {
+ background: var(--accent);
+ color: #ffffff;
+ }.btn-primary:hover {
+ background: var(--accent-hover);
+ }.btn-outline {
+ background: #ffffff;
+ border-color: var(--border);
+ color: var(--text-muted);
+ }.btn-outline:hover {
+ background: #f1f5f9;
+ color: var(--text);
+ }.alert-saved {
+ display: none;
+ color: var(--success);
+ font-weight: 700;
+ font-size: 0.9rem;
+ align-self: center;
+ }
 
-    h2 {
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+ @media print {
+ body {
+ background: #ffffff;
+ color: #000000;
+ padding: 0;
+ }.container {
+ max-width: 100%;
+ }.btn-panel,.reserve-notice {
+ display: none !important;
+ }
+ header.hw-header, section.hw-card {
+ border: 1px solid #000000;
+ box-shadow: none;
+ page-break-inside: avoid;
+ margin-bottom: 14px;
+ padding: 14px;
+ }
+ textarea.solution-input {
+ border: 1px solid #000000;
+ background: transparent;
+ color: #000000;
+ min-height: 120px;
+ resize: none;
+ }
+ input {
+ border: 1px solid #000000 !important;
+ background: transparent !important;
+ color: #000000 !important;
+ }
+ input::placeholder, textarea::placeholder {
+ color: transparent !important;
+ }
+ }
 
-    .spec-block {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 18px;
-      font-size: 0.95rem;
-    }
-
-    ol, ul {
-      margin-left: 20px;
-      margin-bottom: 12px;
-    }
-
-    li {
-      margin-bottom: 6px;
-    }
-
-    pre {
-      background: #0f172a;
-      color: #f8fafc;
-      padding: 14px 16px;
-      border-radius: 8px;
-      overflow-x: auto;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.88rem;
-      line-height: 1.45;
-      margin: 10px 0 16px;
-    }
-
-    code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.9em;
-      background: #e2e8f0;
-      padding: 2px 6px;
-      border-radius: 4px;
-      color: #0f172a;
-    }
-
-    pre code {
-      background: transparent;
-      padding: 0;
-      color: inherit;
-    }
-
-    textarea.solution-input {
-      width: 100%;
-      min-height: 180px;
-      padding: 12px 14px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.92rem;
-      line-height: 1.5;
-      color: var(--text);
-      background: #ffffff;
-      resize: vertical;
-      margin-top: 8px;
-    }
-
-    textarea.solution-input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
-    }
-
-    .btn-panel {
-      display: flex;
-      gap: 12px;
-      margin-top: 14px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: 1px solid transparent;
-      transition: all 0.2s ease;
-    }
-
-    .btn-primary {
-      background: var(--accent);
-      color: #ffffff;
-    }
-
-    .btn-primary:hover {
-      background: var(--accent-hover);
-    }
-
-    .btn-outline {
-      background: #ffffff;
-      border-color: var(--border);
-      color: var(--text-muted);
-    }
-
-    .btn-outline:hover {
-      background: #f1f5f9;
-      color: var(--text);
-    }
-
-    .alert-saved {
-      display: none;
-      color: var(--success);
-      font-weight: 700;
-      font-size: 0.9rem;
-      align-self: center;
-    }
-
-    @media print {
-      body {
-        background: #ffffff;
-        color: #000000;
-        padding: 0;
-      }
-      .container {
-        max-width: 100%;
-      }
-      .btn-panel, .reserve-notice {
-        display: none !important;
-      }
-      header.hw-header, section.hw-card {
-        border: 1px solid #000000;
-        box-shadow: none;
-        page-break-inside: avoid;
-        margin-bottom: 14px;
-        padding: 14px;
-      }
-      textarea.solution-input {
-        border: 1px solid #000000;
-        background: transparent;
-        color: #000000;
-        min-height: 120px;
-        resize: none;
-      }
-      input {
-        border: 1px solid #000000 !important;
-        background: transparent !important;
-        color: #000000 !important;
-      }
-      input::placeholder, textarea::placeholder {
-        color: transparent !important;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .student-fields {
-        grid-template-columns: 1fr;
-      }
-      header.hw-header, section.hw-card {
-        padding: 16px;
-      }
-      h1 {
-        font-size: 1.5rem;
-      }
-    }
-  </style>
+ @media (max-width: 640px) {.student-fields {
+ grid-template-columns: 1fr;
+ }
+ header.hw-header, section.hw-card {
+ padding: 16px;
+ }
+ h1 {
+ font-size: 1.5rem;
+ }
+ }
+ </style>
 </head>
 <body>
-  <div class="container">
-    <header class="hw-header">
-      <h1>Домашнее задание - Создание, модификация и удаление таблиц</h1>
-      <div class="reserve-notice">
-        Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
-      </div>
-      <p class="instruction">
-        Индивидуальное резервное задание по дисциплине «ОП.08 Основы проектирования баз данных» (СИЭУиП). Написание комплексного DDL-скрипта изменения структуры реляционной базы данных с контролем ссылочной целостности и ограничений.
-      </p>
+ <div class="container">
+ <header class="hw-header">
+ <h1>Домашнее задание - Создание, модификация и удаление таблиц</h1>
+ <div class="reserve-notice">
+ Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+ </div>
+ <p class="instruction">
+ Индивидуальное резервное задание по дисциплине «ОП.08 Основы проектирования баз данных» (СИЭУиП). Написание комплексного DDL-скрипта изменения структуры реляционной базы данных с контролем ссылочной целостности и ограничений.
+ </p>
 
-      <div class="student-fields">
-        <div class="field-group">
-          <label for="hwStudentFio">ФИО студента</label>
-          <input type="text" id="hwStudentFio">
-        </div>
-        <div class="field-group">
-          <label for="hwStudentGroup">Учебная группа</label>
-          <input type="text" id="hwStudentGroup">
-        </div>
-      </div>
-    </header>
+ <div class="student-fields">
+ <div class="field-group">
+ <label for="hwStudentFio">ФИО студента</label>
+ <input type="text" id="hwStudentFio">
+ </div>
+ <div class="field-group">
+ <label for="hwStudentGroup">Учебная группа</label>
+ <input type="text" id="hwStudentGroup">
+ </div>
+ </div>
+ </header>
 
-    <!-- Задание 1 -->
-    <section class="hw-card">
-      <h2>1. Создание базовой сущности и ограничения (CREATE TABLE)</h2>
-      <div class="spec-block">
-        <strong>Техническое задание:</strong> Создайте таблицу транспортных компаний-партнеров <code>logistics_partners</code> с поддержкой идемпотентности (<code>IF NOT EXISTS</code>):
-        <ul>
-          <li><code>partner_id</code> — суррогатный первичный ключ (<code>SERIAL PRIMARY KEY</code>);</li>
-          <li><code>inn</code> — строка из 12 символов (<code>VARCHAR(12)</code>), обязательное уникальное поле (<code>NOT NULL UNIQUE</code>);</li>
-          <li><code>company_name</code> — наименование юридического лица (<code>VARCHAR(150) NOT NULL</code>);</li>
-          <li><code>rating</code> — числовой рейтинг надежности (<code>NUMERIC(3, 2) NOT NULL DEFAULT 5.00</code>), значение должно находиться в диапазоне от 0.00 до 5.00 (ограничение <code>CHECK</code>);</li>
-          <li><code>is_active</code> — признак активности контрагента (<code>BOOLEAN NOT NULL DEFAULT TRUE</code>).</li>
-        </ul>
-      </div>
+ <!-- Задание 1 -->
+ <section class="hw-card">
+ <h2>1. Создание базовой сущности и ограничения (CREATE TABLE)</h2>
+ <div class="spec-block">
+ <strong>Техническое задание:</strong> Создайте таблицу транспортных компаний-партнеров <code>logistics_partners</code> с поддержкой идемпотентности (<code>IF NOT EXISTS</code>):
+ <ul>
+ <li><code>partner_id</code> — суррогатный первичный ключ (<code>SERIAL PRIMARY KEY</code>);</li>
+ <li><code>inn</code> — строка из 12 символов (<code>VARCHAR(12)</code>), обязательное уникальное поле (<code>NOT NULL UNIQUE</code>);</li>
+ <li><code>company_name</code> — наименование юридического лица (<code>VARCHAR(150) NOT NULL</code>);</li>
+ <li><code>rating</code> — числовой рейтинг надежности (<code>NUMERIC(3, 2) NOT NULL DEFAULT 5.00</code>), значение должно находиться в диапазоне от 0.00 до 5.00 (ограничение <code>CHECK</code>);</li>
+ <li><code>is_active</code> — признак активности контрагента (<code>BOOLEAN NOT NULL DEFAULT TRUE</code>).</li>
+ </ul>
+ </div>
 
-      <label for="hwSql1" style="font-weight: 700; font-size: 0.9rem;">Ваш SQL-скрипт CREATE TABLE:</label>
-      <textarea id="hwSql1" class="solution-input"></textarea>
-    </section>
+ <label for="hwSql1" style="font-weight: 700; font-size: 0.9rem;">Ваш SQL-скрипт CREATE TABLE:</label>
+ <textarea id="hwSql1" class="solution-input"></textarea>
+ </section>
 
-    <!-- Задание 2 -->
-    <section class="hw-card">
-      <h2>2. Комплексная миграция структуры (ALTER TABLE с USING)</h2>
-      <div class="spec-block">
-        <strong>Исходный контекст:</strong> В базе данных существует таблица грузовых маршрутов:
-        <pre><code>CREATE TABLE freight_routes (
-    route_id SERIAL PRIMARY KEY,
-    partner_id INT NOT NULL,
-    route_name VARCHAR(100) NOT NULL,
-    driver VARCHAR(100) NOT NULL,
-    base_rate INTEGER NOT NULL
-);</code></pre>
-        <strong>Требования к миграции:</strong>
-        <ol>
-          <li>Добавить столбец максимальной грузоподъемности <code>max_weight_kg NUMERIC(8, 2) NOT NULL DEFAULT 1500.00</code>.</li>
-          <li>Переименовать столбец <code>driver</code> в <code>assigned_driver_fio</code>.</li>
-          <li>Изменить тип данных столбца <code>base_rate</code> с <code>INTEGER</code> на <code>NUMERIC(12, 2)</code> с обязательным явным преобразованием через выражение <code>USING</code>.</li>
-          <li>Добавить внешний ключ <code>fk_freight_routes_partner</code>, связывающий <code>partner_id</code> с таблицей <code>logistics_partners(partner_id)</code> с защитной опцией <code>ON DELETE RESTRICT</code>.</li>
-        </ol>
-      </div>
+ <!-- Задание 2 -->
+ <section class="hw-card">
+ <h2>2. Комплексная миграция структуры (ALTER TABLE с USING)</h2>
+ <div class="spec-block">
+ <strong>Исходный контекст:</strong> В базе данных существует таблица грузовых маршрутов:
+ <pre><code>CREATE TABLE freight_routes (
+ route_id SERIAL PRIMARY KEY,
+ partner_id INT NOT NULL,
+ route_name VARCHAR(100) NOT NULL,
+ driver VARCHAR(100) NOT NULL,
+ base_rate INTEGER NOT NULL);</code></pre>
+ <strong>Требования к миграции:</strong>
+ <ol>
+ <li>Добавить столбец максимальной грузоподъемности <code>max_weight_kg NUMERIC(8, 2) NOT NULL DEFAULT 1500.00</code>.</li>
+ <li>Переименовать столбец <code>driver</code> в <code>assigned_driver_fio</code>.</li>
+ <li>Изменить тип данных столбца <code>base_rate</code> с <code>INTEGER</code> на <code>NUMERIC(12, 2)</code> с обязательным явным преобразованием через выражение <code>USING</code>.</li>
+ <li>Добавить внешний ключ <code>fk_freight_routes_partner</code>, связывающий <code>partner_id</code> с таблицей <code>logistics_partners(partner_id)</code> с защитной опцией <code>ON DELETE RESTRICT</code>.</li>
+ </ol>
+ </div>
 
-      <label for="hwSql2" style="font-weight: 700; font-size: 0.9rem;">Ваш SQL-скрипт модификации ALTER TABLE:</label>
-      <textarea id="hwSql2" class="solution-input"></textarea>
-    </section>
+ <label for="hwSql2" style="font-weight: 700; font-size: 0.9rem;">Ваш SQL-скрипт модификации ALTER TABLE:</label>
+ <textarea id="hwSql2" class="solution-input"></textarea>
+ </section>
 
-    <!-- Задание 3 -->
-    <section class="hw-card">
-      <h2>3. Высокоскоростная очистка и каскадное удаление (TRUNCATE и DROP)</h2>
-      <div class="spec-block">
-        <strong>Техническое задание:</strong>
-        <ol>
-          <li>Напишите команду высокоскоростной очистки буферной таблицы <code>buffer_delivery</code> с обязательным сбросом счетчика автоинкремента в начальное значение 1 (<code>RESTART IDENTITY</code>).</li>
-          <li>Напишите команду безопасного удаления устаревшей архивной таблицы <code>legacy_freight_archive</code> с автоматическим снятием всех зависимых внешних ключей и представлений (<code>CASCADE</code>).</li>
-          <li>В текстовом поле ниже объясните, чем операция <code>TRUNCATE TABLE ... RESTART IDENTITY</code> принципиально отличается от <code>DELETE FROM ...</code>, и почему в production-системах каскадный <code>DROP TABLE ... CASCADE</code> несет серьезные риски для целостности схемы.</li>
-        </ol>
-      </div>
+ <!-- Задание 3 -->
+ <section class="hw-card">
+ <h2>3. Высокоскоростная очистка и каскадное удаление (TRUNCATE и DROP)</h2>
+ <div class="spec-block">
+ <strong>Техническое задание:</strong>
+ <ol>
+ <li>Напишите команду высокоскоростной очистки буферной таблицы <code>buffer_delivery</code> с обязательным сбросом счетчика автоинкремента в начальное значение 1 (<code>RESTART IDENTITY</code>).</li>
+ <li>Напишите команду безопасного удаления устаревшей архивной таблицы <code>legacy_freight_archive</code> с автоматическим снятием всех зависимых внешних ключей и представлений (<code>CASCADE</code>).</li>
+ <li>В текстовом поле ниже объясните, чем операция <code>TRUNCATE TABLE... RESTART IDENTITY</code> принципиально отличается от <code>DELETE FROM...</code>, и почему в production-системах каскадный <code>DROP TABLE... CASCADE</code> несет серьезные риски для целостности схемы.</li>
+ </ol>
+ </div>
 
-      <label for="hwSql3" style="font-weight: 700; font-size: 0.9rem;">Ваш SQL-скрипт и аналитическое обоснование:</label>
-      <textarea id="hwSql3" class="solution-input"></textarea>
-    </section>
+ <label for="hwSql3" style="font-weight: 700; font-size: 0.9rem;">Ваш SQL-скрипт и аналитическое обоснование:</label>
+ <textarea id="hwSql3" class="solution-input"></textarea>
+ </section>
 
-    <!-- Панель управления -->
-    <div class="btn-panel">
-      <button type="button" class="btn btn-primary" id="hwSaveBtn">Сохранить локально</button>
-      <button type="button" class="btn btn-outline" id="hwPrintBtn">Версия для печати / PDF</button>
-      <button type="button" class="btn btn-outline" id="hwClearBtn">Очистить поля</button>
-      <span class="alert-saved" id="hwSaveAlert">Данные сохранены в браузере!</span>
-    </div>
-  </div>
+ <!-- Панель управления -->
+ <div class="btn-panel">
+ <button type="button" class="btn btn-primary" id="hwSaveBtn">Сохранить локально</button>
+ <button type="button" class="btn btn-outline" id="hwPrintBtn">Версия для печати / PDF</button>
+ <button type="button" class="btn btn-outline" id="hwClearBtn">Очистить поля</button>
+ <span class="alert-saved" id="hwSaveAlert">Данные сохранены в браузере!</span>
+ </div>
+ </div>
 
-  <script>
-    (function() {
-      const STORAGE_KEY = 'hw_db_lesson_30_data';
-      const inputs = ['hwStudentFio', 'hwStudentGroup', 'hwSql1', 'hwSql2', 'hwSql3'];
+ <script>
+ (function() {
+ const STORAGE_KEY = 'hw_db_lesson_30_data';
+ const inputs = ['hwStudentFio', 'hwStudentGroup', 'hwSql1', 'hwSql2', 'hwSql3'];
 
-      function saveData() {
-        const payload = {};
-        inputs.forEach(id => {
-          const el = document.getElementById(id);
-          if (el) payload[id] = el.value;
-        });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-        const alertBox = document.getElementById('hwSaveAlert');
-        if (alertBox) {
-          alertBox.style.display = 'inline';
-          setTimeout(() => { alertBox.style.display = 'none'; }, 2500);
-        }
-      }
+ function saveData() {
+ const payload = {};
+ inputs.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) payload[id] = el.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+ const alertBox = document.getElementById('hwSaveAlert');
+ if (alertBox) {
+ alertBox.style.display = 'inline';
+ setTimeout(() => { alertBox.style.display = 'none'; }, 2500);
+ }
+ }
 
-      function loadData() {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return;
-        try {
-          const parsed = JSON.parse(raw);
-          inputs.forEach(id => {
-            const el = document.getElementById(id);
-            if (el && parsed[id] !== undefined) el.value = parsed[id];
-          });
-        } catch (e) {
-          console.error('Ошибка восстановления данных домашнего задания:', e);
-        }
-      }
+ function loadData() {
+ const raw = localStorage.getItem(STORAGE_KEY);
+ if (!raw) return;
+ try {
+ const parsed = JSON.parse(raw);
+ inputs.forEach(id => {
+ const el = document.getElementById(id);
+ if (el && parsed[id] !== undefined) el.value = parsed[id];
+ });
+ } catch (e) {
+ console.error('Ошибка восстановления данных домашнего задания:', e);
+ }
+ }
 
-      function clearData() {
-        if (confirm('Вы действительно хотите полностью очистить все поля домашнего задания?')) {
-          localStorage.removeItem(STORAGE_KEY);
-          inputs.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.value = '';
-          });
-        }
-      }
+ function clearData() {
+ if (confirm('Вы действительно хотите полностью очистить все поля домашнего задания?')) {
+ localStorage.removeItem(STORAGE_KEY);
+ inputs.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) el.value = '';
+ });
+ }
+ }
 
-      document.getElementById('hwSaveBtn').addEventListener('click', saveData);
-      document.getElementById('hwClearBtn').addEventListener('click', clearData);
-      document.getElementById('hwPrintBtn').addEventListener('click', () => {
-        saveData();
-        window.print();
-      });
+ document.getElementById('hwSaveBtn').addEventListener('click', saveData);
+ document.getElementById('hwClearBtn').addEventListener('click', clearData);
+ document.getElementById('hwPrintBtn').addEventListener('click', () => {
+ saveData();
+ window.print();
+ });
 
-      document.addEventListener('input', (e) => {
-        if (e.target.matches('input, textarea')) {
-          const payload = {};
-          inputs.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) payload[id] = el.value;
-          });
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-        }
-      });
+ document.addEventListener('input', (e) => {
+ if (e.target.matches('input, textarea')) {
+ const payload = {};
+ inputs.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) payload[id] = el.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+ }
+ });
 
-      window.addEventListener('DOMContentLoaded', loadData);
-    })();
-  </script>
+ window.addEventListener('DOMContentLoaded', loadData);
+ })();
+ </script>
 </body>
 </html>

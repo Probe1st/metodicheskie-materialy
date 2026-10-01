@@ -1,590 +1,554 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Рабочий лист студента: Периферийные устройства вычислительной техники</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #1e40af;
-      --accent-soft: #eff6ff;
-      --ok: #059669;
-      --warn: #d97706;
-      --danger: #dc2626;
-      --radius: 14px;
-      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.6;
-      font-size: 15px;
-      padding: 20px 14px;
-    }
-    .page {
-      max-width: 960px;
-      margin: 0 auto;
-    }
-    .header-card, .student-card, .task-card, .actions-card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow);
-    }
-    h1 {
-      font-size: clamp(20px, 3.2vw, 26px);
-      color: var(--accent);
-      margin-bottom: 8px;
-    }
-    .desc {
-      color: var(--muted);
-      font-size: 14.5px;
-    }
-    .student-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-    }
-    label {
-      display: block;
-      font-weight: 600;
-      font-size: 13.5px;
-      margin-bottom: 6px;
-      color: #1e293b;
-    }
-    input[type="text"], input[type="date"], select, textarea {
-      width: 100%;
-      border: 1.5px solid var(--line);
-      border-radius: 8px;
-      padding: 9px 12px;
-      font: inherit;
-      font-size: 14px;
-      background: #fff;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.12);
-    }
-    textarea {
-      min-height: 85px;
-      resize: vertical;
-    }
-    .variant-card {
-      display: none;
-      animation: fadeIn 0.2s ease-in-out;
-    }
-    .variant-card.active {
-      display: block;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .variant-header {
-      background: var(--accent-soft);
-      border-left: 4px solid var(--accent);
-      padding: 14px 18px;
-      border-radius: 0 8px 8px 0;
-      margin-bottom: 18px;
-    }
-    .variant-header h3 {
-      color: var(--accent);
-      font-size: 17px;
-      margin-bottom: 4px;
-    }
-    .variant-header p {
-      font-size: 14px;
-      color: var(--muted);
-      margin: 0;
-    }
-    .param-group {
-      margin-bottom: 16px;
-    }
-    .param-label {
-      font-weight: 600;
-      font-size: 14px;
-      color: #1e293b;
-      margin-bottom: 4px;
-    }
-    .param-hint {
-      font-size: 12.5px;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-    .checklist-group {
-      margin-top: 18px;
-      padding-top: 14px;
-      border-top: 1.5px solid var(--line);
-    }
-    .check-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      margin-bottom: 10px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    .check-item input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      margin-top: 2px;
-      accent-color: var(--accent);
-      cursor: pointer;
-    }
-    .rubric-card {
-      background: #f8fafc;
-      border: 1.5px dashed var(--line);
-      border-radius: var(--radius);
-      padding: 20px;
-      margin-bottom: 20px;
-      font-size: 13.5px;
-    }
-    .rubric-card h4 {
-      color: var(--accent);
-      margin-bottom: 8px;
-      font-size: 15px;
-    }
-    .actions-card {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .btn-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    button {
-      padding: 10px 18px;
-      border-radius: 8px;
-      border: none;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.15s, transform 0.05s;
-    }
-    button:active { transform: translateY(1px); }
-    .btn-primary { background: var(--accent); color: white; }
-    .btn-primary:hover { background: #1d4ed8; }
-    .btn-secondary { background: #f1f5f9; color: #334155; border: 1px solid var(--line); }
-    .btn-secondary:hover { background: #e2e8f0; }
-    .btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
-    .btn-danger:hover { background: #fecaca; }
-    .status-msg {
-      font-size: 13.5px;
-      font-weight: 500;
-      color: var(--ok);
-    }
-    .print-mirror {
-      display: none;
-      white-space: pre-wrap;
-      word-break: break-word;
-      font-size: 14px;
-      line-height: 1.5;
-      padding: 8px 12px;
-      border: 1.5px solid #cbd5e1;
-      border-radius: 8px;
-      background: #fafafa;
-      min-height: 60px;
-    }
-    @media (max-width: 480px) {
-      body { padding: 12px 8px; font-size: 14px; }
-      .header-card, .student-card, .task-card, .actions-card { padding: 16px; }
-      .student-grid { grid-template-columns: 1fr; }
-      .btn-group { width: 100%; flex-direction: column; }
-      button { width: 100%; justify-content: center; }
-    }
-    @media print {
-      body { background: #fff; padding: 0; font-size: 10.5pt; color: #000; }
-      .page { max-width: 100%; margin: 0; }
-      .header-card, .student-card, .task-card, .actions-card, .rubric-card {
-        box-shadow: none;
-        border: 1px solid #ccc;
-        break-inside: avoid;
-        margin-bottom: 12pt;
-        padding: 12pt;
-      }
-      .actions-card, button, .status-msg { display: none !important; }
-      .variant-card { display: none !important; }
-      .variant-card.active { display: block !important; }
-      textarea { display: none !important; }
-      .print-mirror { display: block !important; }
-      input::placeholder, textarea::placeholder { color: transparent !important; }
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <title>Рабочий лист студента: Периферийные устройства вычислительной техники</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #1e40af;
+ --accent-soft: #eff6ff;
+ --ok: #059669;
+ --warn: #d97706;
+ --danger: #dc2626;
+ --radius: 14px;
+ --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+ body {
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+ line-height: 1.6;
+ font-size: 15px;
+ padding: 20px 14px;
+ }.page {
+ max-width: 960px;
+ margin: 0 auto;
+ }.header-card,.student-card,.task-card,.actions-card {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 24px;
+ margin-bottom: 20px;
+ box-shadow: var(--shadow);
+ }
+ h1 {
+ font-size: clamp(20px, 3.2vw, 26px);
+ color: var(--accent);
+ margin-bottom: 8px;
+ }.desc {
+ color: var(--muted);
+ font-size: 14.5px;
+ }.student-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+ gap: 16px;
+ }
+ label {
+ display: block;
+ font-weight: 600;
+ font-size: 13.5px;
+ margin-bottom: 6px;
+ color: #1e293b;
+ }
+ input[type="text"], input[type="date"], select, textarea {
+ width: 100%;
+ border: 1.5px solid var(--line);
+ border-radius: 8px;
+ padding: 9px 12px;
+ font: inherit;
+ font-size: 14px;
+ background: #fff;
+ color: var(--text);
+ outline: none;
+ transition: border-color 0.2s, box-shadow 0.2s;
+ }
+ input:focus, select:focus, textarea:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.12);
+ }
+ textarea {
+ min-height: 85px;
+ resize: vertical;
+ }.variant-card {
+ display: none;
+ animation: fadeIn 0.2s ease-in-out;
+ }.variant-card.active {
+ display: block;
+ }
+ @keyframes fadeIn {
+ from { opacity: 0; transform: translateY(4px); }
+ to { opacity: 1; transform: translateY(0); }
+ }.variant-header {
+ background: var(--accent-soft);
+ border-left: 4px solid var(--accent);
+ padding: 14px 18px;
+ border-radius: 0 8px 8px 0;
+ margin-bottom: 18px;
+ }.variant-header h3 {
+ color: var(--accent);
+ font-size: 17px;
+ margin-bottom: 4px;
+ }.variant-header p {
+ font-size: 14px;
+ color: var(--muted);
+ margin: 0;
+ }.param-group {
+ margin-bottom: 16px;
+ }.param-label {
+ font-weight: 600;
+ font-size: 14px;
+ color: #1e293b;
+ margin-bottom: 4px;
+ }.param-hint {
+ font-size: 12.5px;
+ color: var(--muted);
+ margin-bottom: 6px;
+ }.checklist-group {
+ margin-top: 18px;
+ padding-top: 14px;
+ border-top: 1.5px solid var(--line);
+ }.check-item {
+ display: flex;
+ align-items: flex-start;
+ gap: 10px;
+ margin-bottom: 10px;
+ font-size: 14px;
+ cursor: pointer;
+ }.check-item input[type="checkbox"] {
+ width: 18px;
+ height: 18px;
+ margin-top: 2px;
+ accent-color: var(--accent);
+ cursor: pointer;
+ }.rubric-card {
+ background: #f8fafc;
+ border: 1.5px dashed var(--line);
+ border-radius: var(--radius);
+ padding: 20px;
+ margin-bottom: 20px;
+ font-size: 13.5px;
+ }.rubric-card h4 {
+ color: var(--accent);
+ margin-bottom: 8px;
+ font-size: 15px;
+ }.actions-card {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 12px;
+ align-items: center;
+ justify-content: space-between;
+ }.btn-group {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 10px;
+ }
+ button {
+ padding: 10px 18px;
+ border-radius: 8px;
+ border: none;
+ font-weight: 600;
+ font-size: 14px;
+ cursor: pointer;
+ display: inline-flex;
+ align-items: center;
+ gap: 6px;
+ transition: background 0.15s, transform 0.05s;
+ }
+ button:active { transform: translateY(1px); }.btn-primary { background: var(--accent); color: white; }.btn-primary:hover { background: #1d4ed8; }.btn-secondary { background: #f1f5f9; color: #334155; border: 1px solid var(--line); }.btn-secondary:hover { background: #e2e8f0; }.btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }.btn-danger:hover { background: #fecaca; }.status-msg {
+ font-size: 13.5px;
+ font-weight: 500;
+ color: var(--ok);
+ }.print-mirror {
+ display: none;
+ white-space: pre-wrap;
+ word-break: break-word;
+ font-size: 14px;
+ line-height: 1.5;
+ padding: 8px 12px;
+ border: 1.5px solid #cbd5e1;
+ border-radius: 8px;
+ background: #fafafa;
+ min-height: 60px;
+ }
+ @media (max-width: 480px) {
+ body { padding: 12px 8px; font-size: 14px; }.header-card,.student-card,.task-card,.actions-card { padding: 16px; }.student-grid { grid-template-columns: 1fr; }.btn-group { width: 100%; flex-direction: column; }
+ button { width: 100%; justify-content: center; }
+ }
+ @media print {
+ body { background: #fff; padding: 0; font-size: 10.5pt; color: #000; }.page { max-width: 100%; margin: 0; }.header-card,.student-card,.task-card,.actions-card,.rubric-card {
+ box-shadow: none;
+ border: 1px solid #ccc;
+ break-inside: avoid;
+ margin-bottom: 12pt;
+ padding: 12pt;
+ }.actions-card, button,.status-msg { display: none !important; }.variant-card { display: none !important; }.variant-card.active { display: block !important; }
+ textarea { display: none !important; }.print-mirror { display: block !important; }
+ input::placeholder, textarea::placeholder { color: transparent !important; }
+ }
+ </style>
 </head>
 <body>
 <div class="page">
 
-  <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
-  <div class="header-card">
-    <h1>Рабочий лист: Проектирование периферийного комплекса ЭВМ</h1>
-    <div class="desc">Практическое проектирование конфигурации периферийных устройств, расчет пропускной способности интерфейсов, обоснование технологий печати и оцифровки.</div>
-  </div>
+ <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
+ <div class="header-card">
+ <h1>Рабочий лист: Проектирование периферийного комплекса ЭВМ</h1>
+ <div class="desc">Практическое проектирование конфигурации периферийных устройств, расчет пропускной способности интерфейсов, обоснование технологий печати и оцифровки.</div>
+ </div>
 
-  <!-- ДАННЫЕ ОБУЧАЮЩЕГОСЯ -->
-  <div class="student-card">
-    <div class="student-grid">
-      <div>
-        <label for="st_fio">Фамилия, Имя обучающегося:</label>
-        <input type="text" id="st_fio">
-      </div>
-      <div>
-        <label for="st_group">Учебная группа:</label>
-        <input type="text" id="st_group">
-      </div>
-      <div>
-        <label for="st_date">Дата выполнения:</label>
-        <input type="date" id="st_date">
-      </div>
-      <div>
-        <label for="var_select">Выбор варианта проектирования:</label>
-        <select id="var_select" onchange="switchVariant()">
-          <option value="1">Вариант 1: Предпечатная подготовка и полиграфия</option>
-          <option value="2">Вариант 2: Диспетчер ситуационного центра (видеостена)</option>
-          <option value="3">Вариант 3: Офисный инженерный отдел (A3 лазерное МФУ)</option>
-          <option value="4">Вариант 4: Мобильный выездной аудитор</option>
-        </select>
-      </div>
-    </div>
-  </div>
+ <!-- ДАННЫЕ ОБУЧАЮЩЕГОСЯ -->
+ <div class="student-card">
+ <div class="student-grid">
+ <div>
+ <label for="st_fio">Фамилия, Имя обучающегося:</label>
+ <input type="text" id="st_fio">
+ </div>
+ <div>
+ <label for="st_group">Учебная группа:</label>
+ <input type="text" id="st_group">
+ </div>
+ <div>
+ <label for="st_date">Дата выполнения:</label>
+ <input type="date" id="st_date">
+ </div>
+ <div>
+ <label for="var_select">Выбор варианта проектирования:</label>
+ <select id="var_select" onchange="switchVariant()">
+ <option value="1">Вариант 1: Предпечатная подготовка и полиграфия</option>
+ <option value="2">Вариант 2: Диспетчер ситуационного центра (видеостена)</option>
+ <option value="3">Вариант 3: Офисный инженерный отдел (A3 лазерное МФУ)</option>
+ <option value="4">Вариант 4: Мобильный выездной аудитор</option>
+ </select>
+ </div>
+ </div>
+ </div>
 
-  <!-- ВАРИАНТ 1 -->
-  <div class="task-card variant-card active" id="var-1">
-    <div class="variant-header">
-      <h3>Вариант 1. Рабочее место предпечатной подготовки и полиграфии</h3>
-      <p>Спецификация: Профессиональный монитор с калибровкой AdobeRGB, спектрофотометр, лазерный принтер высокого разрешения A3/SRA3, планшетный CCD-сканер для книг и фактур.</p>
-    </div>
+ <!-- ВАРИАНТ 1 -->
+ <div class="task-card variant-card active" id="var-1">
+ <div class="variant-header">
+ <h3>Вариант 1. Рабочее место предпечатной подготовки и полиграфии</h3>
+ <p>Спецификация: Профессиональный монитор с калибровкой AdobeRGB, спектрофотометр, лазерный принтер высокого разрешения A3/SRA3, планшетный CCD-сканер для книг и фактур.</p>
+ </div>
 
-    <div class="param-group">
-      <div class="param-label">1. Спецификация монитора и колориметрии:</div>
-      <div class="param-hint">Укажите диагональ, тип матрицы (IPS), разрядность панели (True 10-bit или 8-bit+FRC), охват цветовых пространств (sRGB, AdobeRGB, DCI-P3) и разрядность внутреннего 3D LUT (14-16 бит).</div>
-      <textarea id="v1_mon"></textarea>
-      <div id="v1_mon_mirror" class="print-mirror"></div>
-    </div>
+ <div class="param-group">
+ <div class="param-label">1. Спецификация монитора и колориметрии:</div>
+ <div class="param-hint">Укажите диагональ, тип матрицы (IPS), разрядность панели (True 10-bit или 8-bit+FRC), охват цветовых пространств (sRGB, AdobeRGB, DCI-P3) и разрядность внутреннего 3D LUT (14-16 бит).</div>
+ <textarea id="v1_mon"></textarea>
+ <div id="v1_mon_mirror" class="print-mirror"></div>
+ </div>
 
-    <div class="param-group">
-      <div class="param-label">2. Расчет пропускной способности видеопотока и выбор интерфейса:</div>
-      <div class="param-hint">Рассчитайте битрейт 4K@60Hz 10-bit RGB 4:4:4 с учетом гашения 20%. Обоснуйте, почему HDMI 2.0 непригоден (принудительный переход в YCbCr 4:2:0) и почему требуется DisplayPort 1.4 HBR3 или HDMI 2.1.</div>
-      <textarea id="v1_bitrate"></textarea>
-      <div id="v1_bitrate_mirror" class="print-mirror"></div>
-    </div>
+ <div class="param-group">
+ <div class="param-label">2. Расчет пропускной способности видеопотока и выбор интерфейса:</div>
+ <div class="param-hint">Рассчитайте битрейт 4K@60Hz 10-bit RGB 4:4:4 с учетом гашения 20%. Обоснуйте, почему HDMI 2.0 непригоден (принудительный переход в YCbCr 4:2:0) и почему требуется DisplayPort 1.4 HBR3 или HDMI 2.1.</div>
+ <textarea id="v1_bitrate"></textarea>
+ <div id="v1_bitrate_mirror" class="print-mirror"></div>
+ </div>
 
-    <div class="param-group">
-      <div class="param-label">3. Обоснование оптической схемы сканера (CCD против CIS):</div>
-      <div class="param-hint">Опишите физическую разницу между системой зеркал/объектива CCD и микролинзами CIS. Объясните поведение при оцифровке сшитых каталогов и образцов тиснения.</div>
-      <textarea id="v1_scanner"></textarea>
-      <div id="v1_scanner_mirror" class="print-mirror"></div>
-    </div>
+ <div class="param-group">
+ <div class="param-label">3. Обоснование оптической схемы сканера (CCD против CIS):</div>
+ <div class="param-hint">Опишите физическую разницу между системой зеркал/объектива CCD и микролинзами CIS. Объясните поведение при оцифровке сшитых каталогов и образцов тиснения.</div>
+ <textarea id="v1_scanner"></textarea>
+ <div id="v1_scanner_mirror" class="print-mirror"></div>
+ </div>
 
-    <div class="param-group">
-      <div class="param-label">4. Печатающий комплекс и спектрофотометр:</div>
-      <div class="param-hint">Укажите требования к цветному принтеру (разрешение 1200x1200 dpi, PostScript 3, RIP-процессор) и назначение спектрофотометра для профилирования тракта.</div>
-      <textarea id="v1_print"></textarea>
-      <div id="v1_print_mirror" class="print-mirror"></div>
-    </div>
-  </div>
+ <div class="param-group">
+ <div class="param-label">4. Печатающий комплекс и спектрофотометр:</div>
+ <div class="param-hint">Укажите требования к цветному принтеру (разрешение 1200x1200 dpi, PostScript 3, RIP-процессор) и назначение спектрофотометра для профилирования тракта.</div>
+ <textarea id="v1_print"></textarea>
+ <div id="v1_print_mirror" class="print-mirror"></div>
+ </div>
+ </div>
 
-  <!-- ВАРИАНТ 2 -->
-  <div class="task-card variant-card" id="var-2">
-    <div class="variant-header">
-      <h3>Вариант 2. Рабочее место диспетчера ситуационного центра</h3>
-      <p>Спецификация: Многомониторная конфигурация 4x 4K UHD, подключение DisplayPort 1.4 MST (Daisy Chain), 4-портовый KVM-коммутатор с аппаратной эмуляцией EDID/DDC.</p>
-    </div>
+ <!-- ВАРИАНТ 2 -->
+ <div class="task-card variant-card" id="var-2">
+ <div class="variant-header">
+ <h3>Вариант 2. Рабочее место диспетчера ситуационного центра</h3>
+ <p>Спецификация: Многомониторная конфигурация 4x 4K UHD, подключение DisplayPort 1.4 MST (Daisy Chain), 4-портовый KVM-коммутатор с аппаратной эмуляцией EDID/DDC.</p>
+ </div>
 
-    <div class="param-group">
-      <div class="param-label">1. Расчет пропускной способности цепочки DisplayPort MST Daisy Chain:</div>
-      <div class="param-hint">Рассчитайте суммарный битрейт двух и четырех мониторов 4K@60Hz 8-бит. Сопоставьте с лимитом DP 1.4 HBR3 (25.92 Гбит/с net). Обоснуйте необходимость технологии DSC 1.2a.</div>
-      <textarea id="v2_mst"></textarea>
-      <div id="v2_mst_mirror" class="print-mirror"></div>
-    </div>
+ <div class="param-group">
+ <div class="param-label">1. Расчет пропускной способности цепочки DisplayPort MST Daisy Chain:</div>
+ <div class="param-hint">Рассчитайте суммарный битрейт двух и четырех мониторов 4K@60Hz 8-бит. Сопоставьте с лимитом DP 1.4 HBR3 (25.92 Гбит/с net). Обоснуйте необходимость технологии DSC 1.2a.</div>
+ <textarea id="v2_mst"></textarea>
+ <div id="v2_mst_mirror" class="print-mirror"></div>
+ </div>
 
-    <div class="param-group">
-      <div class="param-label">2. Топология физического подключения 4 мониторов:</div>
-      <div class="param-hint">Предложите схему коммутации к рабочей станции диспетчера: сколько кабелей DisplayPort от GPU требуется при наличии и отсутствии поддержки DSC на мониторах?</div>
-      <textarea id="v2_topol"></textarea>
-      <div id="v2_topol_mirror" class="print-mirror"></div>
-    </div>
+ <div class="param-group">
+ <div class="param-label">2. Топология физического подключения 4 мониторов:</div>
+ <div class="param-hint">Предложите схему коммутации к рабочей станции диспетчера: сколько кабелей DisplayPort от GPU требуется при наличии и отсутствии поддержки DSC на мониторах?</div>
+ <textarea id="v2_topol"></textarea>
+ <div id="v2_topol_mirror" class="print-mirror"></div>
+ </div>
 
-    <div class="param-group">
-      <div class="param-label">3. Спецификация KVM-коммутатора и надежность:</div>
-      <div class="param-hint">Опишите требования к KVM: поддержка разрешения 4K@60Hz, коммутация USB 3.0, аппаратная сквозная эмуляция EDID (предотвращение сворачивания окон оператора при переключении серверов).</div>
-      <textarea id="v2_kvm"></textarea>
-      <div id="v2_kvm_mirror" class="print-mirror"></div>
-    </div>
+ <div class="param-group">
+ <div class="param-label">3. Спецификация KVM-коммутатора и надежность:</div>
+ <div class="param-hint">Опишите требования к KVM: поддержка разрешения 4K@60Hz, коммутация USB 3.0, аппаратная сквозная эмуляция EDID (предотвращение сворачивания окон оператора при переключении серверов).</div>
+ <textarea id="v2_kvm"></textarea>
+ <div id="v2_kvm_mirror" class="print-mirror"></div>
+ </div>
 
-    <div class="param-group">
-      <div class="param-label">4. Выбор типа матрицы дисплеев для круглосуточного режима (24/7):</div>
-      <div class="param-hint">Сравните IPS и OLED для диспетчерского пульта. Обоснуйте риски статического выгорания элементов мнемосхем диспетчера на матрицах OLED.</div>
-      <textarea id="v2_matrix"></textarea>
-      <div id="v2_matrix_mirror" class="print-mirror"></div>
-    </div>
-  </div>
+ <div class="param-group">
+ <div class="param-label">4. Выбор типа матрицы дисплеев для круглосуточного режима (24/7):</div>
+ <div class="param-hint">Сравните IPS и OLED для диспетчерского пульта. Обоснуйте риски статического выгорания элементов мнемосхем диспетчера на матрицах OLED.</div>
+ <textarea id="v2_matrix"></textarea>
+ <div id="v2_matrix_mirror" class="print-mirror"></div>
+ </div>
+ </div>
 
-  <!-- ВАРИАНТ 3 -->
-  <div class="task-card variant-card" id="var-3">
-    <div class="variant-header">
-      <h3>Вариант 3. Офисный инженерный отдел (Лазерное МФУ A3 и TCO)</h3>
-      <p>Спецификация: Сетевое лазерное МФУ формата A3 с автоматическим дуплексом и реверсивным автоподатчиком DADF/SPDF, расчет совокупной стоимости владения (TCO).</p>
-    </div>
+ <!-- ВАРИАНТ 3 -->
+ <div class="task-card variant-card" id="var-3">
+ <div class="variant-header">
+ <h3>Вариант 3. Офисный инженерный отдел (Лазерное МФУ A3 и TCO)</h3>
+ <p>Спецификация: Сетевое лазерное МФУ формата A3 с автоматическим дуплексом и реверсивным автоподатчиком DADF/SPDF, расчет совокупной стоимости владения (TCO).</p>
+ </div>
 
-    <div class="param-group">
-      <div class="param-label">1. Спецификация МФУ и бумагопроводящего тракта:</div>
-      <div class="param-hint">Укажите формат (A3), скорость печати (30-45 стр/мин), тип автоподатчика (однопроходный SPDF/DADF), интерфейсы (1000BASE-T, протоколы SNMPv3/802.1X).</div>
-      <textarea id="v3_spec"></textarea>
-      <div id="v3_spec_mirror" class="print-mirror"></div>
-    </div>
+ <div class="param-group">
+ <div class="param-label">1. Спецификация МФУ и бумагопроводящего тракта:</div>
+ <div class="param-hint">Укажите формат (A3), скорость печати (30-45 стр/мин), тип автоподатчика (однопроходный SPDF/DADF), интерфейсы (1000BASE-T, протоколы SNMPv3/802.1X).</div>
+ <textarea id="v3_spec"></textarea>
+ <div id="v3_spec_mirror" class="print-mirror"></div>
+ </div>
 
-    <div class="param-group">
-      <div class="param-label">2. Расчет совокупной стоимости владения (TCO за 3 года):</div>
-      <div class="param-hint">При объеме печати 15 000 стр/мес (всего 540 000 стр). Рассчитайте затраты на покупку, тонеры, замену фотобарабанов (Drum Unit) и печки (Fuser). Определите себестоимость 1 страницы.</div>
-      <textarea id="v3_tco"></textarea>
-      <div id="v3_tco_mirror" class="print-mirror"></div>
-    </div>
+ <div class="param-group">
+ <div class="param-label">2. Расчет совокупной стоимости владения (TCO за 3 года):</div>
+ <div class="param-hint">При объеме печати 15 000 стр/мес (всего 540 000 стр). Рассчитайте затраты на покупку, тонеры, замену фотобарабанов (Drum Unit) и печки (Fuser). Определите себестоимость 1 страницы.</div>
+ <textarea id="v3_tco"></textarea>
+ <div id="v3_tco_mirror" class="print-mirror"></div>
+ </div>
 
-    <div class="param-group">
-      <div class="param-label">3. Физика износа основных узлов электрофотографии:</div>
-      <div class="param-hint">Опишите физический износ фотобарабана (OPC) от контакта с бумагой и ракелем, а также износ термопленки/тефлонового вала печки при температуре 190°C.</div>
-      <textarea id="v3_wear"></textarea>
-      <div id="v3_wear_mirror" class="print-mirror"></div>
-    </div>
+ <div class="param-group">
+ <div class="param-label">3. Физика износа основных узлов электрофотографии:</div>
+ <div class="param-hint">Опишите физический износ фотобарабана (OPC) от контакта с бумагой и ракелем, а также износ термопленки/тефлонового вала печки при температуре 190°C.</div>
+ <textarea id="v3_wear"></textarea>
+ <div id="v3_wear_mirror" class="print-mirror"></div>
+ </div>
 
-    <div class="param-group">
-      <div class="param-label">4. Сетевая интеграция и безопасность печати:</div>
-      <div class="param-hint">Опишите механизмы защищенной печати (Secure Print по PIN-коду / смарт-карте), шифрование встроенного накопителя и разграничение прав доступа.</div>
-      <textarea id="v3_net"></textarea>
-      <div id="v3_net_mirror" class="print-mirror"></div>
-    </div>
-  </div>
+ <div class="param-group">
+ <div class="param-label">4. Сетевая интеграция и безопасность печати:</div>
+ <div class="param-hint">Опишите механизмы защищенной печати (Secure Print по PIN-коду / смарт-карте), шифрование встроенного накопителя и разграничение прав доступа.</div>
+ <textarea id="v3_net"></textarea>
+ <div id="v3_net_mirror" class="print-mirror"></div>
+ </div>
+ </div>
 
-  <!-- ВАРИАНТ 4 -->
-  <div class="task-card variant-card" id="var-4">
-    <div class="variant-header">
-      <h3>Вариант 4. Мобильное рабочее место выездного аудитора</h3>
-      <p>Спецификация: Портативный USB-C монитор с DisplayPort Alt Mode и Power Delivery, мобильный термопринтер чеков/этикеток, беспроводной ручной 2D-сканер штрихкодов.</p>
-    </div>
+ <!-- ВАРИАНТ 4 -->
+ <div class="task-card variant-card" id="var-4">
+ <div class="variant-header">
+ <h3>Вариант 4. Мобильное рабочее место выездного аудитора</h3>
+ <p>Спецификация: Портативный USB-C монитор с DisplayPort Alt Mode и Power Delivery, мобильный термопринтер чеков/этикеток, беспроводной ручной 2D-сканер штрихкодов.</p>
+ </div>
 
-    <div class="param-group">
-      <div class="param-label">1. Физика и расчет интерфейса USB-C (DP Alt Mode + Power Delivery):</div>
-      <div class="param-hint">Опишите раскладку 4 скоростных линий USB-C (2 линии под видео DP 1.4 + 2 линии под USB 3.2). Рассчитайте баланс мощности сквозного питания (Pass-Through PD 65 Вт).</div>
-      <textarea id="v4_usbc"></textarea>
-      <div id="v4_usbc_mirror" class="print-mirror"></div>
-    </div>
+ <div class="param-group">
+ <div class="param-label">1. Физика и расчет интерфейса USB-C (DP Alt Mode + Power Delivery):</div>
+ <div class="param-hint">Опишите раскладку 4 скоростных линий USB-C (2 линии под видео DP 1.4 + 2 линии под USB 3.2). Рассчитайте баланс мощности сквозного питания (Pass-Through PD 65 Вт).</div>
+ <textarea id="v4_usbc"></textarea>
+ <div id="v4_usbc_mirror" class="print-mirror"></div>
+ </div>
 
-    <div class="param-group">
-      <div class="param-label">2. Спецификация мобильного термопринтера и риски термобумаги:</div>
-      <div class="param-hint">Опишите принцип прямой термопечати (Direct Thermal) без тонера. Обоснуйте риски недолговечности чеков (выцветание от нагрева, УФ-лучей и растворителей).</div>
-      <textarea id="v4_print"></textarea>
-      <div id="v4_print_mirror" class="print-mirror"></div>
-    </div>
+ <div class="param-group">
+ <div class="param-label">2. Спецификация мобильного термопринтера и риски термобумаги:</div>
+ <div class="param-hint">Опишите принцип прямой термопечати (Direct Thermal) без тонера. Обоснуйте риски недолговечности чеков (выцветание от нагрева, УФ-лучей и растворителей).</div>
+ <textarea id="v4_print"></textarea>
+ <div id="v4_print_mirror" class="print-mirror"></div>
+ </div>
 
-    <div class="param-group">
-      <div class="param-label">3. Спецификация беспроводного 2D-сканера (Area Imager):</div>
-      <div class="param-hint">Сравните фотосканер 2D Imager с лазерным 1D сканером: отсутствие механических подвижных зеркал, считывание кодов DataMatrix («Честный ЗНАК») под любым углом.</div>
-      <textarea id="v4_scan"></textarea>
-      <div id="v4_scan_mirror" class="print-mirror"></div>
-    </div>
+ <div class="param-group">
+ <div class="param-label">3. Спецификация беспроводного 2D-сканера (Area Imager):</div>
+ <div class="param-hint">Сравните фотосканер 2D Imager с лазерным 1D сканером: отсутствие механических подвижных зеркал, считывание кодов DataMatrix («Честный ЗНАК») под любым углом.</div>
+ <textarea id="v4_scan"></textarea>
+ <div id="v4_scan_mirror" class="print-mirror"></div>
+ </div>
 
-    <div class="param-group">
-      <div class="param-label">4. Автономность и эксплуатационная надежность:</div>
-      <div class="param-hint">Опишите организацию питания мобильного комплекса от пауэрбанка, емкость аккумуляторов сканера и термопринтера, защиту корпуса по стандарту IP54/IP65.</div>
-      <textarea id="v4_auton"></textarea>
-      <div id="v4_auton_mirror" class="print-mirror"></div>
-    </div>
-  </div>
+ <div class="param-group">
+ <div class="param-label">4. Автономность и эксплуатационная надежность:</div>
+ <div class="param-hint">Опишите организацию питания мобильного комплекса от пауэрбанка, емкость аккумуляторов сканера и термопринтера, защиту корпуса по стандарту IP54/IP65.</div>
+ <textarea id="v4_auton"></textarea>
+ <div id="v4_auton_mirror" class="print-mirror"></div>
+ </div>
+ </div>
 
-  <!-- ЧЕК-ЛИСТ СОВМЕСТИМОСТИ И ВЫВОД -->
-  <div class="task-card">
-    <div class="param-label">5. Итоговый инженерный чек-лист и экспертное заключение:</div>
-    <div class="checklist-group">
-      <label class="check-item">
-        <input type="checkbox" id="chk_bandwidth">
-        <span>Пропускная способность физического интерфейса (DP/HDMI/USB) полностью покрывает требуемый битрейт видеосигнала либо активировано сжатие DSC.</span>
-      </label>
-      <label class="check-item">
-        <input type="checkbox" id="chk_color">
-        <span>Цветовой охват (sRGB / AdobeRGB / DCI-P3) и глубина цвета (8/10 бит) соответствуют профессиональным задачам без искажения полутонов.</span>
-      </label>
-      <label class="check-item">
-        <input type="checkbox" id="chk_print_tech">
-        <span>Технология печати (лазерная, термоструйная, прямая термопечать) выбрана с учетом себестоимости отпечатка, ресурса расходных материалов и архивной долговечности.</span>
-      </label>
-      <label class="check-item">
-        <input type="checkbox" id="chk_scan_depth">
-        <span>Оптическая схема сканера (CIS vs CCD) выбрана с учетом толщины и рельефа сканируемых оригиналов (проверка глубины резкости).</span>
-      </label>
-      <label class="check-item">
-        <input type="checkbox" id="chk_power_bus">
-        <span>Электропитание и шины данных периферии согласованы по мощности (USB PD, силовые кабели, автономные аккумуляторы).</span>
-      </label>
-    </div>
+ <!-- ЧЕК-ЛИСТ СОВМЕСТИМОСТИ И ВЫВОД -->
+ <div class="task-card">
+ <div class="param-label">5. Итоговый инженерный чек-лист и экспертное заключение:</div>
+ <div class="checklist-group">
+ <label class="check-item">
+ <input type="checkbox" id="chk_bandwidth">
+ <span>Пропускная способность физического интерфейса (DP/HDMI/USB) полностью покрывает требуемый битрейт видеосигнала либо активировано сжатие DSC.</span>
+ </label>
+ <label class="check-item">
+ <input type="checkbox" id="chk_color">
+ <span>Цветовой охват (sRGB / AdobeRGB / DCI-P3) и глубина цвета (8/10 бит) соответствуют профессиональным задачам без искажения полутонов.</span>
+ </label>
+ <label class="check-item">
+ <input type="checkbox" id="chk_print_tech">
+ <span>Технология печати (лазерная, термоструйная, прямая термопечать) выбрана с учетом себестоимости отпечатка, ресурса расходных материалов и архивной долговечности.</span>
+ </label>
+ <label class="check-item">
+ <input type="checkbox" id="chk_scan_depth">
+ <span>Оптическая схема сканера (CIS vs CCD) выбрана с учетом толщины и рельефа сканируемых оригиналов (проверка глубины резкости).</span>
+ </label>
+ <label class="check-item">
+ <input type="checkbox" id="chk_power_bus">
+ <span>Электропитание и шины данных периферии согласованы по мощности (USB PD, силовые кабели, автономные аккумуляторы).</span>
+ </label>
+ </div>
 
-    <div style="margin-top: 16px;">
-      <label for="st_conclusion">Обобщенное инженерное заключение по спроектированному комплексу:</label>
-      <textarea id="st_conclusion"></textarea>
-      <div id="st_conclusion_mirror" class="print-mirror"></div>
-    </div>
-  </div>
+ <div style="margin-top: 16px;">
+ <label for="st_conclusion">Обобщенное инженерное заключение по спроектированному комплексу:</label>
+ <textarea id="st_conclusion"></textarea>
+ <div id="st_conclusion_mirror" class="print-mirror"></div>
+ </div>
+ </div>
 
-  <!-- КРИТЕРИИ ОЦЕНИВАНИЯ -->
-  <div class="rubric-card">
-    <h4>Критериальная шкала оценивания (4 балла):</h4>
-    <p>• <strong>Периферийная спецификация (2 балла):</strong> Полный и безошибочный подбор оборудования под задачи выбранного варианта (монитор, порты, принтер, сканер, KVM/аккумуляторы).</p>
-    <p>• <strong>Совместимость интерфейсов и расчет нагрузки (1 балл):</strong> Математический расчет битрейта видеопотока, сопоставление со стандартами DP/HDMI/USB-C, проверка DSC, расчет TCO или энергобаланса.</p>
-    <p>• <strong>Выводы и самопроверка (1 балл):</strong> Выявление эксплуатационных рисков (субдискретизация, глубина резкости, выгорание, выцветание термобумаги), полное заполнение чек-листа.</p>
-  </div>
+ <!-- КРИТЕРИИ ОЦЕНИВАНИЯ -->
+ <div class="rubric-card">
+ <h4>Критериальная шкала оценивания (4 балла):</h4>
+ <p>• <strong>Периферийная спецификация (2 балла):</strong> Полный и безошибочный подбор оборудования под задачи выбранного варианта (монитор, порты, принтер, сканер, KVM/аккумуляторы).</p>
+ <p>• <strong>Совместимость интерфейсов и расчет нагрузки (1 балл):</strong> Математический расчет битрейта видеопотока, сопоставление со стандартами DP/HDMI/USB-C, проверка DSC, расчет TCO или энергобаланса.</p>
+ <p>• <strong>Выводы и самопроверка (1 балл):</strong> Выявление эксплуатационных рисков (субдискретизация, глубина резкости, выгорание, выцветание термобумаги), полное заполнение чек-листа.</p>
+ </div>
 
-  <!-- ПАНЕЛЬ ДЕЙСТВИЙ -->
-  <div class="actions-card">
-    <div class="btn-group">
-      <button type="button" class="btn-primary" onclick="saveData()">Сохранить ответы</button>
-      <button type="button" class="btn-secondary" onclick="printDoc()">Печать в PDF</button>
-      <button type="button" class="btn-danger" onclick="clearData()">Очистить форму</button>
-    </div>
-    <div id="status_msg" class="status-msg"></div>
-  </div>
+ <!-- ПАНЕЛЬ ДЕЙСТВИЙ -->
+ <div class="actions-card">
+ <div class="btn-group">
+ <button type="button" class="btn-primary" onclick="saveData()">Сохранить ответы</button>
+ <button type="button" class="btn-secondary" onclick="printDoc()">Печать в PDF</button>
+ <button type="button" class="btn-danger" onclick="clearData()">Очистить форму</button>
+ </div>
+ <div id="status_msg" class="status-msg"></div>
+ </div>
 
 </div>
 
 <script>
-  const STORAGE_KEY = 'top_hw_12_zanyatie_sheet_data';
-  const textFields = [
-    'st_fio', 'st_group', 'st_date', 'var_select',
-    'v1_mon', 'v1_bitrate', 'v1_scanner', 'v1_print',
-    'v2_mst', 'v2_topol', 'v2_kvm', 'v2_matrix',
-    'v3_spec', 'v3_tco', 'v3_wear', 'v3_net',
-    'v4_usbc', 'v4_print', 'v4_scan', 'v4_auton',
-    'st_conclusion'
-  ];
-  const checkFields = ['chk_bandwidth', 'chk_color', 'chk_print_tech', 'chk_scan_depth', 'chk_power_bus'];
-  const textareasWithMirror = [
-    'v1_mon', 'v1_bitrate', 'v1_scanner', 'v1_print',
-    'v2_mst', 'v2_topol', 'v2_kvm', 'v2_matrix',
-    'v3_spec', 'v3_tco', 'v3_wear', 'v3_net',
-    'v4_usbc', 'v4_print', 'v4_scan', 'v4_auton',
-    'st_conclusion'
-  ];
+ const STORAGE_KEY = 'top_hw_12_zanyatie_sheet_data';
+ const textFields = [
+ 'st_fio', 'st_group', 'st_date', 'var_select',
+ 'v1_mon', 'v1_bitrate', 'v1_scanner', 'v1_print',
+ 'v2_mst', 'v2_topol', 'v2_kvm', 'v2_matrix',
+ 'v3_spec', 'v3_tco', 'v3_wear', 'v3_net',
+ 'v4_usbc', 'v4_print', 'v4_scan', 'v4_auton',
+ 'st_conclusion'
+ ];
+ const checkFields = ['chk_bandwidth', 'chk_color', 'chk_print_tech', 'chk_scan_depth', 'chk_power_bus'];
+ const textareasWithMirror = [
+ 'v1_mon', 'v1_bitrate', 'v1_scanner', 'v1_print',
+ 'v2_mst', 'v2_topol', 'v2_kvm', 'v2_matrix',
+ 'v3_spec', 'v3_tco', 'v3_wear', 'v3_net',
+ 'v4_usbc', 'v4_print', 'v4_scan', 'v4_auton',
+ 'st_conclusion'
+ ];
 
-  function switchVariant() {
-    const val = document.getElementById('var_select').value;
-    for (let i = 1; i <= 4; i++) {
-      const el = document.getElementById('var-' + i);
-      if (el) {
-        if (i.toString() === val) {
-          el.classList.add('active');
-        } else {
-          el.classList.remove('active');
-        }
-      }
-    }
-  }
+ function switchVariant() {
+ const val = document.getElementById('var_select').value;
+ for (let i = 1; i <= 4; i++) {
+ const el = document.getElementById('var-' + i);
+ if (el) {
+ if (i.toString() === val) {
+ el.classList.add('active');
+ } else {
+ el.classList.remove('active');
+ }
+ }
+ }
+ }
 
-  function updateMirrors() {
-    textareasWithMirror.forEach(id => {
-      const ta = document.getElementById(id);
-      const mirror = document.getElementById(id + '_mirror');
-      if (ta && mirror) {
-        mirror.textContent = ta.value;
-      }
-    });
-  }
+ function updateMirrors() {
+ textareasWithMirror.forEach(id => {
+ const ta = document.getElementById(id);
+ const mirror = document.getElementById(id + '_mirror');
+ if (ta && mirror) {
+ mirror.textContent = ta.value;
+ }
+ });
+ }
 
-  function saveData() {
-    updateMirrors();
-    const data = { texts: {}, checks: {} };
-    textFields.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) data.texts[id] = el.value;
-    });
-    checkFields.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) data.checks[id] = el.checked;
-    });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    const status = document.getElementById('status_msg');
-    status.textContent = 'Сохранено: ' + new Date().toLocaleTimeString();
-    setTimeout(() => { status.textContent = ''; }, 3500);
-  }
+ function saveData() {
+ updateMirrors();
+ const data = { texts: {}, checks: {} };
+ textFields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) data.texts[id] = el.value;
+ });
+ checkFields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) data.checks[id] = el.checked;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ const status = document.getElementById('status_msg');
+ status.textContent = 'Сохранено: ' + new Date().toLocaleTimeString();
+ setTimeout(() => { status.textContent = ''; }, 3500);
+ }
 
-  function loadData() {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    try {
-      const data = JSON.parse(raw);
-      if (data.texts) {
-        textFields.forEach(id => {
-          const el = document.getElementById(id);
-          if (el && data.texts[id] !== undefined) {
-            el.value = data.texts[id];
-          }
-        });
-      }
-      if (data.checks) {
-        checkFields.forEach(id => {
-          const el = document.getElementById(id);
-          if (el && data.checks[id] !== undefined) {
-            el.checked = data.checks[id];
-          }
-        });
-      }
-      switchVariant();
-      updateMirrors();
-    } catch (e) {
-      console.error(e);
-    }
-  }
+ function loadData() {
+ const raw = localStorage.getItem(STORAGE_KEY);
+ if (!raw) return;
+ try {
+ const data = JSON.parse(raw);
+ if (data.texts) {
+ textFields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el && data.texts[id] !== undefined) {
+ el.value = data.texts[id];
+ }
+ });
+ }
+ if (data.checks) {
+ checkFields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el && data.checks[id] !== undefined) {
+ el.checked = data.checks[id];
+ }
+ });
+ }
+ switchVariant();
+ updateMirrors();
+ } catch (e) {
+ console.error(e);
+ }
+ }
 
-  function clearData() {
-    if (confirm('Вы действительно хотите полностью очистить форму? Все несохраненные данные будут удалены.')) {
-      localStorage.removeItem(STORAGE_KEY);
-      textFields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-      });
-      checkFields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.checked = false;
-      });
-      document.getElementById('var_select').value = '1';
-      switchVariant();
-      updateMirrors();
-      const status = document.getElementById('status_msg');
-      status.textContent = 'Форма очищена';
-      setTimeout(() => { status.textContent = ''; }, 2500);
-    }
-  }
+ function clearData() {
+ if (confirm('Вы действительно хотите полностью очистить форму? Все несохраненные данные будут удалены.')) {
+ localStorage.removeItem(STORAGE_KEY);
+ textFields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) el.value = '';
+ });
+ checkFields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) el.checked = false;
+ });
+ document.getElementById('var_select').value = '1';
+ switchVariant();
+ updateMirrors();
+ const status = document.getElementById('status_msg');
+ status.textContent = 'Форма очищена';
+ setTimeout(() => { status.textContent = ''; }, 2500);
+ }
+ }
 
-  function printDoc() {
-    updateMirrors();
-    window.print();
-  }
+ function printDoc() {
+ updateMirrors();
+ window.print();
+ }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    loadData();
-    textFields.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener('input', updateMirrors);
-      }
-    });
-  });
+ document.addEventListener('DOMContentLoaded', () => {
+ loadData();
+ textFields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) {
+ el.addEventListener('input', updateMirrors);
+ }
+ });
+ });
 </script>
 </body>
 </html>

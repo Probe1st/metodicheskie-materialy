@@ -1,423 +1,408 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Теоретический конспект: Конструкция, подключение и инсталляция периферийных устройств — часть 2</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #1e40af;
-      --accent-soft: #eff6ff;
-      --radius: 12px;
-      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-      --success: #059669;
-      --warn: #d97706;
-      --danger: #dc2626;
-      --code-bg: #0f172a;
-      --code-text: #f8fafc;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.6;
-      font-size: 15.5px;
-      padding: 24px 16px;
-    }
-    .container {
-      max-width: 980px;
-      margin: 0 auto;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 26px;
-      margin-bottom: 22px;
-      box-shadow: var(--shadow);
-    }
-    h1 {
-      font-size: clamp(21px, 3.2vw, 27px);
-      color: var(--accent);
-      margin-bottom: 12px;
-      line-height: 1.3;
-    }
-    h2 {
-      font-size: 19px;
-      color: var(--accent);
-      margin: 24px 0 12px;
-      border-bottom: 1.5px solid var(--accent-soft);
-      padding-bottom: 6px;
-    }
-    h3 {
-      font-size: 16px;
-      margin: 18px 0 8px;
-      color: #1e293b;
-    }
-    p, ul, ol { margin-bottom: 12px; }
-    ul, ol { padding-left: 22px; }
-    li { margin-bottom: 6px; }
-    .note {
-      background: var(--accent-soft);
-      border-left: 4px solid var(--accent);
-      padding: 12px 16px;
-      border-radius: 0 8px 8px 0;
-      margin: 14px 0;
-      font-size: 14.5px;
-    }
-    .note-warn {
-      background: #fef3c7;
-      border-left: 4px solid var(--warn);
-      color: #92400e;
-      padding: 12px 16px;
-      border-radius: 0 8px 8px 0;
-      margin: 14px 0;
-      font-size: 14.5px;
-    }
-    .note-danger {
-      background: #fee2e2;
-      border-left: 4px solid var(--danger);
-      color: #991b1b;
-      padding: 12px 16px;
-      border-radius: 0 8px 8px 0;
-      margin: 14px 0;
-      font-size: 14.5px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 16px 0;
-      font-size: 14px;
-    }
-    th, td {
-      border: 1px solid var(--line);
-      padding: 9px 12px;
-      text-align: left;
-      vertical-align: top;
-    }
-    th {
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-weight: 700;
-    }
-    code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 13.5px;
-      background: #e2e8f0;
-      color: #0f172a;
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-    pre {
-      background: var(--code-bg);
-      color: var(--code-text);
-      padding: 14px 16px;
-      border-radius: 8px;
-      overflow-x: auto;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 13.5px;
-      line-height: 1.5;
-      margin: 14px 0;
-    }
-    .flow-diagram {
-      background: #f1f5f9;
-      border: 1.5px solid #cbd5e1;
-      border-radius: 12px;
-      padding: 20px;
-      margin: 18px 0;
-      overflow-x: auto;
-    }
-    .step-box {
-      background: #ffffff;
-      border: 1.5px solid #94a3b8;
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin-bottom: 12px;
-      position: relative;
-    }
-    .step-box::after {
-      content: "↓";
-      position: absolute;
-      bottom: -18px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 16px;
-      font-weight: bold;
-      color: var(--accent);
-    }
-    .step-box:last-child {
-      margin-bottom: 0;
-    }
-    .step-box:last-child::after {
-      display: none;
-    }
-    .step-title {
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 4px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .step-desc {
-      font-size: 13.5px;
-      color: #334155;
-    }
-    details {
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin-bottom: 12px;
-    }
-    summary {
-      font-weight: 600;
-      color: var(--accent);
-      cursor: pointer;
-      outline: none;
-    }
-    summary:hover {
-      color: #1d4ed8;
-    }
-    details[open] {
-      background: #eff6ff;
-      border-color: #bfdbfe;
-    }
-    .details-content {
-      margin-top: 10px;
-      font-size: 14px;
-      color: #1e293b;
-      line-height: 1.55;
-    }
-    @media (max-width: 480px) {
-      body { padding: 12px 8px; font-size: 14px; }
-      .card { padding: 16px; }
-      table { font-size: 12.5px; }
-      th, td { padding: 6px 8px; }
-    }
-    @media print {
-      body { background: #fff; padding: 0; font-size: 11pt; }
-      .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 12pt; }
-      details { border: 1px solid #ccc; background: #fff; }
-      details[open] { background: #fff; }
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <title>Теоретический конспект: Конструкция, подключение и инсталляция периферийных устройств — часть 2</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #1e40af;
+ --accent-soft: #eff6ff;
+ --radius: 12px;
+ --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+ --success: #059669;
+ --warn: #d97706;
+ --danger: #dc2626;
+ --code-bg: #0f172a;
+ --code-text: #f8fafc;
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+ body {
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+ line-height: 1.6;
+ font-size: 15.5px;
+ padding: 24px 16px;
+ }.container {
+ max-width: 980px;
+ margin: 0 auto;
+ }.card {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 26px;
+ margin-bottom: 22px;
+ box-shadow: var(--shadow);
+ }
+ h1 {
+ font-size: clamp(21px, 3.2vw, 27px);
+ color: var(--accent);
+ margin-bottom: 12px;
+ line-height: 1.3;
+ }
+ h2 {
+ font-size: 19px;
+ color: var(--accent);
+ margin: 24px 0 12px;
+ border-bottom: 1.5px solid var(--accent-soft);
+ padding-bottom: 6px;
+ }
+ h3 {
+ font-size: 16px;
+ margin: 18px 0 8px;
+ color: #1e293b;
+ }
+ p, ul, ol { margin-bottom: 12px; }
+ ul, ol { padding-left: 22px; }
+ li { margin-bottom: 6px; }.note {
+ background: var(--accent-soft);
+ border-left: 4px solid var(--accent);
+ padding: 12px 16px;
+ border-radius: 0 8px 8px 0;
+ margin: 14px 0;
+ font-size: 14.5px;
+ }.note-warn {
+ background: #fef3c7;
+ border-left: 4px solid var(--warn);
+ color: #92400e;
+ padding: 12px 16px;
+ border-radius: 0 8px 8px 0;
+ margin: 14px 0;
+ font-size: 14.5px;
+ }.note-danger {
+ background: #fee2e2;
+ border-left: 4px solid var(--danger);
+ color: #991b1b;
+ padding: 12px 16px;
+ border-radius: 0 8px 8px 0;
+ margin: 14px 0;
+ font-size: 14.5px;
+ }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ margin: 16px 0;
+ font-size: 14px;
+ }
+ th, td {
+ border: 1px solid var(--line);
+ padding: 9px 12px;
+ text-align: left;
+ vertical-align: top;
+ }
+ th {
+ background: var(--accent-soft);
+ color: var(--accent);
+ font-weight: 700;
+ }
+ code {
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 13.5px;
+ background: #e2e8f0;
+ color: #0f172a;
+ padding: 2px 6px;
+ border-radius: 4px;
+ }
+ pre {
+ background: var(--code-bg);
+ color: var(--code-text);
+ padding: 14px 16px;
+ border-radius: 8px;
+ overflow-x: auto;
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 13.5px;
+ line-height: 1.5;
+ margin: 14px 0;
+ }.flow-diagram {
+ background: #f1f5f9;
+ border: 1.5px solid #cbd5e1;
+ border-radius: 12px;
+ padding: 20px;
+ margin: 18px 0;
+ overflow-x: auto;
+ }.step-box {
+ background: #ffffff;
+ border: 1.5px solid #94a3b8;
+ border-radius: 8px;
+ padding: 12px 16px;
+ margin-bottom: 12px;
+ position: relative;
+ }.step-box::after {
+ content: "↓";
+ position: absolute;
+ bottom: -18px;
+ left: 50%;
+ transform: translateX(-50%);
+ font-size: 16px;
+ font-weight: bold;
+ color: var(--accent);
+ }.step-box:last-child {
+ margin-bottom: 0;
+ }.step-box:last-child::after {
+ display: none;
+ }.step-title {
+ font-weight: 700;
+ color: var(--accent);
+ margin-bottom: 4px;
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ }.step-desc {
+ font-size: 13.5px;
+ color: #334155;
+ }
+ details {
+ background: #f8fafc;
+ border: 1px solid var(--line);
+ border-radius: 8px;
+ padding: 12px 16px;
+ margin-bottom: 12px;
+ }
+ summary {
+ font-weight: 600;
+ color: var(--accent);
+ cursor: pointer;
+ outline: none;
+ }
+ summary:hover {
+ color: #1d4ed8;
+ }
+ details[open] {
+ background: #eff6ff;
+ border-color: #bfdbfe;
+ }.details-content {
+ margin-top: 10px;
+ font-size: 14px;
+ color: #1e293b;
+ line-height: 1.55;
+ }
+ @media (max-width: 480px) {
+ body { padding: 12px 8px; font-size: 14px; }.card { padding: 16px; }
+ table { font-size: 12.5px; }
+ th, td { padding: 6px 8px; }
+ }
+ @media print {
+ body { background: #fff; padding: 0; font-size: 11pt; }.card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 12pt; }
+ details { border: 1px solid #ccc; background: #fff; }
+ details[open] { background: #fff; }
+ }
+ </style>
 </head>
 <body>
 <div class="container">
 
-  <div class="card">
-    <h1>Теоретический конспект: Конструкция, подключение и инсталляция периферийных устройств — часть 2</h1>
-    <p>Фундаментальный конспект посвящен программной архитектуре интеграции внешних аппаратных средств: механизмам распознавания устройств на шинах ввода-вывода (PnP-энумерация), расшифровке аппаратных дескрипторов (Hardware ID), классификации драйверов (WDM, KMDF, UMDF, WDDM), протоколам сетевой печати (RAW 9100, LPR, IPP, WSD) и системным утилитам отладки оборудования в Windows и Linux.</p>
-  </div>
+ <div class="card">
+ <h1>Теоретический конспект: Конструкция, подключение и инсталляция периферийных устройств — часть 2</h1>
+ <p>Фундаментальный конспект посвящен программной архитектуре интеграции внешних аппаратных средств: механизмам распознавания устройств на шинах ввода-вывода (PnP-энумерация), расшифровке аппаратных дескрипторов (Hardware ID), классификации драйверов (WDM, KMDF, UMDF, WDDM), протоколам сетевой печати (RAW 9100, LPR, IPP, WSD) и системным утилитам отладки оборудования в Windows и Linux.</p>
+ </div>
 
-  <div class="card">
-    <h2>1. Архитектура Plug and Play и жизненный цикл инициализации периферии</h2>
-    <p>Технология Plug and Play (PnP) — это совокупность аппаратных спецификаций и системных сервисов ядра ОС, обеспечивающих автоматическое обнаружение, конфигурирование ресурсов и запуск периферийных устройств без ручной перемычечной настройки (джемперов) и перезагрузки компьютера.</p>
+ <div class="card">
+ <h2>1. Архитектура Plug and Play и жизненный цикл инициализации периферии</h2>
+ <p>Технология Plug and Play (PnP) — это совокупность аппаратных спецификаций и системных сервисов ядра ОС, обеспечивающих автоматическое обнаружение, конфигурирование ресурсов и запуск периферийных устройств без ручной перемычечной настройки (джемперов) и перезагрузки компьютера.</p>
 
-    <div class="flow-diagram">
-      <div class="step-box">
-        <div class="step-title">Шаг 1. Физическое событие на шине (Bus Event)</div>
-        <div class="step-desc">При подключении кабеля USB или платы PCIe контроллер фиксирует изменение импеданса линии или подтяжку сигнальных линий D+/D- к питанию 3.3V через резистор 1.5 кОм (Full-Speed/High-Speed). Контроллер шины генерирует аппаратное прерывание процессору.</div>
-      </div>
-      <div class="step-box">
-        <div class="step-title">Шаг 2. Опрос дескрипторов драйвером шины (Bus Enumeration)</div>
-        <div class="step-desc">Драйвер шины (<code>usbhub3.sys</code> или <code>pci.sys</code>) присваивает устройству временный логический адрес и отправляет низкоуровневый пакет <code>GET_DESCRIPTOR</code>. Устройство передает стандартный дескриптор: идентификаторы производителя (Vendor ID), модели (Product ID), ревизии (Revision) и класса.</div>
-      </div>
-      <div class="step-box">
-        <div class="step-title">Шаг 3. Создание Physical Device Object (PDO)</div>
-        <div class="step-desc">Драйвер шины создает в системном дереве объектов пространства ядра объект <code>PDO</code>, представляющий физический разъем/порт, и уведомляет системный диспетчер PnP Manager о появлении нового узла.</div>
-      </div>
-      <div class="step-box">
-        <div class="step-title">Шаг 4. Генерация Hardware ID и Compatible ID</div>
-        <div class="step-desc">Диспетчер PnP формирует упорядоченный список идентификаторов оборудования (от максимально точного <code>USB\VID_xxxx&PID_yyyy&REV_zzzz</code> до универсального класса совместимости <code>USB\Class_xx</code>).</div>
-      </div>
-      <div class="step-box">
-        <div class="step-title">Шаг 5. Поиск драйвера в системном хранилище (Driver Store)</div>
-        <div class="step-desc">PnP Manager сканирует директорию <code>C:\Windows\System32\DriverStore\FileRepository</code>. Выполняется сопоставление Hardware ID со строками в <code>INF</code>-файлах. Оценивается ранг соответствия (Driver Ranking), дата сборки, версия и наличие цифрового сертификата безопасности <code>.cat</code> (WHQL).</div>
-      </div>
-      <div class="step-box">
-        <div class="step-title">Шаг 6. Создание Functional Device Object (FDO) и запуск</div>
-        <div class="step-desc">Загружается исполнимый файл драйвера (<code>.sys</code> или процесс <code>WUDFHost.exe</code>). Драйвер создает функциональный объект <code>FDO</code>, привязывается к <code>PDO</code> и получает пакет запроса <code>IRP_MN_START_DEVICE</code>. Устройству выделяются системные ресурсы (прерывания MSI/MSI-X, буферы DMA, виртуальные адреса). Устройство переходит в режим <code>D0</code> (Active).</div>
-      </div>
-    </div>
-  </div>
+ <div class="flow-diagram">
+ <div class="step-box">
+ <div class="step-title">Шаг 1. Физическое событие на шине (Bus Event)</div>
+ <div class="step-desc">При подключении кабеля USB или платы PCIe контроллер фиксирует изменение импеданса линии или подтяжку сигнальных линий D+/D- к питанию 3.3V через резистор 1.5 кОм (Full-Speed/High-Speed). Контроллер шины генерирует аппаратное прерывание процессору.</div>
+ </div>
+ <div class="step-box">
+ <div class="step-title">Шаг 2. Опрос дескрипторов драйвером шины (Bus Enumeration)</div>
+ <div class="step-desc">Драйвер шины (<code>usbhub3.sys</code> или <code>pci.sys</code>) присваивает устройству временный логический адрес и отправляет низкоуровневый пакет <code>GET_DESCRIPTOR</code>. Устройство передает стандартный дескриптор: идентификаторы производителя (Vendor ID), модели (Product ID), ревизии (Revision) и класса.</div>
+ </div>
+ <div class="step-box">
+ <div class="step-title">Шаг 3. Создание Physical Device Object (PDO)</div>
+ <div class="step-desc">Драйвер шины создает в системном дереве объектов пространства ядра объект <code>PDO</code>, представляющий физический разъем/порт, и уведомляет системный диспетчер PnP Manager о появлении нового узла.</div>
+ </div>
+ <div class="step-box">
+ <div class="step-title">Шаг 4. Генерация Hardware ID и Compatible ID</div>
+ <div class="step-desc">Диспетчер PnP формирует упорядоченный список идентификаторов оборудования (от максимально точного <code>USB\VID_xxxx&PID_yyyy&REV_zzzz</code> до универсального класса совместимости <code>USB\Class_xx</code>).</div>
+ </div>
+ <div class="step-box">
+ <div class="step-title">Шаг 5. Поиск драйвера в системном хранилище (Driver Store)</div>
+ <div class="step-desc">PnP Manager сканирует директорию <code>C:\Windows\System32\DriverStore\FileRepository</code>. Выполняется сопоставление Hardware ID со строками в <code>INF</code>-файлах. Оценивается ранг соответствия (Driver Ranking), дата сборки, версия и наличие цифрового сертификата безопасности <code>.cat</code> (WHQL).</div>
+ </div>
+ <div class="step-box">
+ <div class="step-title">Шаг 6. Создание Functional Device Object (FDO) и запуск</div>
+ <div class="step-desc">Загружается исполнимый файл драйвера (<code>.sys</code> или процесс <code>WUDFHost.exe</code>). Драйвер создает функциональный объект <code>FDO</code>, привязывается к <code>PDO</code> и получает пакет запроса <code>IRP_MN_START_DEVICE</code>. Устройству выделяются системные ресурсы (прерывания MSI/MSI-X, буферы DMA, виртуальные адреса). Устройство переходит в режим <code>D0</code> (Active).</div>
+ </div>
+ </div>
+ </div>
 
-  <div class="card">
-    <h2>2. Структура и классификация аппаратных идентификаторов (Hardware ID)</h2>
-    <p>Аппаратный идентификатор (Hardware ID) — это уникальная текстовая сигнатура, генерируемая драйвером шины на основе микрокода периферийного чипа. Именно по ней операционная система находит нужный драйвер.</p>
+ <div class="card">
+ <h2>2. Структура и классификация аппаратных идентификаторов (Hardware ID)</h2>
+ <p>Аппаратный идентификатор (Hardware ID) — это уникальная текстовая сигнатура, генерируемая драйвером шины на основе микрокода периферийного чипа. Именно по ней операционная система находит нужный драйвер.</p>
 
-    <h3>Шина USB (Universal Serial Bus):</h3>
-    <pre>USB\VID_046D&PID_C52B&REV_2411
+ <h3>Шина USB (Universal Serial Bus):</h3>
+ <pre>USB\VID_046D&PID_C52B&REV_2411
 USB\VID_046D&PID_C52B
 USB\Class_03&SubClass_01&Prot_01</pre>
-    <ul>
-      <li><code>VID_046D</code>: Vendor ID = Logitech (выделяется консорциумом USB-IF).</li>
-      <li><code>PID_C52B</code>: Product ID = беспроводной USB-приемник Unifying Receiver.</li>
-      <li><code>REV_2411</code>: аппаратная ревизия микросхемы 24.11.</li>
-      <li><code>USB\Class_03</code>: совместимый идентификатор класса HID (Human Interface Device).</li>
-    </ul>
+ <ul>
+ <li><code>VID_046D</code>: Vendor ID = Logitech (выделяется консорциумом USB-IF).</li>
+ <li><code>PID_C52B</code>: Product ID = беспроводной USB-приемник Unifying Receiver.</li>
+ <li><code>REV_2411</code>: аппаратная ревизия микросхемы 24.11.</li>
+ <li><code>USB\Class_03</code>: совместимый идентификатор класса HID (Human Interface Device).</li>
+ </ul>
 
-    <h3>Шина PCI Express (Peripheral Component Interconnect Express):</h3>
-    <pre>PCI\VEN_10DE&DEV_1F08&SUBSYS_37551462&REV_A1</pre>
-    <ul>
-      <li><code>VEN_10DE</code>: Vendor ID = NVIDIA Corporation (реестр PCI-SIG).</li>
-      <li><code>DEV_1F08</code>: Device ID = графический процессор TU106 (GeForce RTX 2060).</li>
-      <li><code>SUBSYS_37551462</code>: Subsystem ID. Первые 4 символа (<code>1462</code>) — код вендора платы (MSI - Micro-Star International), вторые 4 символа (<code>3755</code>) — конкретная модификация схемотехники видеокарты.</li>
-      <li><code>REV_A1</code>: аппаратная ревизия кремниевой подложки чипа.</li>
-    </ul>
+ <h3>Шина PCI Express (Peripheral Component Interconnect Express):</h3>
+ <pre>PCI\VEN_10DE&DEV_1F08&SUBSYS_37551462&REV_A1</pre>
+ <ul>
+ <li><code>VEN_10DE</code>: Vendor ID = NVIDIA Corporation (реестр PCI-SIG).</li>
+ <li><code>DEV_1F08</code>: Device ID = графический процессор TU106 (GeForce RTX 2060).</li>
+ <li><code>SUBSYS_37551462</code>: Subsystem ID. Первые 4 символа (<code>1462</code>) — код вендора платы (MSI - Micro-Star International), вторые 4 символа (<code>3755</code>) — конкретная модификация схемотехники видеокарты.</li>
+ <li><code>REV_A1</code>: аппаратная ревизия кремниевой подложки чипа.</li>
+ </ul>
 
-    <h3>Идентификаторы ACPI и Bluetooth:</h3>
-    <ul>
-      <li><strong>ACPI (Advanced Configuration and Power Interface):</strong> устройства, интегрированные в материнскую плату и опрашиваемые через BIOS/UEFI DSDT-таблицы (например, системный таймер <code>ACPI\PNP0100</code> или контроллер питания <code>ACPI\PNP0C0C</code>).</li>
-      <li><strong>BTHENUM (Bluetooth Enumerator):</strong> беспроводные устройства, опрашиваемые по радиоканалу Bluetooth. Идентификатор содержит MAC-адрес радиомодуля и профиль службы (например, <code>BTHENUM\{0000110b-0000-1000-8000-00805f9b34fb}</code> для профиля A2DP).</li>
-    </ul>
-  </div>
+ <h3>Идентификаторы ACPI и Bluetooth:</h3>
+ <ul>
+ <li><strong>ACPI (Advanced Configuration and Power Interface):</strong> устройства, интегрированные в материнскую плату и опрашиваемые через BIOS/UEFI DSDT-таблицы (например, системный таймер <code>ACPI\PNP0100</code> или контроллер питания <code>ACPI\PNP0C0C</code>).</li>
+ <li><strong>BTHENUM (Bluetooth Enumerator):</strong> беспроводные устройства, опрашиваемые по радиоканалу Bluetooth. Идентификатор содержит MAC-адрес радиомодуля и профиль службы (например, <code>BTHENUM\{0000110b-0000-1000-8000-00805f9b34fb}</code> для профиля A2DP).</li>
+ </ul>
+ </div>
 
-  <div class="card">
-    <h2>3. Стандартные классы устройств USB (USB Device Classes)</h2>
-    <p>Чтобы избежать необходимости разрабатывать драйвер под каждую мышь или флешку, консорциум USB-IF определил базовые классы устройств. Для них операционная система поставляет стандартные встроенные драйверы (In-box Class Drivers):</p>
-    <table>
-      <thead>
-        <tr>
-          <th>Класс (Base Class)</th>
-          <th>Код</th>
-          <th>Типовые устройства</th>
-          <th>Стандартный драйвер Windows / Linux</th>
-          <th>Принцип передачи данных</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>USB Audio</strong></td>
-          <td><code>01h</code></td>
-          <td>ЦАП, микрофоны, наушники, студийные звуковые карты</td>
-          <td><code>usbaudio.sys</code> / <code>snd-usb-audio</code></td>
-          <td>Изохронные пакеты с синхронизацией по тактовому генератору хоста или асинхронным клоком устройства (Asynchronous Mode).</td>
-        </tr>
-        <tr>
-          <td><strong>Communications (CDC)</strong></td>
-          <td><code>02h</code></td>
-          <td>Модемы, переходники USB-to-UART, сканеры штрихкодов в режиме VCP</td>
-          <td><code>usbser.sys</code> / <code>cdc_acm</code></td>
-          <td>Эмуляция последовательного порта RS-232 через конечные точки Bulk/Interrupt (Virtual COM Port).</td>
-        </tr>
-        <tr>
-          <td><strong>HID (Human Interface)</strong></td>
-          <td><code>03h</code></td>
-          <td>Клавиатуры, мыши, трекболы, презентеры, базовые сканеры ШК</td>
-          <td><code>hidusb.sys</code> / <code>usbhid</code></td>
-          <td>Периодический опрос прерываний (Interrupt In endpoint) с передачей структурированных отчетов дескриптора (Report Descriptor).</td>
-        </tr>
-        <tr>
-          <td><strong>Mass Storage (MSC)</strong></td>
-          <td><code>08h</code></td>
-          <td>Флеш-карты, внешние жесткие диски, картридеры</td>
-          <td><code>usbstor.sys</code>, <code>uaspstor.sys</code> / <code>uas</code></td>
-          <td>Передача SCSI-команд поверх Bulk-каналов USB. Поддерживает протоколы BOT (Bulk-Only Transport) и UAS (SCSI очереди NCQ).</td>
-        </tr>
-        <tr>
-          <td><strong>Printer</strong></td>
-          <td><code>07h</code></td>
-          <td>Локальные принтеры с прямым USB-подключением</td>
-          <td><code>usbprint.sys</code> / <code>usblp</code></td>
-          <td>Двунаправленная передача необработанных байтов заданий печати и чтение статуса (IEEE 1284.4).</td>
-        </tr>
-        <tr>
-          <td><strong>Video (UVC)</strong></td>
-          <td><code>0Eh</code></td>
-          <td>Веб-камеры, микроскопы, эндоскопы, карты HDMI-захвата</td>
-          <td><code>usbvideo.sys</code> / <code>uvcvideo</code></td>
-          <td>Изохронный поток видеокадров (Uncompressed YUV или компрессия MJPEG/H.264) с аппаратным управлением экспозицией и фокусом.</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+ <div class="card">
+ <h2>3. Стандартные классы устройств USB (USB Device Classes)</h2>
+ <p>Чтобы избежать необходимости разрабатывать драйвер под каждую мышь или флешку, консорциум USB-IF определил базовые классы устройств. Для них операционная система поставляет стандартные встроенные драйверы (In-box Class Drivers):</p>
+ <table>
+ <thead>
+ <tr>
+ <th>Класс (Base Class)</th>
+ <th>Код</th>
+ <th>Типовые устройства</th>
+ <th>Стандартный драйвер Windows / Linux</th>
+ <th>Принцип передачи данных</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>USB Audio</strong></td>
+ <td><code>01h</code></td>
+ <td>ЦАП, микрофоны, наушники, студийные звуковые карты</td>
+ <td><code>usbaudio.sys</code> / <code>snd-usb-audio</code></td>
+ <td>Изохронные пакеты с синхронизацией по тактовому генератору хоста или асинхронным клоком устройства (Asynchronous Mode).</td>
+ </tr>
+ <tr>
+ <td><strong>Communications (CDC)</strong></td>
+ <td><code>02h</code></td>
+ <td>Модемы, переходники USB-to-UART, сканеры штрихкодов в режиме VCP</td>
+ <td><code>usbser.sys</code> / <code>cdc_acm</code></td>
+ <td>Эмуляция последовательного порта RS-232 через конечные точки Bulk/Interrupt (Virtual COM Port).</td>
+ </tr>
+ <tr>
+ <td><strong>HID (Human Interface)</strong></td>
+ <td><code>03h</code></td>
+ <td>Клавиатуры, мыши, трекболы, презентеры, базовые сканеры ШК</td>
+ <td><code>hidusb.sys</code> / <code>usbhid</code></td>
+ <td>Периодический опрос прерываний (Interrupt In endpoint) с передачей структурированных отчетов дескриптора (Report Descriptor).</td>
+ </tr>
+ <tr>
+ <td><strong>Mass Storage (MSC)</strong></td>
+ <td><code>08h</code></td>
+ <td>Флеш-карты, внешние жесткие диски, картридеры</td>
+ <td><code>usbstor.sys</code>, <code>uaspstor.sys</code> / <code>uas</code></td>
+ <td>Передача SCSI-команд поверх Bulk-каналов USB. Поддерживает протоколы BOT (Bulk-Only Transport) и UAS (SCSI очереди NCQ).</td>
+ </tr>
+ <tr>
+ <td><strong>Printer</strong></td>
+ <td><code>07h</code></td>
+ <td>Локальные принтеры с прямым USB-подключением</td>
+ <td><code>usbprint.sys</code> / <code>usblp</code></td>
+ <td>Двунаправленная передача необработанных байтов заданий печати и чтение статуса (IEEE 1284.4).</td>
+ </tr>
+ <tr>
+ <td><strong>Video (UVC)</strong></td>
+ <td><code>0Eh</code></td>
+ <td>Веб-камеры, микроскопы, эндоскопы, карты HDMI-захвата</td>
+ <td><code>usbvideo.sys</code> / <code>uvcvideo</code></td>
+ <td>Изохронный поток видеокадров (Uncompressed YUV или компрессия MJPEG/H.264) с аппаратным управлением экспозицией и фокусом.</td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
 
-  <div class="card">
-    <h2>4. Архитектура драйверов операционной системы</h2>
-    <p>Драйвер — это транслятор абстрактных системных вызовов ОС в аппаратные команды контроллера периферии. В Windows используются следующие архитектурные модели:</p>
+ <div class="card">
+ <h2>4. Архитектура драйверов операционной системы</h2>
+ <p>Драйвер — это транслятор абстрактных системных вызовов ОС в аппаратные команды контроллера периферии. В Windows используются следующие архитектурные модели:</p>
 
-    <h3>Модели выполнения: KMDF vs UMDF</h3>
-    <ul>
-      <li><strong>KMDF (Kernel-Mode Driver Framework):</strong> драйвер выполняется в нулевом кольце привилегий процессора (Ring 0). Имеет неограниченный доступ к памяти и портам ввода-вывода. Применяется для высокоскоростных интерфейсов с критическими требованиями к задержкам (видеокарты, дисковые контроллеры NVMe, сетевые адаптеры Ethernet, шины PCIe). Сбой драйвера в Ring 0 приводит к фатальному падению всей системы (Kernel Panic / BSOD).</li>
-      <li><strong>UMDF (User-Mode Driver Framework):</strong> драйвер выполняется в изолированном адресном пространстве пользователя (Ring 3) внутри хост-процесса <code>WUDFHost.exe</code>. Имеет ограниченные привилегии и взаимодействует с оборудованием через защищенный интерфейс ядра. Применяется для датчиков, USB-устройств с медленным обменом, портативных медиаплееров. Если в драйвере возникает сбой, диспетчер перезапускает только хост-процесс без зависания операционной системы.</li>
-    </ul>
+ <h3>Модели выполнения: KMDF vs UMDF</h3>
+ <ul>
+ <li><strong>KMDF (Kernel-Mode Driver Framework):</strong> драйвер выполняется в нулевом кольце привилегий процессора (Ring 0). Имеет неограниченный доступ к памяти и портам ввода-вывода. Применяется для высокоскоростных интерфейсов с критическими требованиями к задержкам (видеокарты, дисковые контроллеры NVMe, сетевые адаптеры Ethernet, шины PCIe). Сбой драйвера в Ring 0 приводит к фатальному падению всей системы (Kernel Panic / BSOD).</li>
+ <li><strong>UMDF (User-Mode Driver Framework):</strong> драйвер выполняется в изолированном адресном пространстве пользователя (Ring 3) внутри хост-процесса <code>WUDFHost.exe</code>. Имеет ограниченные привилегии и взаимодействует с оборудованием через защищенный интерфейс ядра. Применяется для датчиков, USB-устройств с медленным обменом, портативных медиаплееров. Если в драйвере возникает сбой, диспетчер перезапускает только хост-процесс без зависания операционной системы.</li>
+ </ul>
 
-    <h3>Графическая подсистема WDDM (Windows Display Driver Model):</h3>
-    <p>Современная архитектура видеодрайвера разделена на две части: драйвер пользовательского режима (User Mode Driver, UMD), формирующий команды DirectX/Vulkan/OpenGL, и драйвер режима ядра (Kernel Mode Driver, KMD, <code>dxgkrnl.sys</code>), управляющий диспетчеризацией GPU-памяти и переключением контекстов видеокарты. WDDM позволяет сбросить и перезапустить упавший графический драйвер без перезагрузки системы (сочетание клавиш <code>Win + Ctrl + Shift + B</code>).</p>
+ <h3>Графическая подсистема WDDM (Windows Display Driver Model):</h3>
+ <p>Современная архитектура видеодрайвера разделена на две части: драйвер пользовательского режима (User Mode Driver, UMD), формирующий команды DirectX/Vulkan/OpenGL, и драйвер режима ядра (Kernel Mode Driver, KMD, <code>dxgkrnl.sys</code>), управляющий диспетчеризацией GPU-памяти и переключением контекстов видеокарты. WDDM позволяет сбросить и перезапустить упавший графический драйвер без перезагрузки системы (сочетание клавиш <code>Win + Ctrl + Shift + B</code>).</p>
 
-    <h3>Аудиоподсистема: Windows WASAPI против ASIO</h3>
-    <p>При стандартном выводе звука в Windows все аудиопотоки направляются в системный микшер (Windows Audio Session API — WASAPI). Микшер выполняет принудительную передискретизацию (Resampling) в фиксированную частоту и буферизацию, что вносит неотвратимую задержку 30–80 миллисекунд.</p>
-    <div class="note">
-      <strong>Протокол ASIO (Audio Stream Input/Output):</strong> специализированный протокол драйвера компании Steinberg. ASIO передает звуковые сэмплы напрямую между звуковым редактором (DAW) и аппаратным аудиобуфером звуковой карты USB Audio Class 2.0, полностью минуя системный микшер Windows. Это позволяет снизить сквозную задержку сигнала (Round-Trip Latency) до 2–5 миллисекунд.
-    </div>
-  </div>
+ <h3>Аудиоподсистема: Windows WASAPI против ASIO</h3>
+ <p>При стандартном выводе звука в Windows все аудиопотоки направляются в системный микшер (Windows Audio Session API — WASAPI). Микшер выполняет принудительную передискретизацию (Resampling) в фиксированную частоту и буферизацию, что вносит неотвратимую задержку 30–80 миллисекунд.</p>
+ <div class="note">
+ <strong>Протокол ASIO (Audio Stream Input/Output):</strong> специализированный протокол драйвера компании Steinberg. ASIO передает звуковые сэмплы напрямую между звуковым редактором (DAW) и аппаратным аудиобуфером звуковой карты USB Audio Class 2.0, полностью минуя системный микшер Windows. Это позволяет снизить сквозную задержку сигнала (Round-Trip Latency) до 2–5 миллисекунд.
+ </div>
+ </div>
 
-  <div class="card">
-    <h2>5. Сетевая печать: протоколы, различия и ловушки развертывания</h2>
-    <p>В корпоративных сетях печать организуется через локальную сеть Ethernet/Wi-Fi. Корректность работы зависит от выбора транспортного протокола порта печати:</p>
+ <div class="card">
+ <h2>5. Сетевая печать: протоколы, различия и ловушки развертывания</h2>
+ <p>В корпоративных сетях печать организуется через локальную сеть Ethernet/Wi-Fi. Корректность работы зависит от выбора транспортного протокола порта печати:</p>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Протокол</th>
-          <th>Сетевой порт</th>
-          <th>Принцип работы</th>
-          <th>Достоинства и эксплуатационные риски</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>RAW 9100<br>(HP JetDirect)</strong></td>
-          <td><code>TCP 9100</code></td>
-          <td>Клиент открывает прямое TCP-соединение с принтером и пересылает сырой поток команд (PCL/PostScript).</td>
-          <td><strong>Плюсы:</strong> максимальная скорость, отсутствие служебного оверхеда, надежность.<br><strong>Риски:</strong> нет встроенного шифрования, требует строго постоянного статического IP-адреса.</td>
-        </tr>
-        <tr>
-          <td><strong>LPR / LPD<br>(RFC 1179)</strong></td>
-          <td><code>TCP 515</code></td>
-          <td>Передача задания на сервер или сетевую плату принтера с обязательным указанием имени очереди (Queue Name, например, <code>lp</code>).</td>
-          <td><strong>Плюсы:</strong> совместимость с UNIX/Linux-серверами печати.<br><strong>Риски:</strong> медленный отклик, устаревший протокол, ошибки при неверном регистре имени очереди.</td>
-        </tr>
-        <tr>
-          <td><strong>IPP / IPPS<br>(RFC 8011)</strong></td>
-          <td><code>TCP 631</code><br>(HTTP/HTTPS)</td>
-          <td>Передача данных и команд управления через стандартные HTTP POST запросы. Поддерживает форматы PDF, PWG-Raster, Apple AirPrint, Mopria.</td>
-          <td><strong>Плюсы:</strong> шифрование TLS, поддержка аутентификации пользователей, печать без драйверов.<br><strong>Риски:</strong> более сложная настройка сетевых сертификатов.</td>
-        </tr>
-        <tr>
-          <td><strong>WSD<br>(Web Services on Devices)</strong></td>
-          <td><code>UDP 3702</code> (Discovery)<br><code>TCP 5357/5358</code></td>
-          <td>Автоматическое обнаружение сетевого устройства через мультикаст-запросы WS-Discovery.</td>
-          <td><strong>Плюсы:</strong> принтер сам появляется в «Устройствах и принтерах» при включении.<br><strong>Риски:</strong> крайне нестабилен в корпоративных сетях. При смене IP-адреса по DHCP или блокировке мультикаста между сегментами VLAN принтер «теряется» и уходит в статус Offline.</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+ <table>
+ <thead>
+ <tr>
+ <th>Протокол</th>
+ <th>Сетевой порт</th>
+ <th>Принцип работы</th>
+ <th>Достоинства и эксплуатационные риски</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>RAW 9100<br>(HP JetDirect)</strong></td>
+ <td><code>TCP 9100</code></td>
+ <td>Клиент открывает прямое TCP-соединение с принтером и пересылает сырой поток команд (PCL/PostScript).</td>
+ <td><strong>Плюсы:</strong> максимальная скорость, отсутствие служебного оверхеда, надежность.<br><strong>Риски:</strong> нет встроенного шифрования, требует строго постоянного статического IP-адреса.</td>
+ </tr>
+ <tr>
+ <td><strong>LPR / LPD<br>(RFC 1179)</strong></td>
+ <td><code>TCP 515</code></td>
+ <td>Передача задания на сервер или сетевую плату принтера с обязательным указанием имени очереди (Queue Name, например, <code>lp</code>).</td>
+ <td><strong>Плюсы:</strong> совместимость с UNIX/Linux-серверами печати.<br><strong>Риски:</strong> медленный отклик, устаревший протокол, ошибки при неверном регистре имени очереди.</td>
+ </tr>
+ <tr>
+ <td><strong>IPP / IPPS<br>(RFC 8011)</strong></td>
+ <td><code>TCP 631</code><br>(HTTP/HTTPS)</td>
+ <td>Передача данных и команд управления через стандартные HTTP POST запросы. Поддерживает форматы PDF, PWG-Raster, Apple AirPrint, Mopria.</td>
+ <td><strong>Плюсы:</strong> шифрование TLS, поддержка аутентификации пользователей, печать без драйверов.<br><strong>Риски:</strong> более сложная настройка сетевых сертификатов.</td>
+ </tr>
+ <tr>
+ <td><strong>WSD<br>(Web Services on Devices)</strong></td>
+ <td><code>UDP 3702</code> (Discovery)<br><code>TCP 5357/5358</code></td>
+ <td>Автоматическое обнаружение сетевого устройства через мультикаст-запросы WS-Discovery.</td>
+ <td><strong>Плюсы:</strong> принтер сам появляется в «Устройствах и принтерах» при включении.<br><strong>Риски:</strong> крайне нестабилен в корпоративных сетях. При смене IP-адреса по DHCP или блокировке мультикаста между сегментами VLAN принтер «теряется» и уходит в статус Offline.</td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
 
-  <div class="card">
-    <h2>6. Системные инструменты диагностики и журналирования</h2>
-    <p>При возникновении проблем с распознаванием или работой периферии администратор использует специализированный диагностический инструментарий:</p>
+ <div class="card">
+ <h2>6. Системные инструменты диагностики и журналирования</h2>
+ <p>При возникновении проблем с распознаванием или работой периферии администратор использует специализированный диагностический инструментарий:</p>
 
-    <h3>1. Диспетчер устройств и коды ошибок (Device Manager Error Codes):</h3>
-    <ul>
-      <li><strong>Код 10 («Запуск этого устройства невозможен»):</strong> функциональный драйвер загрузился, но аппаратная часть вернула сбой при инициализации. Причины: повреждение прошивки периферии, несовместимость версий протокола, аппаратный сбой микросхемы.</li>
-      <li><strong>Код 28 («Для этого устройства не установлены драйверы»):</strong> в системе нет INF-файла, содержащего данный Hardware ID. Требуется ручная инсталляция пакета драйверов.</li>
-      <li><strong>Код 43 («Сбой дескриптора устройства»):</strong> хост-контроллер не смог вычитать дескриптор из-за аппаратных помех на линии (неисправность кабеля, просадка питания, сгоревший трансивер USB).</li>
-    </ul>
+ <h3>1. Диспетчер устройств и коды ошибок (Device Manager Error Codes):</h3>
+ <ul>
+ <li><strong>Код 10 («Запуск этого устройства невозможен»):</strong> функциональный драйвер загрузился, но аппаратная часть вернула сбой при инициализации. Причины: повреждение прошивки периферии, несовместимость версий протокола, аппаратный сбой микросхемы.</li>
+ <li><strong>Код 28 («Для этого устройства не установлены драйверы»):</strong> в системе нет INF-файла, содержащего данный Hardware ID. Требуется ручная инсталляция пакета драйверов.</li>
+ <li><strong>Код 43 («Сбой дескриптора устройства»):</strong> хост-контроллер не смог вычитать дескриптор из-за аппаратных помех на линии (неисправность кабеля, просадка питания, сгоревший трансивер USB).</li>
+ </ul>
 
-    <h3>2. Журнал SetupAPI (SetupAPI.dev.log):</h3>
-    <p>Находится по пути <code>C:\Windows\INF\setupapi.dev.log</code>. Это главный журнал ядра Windows, где с точностью до миллисекунды фиксируются все этапы обнаружения оборудования, перебор INF-файлов, проверка подписей WHQL и ошибки загрузки бинарных драйверов <code>.sys</code>.</p>
+ <h3>2. Журнал SetupAPI (SetupAPI.dev.log):</h3>
+ <p>Находится по пути <code>C:\Windows\INF\setupapi.dev.log</code>. Это главный журнал ядра Windows, где с точностью до миллисекунды фиксируются все этапы обнаружения оборудования, перебор INF-файлов, проверка подписей WHQL и ошибки загрузки бинарных драйверов <code>.sys</code>.</p>
 
-    <h3>3. Утилиты командной строки (PowerShell и консоль администратора):</h3>
-    <pre># Просмотр устройств с ошибками конфигурации через PowerShell
+ <h3>3. Утилиты командной строки (PowerShell и консоль администратора):</h3>
+ <pre># Просмотр устройств с ошибками конфигурации через PowerShell
 Get-PnpDevice | Where-Object { $_.Status -ne "OK" } | Format-Table -Property FriendlyName, InstanceId, Status, Problem
 
 # Запрос аппаратного идентификатора конкретного устройства
@@ -429,8 +414,8 @@ pnputil.exe /add-driver "D:\Drivers\Audio\focusrite_usb.inf" /install
 # Удаление некорректного или конфликтующего драйвера из системы
 pnputil.exe /delete-driver oem45.inf /uninstall /force</pre>
 
-    <h3>4. Инструменты диагностики в Linux:</h3>
-    <pre># Детальное дерево USB-устройств с номерами классов и скоростями шины
+ <h3>4. Инструменты диагностики в Linux:</h3>
+ <pre># Детальное дерево USB-устройств с номерами классов и скоростями шины
 lsusb -tv
 
 # Поиск PCI-устройств с отображением задействованного драйвера ядра
@@ -441,39 +426,39 @@ dmesg -wH | grep -i usb
 
 # Мониторинг событий подсистемы udev в реальном времени
 udevadm monitor --kernel --subsystem-match=usb</pre>
-  </div>
+ </div>
 
-  <div class="card">
-    <h2>7. Контрольные вопросы для самопроверки</h2>
-    
-    <details>
-      <summary>Вопрос 1: В чем фундаментальное отличие между Hardware ID и Compatible ID?</summary>
-      <div class="details-content">
-        <strong>Ответ:</strong> Hardware ID содержит точные идентификаторы производителя и конкретной модели микросхемы (например, <code>USB\VID_046D&PID_C52B</code>). Он предназначен для привязки узкоспециализированного фирменного драйвера с полным доступом к функциям оборудования. Compatible ID указывает на принадлежность устройства к стандартному общепринятому классу спецификации (например, <code>USB\Class_03</code> — HID). Он используется операционной системой как резервный вариант, позволяя запустить базовую функциональность (например, стандартную мышь или флешку) с помощью встроенного драйвера ОС, если фирменный драйвер не найден.
-      </div>
-    </details>
+ <div class="card">
+ <h2>7. Контрольные вопросы для самопроверки</h2>
+ 
+ <details>
+ <summary>Вопрос 1: В чем фундаментальное отличие между Hardware ID и Compatible ID?</summary>
+ <div class="details-content">
+ <strong>Ответ:</strong> Hardware ID содержит точные идентификаторы производителя и конкретной модели микросхемы (например, <code>USB\VID_046D&PID_C52B</code>). Он предназначен для привязки узкоспециализированного фирменного драйвера с полным доступом к функциям оборудования. Compatible ID указывает на принадлежность устройства к стандартному общепринятому классу спецификации (например, <code>USB\Class_03</code> — HID). Он используется операционной системой как резервный вариант, позволяя запустить базовую функциональность (например, стандартную мышь или флешку) с помощью встроенного драйвера ОС, если фирменный драйвер не найден.
+ </div>
+ </details>
 
-    <details>
-      <summary>Вопрос 2: Почему для студийной звукозаписи недостаточно стандартного драйвера Windows WASAPI и требуется специализированный драйвер ASIO?</summary>
-      <div class="details-content">
-        <strong>Ответ:</strong> Стандартный программный стек Windows WASAPI пропускает аудиопоток через системный программный микшер (Audio Engine). Микшер объединяет звуки всех запущенных приложений, осуществляет принудительную передискретизацию (SRC — Sample Rate Conversion) и использует длинные аппаратные и программные очереди, создавая сквозную задержку (Round-Trip Latency) от 30 до 80 миллисекунд. Такая задержка делает невозможным мониторинг голоса или инструмента в реальном времени (возникает ощутимое эхо). Протокол ASIO обходит системный микшер Windows и организует прямой DMA-обмен сэмплами между памятью аудиоредактора (DAW) и аппаратным буфером звуковой карты, снижая задержку до 2–5 мс.
-      </div>
-    </details>
+ <details>
+ <summary>Вопрос 2: Почему для студийной звукозаписи недостаточно стандартного драйвера Windows WASAPI и требуется специализированный драйвер ASIO?</summary>
+ <div class="details-content">
+ <strong>Ответ:</strong> Стандартный программный стек Windows WASAPI пропускает аудиопоток через системный программный микшер (Audio Engine). Микшер объединяет звуки всех запущенных приложений, осуществляет принудительную передискретизацию (SRC — Sample Rate Conversion) и использует длинные аппаратные и программные очереди, создавая сквозную задержку (Round-Trip Latency) от 30 до 80 миллисекунд. Такая задержка делает невозможным мониторинг голоса или инструмента в реальном времени (возникает ощутимое эхо). Протокол ASIO обходит системный микшер Windows и организует прямой DMA-обмен сэмплами между памятью аудиоредактора (DAW) и аппаратным буфером звуковой карты, снижая задержку до 2–5 мс.
+ </div>
+ </details>
 
-    <details>
-      <summary>Вопрос 3: Почему в корпоративных офисных сетях системные администраторы категорически отключают подключение сетевых принтеров по протоколу WSD и настраивают порт Standard TCP/IP (RAW 9100)?</summary>
-      <div class="details-content">
-        <strong>Ответ:</strong> Протокол WSD (Web Services on Devices) полагается на широковещательные мультикаст-запросы WS-Discovery (UDP-порт 3702). В корпоративных сетях рабочие станции и оргтехника распределены по разным виртуальным подсетям (VLAN), между которыми мультикаст-трафик по умолчанию блокируется маршрутизаторами в целях безопасности. Кроме того, при смене динамического IP-адреса принтером по DHCP служба WSD часто теряет сопоставление устройства. Порт Standard TCP/IP с протоколом RAW 9100 отправляет пакеты напрямую по статическому IP-адресу принтера через маршрутизируемый TCP-поток, гарантируя стопроцентную доступность печати вне зависимости от сегментации сети.
-      </div>
-    </details>
+ <details>
+ <summary>Вопрос 3: Почему в корпоративных офисных сетях системные администраторы категорически отключают подключение сетевых принтеров по протоколу WSD и настраивают порт Standard TCP/IP (RAW 9100)?</summary>
+ <div class="details-content">
+ <strong>Ответ:</strong> Протокол WSD (Web Services on Devices) полагается на широковещательные мультикаст-запросы WS-Discovery (UDP-порт 3702). В корпоративных сетях рабочие станции и оргтехника распределены по разным виртуальным подсетям (VLAN), между которыми мультикаст-трафик по умолчанию блокируется маршрутизаторами в целях безопасности. Кроме того, при смене динамического IP-адреса принтером по DHCP служба WSD часто теряет сопоставление устройства. Порт Standard TCP/IP с протоколом RAW 9100 отправляет пакеты напрямую по статическому IP-адресу принтера через маршрутизируемый TCP-поток, гарантируя стопроцентную доступность печати вне зависимости от сегментации сети.
+ </div>
+ </details>
 
-    <details>
-      <summary>Вопрос 4: Какая причина приводит к появлению ошибки «Код 43» в Диспетчере устройств и почему ее нельзя решить установкой драйвера?</summary>
-      <div class="details-content">
-        <strong>Ответ:</strong> Ошибка Код 43 (<code>CM_PROB_FAILED_POSTING</code> / Device Descriptor Request Failed) возникает на этапе физической энумерации, еще до того, как операционная система перейдет к поиску и загрузке драйвера. Контроллер шины отправляет устройству запрос дескриптора по нулевому адресу, но в ответ получает таймаут, сигнал обрыва или искаженные данные. Причиной ошибки являются физические и электрические дефекты: обрыв или помехи в дифференциальной паре D+/D-, падение питающего напряжения ниже 4.75 В под нагрузкой, окисление контактов разъема, чрезмерная длина неэкранированного кабеля или выход из строя аппаратного трансивера PHY самого устройства. Установка программных драйверов бессмысленна, так как система не может даже прочитать идентификаторы оборудования.
-      </div>
-    </details>
-  </div>
+ <details>
+ <summary>Вопрос 4: Какая причина приводит к появлению ошибки «Код 43» в Диспетчере устройств и почему ее нельзя решить установкой драйвера?</summary>
+ <div class="details-content">
+ <strong>Ответ:</strong> Ошибка Код 43 (<code>CM_PROB_FAILED_POSTING</code> / Device Descriptor Request Failed) возникает на этапе физической энумерации, еще до того, как операционная система перейдет к поиску и загрузке драйвера. Контроллер шины отправляет устройству запрос дескриптора по нулевому адресу, но в ответ получает таймаут, сигнал обрыва или искаженные данные. Причиной ошибки являются физические и электрические дефекты: обрыв или помехи в дифференциальной паре D+/D-, падение питающего напряжения ниже 4.75 В под нагрузкой, окисление контактов разъема, чрезмерная длина неэкранированного кабеля или выход из строя аппаратного трансивера PHY самого устройства. Установка программных драйверов бессмысленна, так как система не может даже прочитать идентификаторы оборудования.
+ </div>
+ </details>
+ </div>
 
 </div>
 </body>

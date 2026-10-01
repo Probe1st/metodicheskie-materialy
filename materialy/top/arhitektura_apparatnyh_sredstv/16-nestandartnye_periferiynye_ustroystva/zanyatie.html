@@ -1,531 +1,503 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Рабочий лист студента: Нестандартные периферийные устройства</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #1e40af;
-      --accent-soft: #eff6ff;
-      --ok: #059669;
-      --warn: #d97706;
-      --danger: #dc2626;
-      --radius: 14px;
-      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.6;
-      font-size: 15px;
-      padding: 20px 14px;
-    }
-    .page {
-      max-width: 960px;
-      margin: 0 auto;
-    }
-    .header-card, .student-card, .task-card, .actions-card, .rubric-card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow);
-    }
-    h1 {
-      font-size: clamp(20px, 3.2vw, 26px);
-      color: var(--accent);
-      margin-bottom: 8px;
-    }
-    .desc {
-      color: var(--muted);
-      font-size: 14.5px;
-    }
-    .student-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-    }
-    label {
-      display: block;
-      font-weight: 600;
-      font-size: 13.5px;
-      margin-bottom: 6px;
-      color: #1e293b;
-    }
-    input[type="text"], select, textarea {
-      width: 100%;
-      border: 1.5px solid var(--line);
-      border-radius: 8px;
-      padding: 9px 12px;
-      font: inherit;
-      font-size: 14px;
-      background: #fff;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.12);
-    }
-    textarea {
-      min-height: 110px;
-      resize: vertical;
-    }
-    .variant-card {
-      display: none;
-      background: var(--card);
-      border: 1.5px solid var(--accent);
-      border-radius: var(--radius);
-      padding: 22px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow);
-    }
-    .variant-card.active {
-      display: block;
-    }
-    .badge {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 6px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-size: 12.5px;
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-    .field-group {
-      margin-top: 14px;
-    }
-    .field-title {
-      font-weight: 600;
-      font-size: 14px;
-      color: #1e293b;
-      margin-bottom: 6px;
-    }
-    .print-mirror {
-      display: none;
-      white-space: pre-wrap;
-      word-break: break-word;
-      font-size: 14px;
-      line-height: 1.5;
-      padding: 8px 12px;
-      border: 1.5px solid #cbd5e1;
-      border-radius: 8px;
-      background: #fafafa;
-      min-height: 50px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 14px 0;
-      font-size: 13.5px;
-    }
-    th, td {
-      border: 1px solid var(--line);
-      padding: 8px 10px;
-      text-align: left;
-      vertical-align: top;
-    }
-    th {
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-weight: 700;
-    }
-    .actions-card {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .btn-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    button {
-      padding: 10px 18px;
-      border-radius: 8px;
-      border: none;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.15s, transform 0.05s;
-    }
-    button:active { transform: translateY(1px); }
-    .btn-primary { background: var(--accent); color: white; }
-    .btn-primary:hover { background: #1d4ed8; }
-    .btn-secondary { background: #f1f5f9; color: #334155; border: 1px solid var(--line); }
-    .btn-secondary:hover { background: #e2e8f0; }
-    .btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
-    .btn-danger:hover { background: #fecaca; }
-    .status-msg {
-      font-size: 13.5px;
-      font-weight: 500;
-      color: var(--ok);
-    }
-    code {
-      background: #f1f5f9;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 13px;
-      font-family: monospace;
-    }
-    @media (max-width: 480px) {
-      body { padding: 10px 6px; font-size: 14px; }
-      .header-card, .student-card, .task-card, .variant-card, .actions-card, .rubric-card { padding: 14px; }
-      .student-grid { grid-template-columns: 1fr; }
-      .btn-group { width: 100%; flex-direction: column; }
-      button { width: 100%; justify-content: center; }
-    }
-    @media print {
-      body { background: #fff; padding: 0; font-size: 10.5pt; color: #000; }
-      .page { max-width: 100%; margin: 0; }
-      .header-card, .student-card, .task-card, .rubric-card {
-        box-shadow: none;
-        border: 1px solid #ccc;
-        break-inside: avoid;
-        margin-bottom: 12pt;
-        padding: 12pt;
-      }
-      .actions-card, button, .status-msg { display: none !important; }
-      .variant-card { display: none !important; }
-      .variant-card.active { display: block !important; box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
-      textarea { display: none !important; }
-      .print-mirror { display: block !important; }
-      input::placeholder, textarea::placeholder { color: transparent !important; }
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <title>Рабочий лист студента: Нестандартные периферийные устройства</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #1e40af;
+ --accent-soft: #eff6ff;
+ --ok: #059669;
+ --warn: #d97706;
+ --danger: #dc2626;
+ --radius: 14px;
+ --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+ body {
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+ line-height: 1.6;
+ font-size: 15px;
+ padding: 20px 14px;
+ }.page {
+ max-width: 960px;
+ margin: 0 auto;
+ }.header-card,.student-card,.task-card,.actions-card,.rubric-card {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 24px;
+ margin-bottom: 20px;
+ box-shadow: var(--shadow);
+ }
+ h1 {
+ font-size: clamp(20px, 3.2vw, 26px);
+ color: var(--accent);
+ margin-bottom: 8px;
+ }.desc {
+ color: var(--muted);
+ font-size: 14.5px;
+ }.student-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+ gap: 16px;
+ }
+ label {
+ display: block;
+ font-weight: 600;
+ font-size: 13.5px;
+ margin-bottom: 6px;
+ color: #1e293b;
+ }
+ input[type="text"], select, textarea {
+ width: 100%;
+ border: 1.5px solid var(--line);
+ border-radius: 8px;
+ padding: 9px 12px;
+ font: inherit;
+ font-size: 14px;
+ background: #fff;
+ color: var(--text);
+ outline: none;
+ transition: border-color 0.2s, box-shadow 0.2s;
+ }
+ input:focus, select:focus, textarea:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.12);
+ }
+ textarea {
+ min-height: 110px;
+ resize: vertical;
+ }.variant-card {
+ display: none;
+ background: var(--card);
+ border: 1.5px solid var(--accent);
+ border-radius: var(--radius);
+ padding: 22px;
+ margin-bottom: 20px;
+ box-shadow: var(--shadow);
+ }.variant-card.active {
+ display: block;
+ }.badge {
+ display: inline-block;
+ padding: 3px 8px;
+ border-radius: 6px;
+ background: var(--accent-soft);
+ color: var(--accent);
+ font-size: 12.5px;
+ font-weight: 700;
+ margin-bottom: 10px;
+ }.field-group {
+ margin-top: 14px;
+ }.field-title {
+ font-weight: 600;
+ font-size: 14px;
+ color: #1e293b;
+ margin-bottom: 6px;
+ }.print-mirror {
+ display: none;
+ white-space: pre-wrap;
+ word-break: break-word;
+ font-size: 14px;
+ line-height: 1.5;
+ padding: 8px 12px;
+ border: 1.5px solid #cbd5e1;
+ border-radius: 8px;
+ background: #fafafa;
+ min-height: 50px;
+ }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ margin: 14px 0;
+ font-size: 13.5px;
+ }
+ th, td {
+ border: 1px solid var(--line);
+ padding: 8px 10px;
+ text-align: left;
+ vertical-align: top;
+ }
+ th {
+ background: var(--accent-soft);
+ color: var(--accent);
+ font-weight: 700;
+ }.actions-card {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 12px;
+ align-items: center;
+ justify-content: space-between;
+ }.btn-group {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 10px;
+ }
+ button {
+ padding: 10px 18px;
+ border-radius: 8px;
+ border: none;
+ font-weight: 600;
+ font-size: 14px;
+ cursor: pointer;
+ display: inline-flex;
+ align-items: center;
+ gap: 6px;
+ transition: background 0.15s, transform 0.05s;
+ }
+ button:active { transform: translateY(1px); }.btn-primary { background: var(--accent); color: white; }.btn-primary:hover { background: #1d4ed8; }.btn-secondary { background: #f1f5f9; color: #334155; border: 1px solid var(--line); }.btn-secondary:hover { background: #e2e8f0; }.btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }.btn-danger:hover { background: #fecaca; }.status-msg {
+ font-size: 13.5px;
+ font-weight: 500;
+ color: var(--ok);
+ }
+ code {
+ background: #f1f5f9;
+ padding: 2px 6px;
+ border-radius: 4px;
+ font-size: 13px;
+ font-family: monospace;
+ }
+ @media (max-width: 480px) {
+ body { padding: 10px 6px; font-size: 14px; }.header-card,.student-card,.task-card,.variant-card,.actions-card,.rubric-card { padding: 14px; }.student-grid { grid-template-columns: 1fr; }.btn-group { width: 100%; flex-direction: column; }
+ button { width: 100%; justify-content: center; }
+ }
+ @media print {
+ body { background: #fff; padding: 0; font-size: 10.5pt; color: #000; }.page { max-width: 100%; margin: 0; }.header-card,.student-card,.task-card,.rubric-card {
+ box-shadow: none;
+ border: 1px solid #ccc;
+ break-inside: avoid;
+ margin-bottom: 12pt;
+ padding: 12pt;
+ }.actions-card, button,.status-msg { display: none !important; }.variant-card { display: none !important; }.variant-card.active { display: block !important; box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+ textarea { display: none !important; }.print-mirror { display: block !important; }
+ input::placeholder, textarea::placeholder { color: transparent !important; }
+ }
+ </style>
 </head>
 <body>
 <div class="page">
 
-  <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
-  <div class="header-card">
-    <h1>Рабочий лист: Нестандартные периферийные устройства</h1>
-    <div class="desc">Практический аудит нестандартного оборудования (4 профильных варианта) и тренировочный блок подготовки к дифференцированному зачету по курсу «ОП.02 Архитектура аппаратных средств».</div>
-  </div>
+ <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
+ <div class="header-card">
+ <h1>Рабочий лист: Нестандартные периферийные устройства</h1>
+ <div class="desc">Практический аудит нестандартного оборудования (4 профильных варианта) и тренировочный блок подготовки к дифференцированному зачету по курсу «ОП.02 Архитектура аппаратных средств».</div>
+ </div>
 
-  <!-- ДАННЫЕ ОБУЧАЮЩЕГОСЯ -->
-  <div class="student-card">
-    <div class="student-grid">
-      <div>
-        <label for="st_fio">Фамилия, Имя обучающегося:</label>
-        <input type="text" id="st_fio">
-      </div>
-      <div>
-        <label for="st_group">Учебная группа:</label>
-        <input type="text" id="st_group">
-      </div>
-      <div>
-        <label for="st_variant">Выберите вариант задания:</label>
-        <select id="st_variant" onchange="changeVariant()">
-          <option value="">-- Выберите вариант --</option>
-          <option value="1">Вариант 1: Лаборатория аддитивного производства (3D-принтер CoreXY)</option>
-          <option value="2">Вариант 2: Комплекс виртуальной реальности (VR-шлем 6DoF и DP 1.4 DSC)</option>
-          <option value="3">Вариант 3: Испытательная станция (Модуль сбора данных DAQ 24-бит)</option>
-          <option value="4">Вариант 4: Промышленный терминал ЧПУ (RS-485 Modbus и опторазвязка)</option>
-        </select>
-      </div>
-    </div>
-  </div>
+ <!-- ДАННЫЕ ОБУЧАЮЩЕГОСЯ -->
+ <div class="student-card">
+ <div class="student-grid">
+ <div>
+ <label for="st_fio">Фамилия, Имя обучающегося:</label>
+ <input type="text" id="st_fio">
+ </div>
+ <div>
+ <label for="st_group">Учебная группа:</label>
+ <input type="text" id="st_group">
+ </div>
+ <div>
+ <label for="st_variant">Выберите вариант задания:</label>
+ <select id="st_variant" onchange="changeVariant()">
+ <option value="">-- Выберите вариант --</option>
+ <option value="1">Вариант 1: Лаборатория аддитивного производства (3D-принтер CoreXY)</option>
+ <option value="2">Вариант 2: Комплекс виртуальной реальности (VR-шлем 6DoF и DP 1.4 DSC)</option>
+ <option value="3">Вариант 3: Испытательная станция (Модуль сбора данных DAQ 24-бит)</option>
+ <option value="4">Вариант 4: Промышленный терминал ЧПУ (RS-485 Modbus и опторазвязка)</option>
+ </select>
+ </div>
+ </div>
+ </div>
 
-  <!-- ВАРИАНТ 1: АДДИТИВНОЕ ПРОИЗВОДСТВО -->
-  <div class="variant-card" id="var-1">
-    <span class="badge">Вариант 1: Аддитивное производство и ЧПУ</span>
-    <h2>Технический кейс: Скоростной FDM 3D-принтер на кинематике CoreXY</h2>
-    <p><strong>Контекст:</strong> Конструкторское бюро разрабатывает скоростной 3D-принтер для функционального прототипирования из конструкционного стеклонаполненного нейлона (PA-CF, температура сопла 285°C, температура стола 110°C). Перемещение каретки XY осуществляется кинематикой CoreXY.</p>
-    
-    <div class="field-group">
-      <div class="field-title">1. Расчет кинематики и точности позиционирования:</div>
-      <p style="font-size: 13.5px; color: var(--muted);">Двигатели NEMA 17 имеют угол полного шага 1.8° (200 шагов/оборот). Драйвер TMC2209 настроен на микрошаг 1/16. Зубчатый шкив оси имеет 20 зубьев, шаг ремня GT2 составляет 2 мм. Рассчитайте число импульсов на миллиметр линейного перемещения (Steps/mm) и минимальную теоретическую дискретность одного микрошага (в микронах).</p>
-      <textarea id="v1_q1" placeholder="Приведите формулу, пошаговый расчет и итоговую дискретность в мкм..."></textarea>
-      <div class="print-mirror" id="v1_q1_mirror"></div>
-    </div>
+ <!-- ВАРИАНТ 1: АДДИТИВНОЕ ПРОИЗВОДСТВО -->
+ <div class="variant-card" id="var-1">
+ <span class="badge">Вариант 1: Аддитивное производство и ЧПУ</span>
+ <h2>Технический кейс: Скоростной FDM 3D-принтер на кинематике CoreXY</h2>
+ <p><strong>Контекст:</strong> Конструкторское бюро разрабатывает скоростной 3D-принтер для функционального прототипирования из конструкционного стеклонаполненного нейлона (PA-CF, температура сопла 285°C, температура стола 110°C). Перемещение каретки XY осуществляется кинематикой CoreXY.</p>
+ 
+ <div class="field-group">
+ <div class="field-title">1. Расчет кинематики и точности позиционирования:</div>
+ <p style="font-size: 13.5px; color: var(--muted);">Двигатели NEMA 17 имеют угол полного шага 1.8° (200 шагов/оборот). Драйвер TMC2209 настроен на микрошаг 1/16. Зубчатый шкив оси имеет 20 зубьев, шаг ремня GT2 составляет 2 мм. Рассчитайте число импульсов на миллиметр линейного перемещения (Steps/mm) и минимальную теоретическую дискретность одного микрошага (в микронах).</p>
+ <textarea id="v1_q1" placeholder="Приведите формулу, пошаговый расчет и итоговую дискретность в мкм..."></textarea>
+ <div class="print-mirror" id="v1_q1_mirror"></div>
+ </div>
 
-    <div class="field-group">
-      <div class="field-title">2. Термодинамика экструдера и выбор термобарьера:</div>
-      <p style="font-size: 13.5px; color: var(--muted);">Объясните, почему для печати нейлоном при 285°C категорически непригоден термобарьер с тефлоновой (PTFE) трубкой внутри и требуется All-metal (цельнометаллический титановый/биметаллический) термобарьер. В чем преимущества экструдера Direct Drive перед Bowden для композитных и гибких материалов?</p>
-      <textarea id="v1_q2" placeholder="Обоснуйте температурные ограничения PTFE и преимущества схемы Direct..."></textarea>
-      <div class="print-mirror" id="v1_q2_mirror"></div>
-    </div>
+ <div class="field-group">
+ <div class="field-title">2. Термодинамика экструдера и выбор термобарьера:</div>
+ <p style="font-size: 13.5px; color: var(--muted);">Объясните, почему для печати нейлоном при 285°C категорически непригоден термобарьер с тефлоновой (PTFE) трубкой внутри и требуется All-metal (цельнометаллический титановый/биметаллический) термобарьер. В чем преимущества экструдера Direct Drive перед Bowden для композитных и гибких материалов?</p>
+ <textarea id="v1_q2" placeholder="Обоснуйте температурные ограничения PTFE и преимущества схемы Direct..."></textarea>
+ <div class="print-mirror" id="v1_q2_mirror"></div>
+ </div>
 
-    <div class="field-group">
-      <div class="field-title">3. Интерфейс связи с хостом (OctoPrint / Klipper):</div>
-      <p style="font-size: 13.5px; color: var(--muted);">Плата принтера подключена к одноплатному микрокомпьютеру по USB-UART. Почему скорость 115200 бод при высокой скорости печати (300 мм/с) и сложной криволинейной геометрии может вызывать микрозадержки (заикания) и наплывы пластика? Обоснуйте переход на 250000 бод или протокол Klipper.</p>
-      <textarea id="v1_q3" placeholder="Проанализируйте опустошение буфера команд (buffer underrun) и пропускную способность UART..."></textarea>
-      <div class="print-mirror" id="v1_q3_mirror"></div>
-    </div>
-  </div>
+ <div class="field-group">
+ <div class="field-title">3. Интерфейс связи с хостом (OctoPrint / Klipper):</div>
+ <p style="font-size: 13.5px; color: var(--muted);">Плата принтера подключена к одноплатному микрокомпьютеру по USB-UART. Почему скорость 115200 бод при высокой скорости печати (300 мм/с) и сложной криволинейной геометрии может вызывать микрозадержки (заикания) и наплывы пластика? Обоснуйте переход на 250000 бод или протокол Klipper.</p>
+ <textarea id="v1_q3" placeholder="Проанализируйте опустошение буфера команд (buffer underrun) и пропускную способность UART..."></textarea>
+ <div class="print-mirror" id="v1_q3_mirror"></div>
+ </div>
+ </div>
 
-  <!-- ВАРИАНТ 2: ВИРТУАЛЬНАЯ РЕАЛЬНОСТЬ -->
-  <div class="variant-card" id="var-2">
-    <span class="badge">Вариант 2: Виртуальная реальность и трекинг</span>
-    <h2>Технический кейс: Профессиональный VR-тренажерный комплекс 6DoF</h2>
-    <p><strong>Контекст:</strong> Авиационный учебный центр проектирует пилотажный тренажер с VR-шлемом высокого разрешения. Шлем оснащен двумя независимыми Fast-Switch LCD панелями с разрешением 3840 × 2160 каждая и частотой обновления 120 Гц.</p>
+ <!-- ВАРИАНТ 2: ВИРТУАЛЬНАЯ РЕАЛЬНОСТЬ -->
+ <div class="variant-card" id="var-2">
+ <span class="badge">Вариант 2: Виртуальная реальность и трекинг</span>
+ <h2>Технический кейс: Профессиональный VR-тренажерный комплекс 6DoF</h2>
+ <p><strong>Контекст:</strong> Авиационный учебный центр проектирует пилотажный тренажер с VR-шлемом высокого разрешения. Шлем оснащен двумя независимыми Fast-Switch LCD панелями с разрешением 3840 × 2160 каждая и частотой обновления 120 Гц.</p>
 
-    <div class="field-group">
-      <div class="field-title">1. Расчет пропускной способности видеопотока:</div>
-      <p style="font-size: 13.5px; color: var(--muted);">Рассчитайте нескорректированный битрейт для двух панелей 4K (7680 × 2160) при 120 Гц и 10 бит на цветовой канал (RGB 4:4:4). С учетом стандартного VESA интервала гашения (Blanking 15%) определите полный битрейт. Сравните его с полезной пропускной способностью интерфейса DisplayPort 1.4 HBR3 (25.92 Гбит/с) и сделайте вывод о необходимости компрессии DSC 1.2a.</p>
-      <textarea id="v2_q1" placeholder="Приведите формулу расчета битрейта, числовые значения и вывод по DisplayPort..."></textarea>
-      <div class="print-mirror" id="v2_q1_mirror"></div>
-    </div>
+ <div class="field-group">
+ <div class="field-title">1. Расчет пропускной способности видеопотока:</div>
+ <p style="font-size: 13.5px; color: var(--muted);">Рассчитайте нескорректированный битрейт для двух панелей 4K (7680 × 2160) при 120 Гц и 10 бит на цветовой канал (RGB 4:4:4). С учетом стандартного VESA интервала гашения (Blanking 15%) определите полный битрейт. Сравните его с полезной пропускной способностью интерфейса DisplayPort 1.4 HBR3 (25.92 Гбит/с) и сделайте вывод о необходимости компрессии DSC 1.2a.</p>
+ <textarea id="v2_q1" placeholder="Приведите формулу расчета битрейта, числовые значения и вывод по DisplayPort..."></textarea>
+ <div class="print-mirror" id="v2_q1_mirror"></div>
+ </div>
 
-    <div class="field-group">
-      <div class="field-title">2. Архитектура трекинга 6DoF и датчики IMU:</div>
-      <p style="font-size: 13.5px; color: var(--muted);">В чем принципиальная разница между 3DoF и 6DoF трекингом для пилотажного симулятора? Почему инерциальный блок IMU (акселерометр + гироскоп) опрашивается с частотой 1000 Гц, тогда как оптические камеры отслеживания окружения работают на частоте 60–90 Гц?</p>
-      <textarea id="v2_q2" placeholder="Объясните степени свободы, дрейф IMU и роль алгоритма Sensor Fusion..."></textarea>
-      <div class="print-mirror" id="v2_q2_mirror"></div>
-    </div>
+ <div class="field-group">
+ <div class="field-title">2. Архитектура трекинга 6DoF и датчики IMU:</div>
+ <p style="font-size: 13.5px; color: var(--muted);">В чем принципиальная разница между 3DoF и 6DoF трекингом для пилотажного симулятора? Почему инерциальный блок IMU (акселерометр + гироскоп) опрашивается с частотой 1000 Гц, тогда как оптические камеры отслеживания окружения работают на частоте 60–90 Гц?</p>
+ <textarea id="v2_q2" placeholder="Объясните степени свободы, дрейф IMU и роль алгоритма Sensor Fusion..."></textarea>
+ <div class="print-mirror" id="v2_q2_mirror"></div>
+ </div>
 
-    <div class="field-group">
-      <div class="field-title">3. Анализ задержки Motion-to-Photon (MTP):</div>
-      <p style="font-size: 13.5px; color: var(--muted);">Почему задержка MTP должна быть строго &le; 20 мс? Перечислите, из каких этапов складывается эта задержка в тракте «датчик &rarr; USB &rarr; GPU &rarr; DisplayPort &rarr; дисплей», и как технология Low Persistence устраняет смазывание изображения.</p>
-      <textarea id="v2_q3" placeholder="Распишите тайминг задержки и физику Low Persistence..."></textarea>
-      <div class="print-mirror" id="v2_q3_mirror"></div>
-    </div>
-  </div>
+ <div class="field-group">
+ <div class="field-title">3. Анализ задержки Motion-to-Photon (MTP):</div>
+ <p style="font-size: 13.5px; color: var(--muted);">Почему задержка MTP должна быть строго &le; 20 мс? Перечислите, из каких этапов складывается эта задержка в тракте «датчик &rarr; USB &rarr; GPU &rarr; DisplayPort &rarr; дисплей», и как технология Low Persistence устраняет смазывание изображения.</p>
+ <textarea id="v2_q3" placeholder="Распишите тайминг задержки и физику Low Persistence..."></textarea>
+ <div class="print-mirror" id="v2_q3_mirror"></div>
+ </div>
+ </div>
 
-  <!-- ВАРИАНТ 3: МОДУЛЬ СБОРА ДАННЫХ (DAQ) -->
-  <div class="variant-card" id="var-3">
-    <span class="badge">Вариант 3: Промышленный сбор данных</span>
-    <h2>Технический кейс: Автоматизированная испытательная станция (DAQ)</h2>
-    <p><strong>Контекст:</strong> Разрабатывается измерительный стенд ресурсных испытаний турбоагрегата. Требуется непрерывный опрос 16 каналов прецизионных аналоговых датчиков вибрации и динамического давления в условиях жестких промышленных электромагнитных помех.</p>
+ <!-- ВАРИАНТ 3: МОДУЛЬ СБОРА ДАННЫХ (DAQ) -->
+ <div class="variant-card" id="var-3">
+ <span class="badge">Вариант 3: Промышленный сбор данных</span>
+ <h2>Технический кейс: Автоматизированная испытательная станция (DAQ)</h2>
+ <p><strong>Контекст:</strong> Разрабатывается измерительный стенд ресурсных испытаний турбоагрегата. Требуется непрерывный опрос 16 каналов прецизионных аналоговых датчиков вибрации и динамического давления в условиях жестких промышленных электромагнитных помех.</p>
 
-    <div class="field-group">
-      <div class="field-title">1. Параметры АЦП и теорема Котельникова-Найквиста:</div>
-      <p style="font-size: 13.5px; color: var(--muted);">Максимальная регистрируемая частота вибраций составляет 10 кГц. Станция использует 24-битный АЦП с частотой дискретизации 100 кГц на канал. Обоснуйте выбор частоты по теореме Котельникова-Найквиста (запас передискретизации) и рассчитайте поток "сырых" данных со всех 16 каналов в МБайт/с.</p>
-      <textarea id="v3_q1" placeholder="Приведите расчет полосы дискретизации и суммарного потока данных со всех каналов..."></textarea>
-      <div class="print-mirror" id="v3_q1_mirror"></div>
-    </div>
+ <div class="field-group">
+ <div class="field-title">1. Параметры АЦП и теорема Котельникова-Найквиста:</div>
+ <p style="font-size: 13.5px; color: var(--muted);">Максимальная регистрируемая частота вибраций составляет 10 кГц. Станция использует 24-битный АЦП с частотой дискретизации 100 кГц на канал. Обоснуйте выбор частоты по теореме Котельникова-Найквиста (запас передискретизации) и рассчитайте поток "сырых" данных со всех 16 каналов в МБайт/с.</p>
+ <textarea id="v3_q1" placeholder="Приведите расчет полосы дискретизации и суммарного потока данных со всех каналов..."></textarea>
+ <div class="print-mirror" id="v3_q1_mirror"></div>
+ </div>
 
-    <div class="field-group">
-      <div class="field-title">2. Гальваническая развязка и подавление синфазных помех:</div>
-      <p style="font-size: 13.5px; color: var(--muted);">Почему измерительные цепи требуют гальванической развязки до 2.5 кВ между технологическим заземлением турбины и цифровой «землей» управляющего сервера? Что такое коэффициент ослабления синфазного сигнала (CMRR) инструментального усилителя?</p>
-      <textarea id="v3_q2" placeholder="Объясните опасность земляных петель и принцип дифференциального усилителя..."></textarea>
-      <div class="print-mirror" id="v3_q2_mirror"></div>
-    </div>
+ <div class="field-group">
+ <div class="field-title">2. Гальваническая развязка и подавление синфазных помех:</div>
+ <p style="font-size: 13.5px; color: var(--muted);">Почему измерительные цепи требуют гальванической развязки до 2.5 кВ между технологическим заземлением турбины и цифровой «землей» управляющего сервера? Что такое коэффициент ослабления синфазного сигнала (CMRR) инструментального усилителя?</p>
+ <textarea id="v3_q2" placeholder="Объясните опасность земляных петель и принцип дифференциального усилителя..."></textarea>
+ <div class="print-mirror" id="v3_q2_mirror"></div>
+ </div>
 
-    <div class="field-group">
-      <div class="field-title">3. Буферизация и сопряжение с хостом (DMA/PCIe):</div>
-      <p style="font-size: 13.5px; color: var(--muted);">Каким образом контроллер модуля DAQ передает непрерывный массив оцифрованных отсчетов в оперативную память сервера без потери данных при высокой нагрузке на центральный процессор? Опишите роль кольцевого буфера FIFO и механизма прямого доступа к памяти (DMA).</p>
-      <textarea id="v3_q3" placeholder="Опишите взаимодействие FIFO, прерываний и контроллера прямого доступа к памяти..."></textarea>
-      <div class="print-mirror" id="v3_q3_mirror"></div>
-    </div>
-  </div>
+ <div class="field-group">
+ <div class="field-title">3. Буферизация и сопряжение с хостом (DMA/PCIe):</div>
+ <p style="font-size: 13.5px; color: var(--muted);">Каким образом контроллер модуля DAQ передает непрерывный массив оцифрованных отсчетов в оперативную память сервера без потери данных при высокой нагрузке на центральный процессор? Опишите роль кольцевого буфера FIFO и механизма прямого доступа к памяти (DMA).</p>
+ <textarea id="v3_q3" placeholder="Опишите взаимодействие FIFO, прерываний и контроллера прямого доступа к памяти..."></textarea>
+ <div class="print-mirror" id="v3_q3_mirror"></div>
+ </div>
+ </div>
 
-  <!-- ВАРИАНТ 4: ПРОМЫШЛЕННЫЙ ТЕРМИНАЛ ЧПУ -->
-  <div class="variant-card" id="var-4">
-    <span class="badge">Вариант 4: Промышленные шины и ЧПУ</span>
-    <h2>Технический кейс: Промышленный терминал связи ЧПУ (RS-485 Modbus)</h2>
-    <p><strong>Контекст:</strong> Модернизируется цеховая сеть обмена данными между центральным сервером SCADA и 12 металлообрабатывающими станками ЧПУ. Протяженность кабельной трассы по цеху составляет 450 метров рядом с мощными силовыми кабелями электроприводов.</p>
+ <!-- ВАРИАНТ 4: ПРОМЫШЛЕННЫЙ ТЕРМИНАЛ ЧПУ -->
+ <div class="variant-card" id="var-4">
+ <span class="badge">Вариант 4: Промышленные шины и ЧПУ</span>
+ <h2>Технический кейс: Промышленный терминал связи ЧПУ (RS-485 Modbus)</h2>
+ <p><strong>Контекст:</strong> Модернизируется цеховая сеть обмена данными между центральным сервером SCADA и 12 металлообрабатывающими станками ЧПУ. Протяженность кабельной трассы по цеху составляет 450 метров рядом с мощными силовыми кабелями электроприводов.</p>
 
-    <div class="field-group">
-      <div class="field-title">1. Физический уровень RS-485 и помехоустойчивость:</div>
-      <p style="font-size: 13.5px; color: var(--muted);">Опишите физический принцип дифференциальной передачи данных по витой паре A и B. Какая разность потенциалов (V<sub>A</sub> - V<sub>B</sub>) соответствует логической «1» и «0»? Почему синфазная электромагнитная наводка от сварочных аппаратов и моторов не разрушает данные?</p>
-      <textarea id="v4_q1" placeholder="Приведите формулу дифференциального сигнала и объясните вычитание синфазного шума..."></textarea>
-      <div class="print-mirror" id="v4_q1_mirror"></div>
-    </div>
+ <div class="field-group">
+ <div class="field-title">1. Физический уровень RS-485 и помехоустойчивость:</div>
+ <p style="font-size: 13.5px; color: var(--muted);">Опишите физический принцип дифференциальной передачи данных по витой паре A и B. Какая разность потенциалов (V<sub>A</sub> - V<sub>B</sub>) соответствует логической «1» и «0»? Почему синфазная электромагнитная наводка от сварочных аппаратов и моторов не разрушает данные?</p>
+ <textarea id="v4_q1" placeholder="Приведите формулу дифференциального сигнала и объясните вычитание синфазного шума..."></textarea>
+ <div class="print-mirror" id="v4_q1_mirror"></div>
+ </div>
 
-    <div class="field-group">
-      <div class="field-title">2. Согласование линии и оптическая изоляция:</div>
-      <p style="font-size: 13.5px; color: var(--muted);">Зачем на двух крайних концах 450-метровой линии RS-485 обязательна установка терминальных резисторов номиналом 120 Ом? Что произойдет без них на скорости 115200 бод? Зачем в трансиверах (например, ADM2483) применяется оптоэлектронная или магнитная изоляция?</p>
-      <textarea id="v4_q2" placeholder="Опишите волновые отражения в кабеле и защиту от разности потенциалов земель станков..."></textarea>
-      <div class="print-mirror" id="v4_q2_mirror"></div>
-    </div>
+ <div class="field-group">
+ <div class="field-title">2. Согласование линии и оптическая изоляция:</div>
+ <p style="font-size: 13.5px; color: var(--muted);">Зачем на двух крайних концах 450-метровой линии RS-485 обязательна установка терминальных резисторов номиналом 120 Ом? Что произойдет без них на скорости 115200 бод? Зачем в трансиверах (например, ADM2483) применяется оптоэлектронная или магнитная изоляция?</p>
+ <textarea id="v4_q2" placeholder="Опишите волновые отражения в кабеле и защиту от разности потенциалов земель станков..."></textarea>
+ <div class="print-mirror" id="v4_q2_mirror"></div>
+ </div>
 
-    <div class="field-group">
-      <div class="field-title">3. Протокол Modbus RTU и расчет пропускной способности:</div>
-      <p style="font-size: 13.5px; color: var(--muted);">Опишите структуру кадра Modbus RTU (Адрес slave, код функции, данные, CRC16). Рассчитайте минимальное время опроса одного станка (запрос 8 байт + ответ 16 байт) на скорости 19200 бод (формат 8-N-1, то есть 10 бит на байт) и сделайте вывод о времени полного цикла опроса всех 12 станков.</p>
-      <textarea id="v4_q3" placeholder="Приведите расчет времени передачи байт, пауз между кадрами t3.5 и итогового цикла..."></textarea>
-      <div class="print-mirror" id="v4_q3_mirror"></div>
-    </div>
-  </div>
+ <div class="field-group">
+ <div class="field-title">3. Протокол Modbus RTU и расчет пропускной способности:</div>
+ <p style="font-size: 13.5px; color: var(--muted);">Опишите структуру кадра Modbus RTU (Адрес slave, код функции, данные, CRC16). Рассчитайте минимальное время опроса одного станка (запрос 8 байт + ответ 16 байт) на скорости 19200 бод (формат 8-N-1, то есть 10 бит на байт) и сделайте вывод о времени полного цикла опроса всех 12 станков.</p>
+ <textarea id="v4_q3" placeholder="Приведите расчет времени передачи байт, пауз между кадрами t3.5 и итогового цикла..."></textarea>
+ <div class="print-mirror" id="v4_q3_mirror"></div>
+ </div>
+ </div>
 
-  <!-- БЛОК ПОВТОРЕНИЯ КУРСА К ДИФФЕРЕНЦИРОВАННОМУ ЗАЧЕТУ (ТЕМЫ 01-12) -->
-  <div class="task-card">
-    <span class="badge" style="background:#fef3c7; color:#b45309;">Обязательный блок к зачету</span>
-    <h2>Тренировочный блок повторения курса: Темы 01–12</h2>
-    <p style="font-size: 14px; color: var(--muted);">Ответьте на три контрольных вопроса для закрепления фундаментальных тем перед зачетом:</p>
+ <!-- БЛОК ПОВТОРЕНИЯ КУРСА К ДИФФЕРЕНЦИРОВАННОМУ ЗАЧЕТУ (ТЕМЫ 01-12) -->
+ <div class="task-card">
+ <span class="badge" style="background:#fef3c7; color:#b45309;">Обязательный блок к зачету</span>
+ <h2>Тренировочный блок повторения курса: Темы 01–12</h2>
+ <p style="font-size: 14px; color: var(--muted);">Ответьте на три контрольных вопроса для закрепления фундаментальных тем перед зачетом:</p>
 
-    <div class="field-group">
-      <div class="field-title">Вопрос 1 (Темы 01–06: Архитектура ЭВМ и логика):</div>
-      <p style="font-size: 13.5px; color: var(--muted);">В чем заключается «узкое место фон Неймана»? Постройте таблицу истинности для полусумматора (входы A, B &rarr; сумма S, перенос P).</p>
-      <textarea id="rev_q1" placeholder="Запишите формулировку узкого места фон Неймана и таблицу истинности..."></textarea>
-      <div class="print-mirror" id="rev_q1_mirror"></div>
-    </div>
+ <div class="field-group">
+ <div class="field-title">Вопрос 1 (Темы 01–06: Архитектура ЭВМ и логика):</div>
+ <p style="font-size: 13.5px; color: var(--muted);">В чем заключается «узкое место фон Неймана»? Постройте таблицу истинности для полусумматора (входы A, B &rarr; сумма S, перенос P).</p>
+ <textarea id="rev_q1" placeholder="Запишите формулировку узкого места фон Неймана и таблицу истинности..."></textarea>
+ <div class="print-mirror" id="rev_q1_mirror"></div>
+ </div>
 
-    <div class="field-group">
-      <div class="field-title">Вопрос 2 (Темы 07–08: Конвейер процессора и ускорение):</div>
-      <p style="font-size: 13.5px; color: var(--muted);">Перечислите 5 стадий конвейера команд процессора. Какие три типа конфликтов (Hazards) снижают его производительность, и как работает предсказатель ветвлений?</p>
-      <textarea id="rev_q2" placeholder="Стадии Fetch-Decode-Execute..., типы конфликтов и принцип Branch Prediction..."></textarea>
-      <div class="print-mirror" id="rev_q2_mirror"></div>
-    </div>
+ <div class="field-group">
+ <div class="field-title">Вопрос 2 (Темы 07–08: Конвейер процессора и ускорение):</div>
+ <p style="font-size: 13.5px; color: var(--muted);">Перечислите 5 стадий конвейера команд процессора. Какие три типа конфликтов (Hazards) снижают его производительность, и как работает предсказатель ветвлений?</p>
+ <textarea id="rev_q2" placeholder="Стадии Fetch-Decode-Execute..., типы конфликтов и принцип Branch Prediction..."></textarea>
+ <div class="print-mirror" id="rev_q2_mirror"></div>
+ </div>
 
-    <div class="field-group">
-      <div class="field-title">Вопрос 3 (Темы 09–12: Память, шины и периферия):</div>
-      <p style="font-size: 13.5px; color: var(--muted);">Сравните физическую организацию памяти SRAM (кэш CPU) и DRAM (ОЗУ). Рассчитайте теоретическую пропускную способность шины PCIe 4.0 x4 при кодировании 128b/130b.</p>
-      <textarea id="rev_q3" placeholder="Триггерная SRAM против конденсаторной DRAM с регенерацией, расчет PCIe 4.0 x4..."></textarea>
-      <div class="print-mirror" id="rev_q3_mirror"></div>
-    </div>
-  </div>
+ <div class="field-group">
+ <div class="field-title">Вопрос 3 (Темы 09–12: Память, шины и периферия):</div>
+ <p style="font-size: 13.5px; color: var(--muted);">Сравните физическую организацию памяти SRAM (кэш CPU) и DRAM (ОЗУ). Рассчитайте теоретическую пропускную способность шины PCIe 4.0 x4 при кодировании 128b/130b.</p>
+ <textarea id="rev_q3" placeholder="Триггерная SRAM против конденсаторной DRAM с регенерацией, расчет PCIe 4.0 x4..."></textarea>
+ <div class="print-mirror" id="rev_q3_mirror"></div>
+ </div>
+ </div>
 
-  <!-- КРАТКАЯ КРИТЕРИАЛЬНАЯ РУБРИКА ДЛЯ СТУДЕНТА -->
-  <div class="rubric-card">
-    <h3 style="color:var(--accent); margin-bottom:8px;">Критерии оценивания работы (4-балльная шкала)</h3>
-    <table style="font-size:13px; margin:0;">
-      <thead>
-        <tr>
-          <th>Баллы</th>
-          <th>Критерий 1: Нестандартная периферия (2 б.)</th>
-          <th>Критерий 2: Повторение тем 01–12 (1 б.)</th>
-          <th>Критерий 3: Выводы и обоснование (1 б.)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>4 балла («5»)</strong></td>
-          <td>Точный расчет параметров (шаг, битрейт, АЦП, Modbus), исчерпывающее знание интерфейсов.</td>
-          <td>Безошибочные ответы по фон Нейману, логике, конвейеру и памяти.</td>
-          <td>Глубокое понимание узких мест (дрейф IMU, термобарьер, помехоустойчивость).</td>
-        </tr>
-        <tr>
-          <td><strong>3 балла («4»)</strong></td>
-          <td>Верный расчет, незначительные неточности в спецификации компонентов.</td>
-          <td>Допущена 1 неточность в блоке повторения (например, погрешность в PCIe).</td>
-          <td>Обоснование корректное, но краткое без инженерных деталей.</td>
-        </tr>
-        <tr>
-          <td><strong>2 балла («3»)</strong></td>
-          <td>Ошибки в расчетах формул, частичный ответ на вопросы по оборудованию.</td>
-          <td>Частичные ответы на 2 вопроса блока повторения.</td>
-          <td>Поверхностные выводы без обоснования физических процессов.</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+ <!-- КРАТКАЯ КРИТЕРИАЛЬНАЯ РУБРИКА ДЛЯ СТУДЕНТА -->
+ <div class="rubric-card">
+ <h3 style="color:var(--accent); margin-bottom:8px;">Критерии оценивания работы (4-балльная шкала)</h3>
+ <table style="font-size:13px; margin:0;">
+ <thead>
+ <tr>
+ <th>Баллы</th>
+ <th>Критерий 1: Нестандартная периферия (2 б.)</th>
+ <th>Критерий 2: Повторение тем 01–12 (1 б.)</th>
+ <th>Критерий 3: Выводы и обоснование (1 б.)</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>4 балла («5»)</strong></td>
+ <td>Точный расчет параметров (шаг, битрейт, АЦП, Modbus), исчерпывающее знание интерфейсов.</td>
+ <td>Безошибочные ответы по фон Нейману, логике, конвейеру и памяти.</td>
+ <td>Глубокое понимание узких мест (дрейф IMU, термобарьер, помехоустойчивость).</td>
+ </tr>
+ <tr>
+ <td><strong>3 балла («4»)</strong></td>
+ <td>Верный расчет, незначительные неточности в спецификации компонентов.</td>
+ <td>Допущена 1 неточность в блоке повторения (например, погрешность в PCIe).</td>
+ <td>Обоснование корректное, но краткое без инженерных деталей.</td>
+ </tr>
+ <tr>
+ <td><strong>2 балла («3»)</strong></td>
+ <td>Ошибки в расчетах формул, частичный ответ на вопросы по оборудованию.</td>
+ <td>Частичные ответы на 2 вопроса блока повторения.</td>
+ <td>Поверхностные выводы без обоснования физических процессов.</td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
 
-  <!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
-  <div class="actions-card">
-    <div class="btn-group">
-      <button type="button" class="btn-primary" onclick="saveStudentWork()">Сохранить работу</button>
-      <button type="button" class="btn-secondary" onclick="window.print()">Печать / Экспорт в PDF</button>
-      <button type="button" class="btn-danger" onclick="resetStudentWork()">Очистить лист</button>
-    </div>
-    <span class="status-msg" id="status_msg"></span>
-  </div>
+ <!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
+ <div class="actions-card">
+ <div class="btn-group">
+ <button type="button" class="btn-primary" onclick="saveStudentWork()">Сохранить работу</button>
+ <button type="button" class="btn-secondary" onclick="window.print()">Печать / Экспорт в PDF</button>
+ <button type="button" class="btn-danger" onclick="resetStudentWork()">Очистить лист</button>
+ </div>
+ <span class="status-msg" id="status_msg"></span>
+ </div>
 
 </div>
 
 <script>
-  const STORAGE_KEY = 'top_lab16_student_v1';
-  const textFields = [
-    'st_fio', 'st_group', 'st_variant',
-    'v1_q1', 'v1_q2', 'v1_q3',
-    'v2_q1', 'v2_q2', 'v2_q3',
-    'v3_q1', 'v3_q2', 'v3_q3',
-    'v4_q1', 'v4_q2', 'v4_q3',
-    'rev_q1', 'rev_q2', 'rev_q3'
-  ];
+ const STORAGE_KEY = 'top_lab16_student_v1';
+ const textFields = [
+ 'st_fio', 'st_group', 'st_variant',
+ 'v1_q1', 'v1_q2', 'v1_q3',
+ 'v2_q1', 'v2_q2', 'v2_q3',
+ 'v3_q1', 'v3_q2', 'v3_q3',
+ 'v4_q1', 'v4_q2', 'v4_q3',
+ 'rev_q1', 'rev_q2', 'rev_q3'
+ ];
 
-  function changeVariant() {
-    const val = document.getElementById('st_variant').value;
-    for (let i = 1; i <= 4; i++) {
-      const card = document.getElementById('var-' + i);
-      if (card) {
-        if (String(i) === val) {
-          card.classList.add('active');
-        } else {
-          card.classList.remove('active');
-        }
-      }
-    }
-    saveStudentWork();
-  }
+ function changeVariant() {
+ const val = document.getElementById('st_variant').value;
+ for (let i = 1; i <= 4; i++) {
+ const card = document.getElementById('var-' + i);
+ if (card) {
+ if (String(i) === val) {
+ card.classList.add('active');
+ } else {
+ card.classList.remove('active');
+ }
+ }
+ }
+ saveStudentWork();
+ }
 
-  function updateMirrors() {
-    textFields.forEach(id => {
-      const el = document.getElementById(id);
-      const mirror = document.getElementById(id + '_mirror');
-      if (el && mirror) {
-        mirror.textContent = el.value || '— Не заполнено —';
-      }
-    });
-  }
+ function updateMirrors() {
+ textFields.forEach(id => {
+ const el = document.getElementById(id);
+ const mirror = document.getElementById(id + '_mirror');
+ if (el && mirror) {
+ mirror.textContent = el.value | '— Не заполнено —';
+ }
+ });
+ }
 
-  function saveStudentWork() {
-    const data = {};
-    textFields.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) data[id] = el.value;
-    });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    updateMirrors();
-    const msg = document.getElementById('status_msg');
-    msg.textContent = 'Сохранено (' + new Date().toLocaleTimeString() + ')';
-    setTimeout(() => { msg.textContent = ''; }, 3500);
-  }
+ function saveStudentWork() {
+ const data = {};
+ textFields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) data[id] = el.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ updateMirrors();
+ const msg = document.getElementById('status_msg');
+ msg.textContent = 'Сохранено (' + new Date().toLocaleTimeString() + ')';
+ setTimeout(() => { msg.textContent = ''; }, 3500);
+ }
 
-  function loadStudentWork() {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    try {
-      const data = JSON.parse(raw);
-      textFields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el && data[id] !== undefined) {
-          el.value = data[id];
-        }
-      });
-      changeVariant();
-      updateMirrors();
-    } catch (e) {
-      console.error('Ошибка загрузки данных', e);
-    }
-  }
+ function loadStudentWork() {
+ const raw = localStorage.getItem(STORAGE_KEY);
+ if (!raw) return;
+ try {
+ const data = JSON.parse(raw);
+ textFields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el && data[id] !== undefined) {
+ el.value = data[id];
+ }
+ });
+ changeVariant();
+ updateMirrors();
+ } catch (e) {
+ console.error('Ошибка загрузки данных', e);
+ }
+ }
 
-  function resetStudentWork() {
-    if (confirm('Вы уверены, что хотите очистить весь рабочий лист? Все введенные ответы и расчеты будут удалены без возможности восстановления.')) {
-      localStorage.removeItem(STORAGE_KEY);
-      textFields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-      });
-      changeVariant();
-      updateMirrors();
-      const msg = document.getElementById('status_msg');
-      msg.textContent = 'Рабочий лист очищен';
-      setTimeout(() => { msg.textContent = ''; }, 3000);
-    }
-  }
+ function resetStudentWork() {
+ if (confirm('Вы уверены, что хотите очистить весь рабочий лист? Все введенные ответы и расчеты будут удалены без возможности восстановления.')) {
+ localStorage.removeItem(STORAGE_KEY);
+ textFields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) el.value = '';
+ });
+ changeVariant();
+ updateMirrors();
+ const msg = document.getElementById('status_msg');
+ msg.textContent = 'Рабочий лист очищен';
+ setTimeout(() => { msg.textContent = ''; }, 3000);
+ }
+ }
 
-  window.addEventListener('DOMContentLoaded', () => {
-    loadStudentWork();
-    textFields.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener('input', () => {
-          updateMirrors();
-          saveStudentWork();
-        });
-      }
-    });
-  });
+ window.addEventListener('DOMContentLoaded', () => {
+ loadStudentWork();
+ textFields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) {
+ el.addEventListener('input', () => {
+ updateMirrors();
+ saveStudentWork();
+ });
+ }
+ });
+ });
 
-  window.addEventListener('beforeprint', updateMirrors);
+ window.addEventListener('beforeprint', updateMirrors);
 </script>
 
 </body>

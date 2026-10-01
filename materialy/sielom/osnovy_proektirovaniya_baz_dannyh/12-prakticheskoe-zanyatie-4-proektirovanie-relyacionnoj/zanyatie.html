@@ -1,688 +1,640 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Рабочий лист: Практическое занятие №4: проектирование реляционной БД</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --text-muted: #475569;
-      --border: #cbd5e1;
-      --accent: #0284c7;
-      --accent-hover: #0369a1;
-      --accent-soft: #f0f9ff;
-      --danger: #ef4444;
-      --success: #10b981;
-    }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Рабочий лист: Практическое занятие №4: проектирование реляционной БД</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card-bg: #ffffff;
+ --text: #0f172a;
+ --text-muted: #475569;
+ --border: #cbd5e1;
+ --accent: #0284c7;
+ --accent-hover: #0369a1;
+ --accent-soft: #f0f9ff;
+ --danger: #ef4444;
+ --success: #10b981;
+ }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ }
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      padding: 24px 16px;
-      min-width: 320px;
-    }
+ body {
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+ background-color: var(--bg);
+ color: var(--text);
+ line-height: 1.6;
+ padding: 24px 16px;
+ min-width: 320px;
+ }.container {
+ max-width: 960px;
+ margin: 0 auto;
+ width: 100%;
+ }
 
-    .container {
-      max-width: 960px;
-      margin: 0 auto;
-      width: 100%;
-    }
+ header.task-header {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    header.task-header {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ h1 {
+ font-size: 1.85rem;
+ font-weight: 800;
+ color: var(--text);
+ margin-bottom: 8px;
+ word-break: break-word;
+ }.subtitle {
+ font-size: 1.05rem;
+ color: var(--text-muted);
+ }.student-meta {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 16px;
+ margin-top: 20px;
+ padding-top: 16px;
+ border-top: 1px solid var(--border);
+ }.meta-field {
+ display: flex;
+ flex-direction: column;
+ gap: 6px;
+ }.meta-field label {
+ font-size: 0.85rem;
+ font-weight: 600;
+ color: var(--text-muted);
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+ }.meta-field input {
+ padding: 8px 12px;
+ border: 1px solid var(--border);
+ border-radius: 6px;
+ font-size: 0.95rem;
+ color: var(--text);
+ outline: none;
+ width: 100%;
+ }.meta-field input:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 2px var(--accent-soft);
+ }.variant-selector-box {
+ margin-top: 20px;
+ padding-top: 16px;
+ border-top: 1px solid var(--border);
+ }.variant-selector-label {
+ font-size: 0.9rem;
+ font-weight: 700;
+ color: var(--text);
+ margin-bottom: 8px;
+ display: block;
+ }.variant-tabs {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+ gap: 10px;
+ margin-top: 8px;
+ }.v-tab-btn {
+ padding: 10px 14px;
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ background: #f8fafc;
+ font-size: 0.88rem;
+ font-weight: 600;
+ cursor: pointer;
+ text-align: left;
+ transition: all 0.2s ease;
+ color: var(--text-muted);
+ }.v-tab-btn:hover {
+ background: #e2e8f0;
+ color: var(--text);
+ }.v-tab-btn.active {
+ background: var(--accent-soft);
+ border-color: var(--accent);
+ color: var(--accent-hover);
+ }.variant-container {
+ display: none;
+ }.variant-container.active {
+ display: block;
+ }
 
-    h1 {
-      font-size: 1.85rem;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 8px;
-      word-break: break-word;
-    }
+ section.task-section {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    .subtitle {
-      font-size: 1.05rem;
-      color: var(--text-muted);
-    }
+ h2 {
+ font-size: 1.35rem;
+ font-weight: 700;
+ color: var(--accent-hover);
+ margin-bottom: 12px;
+ border-left: 4px solid var(--accent);
+ padding-left: 12px;
+ }
 
-    .student-meta {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 20px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
+ h3 {
+ font-size: 1.05rem;
+ font-weight: 600;
+ margin: 16px 0 8px;
+ color: var(--text);
+ }.badge-var {
+ display: inline-block;
+ padding: 4px 10px;
+ border-radius: 6px;
+ font-size: 0.82rem;
+ font-weight: 700;
+ background: #e0f2fe;
+ color: #0369a1;
+ margin-bottom: 12px;
+ }.case-card {
+ background: #f8fafc;
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ padding: 16px;
+ margin-bottom: 18px;
+ font-size: 0.95rem;
+ }.case-card ul {
+ margin-left: 20px;
+ margin-top: 6px;
+ }.case-card li {
+ margin-bottom: 4px;
+ }
 
-    .meta-field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+ textarea.input-area {
+ width: 100%;
+ min-height: 110px;
+ padding: 12px;
+ border: 1px solid var(--border);
+ border-radius: 6px;
+ font-family: ui-monospace, Menlo, Consolas, monospace;
+ font-size: 0.92rem;
+ line-height: 1.5;
+ color: var(--text);
+ resize: vertical;
+ outline: none;
+ margin-top: 6px;
+ margin-bottom: 14px;
+ }
 
-    .meta-field label {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
+ textarea.input-area:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 2px var(--accent-soft);
+ }.actions-bar {
+ display: flex;
+ gap: 12px;
+ margin-top: 20px;
+ padding-top: 16px;
+ border-top: 1px solid var(--border);
+ flex-wrap: wrap;
+ }
 
-    .meta-field input {
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.95rem;
-      color: var(--text);
-      outline: none;
-      width: 100%;
-    }
+ button.btn {
+ padding: 10px 20px;
+ font-size: 0.95rem;
+ font-weight: 600;
+ border-radius: 6px;
+ cursor: pointer;
+ border: none;
+ transition: all 0.2s ease;
+ }
 
-    .meta-field input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-soft);
-    }
+ button.btn-primary {
+ background: var(--accent);
+ color: #ffffff;
+ }
 
-    .variant-selector-box {
-      margin-top: 20px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
+ button.btn-primary:hover {
+ background: var(--accent-hover);
+ }
 
-    .variant-selector-label {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 8px;
-      display: block;
-    }
+ button.btn-secondary {
+ background: #e2e8f0;
+ color: #334155;
+ }
 
-    .variant-tabs {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 10px;
-      margin-top: 8px;
-    }
+ button.btn-secondary:hover {
+ background: #cbd5e1;
+ }.save-status {
+ font-size: 0.9rem;
+ color: #16a34a;
+ align-self: center;
+ display: none;
+ font-weight: 600;
+ }
 
-    .v-tab-btn {
-      padding: 10px 14px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: #f8fafc;
-      font-size: 0.88rem;
-      font-weight: 600;
-      cursor: pointer;
-      text-align: left;
-      transition: all 0.2s ease;
-      color: var(--text-muted);
-    }
+ /* Print styles */
+ @media print {
+ body {
+ background: #ffffff;
+ color: #000000;
+ padding: 0;
+ }.actions-bar,.variant-selector-box {
+ display: none !important;
+ }.variant-container {
+ display: none !important;
+ }.variant-container.active {
+ display: block !important;
+ }
+ section.task-section, header.task-header {
+ border: 1px solid #94a3b8;
+ box-shadow: none;
+ page-break-inside: avoid;
+ margin-bottom: 16px;
+ padding: 16px;
+ }
+ input::placeholder, textarea::placeholder {
+ color: transparent !important;
+ }
+ textarea.input-area {
+ border: 1px solid #64748b;
+ color: #000000;
+ min-height: 80px;
+ height: auto;
+ }
+ }
 
-    .v-tab-btn:hover {
-      background: #e2e8f0;
-      color: var(--text);
-    }
-
-    .v-tab-btn.active {
-      background: var(--accent-soft);
-      border-color: var(--accent);
-      color: var(--accent-hover);
-    }
-
-    .variant-container {
-      display: none;
-    }
-
-    .variant-container.active {
-      display: block;
-    }
-
-    section.task-section {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-
-    h2 {
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: var(--accent-hover);
-      margin-bottom: 12px;
-      border-left: 4px solid var(--accent);
-      padding-left: 12px;
-    }
-
-    h3 {
-      font-size: 1.05rem;
-      font-weight: 600;
-      margin: 16px 0 8px;
-      color: var(--text);
-    }
-
-    .badge-var {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      background: #e0f2fe;
-      color: #0369a1;
-      margin-bottom: 12px;
-    }
-
-    .case-card {
-      background: #f8fafc;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 18px;
-      font-size: 0.95rem;
-    }
-
-    .case-card ul {
-      margin-left: 20px;
-      margin-top: 6px;
-    }
-
-    .case-card li {
-      margin-bottom: 4px;
-    }
-
-    textarea.input-area {
-      width: 100%;
-      min-height: 110px;
-      padding: 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-family: ui-monospace, Menlo, Consolas, monospace;
-      font-size: 0.92rem;
-      line-height: 1.5;
-      color: var(--text);
-      resize: vertical;
-      outline: none;
-      margin-top: 6px;
-      margin-bottom: 14px;
-    }
-
-    textarea.input-area:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-soft);
-    }
-
-    .actions-bar {
-      display: flex;
-      gap: 12px;
-      margin-top: 20px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-      flex-wrap: wrap;
-    }
-
-    button.btn {
-      padding: 10px 20px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      border-radius: 6px;
-      cursor: pointer;
-      border: none;
-      transition: all 0.2s ease;
-    }
-
-    button.btn-primary {
-      background: var(--accent);
-      color: #ffffff;
-    }
-
-    button.btn-primary:hover {
-      background: var(--accent-hover);
-    }
-
-    button.btn-secondary {
-      background: #e2e8f0;
-      color: #334155;
-    }
-
-    button.btn-secondary:hover {
-      background: #cbd5e1;
-    }
-
-    .save-status {
-      font-size: 0.9rem;
-      color: #16a34a;
-      align-self: center;
-      display: none;
-      font-weight: 600;
-    }
-
-    /* Print styles */
-    @media print {
-      body {
-        background: #ffffff;
-        color: #000000;
-        padding: 0;
-      }
-      .actions-bar, .variant-selector-box {
-        display: none !important;
-      }
-      .variant-container {
-        display: none !important;
-      }
-      .variant-container.active {
-        display: block !important;
-      }
-      section.task-section, header.task-header {
-        border: 1px solid #94a3b8;
-        box-shadow: none;
-        page-break-inside: avoid;
-        margin-bottom: 16px;
-        padding: 16px;
-      }
-      input::placeholder, textarea::placeholder {
-        color: transparent !important;
-      }
-      textarea.input-area {
-        border: 1px solid #64748b;
-        color: #000000;
-        min-height: 80px;
-        height: auto;
-      }
-    }
-
-    /* Mobile 375px adaptation */
-    @media (max-width: 600px) {
-      body {
-        padding: 12px 8px;
-      }
-      header.task-header, section.task-section {
-        padding: 16px 14px;
-      }
-      h1 {
-        font-size: 1.45rem;
-      }
-      .student-meta {
-        grid-template-columns: 1fr;
-      }
-      .variant-tabs {
-        grid-template-columns: 1fr;
-      }
-      .actions-bar {
-        flex-direction: column;
-      }
-      button.btn {
-        width: 100%;
-      }
-    }
-  </style>
+ /* Mobile 375px adaptation */
+ @media (max-width: 600px) {
+ body {
+ padding: 12px 8px;
+ }
+ header.task-header, section.task-section {
+ padding: 16px 14px;
+ }
+ h1 {
+ font-size: 1.45rem;
+ }.student-meta {
+ grid-template-columns: 1fr;
+ }.variant-tabs {
+ grid-template-columns: 1fr;
+ }.actions-bar {
+ flex-direction: column;
+ }
+ button.btn {
+ width: 100%;
+ }
+ }
+ </style>
 </head>
 <body>
-  <div class="container">
-    <header class="task-header">
-      <h1>Рабочий лист: Практическое занятие №4: проектирование реляционной БД</h1>
-      <div class="subtitle">Индивидуальный практический лист студента СИЭУиП (ОП.08 Основы проектирования баз данных, занятие 12)</div>
+ <div class="container">
+ <header class="task-header">
+ <h1>Рабочий лист: Практическое занятие №4: проектирование реляционной БД</h1>
+ <div class="subtitle">Индивидуальный практический лист студента СИЭУиП (ОП.08 Основы проектирования баз данных, занятие 12)</div>
 
-      <div class="student-meta">
-        <div class="meta-field">
-          <label for="studentFio">ФИО студента:</label>
-          <input type="text" id="studentFio">
-        </div>
-        <div class="meta-field">
-          <label for="studentGroup">Учебная группа:</label>
-          <input type="text" id="studentGroup">
-        </div>
-      </div>
+ <div class="student-meta">
+ <div class="meta-field">
+ <label for="studentFio">ФИО студента:</label>
+ <input type="text" id="studentFio">
+ </div>
+ <div class="meta-field">
+ <label for="studentGroup">Учебная группа:</label>
+ <input type="text" id="studentGroup">
+ </div>
+ </div>
 
-      <div class="variant-selector-box">
-        <span class="variant-selector-label">Выберите ваш практический вариант проекта:</span>
-        <div class="variant-tabs">
-          <button type="button" class="v-tab-btn active" data-v="v1">Вариант 1: Отдел кадров</button>
-          <button type="button" class="v-tab-btn" data-v="v2">Вариант 2: Аптечный склад</button>
-          <button type="button" class="v-tab-btn" data-v="v3">Вариант 3: Учебный центр</button>
-          <button type="button" class="v-tab-btn" data-v="v4">Вариант 4: Автосервис (СТО)</button>
-        </div>
-      </div>
-    </header>
+ <div class="variant-selector-box">
+ <span class="variant-selector-label">Выберите ваш практический вариант проекта:</span>
+ <div class="variant-tabs">
+ <button type="button" class="v-tab-btn active" data-v="v1">Вариант 1: Отдел кадров</button>
+ <button type="button" class="v-tab-btn" data-v="v2">Вариант 2: Аптечный склад</button>
+ <button type="button" class="v-tab-btn" data-v="v3">Вариант 3: Учебный центр</button>
+ <button type="button" class="v-tab-btn" data-v="v4">Вариант 4: Автосервис (СТО)</button>
+ </div>
+ </div>
+ </header>
 
-    <!-- ВАРИАНТ 1: Отдел кадров предприятия -->
-    <div class="variant-container active" id="container-v1">
-      <section class="task-section">
-        <span class="badge-var">Вариант 1 — Комплексный проект</span>
-        <h2>БД «Отдел кадров предприятия»</h2>
-        <div class="case-card">
-          <strong>Постановка задачи и предметная область:</strong>
-          <br>Вам поручено спроектировать реляционную базу данных кадровой службы производственного предприятия. 
-          Исходная ненормализованная таблица содержит следующие атрибуты:
-          <br><code>Сотрудники_Кадры(Таб_номер, ФИО, Телефон, Паспортные_данные, Название_подразделения, Корпус, Номер_комнаты, Название_должности, Базовый_оклад, Номер_приказа, Дата_назначения, Ставка)</code>.
-          <br><br>
-          <strong>Бизнес-правила:</strong>
-          <ul>
-            <li>Каждый сотрудник имеет уникальный табельный номер, ФИО, телефон и серию/номер паспорта.</li>
-            <li>Предприятие разделено на структурные подразделения (отделы). Каждое подразделение расположено в определенном корпусе и кабинете.</li>
-            <li>Штатное расписание строго фиксирует базовый оклад за должностью. Оклад не зависит от подразделения или конкретного сотрудника.</li>
-            <li>Назначение сотрудника на должность оформляется официальным приказом с указанием даты назначения и ставки (от 0.25 до 1.5).</li>
-          </ul>
-        </div>
+ <!-- ВАРИАНТ 1: Отдел кадров предприятия -->
+ <div class="variant-container active" id="container-v1">
+ <section class="task-section">
+ <span class="badge-var">Вариант 1 — Комплексный проект</span>
+ <h2>БД «Отдел кадров предприятия»</h2>
+ <div class="case-card">
+ <strong>Постановка задачи и предметная область:</strong>
+ <br>Вам поручено спроектировать реляционную базу данных кадровой службы производственного предприятия. 
+ Исходная ненормализованная таблица содержит следующие атрибуты:
+ <br><code>Сотрудники_Кадры(Таб_номер, ФИО, Телефон, Паспортные_данные, Название_подразделения, Корпус, Номер_комнаты, Название_должности, Базовый_оклад, Номер_приказа, Дата_назначения, Ставка)</code>.
+ <br><br>
+ <strong>Бизнес-правила:</strong>
+ <ul>
+ <li>Каждый сотрудник имеет уникальный табельный номер, ФИО, телефон и серию/номер паспорта.</li>
+ <li>Предприятие разделено на структурные подразделения (отделы). Каждое подразделение расположено в определенном корпусе и кабинете.</li>
+ <li>Штатное расписание строго фиксирует базовый оклад за должностью. Оклад не зависит от подразделения или конкретного сотрудника.</li>
+ <li>Назначение сотрудника на должность оформляется официальным приказом с указанием даты назначения и ставки (от 0.25 до 1.5).</li>
+ </ul>
+ </div>
 
-        <h3>Шаг 1. Логическая схема и устранение транзитивных зависимостей (3NF)</h3>
-        <p style="font-size:0.92rem; color:var(--text-muted);">
-          Выявите транзитивные функциональные зависимости (в частности, оклада от сотрудника через должность: <code>Таб_номер → Должность → Базовый_оклад</code>). 
-          Спроектируйте не менее 3–4 таблиц в 3NF: <code>departments</code>, <code>positions</code>, <code>employees</code>, <code>appointment_orders</code>. 
-          Укажите состав полей, первичные и внешние ключи.
-        </p>
-        <textarea id="v1_step1" class="input-area" rows="8"></textarea>
+ <h3>Шаг 1. Логическая схема и устранение транзитивных зависимостей (3NF)</h3>
+ <p style="font-size:0.92rem; color:var(--text-muted);">
+ Выявите транзитивные функциональные зависимости (в частности, оклада от сотрудника через должность: <code>Таб_номер → Должность → Базовый_оклад</code>). 
+ Спроектируйте не менее 3–4 таблиц в 3NF: <code>departments</code>, <code>positions</code>, <code>employees</code>, <code>appointment_orders</code>. 
+ Укажите состав полей, первичные и внешние ключи.
+ </p>
+ <textarea id="v1_step1" class="input-area" rows="8"></textarea>
 
-        <h3>Шаг 2. DDL-спецификация (CREATE TABLE)</h3>
-        <p style="font-size:0.92rem; color:var(--text-muted);">
-          Напишите ANSI SQL DDL-скрипт создания таблиц в правильном топологическом порядке. 
-          Обязательно включите: <code>PRIMARY KEY</code>, <code>FOREIGN KEY</code> с <code>ON DELETE RESTRICT</code> для должностей и отделов, <code>UNIQUE</code> для паспорта/названия должности, <code>NOT NULL</code>, и предикаты <code>CHECK (base_salary >= 19242.00)</code> и <code>CHECK (work_rate BETWEEN 0.25 AND 1.50)</code>.
-        </p>
-        <textarea id="v1_step2" class="input-area" rows="14"></textarea>
+ <h3>Шаг 2. DDL-спецификация (CREATE TABLE)</h3>
+ <p style="font-size:0.92rem; color:var(--text-muted);">
+ Напишите ANSI SQL DDL-скрипт создания таблиц в правильном топологическом порядке. 
+ Обязательно включите: <code>PRIMARY KEY</code>, <code>FOREIGN KEY</code> с <code>ON DELETE RESTRICT</code> для должностей и отделов, <code>UNIQUE</code> для паспорта/названия должности, <code>NOT NULL</code>, и предикаты <code>CHECK (base_salary >= 19242.00)</code> и <code>CHECK (work_rate BETWEEN 0.25 AND 1.50)</code>.
+ </p>
+ <textarea id="v1_step2" class="input-area" rows="14"></textarea>
 
-        <h3>Шаг 3. Контрольный набор тестовых кортежей (INSERT INTO)</h3>
-        <p style="font-size:0.92rem; color:var(--text-muted);">
-          Составьте не менее 5 согласованных операторов <code>INSERT INTO</code>, наполняющих все таблицы схемы в топологическом порядке. 
-          Включите 1 граничный кортеж (минимальный оклад или максимальная ставка 1.5) и 1 закомментированный контрпример с демонстрацией перехвата ошибки.
-        </p>
-        <textarea id="v1_step3" class="input-area" rows="10"></textarea>
+ <h3>Шаг 3. Контрольный набор тестовых кортежей (INSERT INTO)</h3>
+ <p style="font-size:0.92rem; color:var(--text-muted);">
+ Составьте не менее 5 согласованных операторов <code>INSERT INTO</code>, наполняющих все таблицы схемы в топологическом порядке. 
+ Включите 1 граничный кортеж (минимальный оклад или максимальная ставка 1.5) и 1 закомментированный контрпример с демонстрацией перехвата ошибки.
+ </p>
+ <textarea id="v1_step3" class="input-area" rows="10"></textarea>
 
-        <h3>Шаг 4. Аналитический самоконтроль</h3>
-        <p style="font-size:0.92rem; color:var(--text-muted);">
-          Ответьте на вопросы:
-          1. Почему вынос оклада в таблицу <code>positions</code> устраняет аномалию обновления?
-          2. Почему для внешнего ключа сотрудника на должность недопустимо правило <code>ON DELETE CASCADE</code>?
-        </p>
-        <textarea id="v1_step4" class="input-area" rows="5"></textarea>
-      </section>
-    </div>
+ <h3>Шаг 4. Аналитический самоконтроль</h3>
+ <p style="font-size:0.92rem; color:var(--text-muted);">
+ Ответьте на вопросы:
+ 1. Почему вынос оклада в таблицу <code>positions</code> устраняет аномалию обновления?
+ 2. Почему для внешнего ключа сотрудника на должность недопустимо правило <code>ON DELETE CASCADE</code>?
+ </p>
+ <textarea id="v1_step4" class="input-area" rows="5"></textarea>
+ </section>
+ </div>
 
-    <!-- ВАРИАНТ 2: Аптечный склад -->
-    <div class="variant-container" id="container-v2">
-      <section class="task-section">
-        <span class="badge-var">Вариант 2 — Комплексный проект</span>
-        <h2>БД «Аптечный склад»</h2>
-        <div class="case-card">
-          <strong>Постановка задачи и предметная область:</strong>
-          <br>Спроектируйте реляционную базу данных регионального фармацевтического логистического склада.
-          Исходная ненормализованная таблица:
-          <br><code>Склад_Медикаменты(Код_товара, Торговое_наименование, Форма_выпуска, Дозировка_мг, Производитель, Страна_производителя, Лицензия_производителя, Номер_партии, Дата_изготовления, Срок_годности, Количество_упаковок, Номер_накладной, Дата_отгрузки, Аптека_получатель)</code>.
-          <br><br>
-          <strong>Бизнес-правила:</strong>
-          <ul>
-            <li>Один производитель выпускает множество наименований препаратов. Страна и лицензия жестко привязаны к компании-производителю.</li>
-            <li>Каждый медикамент имеет форму выпуска (таблетки, ампулы, сироп) и дозировку.</li>
-            <li>Препараты поступают отдельными партиями. У каждой партии строго фиксированы дата производства, срок годности и количество на складе.</li>
-            <li>Срок годности обязан быть строго больше даты изготовления (<code>expiry_date > manufacture_date</code>).</li>
-            <li>Расходная накладная фиксирует отгрузку партии конкретной аптеке.</li>
-          </ul>
-        </div>
+ <!-- ВАРИАНТ 2: Аптечный склад -->
+ <div class="variant-container" id="container-v2">
+ <section class="task-section">
+ <span class="badge-var">Вариант 2 — Комплексный проект</span>
+ <h2>БД «Аптечный склад»</h2>
+ <div class="case-card">
+ <strong>Постановка задачи и предметная область:</strong>
+ <br>Спроектируйте реляционную базу данных регионального фармацевтического логистического склада.
+ Исходная ненормализованная таблица:
+ <br><code>Склад_Медикаменты(Код_товара, Торговое_наименование, Форма_выпуска, Дозировка_мг, Производитель, Страна_производителя, Лицензия_производителя, Номер_партии, Дата_изготовления, Срок_годности, Количество_упаковок, Номер_накладной, Дата_отгрузки, Аптека_получатель)</code>.
+ <br><br>
+ <strong>Бизнес-правила:</strong>
+ <ul>
+ <li>Один производитель выпускает множество наименований препаратов. Страна и лицензия жестко привязаны к компании-производителю.</li>
+ <li>Каждый медикамент имеет форму выпуска (таблетки, ампулы, сироп) и дозировку.</li>
+ <li>Препараты поступают отдельными партиями. У каждой партии строго фиксированы дата производства, срок годности и количество на складе.</li>
+ <li>Срок годности обязан быть строго больше даты изготовления (<code>expiry_date > manufacture_date</code>).</li>
+ <li>Расходная накладная фиксирует отгрузку партии конкретной аптеке.</li>
+ </ul>
+ </div>
 
-        <h3>Шаг 1. Логическая схема и устранение транзитивных зависимостей (3NF)</h3>
-        <p style="font-size:0.92rem; color:var(--text-muted);">
-          Устраните транзитивную зависимость страны производителя от препарата: <code>Код_товара → Производитель → Страна</code>.
-          Спроектируйте не менее 3–4 таблиц: <code>manufacturers</code>, <code>medicines</code>, <code>batches</code>, <code>sales_invoices</code>. 
-          Обоснуйте приведение схемы к 3NF.
-        </p>
-        <textarea id="v2_step1" class="input-area" rows="8"></textarea>
+ <h3>Шаг 1. Логическая схема и устранение транзитивных зависимостей (3NF)</h3>
+ <p style="font-size:0.92rem; color:var(--text-muted);">
+ Устраните транзитивную зависимость страны производителя от препарата: <code>Код_товара → Производитель → Страна</code>.
+ Спроектируйте не менее 3–4 таблиц: <code>manufacturers</code>, <code>medicines</code>, <code>batches</code>, <code>sales_invoices</code>. 
+ Обоснуйте приведение схемы к 3NF.
+ </p>
+ <textarea id="v2_step1" class="input-area" rows="8"></textarea>
 
-        <h3>Шаг 2. DDL-спецификация (CREATE TABLE)</h3>
-        <p style="font-size:0.92rem; color:var(--text-muted);">
-          Напишите DDL-скрипт с типами <code>INT</code>, <code>VARCHAR(N)</code>, <code>DATE</code>, <code>NUMERIC</code>. 
-          Задайте <code>PRIMARY KEY</code>, <code>FOREIGN KEY</code> с <code>ON DELETE RESTRICT</code>, ограничение <code>CHECK (dosage_mg > 0)</code>, <code>CHECK (package_quantity >= 0)</code> и контроль срока годности <code>CHECK (expiry_date > manufacture_date)</code>.
-        </p>
-        <textarea id="v2_step2" class="input-area" rows="14"></textarea>
+ <h3>Шаг 2. DDL-спецификация (CREATE TABLE)</h3>
+ <p style="font-size:0.92rem; color:var(--text-muted);">
+ Напишите DDL-скрипт с типами <code>INT</code>, <code>VARCHAR(N)</code>, <code>DATE</code>, <code>NUMERIC</code>. 
+ Задайте <code>PRIMARY KEY</code>, <code>FOREIGN KEY</code> с <code>ON DELETE RESTRICT</code>, ограничение <code>CHECK (dosage_mg > 0)</code>, <code>CHECK (package_quantity >= 0)</code> и контроль срока годности <code>CHECK (expiry_date > manufacture_date)</code>.
+ </p>
+ <textarea id="v2_step2" class="input-area" rows="14"></textarea>
 
-        <h3>Шаг 3. Контрольный набор тестовых кортежей (INSERT INTO)</h3>
-        <p style="font-size:0.92rem; color:var(--text-muted);">
-          Составьте не менее 5 согласованных операторов <code>INSERT INTO</code> в топологическом порядке. 
-          Приведите закомментированный негативный тест с попыткой вставить партию с просроченной датой годности относительно даты выпуска.
-        </p>
-        <textarea id="v2_step3" class="input-area" rows="10"></textarea>
+ <h3>Шаг 3. Контрольный набор тестовых кортежей (INSERT INTO)</h3>
+ <p style="font-size:0.92rem; color:var(--text-muted);">
+ Составьте не менее 5 согласованных операторов <code>INSERT INTO</code> в топологическом порядке. 
+ Приведите закомментированный негативный тест с попыткой вставить партию с просроченной датой годности относительно даты выпуска.
+ </p>
+ <textarea id="v2_step3" class="input-area" rows="10"></textarea>
 
-        <h3>Шаг 4. Аналитический самоконтроль</h3>
-        <p style="font-size:0.92rem; color:var(--text-muted);">
-          Ответьте на вопросы:
-          1. К какой аномалии привело бы хранение лицензии завода в строке каждой отдельной партии препарата?
-          2. Почему проверка срока годности должна быть объявлена как ограничение CHECK на уровне СУБД, а не только на клиенте?
-        </p>
-        <textarea id="v2_step4" class="input-area" rows="5"></textarea>
-      </section>
-    </div>
+ <h3>Шаг 4. Аналитический самоконтроль</h3>
+ <p style="font-size:0.92rem; color:var(--text-muted);">
+ Ответьте на вопросы:
+ 1. К какой аномалии привело бы хранение лицензии завода в строке каждой отдельной партии препарата?
+ 2. Почему проверка срока годности должна быть объявлена как ограничение CHECK на уровне СУБД, а не только на клиенте?
+ </p>
+ <textarea id="v2_step4" class="input-area" rows="5"></textarea>
+ </section>
+ </div>
 
-    <!-- ВАРИАНТ 3: Учебный центр дополнительного образования -->
-    <div class="variant-container" id="container-v3">
-      <section class="task-section">
-        <span class="badge-var">Вариант 3 — Комплексный проект</span>
-        <h2>БД «Учебный центр дополнительного образования»</h2>
-        <div class="case-card">
-          <strong>Постановка задачи и предметная область:</strong>
-          <br>Разработайте реляционную базу данных коммерческого центра профессиональной переподготовки.
-          Исходная денормализованная таблица:
-          <br><code>Договоры_Обучение(Код_слушателя, ФИО_слушателя, Телефон, Email, Код_группы, Название_курса, Полная_стоимость_курса, Академические_часы, Дата_старта_группы, Номер_платежа, Дата_оплаты, Внесенная_сумма_руб, Статус_оплаты)</code>.
-          <br><br>
-          <strong>Бизнес-правила:</strong>
-          <ul>
-            <li>В учебном центре реализуются типовые образовательные программы (курсы). Стоимость программы и объем часов строго фиксированы за курсом.</li>
-            <li>По курсу формируются учебные группы с определенной датой старта занятий.</li>
-            <li>Слушатель зачисляется в учебную группу.</li>
-            <li>Оплата может вноситься частями (рассрочка). Каждый платеж фиксирует внесенную сумму (<code>payment_amount > 0</code>).</li>
-            <li>Общая сумма платежей не должна превышать полную стоимость курса (каскадный контроль статуса оплаты).</li>
-          </ul>
-        </div>
+ <!-- ВАРИАНТ 3: Учебный центр дополнительного образования -->
+ <div class="variant-container" id="container-v3">
+ <section class="task-section">
+ <span class="badge-var">Вариант 3 — Комплексный проект</span>
+ <h2>БД «Учебный центр дополнительного образования»</h2>
+ <div class="case-card">
+ <strong>Постановка задачи и предметная область:</strong>
+ <br>Разработайте реляционную базу данных коммерческого центра профессиональной переподготовки.
+ Исходная денормализованная таблица:
+ <br><code>Договоры_Обучение(Код_слушателя, ФИО_слушателя, Телефон, Email, Код_группы, Название_курса, Полная_стоимость_курса, Академические_часы, Дата_старта_группы, Номер_платежа, Дата_оплаты, Внесенная_сумма_руб, Статус_оплаты)</code>.
+ <br><br>
+ <strong>Бизнес-правила:</strong>
+ <ul>
+ <li>В учебном центре реализуются типовые образовательные программы (курсы). Стоимость программы и объем часов строго фиксированы за курсом.</li>
+ <li>По курсу формируются учебные группы с определенной датой старта занятий.</li>
+ <li>Слушатель зачисляется в учебную группу.</li>
+ <li>Оплата может вноситься частями (рассрочка). Каждый платеж фиксирует внесенную сумму (<code>payment_amount > 0</code>).</li>
+ <li>Общая сумма платежей не должна превышать полную стоимость курса (каскадный контроль статуса оплаты).</li>
+ </ul>
+ </div>
 
-        <h3>Шаг 1. Логическая схема и устранение транзитивных зависимостей (3NF)</h3>
-        <p style="font-size:0.92rem; color:var(--text-muted);">
-          Устраните зависимость параметров курса от учебной группы: <code>Код_группы → Код_курса → (Стоимость, Часы)</code>.
-          Спроектируйте 4 таблицы в 3NF: <code>courses</code>, <code>study_groups</code>, <code>students</code>, <code>payments</code>. 
-          Укажите первичные и внешние ключи.
-        </p>
-        <textarea id="v3_step1" class="input-area" rows="8"></textarea>
+ <h3>Шаг 1. Логическая схема и устранение транзитивных зависимостей (3NF)</h3>
+ <p style="font-size:0.92rem; color:var(--text-muted);">
+ Устраните зависимость параметров курса от учебной группы: <code>Код_группы → Код_курса → (Стоимость, Часы)</code>.
+ Спроектируйте 4 таблицы в 3NF: <code>courses</code>, <code>study_groups</code>, <code>students</code>, <code>payments</code>. 
+ Укажите первичные и внешние ключи.
+ </p>
+ <textarea id="v3_step1" class="input-area" rows="8"></textarea>
 
-        <h3>Шаг 2. DDL-спецификация (CREATE TABLE)</h3>
-        <p style="font-size:0.92rem; color:var(--text-muted);">
-          Напишите DDL-скрипт с типами <code>NUMERIC(10,2)</code> для сумм, <code>INT</code> для часов и ключей, <code>VARCHAR</code> с ограничением длины. 
-          Задайте <code>UNIQUE</code> на email слушателя, <code>CHECK (total_hours > 0)</code>, <code>CHECK (course_fee >= 5000.00)</code>, <code>CHECK (payment_amount > 0)</code> и правила ссылочной целостности.
-        </p>
-        <textarea id="v3_step2" class="input-area" rows="14"></textarea>
+ <h3>Шаг 2. DDL-спецификация (CREATE TABLE)</h3>
+ <p style="font-size:0.92rem; color:var(--text-muted);">
+ Напишите DDL-скрипт с типами <code>NUMERIC(10,2)</code> для сумм, <code>INT</code> для часов и ключей, <code>VARCHAR</code> с ограничением длины. 
+ Задайте <code>UNIQUE</code> на email слушателя, <code>CHECK (total_hours > 0)</code>, <code>CHECK (course_fee >= 5000.00)</code>, <code>CHECK (payment_amount > 0)</code> и правила ссылочной целостности.
+ </p>
+ <textarea id="v3_step2" class="input-area" rows="14"></textarea>
 
-        <h3>Шаг 3. Контрольный набор тестовых кортежей (INSERT INTO)</h3>
-        <p style="font-size:0.92rem; color:var(--text-muted);">
-          Сформируйте не менее 5 согласованных кортежей <code>INSERT INTO</code>, демонстрирующих платежи нескольких слушателей. 
-          Приведите закомментированный негативный тест с попыткой вставить отрицательную сумму платежа.
-        </p>
-        <textarea id="v3_step3" class="input-area" rows="10"></textarea>
+ <h3>Шаг 3. Контрольный набор тестовых кортежей (INSERT INTO)</h3>
+ <p style="font-size:0.92rem; color:var(--text-muted);">
+ Сформируйте не менее 5 согласованных кортежей <code>INSERT INTO</code>, демонстрирующих платежи нескольких слушателей. 
+ Приведите закомментированный негативный тест с попыткой вставить отрицательную сумму платежа.
+ </p>
+ <textarea id="v3_step3" class="input-area" rows="10"></textarea>
 
-        <h3>Шаг 4. Аналитический самоконтроль</h3>
-        <p style="font-size:0.92rem; color:var(--text-muted);">
-          Ответьте на вопросы:
-          1. Почему удаление курса из каталога должно блокироваться (<code>RESTRICT</code>), если по нему уже созданы учебные группы?
-          2. Какая аномалия вставки возникла бы, если бы курсы хранились в одной таблице со студентами?
-        </p>
-        <textarea id="v3_step4" class="input-area" rows="5"></textarea>
-      </section>
-    </div>
+ <h3>Шаг 4. Аналитический самоконтроль</h3>
+ <p style="font-size:0.92rem; color:var(--text-muted);">
+ Ответьте на вопросы:
+ 1. Почему удаление курса из каталога должно блокироваться (<code>RESTRICT</code>), если по нему уже созданы учебные группы?
+ 2. Какая аномалия вставки возникла бы, если бы курсы хранились в одной таблице со студентами?
+ </p>
+ <textarea id="v3_step4" class="input-area" rows="5"></textarea>
+ </section>
+ </div>
 
-    <!-- ВАРИАНТ 4: Станция техобслуживания (СТО) -->
-    <div class="variant-container" id="container-v4">
-      <section class="task-section">
-        <span class="badge-var">Вариант 4 — Комплексный проект</span>
-        <h2>БД «Станция техобслуживания (СТО)»</h2>
-        <div class="case-card">
-          <strong>Постановка задачи и предметная область:</strong>
-          <br>Спроектируйте архитектуру реляционной базы данных автосервисного центра.
-          Исходная денормализованная таблица:
-          <br><code>Заказы_СТО(Код_автомобиля, Госномер, VIN_номер, Марка_модель, Год_выпуска, ФИО_владельца, Телефон_владельца, Номер_заказ_наряда, Дата_приема, Пробег_км, Описание_неисправности, Код_работы, Наименование_работы, Нормо_часы, Стоимость_нормо_часа)</code>.
-          <br><br>
-          <strong>Бизнес-правила:</strong>
-          <ul>
-            <li>Один клиент может владеть несколькими автомобилями. Данные владельца не зависят от конкретного ремонта.</li>
-            <li>Автомобиль однозначно идентифицируется VIN-кодом (17 символов) и госномером.</li>
-            <li>Каждый визит оформляется заказ-нарядом с фиксацией текущего пробега (<code>mileage >= 0</code>).</li>
-            <li>В рамках одного заказ-наряда может выполняться несколько видов ремонтных работ (связь 1:M «мастер-детали»).</li>
-          </ul>
-        </div>
+ <!-- ВАРИАНТ 4: Станция техобслуживания (СТО) -->
+ <div class="variant-container" id="container-v4">
+ <section class="task-section">
+ <span class="badge-var">Вариант 4 — Комплексный проект</span>
+ <h2>БД «Станция техобслуживания (СТО)»</h2>
+ <div class="case-card">
+ <strong>Постановка задачи и предметная область:</strong>
+ <br>Спроектируйте архитектуру реляционной базы данных автосервисного центра.
+ Исходная денормализованная таблица:
+ <br><code>Заказы_СТО(Код_автомобиля, Госномер, VIN_номер, Марка_модель, Год_выпуска, ФИО_владельца, Телефон_владельца, Номер_заказ_наряда, Дата_приема, Пробег_км, Описание_неисправности, Код_работы, Наименование_работы, Нормо_часы, Стоимость_нормо_часа)</code>.
+ <br><br>
+ <strong>Бизнес-правила:</strong>
+ <ul>
+ <li>Один клиент может владеть несколькими автомобилями. Данные владельца не зависят от конкретного ремонта.</li>
+ <li>Автомобиль однозначно идентифицируется VIN-кодом (17 символов) и госномером.</li>
+ <li>Каждый визит оформляется заказ-нарядом с фиксацией текущего пробега (<code>mileage >= 0</code>).</li>
+ <li>В рамках одного заказ-наряда может выполняться несколько видов ремонтных работ (связь 1:M «мастер-детали»).</li>
+ </ul>
+ </div>
 
-        <h3>Шаг 1. Логическая схема и устранение транзитивных зависимостей (3NF)</h3>
-        <p style="font-size:0.92rem; color:var(--text-muted);">
-          Устраните зависимость контактных данных владельца от автомобиля и заказ-наряда: <code>Заказ_наряд → Автомобиль → Владелец</code>. 
-          Спроектируйте 4 таблицы: <code>clients</code>, <code>vehicles</code>, <code>repair_orders</code>, <code>work_items</code>. 
-          Обоснуйте ключи и связи.
-        </p>
-        <textarea id="v4_step1" class="input-area" rows="8"></textarea>
+ <h3>Шаг 1. Логическая схема и устранение транзитивных зависимостей (3NF)</h3>
+ <p style="font-size:0.92rem; color:var(--text-muted);">
+ Устраните зависимость контактных данных владельца от автомобиля и заказ-наряда: <code>Заказ_наряд → Автомобиль → Владелец</code>. 
+ Спроектируйте 4 таблицы: <code>clients</code>, <code>vehicles</code>, <code>repair_orders</code>, <code>work_items</code>. 
+ Обоснуйте ключи и связи.
+ </p>
+ <textarea id="v4_step1" class="input-area" rows="8"></textarea>
 
-        <h3>Шаг 2. DDL-спецификация (CREATE TABLE)</h3>
-        <p style="font-size:0.92rem; color:var(--text-muted);">
-          Напишите DDL-скрипт с типами <code>CHAR(17)</code> для VIN, <code>VARCHAR(12)</code> для госномера, <code>NUMERIC</code> для стоимости. 
-          Задайте <code>UNIQUE(vin)</code>, <code>UNIQUE(license_plate)</code>, <code>CHECK (mileage >= 0)</code>, <code>CHECK (labor_hours > 0)</code>, правило <code>ON DELETE RESTRICT</code> для клиентов и автомобилей, и <code>ON DELETE CASCADE</code> для таблицы работ <code>work_items</code> при удалении заказ-наряда.
-        </p>
-        <textarea id="v4_step2" class="input-area" rows="14"></textarea>
+ <h3>Шаг 2. DDL-спецификация (CREATE TABLE)</h3>
+ <p style="font-size:0.92rem; color:var(--text-muted);">
+ Напишите DDL-скрипт с типами <code>CHAR(17)</code> для VIN, <code>VARCHAR(12)</code> для госномера, <code>NUMERIC</code> для стоимости. 
+ Задайте <code>UNIQUE(vin)</code>, <code>UNIQUE(license_plate)</code>, <code>CHECK (mileage >= 0)</code>, <code>CHECK (labor_hours > 0)</code>, правило <code>ON DELETE RESTRICT</code> для клиентов и автомобилей, и <code>ON DELETE CASCADE</code> для таблицы работ <code>work_items</code> при удалении заказ-наряда.
+ </p>
+ <textarea id="v4_step2" class="input-area" rows="14"></textarea>
 
-        <h3>Шаг 3. Контрольный набор тестовых кортежей (INSERT INTO)</h3>
-        <p style="font-size:0.92rem; color:var(--text-muted);">
-          Сформируйте не менее 5 согласованных кортежей <code>INSERT INTO</code>, покрывающих все 4 таблицы. 
-          Приведите закомментированный негативный тест с попыткой вставить отрицательный пробег или работу с <code>repair_order_id</code>, отсутствующим в базе.
-        </p>
-        <textarea id="v4_step3" class="input-area" rows="10"></textarea>
+ <h3>Шаг 3. Контрольный набор тестовых кортежей (INSERT INTO)</h3>
+ <p style="font-size:0.92rem; color:var(--text-muted);">
+ Сформируйте не менее 5 согласованных кортежей <code>INSERT INTO</code>, покрывающих все 4 таблицы. 
+ Приведите закомментированный негативный тест с попыткой вставить отрицательный пробег или работу с <code>repair_order_id</code>, отсутствующим в базе.
+ </p>
+ <textarea id="v4_step3" class="input-area" rows="10"></textarea>
 
-        <h3>Шаг 4. Аналитический самоконтроль</h3>
-        <p style="font-size:0.92rem; color:var(--text-muted);">
-          Ответьте на вопросы:
-          1. Почему для связи <code>repair_orders → work_items</code> допустимо правило <code>ON DELETE CASCADE</code>, а для связи <code>clients → vehicles</code> оно категорически запрещено?
-          2. Зачем нужен суррогатный ключ <code>vehicle_id INT</code>, если VIN-код уникален?
-        </p>
-        <textarea id="v4_step4" class="input-area" rows="5"></textarea>
-      </section>
-    </div>
+ <h3>Шаг 4. Аналитический самоконтроль</h3>
+ <p style="font-size:0.92rem; color:var(--text-muted);">
+ Ответьте на вопросы:
+ 1. Почему для связи <code>repair_orders → work_items</code> допустимо правило <code>ON DELETE CASCADE</code>, а для связи <code>clients → vehicles</code> оно категорически запрещено?
+ 2. Зачем нужен суррогатный ключ <code>vehicle_id INT</code>, если VIN-код уникален?
+ </p>
+ <textarea id="v4_step4" class="input-area" rows="5"></textarea>
+ </section>
+ </div>
 
-    <!-- Панель действий -->
-    <div class="actions-bar">
-      <button type="button" class="btn btn-primary" id="saveBtn">Сохранить данные</button>
-      <button type="button" class="btn btn-secondary" id="printBtn">Версия для печати / PDF</button>
-      <button type="button" class="btn btn-secondary" id="clearBtn">Очистить форму</button>
-      <span class="save-status" id="saveStatus">Данные успешно сохранены в браузере!</span>
-    </div>
+ <!-- Панель действий -->
+ <div class="actions-bar">
+ <button type="button" class="btn btn-primary" id="saveBtn">Сохранить данные</button>
+ <button type="button" class="btn btn-secondary" id="printBtn">Версия для печати / PDF</button>
+ <button type="button" class="btn btn-secondary" id="clearBtn">Очистить форму</button>
+ <span class="save-status" id="saveStatus">Данные успешно сохранены в браузере!</span>
+ </div>
 
-  </div>
+ </div>
 
-  <script>
-    (function() {
-      const STORAGE_KEY = 'sieup_db_lesson12_worksheet';
+ <script>
+ (function() {
+ const STORAGE_KEY = 'sieup_db_lesson12_worksheet';
 
-      const tabBtns = document.querySelectorAll('.v-tab-btn');
-      const containers = {
-        v1: document.getElementById('container-v1'),
-        v2: document.getElementById('container-v2'),
-        v3: document.getElementById('container-v3'),
-        v4: document.getElementById('container-v4')
-      };
+ const tabBtns = document.querySelectorAll('.v-tab-btn');
+ const containers = {
+ v1: document.getElementById('container-v1'),
+ v2: document.getElementById('container-v2'),
+ v3: document.getElementById('container-v3'),
+ v4: document.getElementById('container-v4')
+ };
 
-      tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const v = btn.getAttribute('data-v');
-          tabBtns.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
+ tabBtns.forEach(btn => {
+ btn.addEventListener('click', () => {
+ const v = btn.getAttribute('data-v');
+ tabBtns.forEach(b => b.classList.remove('active'));
+ btn.classList.add('active');
 
-          Object.keys(containers).forEach(key => {
-            if (key === v) containers[key].classList.add('active');
-            else containers[key].classList.remove('active');
-          });
-          saveData();
-        });
-      });
+ Object.keys(containers).forEach(key => {
+ if (key === v) containers[key].classList.add('active');
+ else containers[key].classList.remove('active');
+ });
+ saveData();
+ });
+ });
 
-      function getAllInputs() {
-        return document.querySelectorAll('input, textarea');
-      }
+ function getAllInputs() {
+ return document.querySelectorAll('input, textarea');
+ }
 
-      function saveData() {
-        const activeBtn = document.querySelector('.v-tab-btn.active');
-        const data = {
-          activeVariant: activeBtn ? activeBtn.getAttribute('data-v') : 'v1',
-          fields: {}
-        };
-        getAllInputs().forEach(el => {
-          if (el.id) data.fields[el.id] = el.value;
-        });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        const status = document.getElementById('saveStatus');
-        status.style.display = 'inline';
-        setTimeout(() => { status.style.display = 'none'; }, 3000);
-      }
+ function saveData() {
+ const activeBtn = document.querySelector('.v-tab-btn.active');
+ const data = {
+ activeVariant: activeBtn ? activeBtn.getAttribute('data-v') : 'v1',
+ fields: {}
+ };
+ getAllInputs().forEach(el => {
+ if (el.id) data.fields[el.id] = el.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ const status = document.getElementById('saveStatus');
+ status.style.display = 'inline';
+ setTimeout(() => { status.style.display = 'none'; }, 3000);
+ }
 
-      function loadData() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (!saved) return;
-        try {
-          const data = JSON.parse(saved);
-          if (data.activeVariant && containers[data.activeVariant]) {
-            tabBtns.forEach(b => {
-              if (b.getAttribute('data-v') === data.activeVariant) b.classList.add('active');
-              else b.classList.remove('active');
-            });
-            Object.keys(containers).forEach(key => {
-              if (key === data.activeVariant) containers[key].classList.add('active');
-              else containers[key].classList.remove('active');
-            });
-          }
-          if (data.fields) {
-            Object.keys(data.fields).forEach(id => {
-              const el = document.getElementById(id);
-              if (el) el.value = data.fields[id];
-            });
-          }
-        } catch (e) {
-          console.error('Ошибка загрузки сохраненных данных', e);
-        }
-      }
+ function loadData() {
+ const saved = localStorage.getItem(STORAGE_KEY);
+ if (!saved) return;
+ try {
+ const data = JSON.parse(saved);
+ if (data.activeVariant && containers[data.activeVariant]) {
+ tabBtns.forEach(b => {
+ if (b.getAttribute('data-v') === data.activeVariant) b.classList.add('active');
+ else b.classList.remove('active');
+ });
+ Object.keys(containers).forEach(key => {
+ if (key === data.activeVariant) containers[key].classList.add('active');
+ else containers[key].classList.remove('active');
+ });
+ }
+ if (data.fields) {
+ Object.keys(data.fields).forEach(id => {
+ const el = document.getElementById(id);
+ if (el) el.value = data.fields[id];
+ });
+ }
+ } catch (e) {
+ console.error('Ошибка загрузки сохраненных данных', e);
+ }
+ }
 
-      function clearData() {
-        if (confirm('Вы действительно хотите очистить все введенные данные рабочего листа?')) {
-          localStorage.removeItem(STORAGE_KEY);
-          getAllInputs().forEach(el => { el.value = ''; });
-          saveData();
-        }
-      }
+ function clearData() {
+ if (confirm('Вы действительно хотите очистить все введенные данные рабочего листа?')) {
+ localStorage.removeItem(STORAGE_KEY);
+ getAllInputs().forEach(el => { el.value = ''; });
+ saveData();
+ }
+ }
 
-      document.getElementById('saveBtn').addEventListener('click', saveData);
-      document.getElementById('clearBtn').addEventListener('click', clearData);
-      document.getElementById('printBtn').addEventListener('click', () => {
-        saveData();
-        window.print();
-      });
+ document.getElementById('saveBtn').addEventListener('click', saveData);
+ document.getElementById('clearBtn').addEventListener('click', clearData);
+ document.getElementById('printBtn').addEventListener('click', () => {
+ saveData();
+ window.print();
+ });
 
-      // Автосохранение при вводе
-      document.addEventListener('input', (e) => {
-        if (e.target.matches('input, textarea')) {
-          const activeBtn = document.querySelector('.v-tab-btn.active');
-          const data = {
-            activeVariant: activeBtn ? activeBtn.getAttribute('data-v') : 'v1',
-            fields: {}
-          };
-          getAllInputs().forEach(el => {
-            if (el.id) data.fields[el.id] = el.value;
-          });
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        }
-      });
+ // Автосохранение при вводе
+ document.addEventListener('input', (e) => {
+ if (e.target.matches('input, textarea')) {
+ const activeBtn = document.querySelector('.v-tab-btn.active');
+ const data = {
+ activeVariant: activeBtn ? activeBtn.getAttribute('data-v') : 'v1',
+ fields: {}
+ };
+ getAllInputs().forEach(el => {
+ if (el.id) data.fields[el.id] = el.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ }
+ });
 
-      loadData();
-    })();
-  </script>
+ loadData();
+ })();
+ </script>
 </body>
 </html>

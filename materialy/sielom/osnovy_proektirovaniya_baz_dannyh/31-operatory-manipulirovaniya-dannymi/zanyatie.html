@@ -1,698 +1,637 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="color-scheme" content="light">
-  <title>Рабочий лист: Операторы манипулирования данными (DML)</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --text-muted: #475569;
-      --border: #cbd5e1;
-      --accent: #0284c7;
-      --accent-hover: #0369a1;
-      --accent-soft: #f0f9ff;
-      --code-bg: #0f172a;
-      --code-text: #f8fafc;
-      --success: #16a34a;
-      --success-soft: #dcfce7;
-      --radius: 10px;
-    }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <meta name="color-scheme" content="light">
+ <title>Рабочий лист: Операторы манипулирования данными (DML)</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card-bg: #ffffff;
+ --text: #0f172a;
+ --text-muted: #475569;
+ --border: #cbd5e1;
+ --accent: #0284c7;
+ --accent-hover: #0369a1;
+ --accent-soft: #f0f9ff;
+ --code-bg: #0f172a;
+ --code-text: #f8fafc;
+ --success: #16a34a;
+ --success-soft: #dcfce7;
+ --radius: 10px;
+ }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ }
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      padding: 20px 12px;
-      min-width: 320px;
-    }
+ body {
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+ background-color: var(--bg);
+ color: var(--text);
+ line-height: 1.6;
+ padding: 20px 12px;
+ min-width: 320px;
+ }.container {
+ max-width: 960px;
+ margin: 0 auto;
+ width: 100%;
+ }
 
-    .container {
-      max-width: 960px;
-      margin: 0 auto;
-      width: 100%;
-    }
+ header.sheet-header {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: var(--radius);
+ padding: 24px;
+ margin-bottom: 20px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    header.sheet-header {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ h1 {
+ font-size: 1.55rem;
+ color: var(--accent-hover);
+ margin-bottom: 6px;
+ line-height: 1.3;
+ }.meta-subtitle {
+ font-size: 0.92rem;
+ color: var(--text-muted);
+ margin-bottom: 16px;
+ }.student-info {
+ display: grid;
+ grid-template-columns: 2fr 1fr;
+ gap: 14px;
+ padding-top: 14px;
+ border-top: 1px solid var(--border);
+ }.info-group {
+ display: flex;
+ flex-direction: column;
+ gap: 5px;
+ }
 
-    h1 {
-      font-size: 1.55rem;
-      color: var(--accent-hover);
-      margin-bottom: 6px;
-      line-height: 1.3;
-    }
+ label {
+ font-size: 0.8rem;
+ font-weight: 700;
+ text-transform: uppercase;
+ letter-spacing: 0.04em;
+ color: var(--text-muted);
+ }
 
-    .meta-subtitle {
-      font-size: 0.92rem;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-    }
+ input[type="text"], textarea {
+ width: 100%;
+ border: 1px solid var(--border);
+ border-radius: 6px;
+ padding: 9px 12px;
+ font-family: inherit;
+ font-size: 0.95rem;
+ color: var(--text);
+ background: #ffffff;
+ transition: border-color 0.2s;
+ }
 
-    .student-info {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 14px;
-      padding-top: 14px;
-      border-top: 1px solid var(--border);
-    }
+ input[type="text"]:focus, textarea:focus {
+ outline: none;
+ border-color: var(--accent);
+ box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+ }.variant-tabs-nav {
+ display: grid;
+ grid-template-columns: repeat(4, 1fr);
+ gap: 8px;
+ margin-bottom: 20px;
+ }.v-tab-btn {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ padding: 10px 6px;
+ font-size: 0.88rem;
+ font-weight: 700;
+ color: var(--text-muted);
+ cursor: pointer;
+ text-align: center;
+ transition: all 0.2s;
+ }.v-tab-btn:hover {
+ background: var(--accent-soft);
+ color: var(--accent-hover);
+ }.v-tab-btn.active {
+ background: var(--accent);
+ border-color: var(--accent);
+ color: #ffffff;
+ box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3);
+ }.variant-card {
+ display: none;
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: var(--radius);
+ padding: 24px;
+ margin-bottom: 20px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }.variant-card.active {
+ display: block;
+ animation: fadeIn 0.2s ease-out;
+ }
 
-    .info-group {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
+ @keyframes fadeIn {
+ from { opacity: 0; transform: translateY(4px); }
+ to { opacity: 1; transform: translateY(0); }
+ }.variant-title-box {
+ border-bottom: 2px solid var(--accent-soft);
+ padding-bottom: 12px;
+ margin-bottom: 18px;
+ }.variant-title-box h2 {
+ font-size: 1.3rem;
+ color: var(--accent-hover);
+ margin-bottom: 4px;
+ }.variant-desc {
+ font-size: 0.92rem;
+ color: var(--text-muted);
+ }.task-block {
+ background: #fcfdfe;
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ padding: 16px;
+ margin-bottom: 18px;
+ }.task-block h3 {
+ font-size: 1.05rem;
+ color: var(--text);
+ margin-bottom: 8px;
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ }.task-num {
+ background: var(--accent-soft);
+ color: var(--accent-hover);
+ font-size: 0.8rem;
+ padding: 2px 8px;
+ border-radius: 4px;
+ font-weight: 800;
+ }
 
-    label {
-      font-size: 0.8rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--text-muted);
-    }
+ p, li {
+ font-size: 0.92rem;
+ color: var(--text);
+ line-height: 1.55;
+ }
 
-    input[type="text"], textarea {
-      width: 100%;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 9px 12px;
-      font-family: inherit;
-      font-size: 0.95rem;
-      color: var(--text);
-      background: #ffffff;
-      transition: border-color 0.2s;
-    }
+ ul, ol {
+ padding-left: 20px;
+ margin: 8px 0 12px;
+ }
 
-    input[type="text"]:focus, textarea:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
-    }
+ pre {
+ background: var(--code-bg);
+ color: var(--code-text);
+ padding: 12px;
+ border-radius: 6px;
+ overflow-x: auto;
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+ font-size: 0.84rem;
+ line-height: 1.45;
+ margin: 10px 0;
+ }
 
-    .variant-tabs-nav {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-bottom: 20px;
-    }
+ code {
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+ font-size: 0.88em;
+ background: #e2e8f0;
+ padding: 2px 5px;
+ border-radius: 4px;
+ }
 
-    .v-tab-btn {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 6px;
-      font-size: 0.88rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.2s;
-    }
+ pre code {
+ background: transparent;
+ padding: 0;
+ }
 
-    .v-tab-btn:hover {
-      background: var(--accent-soft);
-      color: var(--accent-hover);
-    }
+ textarea.sql-input {
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+ font-size: 0.88rem;
+ min-height: 110px;
+ line-height: 1.45;
+ margin-top: 8px;
+ resize: vertical;
+ }
 
-    .v-tab-btn.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #ffffff;
-      box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3);
-    }
+ textarea.text-input {
+ min-height: 90px;
+ margin-top: 8px;
+ resize: vertical;
+ }.bottom-bar {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: var(--radius);
+ padding: 14px 20px;
+ margin-top: 10px;
+ }.status-indicator {
+ font-size: 0.85rem;
+ color: var(--success);
+ font-weight: 600;
+ display: none;
+ }.btn-group {
+ display: flex;
+ gap: 10px;
+ margin-left: auto;
+ }.btn {
+ padding: 8px 18px;
+ border-radius: 6px;
+ font-weight: 600;
+ font-size: 0.88rem;
+ cursor: pointer;
+ border: 1px solid transparent;
+ transition: all 0.2s;
+ }.btn-save {
+ background: var(--accent);
+ color: #ffffff;
+ }.btn-save:hover {
+ background: var(--accent-hover);
+ }.btn-clear {
+ background: transparent;
+ border-color: var(--border);
+ color: var(--text-muted);
+ }.btn-clear:hover {
+ background: #f1f5f9;
+ color: var(--text);
+ }
 
-    .variant-card {
-      display: none;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ @media (max-width: 768px) {.variant-tabs-nav {
+ grid-template-columns: repeat(2, 1fr);
+ }
+ }
 
-    .variant-card.active {
-      display: block;
-      animation: fadeIn 0.2s ease-out;
-    }
+ @media (max-width: 480px) {.student-info { grid-template-columns: 1fr; }
+ body { padding: 10px 6px; }
+ header.sheet-header,.variant-card { padding: 16px 12px; }
+ h1 { font-size: 1.3rem; }
+ }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .variant-title-box {
-      border-bottom: 2px solid var(--accent-soft);
-      padding-bottom: 12px;
-      margin-bottom: 18px;
-    }
-
-    .variant-title-box h2 {
-      font-size: 1.3rem;
-      color: var(--accent-hover);
-      margin-bottom: 4px;
-    }
-
-    .variant-desc {
-      font-size: 0.92rem;
-      color: var(--text-muted);
-    }
-
-    .task-block {
-      background: #fcfdfe;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 18px;
-    }
-
-    .task-block h3 {
-      font-size: 1.05rem;
-      color: var(--text);
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .task-num {
-      background: var(--accent-soft);
-      color: var(--accent-hover);
-      font-size: 0.8rem;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-weight: 800;
-    }
-
-    p, li {
-      font-size: 0.92rem;
-      color: var(--text);
-      line-height: 1.55;
-    }
-
-    ul, ol {
-      padding-left: 20px;
-      margin: 8px 0 12px;
-    }
-
-    pre {
-      background: var(--code-bg);
-      color: var(--code-text);
-      padding: 12px;
-      border-radius: 6px;
-      overflow-x: auto;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size: 0.84rem;
-      line-height: 1.45;
-      margin: 10px 0;
-    }
-
-    code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size: 0.88em;
-      background: #e2e8f0;
-      padding: 2px 5px;
-      border-radius: 4px;
-    }
-
-    pre code {
-      background: transparent;
-      padding: 0;
-    }
-
-    textarea.sql-input {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size: 0.88rem;
-      min-height: 110px;
-      line-height: 1.45;
-      margin-top: 8px;
-      resize: vertical;
-    }
-
-    textarea.text-input {
-      min-height: 90px;
-      margin-top: 8px;
-      resize: vertical;
-    }
-
-    .bottom-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px 20px;
-      margin-top: 10px;
-    }
-
-    .status-indicator {
-      font-size: 0.85rem;
-      color: var(--success);
-      font-weight: 600;
-      display: none;
-    }
-
-    .btn-group {
-      display: flex;
-      gap: 10px;
-      margin-left: auto;
-    }
-
-    .btn {
-      padding: 8px 18px;
-      border-radius: 6px;
-      font-weight: 600;
-      font-size: 0.88rem;
-      cursor: pointer;
-      border: 1px solid transparent;
-      transition: all 0.2s;
-    }
-
-    .btn-save {
-      background: var(--accent);
-      color: #ffffff;
-    }
-
-    .btn-save:hover {
-      background: var(--accent-hover);
-    }
-
-    .btn-clear {
-      background: transparent;
-      border-color: var(--border);
-      color: var(--text-muted);
-    }
-
-    .btn-clear:hover {
-      background: #f1f5f9;
-      color: var(--text);
-    }
-
-    @media (max-width: 768px) {
-      .variant-tabs-nav {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    @media (max-width: 480px) {
-      .student-info { grid-template-columns: 1fr; }
-      body { padding: 10px 6px; }
-      header.sheet-header, .variant-card { padding: 16px 12px; }
-      h1 { font-size: 1.3rem; }
-    }
-
-    @media print {
-      body {
-        background: #ffffff;
-        color: #000000;
-        padding: 0;
-      }
-      .container {
-        max-width: 100%;
-      }
-      .variant-tabs-nav, .bottom-bar {
-        display: none !important;
-      }
-      header.sheet-header, .variant-card {
-        border: 1px solid #000000;
-        box-shadow: none;
-        page-break-inside: avoid;
-        margin-bottom: 14px;
-        padding: 14px;
-      }
-      .variant-card {
-        display: none !important;
-      }
-      .variant-card.active {
-        display: block !important;
-      }
-      textarea {
-        border: 1px solid #000000 !important;
-        background: transparent !important;
-        color: #000000 !important;
-        min-height: 80px !important;
-        resize: none !important;
-        overflow: visible !important;
-        white-space: pre-wrap !important;
-      }
-      input[type="text"] {
-        border: 1px solid #000000 !important;
-        background: transparent !important;
-        color: #000000 !important;
-      }
-      input::placeholder, textarea::placeholder {
-        color: transparent !important;
-      }
-    }
-  </style>
+ @media print {
+ body {
+ background: #ffffff;
+ color: #000000;
+ padding: 0;
+ }.container {
+ max-width: 100%;
+ }.variant-tabs-nav,.bottom-bar {
+ display: none !important;
+ }
+ header.sheet-header,.variant-card {
+ border: 1px solid #000000;
+ box-shadow: none;
+ page-break-inside: avoid;
+ margin-bottom: 14px;
+ padding: 14px;
+ }.variant-card {
+ display: none !important;
+ }.variant-card.active {
+ display: block !important;
+ }
+ textarea {
+ border: 1px solid #000000 !important;
+ background: transparent !important;
+ color: #000000 !important;
+ min-height: 80px !important;
+ resize: none !important;
+ overflow: visible !important;
+ white-space: pre-wrap !important;
+ }
+ input[type="text"] {
+ border: 1px solid #000000 !important;
+ background: transparent !important;
+ color: #000000 !important;
+ }
+ input::placeholder, textarea::placeholder {
+ color: transparent !important;
+ }
+ }
+ </style>
 </head>
 <body>
-  <div class="container">
-    <header class="sheet-header">
-      <h1>Интерактивный рабочий лист: Операторы манипулирования данными</h1>
-      <div class="meta-subtitle">Дисциплина «ОП.08 Основы проектирования баз данных» • Тема 5 • Занятие №31</div>
+ <div class="container">
+ <header class="sheet-header">
+ <h1>Интерактивный рабочий лист: Операторы манипулирования данными</h1>
+ <div class="meta-subtitle">Дисциплина «ОП.08 Основы проектирования баз данных» • Тема 5 • Занятие №31</div>
 
-      <div class="student-info">
-        <div class="info-group">
-          <label for="studentFio">ФИО обучающегося</label>
-          <input type="text" id="studentFio">
-        </div>
-        <div class="info-group">
-          <label for="studentGroup">Группа</label>
-          <input type="text" id="studentGroup">
-        </div>
-      </div>
-    </header>
+ <div class="student-info">
+ <div class="info-group">
+ <label for="studentFio">ФИО обучающегося</label>
+ <input type="text" id="studentFio">
+ </div>
+ <div class="info-group">
+ <label for="studentGroup">Группа</label>
+ <input type="text" id="studentGroup">
+ </div>
+ </div>
+ </header>
 
-    <!-- Навигация по вариантам -->
-    <div class="variant-tabs-nav">
-      <button class="v-tab-btn active" data-target="v1">Вариант 1 (Склад)</button>
-      <button class="v-tab-btn" data-target="v2">Вариант 2 (Клиника)</button>
-      <button class="v-tab-btn" data-target="v3">Вариант 3 (Банк)</button>
-      <button class="v-tab-btn" data-target="v4">Вариант 4 (Портал)</button>
-    </div>
+ <!-- Навигация по вариантам -->
+ <div class="variant-tabs-nav">
+ <button class="v-tab-btn active" data-target="v1">Вариант 1 (Склад)</button>
+ <button class="v-tab-btn" data-target="v2">Вариант 2 (Клиника)</button>
+ <button class="v-tab-btn" data-target="v3">Вариант 3 (Банк)</button>
+ <button class="v-tab-btn" data-target="v4">Вариант 4 (Портал)</button>
+ </div>
 
-    <!-- ВАРИАНТ 1: СКЛАДСКОЙ УЧЕТ -->
-    <section class="variant-card active" id="v1">
-      <div class="variant-title-box">
-        <h2>Вариант 1: Складской логистический комплекс</h2>
-        <div class="variant-desc">Манипулирование данными каталога товаров, пакетное оприходование и идемпотентный пересчет складских остатков по артикулу (UPSERT).</div>
-      </div>
+ <!-- ВАРИАНТ 1: СКЛАДСКОЙ УЧЕТ -->
+ <section class="variant-card active" id="v1">
+ <div class="variant-title-box">
+ <h2>Вариант 1: Складской логистический комплекс</h2>
+ <div class="variant-desc">Манипулирование данными каталога товаров, пакетное оприходование и идемпотентный пересчет складских остатков по артикулу (UPSERT).</div>
+ </div>
 
-      <div class="task-block">
-        <h3><span class="task-num">Задание 1.1</span> Пакетная вставка (Batch INSERT) с получением идентификаторов</h3>
-        <p>На склад поступила партия компьютерных комплектующих из 5 позиций. Схема целевой таблицы:</p>
-        <pre><code>CREATE TABLE warehouse_stock (
-  id SERIAL PRIMARY KEY,
-  sku VARCHAR(30) UNIQUE NOT NULL,
-  item_name VARCHAR(120) NOT NULL,
-  stock_quantity INT NOT NULL CHECK (stock_quantity >= 0),
-  purchase_price NUMERIC(10, 2) NOT NULL,
-  last_received_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);</code></pre>
-        <p><strong>Требование:</strong> Напишите единый SQL-запрос <code>INSERT INTO warehouse_stock</code>, осуществляющий пакетную вставку 5 новых позиций с явным перечислением колонок и возвращающий через <code>RETURNING</code> присвоенные идентификаторы <code>id</code>, артикулы <code>sku</code> и метки <code>last_received_at</code>:</p>
-        <ol>
-          <li><code>'SKU-CPU-01'</code>, 'Intel Core i5-13400', 10 шт., 18500.00 руб.</li>
-          <li><code>'SKU-MB-02'</code>, 'ASUS TUF Gaming B760-PLUS', 8 шт., 14200.00 руб.</li>
-          <li><code>'SKU-RAM-03'</code>, 'Kingston Fury DDR5 32GB Kit', 25 шт., 9600.00 руб.</li>
-          <li><code>'SKU-SSD-04'</code>, 'Samsung 980 Pro 1TB NVMe', 15 шт., 8900.00 руб.</li>
-          <li><code>'SKU-PSU-05'</code>, 'DeepCool DQ750-M-V2L 750W', 12 шт., 7800.00 руб.</li>
-        </ol>
-        <label for="v1_q1">SQL-запрос пакетной вставки:</label>
-        <textarea id="v1_q1" class="sql-input"></textarea>
-      </div>
+ <div class="task-block">
+ <h3><span class="task-num">Задание 1.1</span> Пакетная вставка (Batch INSERT) с получением идентификаторов</h3>
+ <p>На склад поступила партия компьютерных комплектующих из 5 позиций. Схема целевой таблицы:</p>
+ <pre><code>CREATE TABLE warehouse_stock (
+ id SERIAL PRIMARY KEY,
+ sku VARCHAR(30) UNIQUE NOT NULL,
+ item_name VARCHAR(120) NOT NULL,
+ stock_quantity INT NOT NULL CHECK (stock_quantity >= 0),
+ purchase_price NUMERIC(10, 2) NOT NULL,
+ last_received_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);</code></pre>
+ <p><strong>Требование:</strong> Напишите единый SQL-запрос <code>INSERT INTO warehouse_stock</code>, осуществляющий пакетную вставку 5 новых позиций с явным перечислением колонок и возвращающий через <code>RETURNING</code> присвоенные идентификаторы <code>id</code>, артикулы <code>sku</code> и метки <code>last_received_at</code>:</p>
+ <ol>
+ <li><code>'SKU-CPU-01'</code>, 'Intel Core i5-13400', 10 шт., 18500.00 руб.</li>
+ <li><code>'SKU-MB-02'</code>, 'ASUS TUF Gaming B760-PLUS', 8 шт., 14200.00 руб.</li>
+ <li><code>'SKU-RAM-03'</code>, 'Kingston Fury DDR5 32GB Kit', 25 шт., 9600.00 руб.</li>
+ <li><code>'SKU-SSD-04'</code>, 'Samsung 980 Pro 1TB NVMe', 15 шт., 8900.00 руб.</li>
+ <li><code>'SKU-PSU-05'</code>, 'DeepCool DQ750-M-V2L 750W', 12 шт., 7800.00 руб.</li>
+ </ol>
+ <label for="v1_q1">SQL-запрос пакетной вставки:</label>
+ <textarea id="v1_q1" class="sql-input"></textarea>
+ </div>
 
-      <div class="task-block">
-        <h3><span class="task-num">Задание 1.2</span> Атомарное обновление остатка при повторной накладной (UPSERT)</h3>
-        <p>Поступила накладная догрузки: товар с артикулом <code>'SKU-CPU-01'</code> поступил повторно в количестве 5 штук по скорректированной цене <code>17900.00</code> руб.</p>
-        <p><strong>Требование:</strong> Напишите идемпотентный запрос <code>INSERT ... ON CONFLICT (sku) DO UPDATE SET</code>, который:</p>
-        <ul>
-          <li>При коллизии уникальности артикула не вызывает ошибку <code>unique_violation</code>.</li>
-          <li>Обновляет остаток по формуле: <code>warehouse_stock.stock_quantity + EXCLUDED.stock_quantity</code>.</li>
-          <li>Обновляет закупочную цену последней поставкой из <code>EXCLUDED.purchase_price</code>.</li>
-          <li>Обновляет метку времени <code>last_received_at = CURRENT_TIMESTAMP</code>.</li>
-          <li>Возвращает через <code>RETURNING</code> колонки <code>id</code>, <code>sku</code>, итоговый остаток <code>stock_quantity</code> и актуальную цену.</li>
-        </ul>
-        <label for="v1_q2">SQL-запрос UPSERT:</label>
-        <textarea id="v1_q2" class="sql-input"></textarea>
-      </div>
+ <div class="task-block">
+ <h3><span class="task-num">Задание 1.2</span> Атомарное обновление остатка при повторной накладной (UPSERT)</h3>
+ <p>Поступила накладная догрузки: товар с артикулом <code>'SKU-CPU-01'</code> поступил повторно в количестве 5 штук по скорректированной цене <code>17900.00</code> руб.</p>
+ <p><strong>Требование:</strong> Напишите идемпотентный запрос <code>INSERT... ON CONFLICT (sku) DO UPDATE SET</code>, который:</p>
+ <ul>
+ <li>При коллизии уникальности артикула не вызывает ошибку <code>unique_violation</code>.</li>
+ <li>Обновляет остаток по формуле: <code>warehouse_stock.stock_quantity + EXCLUDED.stock_quantity</code>.</li>
+ <li>Обновляет закупочную цену последней поставкой из <code>EXCLUDED.purchase_price</code>.</li>
+ <li>Обновляет метку времени <code>last_received_at = CURRENT_TIMESTAMP</code>.</li>
+ <li>Возвращает через <code>RETURNING</code> колонки <code>id</code>, <code>sku</code>, итоговый остаток <code>stock_quantity</code> и актуальную цену.</li>
+ </ul>
+ <label for="v1_q2">SQL-запрос UPSERT:</label>
+ <textarea id="v1_q2" class="sql-input"></textarea>
+ </div>
 
-      <div class="task-block">
-        <h3><span class="task-num">Задание 1.3</span> Аналитический вопрос</h3>
-        <p>Объясните, почему использование <code>ON CONFLICT DO UPDATE</code> с псевдотаблицей <code>EXCLUDED</code> является надежнее, чем предварительная проверка наличия товара через <code>SELECT ... WHERE sku = ...</code> в приложении перед вставкой?</p>
-        <label for="v1_q3">Ваше аналитическое пояснение:</label>
-        <textarea id="v1_q3" class="text-input"></textarea>
-      </div>
-    </section>
+ <div class="task-block">
+ <h3><span class="task-num">Задание 1.3</span> Аналитический вопрос</h3>
+ <p>Объясните, почему использование <code>ON CONFLICT DO UPDATE</code> с псевдотаблицей <code>EXCLUDED</code> является надежнее, чем предварительная проверка наличия товара через <code>SELECT... WHERE sku =...</code> в приложении перед вставкой?</p>
+ <label for="v1_q3">Ваше аналитическое пояснение:</label>
+ <textarea id="v1_q3" class="text-input"></textarea>
+ </div>
+ </section>
 
-    <!-- ВАРИАНТ 2: МЕДИЦИНСКАЯ КЛИНИКА -->
-    <section class="variant-card" id="v2">
-      <div class="variant-title-box">
-        <h2>Вариант 2: Информационная система медицинской клиники</h2>
-        <div class="variant-desc">Модификация статусов приемов врачей по данным внешних платежей (UPDATE ... FROM) и селективная очистка архивных журналов с возвратом пациентов (DELETE ... RETURNING).</div>
-      </div>
+ <!-- ВАРИАНТ 2: МЕДИЦИНСКАЯ КЛИНИКА -->
+ <section class="variant-card" id="v2">
+ <div class="variant-title-box">
+ <h2>Вариант 2: Информационная система медицинской клиники</h2>
+ <div class="variant-desc">Модификация статусов приемов врачей по данным внешних платежей (UPDATE... FROM) и селективная очистка архивных журналов с возвратом пациентов (DELETE... RETURNING).</div>
+ </div>
 
-      <div class="task-block">
-        <h3><span class="task-num">Задание 2.1</span> Модификация записей по соединению (UPDATE ... FROM)</h3>
-        <p>В клинике работают две таблицы: приемы врачей и платежные транзакции:</p>
-        <pre><code>-- Журнал приемов
+ <div class="task-block">
+ <h3><span class="task-num">Задание 2.1</span> Модификация записей по соединению (UPDATE... FROM)</h3>
+ <p>В клинике работают две таблицы: приемы врачей и платежные транзакции:</p>
+ <pre><code>-- Журнал приемов
 CREATE TABLE medical_appointments (
-  appointment_id SERIAL PRIMARY KEY,
-  patient_id INT NOT NULL,
-  doctor_id INT NOT NULL,
-  appointment_status VARCHAR(25) NOT NULL DEFAULT 'AWAITING_PAYMENT',
-  created_at TIMESTAMP NOT NULL,
-  confirmed_at TIMESTAMP
-);
+ appointment_id SERIAL PRIMARY KEY,
+ patient_id INT NOT NULL,
+ doctor_id INT NOT NULL,
+ appointment_status VARCHAR(25) NOT NULL DEFAULT 'AWAITING_PAYMENT',
+ created_at TIMESTAMP NOT NULL,
+ confirmed_at TIMESTAMP);
 
 -- Платежи кассы/онлайн-банка
 CREATE TABLE appointment_invoices (
-  invoice_id SERIAL PRIMARY KEY,
-  appointment_id INT UNIQUE NOT NULL,
-  payment_status VARCHAR(20) NOT NULL, -- 'PAID', 'REJECTED', 'PENDING'
-  payment_time TIMESTAMP NOT NULL
-);</code></pre>
-        <p><strong>Требование:</strong> Напишите SQL-запрос <code>UPDATE medical_appointments</code> с использованием секции <code>FROM appointment_invoices</code>, который переводит статус приема в <code>'CONFIRMED'</code> и заполняет поле <code>confirmed_at = appointment_invoices.payment_time</code> для всех приемов, находящихся в статусе <code>'AWAITING_PAYMENT'</code>, по которым зафиксирован платеж со статусом <code>'PAID'</code>. Запрос должен возвращать через <code>RETURNING</code> поля <code>appointment_id</code>, <code>patient_id</code> и новый статус.</p>
-        <label for="v2_q1">SQL-запрос UPDATE ... FROM:</label>
-        <textarea id="v2_q1" class="sql-input"></textarea>
-      </div>
+ invoice_id SERIAL PRIMARY KEY,
+ appointment_id INT UNIQUE NOT NULL,
+ payment_status VARCHAR(20) NOT NULL, -- 'PAID', 'REJECTED', 'PENDING'
+ payment_time TIMESTAMP NOT NULL);</code></pre>
+ <p><strong>Требование:</strong> Напишите SQL-запрос <code>UPDATE medical_appointments</code> с использованием секции <code>FROM appointment_invoices</code>, который переводит статус приема в <code>'CONFIRMED'</code> и заполняет поле <code>confirmed_at = appointment_invoices.payment_time</code> для всех приемов, находящихся в статусе <code>'AWAITING_PAYMENT'</code>, по которым зафиксирован платеж со статусом <code>'PAID'</code>. Запрос должен возвращать через <code>RETURNING</code> поля <code>appointment_id</code>, <code>patient_id</code> и новый статус.</p>
+ <label for="v2_q1">SQL-запрос UPDATE... FROM:</label>
+ <textarea id="v2_q1" class="sql-input"></textarea>
+ </div>
 
-      <div class="task-block">
-        <h3><span class="task-num">Задание 2.2</span> Селективное удаление отмененных приемов с фиксацией аудита (DELETE ... RETURNING)</h3>
-        <p>Согласно регламенту архивации, отмененные приемы (<code>appointment_status = 'CANCELLED'</code>), созданные более 1 года назад (<code>created_at &lt; CURRENT_DATE - INTERVAL '1 year'</code>), подлежат удалению из оперативной базы.</p>
-        <p><strong>Требование:</strong> Составьте запрос <code>DELETE FROM medical_appointments</code>, который удаляет указанные устаревшие отмененные записи и одновременно возвращает через <code>RETURNING</code> поля <code>appointment_id</code>, <code>patient_id</code>, <code>created_at</code> для передачи в журнал аудита службы безопасности.</p>
-        <label for="v2_q2">SQL-запрос DELETE с RETURNING:</label>
-        <textarea id="v2_q2" class="sql-input"></textarea>
-      </div>
+ <div class="task-block">
+ <h3><span class="task-num">Задание 2.2</span> Селективное удаление отмененных приемов с фиксацией аудита (DELETE... RETURNING)</h3>
+ <p>Согласно регламенту архивации, отмененные приемы (<code>appointment_status = 'CANCELLED'</code>), созданные более 1 года назад (<code>created_at &lt; CURRENT_DATE - INTERVAL '1 year'</code>), подлежат удалению из оперативной базы.</p>
+ <p><strong>Требование:</strong> Составьте запрос <code>DELETE FROM medical_appointments</code>, который удаляет указанные устаревшие отмененные записи и одновременно возвращает через <code>RETURNING</code> поля <code>appointment_id</code>, <code>patient_id</code>, <code>created_at</code> для передачи в журнал аудита службы безопасности.</p>
+ <label for="v2_q2">SQL-запрос DELETE с RETURNING:</label>
+ <textarea id="v2_q2" class="sql-input"></textarea>
+ </div>
 
-      <div class="task-block">
-        <h3><span class="task-num">Задание 2.3</span> Аналитический вопрос</h3>
-        <p>Почему саму обновляемую таблицу <code>medical_appointments</code> категорически нельзя указывать в списке таблиц секции <code>FROM</code> при выполнении запроса <code>UPDATE</code> в PostgreSQL?</p>
-        <label for="v2_q3">Ваше аналитическое пояснение:</label>
-        <textarea id="v2_q3" class="text-input"></textarea>
-      </div>
-    </section>
+ <div class="task-block">
+ <h3><span class="task-num">Задание 2.3</span> Аналитический вопрос</h3>
+ <p>Почему саму обновляемую таблицу <code>medical_appointments</code> категорически нельзя указывать в списке таблиц секции <code>FROM</code> при выполнении запроса <code>UPDATE</code> в PostgreSQL?</p>
+ <label for="v2_q3">Ваше аналитическое пояснение:</label>
+ <textarea id="v2_q3" class="text-input"></textarea>
+ </div>
+ </section>
 
-    <!-- ВАРИАНТ 3: БАНКОВСКИЙ ПРОЦЕССИНГ -->
-    <section class="variant-card" id="v3">
-      <div class="variant-title-box">
-        <h2>Вариант 3: Банковский транзакционный процессинг</h2>
-        <div class="variant-desc">Архивация закрытых кредитных договоров через INSERT INTO ... SELECT и периодическое начисление процентной задолженности через массовый UPDATE.</div>
-      </div>
+ <!-- ВАРИАНТ 3: БАНКОВСКИЙ ПРОЦЕССИНГ -->
+ <section class="variant-card" id="v3">
+ <div class="variant-title-box">
+ <h2>Вариант 3: Банковский транзакционный процессинг</h2>
+ <div class="variant-desc">Архивация закрытых кредитных договоров через INSERT INTO... SELECT и периодическое начисление процентной задолженности через массовый UPDATE.</div>
+ </div>
 
-      <div class="task-block">
-        <h3><span class="task-num">Задание 3.1</span> Перенос исторических данных (INSERT INTO ... SELECT)</h3>
-        <p>В банке функционирует таблица действующих договоров <code>loan_contracts</code> и архивная таблица <code>loan_contracts_archive</code>:</p>
-        <pre><code>-- Действующие договоры
+ <div class="task-block">
+ <h3><span class="task-num">Задание 3.1</span> Перенос исторических данных (INSERT INTO... SELECT)</h3>
+ <p>В банке функционирует таблица действующих договоров <code>loan_contracts</code> и архивная таблица <code>loan_contracts_archive</code>:</p>
+ <pre><code>-- Действующие договоры
 CREATE TABLE loan_contracts (
-  contract_num VARCHAR(24) PRIMARY KEY,
-  client_id INT NOT NULL,
-  issued_amount NUMERIC(14, 2) NOT NULL,
-  current_debt NUMERIC(14, 2) NOT NULL,
-  status VARCHAR(20) NOT NULL, -- 'ACTIVE', 'OVERDUE', 'CLOSED'
-  closed_at DATE
-);
+ contract_num VARCHAR(24) PRIMARY KEY,
+ client_id INT NOT NULL,
+ issued_amount NUMERIC(14, 2) NOT NULL,
+ current_debt NUMERIC(14, 2) NOT NULL,
+ status VARCHAR(20) NOT NULL, -- 'ACTIVE', 'OVERDUE', 'CLOSED'
+ closed_at DATE);
 
 -- Архивная таблица
 CREATE TABLE loan_contracts_archive (
-  archive_id SERIAL PRIMARY KEY,
-  contract_num VARCHAR(24) NOT NULL,
-  client_id INT NOT NULL,
-  total_settled NUMERIC(14, 2) NOT NULL,
-  archived_date DATE NOT NULL DEFAULT CURRENT_DATE
-);</code></pre>
-        <p><strong>Требование:</strong> Напишите SQL-запрос <code>INSERT INTO loan_contracts_archive (...) SELECT ...</code>, который осуществляет перенос всех договоров со статусом <code>'CLOSED'</code> и датой закрытия старше 1 года (<code>closed_at &lt; CURRENT_DATE - INTERVAL '1 year'</code>). Укажите явные списки столбцов и свяжите поля <code>contract_num</code>, <code>client_id</code>, <code>issued_amount</code> (в качестве total_settled).</p>
-        <label for="v3_q1">SQL-запрос INSERT INTO ... SELECT:</label>
-        <textarea id="v3_q1" class="sql-input"></textarea>
-      </div>
+ archive_id SERIAL PRIMARY KEY,
+ contract_num VARCHAR(24) NOT NULL,
+ client_id INT NOT NULL,
+ total_settled NUMERIC(14, 2) NOT NULL,
+ archived_date DATE NOT NULL DEFAULT CURRENT_DATE);</code></pre>
+ <p><strong>Требование:</strong> Напишите SQL-запрос <code>INSERT INTO loan_contracts_archive (...) SELECT...</code>, который осуществляет перенос всех договоров со статусом <code>'CLOSED'</code> и датой закрытия старше 1 года (<code>closed_at &lt; CURRENT_DATE - INTERVAL '1 year'</code>). Укажите явные списки столбцов и свяжите поля <code>contract_num</code>, <code>client_id</code>, <code>issued_amount</code> (в качестве total_settled).</p>
+ <label for="v3_q1">SQL-запрос INSERT INTO... SELECT:</label>
+ <textarea id="v3_q1" class="sql-input"></textarea>
+ </div>
 
-      <div class="task-block">
-        <h3><span class="task-num">Задание 3.2</span> Массовое начисление процентов по кредитам</h3>
-        <p>В конце расчетного дня банк производит начисление процентов по всем активным договорам (<code>status = 'ACTIVE'</code> с остатком долга <code>current_debt &gt; 0</code>). Дневная ставка составляет 0.05% от текущего долга (<code>current_debt * 0.0005</code>).</p>
-        <p><strong>Требование:</strong> Напишите запрос <code>UPDATE loan_contracts</code>, который прибавляет рассчитанные дневные проценты к сумме <code>current_debt</code> только по активным договорам и возвращает через <code>RETURNING</code> перечень обновленных <code>contract_num</code>, <code>client_id</code> и новую задолженность <code>current_debt</code>.</p>
-        <label for="v3_q2">SQL-запрос массового UPDATE с RETURNING:</label>
-        <textarea id="v3_q2" class="sql-input"></textarea>
-      </div>
+ <div class="task-block">
+ <h3><span class="task-num">Задание 3.2</span> Массовое начисление процентов по кредитам</h3>
+ <p>В конце расчетного дня банк производит начисление процентов по всем активным договорам (<code>status = 'ACTIVE'</code> с остатком долга <code>current_debt &gt; 0</code>). Дневная ставка составляет 0.05% от текущего долга (<code>current_debt * 0.0005</code>).</p>
+ <p><strong>Требование:</strong> Напишите запрос <code>UPDATE loan_contracts</code>, который прибавляет рассчитанные дневные проценты к сумме <code>current_debt</code> только по активным договорам и возвращает через <code>RETURNING</code> перечень обновленных <code>contract_num</code>, <code>client_id</code> и новую задолженность <code>current_debt</code>.</p>
+ <label for="v3_q2">SQL-запрос массового UPDATE с RETURNING:</label>
+ <textarea id="v3_q2" class="sql-input"></textarea>
+ </div>
 
-      <div class="task-block">
-        <h3><span class="task-num">Задание 3.3</span> Аналитический вопрос</h3>
-        <p>В чем заключается опасность выполнения массового <code>UPDATE</code> по миллиону договоров в единой длинной транзакции в высоконагруженной системе? Как эта операция повлияет на журнал предзаписи WAL и фоновый процесс VACUUM?</p>
-        <label for="v3_q3">Ваше аналитическое пояснение:</label>
-        <textarea id="v3_q3" class="text-input"></textarea>
-      </div>
-    </section>
+ <div class="task-block">
+ <h3><span class="task-num">Задание 3.3</span> Аналитический вопрос</h3>
+ <p>В чем заключается опасность выполнения массового <code>UPDATE</code> по миллиону договоров в единой длинной транзакции в высоконагруженной системе? Как эта операция повлияет на журнал предзаписи WAL и фоновый процесс VACUUM?</p>
+ <label for="v3_q3">Ваше аналитическое пояснение:</label>
+ <textarea id="v3_q3" class="text-input"></textarea>
+ </div>
+ </section>
 
-    <!-- ВАРИАНТ 4: ОБРАЗОВАТЕЛЬНЫЙ ПОРТАЛ -->
-    <section class="variant-card" id="v4">
-      <div class="variant-title-box">
-        <h2>Вариант 4: Образовательный портал колледжа</h2>
-        <div class="variant-desc">Фиксация и актуализация аттестационных оценок студентов (UPSERT) и удаление неподтвержденных профилей через селективный DELETE.</div>
-      </div>
+ <!-- ВАРИАНТ 4: ОБРАЗОВАТЕЛЬНЫЙ ПОРТАЛ -->
+ <section class="variant-card" id="v4">
+ <div class="variant-title-box">
+ <h2>Вариант 4: Образовательный портал колледжа</h2>
+ <div class="variant-desc">Фиксация и актуализация аттестационных оценок студентов (UPSERT) и удаление неподтвержденных профилей через селективный DELETE.</div>
+ </div>
 
-      <div class="task-block">
-        <h3><span class="task-num">Задание 4.1</span> Идемпотентная фиксация оценок (UPSERT)</h3>
-        <p>В электронной ведомости действует таблица оценок с составным ограничением уникальности:</p>
-        <pre><code>CREATE TABLE student_grades (
-  grade_id SERIAL PRIMARY KEY,
-  student_id INT NOT NULL,
-  discipline_id INT NOT NULL,
-  grade_value INT NOT NULL CHECK (grade_value BETWEEN 2 AND 5),
-  teacher_id INT NOT NULL,
-  assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT uq_student_discipline UNIQUE (student_id, discipline_id)
-);</code></pre>
-        <p><strong>Требование:</strong> Напишите запрос <code>INSERT INTO student_grades</code>, выставляющий студенту <code>student_id = 45</code> по дисциплине <code>discipline_id = 8</code> оценку <code>grade_value = 5</code> от преподавателя <code>teacher_id = 12</code>:</p>
-        <ul>
-          <li>Используйте конструкцию <code>ON CONFLICT (student_id, discipline_id) DO UPDATE SET</code>.</li>
-          <li>В случае повторного выставления оценки по этой же дисциплине запрос должен переписать <code>grade_value = EXCLUDED.grade_value</code>, актуализировать <code>teacher_id = EXCLUDED.teacher_id</code> и выставить <code>assigned_at = CURRENT_TIMESTAMP</code>.</li>
-          <li>Вернуть через <code>RETURNING</code> колонки <code>grade_id</code>, <code>student_id</code>, <code>grade_value</code>, <code>assigned_at</code>.</li>
-        </ul>
-        <label for="v4_q1">SQL-запрос UPSERT:</label>
-        <textarea id="v4_q1" class="sql-input"></textarea>
-      </div>
+ <div class="task-block">
+ <h3><span class="task-num">Задание 4.1</span> Идемпотентная фиксация оценок (UPSERT)</h3>
+ <p>В электронной ведомости действует таблица оценок с составным ограничением уникальности:</p>
+ <pre><code>CREATE TABLE student_grades (
+ grade_id SERIAL PRIMARY KEY,
+ student_id INT NOT NULL,
+ discipline_id INT NOT NULL,
+ grade_value INT NOT NULL CHECK (grade_value BETWEEN 2 AND 5),
+ teacher_id INT NOT NULL,
+ assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ CONSTRAINT uq_student_discipline UNIQUE (student_id, discipline_id));</code></pre>
+ <p><strong>Требование:</strong> Напишите запрос <code>INSERT INTO student_grades</code>, выставляющий студенту <code>student_id = 45</code> по дисциплине <code>discipline_id = 8</code> оценку <code>grade_value = 5</code> от преподавателя <code>teacher_id = 12</code>:</p>
+ <ul>
+ <li>Используйте конструкцию <code>ON CONFLICT (student_id, discipline_id) DO UPDATE SET</code>.</li>
+ <li>В случае повторного выставления оценки по этой же дисциплине запрос должен переписать <code>grade_value = EXCLUDED.grade_value</code>, актуализировать <code>teacher_id = EXCLUDED.teacher_id</code> и выставить <code>assigned_at = CURRENT_TIMESTAMP</code>.</li>
+ <li>Вернуть через <code>RETURNING</code> колонки <code>grade_id</code>, <code>student_id</code>, <code>grade_value</code>, <code>assigned_at</code>.</li>
+ </ul>
+ <label for="v4_q1">SQL-запрос UPSERT:</label>
+ <textarea id="v4_q1" class="sql-input"></textarea>
+ </div>
 
-      <div class="task-block">
-        <h3><span class="task-num">Задание 4.2</span> Очистка неподтвержденных профилей пользователей</h3>
-        <p>Таблица регистрации студентов на портале содержит записи о заявках:</p>
-        <pre><code>CREATE TABLE portal_registration_requests (
-  request_id SERIAL PRIMARY KEY,
-  email VARCHAR(100) NOT NULL,
-  is_email_verified BOOLEAN NOT NULL DEFAULT FALSE,
-  created_at TIMESTAMP NOT NULL
-);</code></pre>
-        <p><strong>Требование:</strong> Составьте запрос <code>DELETE FROM portal_registration_requests</code>, который удаляет все профили, у которых email не был подтвержден (<code>is_email_verified = FALSE</code>) и с момента регистрации прошло более 30 дней (<code>created_at &lt; CURRENT_TIMESTAMP - INTERVAL '30 days'</code>). Запрос должен возвращать через <code>RETURNING</code> список удаленных email для логирования.</p>
-        <label for="v4_q2">SQL-запрос DELETE с RETURNING:</label>
-        <textarea id="v4_q2" class="sql-input"></textarea>
-      </div>
+ <div class="task-block">
+ <h3><span class="task-num">Задание 4.2</span> Очистка неподтвержденных профилей пользователей</h3>
+ <p>Таблица регистрации студентов на портале содержит записи о заявках:</p>
+ <pre><code>CREATE TABLE portal_registration_requests (
+ request_id SERIAL PRIMARY KEY,
+ email VARCHAR(100) NOT NULL,
+ is_email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+ created_at TIMESTAMP NOT NULL);</code></pre>
+ <p><strong>Требование:</strong> Составьте запрос <code>DELETE FROM portal_registration_requests</code>, который удаляет все профили, у которых email не был подтвержден (<code>is_email_verified = FALSE</code>) и с момента регистрации прошло более 30 дней (<code>created_at &lt; CURRENT_TIMESTAMP - INTERVAL '30 days'</code>). Запрос должен возвращать через <code>RETURNING</code> список удаленных email для логирования.</p>
+ <label for="v4_q2">SQL-запрос DELETE с RETURNING:</label>
+ <textarea id="v4_q2" class="sql-input"></textarea>
+ </div>
 
-      <div class="task-block">
-        <h3><span class="task-num">Задание 4.3</span> Аналитический вопрос</h3>
-        <p>Сравните физические последствия выполнения <code>DELETE FROM student_grades;</code> и <code>TRUNCATE TABLE student_grades;</code> с точки зрения сброса счетчика автоинкремента <code>grade_id</code> и блокировок других пользователей портала.</p>
-        <label for="v4_q3">Ваше аналитическое пояснение:</label>
-        <textarea id="v4_q3" class="text-input"></textarea>
-      </div>
-    </section>
+ <div class="task-block">
+ <h3><span class="task-num">Задание 4.3</span> Аналитический вопрос</h3>
+ <p>Сравните физические последствия выполнения <code>DELETE FROM student_grades;</code> и <code>TRUNCATE TABLE student_grades;</code> с точки зрения сброса счетчика автоинкремента <code>grade_id</code> и блокировок других пользователей портала.</p>
+ <label for="v4_q3">Ваше аналитическое пояснение:</label>
+ <textarea id="v4_q3" class="text-input"></textarea>
+ </div>
+ </section>
 
-    <!-- Панель управления -->
-    <div class="bottom-bar">
-      <span class="status-indicator" id="statusSave">✓ Изменения сохранены</span>
-      <div class="btn-group">
-        <button class="btn btn-clear" id="resetBtn">Сбросить поля</button>
-        <button class="btn btn-save" id="saveBtn">Сохранить работу</button>
-      </div>
-    </div>
-  </div>
+ <!-- Панель управления -->
+ <div class="bottom-bar">
+ <span class="status-indicator" id="statusSave">✓ Изменения сохранены</span>
+ <div class="btn-group">
+ <button class="btn btn-clear" id="resetBtn">Сбросить поля</button>
+ <button class="btn btn-save" id="saveBtn">Сохранить работу</button>
+ </div>
+ </div>
+ </div>
 
-  <script>
-    (function() {
-      const STORAGE_KEY = 'worksheet_db_lesson_31_data';
-      const tabBtns = document.querySelectorAll('.v-tab-btn');
-      const cards = document.querySelectorAll('.variant-card');
-      const inputs = document.querySelectorAll('input[type="text"], textarea');
-      const statusSave = document.getElementById('statusSave');
-      const saveBtn = document.getElementById('saveBtn');
-      const resetBtn = document.getElementById('resetBtn');
+ <script>
+ (function() {
+ const STORAGE_KEY = 'worksheet_db_lesson_31_data';
+ const tabBtns = document.querySelectorAll('.v-tab-btn');
+ const cards = document.querySelectorAll('.variant-card');
+ const inputs = document.querySelectorAll('input[type="text"], textarea');
+ const statusSave = document.getElementById('statusSave');
+ const saveBtn = document.getElementById('saveBtn');
+ const resetBtn = document.getElementById('resetBtn');
 
-      function getActiveTab() {
-        const activeBtn = document.querySelector('.v-tab-btn.active');
-        return activeBtn ? activeBtn.getAttribute('data-target') : 'v1';
-      }
+ function getActiveTab() {
+ const activeBtn = document.querySelector('.v-tab-btn.active');
+ return activeBtn ? activeBtn.getAttribute('data-target') : 'v1';
+ }
 
-      function switchTab(targetId) {
-        tabBtns.forEach(btn => {
-          btn.classList.toggle('active', btn.getAttribute('data-target') === targetId);
-        });
-        cards.forEach(card => {
-          card.classList.toggle('active', card.id === targetId);
-        });
-        saveData();
-      }
+ function switchTab(targetId) {
+ tabBtns.forEach(btn => {
+ btn.classList.toggle('active', btn.getAttribute('data-target') === targetId);
+ });
+ cards.forEach(card => {
+ card.classList.toggle('active', card.id === targetId);
+ });
+ saveData();
+ }
 
-      tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          switchTab(btn.getAttribute('data-target'));
-        });
-      });
+ tabBtns.forEach(btn => {
+ btn.addEventListener('click', () => {
+ switchTab(btn.getAttribute('data-target'));
+ });
+ });
 
-      function notifySave() {
-        statusSave.style.display = 'inline-block';
-        setTimeout(() => {
-          statusSave.style.display = 'none';
-        }, 2200);
-      }
+ function notifySave() {
+ statusSave.style.display = 'inline-block';
+ setTimeout(() => {
+ statusSave.style.display = 'none';
+ }, 2200);
+ }
 
-      function saveData() {
-        const state = {
-          activeTab: getActiveTab(),
-          fields: {}
-        };
-        inputs.forEach(el => {
-          if (el.id) {
-            state.fields[el.id] = el.value;
-          }
-        });
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        } catch (e) {}
-      }
+ function saveData() {
+ const state = {
+ activeTab: getActiveTab(),
+ fields: {}
+ };
+ inputs.forEach(el => {
+ if (el.id) {
+ state.fields[el.id] = el.value;
+ }
+ });
+ try {
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+ } catch (e) {}
+ }
 
-      function loadData() {
-        try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          if (raw) {
-            const state = JSON.parse(raw);
-            if (state.activeTab) {
-              switchTab(state.activeTab);
-            }
-            if (state.fields) {
-              inputs.forEach(el => {
-                if (el.id && state.fields[el.id] !== undefined) {
-                  el.value = state.fields[el.id];
-                }
-              });
-            }
-          }
-        } catch (e) {}
-      }
+ function loadData() {
+ try {
+ const raw = localStorage.getItem(STORAGE_KEY);
+ if (raw) {
+ const state = JSON.parse(raw);
+ if (state.activeTab) {
+ switchTab(state.activeTab);
+ }
+ if (state.fields) {
+ inputs.forEach(el => {
+ if (el.id && state.fields[el.id] !== undefined) {
+ el.value = state.fields[el.id];
+ }
+ });
+ }
+ }
+ } catch (e) {}
+ }
 
-      inputs.forEach(el => {
-        el.addEventListener('input', () => {
-          saveData();
-        });
-      });
+ inputs.forEach(el => {
+ el.addEventListener('input', () => {
+ saveData();
+ });
+ });
 
-      saveBtn.addEventListener('click', () => {
-        saveData();
-        notifySave();
-      });
+ saveBtn.addEventListener('click', () => {
+ saveData();
+ notifySave();
+ });
 
-      resetBtn.addEventListener('click', () => {
-        if (confirm('Вы уверены, что хотите сбросить все введенные данные в текущем рабочем листе?')) {
-          localStorage.removeItem(STORAGE_KEY);
-          inputs.forEach(el => el.value = '');
-          notifySave();
-        }
-      });
+ resetBtn.addEventListener('click', () => {
+ if (confirm('Вы уверены, что хотите сбросить все введенные данные в текущем рабочем листе?')) {
+ localStorage.removeItem(STORAGE_KEY);
+ inputs.forEach(el => el.value = '');
+ notifySave();
+ }
+ });
 
-      loadData();
-    })();
-  </script>
+ loadData();
+ })();
+ </script>
 </body>
 </html>

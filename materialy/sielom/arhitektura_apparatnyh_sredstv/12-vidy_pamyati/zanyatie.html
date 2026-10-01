@@ -1,658 +1,633 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Практикум: Виды памяти и принцип работы. Основные характеристики. Модули памяти. Логическое распределение памяти</title>
-  <style>
-    :root {
-      --bg: #f1f5f9;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #1e40af;
-      --accent-soft: #eff6ff;
-      --task-bg: #f8fafc;
-      --border-task: #94a3b8;
-      --ok: #059669;
-      --warn: #d97706;
-      --radius: 14px;
-      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.6;
-      font-size: 15.5px;
-      padding: 20px 14px;
-    }
-    .page {
-      max-width: 980px;
-      margin: 0 auto;
-    }
-    .header-card, .student-card, .task-card, .actions-card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow);
-    }
-    h1 {
-      font-size: clamp(22px, 3.5vw, 28px);
-      color: var(--accent);
-      margin-bottom: 8px;
-    }
-    .desc {
-      color: var(--muted);
-      font-size: 15px;
-    }
-    .student-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 14px;
-    }
-    label {
-      display: block;
-      font-weight: 600;
-      font-size: 13.5px;
-      margin-bottom: 6px;
-      color: #1e293b;
-    }
-    input[type="text"], input[type="date"], select, textarea {
-      width: 100%;
-      border: 1.5px solid var(--line);
-      border-radius: 8px;
-      padding: 9px 12px;
-      font: inherit;
-      font-size: 14.5px;
-      background: #fff;
-      color: var(--text);
-      outline: none;
-      transition: border-color .15s, box-shadow .15s;
-    }
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
-    }
-    textarea {
-      min-height: 90px;
-      resize: vertical;
-      line-height: 1.5;
-    }
-    .criteria-box {
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      border-radius: 10px;
-      padding: 14px 18px;
-      margin-bottom: 18px;
-      font-size: 14px;
-    }
-    .criteria-box strong { color: var(--ok); }
-    .task-title {
-      font-size: 17.5px;
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .task-help {
-      background: var(--accent-soft);
-      border-left: 3px solid var(--accent);
-      padding: 10px 14px;
-      border-radius: 0 6px 6px 0;
-      margin-bottom: 14px;
-      font-size: 14px;
-      color: #1e3a8a;
-    }
-    .table-wrap {
-      overflow-x: auto;
-      margin: 14px 0;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13.5px;
-    }
-    th, td {
-      border: 1px solid var(--line);
-      padding: 8px 10px;
-      vertical-align: middle;
-      text-align: left;
-    }
-    th {
-      background: #f8fafc;
-      font-weight: 600;
-      color: #334155;
-    }
-    .table-input {
-      padding: 6px 8px;
-      font-size: 13.5px;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      background: #fff;
-      width: 100%;
-    }
-    .formula-badge {
-      display: inline-block;
-      background: #0f172a;
-      color: #38bdf8;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-family: ui-monospace, monospace;
-      font-size: 13.5px;
-      margin: 4px 0;
-    }
-    .btn-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: center;
-      margin-top: 10px;
-    }
-    button {
-      padding: 10px 18px;
-      font-size: 14.5px;
-      font-weight: 600;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: background-color .15s, opacity .15s;
-    }
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-    }
-    .btn-primary:hover { background: #1d4ed8; }
-    .btn-secondary {
-      background: #e2e8f0;
-      color: #1e293b;
-    }
-    .btn-secondary:hover { background: #cbd5e1; }
-    .btn-danger {
-      background: #fee2e2;
-      color: #991b1b;
-      border: 1px solid #fecaca;
-    }
-    .btn-danger:hover { background: #fecaca; }
-    .status-msg {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--muted);
-      margin-left: 8px;
-    }
-    .status-saved { color: var(--ok); }
-    .print-select-text { display: none; }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <title>Практикум: Виды памяти и принцип работы. Основные характеристики. Модули памяти. Логическое распределение памяти</title>
+ <style>
+ :root {
+ --bg: #f1f5f9;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #1e40af;
+ --accent-soft: #eff6ff;
+ --task-bg: #f8fafc;
+ --border-task: #94a3b8;
+ --ok: #059669;
+ --warn: #d97706;
+ --radius: 14px;
+ --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+ body {
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+ line-height: 1.6;
+ font-size: 15.5px;
+ padding: 20px 14px;
+ }.page {
+ max-width: 980px;
+ margin: 0 auto;
+ }.header-card,.student-card,.task-card,.actions-card {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 24px;
+ margin-bottom: 20px;
+ box-shadow: var(--shadow);
+ }
+ h1 {
+ font-size: clamp(22px, 3.5vw, 28px);
+ color: var(--accent);
+ margin-bottom: 8px;
+ }.desc {
+ color: var(--muted);
+ font-size: 15px;
+ }.student-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+ gap: 14px;
+ }
+ label {
+ display: block;
+ font-weight: 600;
+ font-size: 13.5px;
+ margin-bottom: 6px;
+ color: #1e293b;
+ }
+ input[type="text"], input[type="date"], select, textarea {
+ width: 100%;
+ border: 1.5px solid var(--line);
+ border-radius: 8px;
+ padding: 9px 12px;
+ font: inherit;
+ font-size: 14.5px;
+ background: #fff;
+ color: var(--text);
+ outline: none;
+ transition: border-color.15s, box-shadow.15s;
+ }
+ input:focus, select:focus, textarea:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+ }
+ textarea {
+ min-height: 90px;
+ resize: vertical;
+ line-height: 1.5;
+ }.criteria-box {
+ background: #f0fdf4;
+ border: 1px solid #bbf7d0;
+ border-radius: 10px;
+ padding: 14px 18px;
+ margin-bottom: 18px;
+ font-size: 14px;
+ }.criteria-box strong { color: var(--ok); }.task-title {
+ font-size: 17.5px;
+ font-weight: 700;
+ color: var(--accent);
+ margin-bottom: 10px;
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ }.task-help {
+ background: var(--accent-soft);
+ border-left: 3px solid var(--accent);
+ padding: 10px 14px;
+ border-radius: 0 6px 6px 0;
+ margin-bottom: 14px;
+ font-size: 14px;
+ color: #1e3a8a;
+ }.table-wrap {
+ overflow-x: auto;
+ margin: 14px 0;
+ }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ font-size: 13.5px;
+ }
+ th, td {
+ border: 1px solid var(--line);
+ padding: 8px 10px;
+ vertical-align: middle;
+ text-align: left;
+ }
+ th {
+ background: #f8fafc;
+ font-weight: 600;
+ color: #334155;
+ }.table-input {
+ padding: 6px 8px;
+ font-size: 13.5px;
+ border: 1px solid var(--line);
+ border-radius: 6px;
+ background: #fff;
+ width: 100%;
+ }.formula-badge {
+ display: inline-block;
+ background: #0f172a;
+ color: #38bdf8;
+ padding: 4px 10px;
+ border-radius: 6px;
+ font-family: ui-monospace, monospace;
+ font-size: 13.5px;
+ margin: 4px 0;
+ }.btn-row {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 12px;
+ align-items: center;
+ margin-top: 10px;
+ }
+ button {
+ padding: 10px 18px;
+ font-size: 14.5px;
+ font-weight: 600;
+ border-radius: 8px;
+ border: none;
+ cursor: pointer;
+ display: inline-flex;
+ align-items: center;
+ gap: 6px;
+ transition: background-color.15s, opacity.15s;
+ }.btn-primary {
+ background: var(--accent);
+ color: #fff;
+ }.btn-primary:hover { background: #1d4ed8; }.btn-secondary {
+ background: #e2e8f0;
+ color: #1e293b;
+ }.btn-secondary:hover { background: #cbd5e1; }.btn-danger {
+ background: #fee2e2;
+ color: #991b1b;
+ border: 1px solid #fecaca;
+ }.btn-danger:hover { background: #fecaca; }.status-msg {
+ font-size: 14px;
+ font-weight: 500;
+ color: var(--muted);
+ margin-left: 8px;
+ }.status-saved { color: var(--ok); }.print-select-text { display: none; }
 
-    @media print {
-      body {
-        background: #fff;
-        color: #000;
-        padding: 0;
-        font-size: 11pt;
-      }
-      .page {
-        max-width: 100%;
-        margin: 0;
-      }
-      .header-card, .student-card, .task-card {
-        box-shadow: none;
-        border: 1px solid #777;
-        margin-bottom: 12pt;
-        padding: 10pt;
-        break-inside: auto;
-        page-break-inside: auto;
-      }
-      .actions-card, .btn-row {
-        display: none !important;
-      }
-      input::placeholder, textarea::placeholder {
-        color: transparent !important;
-        -webkit-text-fill-color: transparent !important;
-        opacity: 0 !important;
-      }
-      select {
-        display: none !important;
-      }
-      .print-select-text {
-        display: block !important;
-        min-height: 22px;
-        border: 1px solid #777 !important;
-        border-radius: 4px;
-        padding: 4px 6px;
-        background: #fff !important;
-      }
-      textarea {
-        height: auto !important;
-        min-height: 80px;
-        overflow: visible !important;
-        white-space: pre-wrap !important;
-        word-break: break-word !important;
-        border: 1px solid #777 !important;
-        background: #fff !important;
-        color: #000 !important;
-      }
-      input[type="text"], input[type="date"], .table-input {
-        border: 1px solid #777 !important;
-        background: #fff !important;
-        color: #000 !important;
-      }
-    }
-  </style>
+ @media print {
+ body {
+ background: #fff;
+ color: #000;
+ padding: 0;
+ font-size: 11pt;
+ }.page {
+ max-width: 100%;
+ margin: 0;
+ }.header-card,.student-card,.task-card {
+ box-shadow: none;
+ border: 1px solid #777;
+ margin-bottom: 12pt;
+ padding: 10pt;
+ break-inside: auto;
+ page-break-inside: auto;
+ }.actions-card,.btn-row {
+ display: none !important;
+ }
+ input::placeholder, textarea::placeholder {
+ color: transparent !important;
+ -webkit-text-fill-color: transparent !important;
+ opacity: 0 !important;
+ }
+ select {
+ display: none !important;
+ }.print-select-text {
+ display: block !important;
+ min-height: 22px;
+ border: 1px solid #777 !important;
+ border-radius: 4px;
+ padding: 4px 6px;
+ background: #fff !important;
+ }
+ textarea {
+ height: auto !important;
+ min-height: 80px;
+ overflow: visible !important;
+ white-space: pre-wrap !important;
+ word-break: break-word !important;
+ border: 1px solid #777 !important;
+ background: #fff !important;
+ color: #000 !important;
+ }
+ input[type="text"], input[type="date"],.table-input {
+ border: 1px solid #777 !important;
+ background: #fff !important;
+ color: #000 !important;
+ }
+ }
+ </style>
 </head>
 <body>
 <div class="page">
 
-  <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
-  <div class="header-card">
-    <h1>Виды памяти и принцип работы. Основные характеристики. Модули памяти. Логическое распределение памяти</h1>
-    <p class="desc">Интерактивный рабочий лист студента. Сравнительный анализ полупроводниковых технологий (SRAM vs DRAM vs ROM/NAND), расчет пропускной способности и истинной задержки таймингов по формуле T = 2000 * CL / DataRate, картирование физического и логического адресного пространства MMIO под 4 варианта архитектурных платформ.</p>
-  </div>
+ <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
+ <div class="header-card">
+ <h1>Виды памяти и принцип работы. Основные характеристики. Модули памяти. Логическое распределение памяти</h1>
+ <p class="desc">Интерактивный рабочий лист студента. Сравнительный анализ полупроводниковых технологий (SRAM vs DRAM vs ROM/NAND), расчет пропускной способности и истинной задержки таймингов по формуле T = 2000 * CL / DataRate, картирование физического и логического адресного пространства MMIO под 4 варианта архитектурных платформ.</p>
+ </div>
 
-  <!-- РЕКВИЗИТЫ СТУДЕНТА (ЧИСТЫЕ ПОЛЯ БЕЗ ВЫМЫШЛЕННЫХ ДАННЫХ) -->
-  <div class="student-card">
-    <div class="student-grid">
-      <div>
-        <label for="student_fio">ФИО обучающегося:</label>
-        <input type="text" id="student_fio" name="student_fio" placeholder="Фамилия Имя Отчество">
-      </div>
-      <div>
-        <label for="student_group">Учебная группа:</label>
-        <input type="text" id="student_group" name="student_group" placeholder="Введите группу">
-      </div>
-      <div>
-        <label for="work_date">Дата выполнения:</label>
-        <input type="date" id="work_date" name="work_date">
-      </div>
-      <div>
-        <label for="work_variant">Архитектурная платформа (вариант):</label>
-        <select id="work_variant" name="work_variant" onchange="updateVariantSelection()">
-          <option value="">-- Выберите вариант платформы --</option>
-          <option value="1">Вариант 1: Рабочая станция Intel Core i9-14900K / Z790 (64 ГБ DDR5-6000 CL30, GPU 16 ГБ Resizable BAR)</option>
-          <option value="2">Вариант 2: Сервер виртуализации AMD EPYC 9654 / SP5 (128 ГБ DDR5-4800 CL40 Registered ECC, 8 каналов, Dual 100GbE)</option>
-          <option value="3">Вариант 3: Офисный ПК начального уровня Intel Core i3-12100 / H610 (8 ГБ DDR4-3200 CL16, графика UHD 730 UMA)</option>
-          <option value="4">Вариант 4: Встраиваемая система ARM Cortex-A72 / SoM (4 ГБ LPDDR4-3733 CL32, 32-битная адресация AXI, MMIO)</option>
-        </select>
-        <div id="print_work_variant" class="print-select-text"></div>
-      </div>
-    </div>
-  </div>
+ <!-- РЕКВИЗИТЫ СТУДЕНТА (ЧИСТЫЕ ПОЛЯ БЕЗ ВЫМЫШЛЕННЫХ ДАННЫХ) -->
+ <div class="student-card">
+ <div class="student-grid">
+ <div>
+ <label for="student_fio">ФИО обучающегося:</label>
+ <input type="text" id="student_fio" name="student_fio" placeholder="Фамилия Имя Отчество">
+ </div>
+ <div>
+ <label for="student_group">Учебная группа:</label>
+ <input type="text" id="student_group" name="student_group" placeholder="Введите группу">
+ </div>
+ <div>
+ <label for="work_date">Дата выполнения:</label>
+ <input type="date" id="work_date" name="work_date">
+ </div>
+ <div>
+ <label for="work_variant">Архитектурная платформа (вариант):</label>
+ <select id="work_variant" name="work_variant" onchange="updateVariantSelection()">
+ <option value="">-- Выберите вариант платформы --</option>
+ <option value="1">Вариант 1: Рабочая станция Intel Core i9-14900K / Z790 (64 ГБ DDR5-6000 CL30, GPU 16 ГБ Resizable BAR)</option>
+ <option value="2">Вариант 2: Сервер виртуализации AMD EPYC 9654 / SP5 (128 ГБ DDR5-4800 CL40 Registered ECC, 8 каналов, Dual 100GbE)</option>
+ <option value="3">Вариант 3: Офисный ПК начального уровня Intel Core i3-12100 / H610 (8 ГБ DDR4-3200 CL16, графика UHD 730 UMA)</option>
+ <option value="4">Вариант 4: Встраиваемая система ARM Cortex-A72 / SoM (4 ГБ LPDDR4-3733 CL32, 32-битная адресация AXI, MMIO)</option>
+ </select>
+ <div id="print_work_variant" class="print-select-text"></div>
+ </div>
+ </div>
+ </div>
 
-  <!-- КРИТЕРИИ ОЦЕНИВАНИЯ -->
-  <div class="criteria-box">
-    <strong>Критерии открытой 4-балльной шкалы:</strong>
-    2 балла — <em>Корректность</em> (безошибочное сопоставление физики SRAM/DRAM/NAND, точный расчет ПСП и истинной задержки в наносекундах по формуле T = rac{2000 	imes CL}{DataRate});
-    1 балл — <em>Объяснение</em> (аргументированное физическое обоснование деструктивного чтения DRAM, преимуществ архитектуры DDR5 и преодоления 3 ГБ барьера);
-    1 балл — <em>Проверка</em> (построение корректной карты физического и логического адресного пространства MMIO с выявлением ограничений под выбранную платформу). Сдача работы — до следующей пары.
-  </div>
+ <!-- КРИТЕРИИ ОЦЕНИВАНИЯ -->
+ <div class="criteria-box">
+ <strong>Критерии открытой 4-балльной шкалы:</strong>
+ 2 балла — <em>Корректность</em> (безошибочное сопоставление физики SRAM/DRAM/NAND, точный расчет ПСП и истинной задержки в наносекундах по формуле T = rac{2000 imes CL}{DataRate});
+ 1 балл — <em>Объяснение</em> (аргументированное физическое обоснование деструктивного чтения DRAM, преимуществ архитектуры DDR5 и преодоления 3 ГБ барьера);
+ 1 балл — <em>Проверка</em> (построение корректной карты физического и логического адресного пространства MMIO с выявлением ограничений под выбранную платформу). Сдача работы — до следующей пары.
+ </div>
 
-  <!-- ЗАДАНИЕ 1 -->
-  <div class="task-card">
-    <div class="task-title">Задание 1. Сравнительный анализ технологий полупроводниковой памяти</div>
-    <div class="task-help">
-      Заполните аналитическую матрицу фундаментальных типов памяти вычислительных систем. Опишите физическую структуру элементарной ячейки, энергозависимость, необходимость регенерации заряда, латентность доступа и системную функцию.
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th style="width: 14%;">Тип памяти</th>
-            <th style="width: 18%;">Структура элементарной ячейки</th>
-            <th style="width: 14%;">Энергозависимость</th>
-            <th style="width: 16%;">Регенерация заряда</th>
-            <th style="width: 14%;">Время доступа</th>
-            <th style="width: 24%;">Основное назначение в ЭВМ</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>SRAM (Static RAM)</strong></td>
-            <td><input type="text" id="sram_cell" class="table-input" placeholder="Количество транзисторов/схема"></td>
-            <td><input type="text" id="sram_volatility" class="table-input" placeholder="Volatile / Non-volatile"></td>
-            <td><input type="text" id="sram_refresh" class="table-input" placeholder="Требуется / Не требуется"></td>
-            <td><input type="text" id="sram_latency" class="table-input" placeholder="нс / такты"></td>
-            <td><input type="text" id="sram_usage" class="table-input" placeholder="Уровень в иерархии памяти"></td>
-          </tr>
-          <tr>
-            <td><strong>DRAM (Dynamic RAM)</strong></td>
-            <td><input type="text" id="dram_cell" class="table-input" placeholder="Элементы ячейки (T и C)"></td>
-            <td><input type="text" id="dram_volatility" class="table-input" placeholder="Volatile / Non-volatile"></td>
-            <td><input type="text" id="dram_refresh" class="table-input" placeholder="Интервал и механизм"></td>
-            <td><input type="text" id="dram_latency" class="table-input" placeholder="нс"></td>
-            <td><input type="text" id="dram_usage" class="table-input" placeholder="Уровень в иерархии памяти"></td>
-          </tr>
-          <tr>
-            <td><strong>NAND Flash</strong></td>
-            <td><input type="text" id="nand_cell" class="table-input" placeholder="Тип затвора (FG / Charge Trap)"></td>
-            <td><input type="text" id="nand_volatility" class="table-input" placeholder="Volatile / Non-volatile"></td>
-            <td><input type="text" id="nand_refresh" class="table-input" placeholder="Требуется ли регенерация?"></td>
-            <td><input type="text" id="nand_latency" class="table-input" placeholder="мкс / мс"></td>
-            <td><input type="text" id="nand_usage" class="table-input" placeholder="Уровень в иерархии памяти"></td>
-          </tr>
-          <tr>
-            <td><strong>ROM / SPI Flash</strong></td>
-            <td><input type="text" id="rom_cell" class="table-input" placeholder="Энергонезависимая матрица / EEPROM"></td>
-            <td><input type="text" id="rom_volatility" class="table-input" placeholder="Volatile / Non-volatile"></td>
-            <td><input type="text" id="rom_refresh" class="table-input" placeholder="Требуется ли регенерация?"></td>
-            <td><input type="text" id="rom_latency" class="table-input" placeholder="нс / мкс"></td>
-            <td><input type="text" id="rom_usage" class="table-input" placeholder="Хранение прошивки/микрокода"></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+ <!-- ЗАДАНИЕ 1 -->
+ <div class="task-card">
+ <div class="task-title">Задание 1. Сравнительный анализ технологий полупроводниковой памяти</div>
+ <div class="task-help">
+ Заполните аналитическую матрицу фундаментальных типов памяти вычислительных систем. Опишите физическую структуру элементарной ячейки, энергозависимость, необходимость регенерации заряда, латентность доступа и системную функцию.
+ </div>
+ <div class="table-wrap">
+ <table>
+ <thead>
+ <tr>
+ <th style="width: 14%;">Тип памяти</th>
+ <th style="width: 18%;">Структура элементарной ячейки</th>
+ <th style="width: 14%;">Энергозависимость</th>
+ <th style="width: 16%;">Регенерация заряда</th>
+ <th style="width: 14%;">Время доступа</th>
+ <th style="width: 24%;">Основное назначение в ЭВМ</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>SRAM (Static RAM)</strong></td>
+ <td><input type="text" id="sram_cell" class="table-input" placeholder="Количество транзисторов/схема"></td>
+ <td><input type="text" id="sram_volatility" class="table-input" placeholder="Volatile / Non-volatile"></td>
+ <td><input type="text" id="sram_refresh" class="table-input" placeholder="Требуется / Не требуется"></td>
+ <td><input type="text" id="sram_latency" class="table-input" placeholder="нс / такты"></td>
+ <td><input type="text" id="sram_usage" class="table-input" placeholder="Уровень в иерархии памяти"></td>
+ </tr>
+ <tr>
+ <td><strong>DRAM (Dynamic RAM)</strong></td>
+ <td><input type="text" id="dram_cell" class="table-input" placeholder="Элементы ячейки (T и C)"></td>
+ <td><input type="text" id="dram_volatility" class="table-input" placeholder="Volatile / Non-volatile"></td>
+ <td><input type="text" id="dram_refresh" class="table-input" placeholder="Интервал и механизм"></td>
+ <td><input type="text" id="dram_latency" class="table-input" placeholder="нс"></td>
+ <td><input type="text" id="dram_usage" class="table-input" placeholder="Уровень в иерархии памяти"></td>
+ </tr>
+ <tr>
+ <td><strong>NAND Flash</strong></td>
+ <td><input type="text" id="nand_cell" class="table-input" placeholder="Тип затвора (FG / Charge Trap)"></td>
+ <td><input type="text" id="nand_volatility" class="table-input" placeholder="Volatile / Non-volatile"></td>
+ <td><input type="text" id="nand_refresh" class="table-input" placeholder="Требуется ли регенерация?"></td>
+ <td><input type="text" id="nand_latency" class="table-input" placeholder="мкс / мс"></td>
+ <td><input type="text" id="nand_usage" class="table-input" placeholder="Уровень в иерархии памяти"></td>
+ </tr>
+ <tr>
+ <td><strong>ROM / SPI Flash</strong></td>
+ <td><input type="text" id="rom_cell" class="table-input" placeholder="Энергонезависимая матрица / EEPROM"></td>
+ <td><input type="text" id="rom_volatility" class="table-input" placeholder="Volatile / Non-volatile"></td>
+ <td><input type="text" id="rom_refresh" class="table-input" placeholder="Требуется ли регенерация?"></td>
+ <td><input type="text" id="rom_latency" class="table-input" placeholder="нс / мкс"></td>
+ <td><input type="text" id="rom_usage" class="table-input" placeholder="Хранение прошивки/микрокода"></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
 
-    <div style="margin-top: 14px;">
-      <label for="ans_destructive_read">1.1. Физический механизм деструктивного чтения (destructive read) в DRAM и регенерация (Refresh):</label>
-      <div class="task-help">Почему считывание заряда с конденсатора емкостью 25–30 фФ разрушает хранимое значение, как усилитель считывания (Sense Amplifier) производит восстановление (Precharge/Restore), и почему ячейка DRAM теряет информацию без постоянной регенерации?</div>
-      <textarea id="ans_destructive_read" placeholder="Опишите физику разряда конденсатора на Bit Line, разность потенциалов, порог срабатывания усилителя считывания, операцию перезаряда и интервал tREFI..."></textarea>
-    </div>
+ <div style="margin-top: 14px;">
+ <label for="ans_destructive_read">1.1. Физический механизм деструктивного чтения (destructive read) в DRAM и регенерация (Refresh):</label>
+ <div class="task-help">Почему считывание заряда с конденсатора емкостью 25–30 фФ разрушает хранимое значение, как усилитель считывания (Sense Amplifier) производит восстановление (Precharge/Restore), и почему ячейка DRAM теряет информацию без постоянной регенерации?</div>
+ <textarea id="ans_destructive_read" placeholder="Опишите физику разряда конденсатора на Bit Line, разность потенциалов, порог срабатывания усилителя считывания, операцию перезаряда и интервал tREFI..."></textarea>
+ </div>
 
-    <div style="margin-top: 14px;">
-      <label for="ans_sram_vs_dram_tradeoff">1.2. Архитектурный компромисс SRAM vs DRAM (почему ОЗУ не строят на ячейках SRAM 6T):</label>
-      <div class="task-help">Объясните, почему сверхбыстрая память SRAM (0.5–2 нс) используется только в кэшах CPU L1–L3, а не в качестве оперативной памяти объемом 32–64 ГБ. Укажите площадь кристалла, число транзисторов, токи покоя и удельную стоимость за гигабайт.</div>
-      <textarea id="ans_sram_vs_dram_tradeoff" placeholder="Сопоставьте 6 транзисторов SRAM против 1 транзистора и 1 конденсатора DRAM, плотность размещения на кристалле кремния, тепловыделение и экономические факторы..."></textarea>
-    </div>
-  </div>
+ <div style="margin-top: 14px;">
+ <label for="ans_sram_vs_dram_tradeoff">1.2. Архитектурный компромисс SRAM vs DRAM (почему ОЗУ не строят на ячейках SRAM 6T):</label>
+ <div class="task-help">Объясните, почему сверхбыстрая память SRAM (0.5–2 нс) используется только в кэшах CPU L1–L3, а не в качестве оперативной памяти объемом 32–64 ГБ. Укажите площадь кристалла, число транзисторов, токи покоя и удельную стоимость за гигабайт.</div>
+ <textarea id="ans_sram_vs_dram_tradeoff" placeholder="Сопоставьте 6 транзисторов SRAM против 1 транзистора и 1 конденсатора DRAM, плотность размещения на кристалле кремния, тепловыделение и экономические факторы..."></textarea>
+ </div>
+ </div>
 
-  <!-- ЗАДАНИЕ 2 -->
-  <div class="task-card">
-    <div class="task-title">Задание 2. Модули памяти: расчет пропускной способности и истинной задержки таймингов</div>
-    <div class="task-help">
-      Заполните расчетную таблицу характеристик стандартов оперативной памяти. Рассчитайте частоту шины команд (Clock Frequency), теоретическую пропускную способность (ПСП в ГБ/с) и истинную задержку первого доступа (True Latency в наносекундах) по формуле:
-      <br>
-      <span class="formula-badge">T_latency (нс) = 2000 * CL / DataRate (MT/s)</span>
-      &nbsp;&nbsp;|&nbsp;&nbsp;
-      <span class="formula-badge">ПСП (ГБ/с) = DataRate (MT/s) * Ширина_шины (байт) * Каналы / 1000</span>
-    </div>
+ <!-- ЗАДАНИЕ 2 -->
+ <div class="task-card">
+ <div class="task-title">Задание 2. Модули памяти: расчет пропускной способности и истинной задержки таймингов</div>
+ <div class="task-help">
+ Заполните расчетную таблицу характеристик стандартов оперативной памяти. Рассчитайте частоту шины команд (Clock Frequency), теоретическую пропускную способность (ПСП в ГБ/с) и истинную задержку первого доступа (True Latency в наносекундах) по формуле:
+ <br>
+ <span class="formula-badge">T_latency (нс) = 2000 * CL / DataRate (MT/s)</span>
+ &nbsp;&nbsp;|&nbsp;&nbsp;
+ <span class="formula-badge">ПСП (ГБ/с) = DataRate (MT/s) * Ширина_шины (байт) * Каналы / 1000</span>
+ </div>
 
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Стандарт и формула таймингов</th>
-            <th>Ширина шины и конфигурация</th>
-            <th>Частота шины команд (МГц)</th>
-            <th>Теоретическая ПСП (ГБ/с)</th>
-            <th>Истинная задержка tCL (нс)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>DDR4-3200 (CL16-18-18-38)</strong></td>
-            <td>1 канал x 64 бит (8 байт), 1.2 В</td>
-            <td><input type="text" id="calc_clk_ddr4_3200" class="table-input" placeholder="МГц"></td>
-            <td><input type="text" id="calc_bw_ddr4_3200" class="table-input" placeholder="ГБ/с"></td>
-            <td><input type="text" id="calc_lat_ddr4_3200" class="table-input" placeholder="нс"></td>
-          </tr>
-          <tr>
-            <td><strong>DDR4-3600 (CL18-22-22-42)</strong></td>
-            <td>2 канала x 64 бит (16 байт), 1.35 В</td>
-            <td><input type="text" id="calc_clk_ddr4_3600" class="table-input" placeholder="МГц"></td>
-            <td><input type="text" id="calc_bw_ddr4_3600" class="table-input" placeholder="ГБ/с"></td>
-            <td><input type="text" id="calc_lat_ddr4_3600" class="table-input" placeholder="нс"></td>
-          </tr>
-          <tr>
-            <td><strong>DDR5-4800 (CL40-39-39-76)</strong></td>
-            <td>1 модуль (2x32 бит = 8 байт), 1.1 В</td>
-            <td><input type="text" id="calc_clk_ddr5_4800" class="table-input" placeholder="МГц"></td>
-            <td><input type="text" id="calc_bw_ddr5_4800" class="table-input" placeholder="ГБ/с"></td>
-            <td><input type="text" id="calc_lat_ddr5_4800" class="table-input" placeholder="нс"></td>
-          </tr>
-          <tr>
-            <td><strong>DDR5-6000 (CL30-38-38-96)</strong></td>
-            <td>2 модуля (4x32 бит = 16 байт), 1.35 В</td>
-            <td><input type="text" id="calc_clk_ddr5_6000" class="table-input" placeholder="МГц"></td>
-            <td><input type="text" id="calc_bw_ddr5_6000" class="table-input" placeholder="ГБ/с"></td>
-            <td><input type="text" id="calc_lat_ddr5_6000" class="table-input" placeholder="нс"></td>
-          </tr>
-          <tr>
-            <td><strong>DDR5-7200 (CL34-44-44-115)</strong></td>
-            <td>2 модуля (4x32 бит = 16 байт), 1.4 В</td>
-            <td><input type="text" id="calc_clk_ddr5_7200" class="table-input" placeholder="МГц"></td>
-            <td><input type="text" id="calc_bw_ddr5_7200" class="table-input" placeholder="ГБ/с"></td>
-            <td><input type="text" id="calc_lat_ddr5_7200" class="table-input" placeholder="нс"></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+ <div class="table-wrap">
+ <table>
+ <thead>
+ <tr>
+ <th>Стандарт и формула таймингов</th>
+ <th>Ширина шины и конфигурация</th>
+ <th>Частота шины команд (МГц)</th>
+ <th>Теоретическая ПСП (ГБ/с)</th>
+ <th>Истинная задержка tCL (нс)</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>DDR4-3200 (CL16-18-18-38)</strong></td>
+ <td>1 канал x 64 бит (8 байт), 1.2 В</td>
+ <td><input type="text" id="calc_clk_ddr4_3200" class="table-input" placeholder="МГц"></td>
+ <td><input type="text" id="calc_bw_ddr4_3200" class="table-input" placeholder="ГБ/с"></td>
+ <td><input type="text" id="calc_lat_ddr4_3200" class="table-input" placeholder="нс"></td>
+ </tr>
+ <tr>
+ <td><strong>DDR4-3600 (CL18-22-22-42)</strong></td>
+ <td>2 канала x 64 бит (16 байт), 1.35 В</td>
+ <td><input type="text" id="calc_clk_ddr4_3600" class="table-input" placeholder="МГц"></td>
+ <td><input type="text" id="calc_bw_ddr4_3600" class="table-input" placeholder="ГБ/с"></td>
+ <td><input type="text" id="calc_lat_ddr4_3600" class="table-input" placeholder="нс"></td>
+ </tr>
+ <tr>
+ <td><strong>DDR5-4800 (CL40-39-39-76)</strong></td>
+ <td>1 модуль (2x32 бит = 8 байт), 1.1 В</td>
+ <td><input type="text" id="calc_clk_ddr5_4800" class="table-input" placeholder="МГц"></td>
+ <td><input type="text" id="calc_bw_ddr5_4800" class="table-input" placeholder="ГБ/с"></td>
+ <td><input type="text" id="calc_lat_ddr5_4800" class="table-input" placeholder="нс"></td>
+ </tr>
+ <tr>
+ <td><strong>DDR5-6000 (CL30-38-38-96)</strong></td>
+ <td>2 модуля (4x32 бит = 16 байт), 1.35 В</td>
+ <td><input type="text" id="calc_clk_ddr5_6000" class="table-input" placeholder="МГц"></td>
+ <td><input type="text" id="calc_bw_ddr5_6000" class="table-input" placeholder="ГБ/с"></td>
+ <td><input type="text" id="calc_lat_ddr5_6000" class="table-input" placeholder="нс"></td>
+ </tr>
+ <tr>
+ <td><strong>DDR5-7200 (CL34-44-44-115)</strong></td>
+ <td>2 модуля (4x32 бит = 16 байт), 1.4 В</td>
+ <td><input type="text" id="calc_clk_ddr5_7200" class="table-input" placeholder="МГц"></td>
+ <td><input type="text" id="calc_bw_ddr5_7200" class="table-input" placeholder="ГБ/с"></td>
+ <td><input type="text" id="calc_lat_ddr5_7200" class="table-input" placeholder="нс"></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
 
-    <div style="margin-top: 14px;">
-      <label for="ans_ddr5_latency_myth">2.1. Разоблачение мифа о «медленной памяти DDR5 с огромными задержками»:</label>
-      <div class="task-help">На потребительских форумах часто утверждают: «У DDR4 тайминг CL был 16, а у DDR5 стал 36–40, значит новая память в два раза медленнее». На основе расчетной таблицы и формулы T = 2000 * CL / DataRate докажите математическую и физическую ошибочность данного суждения.</div>
-      <textarea id="ans_ddr5_latency_myth" placeholder="Сравните истинную задержку в наносекундах между DDR4-3200 CL16 и DDR5-6000 CL30. Объясните, почему число тактов выросло пропорционально сокращению периода тактового импульса..."></textarea>
-    </div>
+ <div style="margin-top: 14px;">
+ <label for="ans_ddr5_latency_myth">2.1. Разоблачение мифа о «медленной памяти DDR5 с огромными задержками»:</label>
+ <div class="task-help">На потребительских форумах часто утверждают: «У DDR4 тайминг CL был 16, а у DDR5 стал 36–40, значит новая память в два раза медленнее». На основе расчетной таблицы и формулы T = 2000 * CL / DataRate докажите математическую и физическую ошибочность данного суждения.</div>
+ <textarea id="ans_ddr5_latency_myth" placeholder="Сравните истинную задержку в наносекундах между DDR4-3200 CL16 и DDR5-6000 CL30. Объясните, почему число тактов выросло пропорционально сокращению периода тактового импульса..."></textarea>
+ </div>
 
-    <div style="margin-top: 14px;">
-      <label for="ans_ddr5_innovations">2.2. Ключевые схемотехнические инновации стандарта DDR5:</label>
-      <div class="task-help">Охарактеризуйте три архитектурных новшества DDR5 по сравнению с DDR4: 1) разделение 64-битного модуля на два независимых 32-битных подканала данных; 2) встроенный механизм коррекции ошибок On-die ECC; 3) интеграция чипа управления питанием PMIC непосредственно на печатную плату модуля DIMM.</div>
-      <textarea id="ans_ddr5_innovations" placeholder="Раскройте эффективность подканалов при Burst Length 16 (выборка 64 байт на строку кэша), защиту от утечек ячеек при субмикронных техпроцессах (On-die ECC) и стабилизацию напряжений VDD/VDDQ через PMIC..."></textarea>
-    </div>
-  </div>
+ <div style="margin-top: 14px;">
+ <label for="ans_ddr5_innovations">2.2. Ключевые схемотехнические инновации стандарта DDR5:</label>
+ <div class="task-help">Охарактеризуйте три архитектурных новшества DDR5 по сравнению с DDR4: 1) разделение 64-битного модуля на два независимых 32-битных подканала данных; 2) встроенный механизм коррекции ошибок On-die ECC; 3) интеграция чипа управления питанием PMIC непосредственно на печатную плату модуля DIMM.</div>
+ <textarea id="ans_ddr5_innovations" placeholder="Раскройте эффективность подканалов при Burst Length 16 (выборка 64 байт на строку кэша), защиту от утечек ячеек при субмикронных техпроцессах (On-die ECC) и стабилизацию напряжений VDD/VDDQ через PMIC..."></textarea>
+ </div>
+ </div>
 
-  <!-- ЗАДАНИЕ 3 -->
-  <div class="task-card">
-    <div class="task-title">Задание 3. Логическое распределение памяти и Memory-Mapped I/O (MMIO)</div>
-    <div class="task-help">
-      Изучите карту физического распределения памяти архитектуры x86/x86-64 и механизмы сопоставления адресов. Ответьте на вопросы по организации ввода-вывода и трансляции адресов.
-    </div>
+ <!-- ЗАДАНИЕ 3 -->
+ <div class="task-card">
+ <div class="task-title">Задание 3. Логическое распределение памяти и Memory-Mapped I/O (MMIO)</div>
+ <div class="task-help">
+ Изучите карту физического распределения памяти архитектуры x86/x86-64 и механизмы сопоставления адресов. Ответьте на вопросы по организации ввода-вывода и трансляции адресов.
+ </div>
 
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th style="width: 25%;">Диапазон адресов (Legacy)</th>
-            <th style="width: 25%;">Объем сегмента</th>
-            <th style="width: 25%;">Название области памяти</th>
-            <th style="width: 25%;">Архитектурное назначение</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>0x00000000 – 0x0009FFFF</strong></td>
-            <td>0 – 640 КБ (640 КБ)</td>
-            <td>Conventional Memory (Базовая память)</td>
-            <td>Векторы прерываний (IVT), BIOS Data Area (BDA), пространство программ реального режима DOS</td>
-          </tr>
-          <tr>
-            <td><strong>0x000A0000 – 0x000BFFFF</strong></td>
-            <td>640 – 768 КБ (128 КБ)</td>
-            <td>Video RAM (VGA Window)</td>
-            <td>Фреймбуферы видеоадаптера: текстовый режим 80x25 (0xB8000) и графический буфер VGA (0xA0000)</td>
-          </tr>
-          <tr>
-            <td><strong>0x000C0000 – 0x000DFFFF</strong></td>
-            <td>768 – 896 КБ (128 КБ)</td>
-            <td>Option ROM (ROM Expansion)</td>
-            <td>BIOS плат расширения: прошивка контроллера дисков (SCSI/RAID), сетевая загрузка PXE</td>
-          </tr>
-          <tr>
-            <td><strong>0x000E0000 – 0x000FFFFF</strong></td>
-            <td>896 – 1024 КБ (128 КБ)</td>
-            <td>System BIOS ROM</td>
-            <td>Прошивка материнской платы, точка входа сброса процессора (Reset Vector: 0xFFFFFFF0 / 0xFFFF0)</td>
-          </tr>
-          <tr>
-            <td><strong>0x00100000 и выше</strong></td>
-            <td>Свыше 1 МБ</td>
-            <td>Extended Memory (XMS)</td>
-            <td>Основная оперативная память, доступная в защищенном (Protected) и длинном (Long) режимах</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+ <div class="table-wrap">
+ <table>
+ <thead>
+ <tr>
+ <th style="width: 25%;">Диапазон адресов (Legacy)</th>
+ <th style="width: 25%;">Объем сегмента</th>
+ <th style="width: 25%;">Название области памяти</th>
+ <th style="width: 25%;">Архитектурное назначение</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>0x00000000 – 0x0009FFFF</strong></td>
+ <td>0 – 640 КБ (640 КБ)</td>
+ <td>Conventional Memory (Базовая память)</td>
+ <td>Векторы прерываний (IVT), BIOS Data Area (BDA), пространство программ реального режима DOS</td>
+ </tr>
+ <tr>
+ <td><strong>0x000A0000 – 0x000BFFFF</strong></td>
+ <td>640 – 768 КБ (128 КБ)</td>
+ <td>Video RAM (VGA Window)</td>
+ <td>Фреймбуферы видеоадаптера: текстовый режим 80x25 (0xB8000) и графический буфер VGA (0xA0000)</td>
+ </tr>
+ <tr>
+ <td><strong>0x000C0000 – 0x000DFFFF</strong></td>
+ <td>768 – 896 КБ (128 КБ)</td>
+ <td>Option ROM (ROM Expansion)</td>
+ <td>BIOS плат расширения: прошивка контроллера дисков (SCSI/RAID), сетевая загрузка PXE</td>
+ </tr>
+ <tr>
+ <td><strong>0x000E0000 – 0x000FFFFF</strong></td>
+ <td>896 – 1024 КБ (128 КБ)</td>
+ <td>System BIOS ROM</td>
+ <td>Прошивка материнской платы, точка входа сброса процессора (Reset Vector: 0xFFFFFFF0 / 0xFFFF0)</td>
+ </tr>
+ <tr>
+ <td><strong>0x00100000 и выше</strong></td>
+ <td>Свыше 1 МБ</td>
+ <td>Extended Memory (XMS)</td>
+ <td>Основная оперативная память, доступная в защищенном (Protected) и длинном (Long) режимах</td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
 
-    <div style="margin-top: 14px;">
-      <label for="ans_mmio_pci_hole">3.1. Механизм MMIO, феномен «PCI Hole» (3 ГБ барьер) и технология Memory Remapping:</label>
-      <div class="task-help">Объясните, почему в 32-битных архитектурах при установке 4 ГБ ОЗУ операционная система видит только ~3.2–3.5 ГБ (куда исчезает до 1 ГБ памяти). Как распределяются базовые адресные регистры BAR периферийных устройств PCIe, и каким образом чипсет и процессор в 64-битном режиме возвращают потерянную память через Memory Remapping?</div>
-      <textarea id="ans_mmio_pci_hole" placeholder="Опишите конфликт адресных пространств между физическим DRAM и регистрами устройств MMIO, диапазон 0xC0000000-0xFFFFFFFF, перенос вытесненного блока DRAM выше границы 4 ГБ в 64-битное пространство..."></textarea>
-    </div>
+ <div style="margin-top: 14px;">
+ <label for="ans_mmio_pci_hole">3.1. Механизм MMIO, феномен «PCI Hole» (3 ГБ барьер) и технология Memory Remapping:</label>
+ <div class="task-help">Объясните, почему в 32-битных архитектурах при установке 4 ГБ ОЗУ операционная система видит только ~3.2–3.5 ГБ (куда исчезает до 1 ГБ памяти). Как распределяются базовые адресные регистры BAR периферийных устройств PCIe, и каким образом чипсет и процессор в 64-битном режиме возвращают потерянную память через Memory Remapping?</div>
+ <textarea id="ans_mmio_pci_hole" placeholder="Опишите конфликт адресных пространств между физическим DRAM и регистрами устройств MMIO, диапазон 0xC0000000-0xFFFFFFFF, перенос вытесненного блока DRAM выше границы 4 ГБ в 64-битное пространство..."></textarea>
+ </div>
 
-    <div style="margin-top: 14px;">
-      <label for="ans_virtual_memory_mmu">3.2. Роль аппаратного блока MMU, многоуровневых таблиц страниц и кэша TLB:</label>
-      <div class="task-help">Как процессор преобразует виртуальный логический адрес программы (Virtual Address) в физический адрес на шине ОЗУ (Physical Address)? Раскройте иерархию таблиц страниц x86-64 (PML4 -> PDPT -> PD -> PT), назначение бит защиты (Present, R/W, User/Supervisor, NX/XD) и функцию ассоциативного буфера трансляции TLB при промахах адресации.</div>
-      <textarea id="ans_virtual_memory_mmu" placeholder="Опишите шаги Page Table Walk аппаратным блоком MMU, размер страниц 4 КБ / 2 МБ, назначение бита NX против исполнения вредоносного кода в стеке и роль TLB в сокращении обращений к ОЗУ..."></textarea>
-    </div>
-  </div>
+ <div style="margin-top: 14px;">
+ <label for="ans_virtual_memory_mmu">3.2. Роль аппаратного блока MMU, многоуровневых таблиц страниц и кэша TLB:</label>
+ <div class="task-help">Как процессор преобразует виртуальный логический адрес программы (Virtual Address) в физический адрес на шине ОЗУ (Physical Address)? Раскройте иерархию таблиц страниц x86-64 (PML4 -> PDPT -> PD -> PT), назначение бит защиты (Present, R/W, User/Supervisor, NX/XD) и функцию ассоциативного буфера трансляции TLB при промахах адресации.</div>
+ <textarea id="ans_virtual_memory_mmu" placeholder="Опишите шаги Page Table Walk аппаратным блоком MMU, размер страниц 4 КБ / 2 МБ, назначение бита NX против исполнения вредоносного кода в стеке и роль TLB в сокращении обращений к ОЗУ..."></textarea>
+ </div>
+ </div>
 
-  <!-- ЗАДАНИЕ 4 -->
-  <div class="task-card">
-    <div class="task-title">Задание 4. Индивидуальный инженерный протокол конфигурирования памяти и MMIO</div>
-    <div class="task-help">
-      Заполните индивидуальный инженерный протокол по выбранному в шапке варианту платформы. Проведите расчет пропускной способности и задержки ОЗУ, постройте физическую карту адресного пространства (диапазоны адресов) и проанализируйте системные компромиссы.
-    </div>
+ <!-- ЗАДАНИЕ 4 -->
+ <div class="task-card">
+ <div class="task-title">Задание 4. Индивидуальный инженерный протокол конфигурирования памяти и MMIO</div>
+ <div class="task-help">
+ Заполните индивидуальный инженерный протокол по выбранному в шапке варианту платформы. Проведите расчет пропускной способности и задержки ОЗУ, постройте физическую карту адресного пространства (диапазоны адресов) и проанализируйте системные компромиссы.
+ </div>
 
-    <div style="background: var(--card); border: 1px dashed var(--accent); border-radius: 8px; padding: 12px 16px; margin-bottom: 14px;">
-      <strong id="display_variant_title" style="color: var(--accent);">Вариант не выбран (выберите в шапке страницы)</strong>
-    </div>
+ <div style="background: var(--card); border: 1px dashed var(--accent); border-radius: 8px; padding: 12px 16px; margin-bottom: 14px;">
+ <strong id="display_variant_title" style="color: var(--accent);">Вариант не выбран (выберите в шапке страницы)</strong>
+ </div>
 
-    <div style="margin-top: 12px;">
-      <label for="ans_proto_calc">4.1. Расчет пиковой ПСП (ГБ/с) и истинной задержки памяти (нс) для выбранной платформы:</label>
-      <textarea id="ans_proto_calc" placeholder="Приведите формулы с подставленными числовыми значениями: частота шины, разрядность каналов, расчет пропускной способности и истинной задержки tCL..."></textarea>
-    </div>
+ <div style="margin-top: 12px;">
+ <label for="ans_proto_calc">4.1. Расчет пиковой ПСП (ГБ/с) и истинной задержки памяти (нс) для выбранной платформы:</label>
+ <textarea id="ans_proto_calc" placeholder="Приведите формулы с подставленными числовыми значениями: частота шины, разрядность каналов, расчет пропускной способности и истинной задержки tCL..."></textarea>
+ </div>
 
-    <div style="margin-top: 12px;">
-      <label for="ans_proto_map">4.2. Построение карты физического адресного пространства платформы (диапазоны Hex-адресов):</label>
-      <div class="task-help">Укажите точные диапазоны адресов: 1) Low DRAM (нижняя память до границы MMIO); 2) Область MMIO (PCI Hole, PCIe BAR, APIC, прошивка BIOS/UEFI); 3) High DRAM (перенесенная память выше 4 ГБ через Memory Remapping); 4) High MMIO (для больших BAR GPU или серверных контроллеров).</div>
-      <textarea id="ans_proto_map" placeholder="Пример: 0x00000000 - 0xBFFFFFFF: Low DRAM (3072 МБ)..."></textarea>
-    </div>
+ <div style="margin-top: 12px;">
+ <label for="ans_proto_map">4.2. Построение карты физического адресного пространства платформы (диапазоны Hex-адресов):</label>
+ <div class="task-help">Укажите точные диапазоны адресов: 1) Low DRAM (нижняя память до границы MMIO); 2) Область MMIO (PCI Hole, PCIe BAR, APIC, прошивка BIOS/UEFI); 3) High DRAM (перенесенная память выше 4 ГБ через Memory Remapping); 4) High MMIO (для больших BAR GPU или серверных контроллеров).</div>
+ <textarea id="ans_proto_map" placeholder="Пример: 0x00000000 - 0xBFFFFFFF: Low DRAM (3072 МБ)..."></textarea>
+ </div>
 
-    <div style="margin-top: 12px;">
-      <label for="ans_proto_analysis">4.3. Архитектурный анализ ограничений и системных компромиссов платформы:</label>
-      <div class="task-help">Оцените узкие места и системные эффекты платформы: влияние многоканальности, задержек памяти на производительность ядер, разделение шины между CPU и графикой (UMA), необходимость Resizable BAR, HugePages при виртуализации или ограничение 32-битной шины без LPAE.</div>
-      <textarea id="ans_proto_analysis" placeholder="Проанализируйте характер узкого места платформы (Memory-bound / Latency-bound / Bandwidth-bound / Address-space-limited) и обоснуйте инженерные решения..."></textarea>
-    </div>
-  </div>
+ <div style="margin-top: 12px;">
+ <label for="ans_proto_analysis">4.3. Архитектурный анализ ограничений и системных компромиссов платформы:</label>
+ <div class="task-help">Оцените узкие места и системные эффекты платформы: влияние многоканальности, задержек памяти на производительность ядер, разделение шины между CPU и графикой (UMA), необходимость Resizable BAR, HugePages при виртуализации или ограничение 32-битной шины без LPAE.</div>
+ <textarea id="ans_proto_analysis" placeholder="Проанализируйте характер узкого места платформы (Memory-bound / Latency-bound / Bandwidth-bound / Address-space-limited) и обоснуйте инженерные решения..."></textarea>
+ </div>
+ </div>
 
-  <!-- КНОПКИ ДЕЙСТВИЯ -->
-  <div class="actions-card">
-    <div class="btn-row">
-      <button class="btn-primary" onclick="saveToLocalStorage(true)">💾 Сохранить в браузере</button>
-      <button class="btn-secondary" onclick="window.print()">🖨️ Печать бланка / Сохранить в PDF</button>
-      <button class="btn-danger" onclick="confirmReset()">🗑️ Очистить форму</button>
-      <span id="save_status" class="status-msg"></span>
-    </div>
-  </div>
+ <!-- КНОПКИ ДЕЙСТВИЯ -->
+ <div class="actions-card">
+ <div class="btn-row">
+ <button class="btn-primary" onclick="saveToLocalStorage(true)">💾 Сохранить в браузере</button>
+ <button class="btn-secondary" onclick="window.print()">🖨️ Печать бланка / Сохранить в PDF</button>
+ <button class="btn-danger" onclick="confirmReset()">🗑️ Очистить форму</button>
+ <span id="save_status" class="status-msg"></span>
+ </div>
+ </div>
 
 </div>
 
 <script>
-  const STORAGE_KEY = 'sie_hw12_zanyatie_data';
-  const FORM_FIELDS = [
-    'student_fio', 'student_group', 'work_date', 'work_variant',
-    'sram_cell', 'sram_volatility', 'sram_refresh', 'sram_latency', 'sram_usage',
-    'dram_cell', 'dram_volatility', 'dram_refresh', 'dram_latency', 'dram_usage',
-    'nand_cell', 'nand_volatility', 'nand_refresh', 'nand_latency', 'nand_usage',
-    'rom_cell', 'rom_volatility', 'rom_refresh', 'rom_latency', 'rom_usage',
-    'ans_destructive_read', 'ans_sram_vs_dram_tradeoff',
-    'calc_clk_ddr4_3200', 'calc_bw_ddr4_3200', 'calc_lat_ddr4_3200',
-    'calc_clk_ddr4_3600', 'calc_bw_ddr4_3600', 'calc_lat_ddr4_3600',
-    'calc_clk_ddr5_4800', 'calc_bw_ddr5_4800', 'calc_lat_ddr5_4800',
-    'calc_clk_ddr5_6000', 'calc_bw_ddr5_6000', 'calc_lat_ddr5_6000',
-    'calc_clk_ddr5_7200', 'calc_bw_ddr5_7200', 'calc_lat_ddr5_7200',
-    'ans_ddr5_latency_myth', 'ans_ddr5_innovations',
-    'ans_mmio_pci_hole', 'ans_virtual_memory_mmu',
-    'ans_proto_calc', 'ans_proto_map', 'ans_proto_analysis'
-  ];
+ const STORAGE_KEY = 'sie_hw12_zanyatie_data';
+ const FORM_FIELDS = [
+ 'student_fio', 'student_group', 'work_date', 'work_variant',
+ 'sram_cell', 'sram_volatility', 'sram_refresh', 'sram_latency', 'sram_usage',
+ 'dram_cell', 'dram_volatility', 'dram_refresh', 'dram_latency', 'dram_usage',
+ 'nand_cell', 'nand_volatility', 'nand_refresh', 'nand_latency', 'nand_usage',
+ 'rom_cell', 'rom_volatility', 'rom_refresh', 'rom_latency', 'rom_usage',
+ 'ans_destructive_read', 'ans_sram_vs_dram_tradeoff',
+ 'calc_clk_ddr4_3200', 'calc_bw_ddr4_3200', 'calc_lat_ddr4_3200',
+ 'calc_clk_ddr4_3600', 'calc_bw_ddr4_3600', 'calc_lat_ddr4_3600',
+ 'calc_clk_ddr5_4800', 'calc_bw_ddr5_4800', 'calc_lat_ddr5_4800',
+ 'calc_clk_ddr5_6000', 'calc_bw_ddr5_6000', 'calc_lat_ddr5_6000',
+ 'calc_clk_ddr5_7200', 'calc_bw_ddr5_7200', 'calc_lat_ddr5_7200',
+ 'ans_ddr5_latency_myth', 'ans_ddr5_innovations',
+ 'ans_mmio_pci_hole', 'ans_virtual_memory_mmu',
+ 'ans_proto_calc', 'ans_proto_map', 'ans_proto_analysis'
+ ];
 
-  const VARIANT_TITLES = {
-    '1': 'Вариант 1: Рабочая станция Intel Core i9-14900K / Z790 (64 ГБ DDR5-6000 CL30, GPU 16 ГБ VRAM Resizable BAR, NVMe PCIe 4.0)',
-    '2': 'Вариант 2: Сервер виртуализации AMD EPYC 9654 / SP5 (128 ГБ DDR5-4800 CL40 Registered ECC, 8 каналов, Dual 100GbE NIC MMIO)',
-    '3': 'Вариант 3: Офисный ПК начального уровня Intel Core i3-12100 / H610 (8 ГБ DDR4-3200 CL16, встроенная графика UHD 730 UMA до 2 ГБ)',
-    '4': 'Вариант 4: Встраиваемая система ARM Cortex-A72 / SoM (4 ГБ LPDDR4-3733 CL32, 32-битная адресация AXI, периферия MMIO 0xE0000000-0xFFFFFFFF)'
-  };
+ const VARIANT_TITLES = {
+ '1': 'Вариант 1: Рабочая станция Intel Core i9-14900K / Z790 (64 ГБ DDR5-6000 CL30, GPU 16 ГБ VRAM Resizable BAR, NVMe PCIe 4.0)',
+ '2': 'Вариант 2: Сервер виртуализации AMD EPYC 9654 / SP5 (128 ГБ DDR5-4800 CL40 Registered ECC, 8 каналов, Dual 100GbE NIC MMIO)',
+ '3': 'Вариант 3: Офисный ПК начального уровня Intel Core i3-12100 / H610 (8 ГБ DDR4-3200 CL16, встроенная графика UHD 730 UMA до 2 ГБ)',
+ '4': 'Вариант 4: Встраиваемая система ARM Cortex-A72 / SoM (4 ГБ LPDDR4-3733 CL32, 32-битная адресация AXI, периферия MMIO 0xE0000000-0xFFFFFFFF)'
+ };
 
-  function updateVariantSelection() {
-    const sel = document.getElementById('work_variant');
-    const val = sel.value;
-    const titleElem = document.getElementById('display_variant_title');
-    const printElem = document.getElementById('print_work_variant');
+ function updateVariantSelection() {
+ const sel = document.getElementById('work_variant');
+ const val = sel.value;
+ const titleElem = document.getElementById('display_variant_title');
+ const printElem = document.getElementById('print_work_variant');
 
-    if (val && VARIANT_TITLES[val]) {
-      titleElem.textContent = VARIANT_TITLES[val];
-      printElem.textContent = sel.options[sel.selectedIndex].text;
-    } else {
-      titleElem.textContent = 'Вариант не выбран (выберите вариант платформы в карточке студента выше)';
-      printElem.textContent = 'Вариант не выбран';
-    }
-    saveToLocalStorage(false);
-  }
+ if (val && VARIANT_TITLES[val]) {
+ titleElem.textContent = VARIANT_TITLES[val];
+ printElem.textContent = sel.options[sel.selectedIndex].text;
+ } else {
+ titleElem.textContent = 'Вариант не выбран (выберите вариант платформы в карточке студента выше)';
+ printElem.textContent = 'Вариант не выбран';
+ }
+ saveToLocalStorage(false);
+ }
 
-  function saveToLocalStorage(showFeedback) {
-    const data = {};
-    FORM_FIELDS.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) data[id] = el.value;
-    });
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      if (showFeedback) {
-        const status = document.getElementById('save_status');
-        status.textContent = '✓ Сохранено в браузере';
-        status.className = 'status-msg status-saved';
-        setTimeout(() => { status.textContent = ''; }, 3000);
-      }
-    } catch (e) {
-      console.warn('LocalStorage error:', e);
-    }
-  }
+ function saveToLocalStorage(showFeedback) {
+ const data = {};
+ FORM_FIELDS.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) data[id] = el.value;
+ });
+ try {
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ if (showFeedback) {
+ const status = document.getElementById('save_status');
+ status.textContent = '✓ Сохранено в браузере';
+ status.className = 'status-msg status-saved';
+ setTimeout(() => { status.textContent = ''; }, 3000);
+ }
+ } catch (e) {
+ console.warn('LocalStorage error:', e);
+ }
+ }
 
-  function loadFromLocalStorage() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const data = JSON.parse(raw);
-        FORM_FIELDS.forEach(id => {
-          if (data[id] !== undefined) {
-            const el = document.getElementById(id);
-            if (el) el.value = data[id];
-          }
-        });
-      }
-    } catch (e) {
-      console.warn('LocalStorage load error:', e);
-    }
-    updateVariantSelection();
-  }
+ function loadFromLocalStorage() {
+ try {
+ const raw = localStorage.getItem(STORAGE_KEY);
+ if (raw) {
+ const data = JSON.parse(raw);
+ FORM_FIELDS.forEach(id => {
+ if (data[id] !== undefined) {
+ const el = document.getElementById(id);
+ if (el) el.value = data[id];
+ }
+ });
+ }
+ } catch (e) {
+ console.warn('LocalStorage load error:', e);
+ }
+ updateVariantSelection();
+ }
 
-  function confirmReset() {
-    if (confirm('Внимание! Все введенные данные в интерактивном бланке будут безвозвратно удалены. Продолжить очистку?')) {
-      FORM_FIELDS.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-      });
-      try {
-        localStorage.removeItem(STORAGE_KEY);
-      } catch (e) {}
-      updateVariantSelection();
-      const status = document.getElementById('save_status');
-      status.textContent = 'Форма очищена';
-      status.className = 'status-msg';
-      setTimeout(() => { status.textContent = ''; }, 3000);
-    }
-  }
+ function confirmReset() {
+ if (confirm('Внимание! Все введенные данные в интерактивном бланке будут безвозвратно удалены. Продолжить очистку?')) {
+ FORM_FIELDS.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) el.value = '';
+ });
+ try {
+ localStorage.removeItem(STORAGE_KEY);
+ } catch (e) {}
+ updateVariantSelection();
+ const status = document.getElementById('save_status');
+ status.textContent = 'Форма очищена';
+ status.className = 'status-msg';
+ setTimeout(() => { status.textContent = ''; }, 3000);
+ }
+ }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    loadFromLocalStorage();
-    FORM_FIELDS.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener('input', () => saveToLocalStorage(false));
-        el.addEventListener('change', () => saveToLocalStorage(false));
-      }
-    });
-  });
+ document.addEventListener('DOMContentLoaded', () => {
+ loadFromLocalStorage();
+ FORM_FIELDS.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) {
+ el.addEventListener('input', () => saveToLocalStorage(false));
+ el.addEventListener('change', () => saveToLocalStorage(false));
+ }
+ });
+ });
 
-  window.addEventListener('beforeprint', () => {
-    updateVariantSelection();
-  });
+ window.addEventListener('beforeprint', () => {
+ updateVariantSelection();
+ });
 </script>
 </body>
 </html>

@@ -1,1104 +1,1060 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Рабочий лист: Реляционная модель данных: таблицы и ограничения</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --text-muted: #475569;
-      --border: #cbd5e1;
-      --accent: #0284c7;
-      --accent-hover: #0369a1;
-      --accent-soft: #f0f9ff;
-      --danger: #ef4444;
-      --success: #10b981;
-    }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Рабочий лист: Реляционная модель данных: таблицы и ограничения</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card-bg: #ffffff;
+ --text: #0f172a;
+ --text-muted: #475569;
+ --border: #cbd5e1;
+ --accent: #0284c7;
+ --accent-hover: #0369a1;
+ --accent-soft: #f0f9ff;
+ --danger: #ef4444;
+ --success: #10b981;
+ }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ }
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      padding: 24px 16px;
-      min-width: 320px;
-    }
+ body {
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+ background-color: var(--bg);
+ color: var(--text);
+ line-height: 1.6;
+ padding: 24px 16px;
+ min-width: 320px;
+ }.container {
+ max-width: 920px;
+ margin: 0 auto;
+ width: 100%;
+ }
 
-    .container {
-      max-width: 920px;
-      margin: 0 auto;
-      width: 100%;
-    }
+ header.task-header {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    header.task-header {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ h1 {
+ font-size: 2rem;
+ font-weight: 800;
+ color: var(--text);
+ margin-bottom: 8px;
+ word-break: break-word;
+ }.subtitle {
+ font-size: 1.05rem;
+ color: var(--text-muted);
+ }.student-meta {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 16px;
+ margin-top: 20px;
+ padding-top: 16px;
+ border-top: 1px solid var(--border);
+ }.meta-field {
+ display: flex;
+ flex-direction: column;
+ gap: 6px;
+ }.meta-field label {
+ font-size: 0.85rem;
+ font-weight: 600;
+ color: var(--text-muted);
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+ }.meta-field input {
+ padding: 8px 12px;
+ border: 1px solid var(--border);
+ border-radius: 6px;
+ font-size: 0.95rem;
+ color: var(--text);
+ outline: none;
+ width: 100%;
+ }.meta-field input:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 2px var(--accent-soft);
+ }.variant-selector-box {
+ margin-top: 20px;
+ padding-top: 16px;
+ border-top: 1px solid var(--border);
+ }.variant-tabs {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+ gap: 10px;
+ margin-top: 10px;
+ }.v-tab-btn {
+ padding: 10px 12px;
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ background: #f8fafc;
+ font-size: 0.9rem;
+ font-weight: 600;
+ cursor: pointer;
+ text-align: center;
+ transition: all 0.2s ease;
+ color: var(--text-muted);
+ }.v-tab-btn:hover {
+ background: #e2e8f0;
+ color: var(--text);
+ }.v-tab-btn.active {
+ background: var(--accent);
+ color: #ffffff;
+ border-color: var(--accent);
+ box-shadow: 0 2px 4px rgba(2, 132, 199, 0.25);
+ }.variant-container {
+ display: none;
+ }.variant-container.active {
+ display: block;
+ }
 
-    h1 {
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 8px;
-      word-break: break-word;
-    }
+ section.task-section {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    .subtitle {
-      font-size: 1.05rem;
-      color: var(--text-muted);
-    }
+ h2 {
+ font-size: 1.35rem;
+ font-weight: 700;
+ color: #0369a1;
+ margin-bottom: 14px;
+ border-left: 4px solid var(--accent);
+ padding-left: 10px;
+ }
 
-    .student-meta {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 20px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
+ h3 {
+ font-size: 1.1rem;
+ font-weight: 600;
+ margin: 16px 0 8px 0;
+ color: #1e293b;
+ }
 
-    .meta-field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+ p {
+ margin-bottom: 12px;
+ }.info-banner {
+ background: var(--accent-soft);
+ border-left: 4px solid var(--accent);
+ padding: 12px 16px;
+ border-radius: 6px;
+ font-size: 0.92rem;
+ color: #0c4a6e;
+ margin-bottom: 16px;
+ }
 
-    .meta-field label {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
+ table.spec-table {
+ width: 100%;
+ border-collapse: collapse;
+ margin: 14px 0;
+ font-size: 0.92rem;
+ }
 
-    .meta-field input {
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.95rem;
-      color: var(--text);
-      outline: none;
-      width: 100%;
-    }
+ table.spec-table th, table.spec-table td {
+ border: 1px solid var(--border);
+ padding: 8px 10px;
+ text-align: left;
+ vertical-align: middle;
+ }
 
-    .meta-field input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-soft);
-    }
+ table.spec-table th {
+ background-color: #f1f5f9;
+ font-weight: 700;
+ color: #334155;
+ }
 
-    .variant-selector-box {
-      margin-top: 20px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
+ table.spec-table input, table.spec-table select {
+ width: 100%;
+ padding: 6px 8px;
+ border: 1px solid var(--border);
+ border-radius: 4px;
+ font-size: 0.9rem;
+ outline: none;
+ font-family: inherit;
+ }
 
-    .variant-tabs {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 10px;
-      margin-top: 10px;
-    }
+ table.spec-table input:focus, table.spec-table select:focus {
+ border-color: var(--accent);
+ }.form-group {
+ margin-top: 14px;
+ display: flex;
+ flex-direction: column;
+ gap: 6px;
+ }.form-group label {
+ font-size: 0.9rem;
+ font-weight: 600;
+ color: #334155;
+ }
 
-    .v-tab-btn {
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: #f8fafc;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.2s ease;
-      color: var(--text-muted);
-    }
+ textarea.input-area {
+ width: 100%;
+ min-height: 85px;
+ padding: 10px 12px;
+ border: 1px solid var(--border);
+ border-radius: 6px;
+ font-family: inherit;
+ font-size: 0.95rem;
+ line-height: 1.5;
+ color: var(--text);
+ resize: vertical;
+ outline: none;
+ }
 
-    .v-tab-btn:hover {
-      background: #e2e8f0;
-      color: var(--text);
-    }
+ textarea.input-area:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 2px var(--accent-soft);
+ }.actions-bar {
+ display: flex;
+ gap: 12px;
+ margin-top: 24px;
+ margin-bottom: 40px;
+ flex-wrap: wrap;
+ }
 
-    .v-tab-btn.active {
-      background: var(--accent);
-      color: #ffffff;
-      border-color: var(--accent);
-      box-shadow: 0 2px 4px rgba(2, 132, 199, 0.25);
-    }
+ button.btn {
+ padding: 10px 20px;
+ font-size: 0.95rem;
+ font-weight: 600;
+ border-radius: 6px;
+ cursor: pointer;
+ border: none;
+ transition: all 0.2s ease;
+ }
 
-    .variant-container {
-      display: none;
-    }
+ button.btn-primary {
+ background: var(--accent);
+ color: #ffffff;
+ }
 
-    .variant-container.active {
-      display: block;
-    }
+ button.btn-primary:hover {
+ background: var(--accent-hover);
+ }
 
-    section.task-section {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ button.btn-secondary {
+ background: #e2e8f0;
+ color: #334155;
+ }
 
-    h2 {
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: #0369a1;
-      margin-bottom: 14px;
-      border-left: 4px solid var(--accent);
-      padding-left: 10px;
-    }
+ button.btn-secondary:hover {
+ background: #cbd5e1;
+ }.save-status {
+ font-size: 0.9rem;
+ color: #16a34a;
+ align-self: center;
+ display: none;
+ font-weight: 600;
+ }
 
-    h3 {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin: 16px 0 8px 0;
-      color: #1e293b;
-    }
+ /* Print styles */
+ @media print {
+ body {
+ background: #ffffff;
+ color: #000000;
+ padding: 0;
+ }.actions-bar,.variant-selector-box {
+ display: none !important;
+ }.variant-container {
+ display: none !important;
+ }.variant-container.active {
+ display: block !important;
+ }
+ section.task-section, header.task-header {
+ border: 1px solid #94a3b8;
+ box-shadow: none;
+ page-break-inside: avoid;
+ margin-bottom: 16px;
+ padding: 16px;
+ }
+ input::placeholder, textarea::placeholder {
+ color: transparent !important;
+ }
+ textarea.input-area {
+ border: 1px solid #64748b;
+ color: #000000;
+ min-height: 80px;
+ height: auto;
+ }
+ table.spec-table th, table.spec-table td {
+ border: 1px solid #64748b;
+ }
+ }
 
-    p {
-      margin-bottom: 12px;
-    }
-
-    .info-banner {
-      background: var(--accent-soft);
-      border-left: 4px solid var(--accent);
-      padding: 12px 16px;
-      border-radius: 6px;
-      font-size: 0.92rem;
-      color: #0c4a6e;
-      margin-bottom: 16px;
-    }
-
-    table.spec-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 14px 0;
-      font-size: 0.92rem;
-    }
-
-    table.spec-table th, table.spec-table td {
-      border: 1px solid var(--border);
-      padding: 8px 10px;
-      text-align: left;
-      vertical-align: middle;
-    }
-
-    table.spec-table th {
-      background-color: #f1f5f9;
-      font-weight: 700;
-      color: #334155;
-    }
-
-    table.spec-table input, table.spec-table select {
-      width: 100%;
-      padding: 6px 8px;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      font-size: 0.9rem;
-      outline: none;
-      font-family: inherit;
-    }
-
-    table.spec-table input:focus, table.spec-table select:focus {
-      border-color: var(--accent);
-    }
-
-    .form-group {
-      margin-top: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .form-group label {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #334155;
-    }
-
-    textarea.input-area {
-      width: 100%;
-      min-height: 85px;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-family: inherit;
-      font-size: 0.95rem;
-      line-height: 1.5;
-      color: var(--text);
-      resize: vertical;
-      outline: none;
-    }
-
-    textarea.input-area:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-soft);
-    }
-
-    .actions-bar {
-      display: flex;
-      gap: 12px;
-      margin-top: 24px;
-      margin-bottom: 40px;
-      flex-wrap: wrap;
-    }
-
-    button.btn {
-      padding: 10px 20px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      border-radius: 6px;
-      cursor: pointer;
-      border: none;
-      transition: all 0.2s ease;
-    }
-
-    button.btn-primary {
-      background: var(--accent);
-      color: #ffffff;
-    }
-
-    button.btn-primary:hover {
-      background: var(--accent-hover);
-    }
-
-    button.btn-secondary {
-      background: #e2e8f0;
-      color: #334155;
-    }
-
-    button.btn-secondary:hover {
-      background: #cbd5e1;
-    }
-
-    .save-status {
-      font-size: 0.9rem;
-      color: #16a34a;
-      align-self: center;
-      display: none;
-      font-weight: 600;
-    }
-
-    /* Print styles */
-    @media print {
-      body {
-        background: #ffffff;
-        color: #000000;
-        padding: 0;
-      }
-      .actions-bar, .variant-selector-box {
-        display: none !important;
-      }
-      .variant-container {
-        display: none !important;
-      }
-      .variant-container.active {
-        display: block !important;
-      }
-      section.task-section, header.task-header {
-        border: 1px solid #94a3b8;
-        box-shadow: none;
-        page-break-inside: avoid;
-        margin-bottom: 16px;
-        padding: 16px;
-      }
-      input::placeholder, textarea::placeholder {
-        color: transparent !important;
-      }
-      textarea.input-area {
-        border: 1px solid #64748b;
-        color: #000000;
-        min-height: 80px;
-        height: auto;
-      }
-      table.spec-table th, table.spec-table td {
-        border: 1px solid #64748b;
-      }
-    }
-
-    /* Mobile 375px adaptation */
-    @media (max-width: 600px) {
-      body {
-        padding: 12px 8px;
-      }
-      header.task-header, section.task-section {
-        padding: 16px 14px;
-      }
-      h1 {
-        font-size: 1.45rem;
-      }
-      .student-meta {
-        grid-template-columns: 1fr;
-      }
-      .variant-tabs {
-        grid-template-columns: 1fr;
-      }
-      table.spec-table {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-      }
-      .actions-bar {
-        flex-direction: column;
-      }
-      button.btn {
-        width: 100%;
-      }
-    }
-  </style>
+ /* Mobile 375px adaptation */
+ @media (max-width: 600px) {
+ body {
+ padding: 12px 8px;
+ }
+ header.task-header, section.task-section {
+ padding: 16px 14px;
+ }
+ h1 {
+ font-size: 1.45rem;
+ }.student-meta {
+ grid-template-columns: 1fr;
+ }.variant-tabs {
+ grid-template-columns: 1fr;
+ }
+ table.spec-table {
+ display: block;
+ overflow-x: auto;
+ white-space: nowrap;
+ }.actions-bar {
+ flex-direction: column;
+ }
+ button.btn {
+ width: 100%;
+ }
+ }
+ </style>
 </head>
 <body>
-  <div class="container">
-    <header class="task-header">
-      <h1>Рабочий лист: Реляционная модель данных: таблицы и ограничения</h1>
-      <div class="subtitle">Индивидуальный практический лист студента СИЭУиП (ОП.08 Основы проектирования баз данных, занятие 07)</div>
+ <div class="container">
+ <header class="task-header">
+ <h1>Рабочий лист: Реляционная модель данных: таблицы и ограничения</h1>
+ <div class="subtitle">Индивидуальный практический лист студента СИЭУиП (ОП.08 Основы проектирования баз данных, занятие 07)</div>
 
-      <div class="student-meta">
-        <div class="meta-field">
-          <label for="studentFio">ФИО студента:</label>
-          <input type="text" id="studentFio" placeholder="">
-        </div>
-        <div class="meta-field">
-          <label for="studentGroup">Учебная группа:</label>
-          <input type="text" id="studentGroup" placeholder="">
-        </div>
-      </div>
+ <div class="student-meta">
+ <div class="meta-field">
+ <label for="studentFio">ФИО студента:</label>
+ <input type="text" id="studentFio" placeholder="">
+ </div>
+ <div class="meta-field">
+ <label for="studentGroup">Учебная группа:</label>
+ <input type="text" id="studentGroup" placeholder="">
+ </div>
+ </div>
 
-      <div class="variant-selector-box">
-        <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Выберите вариант практического задания:</label>
-        <div class="variant-tabs">
-          <button type="button" class="v-tab-btn active" data-v="v1">Вариант 1: Складской комплекс</button>
-          <button type="button" class="v-tab-btn" data-v="v2">Вариант 2: Медицинская клиника</button>
-          <button type="button" class="v-tab-btn" data-v="v3">Вариант 3: Автосервис</button>
-          <button type="button" class="v-tab-btn" data-v="v4">Вариант 4: Онлайн-курсы</button>
-        </div>
-      </div>
-    </header>
+ <div class="variant-selector-box">
+ <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Выберите вариант практического задания:</label>
+ <div class="variant-tabs">
+ <button type="button" class="v-tab-btn active" data-v="v1">Вариант 1: Складской комплекс</button>
+ <button type="button" class="v-tab-btn" data-v="v2">Вариант 2: Медицинская клиника</button>
+ <button type="button" class="v-tab-btn" data-v="v3">Вариант 3: Автосервис</button>
+ <button type="button" class="v-tab-btn" data-v="v4">Вариант 4: Онлайн-курсы</button>
+ </div>
+ </div>
+ </header>
 
-    <!-- ================= ВАРИАНТ 1 ================= -->
-    <div class="variant-container active" id="v1-container">
-      <section class="task-section">
-        <h2>Вариант 1: Складской комплекс</h2>
-        <div class="info-banner">
-          <strong>Предметная область:</strong> Складской распределительный центр ведет учет номенклатуры и фактического наличия товаров по ячейкам склада. Требуется спроектировать схему из двух таблиц: <code>Товары (Products)</code> и <code>Складские_остатки (Inventory)</code> с гарантией целостности сущности, внешним ключом на артикул товара и ограничением CHECK на неотрицательное количество.
-        </div>
+ <!-- ================= ВАРИАНТ 1 ================= -->
+ <div class="variant-container active" id="v1-container">
+ <section class="task-section">
+ <h2>Вариант 1: Складской комплекс</h2>
+ <div class="info-banner">
+ <strong>Предметная область:</strong> Складской распределительный центр ведет учет номенклатуры и фактического наличия товаров по ячейкам склада. Требуется спроектировать схему из двух таблиц: <code>Товары (Products)</code> и <code>Складские_остатки (Inventory)</code> с гарантией целостности сущности, внешним ключом на артикул товара и ограничением CHECK на неотрицательное количество.
+ </div>
 
-        <h3>Часть 1. Спецификация отношений и атрибутов (2 балла)</h3>
-        <p>Заполните спецификацию полей родительской таблицы «Товары» и дочерней таблицы «Складские_остатки»:</p>
+ <h3>Часть 1. Спецификация отношений и атрибутов (2 балла)</h3>
+ <p>Заполните спецификацию полей родительской таблицы «Товары» и дочерней таблицы «Складские_остатки»:</p>
 
-        <h4>Родительская таблица: Товары (Products)</h4>
-        <table class="spec-table">
-          <thead>
-            <tr>
-              <th style="width: 25%;">Имя атрибута</th>
-              <th style="width: 25%;">Тип данных / Домен</th>
-              <th style="width: 20%;">Ключ (PK/None)</th>
-              <th style="width: 30%;">Ограничения (NOT NULL, CHECK...)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><input type="text" id="v1_p_a1" value="sku"></td>
-              <td><input type="text" id="v1_p_t1" value="VARCHAR(20)"></td>
-              <td>
-                <select id="v1_p_k1">
-                  <option value="PK" selected>PRIMARY KEY</option>
-                  <option value="NONE">NONE</option>
-                </select>
-              </td>
-              <td><input type="text" id="v1_p_c1" value="NOT NULL"></td>
-            </tr>
-            <tr>
-              <td><input type="text" id="v1_p_a2" value="name"></td>
-              <td><input type="text" id="v1_p_t2" value="VARCHAR(150)"></td>
-              <td>
-                <select id="v1_p_k2">
-                  <option value="NONE" selected>NONE</option>
-                  <option value="PK">PRIMARY KEY</option>
-                </select>
-              </td>
-              <td><input type="text" id="v1_p_c2" value="NOT NULL"></td>
-            </tr>
-            <tr>
-              <td><input type="text" id="v1_p_a3" value="category"></td>
-              <td><input type="text" id="v1_p_t3" value="VARCHAR(50)"></td>
-              <td>
-                <select id="v1_p_k3">
-                  <option value="NONE" selected>NONE</option>
-                  <option value="PK">PRIMARY KEY</option>
-                </select>
-              </td>
-              <td><input type="text" id="v1_p_c3" value="NOT NULL"></td>
-            </tr>
-            <tr>
-              <td><input type="text" id="v1_p_a4" value="unit_price"></td>
-              <td><input type="text" id="v1_p_t4" value="NUMERIC(10,2)"></td>
-              <td>
-                <select id="v1_p_k4">
-                  <option value="NONE" selected>NONE</option>
-                  <option value="PK">PRIMARY KEY</option>
-                </select>
-              </td>
-              <td><input type="text" id="v1_p_c4" value="NOT NULL, CHECK (unit_price > 0)"></td>
-            </tr>
-          </tbody>
-        </table>
+ <h4>Родительская таблица: Товары (Products)</h4>
+ <table class="spec-table">
+ <thead>
+ <tr>
+ <th style="width: 25%;">Имя атрибута</th>
+ <th style="width: 25%;">Тип данных / Домен</th>
+ <th style="width: 20%;">Ключ (PK/None)</th>
+ <th style="width: 30%;">Ограничения (NOT NULL, CHECK...)</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><input type="text" id="v1_p_a1" value="sku"></td>
+ <td><input type="text" id="v1_p_t1" value="VARCHAR(20)"></td>
+ <td>
+ <select id="v1_p_k1">
+ <option value="PK" selected>PRIMARY KEY</option>
+ <option value="NONE">NONE</option>
+ </select>
+ </td>
+ <td><input type="text" id="v1_p_c1" value="NOT NULL"></td>
+ </tr>
+ <tr>
+ <td><input type="text" id="v1_p_a2" value="name"></td>
+ <td><input type="text" id="v1_p_t2" value="VARCHAR(150)"></td>
+ <td>
+ <select id="v1_p_k2">
+ <option value="NONE" selected>NONE</option>
+ <option value="PK">PRIMARY KEY</option>
+ </select>
+ </td>
+ <td><input type="text" id="v1_p_c2" value="NOT NULL"></td>
+ </tr>
+ <tr>
+ <td><input type="text" id="v1_p_a3" value="category"></td>
+ <td><input type="text" id="v1_p_t3" value="VARCHAR(50)"></td>
+ <td>
+ <select id="v1_p_k3">
+ <option value="NONE" selected>NONE</option>
+ <option value="PK">PRIMARY KEY</option>
+ </select>
+ </td>
+ <td><input type="text" id="v1_p_c3" value="NOT NULL"></td>
+ </tr>
+ <tr>
+ <td><input type="text" id="v1_p_a4" value="unit_price"></td>
+ <td><input type="text" id="v1_p_t4" value="NUMERIC(10,2)"></td>
+ <td>
+ <select id="v1_p_k4">
+ <option value="NONE" selected>NONE</option>
+ <option value="PK">PRIMARY KEY</option>
+ </select>
+ </td>
+ <td><input type="text" id="v1_p_c4" value="NOT NULL, CHECK (unit_price > 0)"></td>
+ </tr>
+ </tbody>
+ </table>
 
-        <h4>Дочерняя таблица: Складские_остатки (Inventory)</h4>
-        <table class="spec-table">
-          <thead>
-            <tr>
-              <th style="width: 25%;">Имя атрибута</th>
-              <th style="width: 25%;">Тип данных / Домен</th>
-              <th style="width: 20%;">Ключ (PK/FK/None)</th>
-              <th style="width: 30%;">Ограничения (NOT NULL, CHECK...)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><input type="text" id="v1_i_a1" value="inventory_id"></td>
-              <td><input type="text" id="v1_i_t1" value="SERIAL / INT"></td>
-              <td>
-                <select id="v1_i_k1">
-                  <option value="PK" selected>PRIMARY KEY</option>
-                  <option value="FK">FOREIGN KEY</option>
-                  <option value="NONE">NONE</option>
-                </select>
-              </td>
-              <td><input type="text" id="v1_i_c1" value="NOT NULL"></td>
-            </tr>
-            <tr>
-              <td><input type="text" id="v1_i_a2" value="sku"></td>
-              <td><input type="text" id="v1_i_t2" value="VARCHAR(20)"></td>
-              <td>
-                <select id="v1_i_k2">
-                  <option value="FK" selected>FOREIGN KEY</option>
-                  <option value="PK">PRIMARY KEY</option>
-                  <option value="NONE">NONE</option>
-                </select>
-              </td>
-              <td><input type="text" id="v1_i_c2" value="NOT NULL, REFERENCES products(sku)"></td>
-            </tr>
-            <tr>
-              <td><input type="text" id="v1_i_a3" value="warehouse_zone"></td>
-              <td><input type="text" id="v1_i_t3" value="VARCHAR(10)"></td>
-              <td>
-                <select id="v1_i_k3">
-                  <option value="NONE" selected>NONE</option>
-                  <option value="PK">PRIMARY KEY</option>
-                  <option value="FK">FOREIGN KEY</option>
-                </select>
-              </td>
-              <td><input type="text" id="v1_i_c3" value="NOT NULL"></td>
-            </tr>
-            <tr>
-              <td><input type="text" id="v1_i_a4" value="quantity"></td>
-              <td><input type="text" id="v1_i_t4" value="INT"></td>
-              <td>
-                <select id="v1_i_k4">
-                  <option value="NONE" selected>NONE</option>
-                  <option value="PK">PRIMARY KEY</option>
-                  <option value="FK">FOREIGN KEY</option>
-                </select>
-              </td>
-              <td><input type="text" id="v1_i_c4" value="NOT NULL, DEFAULT 0, CHECK(quantity >= 0)"></td>
-            </tr>
-          </tbody>
-        </table>
+ <h4>Дочерняя таблица: Складские_остатки (Inventory)</h4>
+ <table class="spec-table">
+ <thead>
+ <tr>
+ <th style="width: 25%;">Имя атрибута</th>
+ <th style="width: 25%;">Тип данных / Домен</th>
+ <th style="width: 20%;">Ключ (PK/FK/None)</th>
+ <th style="width: 30%;">Ограничения (NOT NULL, CHECK...)</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><input type="text" id="v1_i_a1" value="inventory_id"></td>
+ <td><input type="text" id="v1_i_t1" value="SERIAL / INT"></td>
+ <td>
+ <select id="v1_i_k1">
+ <option value="PK" selected>PRIMARY KEY</option>
+ <option value="FK">FOREIGN KEY</option>
+ <option value="NONE">NONE</option>
+ </select>
+ </td>
+ <td><input type="text" id="v1_i_c1" value="NOT NULL"></td>
+ </tr>
+ <tr>
+ <td><input type="text" id="v1_i_a2" value="sku"></td>
+ <td><input type="text" id="v1_i_t2" value="VARCHAR(20)"></td>
+ <td>
+ <select id="v1_i_k2">
+ <option value="FK" selected>FOREIGN KEY</option>
+ <option value="PK">PRIMARY KEY</option>
+ <option value="NONE">NONE</option>
+ </select>
+ </td>
+ <td><input type="text" id="v1_i_c2" value="NOT NULL, REFERENCES products(sku)"></td>
+ </tr>
+ <tr>
+ <td><input type="text" id="v1_i_a3" value="warehouse_zone"></td>
+ <td><input type="text" id="v1_i_t3" value="VARCHAR(10)"></td>
+ <td>
+ <select id="v1_i_k3">
+ <option value="NONE" selected>NONE</option>
+ <option value="PK">PRIMARY KEY</option>
+ <option value="FK">FOREIGN KEY</option>
+ </select>
+ </td>
+ <td><input type="text" id="v1_i_c3" value="NOT NULL"></td>
+ </tr>
+ <tr>
+ <td><input type="text" id="v1_i_a4" value="quantity"></td>
+ <td><input type="text" id="v1_i_t4" value="INT"></td>
+ <td>
+ <select id="v1_i_k4">
+ <option value="NONE" selected>NONE</option>
+ <option value="PK">PRIMARY KEY</option>
+ <option value="FK">FOREIGN KEY</option>
+ </select>
+ </td>
+ <td><input type="text" id="v1_i_c4" value="NOT NULL, DEFAULT 0, CHECK(quantity >= 0)"></td>
+ </tr>
+ </tbody>
+ </table>
 
-        <h3>Часть 2. Первичные и внешние ключи (1 балл)</h3>
-        <div class="form-group">
-          <label for="v1_fk_rule">2.1. Какое правило поведения ссылочной целостности (ON DELETE RESTRICT или ON DELETE CASCADE) следует применить при удалении записи товара из таблицы Products? Обоснуйте выбор с точки зрения материальной ответственности и учета:</label>
-          <textarea id="v1_fk_rule" class="input-area" placeholder=""></textarea>
-        </div>
+ <h3>Часть 2. Первичные и внешние ключи (1 балл)</h3>
+ <div class="form-group">
+ <label for="v1_fk_rule">2.1. Какое правило поведения ссылочной целостности (ON DELETE RESTRICT или ON DELETE CASCADE) следует применить при удалении записи товара из таблицы Products? Обоснуйте выбор с точки зрения материальной ответственности и учета:</label>
+ <textarea id="v1_fk_rule" class="input-area" placeholder=""></textarea>
+ </div>
 
-        <h3>Часть 3. Ограничения целостности и самопроверка (1 балл)</h3>
-        <div class="form-group">
-          <label for="v1_chk_desc">3.1. Запишите точный синтаксис ограничения CHECK для атрибута quantity, гарантирующего отсутствие отрицательного складского остатка. Что вернет СУБД при попытке списания товара в минус?</label>
-          <textarea id="v1_chk_desc" class="input-area" placeholder=""></textarea>
-        </div>
-        <div class="form-group">
-          <label for="v1_check_prop">3.2. Какое свойство истинного отношения нарушится, если для одного товара (sku) в одной и той же ячейке склада (warehouse_zone) разрешить создать две разные записи? Какое ограничение устраняет этот риск?</label>
-          <textarea id="v1_check_prop" class="input-area" placeholder=""></textarea>
-        </div>
-      </section>
-    </div>
+ <h3>Часть 3. Ограничения целостности и самопроверка (1 балл)</h3>
+ <div class="form-group">
+ <label for="v1_chk_desc">3.1. Запишите точный синтаксис ограничения CHECK для атрибута quantity, гарантирующего отсутствие отрицательного складского остатка. Что вернет СУБД при попытке списания товара в минус?</label>
+ <textarea id="v1_chk_desc" class="input-area" placeholder=""></textarea>
+ </div>
+ <div class="form-group">
+ <label for="v1_check_prop">3.2. Какое свойство истинного отношения нарушится, если для одного товара (sku) в одной и той же ячейке склада (warehouse_zone) разрешить создать две разные записи? Какое ограничение устраняет этот риск?</label>
+ <textarea id="v1_check_prop" class="input-area" placeholder=""></textarea>
+ </div>
+ </section>
+ </div>
 
-    <!-- ================= ВАРИАНТ 2 ================= -->
-    <div class="variant-container" id="v2-container">
-      <section class="task-section">
-        <h2>Вариант 2: Медицинская клиника</h2>
-        <div class="info-banner">
-          <strong>Предметная область:</strong> Медицинская информационная система регистрирует пациентов и выписанные им медикаментозные назначения. Требуется спроектировать связанные таблицы: <code>Пациенты (Patients)</code> и <code>Назначения (Prescriptions)</code>. Внешний ключ на ID пациента, жесткий запрет NULL и предикат CHECK на терапевтический диапазон разовой дозировки лекарств.
-        </div>
+ <!-- ================= ВАРИАНТ 2 ================= -->
+ <div class="variant-container" id="v2-container">
+ <section class="task-section">
+ <h2>Вариант 2: Медицинская клиника</h2>
+ <div class="info-banner">
+ <strong>Предметная область:</strong> Медицинская информационная система регистрирует пациентов и выписанные им медикаментозные назначения. Требуется спроектировать связанные таблицы: <code>Пациенты (Patients)</code> и <code>Назначения (Prescriptions)</code>. Внешний ключ на ID пациента, жесткий запрет NULL и предикат CHECK на терапевтический диапазон разовой дозировки лекарств.
+ </div>
 
-        <h3>Часть 1. Спецификация отношений и атрибутов (2 балла)</h3>
-        <h4>Родительская таблица: Пациенты (Patients)</h4>
-        <table class="spec-table">
-          <thead>
-            <tr>
-              <th style="width: 25%;">Имя атрибута</th>
-              <th style="width: 25%;">Тип данных / Домен</th>
-              <th style="width: 20%;">Ключ (PK/None)</th>
-              <th style="width: 30%;">Ограничения (NOT NULL, CHECK...)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><input type="text" id="v2_p_a1" value="patient_id"></td>
-              <td><input type="text" id="v2_p_t1" value="SERIAL / INT"></td>
-              <td>
-                <select id="v2_p_k1">
-                  <option value="PK" selected>PRIMARY KEY</option>
-                  <option value="NONE">NONE</option>
-                </select>
-              </td>
-              <td><input type="text" id="v2_p_c1" value="NOT NULL"></td>
-            </tr>
-            <tr>
-              <td><input type="text" id="v2_p_a2" value="full_name"></td>
-              <td><input type="text" id="v2_p_t2" value="VARCHAR(150)"></td>
-              <td>
-                <select id="v2_p_k2">
-                  <option value="NONE" selected>NONE</option>
-                  <option value="PK">PRIMARY KEY</option>
-                </select>
-              </td>
-              <td><input type="text" id="v2_p_c2" value="NOT NULL"></td>
-            </tr>
-            <tr>
-              <td><input type="text" id="v2_p_a3" value="birth_date"></td>
-              <td><input type="text" id="v2_p_t3" value="DATE"></td>
-              <td>
-                <select id="v2_p_k3">
-                  <option value="NONE" selected>NONE</option>
-                  <option value="PK">PRIMARY KEY</option>
-                </select>
-              </td>
-              <td><input type="text" id="v2_p_c3" value="NOT NULL, CHECK (birth_date <= CURRENT_DATE)"></td>
-            </tr>
-            <tr>
-              <td><input type="text" id="v2_p_a4" value="snils"></td>
-              <td><input type="text" id="v2_p_t4" value="VARCHAR(14)"></td>
-              <td>
-                <select id="v2_p_k4">
-                  <option value="NONE" selected>NONE</option>
-                  <option value="PK">PRIMARY KEY</option>
-                </select>
-              </td>
-              <td><input type="text" id="v2_p_c4" value="NOT NULL, UNIQUE"></td>
-            </tr>
-          </tbody>
-        </table>
+ <h3>Часть 1. Спецификация отношений и атрибутов (2 балла)</h3>
+ <h4>Родительская таблица: Пациенты (Patients)</h4>
+ <table class="spec-table">
+ <thead>
+ <tr>
+ <th style="width: 25%;">Имя атрибута</th>
+ <th style="width: 25%;">Тип данных / Домен</th>
+ <th style="width: 20%;">Ключ (PK/None)</th>
+ <th style="width: 30%;">Ограничения (NOT NULL, CHECK...)</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><input type="text" id="v2_p_a1" value="patient_id"></td>
+ <td><input type="text" id="v2_p_t1" value="SERIAL / INT"></td>
+ <td>
+ <select id="v2_p_k1">
+ <option value="PK" selected>PRIMARY KEY</option>
+ <option value="NONE">NONE</option>
+ </select>
+ </td>
+ <td><input type="text" id="v2_p_c1" value="NOT NULL"></td>
+ </tr>
+ <tr>
+ <td><input type="text" id="v2_p_a2" value="full_name"></td>
+ <td><input type="text" id="v2_p_t2" value="VARCHAR(150)"></td>
+ <td>
+ <select id="v2_p_k2">
+ <option value="NONE" selected>NONE</option>
+ <option value="PK">PRIMARY KEY</option>
+ </select>
+ </td>
+ <td><input type="text" id="v2_p_c2" value="NOT NULL"></td>
+ </tr>
+ <tr>
+ <td><input type="text" id="v2_p_a3" value="birth_date"></td>
+ <td><input type="text" id="v2_p_t3" value="DATE"></td>
+ <td>
+ <select id="v2_p_k3">
+ <option value="NONE" selected>NONE</option>
+ <option value="PK">PRIMARY KEY</option>
+ </select>
+ </td>
+ <td><input type="text" id="v2_p_c3" value="NOT NULL, CHECK (birth_date <= CURRENT_DATE)"></td>
+ </tr>
+ <tr>
+ <td><input type="text" id="v2_p_a4" value="snils"></td>
+ <td><input type="text" id="v2_p_t4" value="VARCHAR(14)"></td>
+ <td>
+ <select id="v2_p_k4">
+ <option value="NONE" selected>NONE</option>
+ <option value="PK">PRIMARY KEY</option>
+ </select>
+ </td>
+ <td><input type="text" id="v2_p_c4" value="NOT NULL, UNIQUE"></td>
+ </tr>
+ </tbody>
+ </table>
 
-        <h4>Дочерняя таблица: Назначения (Prescriptions)</h4>
-        <table class="spec-table">
-          <thead>
-            <tr>
-              <th style="width: 25%;">Имя атрибута</th>
-              <th style="width: 25%;">Тип данных / Домен</th>
-              <th style="width: 20%;">Ключ (PK/FK/None)</th>
-              <th style="width: 30%;">Ограничения (NOT NULL, CHECK...)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><input type="text" id="v2_i_a1" value="prescription_id"></td>
-              <td><input type="text" id="v2_i_t1" value="SERIAL / INT"></td>
-              <td>
-                <select id="v2_i_k1">
-                  <option value="PK" selected>PRIMARY KEY</option>
-                  <option value="FK">FOREIGN KEY</option>
-                  <option value="NONE">NONE</option>
-                </select>
-              </td>
-              <td><input type="text" id="v2_i_c1" value="NOT NULL"></td>
-            </tr>
-            <tr>
-              <td><input type="text" id="v2_i_a2" value="patient_id"></td>
-              <td><input type="text" id="v2_i_t2" value="INT"></td>
-              <td>
-                <select id="v2_i_k2">
-                  <option value="FK" selected>FOREIGN KEY</option>
-                  <option value="PK">PRIMARY KEY</option>
-                  <option value="NONE">NONE</option>
-                </select>
-              </td>
-              <td><input type="text" id="v2_i_c2" value="NOT NULL, REFERENCES patients(patient_id)"></td>
-            </tr>
-            <tr>
-              <td><input type="text" id="v2_i_a3" value="medication_name"></td>
-              <td><input type="text" id="v2_i_t3" value="VARCHAR(100)"></td>
-              <td>
-                <select id="v2_i_k3">
-                  <option value="NONE" selected>NONE</option>
-                  <option value="PK">PRIMARY KEY</option>
-                  <option value="FK">FOREIGN KEY</option>
-                </select>
-              </td>
-              <td><input type="text" id="v2_i_c3" value="NOT NULL"></td>
-            </tr>
-            <tr>
-              <td><input type="text" id="v2_i_a4" value="dosage_mg"></td>
-              <td><input type="text" id="v2_i_t4" value="NUMERIC(6,2)"></td>
-              <td>
-                <select id="v2_i_k4">
-                  <option value="NONE" selected>NONE</option>
-                  <option value="PK">PRIMARY KEY</option>
-                  <option value="FK">FOREIGN KEY</option>
-                </select>
-              </td>
-              <td><input type="text" id="v2_i_c4" value="NOT NULL, CHECK (dosage_mg > 0 AND dosage_mg <= 500)"></td>
-            </tr>
-          </tbody>
-        </table>
+ <h4>Дочерняя таблица: Назначения (Prescriptions)</h4>
+ <table class="spec-table">
+ <thead>
+ <tr>
+ <th style="width: 25%;">Имя атрибута</th>
+ <th style="width: 25%;">Тип данных / Домен</th>
+ <th style="width: 20%;">Ключ (PK/FK/None)</th>
+ <th style="width: 30%;">Ограничения (NOT NULL, CHECK...)</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><input type="text" id="v2_i_a1" value="prescription_id"></td>
+ <td><input type="text" id="v2_i_t1" value="SERIAL / INT"></td>
+ <td>
+ <select id="v2_i_k1">
+ <option value="PK" selected>PRIMARY KEY</option>
+ <option value="FK">FOREIGN KEY</option>
+ <option value="NONE">NONE</option>
+ </select>
+ </td>
+ <td><input type="text" id="v2_i_c1" value="NOT NULL"></td>
+ </tr>
+ <tr>
+ <td><input type="text" id="v2_i_a2" value="patient_id"></td>
+ <td><input type="text" id="v2_i_t2" value="INT"></td>
+ <td>
+ <select id="v2_i_k2">
+ <option value="FK" selected>FOREIGN KEY</option>
+ <option value="PK">PRIMARY KEY</option>
+ <option value="NONE">NONE</option>
+ </select>
+ </td>
+ <td><input type="text" id="v2_i_c2" value="NOT NULL, REFERENCES patients(patient_id)"></td>
+ </tr>
+ <tr>
+ <td><input type="text" id="v2_i_a3" value="medication_name"></td>
+ <td><input type="text" id="v2_i_t3" value="VARCHAR(100)"></td>
+ <td>
+ <select id="v2_i_k3">
+ <option value="NONE" selected>NONE</option>
+ <option value="PK">PRIMARY KEY</option>
+ <option value="FK">FOREIGN KEY</option>
+ </select>
+ </td>
+ <td><input type="text" id="v2_i_c3" value="NOT NULL"></td>
+ </tr>
+ <tr>
+ <td><input type="text" id="v2_i_a4" value="dosage_mg"></td>
+ <td><input type="text" id="v2_i_t4" value="NUMERIC(6,2)"></td>
+ <td>
+ <select id="v2_i_k4">
+ <option value="NONE" selected>NONE</option>
+ <option value="PK">PRIMARY KEY</option>
+ <option value="FK">FOREIGN KEY</option>
+ </select>
+ </td>
+ <td><input type="text" id="v2_i_c4" value="NOT NULL, CHECK (dosage_mg > 0 AND dosage_mg <= 500)"></td>
+ </tr>
+ </tbody>
+ </table>
 
-        <h3>Часть 2. Первичные и внешние ключи (1 балл)</h3>
-        <div class="form-group">
-          <label for="v2_fk_rule">2.1. Почему внешний ключ patient_id в таблице «Назначения» обязан иметь ограничение NOT NULL? К каким опасным клиническим последствиям приведет разрешение NULL в поле patient_id?</label>
-          <textarea id="v2_fk_rule" class="input-area" placeholder=""></textarea>
-        </div>
+ <h3>Часть 2. Первичные и внешние ключи (1 балл)</h3>
+ <div class="form-group">
+ <label for="v2_fk_rule">2.1. Почему внешний ключ patient_id в таблице «Назначения» обязан иметь ограничение NOT NULL? К каким опасным клиническим последствиям приведет разрешение NULL в поле patient_id?</label>
+ <textarea id="v2_fk_rule" class="input-area" placeholder=""></textarea>
+ </div>
 
-        <h3>Часть 3. Ограничения целостности и самопроверка (1 балл)</h3>
-        <div class="form-group">
-          <label for="v2_chk_desc">3.1. Сформулируйте условие CHECK для атрибута dosage_mg с ограничением разовой дозы строго от 0.1 мг до 500.0 мг. Почему контроль дозировок должен выполняться именно на уровне СУБД, а не только в коде приложения медсестры?</label>
-          <textarea id="v2_chk_desc" class="input-area" placeholder=""></textarea>
-        </div>
-        <div class="form-group">
-          <label for="v2_check_prop">3.2. Какое действие (RESTRICT или CASCADE) следует применить при удалении записи пациента, если в базе хранятся выписанные ему сильнодействующие препараты? Обоснуйте с позиции законодательства о хранении медицинских карт.</label>
-          <textarea id="v2_check_prop" class="input-area" placeholder=""></textarea>
-        </div>
-      </section>
-    </div>
+ <h3>Часть 3. Ограничения целостности и самопроверка (1 балл)</h3>
+ <div class="form-group">
+ <label for="v2_chk_desc">3.1. Сформулируйте условие CHECK для атрибута dosage_mg с ограничением разовой дозы строго от 0.1 мг до 500.0 мг. Почему контроль дозировок должен выполняться именно на уровне СУБД, а не только в коде приложения медсестры?</label>
+ <textarea id="v2_chk_desc" class="input-area" placeholder=""></textarea>
+ </div>
+ <div class="form-group">
+ <label for="v2_check_prop">3.2. Какое действие (RESTRICT или CASCADE) следует применить при удалении записи пациента, если в базе хранятся выписанные ему сильнодействующие препараты? Обоснуйте с позиции законодательства о хранении медицинских карт.</label>
+ <textarea id="v2_check_prop" class="input-area" placeholder=""></textarea>
+ </div>
+ </section>
+ </div>
 
-    <!-- ================= ВАРИАНТ 3 ================= -->
-    <div class="variant-container" id="v3-container">
-      <section class="task-section">
-        <h2>Вариант 3: Автосервис</h2>
-        <div class="info-banner">
-          <strong>Предметная область:</strong> Станция технического обслуживания ведет прием автомобилей и оформление актов дефектовки. Требуется спроектировать таблицы: <code>Автомобили (Vehicles)</code> и <code>Акты_дефектовки (Inspection_Reports)</code>. Анализ естественного ключа VIN против суррогатного id_авто, обеспечение ссылочной целостности и ограничение уникальности.
-        </div>
+ <!-- ================= ВАРИАНТ 3 ================= -->
+ <div class="variant-container" id="v3-container">
+ <section class="task-section">
+ <h2>Вариант 3: Автосервис</h2>
+ <div class="info-banner">
+ <strong>Предметная область:</strong> Станция технического обслуживания ведет прием автомобилей и оформление актов дефектовки. Требуется спроектировать таблицы: <code>Автомобили (Vehicles)</code> и <code>Акты_дефектовки (Inspection_Reports)</code>. Анализ естественного ключа VIN против суррогатного id_авто, обеспечение ссылочной целостности и ограничение уникальности.
+ </div>
 
-        <h3>Часть 1. Спецификация отношений и атрибутов (2 балла)</h3>
-        <h4>Родительская таблица: Автомобили (Vehicles)</h4>
-        <table class="spec-table">
-          <thead>
-            <tr>
-              <th style="width: 25%;">Имя атрибута</th>
-              <th style="width: 25%;">Тип данных / Домен</th>
-              <th style="width: 20%;">Ключ (PK/None)</th>
-              <th style="width: 30%;">Ограничения (NOT NULL, CHECK...)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><input type="text" id="v3_p_a1" value="vehicle_id"></td>
-              <td><input type="text" id="v3_p_t1" value="SERIAL / INT"></td>
-              <td>
-                <select id="v3_p_k1">
-                  <option value="PK" selected>PRIMARY KEY (суррогатный)</option>
-                  <option value="NONE">NONE</option>
-                </select>
-              </td>
-              <td><input type="text" id="v3_p_c1" value="NOT NULL"></td>
-            </tr>
-            <tr>
-              <td><input type="text" id="v3_p_a2" value="vin"></td>
-              <td><input type="text" id="v3_p_t2" value="CHAR(17)"></td>
-              <td>
-                <select id="v3_p_k2">
-                  <option value="NONE" selected>Альтернативный ключ</option>
-                  <option value="PK">PRIMARY KEY</option>
-                </select>
-              </td>
-              <td><input type="text" id="v3_p_c2" value="NOT NULL, UNIQUE, CHECK (LENGTH(vin) = 17)"></td>
-            </tr>
-            <tr>
-              <td><input type="text" id="v3_p_a3" value="license_plate"></td>
-              <td><input type="text" id="v3_p_t3" value="VARCHAR(12)"></td>
-              <td>
-                <select id="v3_p_k3">
-                  <option value="NONE" selected>NONE</option>
-                  <option value="PK">PRIMARY KEY</option>
-                </select>
-              </td>
-              <td><input type="text" id="v3_p_c3" value="NOT NULL"></td>
-            </tr>
-            <tr>
-              <td><input type="text" id="v3_p_a4" value="mileage"></td>
-              <td><input type="text" id="v3_p_t4" value="INT"></td>
-              <td>
-                <select id="v3_p_k4">
-                  <option value="NONE" selected>NONE</option>
-                  <option value="PK">PRIMARY KEY</option>
-                </select>
-              </td>
-              <td><input type="text" id="v3_p_c4" value="NOT NULL, CHECK (mileage >= 0)"></td>
-            </tr>
-          </tbody>
-        </table>
+ <h3>Часть 1. Спецификация отношений и атрибутов (2 балла)</h3>
+ <h4>Родительская таблица: Автомобили (Vehicles)</h4>
+ <table class="spec-table">
+ <thead>
+ <tr>
+ <th style="width: 25%;">Имя атрибута</th>
+ <th style="width: 25%;">Тип данных / Домен</th>
+ <th style="width: 20%;">Ключ (PK/None)</th>
+ <th style="width: 30%;">Ограничения (NOT NULL, CHECK...)</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><input type="text" id="v3_p_a1" value="vehicle_id"></td>
+ <td><input type="text" id="v3_p_t1" value="SERIAL / INT"></td>
+ <td>
+ <select id="v3_p_k1">
+ <option value="PK" selected>PRIMARY KEY (суррогатный)</option>
+ <option value="NONE">NONE</option>
+ </select>
+ </td>
+ <td><input type="text" id="v3_p_c1" value="NOT NULL"></td>
+ </tr>
+ <tr>
+ <td><input type="text" id="v3_p_a2" value="vin"></td>
+ <td><input type="text" id="v3_p_t2" value="CHAR(17)"></td>
+ <td>
+ <select id="v3_p_k2">
+ <option value="NONE" selected>Альтернативный ключ</option>
+ <option value="PK">PRIMARY KEY</option>
+ </select>
+ </td>
+ <td><input type="text" id="v3_p_c2" value="NOT NULL, UNIQUE, CHECK (LENGTH(vin) = 17)"></td>
+ </tr>
+ <tr>
+ <td><input type="text" id="v3_p_a3" value="license_plate"></td>
+ <td><input type="text" id="v3_p_t3" value="VARCHAR(12)"></td>
+ <td>
+ <select id="v3_p_k3">
+ <option value="NONE" selected>NONE</option>
+ <option value="PK">PRIMARY KEY</option>
+ </select>
+ </td>
+ <td><input type="text" id="v3_p_c3" value="NOT NULL"></td>
+ </tr>
+ <tr>
+ <td><input type="text" id="v3_p_a4" value="mileage"></td>
+ <td><input type="text" id="v3_p_t4" value="INT"></td>
+ <td>
+ <select id="v3_p_k4">
+ <option value="NONE" selected>NONE</option>
+ <option value="PK">PRIMARY KEY</option>
+ </select>
+ </td>
+ <td><input type="text" id="v3_p_c4" value="NOT NULL, CHECK (mileage >= 0)"></td>
+ </tr>
+ </tbody>
+ </table>
 
-        <h4>Дочерняя таблица: Акты_дефектовки (Inspection_Reports)</h4>
-        <table class="spec-table">
-          <thead>
-            <tr>
-              <th style="width: 25%;">Имя атрибута</th>
-              <th style="width: 25%;">Тип данных / Домен</th>
-              <th style="width: 20%;">Ключ (PK/FK/None)</th>
-              <th style="width: 30%;">Ограничения (NOT NULL, CHECK...)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><input type="text" id="v3_i_a1" value="report_id"></td>
-              <td><input type="text" id="v3_i_t1" value="SERIAL / INT"></td>
-              <td>
-                <select id="v3_i_k1">
-                  <option value="PK" selected>PRIMARY KEY</option>
-                  <option value="FK">FOREIGN KEY</option>
-                  <option value="NONE">NONE</option>
-                </select>
-              </td>
-              <td><input type="text" id="v3_i_c1" value="NOT NULL"></td>
-            </tr>
-            <tr>
-              <td><input type="text" id="v3_i_a2" value="vehicle_id"></td>
-              <td><input type="text" id="v3_i_t2" value="INT"></td>
-              <td>
-                <select id="v3_i_k2">
-                  <option value="FK" selected>FOREIGN KEY</option>
-                  <option value="PK">PRIMARY KEY</option>
-                  <option value="NONE">NONE</option>
-                </select>
-              </td>
-              <td><input type="text" id="v3_i_c2" value="NOT NULL, REFERENCES vehicles(vehicle_id)"></td>
-            </tr>
-            <tr>
-              <td><input type="text" id="v3_i_a3" value="defect_description"></td>
-              <td><input type="text" id="v3_i_t3" value="TEXT"></td>
-              <td>
-                <select id="v3_i_k3">
-                  <option value="NONE" selected>NONE</option>
-                  <option value="PK">PRIMARY KEY</option>
-                  <option value="FK">FOREIGN KEY</option>
-                </select>
-              </td>
-              <td><input type="text" id="v3_i_c3" value="NOT NULL"></td>
-            </tr>
-            <tr>
-              <td><input type="text" id="v3_i_a4" value="estimated_cost"></td>
-              <td><input type="text" id="v3_i_t4" value="NUMERIC(10,2)"></td>
-              <td>
-                <select id="v3_i_k4">
-                  <option value="NONE" selected>NONE</option>
-                  <option value="PK">PRIMARY KEY</option>
-                  <option value="FK">FOREIGN KEY</option>
-                </select>
-              </td>
-              <td><input type="text" id="v3_i_c4" value="NOT NULL, CHECK (estimated_cost >= 0)"></td>
-            </tr>
-          </tbody>
-        </table>
+ <h4>Дочерняя таблица: Акты_дефектовки (Inspection_Reports)</h4>
+ <table class="spec-table">
+ <thead>
+ <tr>
+ <th style="width: 25%;">Имя атрибута</th>
+ <th style="width: 25%;">Тип данных / Домен</th>
+ <th style="width: 20%;">Ключ (PK/FK/None)</th>
+ <th style="width: 30%;">Ограничения (NOT NULL, CHECK...)</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><input type="text" id="v3_i_a1" value="report_id"></td>
+ <td><input type="text" id="v3_i_t1" value="SERIAL / INT"></td>
+ <td>
+ <select id="v3_i_k1">
+ <option value="PK" selected>PRIMARY KEY</option>
+ <option value="FK">FOREIGN KEY</option>
+ <option value="NONE">NONE</option>
+ </select>
+ </td>
+ <td><input type="text" id="v3_i_c1" value="NOT NULL"></td>
+ </tr>
+ <tr>
+ <td><input type="text" id="v3_i_a2" value="vehicle_id"></td>
+ <td><input type="text" id="v3_i_t2" value="INT"></td>
+ <td>
+ <select id="v3_i_k2">
+ <option value="FK" selected>FOREIGN KEY</option>
+ <option value="PK">PRIMARY KEY</option>
+ <option value="NONE">NONE</option>
+ </select>
+ </td>
+ <td><input type="text" id="v3_i_c2" value="NOT NULL, REFERENCES vehicles(vehicle_id)"></td>
+ </tr>
+ <tr>
+ <td><input type="text" id="v3_i_a3" value="defect_description"></td>
+ <td><input type="text" id="v3_i_t3" value="TEXT"></td>
+ <td>
+ <select id="v3_i_k3">
+ <option value="NONE" selected>NONE</option>
+ <option value="PK">PRIMARY KEY</option>
+ <option value="FK">FOREIGN KEY</option>
+ </select>
+ </td>
+ <td><input type="text" id="v3_i_c3" value="NOT NULL"></td>
+ </tr>
+ <tr>
+ <td><input type="text" id="v3_i_a4" value="estimated_cost"></td>
+ <td><input type="text" id="v3_i_t4" value="NUMERIC(10,2)"></td>
+ <td>
+ <select id="v3_i_k4">
+ <option value="NONE" selected>NONE</option>
+ <option value="PK">PRIMARY KEY</option>
+ <option value="FK">FOREIGN KEY</option>
+ </select>
+ </td>
+ <td><input type="text" id="v3_i_c4" value="NOT NULL, CHECK (estimated_cost >= 0)"></td>
+ </tr>
+ </tbody>
+ </table>
 
-        <h3>Часть 2. Первичные и внешние ключи (1 балл)</h3>
-        <div class="form-group">
-          <label for="v3_fk_rule">2.1. Сравните два варианта первичного ключа для автомобилей: естественный ключ VIN (строка CHAR(17)) против суррогатного vehicle_id (целое число INT). В чем преимущества суррогатного ключа при выполнении JOIN и при исправлении ошибок ввода оператором?</label>
-          <textarea id="v3_fk_rule" class="input-area" placeholder=""></textarea>
-        </div>
+ <h3>Часть 2. Первичные и внешние ключи (1 балл)</h3>
+ <div class="form-group">
+ <label for="v3_fk_rule">2.1. Сравните два варианта первичного ключа для автомобилей: естественный ключ VIN (строка CHAR(17)) против суррогатного vehicle_id (целое число INT). В чем преимущества суррогатного ключа при выполнении JOIN и при исправлении ошибок ввода оператором?</label>
+ <textarea id="v3_fk_rule" class="input-area" placeholder=""></textarea>
+ </div>
 
-        <h3>Часть 3. Ограничения целостности и самопроверка (1 балл)</h3>
-        <div class="form-group">
-          <label for="v3_chk_desc">3.1. Как ограничение UNIQUE для столбца vin защищает базу от дублирования карточек одного и того же автомобиля? Какое исключение выдаст ядро СУБД при попытке повторного ввода того же VIN?</label>
-          <textarea id="v3_chk_desc" class="input-area" placeholder=""></textarea>
-        </div>
-        <div class="form-group">
-          <label for="v3_check_prop">3.2. Если клиент продал автомобиль, допустимо ли удалить запись из таблицы Vehicles? Какую опцию ON DELETE следует назначить для внешнего ключа в таблице Inspection_Reports?</label>
-          <textarea id="v3_check_prop" class="input-area" placeholder=""></textarea>
-        </div>
-      </section>
-    </div>
+ <h3>Часть 3. Ограничения целостности и самопроверка (1 балл)</h3>
+ <div class="form-group">
+ <label for="v3_chk_desc">3.1. Как ограничение UNIQUE для столбца vin защищает базу от дублирования карточек одного и того же автомобиля? Какое исключение выдаст ядро СУБД при попытке повторного ввода того же VIN?</label>
+ <textarea id="v3_chk_desc" class="input-area" placeholder=""></textarea>
+ </div>
+ <div class="form-group">
+ <label for="v3_check_prop">3.2. Если клиент продал автомобиль, допустимо ли удалить запись из таблицы Vehicles? Какую опцию ON DELETE следует назначить для внешнего ключа в таблице Inspection_Reports?</label>
+ <textarea id="v3_check_prop" class="input-area" placeholder=""></textarea>
+ </div>
+ </section>
+ </div>
 
-    <!-- ================= ВАРИАНТ 4 ================= -->
-    <div class="variant-container" id="v4-container">
-      <section class="task-section">
-        <h2>Вариант 4: Онлайн-курсы</h2>
-        <div class="info-banner">
-          <strong>Предметная область:</strong> Образовательная онлайн-платформа фиксирует сдачу практических заданий студентами. Требуется спроектировать таблицы: <code>Студенты (Students)</code> и <code>Сдача_заданий (Submissions)</code>. Внешний ключ на студента, составной альтернативный ключ (student_id + task_id) и ограничение CHECK на балл от 0 до 100.
-        </div>
+ <!-- ================= ВАРИАНТ 4 ================= -->
+ <div class="variant-container" id="v4-container">
+ <section class="task-section">
+ <h2>Вариант 4: Онлайн-курсы</h2>
+ <div class="info-banner">
+ <strong>Предметная область:</strong> Образовательная онлайн-платформа фиксирует сдачу практических заданий студентами. Требуется спроектировать таблицы: <code>Студенты (Students)</code> и <code>Сдача_заданий (Submissions)</code>. Внешний ключ на студента, составной альтернативный ключ (student_id + task_id) и ограничение CHECK на балл от 0 до 100.
+ </div>
 
-        <h3>Часть 1. Спецификация отношений и атрибутов (2 балла)</h3>
-        <h4>Родительская таблица: Студенты (Students)</h4>
-        <table class="spec-table">
-          <thead>
-            <tr>
-              <th style="width: 25%;">Имя атрибута</th>
-              <th style="width: 25%;">Тип данных / Домен</th>
-              <th style="width: 20%;">Ключ (PK/None)</th>
-              <th style="width: 30%;">Ограничения (NOT NULL, CHECK...)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><input type="text" id="v4_p_a1" value="student_id"></td>
-              <td><input type="text" id="v4_p_t1" value="SERIAL / INT"></td>
-              <td>
-                <select id="v4_p_k1">
-                  <option value="PK" selected>PRIMARY KEY</option>
-                  <option value="NONE">NONE</option>
-                </select>
-              </td>
-              <td><input type="text" id="v4_p_c1" value="NOT NULL"></td>
-            </tr>
-            <tr>
-              <td><input type="text" id="v4_p_a2" value="email"></td>
-              <td><input type="text" id="v4_p_t2" value="VARCHAR(100)"></td>
-              <td>
-                <select id="v4_p_k2">
-                  <option value="NONE" selected>Альтернативный ключ</option>
-                  <option value="PK">PRIMARY KEY</option>
-                </select>
-              </td>
-              <td><input type="text" id="v4_p_c2" value="NOT NULL, UNIQUE"></td>
-            </tr>
-            <tr>
-              <td><input type="text" id="v4_p_a3" value="full_name"></td>
-              <td><input type="text" id="v4_p_t3" value="VARCHAR(120)"></td>
-              <td>
-                <select id="v4_p_k3">
-                  <option value="NONE" selected>NONE</option>
-                  <option value="PK">PRIMARY KEY</option>
-                </select>
-              </td>
-              <td><input type="text" id="v4_p_c3" value="NOT NULL"></td>
-            </tr>
-            <tr>
-              <td><input type="text" id="v4_p_a4" value="registration_date"></td>
-              <td><input type="text" id="v4_p_t4" value="DATE"></td>
-              <td>
-                <select id="v4_p_k4">
-                  <option value="NONE" selected>NONE</option>
-                  <option value="PK">PRIMARY KEY</option>
-                </select>
-              </td>
-              <td><input type="text" id="v4_p_c4" value="NOT NULL, DEFAULT CURRENT_DATE"></td>
-            </tr>
-          </tbody>
-        </table>
+ <h3>Часть 1. Спецификация отношений и атрибутов (2 балла)</h3>
+ <h4>Родительская таблица: Студенты (Students)</h4>
+ <table class="spec-table">
+ <thead>
+ <tr>
+ <th style="width: 25%;">Имя атрибута</th>
+ <th style="width: 25%;">Тип данных / Домен</th>
+ <th style="width: 20%;">Ключ (PK/None)</th>
+ <th style="width: 30%;">Ограничения (NOT NULL, CHECK...)</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><input type="text" id="v4_p_a1" value="student_id"></td>
+ <td><input type="text" id="v4_p_t1" value="SERIAL / INT"></td>
+ <td>
+ <select id="v4_p_k1">
+ <option value="PK" selected>PRIMARY KEY</option>
+ <option value="NONE">NONE</option>
+ </select>
+ </td>
+ <td><input type="text" id="v4_p_c1" value="NOT NULL"></td>
+ </tr>
+ <tr>
+ <td><input type="text" id="v4_p_a2" value="email"></td>
+ <td><input type="text" id="v4_p_t2" value="VARCHAR(100)"></td>
+ <td>
+ <select id="v4_p_k2">
+ <option value="NONE" selected>Альтернативный ключ</option>
+ <option value="PK">PRIMARY KEY</option>
+ </select>
+ </td>
+ <td><input type="text" id="v4_p_c2" value="NOT NULL, UNIQUE"></td>
+ </tr>
+ <tr>
+ <td><input type="text" id="v4_p_a3" value="full_name"></td>
+ <td><input type="text" id="v4_p_t3" value="VARCHAR(120)"></td>
+ <td>
+ <select id="v4_p_k3">
+ <option value="NONE" selected>NONE</option>
+ <option value="PK">PRIMARY KEY</option>
+ </select>
+ </td>
+ <td><input type="text" id="v4_p_c3" value="NOT NULL"></td>
+ </tr>
+ <tr>
+ <td><input type="text" id="v4_p_a4" value="registration_date"></td>
+ <td><input type="text" id="v4_p_t4" value="DATE"></td>
+ <td>
+ <select id="v4_p_k4">
+ <option value="NONE" selected>NONE</option>
+ <option value="PK">PRIMARY KEY</option>
+ </select>
+ </td>
+ <td><input type="text" id="v4_p_c4" value="NOT NULL, DEFAULT CURRENT_DATE"></td>
+ </tr>
+ </tbody>
+ </table>
 
-        <h4>Дочерняя таблица: Сдача_заданий (Submissions)</h4>
-        <table class="spec-table">
-          <thead>
-            <tr>
-              <th style="width: 25%;">Имя атрибута</th>
-              <th style="width: 25%;">Тип данных / Домен</th>
-              <th style="width: 20%;">Ключ (PK/FK/None)</th>
-              <th style="width: 30%;">Ограничения (NOT NULL, CHECK...)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><input type="text" id="v4_i_a1" value="submission_id"></td>
-              <td><input type="text" id="v4_i_t1" value="SERIAL / INT"></td>
-              <td>
-                <select id="v4_i_k1">
-                  <option value="PK" selected>PRIMARY KEY</option>
-                  <option value="FK">FOREIGN KEY</option>
-                  <option value="NONE">NONE</option>
-                </select>
-              </td>
-              <td><input type="text" id="v4_i_c1" value="NOT NULL"></td>
-            </tr>
-            <tr>
-              <td><input type="text" id="v4_i_a2" value="student_id"></td>
-              <td><input type="text" id="v4_i_t2" value="INT"></td>
-              <td>
-                <select id="v4_i_k2">
-                  <option value="FK" selected>FOREIGN KEY</option>
-                  <option value="PK">PRIMARY KEY</option>
-                  <option value="NONE">NONE</option>
-                </select>
-              </td>
-              <td><input type="text" id="v4_i_c2" value="NOT NULL, REFERENCES students(student_id)"></td>
-            </tr>
-            <tr>
-              <td><input type="text" id="v4_i_a3" value="task_id"></td>
-              <td><input type="text" id="v4_i_t3" value="INT"></td>
-              <td>
-                <select id="v4_i_k3">
-                  <option value="NONE" selected>NONE</option>
-                  <option value="PK">PRIMARY KEY</option>
-                  <option value="FK">FOREIGN KEY</option>
-                </select>
-              </td>
-              <td><input type="text" id="v4_i_c3" value="NOT NULL"></td>
-            </tr>
-            <tr>
-              <td><input type="text" id="v4_i_a4" value="score"></td>
-              <td><input type="text" id="v4_i_t4" value="INT"></td>
-              <td>
-                <select id="v4_i_k4">
-                  <option value="NONE" selected>NONE</option>
-                  <option value="PK">PRIMARY KEY</option>
-                  <option value="FK">FOREIGN KEY</option>
-                </select>
-              </td>
-              <td><input type="text" id="v4_i_c4" value="NOT NULL, CHECK (score BETWEEN 0 AND 100)"></td>
-            </tr>
-          </tbody>
-        </table>
+ <h4>Дочерняя таблица: Сдача_заданий (Submissions)</h4>
+ <table class="spec-table">
+ <thead>
+ <tr>
+ <th style="width: 25%;">Имя атрибута</th>
+ <th style="width: 25%;">Тип данных / Домен</th>
+ <th style="width: 20%;">Ключ (PK/FK/None)</th>
+ <th style="width: 30%;">Ограничения (NOT NULL, CHECK...)</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><input type="text" id="v4_i_a1" value="submission_id"></td>
+ <td><input type="text" id="v4_i_t1" value="SERIAL / INT"></td>
+ <td>
+ <select id="v4_i_k1">
+ <option value="PK" selected>PRIMARY KEY</option>
+ <option value="FK">FOREIGN KEY</option>
+ <option value="NONE">NONE</option>
+ </select>
+ </td>
+ <td><input type="text" id="v4_i_c1" value="NOT NULL"></td>
+ </tr>
+ <tr>
+ <td><input type="text" id="v4_i_a2" value="student_id"></td>
+ <td><input type="text" id="v4_i_t2" value="INT"></td>
+ <td>
+ <select id="v4_i_k2">
+ <option value="FK" selected>FOREIGN KEY</option>
+ <option value="PK">PRIMARY KEY</option>
+ <option value="NONE">NONE</option>
+ </select>
+ </td>
+ <td><input type="text" id="v4_i_c2" value="NOT NULL, REFERENCES students(student_id)"></td>
+ </tr>
+ <tr>
+ <td><input type="text" id="v4_i_a3" value="task_id"></td>
+ <td><input type="text" id="v4_i_t3" value="INT"></td>
+ <td>
+ <select id="v4_i_k3">
+ <option value="NONE" selected>NONE</option>
+ <option value="PK">PRIMARY KEY</option>
+ <option value="FK">FOREIGN KEY</option>
+ </select>
+ </td>
+ <td><input type="text" id="v4_i_c3" value="NOT NULL"></td>
+ </tr>
+ <tr>
+ <td><input type="text" id="v4_i_a4" value="score"></td>
+ <td><input type="text" id="v4_i_t4" value="INT"></td>
+ <td>
+ <select id="v4_i_k4">
+ <option value="NONE" selected>NONE</option>
+ <option value="PK">PRIMARY KEY</option>
+ <option value="FK">FOREIGN KEY</option>
+ </select>
+ </td>
+ <td><input type="text" id="v4_i_c4" value="NOT NULL, CHECK (score BETWEEN 0 AND 100)"></td>
+ </tr>
+ </tbody>
+ </table>
 
-        <h3>Часть 2. Первичные и внешние ключи (1 балл)</h3>
-        <div class="form-group">
-          <label for="v4_fk_rule">2.1. Если студент повторно сдает то же самое задание, как ограничение UNIQUE (student_id, task_id) предотвратит появление дубликатов оценок? Как это связано с 1-м свойством истинных отношений?</label>
-          <textarea id="v4_fk_rule" class="input-area" placeholder=""></textarea>
-        </div>
+ <h3>Часть 2. Первичные и внешние ключи (1 балл)</h3>
+ <div class="form-group">
+ <label for="v4_fk_rule">2.1. Если студент повторно сдает то же самое задание, как ограничение UNIQUE (student_id, task_id) предотвратит появление дубликатов оценок? Как это связано с 1-м свойством истинных отношений?</label>
+ <textarea id="v4_fk_rule" class="input-area" placeholder=""></textarea>
+ </div>
 
-        <h3>Часть 3. Ограничения целостности и самопроверка (1 балл)</h3>
-        <div class="form-group">
-          <label for="v4_chk_desc">3.1. Сформулируйте точный предикат CHECK для проверки балла студента (score от 0 до 100 включительно). Почему проверка балла на фронтенде недостаточна?</label>
-          <textarea id="v4_chk_desc" class="input-area" placeholder=""></textarea>
-        </div>
-        <div class="form-group">
-          <label for="v4_check_prop">3.2. Если студент отчисляется с платформы, какую политику ON DELETE логично применить к его сданным работам: CASCADE (полное удаление истории сдачи) или RESTRICT (запрет удаления профиля при наличии оценок в ведомости)? Обоснуйте выбор.</label>
-          <textarea id="v4_check_prop" class="input-area" placeholder=""></textarea>
-        </div>
-      </section>
-    </div>
+ <h3>Часть 3. Ограничения целостности и самопроверка (1 балл)</h3>
+ <div class="form-group">
+ <label for="v4_chk_desc">3.1. Сформулируйте точный предикат CHECK для проверки балла студента (score от 0 до 100 включительно). Почему проверка балла на фронтенде недостаточна?</label>
+ <textarea id="v4_chk_desc" class="input-area" placeholder=""></textarea>
+ </div>
+ <div class="form-group">
+ <label for="v4_check_prop">3.2. Если студент отчисляется с платформы, какую политику ON DELETE логично применить к его сданным работам: CASCADE (полное удаление истории сдачи) или RESTRICT (запрет удаления профиля при наличии оценок в ведомости)? Обоснуйте выбор.</label>
+ <textarea id="v4_check_prop" class="input-area" placeholder=""></textarea>
+ </div>
+ </section>
+ </div>
 
-    <!-- Кнопки управления -->
-    <div class="actions-bar">
-      <button class="btn btn-primary" id="saveBtn">Сохранить в браузере</button>
-      <button class="btn btn-secondary" id="printBtn">Распечатать / PDF</button>
-      <button class="btn btn-secondary" id="clearBtn">Очистить ответы</button>
-      <span class="save-status" id="saveStatus">Данные успешно сохранены в браузере!</span>
-    </div>
-  </div>
+ <!-- Кнопки управления -->
+ <div class="actions-bar">
+ <button class="btn btn-primary" id="saveBtn">Сохранить в браузере</button>
+ <button class="btn btn-secondary" id="printBtn">Распечатать / PDF</button>
+ <button class="btn btn-secondary" id="clearBtn">Очистить ответы</button>
+ <span class="save-status" id="saveStatus">Данные успешно сохранены в браузере!</span>
+ </div>
+ </div>
 
-  <script>
-    (function() {
-      const STORAGE_KEY = 'sie_db_zanyatie07_data';
+ <script>
+ (function() {
+ const STORAGE_KEY = 'sie_db_zanyatie07_data';
 
-      // Управление вкладками вариантов
-      const tabBtns = document.querySelectorAll('.v-tab-btn');
-      const containers = {
-        'v1': document.getElementById('v1-container'),
-        'v2': document.getElementById('v2-container'),
-        'v3': document.getElementById('v3-container'),
-        'v4': document.getElementById('v4-container')
-      };
+ // Управление вкладками вариантов
+ const tabBtns = document.querySelectorAll('.v-tab-btn');
+ const containers = {
+ 'v1': document.getElementById('v1-container'),
+ 'v2': document.getElementById('v2-container'),
+ 'v3': document.getElementById('v3-container'),
+ 'v4': document.getElementById('v4-container')
+ };
 
-      tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          tabBtns.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          const v = btn.getAttribute('data-v');
-          Object.keys(containers).forEach(key => {
-            if (key === v) containers[key].classList.add('active');
-            else containers[key].classList.remove('active');
-          });
-          saveData();
-        });
-      });
+ tabBtns.forEach(btn => {
+ btn.addEventListener('click', () => {
+ tabBtns.forEach(b => b.classList.remove('active'));
+ btn.classList.add('active');
+ const v = btn.getAttribute('data-v');
+ Object.keys(containers).forEach(key => {
+ if (key === v) containers[key].classList.add('active');
+ else containers[key].classList.remove('active');
+ });
+ saveData();
+ });
+ });
 
-      // Сбор всех полей ввода
-      function getAllInputs() {
-        return document.querySelectorAll('input, textarea, select');
-      }
+ // Сбор всех полей ввода
+ function getAllInputs() {
+ return document.querySelectorAll('input, textarea, select');
+ }
 
-      function saveData() {
-        const data = {
-          activeVariant: document.querySelector('.v-tab-btn.active')?.getAttribute('data-v') || 'v1',
-          fields: {}
-        };
-        getAllInputs().forEach(el => {
-          if (el.id) {
-            data.fields[el.id] = el.value;
-          }
-        });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        const status = document.getElementById('saveStatus');
-        status.style.display = 'inline';
-        setTimeout(() => { status.style.display = 'none'; }, 3000);
-      }
+ function saveData() {
+ const data = {
+ activeVariant: document.querySelector('.v-tab-btn.active')?.getAttribute('data-v') | 'v1',
+ fields: {}
+ };
+ getAllInputs().forEach(el => {
+ if (el.id) {
+ data.fields[el.id] = el.value;
+ }
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ const status = document.getElementById('saveStatus');
+ status.style.display = 'inline';
+ setTimeout(() => { status.style.display = 'none'; }, 3000);
+ }
 
-      function loadData() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (!saved) return;
-        try {
-          const data = JSON.parse(saved);
-          if (data.activeVariant && containers[data.activeVariant]) {
-            tabBtns.forEach(b => {
-              if (b.getAttribute('data-v') === data.activeVariant) b.classList.add('active');
-              else b.classList.remove('active');
-            });
-            Object.keys(containers).forEach(key => {
-              if (key === data.activeVariant) containers[key].classList.add('active');
-              else containers[key].classList.remove('active');
-            });
-          }
-          if (data.fields) {
-            Object.keys(data.fields).forEach(id => {
-              const el = document.getElementById(id);
-              if (el) el.value = data.fields[id];
-            });
-          }
-        } catch (e) {
-          console.error('Ошибка загрузки данных', e);
-        }
-      }
+ function loadData() {
+ const saved = localStorage.getItem(STORAGE_KEY);
+ if (!saved) return;
+ try {
+ const data = JSON.parse(saved);
+ if (data.activeVariant && containers[data.activeVariant]) {
+ tabBtns.forEach(b => {
+ if (b.getAttribute('data-v') === data.activeVariant) b.classList.add('active');
+ else b.classList.remove('active');
+ });
+ Object.keys(containers).forEach(key => {
+ if (key === data.activeVariant) containers[key].classList.add('active');
+ else containers[key].classList.remove('active');
+ });
+ }
+ if (data.fields) {
+ Object.keys(data.fields).forEach(id => {
+ const el = document.getElementById(id);
+ if (el) el.value = data.fields[id];
+ });
+ }
+ } catch (e) {
+ console.error('Ошибка загрузки данных', e);
+ }
+ }
 
-      function clearData() {
-        if (confirm('Вы действительно хотите очистить все введенные данные рабочего листа?')) {
-          localStorage.removeItem(STORAGE_KEY);
-          getAllInputs().forEach(el => {
-            if (el.id === 'studentFio' || el.id === 'studentGroup') {
-              el.value = '';
-            } else if (el.tagName === 'TEXTAREA') {
-              el.value = '';
-            }
-          });
-          saveData();
-        }
-      }
+ function clearData() {
+ if (confirm('Вы действительно хотите очистить все введенные данные рабочего листа?')) {
+ localStorage.removeItem(STORAGE_KEY);
+ getAllInputs().forEach(el => {
+ if (el.id === 'studentFio' | el.id === 'studentGroup') {
+ el.value = '';
+ } else if (el.tagName === 'TEXTAREA') {
+ el.value = '';
+ }
+ });
+ saveData();
+ }
+ }
 
-      document.getElementById('saveBtn').addEventListener('click', saveData);
-      document.getElementById('clearBtn').addEventListener('click', clearData);
-      document.getElementById('printBtn').addEventListener('click', () => {
-        saveData();
-        window.print();
-      });
+ document.getElementById('saveBtn').addEventListener('click', saveData);
+ document.getElementById('clearBtn').addEventListener('click', clearData);
+ document.getElementById('printBtn').addEventListener('click', () => {
+ saveData();
+ window.print();
+ });
 
-      // Автосохранение при вводе
-      document.addEventListener('input', (e) => {
-        if (e.target.matches('input, textarea, select')) {
-          const data = {
-            activeVariant: document.querySelector('.v-tab-btn.active')?.getAttribute('data-v') || 'v1',
-            fields: {}
-          };
-          getAllInputs().forEach(el => {
-            if (el.id) data.fields[el.id] = el.value;
-          });
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        }
-      });
+ // Автосохранение при вводе
+ document.addEventListener('input', (e) => {
+ if (e.target.matches('input, textarea, select')) {
+ const data = {
+ activeVariant: document.querySelector('.v-tab-btn.active')?.getAttribute('data-v') | 'v1',
+ fields: {}
+ };
+ getAllInputs().forEach(el => {
+ if (el.id) data.fields[el.id] = el.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ }
+ });
 
-      loadData();
-    })();
-  </script>
+ loadData();
+ })();
+ </script>
 </body>
 </html>

@@ -1,496 +1,459 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Методический материал — Практическое занятие №10: исполняемый файл проекта, этап 1</title>
-  <style>
-    :root {
-      --primary: #1e293b;
-      --accent: #2563eb;
-      --accent-light: #eff6ff;
-      --bg: #f8fafc;
-      --surface: #ffffff;
-      --border: #e2e8f0;
-      --text: #0f172a;
-      --text-muted: #64748b;
-      --success: #16a34a;
-      --warning: #ca8a04;
-      --danger: #dc2626;
-      --code-bg: #0f172a;
-      --code-text: #f8fafc;
-    }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Методический материал — Практическое занятие №10: исполняемый файл проекта, этап 1</title>
+ <style>
+ :root {
+ --primary: #1e293b;
+ --accent: #2563eb;
+ --accent-light: #eff6ff;
+ --bg: #f8fafc;
+ --surface: #ffffff;
+ --border: #e2e8f0;
+ --text: #0f172a;
+ --text-muted: #64748b;
+ --success: #16a34a;
+ --warning: #ca8a04;
+ --danger: #dc2626;
+ --code-bg: #0f172a;
+ --code-text: #f8fafc;
+ }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      padding: 2rem 1rem;
-    }
+ body {
+ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+ background-color: var(--bg);
+ color: var(--text);
+ line-height: 1.6;
+ padding: 2rem 1rem;
+ }.container {
+ max-width: 1000px;
+ margin: 0 auto;
+ background: var(--surface);
+ border-radius: 12px;
+ box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+ border: 1px solid var(--border);
+ overflow: hidden;
+ }.header {
+ background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+ color: #ffffff;
+ padding: 2.5rem 2rem;
+ border-bottom: 4px solid var(--accent);
+ }.header-badge {
+ display: inline-block;
+ background: rgba(37, 99, 235, 0.2);
+ border: 1px solid rgba(147, 197, 253, 0.3);
+ color: #93c5fd;
+ font-size: 0.85rem;
+ font-weight: 600;
+ padding: 0.35rem 0.8rem;
+ border-radius: 9999px;
+ margin-bottom: 1rem;
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+ }.header h1 {
+ font-size: 2rem;
+ line-height: 1.25;
+ font-weight: 800;
+ margin-bottom: 0.75rem;
+ }.header p {
+ color: #cbd5e1;
+ font-size: 1.05rem;
+ max-width: 850px;
+ }.content {
+ padding: 2.5rem 2rem;
+ }
 
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      background: var(--surface);
-      border-radius: 12px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-      border: 1px solid var(--border);
-      overflow: hidden;
-    }
+ h2 {
+ font-size: 1.45rem;
+ font-weight: 700;
+ color: var(--primary);
+ margin-top: 2rem;
+ margin-bottom: 1rem;
+ padding-bottom: 0.5rem;
+ border-bottom: 2px solid var(--border);
+ display: flex;
+ align-items: center;
+ gap: 0.6rem;
+ }
 
-    .header {
-      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-      color: #ffffff;
-      padding: 2.5rem 2rem;
-      border-bottom: 4px solid var(--accent);
-    }
+ h2:first-of-type {
+ margin-top: 0;
+ }
 
-    .header-badge {
-      display: inline-block;
-      background: rgba(37, 99, 235, 0.2);
-      border: 1px solid rgba(147, 197, 253, 0.3);
-      color: #93c5fd;
-      font-size: 0.85rem;
-      font-weight: 600;
-      padding: 0.35rem 0.8rem;
-      border-radius: 9999px;
-      margin-bottom: 1rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
+ h3 {
+ font-size: 1.15rem;
+ font-weight: 600;
+ color: #334155;
+ margin-top: 1.5rem;
+ margin-bottom: 0.75rem;
+ }
 
-    .header h1 {
-      font-size: 2rem;
-      line-height: 1.25;
-      font-weight: 800;
-      margin-bottom: 0.75rem;
-    }
+ p {
+ margin-bottom: 1rem;
+ color: #334155;
+ }
 
-    .header p {
-      color: #cbd5e1;
-      font-size: 1.05rem;
-      max-width: 850px;
-    }
+ ul, ol {
+ margin-bottom: 1.25rem;
+ padding-left: 1.5rem;
+ }
 
-    .content {
-      padding: 2.5rem 2rem;
-    }
+ li {
+ margin-bottom: 0.5rem;
+ color: #334155;
+ }.grid-2 {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 1.25rem;
+ margin-bottom: 1.5rem;
+ }
 
-    h2 {
-      font-size: 1.45rem;
-      font-weight: 700;
-      color: var(--primary);
-      margin-top: 2rem;
-      margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 2px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
+ @media (max-width: 768px) {.grid-2 {
+ grid-template-columns: 1fr;
+ }
+ body {
+ padding: 1rem 0.5rem;
+ }.content,.header {
+ padding: 1.5rem 1rem;
+ }
+ }.card {
+ background: var(--surface);
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ padding: 1.25rem;
+ box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+ }.card-accent {
+ border-left: 4px solid var(--accent);
+ background: #fafafa;
+ }.card-warn {
+ border-left: 4px solid var(--warning);
+ background: #fefce8;
+ }.card-danger {
+ border-left: 4px solid var(--danger);
+ background: #fef2f2;
+ }.card-success {
+ border-left: 4px solid var(--success);
+ background: #f0fdf4;
+ }.card-title {
+ font-weight: 700;
+ font-size: 1rem;
+ margin-bottom: 0.5rem;
+ color: var(--primary);
+ }
 
-    h2:first-of-type {
-      margin-top: 0;
-    }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ margin-bottom: 1.5rem;
+ font-size: 0.95rem;
+ }
 
-    h3 {
-      font-size: 1.15rem;
-      font-weight: 600;
-      color: #334155;
-      margin-top: 1.5rem;
-      margin-bottom: 0.75rem;
-    }
+ th, td {
+ border: 1px solid var(--border);
+ padding: 0.75rem 1rem;
+ text-align: left;
+ vertical-align: top;
+ }
 
-    p {
-      margin-bottom: 1rem;
-      color: #334155;
-    }
+ th {
+ background-color: #f1f5f9;
+ color: #1e293b;
+ font-weight: 600;
+ }
 
-    ul, ol {
-      margin-bottom: 1.25rem;
-      padding-left: 1.5rem;
-    }
+ tr:nth-child(even) td {
+ background-color: #f8fafc;
+ }
 
-    li {
-      margin-bottom: 0.5rem;
-      color: #334155;
-    }
+ pre {
+ background-color: var(--code-bg);
+ color: var(--code-text);
+ padding: 1.25rem;
+ border-radius: 8px;
+ overflow-x: auto;
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+ font-size: 0.875rem;
+ line-height: 1.5;
+ margin-bottom: 1.5rem;
+ }
 
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.25rem;
-      margin-bottom: 1.5rem;
-    }
+ code {
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+ font-size: 0.875em;
+ background: #f1f5f9;
+ color: #0f172a;
+ padding: 0.15rem 0.35rem;
+ border-radius: 4px;
+ border: 1px solid #e2e8f0;
+ }
 
-    @media (max-width: 768px) {
-      .grid-2 {
-        grid-template-columns: 1fr;
-      }
-      body {
-        padding: 1rem 0.5rem;
-      }
-      .content, .header {
-        padding: 1.5rem 1rem;
-      }
-    }
-
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1.25rem;
-      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-    }
-
-    .card-accent {
-      border-left: 4px solid var(--accent);
-      background: #fafafa;
-    }
-
-    .card-warn {
-      border-left: 4px solid var(--warning);
-      background: #fefce8;
-    }
-
-    .card-danger {
-      border-left: 4px solid var(--danger);
-      background: #fef2f2;
-    }
-
-    .card-success {
-      border-left: 4px solid var(--success);
-      background: #f0fdf4;
-    }
-
-    .card-title {
-      font-weight: 700;
-      font-size: 1rem;
-      margin-bottom: 0.5rem;
-      color: var(--primary);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 1.5rem;
-      font-size: 0.95rem;
-    }
-
-    th, td {
-      border: 1px solid var(--border);
-      padding: 0.75rem 1rem;
-      text-align: left;
-      vertical-align: top;
-    }
-
-    th {
-      background-color: #f1f5f9;
-      color: #1e293b;
-      font-weight: 600;
-    }
-
-    tr:nth-child(even) td {
-      background-color: #f8fafc;
-    }
-
-    pre {
-      background-color: var(--code-bg);
-      color: var(--code-text);
-      padding: 1.25rem;
-      border-radius: 8px;
-      overflow-x: auto;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 0.875rem;
-      line-height: 1.5;
-      margin-bottom: 1.5rem;
-    }
-
-    code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 0.875em;
-      background: #f1f5f9;
-      color: #0f172a;
-      padding: 0.15rem 0.35rem;
-      border-radius: 4px;
-      border: 1px solid #e2e8f0;
-    }
-
-    pre code {
-      background: transparent;
-      color: inherit;
-      padding: 0;
-      border: none;
-    }
-
-    .badge {
-      display: inline-block;
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 0.2rem 0.55rem;
-      border-radius: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .badge-primary { background: #dbeafe; color: #1e40af; }
-    .badge-success { background: #dcfce7; color: #15803d; }
-    .badge-warning { background: #fef9c3; color: #854d0e; }
-    .badge-danger { background: #fee2e2; color: #b91c1c; }
-
-    .tag-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 0.5rem;
-    }
-  </style>
+ pre code {
+ background: transparent;
+ color: inherit;
+ padding: 0;
+ border: none;
+ }.badge {
+ display: inline-block;
+ font-size: 0.75rem;
+ font-weight: 700;
+ padding: 0.2rem 0.55rem;
+ border-radius: 4px;
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+ }.badge-primary { background: #dbeafe; color: #1e40af; }.badge-success { background: #dcfce7; color: #15803d; }.badge-warning { background: #fef9c3; color: #854d0e; }.badge-danger { background: #fee2e2; color: #b91c1c; }.tag-list {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 0.5rem;
+ margin-top: 0.5rem;
+ }
+ </style>
 </head>
 <body>
-  <div class="container">
-    <header class="header">
-      <div class="header-badge">СИЭУиП • ОП.08 Основы проектирования баз данных</div>
-      <h1>Методическое руководство: Практическое занятие №10</h1>
-      <p>Тема 4. Проектирование структур баз данных — Исполняемый файл проекта, этап 1. Методические указания для преподавателя по проведению занятия, компиляции исполняемого модуля, настройке пула соединений и диагностике сетевых сбоев.</p>
-    </header>
+ <div class="container">
+ <header class="header">
+ <div class="header-badge">СИЭУиП • ОП.08 Основы проектирования баз данных</div>
+ <h1>Методическое руководство: Практическое занятие №10</h1>
+ <p>Тема 4. Проектирование структур баз данных — Исполняемый файл проекта, этап 1. Методические указания для преподавателя по проведению занятия, компиляции исполняемого модуля, настройке пула соединений и диагностике сетевых сбоев.</p>
+ </header>
 
-    <main class="content">
-      <h2>1. Паспорт учебного занятия и целеполагание</h2>
-      <div class="grid-2">
-        <div class="card card-accent">
-          <div class="card-title">Официальный статус дисциплины</div>
-          <p><strong>Дисциплина:</strong> ОП.08 Основы проектирования баз данных</p>
-          <p><strong>Специальность:</strong> 09.02.07 Информационные системы и программирование</p>
-          <p><strong>Тема программы:</strong> Тема 4. Проектирование структур баз данных</p>
-          <p><strong>Номер и наименование:</strong> Практическое занятие №10: исполняемый файл проекта, этап 1 (Занятие №27, §2.2 с.7–8 рабочей программы)</p>
-          <p><strong>Вид занятия:</strong> Практическое занятие</p>
-        </div>
-        <div class="card card-accent">
-          <div class="card-title">Временной регламент и ресурсы</div>
-          <p><strong>Основной регламент:</strong> 80 минут (2 академических часа)</p>
-          <p><strong>Сокращенный регламент:</strong> 60 минут (интенсивный трек)</p>
-          <p><strong>Форма работы:</strong> индивидуальная инженерно-практическая деятельность за ПК</p>
-          <p><strong>Оборудование:</strong> ПК с ОС Windows/Linux, установленный сервер PostgreSQL/MySQL, среда разработки (VS Code / PyCharm / IDEA), терминальный клиент <code>psql</code>, веб-браузер для интерактивного листа <code>zanyatie.html</code>.</p>
-        </div>
-      </div>
+ <main class="content">
+ <h2>1. Паспорт учебного занятия и целеполагание</h2>
+ <div class="grid-2">
+ <div class="card card-accent">
+ <div class="card-title">Официальный статус дисциплины</div>
+ <p><strong>Дисциплина:</strong> ОП.08 Основы проектирования баз данных</p>
+ <p><strong>Специальность:</strong> 09.02.07 Информационные системы и программирование</p>
+ <p><strong>Тема программы:</strong> Тема 4. Проектирование структур баз данных</p>
+ <p><strong>Номер и наименование:</strong> Практическое занятие №10: исполняемый файл проекта, этап 1 (Занятие №27)</p>
+ <p><strong>Вид занятия:</strong> Практическое занятие</p>
+ </div>
+ <div class="card card-accent">
+ <div class="card-title">Временной регламент и ресурсы</div>
+ <p><strong>Основной регламент:</strong> 80 минут (2 академических часа)</p>
+ <p><strong>Сокращенный регламент:</strong> 60 минут (интенсивный трек)</p>
+ <p><strong>Форма работы:</strong> индивидуальная инженерно-практическая деятельность за ПК</p>
+ <p><strong>Оборудование:</strong> ПК с ОС Windows/Linux, установленный сервер PostgreSQL/MySQL, среда разработки (VS Code / PyCharm / IDEA), терминальный клиент <code>psql</code>, веб-браузер для интерактивного листа <code>zanyatie.html</code>.</p>
+ </div>
+ </div>
 
-      <h3>Ключевые образовательные цели и формируемые результаты</h3>
-      <ul>
-        <li><strong>Дидактическая (обучающая):</strong> освоить архитектурные основы сборки исполняемого приложения для интеграции с СУБД; изучить синтаксис и структуру параметров строки подключения (Connection String: драйвер, протокол, хост, порт, имя БД, учетные данные, параметры SSL, таймауты); понять физические механизмы установления TCP-сессии и рукопожатия СУБД (Handshake); сформировать компетенции по конфигурации высокопроизводительного пула соединений (Connection Pool: min/max connections, idle_timeout, max_lifetime); реализовать первичное тестирование сетевой связности (SELECT 1 / Ping) и структурированное логирование сетевых исключений.</li>
-        <li><strong>Развивающая:</strong> сформировать системное инженерное понимание накладных расходов при сетевом межпроцессном взаимодействии; развить способность диагностировать и устранять сетевые сбои на стыке уровней L4/L7 (connection refused, timeout, handshake failure); развить навыки оптимизации серверных ресурсов СУБД.</li>
-        <li><strong>Воспитательная:</strong> привить студентам культуру безопасной разработки (Security by Design, 12-Factor App) с безусловным запретом хардкода учетных данных в репозиториях; воспитать ответственность за отказоустойчивость разрабатываемых информационных систем.</li>
-      </ul>
+ <h3>Ключевые образовательные цели и формируемые результаты</h3>
+ <ul>
+ <li><strong>Дидактическая (обучающая):</strong> освоить архитектурные основы сборки исполняемого приложения для интеграции с СУБД; изучить синтаксис и структуру параметров строки подключения (Connection String: драйвер, протокол, хост, порт, имя БД, учетные данные, параметры SSL, таймауты); понять физические механизмы установления TCP-сессии и рукопожатия СУБД (Handshake); сформировать компетенции по конфигурации высокопроизводительного пула соединений (Connection Pool: min/max connections, idle_timeout, max_lifetime); реализовать первичное тестирование сетевой связности (SELECT 1 / Ping) и структурированное логирование сетевых исключений.</li>
+ <li><strong>Развивающая:</strong> сформировать системное инженерное понимание накладных расходов при сетевом межпроцессном взаимодействии; развить способность диагностировать и устранять сетевые сбои на стыке уровней L4/L7 (connection refused, timeout, handshake failure); развить навыки оптимизации серверных ресурсов СУБД.</li>
+ <li><strong>Воспитательная:</strong> привить студентам культуру безопасной разработки (Security by Design, 12-Factor App) с безусловным запретом хардкода учетных данных в репозиториях; воспитать ответственность за отказоустойчивость разрабатываемых информационных систем.</li>
+ </ul>
 
-      <h2>2. Поминутный тайминг учебного занятия (80 и 60 минут)</h2>
-      <p>Организационная структура занятия адаптирована под два регламента проведения с сохранением полного дидактического цикла.</p>
+ <h2>2. Поминутный тайминг учебного занятия (80 и 60 минут)</h2>
+ <p>Организационная структура занятия адаптирована под два регламента проведения с сохранением полного дидактического цикла.</p>
 
-      <table>
-        <thead>
-          <tr>
-            <th style="width: 25%;">Этап занятия</th>
-            <th style="width: 15%;">80 минут</th>
-            <th style="width: 15%;">60 минут</th>
-            <th style="width: 45%;">Содержание деятельности преподавателя и студентов</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>1. Организационный момент и проблемная мотивация</strong></td>
-            <td>5 минут</td>
-            <td>3 минуты</td>
-            <td>Приветствие, фиксация явки. Разбор реального производственного кейса: «Черная пятница — падение сервера БД под нагрузкой из-за создания 1500 прямых соединений без пула (исчерпание RAM и процессов СУБД)». Постановка задачи занятия.</td>
-          </tr>
-          <tr>
-            <td><strong>2. Теоретический базис и разбор архитектуры</strong></td>
-            <td>15 минут</td>
-            <td>12 минут</td>
-            <td>Демонстрация презентации (слайды 2–11). Разбор структуры Connection String, физики Connection Handshake, устройства Connection Pool (HikariCP, pgBouncer), режимов SSL (sslmode=verify-full) и паттернов Health Check.</td>
-          </tr>
-          <tr>
-            <td><strong>3. Сквозная живая демонстрация (Live Coding)</strong></td>
-            <td>10 минут</td>
-            <td>7 минут</td>
-            <td>Преподаватель на проекторе демонстрирует: сборку файла конфигурации (.env / config.json), инициализацию пула на 5 соединений, выполнение пинга БД (SELECT 1), искусственный сбой (остановка службы СУБД) и обработку исключения с записью в системный лог.</td>
-          </tr>
-          <tr>
-            <td><strong>4. Самостоятельный инженерный практикум</strong></td>
-            <td>40 минут</td>
-            <td>32 минуты</td>
-            <td>Студенты в интерактивном листе <code>zanyatie.html</code> выполняют задания по 4 вариантам: расчет параметров пула, оформление конфигураций в JSON/YAML/.env, написание проверочного кода соединения и обработчика сетевых исключений. Индивидуальный инструктаж преподавателя.</td>
-          </tr>
-          <tr>
-            <td><strong>5. Контроль, экспертный разбор и рефлексия</strong></td>
-            <td>10 минут</td>
-            <td>6 минут</td>
-            <td>Демонстрация слайда 15 (мем «Little Bobby Tables» и культура безопасности). Анализ 3 типичных ошибок студентов (утечка соединений, хардкод паролей, таймауты). Оценивание по 4-балльной рубрике. Инструктаж по домашнему заданию.</td>
-          </tr>
-        </tbody>
-      </table>
+ <table>
+ <thead>
+ <tr>
+ <th style="width: 25%;">Этап занятия</th>
+ <th style="width: 15%;">80 минут</th>
+ <th style="width: 15%;">60 минут</th>
+ <th style="width: 45%;">Содержание деятельности преподавателя и студентов</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>1. Организационный момент и проблемная мотивация</strong></td>
+ <td>5 минут</td>
+ <td>3 минуты</td>
+ <td>Приветствие, фиксация явки. Разбор реального производственного кейса: «Черная пятница — падение сервера БД под нагрузкой из-за создания 1500 прямых соединений без пула (исчерпание RAM и процессов СУБД)». Постановка задачи занятия.</td>
+ </tr>
+ <tr>
+ <td><strong>2. Теоретический базис и разбор архитектуры</strong></td>
+ <td>15 минут</td>
+ <td>12 минут</td>
+ <td>Демонстрация презентации (слайды 2–11). Разбор структуры Connection String, физики Connection Handshake, устройства Connection Pool (HikariCP, pgBouncer), режимов SSL (sslmode=verify-full) и паттернов Health Check.</td>
+ </tr>
+ <tr>
+ <td><strong>3. Сквозная живая демонстрация (Live Coding)</strong></td>
+ <td>10 минут</td>
+ <td>7 минут</td>
+ <td>Преподаватель на проекторе демонстрирует: сборку файла конфигурации (.env / config.json), инициализацию пула на 5 соединений, выполнение пинга БД (SELECT 1), искусственный сбой (остановка службы СУБД) и обработку исключения с записью в системный лог.</td>
+ </tr>
+ <tr>
+ <td><strong>4. Самостоятельный инженерный практикум</strong></td>
+ <td>40 минут</td>
+ <td>32 минуты</td>
+ <td>Студенты в интерактивном листе <code>zanyatie.html</code> выполняют задания по 4 вариантам: расчет параметров пула, оформление конфигураций в JSON/YAML/.env, написание проверочного кода соединения и обработчика сетевых исключений. Индивидуальный инструктаж преподавателя.</td>
+ </tr>
+ <tr>
+ <td><strong>5. Контроль, экспертный разбор и рефлексия</strong></td>
+ <td>10 минут</td>
+ <td>6 минут</td>
+ <td>Демонстрация слайда 15 (мем «Little Bobby Tables» и культура безопасности). Анализ 3 типичных ошибок студентов (утечка соединений, хардкод паролей, таймауты). Оценивание по 4-балльной рубрике. Инструктаж по домашнему заданию.</td>
+ </tr>
+ </tbody>
+ </table>
 
-      <h2>3. Архитектура взаимодействия исполняемого файла с СУБД</h2>
-      
-      <h3>3.1. Параметры строки подключения (Connection String)</h3>
-      <p>Строка подключения представляет собой структурированную спецификацию, передаваемую клиентскому драйверу СУБД (PostgreSQL libpq, JDBC, Npgsql, asyncpg, psycopg2). Существует два базовых стандарта записи:</p>
-      
-      <div class="card card-accent" style="margin-bottom: 1rem;">
-        <div class="card-title">1. Формат URI (RFC 3986):</div>
-        <pre><code>postgresql://db_user:s3cr3t_p@ss@db.prod.company.local:5432/warehouse_db?sslmode=verify-full&sslrootcert=/etc/ssl/ca.crt&connect_timeout=10&application_name=WarehouseApp_v1</code></pre>
-      </div>
+ <h2>3. Архитектура взаимодействия исполняемого файла с СУБД</h2>
+ 
+ <h3>3.1. Параметры строки подключения (Connection String)</h3>
+ <p>Строка подключения представляет собой структурированную спецификацию, передаваемую клиентскому драйверу СУБД (PostgreSQL libpq, JDBC, Npgsql, asyncpg, psycopg2). Существует два базовых стандарта записи:</p>
+ 
+ <div class="card card-accent" style="margin-bottom: 1rem;">
+ <div class="card-title">1. Формат URI (RFC 3986):</div>
+ <pre><code>postgresql://db_user:s3cr3t_p@ss@db.prod.company.local:5432/warehouse_db?sslmode=verify-full&sslrootcert=/etc/ssl/ca.crt&connect_timeout=10&application_name=WarehouseApp_v1</code></pre>
+ </div>
 
-      <div class="card card-accent" style="margin-bottom: 1rem;">
-        <div class="card-title">2. Формат Key-Value (libpq style):</div>
-        <pre><code>host=db.prod.company.local port=5432 dbname=warehouse_db user=db_user password=s3cr3t_p@ss sslmode=verify-full sslrootcert=/etc/ssl/ca.crt connect_timeout=10</code></pre>
-      </div>
+ <div class="card card-accent" style="margin-bottom: 1rem;">
+ <div class="card-title">2. Формат Key-Value (libpq style):</div>
+ <pre><code>host=db.prod.company.local port=5432 dbname=warehouse_db user=db_user password=s3cr3t_p@ss sslmode=verify-full sslrootcert=/etc/ssl/ca.crt connect_timeout=10</code></pre>
+ </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Параметр</th>
-            <th>Назначение</th>
-            <th>Рекомендуемые значения / Риски</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code>driver / scheme</code></td>
-            <td>Протокол сетевого драйвера СУБД</td>
-            <td><code>postgresql://</code>, <code>mysql://</code>, <code>oracle:thin:</code></td>
-          </tr>
-          <tr>
-            <td><code>host & port</code></td>
-            <td>Сетевой адрес узла СУБД и порт прослушивания сокета</td>
-            <td><code>localhost:5432</code>, <code>192.168.1.100:5432</code>. При недоступности возникает <code>Connection Refused</code>.</td>
-          </tr>
-          <tr>
-            <td><code>dbname</code></td>
-            <td>Целевой каталог базы данных на сервере</td>
-            <td>При ошибке имени СУБД возвращает <code>database does not exist</code> (код 3D000).</td>
-          </tr>
-          <tr>
-            <td><code>user & password</code></td>
-            <td>Учетные данные для аутентификации роли</td>
-            <td>Никогда не коммитить в Git! Использовать внешние секреты (.env, HashiCorp Vault).</td>
-          </tr>
-          <tr>
-            <td><code>sslmode</code></td>
-            <td>Политика защиты сетевого канала</td>
-            <td><code>disable</code> (запрещено в проде!), <code>require</code>, <code>verify-ca</code>, <code>verify-full</code> (защита от Man-in-the-Middle).</td>
-          </tr>
-          <tr>
-            <td><code>connect_timeout</code></td>
-            <td>Максимальное время ожидания TCP-рукопожатия</td>
-            <td>2–10 секунд. Значение 0 (бесконечность) блокирует рабочие потоки приложения при падении маршрута.</td>
-          </tr>
-        </tbody>
-      </table>
+ <table>
+ <thead>
+ <tr>
+ <th>Параметр</th>
+ <th>Назначение</th>
+ <th>Рекомендуемые значения / Риски</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><code>driver / scheme</code></td>
+ <td>Протокол сетевого драйвера СУБД</td>
+ <td><code>postgresql://</code>, <code>mysql://</code>, <code>oracle:thin:</code></td>
+ </tr>
+ <tr>
+ <td><code>host & port</code></td>
+ <td>Сетевой адрес узла СУБД и порт прослушивания сокета</td>
+ <td><code>localhost:5432</code>, <code>192.168.1.100:5432</code>. При недоступности возникает <code>Connection Refused</code>.</td>
+ </tr>
+ <tr>
+ <td><code>dbname</code></td>
+ <td>Целевой каталог базы данных на сервере</td>
+ <td>При ошибке имени СУБД возвращает <code>database does not exist</code> (код 3D000).</td>
+ </tr>
+ <tr>
+ <td><code>user & password</code></td>
+ <td>Учетные данные для аутентификации роли</td>
+ <td>Никогда не коммитить в Git! Использовать внешние секреты (.env, HashiCorp Vault).</td>
+ </tr>
+ <tr>
+ <td><code>sslmode</code></td>
+ <td>Политика защиты сетевого канала</td>
+ <td><code>disable</code> (запрещено в проде!), <code>require</code>, <code>verify-ca</code>, <code>verify-full</code> (защита от Man-in-the-Middle).</td>
+ </tr>
+ <tr>
+ <td><code>connect_timeout</code></td>
+ <td>Максимальное время ожидания TCP-рукопожатия</td>
+ <td>2–10 секунд. Значение 0 (бесконечность) блокирует рабочие потоки приложения при падении маршрута.</td>
+ </tr>
+ </tbody>
+ </table>
 
-      <h3>3.2. Архитектура и физика пула соединений (Connection Pool)</h3>
-      <p>Создание каждого прямого соединения с СУБД сопряжено со значительными накладными расходами операционной системы:</p>
-      <ol>
-        <li>Тройное TCP-рукопожатие (SYN, SYN-ACK, ACK) — ~10–30 мс.</li>
-        <li>TLS-рукопожатие (обмен сертификатами, согласование шифров Diffie-Hellman) — ~30–70 мс.</li>
-        <li>Аутентификация СУБД (SCRAM-SHA-256) и запуск серверного процесса <code>postgres backend</code> — ~40–100 мс и выделение до 10 МБ оперативной памяти на клиенто-процесс.</li>
-      </ol>
-      <p><strong>Суммарная задержка:</strong> 100–200 мс на каждое обращение! Пул соединений держит сокеты открытыми и передает их потокам приложения за 0.2–0.5 мс.</p>
+ <h3>3.2. Архитектура и физика пула соединений (Connection Pool)</h3>
+ <p>Создание каждого прямого соединения с СУБД сопряжено со значительными накладными расходами операционной системы:</p>
+ <ol>
+ <li>Тройное TCP-рукопожатие (SYN, SYN-ACK, ACK) — ~10–30 мс.</li>
+ <li>TLS-рукопожатие (обмен сертификатами, согласование шифров Diffie-Hellman) — ~30–70 мс.</li>
+ <li>Аутентификация СУБД (SCRAM-SHA-256) и запуск серверного процесса <code>postgres backend</code> — ~40–100 мс и выделение до 10 МБ оперативной памяти на клиенто-процесс.</li>
+ </ol>
+ <p><strong>Суммарная задержка:</strong> 100–200 мс на каждое обращение! Пул соединений держит сокеты открытыми и передает их потокам приложения за 0.2–0.5 мс.</p>
 
-      <div class="card card-warn">
-        <div class="card-title">Формула расчета оптимального размера пула (PostgreSQL / HikariCP):</div>
-        <p><div class="formula">ext{Pool Size} = (	ext{CPU Cores} 	imes 2) + 	ext{Disk Spindle Count}</div></p>
-        <p>Для стандартного 4-ядерного сервера с SSD оптимальный размер пула составляет: 4 	imes 2 + 1 = 9 ... 10 активных соединений. Попытка установить размер пула в 500 или 1000 соединений приводит к катастрофической деградации производительности из-за конкуренции за процессорное время (context switching) и дисковый ввод-вывод.</p>
-      </div>
+ <div class="card card-warn">
+ <div class="card-title">Формула расчета оптимального размера пула (PostgreSQL / HikariCP):</div>
+ <p><div class="formula">ext{Pool Size} = (	ext{CPU Cores} imes 2) + ext{Disk Spindle Count}</div></p>
+ <p>Для стандартного 4-ядерного сервера с SSD оптимальный размер пула составляет: 4 imes 2 + 1 = 9... 10 активных соединений. Попытка установить размер пула в 500 или 1000 соединений приводит к катастрофической деградации производительности из-за конкуренции за процессорное время (context switching) и дисковый ввод-вывод.</p>
+ </div>
 
-      <div class="grid-2" style="margin-top: 1rem;">
-        <div class="card">
-          <div class="card-title">Ключевые параметры пула</div>
-          <ul>
-            <li><code>min_connections (min_idle)</code>: гарантированное число сокетов, готовых к мгновенному приему запроса (обычно 2–5).</li>
-            <li><code>max_connections (max_pool_size)</code>: жесткий верхний предел открытых сокетов приложения (например, 10–20).</li>
-            <li><code>idle_timeout</code>: время (в сек/мс), по истечении которого простаивающие сокеты сверх min_connections закрываются.</li>
-            <li><code>connection_timeout</code>: максимальное время ожидания свободного коннекта из пула до выброса исключения (2000–5000 мс).</li>
-          </ul>
-        </div>
-        <div class="card">
-          <div class="card-title">Опасность Connection Leak (утечки сокетов)</div>
-          <p>Если приложение арендует соединение из пула (метод <code>getConnection()</code> или <code>pool.acquire()</code>) и не возвращает его в блоке <code>finally</code> (или через контекстный менеджер <code>with / try-with-resources</code>), пул исчерпывается за несколько запросов.</p>
-          <p>Все последующие потоки блокируются и падают по таймауту, выводя систему из строя.</p>
-        </div>
-      </div>
+ <div class="grid-2" style="margin-top: 1rem;">
+ <div class="card">
+ <div class="card-title">Ключевые параметры пула</div>
+ <ul>
+ <li><code>min_connections (min_idle)</code>: гарантированное число сокетов, готовых к мгновенному приему запроса (обычно 2–5).</li>
+ <li><code>max_connections (max_pool_size)</code>: жесткий верхний предел открытых сокетов приложения (например, 10–20).</li>
+ <li><code>idle_timeout</code>: время (в сек/мс), по истечении которого простаивающие сокеты сверх min_connections закрываются.</li>
+ <li><code>connection_timeout</code>: максимальное время ожидания свободного коннекта из пула до выброса исключения (2000–5000 мс).</li>
+ </ul>
+ </div>
+ <div class="card">
+ <div class="card-title">Опасность Connection Leak (утечки сокетов)</div>
+ <p>Если приложение арендует соединение из пула (метод <code>getConnection()</code> или <code>pool.acquire()</code>) и не возвращает его в блоке <code>finally</code> (или через контекстный менеджер <code>with / try-with-resources</code>), пул исчерпывается за несколько запросов.</p>
+ <p>Все последующие потоки блокируются и падают по таймауту, выводя систему из строя.</p>
+ </div>
+ </div>
 
-      <h3>3.3. Первичная инициализация, Health Check и логирование</h3>
-      <p>При старте исполняемого файла проект обязан выполнить процедуру самодиагностики связности с БД перед запуском бизнес-логики (Fail-Fast принцип):</p>
-      <pre><code>-- Простейший проверочный запрос (Health Check / Ping):
+ <h3>3.3. Первичная инициализация, Health Check и логирование</h3>
+ <p>При старте исполняемого файла проект обязан выполнить процедуру самодиагностики связности с БД перед запуском бизнес-логики (Fail-Fast принцип):</p>
+ <pre><code>-- Простейший проверочный запрос (Health Check / Ping):
 SELECT 1;</code></pre>
 
-      <div class="card card-danger">
-        <div class="card-title">Классификация и перехват сетевых сбоев</div>
-        <ul>
-          <li><strong>Connection Refused (ECONNREFUSED / SQLState 08001):</strong> сервер СУБД остановлен, либо слушает другой порт/интерфейс (проверить <code>listen_addresses</code> в postgresql.conf).</li>
-          <li><strong>Connection Timeout:</strong> фаервол дропает пакеты, маршрут недоступен, либо исчерпан пул соединений.</li>
-          <li><strong>SSL Handshake Error:</strong> не совпадает CN/SAN в сертификате, истек срок действия сертификата или указан неверный Root CA.</li>
-          <li><strong>Too Many Connections (SQLState 53300):</strong> СУБД достигла лимита <code>max_connections</code>. Требуется внедрение промежуточного пулера pgBouncer.</li>
-        </ul>
-      </div>
+ <div class="card card-danger">
+ <div class="card-title">Классификация и перехват сетевых сбоев</div>
+ <ul>
+ <li><strong>Connection Refused (ECONNREFUSED / SQLState 08001):</strong> сервер СУБД остановлен, либо слушает другой порт/интерфейс (проверить <code>listen_addresses</code> в postgresql.conf).</li>
+ <li><strong>Connection Timeout:</strong> фаервол дропает пакеты, маршрут недоступен, либо исчерпан пул соединений.</li>
+ <li><strong>SSL Handshake Error:</strong> не совпадает CN/SAN в сертификате, истек срок действия сертификата или указан неверный Root CA.</li>
+ <li><strong>Too Many Connections (SQLState 53300):</strong> СУБД достигла лимита <code>max_connections</code>. Требуется внедрение промежуточного пулера pgBouncer.</li>
+ </ul>
+ </div>
 
-      <h2>4. Типовые студенческие ошибки и методы их устранения</h2>
-      <table>
-        <thead>
-          <tr>
-            <th style="width: 30%;">Типовая ошибка</th>
-            <th style="width: 35%;">Причина и последствия</th>
-            <th style="width: 35%;">Методическое исправление</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Хардкод учетных данных в коде</strong></td>
-            <td>Студент прописывает логин и пароль БД прямо в исходном коде <code>main.py</code> или <code>Program.cs</code>. При пуше в GitHub пароли утекают ботам за секунды.</td>
-            <td>Требовать вынос параметров в <code>.env</code> или <code>config.json</code>, добавление файла в <code>.gitignore</code> и предоставление файла-образца <code>.env.example</code>.</td>
-          </tr>
-          <tr>
-            <td><strong>Бесконечный таймаут (connect_timeout=0)</strong></td>
-            <td>При обрыве сети или зависании сервера приложение «намертво» висит, забивая поток выполнения и не сообщая пользователю об ошибке.</td>
-            <td>Объяснить принцип Fail-Fast. Установить жесткий лимит <code>connect_timeout = 3..5</code> секунд с выводом внятного интерфейсного уведомления.</td>
-          </tr>
-          <tr>
-            <td><strong>Открытие нового соединения на каждый SQL-запрос</strong></td>
-            <td>Студент вызывает <code>create_connection()</code> внутри цикла или функции выборки данных без закрытия сокета. Сервер быстро падает с ошибкой исчерпания соединений.</td>
-            <td>Объяснить архитектуру пула соединений. Однократная инициализация пула при старте модуля и аренда сокетов через контекстный менеджер.</td>
-          </tr>
-          <tr>
-            <td><strong>Утечка соединения (Connection Leak)</strong></td>
-            <td>При возникновении ошибки в SQL-запросе поток прерывается до вызова <code>conn.close()</code>, сокет навсегда остается занятым в пуле.</td>
-            <td>Обучить использованию конструкции <code>try ... finally { conn.close(); }</code> либо синтаксиса <code>with pool.connection() as conn:</code>.</td>
-          </tr>
-          <tr>
-            <td><strong>Игнорирование проверки сертификата (sslmode=disable)</strong></td>
-            <td>Отключение шифрования в корпоративных сетях приводит к перехвату логинов и персональных данных через сниффинг трафика (Wireshark/ARP-spoofing).</td>
-            <td>Показать настройку <code>sslmode=verify-full</code> с явным указанием пути к доверенному корневому сертификату <code>sslrootcert</code>.</td>
-          </tr>
-        </tbody>
-      </table>
+ <h2>4. Типовые студенческие ошибки и методы их устранения</h2>
+ <table>
+ <thead>
+ <tr>
+ <th style="width: 30%;">Типовая ошибка</th>
+ <th style="width: 35%;">Причина и последствия</th>
+ <th style="width: 35%;">Методическое исправление</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>Хардкод учетных данных в коде</strong></td>
+ <td>Студент прописывает логин и пароль БД прямо в исходном коде <code>main.py</code> или <code>Program.cs</code>. При пуше в GitHub пароли утекают ботам за секунды.</td>
+ <td>Требовать вынос параметров в <code>.env</code> или <code>config.json</code>, добавление файла в <code>.gitignore</code> и предоставление файла-образца <code>.env.example</code>.</td>
+ </tr>
+ <tr>
+ <td><strong>Бесконечный таймаут (connect_timeout=0)</strong></td>
+ <td>При обрыве сети или зависании сервера приложение «намертво» висит, забивая поток выполнения и не сообщая пользователю об ошибке.</td>
+ <td>Объяснить принцип Fail-Fast. Установить жесткий лимит <code>connect_timeout = 3..5</code> секунд с выводом внятного интерфейсного уведомления.</td>
+ </tr>
+ <tr>
+ <td><strong>Открытие нового соединения на каждый SQL-запрос</strong></td>
+ <td>Студент вызывает <code>create_connection()</code> внутри цикла или функции выборки данных без закрытия сокета. Сервер быстро падает с ошибкой исчерпания соединений.</td>
+ <td>Объяснить архитектуру пула соединений. Однократная инициализация пула при старте модуля и аренда сокетов через контекстный менеджер.</td>
+ </tr>
+ <tr>
+ <td><strong>Утечка соединения (Connection Leak)</strong></td>
+ <td>При возникновении ошибки в SQL-запросе поток прерывается до вызова <code>conn.close()</code>, сокет навсегда остается занятым в пуле.</td>
+ <td>Обучить использованию конструкции <code>try... finally { conn.close(); }</code> либо синтаксиса <code>with pool.connection() as conn:</code>.</td>
+ </tr>
+ <tr>
+ <td><strong>Игнорирование проверки сертификата (sslmode=disable)</strong></td>
+ <td>Отключение шифрования в корпоративных сетях приводит к перехвату логинов и персональных данных через сниффинг трафика (Wireshark/ARP-spoofing).</td>
+ <td>Показать настройку <code>sslmode=verify-full</code> с явным указанием пути к доверенному корневому сертификату <code>sslrootcert</code>.</td>
+ </tr>
+ </tbody>
+ </table>
 
-      <h2>5. Педагогические приемы и критерии оценивания</h2>
-      <div class="card card-accent">
-        <div class="card-title">Прием «Смоделированный сбой» (Chaos Engineering в миниатюре)</div>
-        <p>После того как студент успешно настроил подключение и получил статус «Подключение успешно», преподаватель просит изменить порт в конфигурации на несуществующий (5433 вместо 5432) или временно остановить локальную службу PostgreSQL. Студент обязан продемонстрировать, что его приложение не упало с неотловленным аварийным завершением (Crash / Unhandled Exception), а корректно вывело информативное сообщение об ошибке в консоль/интерфейс и зафиксировало инцидент в лог-файле с временной меткой.</p>
-      </div>
+ <h2>5. Педагогические приемы и критерии оценивания</h2>
+ <div class="card card-accent">
+ <div class="card-title">Прием «Смоделированный сбой» (Chaos Engineering в миниатюре)</div>
+ <p>После того как студент успешно настроил подключение и получил статус «Подключение успешно», преподаватель просит изменить порт в конфигурации на несуществующий (5433 вместо 5432) или временно остановить локальную службу PostgreSQL. Студент обязан продемонстрировать, что его приложение не упало с неотловленным аварийным завершением (Crash / Unhandled Exception), а корректно вывело информативное сообщение об ошибке в консоль/интерфейс и зафиксировало инцидент в лог-файле с временной меткой.</p>
+ </div>
 
-      <div class="card card-accent" style="margin-top: 1rem;">
-        <div class="card-title">Критериальная 4-балльная шкала занятия</div>
-        <ul>
-          <li><strong>Параметры Connection String (2 балла):</strong> корректное выделение всех ключевых параметров (хост, порт, БД, логин, пароль, SSL, таймаут) в отдельный файл конфигурации (.env, JSON, YAML) без хардкода секретов в коде, соблюдение синтаксиса.</li>
-          <li><strong>Архитектура пула соединений (1 балл):</strong> обоснованный расчет минимального и максимального размера пула для заданной предметной области, настройка времени удержания <code>idle_timeout</code>, предотвращение утечек сокетов.</li>
-          <li><strong>Обработка ошибок и самопроверка (1 балл):</strong> реализация первичной проверки доступности (SELECT 1 / ping) и перехват исключений сбоя подключения (Connection Refused / Timeout) с выводом в системный журнал.</li>
-        </ul>
-      </div>
-    </main>
-  </div>
+ <div class="card card-accent" style="margin-top: 1rem;">
+ <div class="card-title">Критериальная 4-балльная шкала занятия</div>
+ <ul>
+ <li><strong>Параметры Connection String (2 балла):</strong> корректное выделение всех ключевых параметров (хост, порт, БД, логин, пароль, SSL, таймаут) в отдельный файл конфигурации (.env, JSON, YAML) без хардкода секретов в коде, соблюдение синтаксиса.</li>
+ <li><strong>Архитектура пула соединений (1 балл):</strong> обоснованный расчет минимального и максимального размера пула для заданной предметной области, настройка времени удержания <code>idle_timeout</code>, предотвращение утечек сокетов.</li>
+ <li><strong>Обработка ошибок и самопроверка (1 балл):</strong> реализация первичной проверки доступности (SELECT 1 / ping) и перехват исключений сбоя подключения (Connection Refused / Timeout) с выводом в системный журнал.</li>
+ </ul>
+ </div>
+ </main>
+ </div>
 </body>
 </html>

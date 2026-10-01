@@ -1,570 +1,548 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Презентация: Шины. Системные ресурсы. Последовательные порты. Параллельные порты</title>
-  <style>
-    :root {
-      --bg: #0f172a;
-      --card-bg: #1e293b;
-      --text: #f8fafc;
-      --muted: #94a3b8;
-      --accent: #38bdf8;
-      --accent-soft: rgba(56, 189, 248, 0.15);
-      --accent-border: #0284c7;
-      --line: #334155;
-      --ok: #4ade80;
-      --warn: #fbbf24;
-      --danger: #f87171;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-    .pres-container {
-      width: 100%;
-      max-width: 1000px;
-      aspect-ratio: 16 / 9;
-      min-height: 540px;
-      background: var(--card-bg);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      overflow: hidden;
-    }
-    .slide {
-      display: none;
-      flex: 1;
-      padding: 40px 48px;
-      flex-direction: column;
-      justify-content: flex-start;
-      overflow-y: auto;
-    }
-    .slide.active {
-      display: flex;
-    }
-    .slide-1 {
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-    }
-    .slide-1 h1 {
-      font-size: clamp(26px, 4.5vw, 42px);
-      color: var(--accent);
-      line-height: 1.3;
-      max-width: 850px;
-    }
-    .slide-title {
-      font-size: clamp(20px, 3vw, 26px);
-      color: var(--accent);
-      margin-bottom: 20px;
-      border-bottom: 2px solid var(--accent-border);
-      padding-bottom: 8px;
-    }
-    .slide-content {
-      font-size: 16px;
-      line-height: 1.6;
-      color: var(--text);
-    }
-    .slide-content p {
-      margin-bottom: 14px;
-    }
-    .slide-content ul, .slide-content ol {
-      margin-left: 24px;
-      margin-bottom: 14px;
-    }
-    .slide-content li {
-      margin-bottom: 8px;
-    }
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-top: 10px;
-    }
-    .box {
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 16px 20px;
-    }
-    .box h4 {
-      color: var(--accent);
-      margin-bottom: 8px;
-      font-size: 16px;
-    }
-    .table-wrap {
-      overflow-x: auto;
-      margin: 12px 0;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13.5px;
-    }
-    th, td {
-      border: 1px solid var(--line);
-      padding: 8px 10px;
-      text-align: left;
-    }
-    th {
-      background: var(--accent-soft);
-      color: var(--accent);
-    }
-    .controls {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 24px;
-      background: #090d16;
-      border-top: 1px solid var(--line);
-    }
-    .nav-btn {
-      background: #1e293b;
-      color: var(--text);
-      border: 1px solid var(--line);
-      padding: 8px 18px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: background .15s;
-    }
-    .nav-btn:hover {
-      background: #334155;
-    }
-    .counter {
-      color: var(--muted);
-      font-size: 14px;
-      font-weight: 500;
-    }
-    .meme-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      height: 100%;
-    }
-    .meme-img {
-      max-height: 280px;
-      max-width: 90%;
-      object-fit: contain;
-      border-radius: 8px;
-      border: 1px solid var(--line);
-      margin-bottom: 12px;
-    }
-    .attribution {
-      font-size: 12.5px;
-      color: var(--muted);
-      line-height: 1.4;
-      max-width: 750px;
-    }
-    .attribution a {
-      color: var(--accent);
-    }
-    code {
-      font-family: monospace;
-      background: #090d16;
-      padding: 2px 6px;
-      border-radius: 4px;
-      color: var(--accent);
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Презентация: Шины. Системные ресурсы. Последовательные порты. Параллельные порты</title>
+ <style>
+ :root {
+ --bg: #0f172a;
+ --card-bg: #1e293b;
+ --text: #f8fafc;
+ --muted: #94a3b8;
+ --accent: #38bdf8;
+ --accent-soft: rgba(56, 189, 248, 0.15);
+ --accent-border: #0284c7;
+ --line: #334155;
+ --ok: #4ade80;
+ --warn: #fbbf24;
+ --danger: #f87171;
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+ body {
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+ min-height: 100vh;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ justify-content: center;
+ padding: 16px;
+ }.pres-container {
+ width: 100%;
+ max-width: 1000px;
+ aspect-ratio: 16 / 9;
+ min-height: 540px;
+ background: var(--card-bg);
+ border: 1px solid var(--line);
+ border-radius: 16px;
+ box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+ display: flex;
+ flex-direction: column;
+ position: relative;
+ overflow: hidden;
+ }.slide {
+ display: none;
+ flex: 1;
+ padding: 40px 48px;
+ flex-direction: column;
+ justify-content: flex-start;
+ overflow-y: auto;
+ }.slide.active {
+ display: flex;
+ }.slide-1 {
+ justify-content: center;
+ align-items: center;
+ text-align: center;
+ }.slide-1 h1 {
+ font-size: clamp(26px, 4.5vw, 42px);
+ color: var(--accent);
+ line-height: 1.3;
+ max-width: 850px;
+ }.slide-title {
+ font-size: clamp(20px, 3vw, 26px);
+ color: var(--accent);
+ margin-bottom: 20px;
+ border-bottom: 2px solid var(--accent-border);
+ padding-bottom: 8px;
+ }.slide-content {
+ font-size: 16px;
+ line-height: 1.6;
+ color: var(--text);
+ }.slide-content p {
+ margin-bottom: 14px;
+ }.slide-content ul,.slide-content ol {
+ margin-left: 24px;
+ margin-bottom: 14px;
+ }.slide-content li {
+ margin-bottom: 8px;
+ }.grid-2 {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 20px;
+ margin-top: 10px;
+ }.box {
+ background: rgba(15, 23, 42, 0.6);
+ border: 1px solid var(--line);
+ border-radius: 10px;
+ padding: 16px 20px;
+ }.box h4 {
+ color: var(--accent);
+ margin-bottom: 8px;
+ font-size: 16px;
+ }.table-wrap {
+ overflow-x: auto;
+ margin: 12px 0;
+ }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ font-size: 13.5px;
+ }
+ th, td {
+ border: 1px solid var(--line);
+ padding: 8px 10px;
+ text-align: left;
+ }
+ th {
+ background: var(--accent-soft);
+ color: var(--accent);
+ }.controls {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ padding: 12px 24px;
+ background: #090d16;
+ border-top: 1px solid var(--line);
+ }.nav-btn {
+ background: #1e293b;
+ color: var(--text);
+ border: 1px solid var(--line);
+ padding: 8px 18px;
+ border-radius: 6px;
+ cursor: pointer;
+ font-weight: 600;
+ transition: background.15s;
+ }.nav-btn:hover {
+ background: #334155;
+ }.counter {
+ color: var(--muted);
+ font-size: 14px;
+ font-weight: 500;
+ }.meme-wrap {
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ justify-content: center;
+ text-align: center;
+ height: 100%;
+ }.meme-img {
+ max-height: 280px;
+ max-width: 90%;
+ object-fit: contain;
+ border-radius: 8px;
+ border: 1px solid var(--line);
+ margin-bottom: 12px;
+ }.attribution {
+ font-size: 12.5px;
+ color: var(--muted);
+ line-height: 1.4;
+ max-width: 750px;
+ }.attribution a {
+ color: var(--accent);
+ }
+ code {
+ font-family: monospace;
+ background: #090d16;
+ padding: 2px 6px;
+ border-radius: 4px;
+ color: var(--accent);
+ }
+ </style>
 </head>
 <body>
 
 <div class="pres-container">
 
-  <!-- СЛАЙД 1: ТОЛЬКО ТЕМА ЗАНЯТИЯ (СТРОГО ПО ТРЕБОВАНИЯМ) -->
-  <div class="slide slide-1 active" id="slide-1">
-    <h1>Шины. Системные ресурсы. Последовательные порты. Параллельные порты</h1>
-  </div>
+ <!-- СЛАЙД 1: ТОЛЬКО ТЕМА ЗАНЯТИЯ (СТРОГО ПО ТРЕБОВАНИЯМ) -->
+ <div class="slide slide-1 active" id="slide-1">
+ <h1>Шины. Системные ресурсы. Последовательные порты. Параллельные порты</h1>
+ </div>
 
-  <!-- СЛАЙД 2: ШИННАЯ АРХИТЕКТУРА -->
-  <div class="slide" id="slide-2">
-    <div class="slide-title">1. Понятие и функциональные линии системной шины</div>
-    <div class="slide-content">
-      <p><strong>Шина (Bus)</strong> — стандартизированная среда передачи сигналов, объединяющая процессор, память и периферийные устройства в единую систему.</p>
-      <div class="grid-2">
-        <div class="box">
-          <h4>Шина адреса (Address Bus)</h4>
-          <p>Определяет физический адрес ячейки памяти или регистра ввода-вывода. Разрядность шины (N) задает адресуемое пространство 2<sup>N</sup> байт (до 4 ПБ в x86-64).</p>
-        </div>
-        <div class="box">
-          <h4>Шина данных (Data Bus)</h4>
-          <p>Двунаправленная магистраль передачи машинных слов. Определяет объем данных за цикл (64 бита в современных контроллерах памяти DDR).</p>
-        </div>
-      </div>
-      <div class="box" style="margin-top: 14px;">
-        <h4>Шина управления (Control Bus)</h4>
-        <p>Служебные сигналы: стробы чтения/записи (<code>MEMR#</code>, <code>MEMW#</code>, <code>IOR#</code>, <code>IOW#</code>), готовность (<code>READY#</code>), запросы прерываний и сигналы синхронизации.</p>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 2: ШИННАЯ АРХИТЕКТУРА -->
+ <div class="slide" id="slide-2">
+ <div class="slide-title">1. Понятие и функциональные линии системной шины</div>
+ <div class="slide-content">
+ <p><strong>Шина (Bus)</strong> — стандартизированная среда передачи сигналов, объединяющая процессор, память и периферийные устройства в единую систему.</p>
+ <div class="grid-2">
+ <div class="box">
+ <h4>Шина адреса (Address Bus)</h4>
+ <p>Определяет физический адрес ячейки памяти или регистра ввода-вывода. Разрядность шины (N) задает адресуемое пространство 2<sup>N</sup> байт (до 4 ПБ в x86-64).</p>
+ </div>
+ <div class="box">
+ <h4>Шина данных (Data Bus)</h4>
+ <p>Двунаправленная магистраль передачи машинных слов. Определяет объем данных за цикл (64 бита в современных контроллерах памяти DDR).</p>
+ </div>
+ </div>
+ <div class="box" style="margin-top: 14px;">
+ <h4>Шина управления (Control Bus)</h4>
+ <p>Служебные сигналы: стробы чтения/записи (<code>MEMR#</code>, <code>MEMW#</code>, <code>IOR#</code>, <code>IOW#</code>), готовность (<code>READY#</code>), запросы прерываний и сигналы синхронизации.</p>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 3: ИЕРАРХИЯ ШИН -->
-  <div class="slide" id="slide-3">
-    <div class="slide-title">2. Иерархия шин в современном компьютере</div>
-    <div class="slide-content">
-      <p>Современный ПК использует многоуровневую иерархию шин с разделением по скоростям и задержкам:</p>
-      <ul>
-        <li><strong>Процессорная шина (Interconnect):</strong> Intel UPI / AMD Infinity Fabric — соединяет ядра, кэш L3 и системный агент с минимальными наносекундными задержками.</li>
-        <li><strong>Локальная шина ввода-вывода:</strong> PCI Express — универсальная магистраль для GPU, быстрых NVMe SSD и сетевых карт.</li>
-        <li><strong>Шина чипсетного линка:</strong> Intel DMI / AMD PCIe Link — связывает процессор с южным мостом (PCH/чипсетом).</li>
-        <li><strong>Периферийные интерфейсы:</strong> USB, SATA, SAS, Thunderbolt — внешние и накопительные интерфейсы.</li>
-      </ul>
-    </div>
-  </div>
+ <!-- СЛАЙД 3: ИЕРАРХИЯ ШИН -->
+ <div class="slide" id="slide-3">
+ <div class="slide-title">2. Иерархия шин в современном компьютере</div>
+ <div class="slide-content">
+ <p>Современный ПК использует многоуровневую иерархию шин с разделением по скоростям и задержкам:</p>
+ <ul>
+ <li><strong>Процессорная шина (Interconnect):</strong> Intel UPI / AMD Infinity Fabric — соединяет ядра, кэш L3 и системный агент с минимальными наносекундными задержками.</li>
+ <li><strong>Локальная шина ввода-вывода:</strong> PCI Express — универсальная магистраль для GPU, быстрых NVMe SSD и сетевых карт.</li>
+ <li><strong>Шина чипсетного линка:</strong> Intel DMI / AMD PCIe Link — связывает процессор с южным мостом (PCH/чипсетом).</li>
+ <li><strong>Периферийные интерфейсы:</strong> USB, SATA, SAS, Thunderbolt — внешние и накопительные интерфейсы.</li>
+ </ul>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 4: РАЗДЕЛЯЕМАЯ ШИНА VS ТОЧКА-ТОЧКА -->
-  <div class="slide" id="slide-4">
-    <div class="slide-title">3. Топология: разделяемая шина против точка-точка</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="box">
-          <h4>Разделяемая шина (ISA / PCI)</h4>
-          <ul>
-            <li>Все слоты физически подключены к общим дорожкам.</li>
-            <li>Централизованный арбитраж: <code>REQ#</code> и <code>GNT#</code>.</li>
-            <li>В единицу времени передает строго одно устройство.</li>
-            <li>Общая пропускная способность делится на всех (133 МБ/с в PCI).</li>
-          </ul>
-        </div>
-        <div class="box">
-          <h4>Топология «точка-точка» (PCI Express)</h4>
-          <ul>
-            <li>Каждое устройство имеет выделенное прямое соединение с коммутатором (Root Complex).</li>
-            <li>Пакетная передача без взаимных блокировок.</li>
-            <li>Гарантированная полоса пропускания каждому узлу.</li>
-            <li>Полнодуплексный одновременный обмен (Rx / Tx).</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 4: РАЗДЕЛЯЕМАЯ ШИНА VS ТОЧКА-ТОЧКА -->
+ <div class="slide" id="slide-4">
+ <div class="slide-title">3. Топология: разделяемая шина против точка-точка</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="box">
+ <h4>Разделяемая шина (ISA / PCI)</h4>
+ <ul>
+ <li>Все слоты физически подключены к общим дорожкам.</li>
+ <li>Централизованный арбитраж: <code>REQ#</code> и <code>GNT#</code>.</li>
+ <li>В единицу времени передает строго одно устройство.</li>
+ <li>Общая пропускная способность делится на всех (133 МБ/с в PCI).</li>
+ </ul>
+ </div>
+ <div class="box">
+ <h4>Топология «точка-точка» (PCI Express)</h4>
+ <ul>
+ <li>Каждое устройство имеет выделенное прямое соединение с коммутатором (Root Complex).</li>
+ <li>Пакетная передача без взаимных блокировок.</li>
+ <li>Гарантированная полоса пропускания каждому узлу.</li>
+ <li>Полнодуплексный одновременный обмен (Rx / Tx).</li>
+ </ul>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 5: ФИЗИЧЕСКИЙ ТУПИК ПАРАЛЛЕЛЬНЫХ ШИН -->
-  <div class="slide" id="slide-5">
-    <div class="slide-title">4. Физический тупик параллельных шин: перекос фаз</div>
-    <div class="slide-content">
-      <p>Почему индустрия отказалась от параллельных шин в пользу последовательных?</p>
-      <div class="box" style="margin-bottom: 12px;">
-        <h4>Перекос фаз (Clock Skew)</h4>
-        <p>Разница длин проводников даже в 1–2 мм приводит к тому, что фронты сигналов 32 параллельных бит приходят в разное время. На частотах >66 МГц время разброса превышает длительность такта!</p>
-      </div>
-      <div class="box">
-        <h4>Емкостная нагрузка и паразитные отражения</h4>
-        <p>Каждый слот на общей параллельной шине создает емкостную неоднородность, вызывая отражение высокочастотных электромагнитных волн. Решение: дифференциальные последовательные линии PCIe (LVDS) со встроенным тактовым сигналом (Embedded Clock).</p>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 5: ФИЗИЧЕСКИЙ ТУПИК ПАРАЛЛЕЛЬНЫХ ШИН -->
+ <div class="slide" id="slide-5">
+ <div class="slide-title">4. Физический тупик параллельных шин: перекос фаз</div>
+ <div class="slide-content">
+ <p>Почему индустрия отказалась от параллельных шин в пользу последовательных?</p>
+ <div class="box" style="margin-bottom: 12px;">
+ <h4>Перекос фаз (Clock Skew)</h4>
+ <p>Разница длин проводников даже в 1–2 мм приводит к тому, что фронты сигналов 32 параллельных бит приходят в разное время. На частотах >66 МГц время разброса превышает длительность такта!</p>
+ </div>
+ <div class="box">
+ <h4>Емкостная нагрузка и паразитные отражения</h4>
+ <p>Каждый слот на общей параллельной шине создает емкостную неоднородность, вызывая отражение высокочастотных электромагнитных волн. Решение: дифференциальные последовательные линии PCIe (LVDS) со встроенным тактовым сигналом (Embedded Clock).</p>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 6: ПОКОЛЕНИЯ И СКОРОСТИ PCIE -->
-  <div class="slide" id="slide-6">
-    <div class="slide-title">5. Эволюция шины PCI Express: поколения и скорость</div>
-    <div class="slide-content">
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Поколение PCIe</th>
-              <th>Символьная скорость (GT/s)</th>
-              <th>Канальное кодирование</th>
-              <th>ПСП на 1 линию (x1)</th>
-              <th>ПСП слота x16</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>PCIe 3.0</strong></td>
-              <td>8.0 GT/s</td>
-              <td>128b/130b (~1.5% оверхед)</td>
-              <td>~0.985 ГБ/с (~1 ГБ/с)</td>
-              <td>~15.75 ГБ/с</td>
-            </tr>
-            <tr>
-              <td><strong>PCIe 4.0</strong></td>
-              <td>16.0 GT/s</td>
-              <td>128b/130b (~1.5% оверхед)</td>
-              <td>~1.969 ГБ/с (~2 ГБ/с)</td>
-              <td>~31.51 ГБ/с</td>
-            </tr>
-            <tr>
-              <td><strong>PCIe 5.0</strong></td>
-              <td>32.0 GT/s</td>
-              <td>128b/130b (~1.5% оверхед)</td>
-              <td>~3.938 ГБ/с (~4 ГБ/с)</td>
-              <td>~63.02 ГБ/с</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <p style="margin-top: 10px; font-size: 14px; color: var(--muted);">Показатели приведены в одном направлении; в полнодуплексном режиме x16 суммарный поток удваивается (до 126 ГБ/с в PCIe 5.0).</p>
-    </div>
-  </div>
+ <!-- СЛАЙД 6: ПОКОЛЕНИЯ И СКОРОСТИ PCIE -->
+ <div class="slide" id="slide-6">
+ <div class="slide-title">5. Эволюция шины PCI Express: поколения и скорость</div>
+ <div class="slide-content">
+ <div class="table-wrap">
+ <table>
+ <thead>
+ <tr>
+ <th>Поколение PCIe</th>
+ <th>Символьная скорость (GT/s)</th>
+ <th>Канальное кодирование</th>
+ <th>ПСП на 1 линию (x1)</th>
+ <th>ПСП слота x16</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>PCIe 3.0</strong></td>
+ <td>8.0 GT/s</td>
+ <td>128b/130b (~1.5% оверхед)</td>
+ <td>~0.985 ГБ/с (~1 ГБ/с)</td>
+ <td>~15.75 ГБ/с</td>
+ </tr>
+ <tr>
+ <td><strong>PCIe 4.0</strong></td>
+ <td>16.0 GT/s</td>
+ <td>128b/130b (~1.5% оверхед)</td>
+ <td>~1.969 ГБ/с (~2 ГБ/с)</td>
+ <td>~31.51 ГБ/с</td>
+ </tr>
+ <tr>
+ <td><strong>PCIe 5.0</strong></td>
+ <td>32.0 GT/s</td>
+ <td>128b/130b (~1.5% оверхед)</td>
+ <td>~3.938 ГБ/с (~4 ГБ/с)</td>
+ <td>~63.02 ГБ/с</td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ <p style="margin-top: 10px; font-size: 14px; color: var(--muted);">Показатели приведены в одном направлении; в полнодуплексном режиме x16 суммарный поток удваивается (до 126 ГБ/с в PCIe 5.0).</p>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 7: СИСТЕМНЫЕ РЕСУРСЫ: ПРЕРЫВАНИЯ -->
-  <div class="slide" id="slide-7">
-    <div class="slide-title">6. Системные ресурсы: аппаратные прерывания (IRQ)</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="box">
-          <h4>Классический PIC 8259A</h4>
-          <ul>
-            <li>Всего 15 линий прерываний (IRQ0–15).</li>
-            <li>Конфликты при разделении линий (IRQ Sharing).</li>
-            <li>Прерывание адресуется только одному монопольному процессору.</li>
-          </ul>
-        </div>
-        <div class="box">
-          <h4>I/O APIC и Local APIC</h4>
-          <ul>
-            <li>24 аппаратные линии в чипсете.</li>
-            <li>Адресация прерываний конкретным ядрам ЦП.</li>
-            <li>Поддержка симметричной многопроцессорности (SMP).</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 7: СИСТЕМНЫЕ РЕСУРСЫ: ПРЕРЫВАНИЯ -->
+ <div class="slide" id="slide-7">
+ <div class="slide-title">6. Системные ресурсы: аппаратные прерывания (IRQ)</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="box">
+ <h4>Классический PIC 8259A</h4>
+ <ul>
+ <li>Всего 15 линий прерываний (IRQ0–15).</li>
+ <li>Конфликты при разделении линий (IRQ Sharing).</li>
+ <li>Прерывание адресуется только одному монопольному процессору.</li>
+ </ul>
+ </div>
+ <div class="box">
+ <h4>I/O APIC и Local APIC</h4>
+ <ul>
+ <li>24 аппаратные линии в чипсете.</li>
+ <li>Адресация прерываний конкретным ядрам ЦП.</li>
+ <li>Поддержка симметричной многопроцессорности (SMP).</li>
+ </ul>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 8: ТЕХНОЛОГИЯ MSI / MSI-X -->
-  <div class="slide" id="slide-8">
-    <div class="slide-title">7. Прерывания нового поколения: MSI и MSI-X</div>
-    <div class="slide-content">
-      <p><strong>Message Signaled Interrupts (MSI/MSI-X)</strong> — прерывания передаются не по физическим проводникам, а в виде транзакции записи в системную память по шине PCIe!</p>
-      <div class="box" style="margin-bottom: 12px;">
-        <h4>Преимущества MSI-X в высоконагруженных системах:</h4>
-        <ul>
-          <li>Поддержка до <strong>2048 независимых векторов</strong> прерываний на одно устройство.</li>
-          <li><strong>Receive Side Scaling (RSS):</strong> сетевая карта 100 GbE распределяет очереди пакетов по разным физическим ядрам процессора.</li>
-          <li>Устранение «шторма прерываний» (Interrupt Storm) на одном ядре.</li>
-          <li>Полное отсутствие физических линий прерываний и конфликтов совместного использования.</li>
-        </ul>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 8: ТЕХНОЛОГИЯ MSI / MSI-X -->
+ <div class="slide" id="slide-8">
+ <div class="slide-title">7. Прерывания нового поколения: MSI и MSI-X</div>
+ <div class="slide-content">
+ <p><strong>Message Signaled Interrupts (MSI/MSI-X)</strong> — прерывания передаются не по физическим проводникам, а в виде транзакции записи в системную память по шине PCIe!</p>
+ <div class="box" style="margin-bottom: 12px;">
+ <h4>Преимущества MSI-X в высоконагруженных системах:</h4>
+ <ul>
+ <li>Поддержка до <strong>2048 независимых векторов</strong> прерываний на одно устройство.</li>
+ <li><strong>Receive Side Scaling (RSS):</strong> сетевая карта 100 GbE распределяет очереди пакетов по разным физическим ядрам процессора.</li>
+ <li>Устранение «шторма прерываний» (Interrupt Storm) на одном ядре.</li>
+ <li>Полное отсутствие физических линий прерываний и конфликтов совместного использования.</li>
+ </ul>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 9: СИСТЕМНЫЕ РЕСУРСЫ: ПРЯМОЙ ДОСТУП К ПАМЯТИ (DMA) -->
-  <div class="slide" id="slide-9">
-    <div class="slide-title">8. Прямой доступ к памяти (DMA) и IOMMU</div>
-    <div class="slide-content">
-      <p><strong>DMA (Direct Memory Access)</strong> — передача массивов данных напрямую между памятью и периферией без загрузки процессора.</p>
-      <ul>
-        <li><strong>Legacy DMA (Intel 8237A):</strong> медленный контроллер чипсета, 7 каналов, ограничение блоков 64 КБ, адресное окно 16 МБ.</li>
-        <li><strong>Bus Mastering (PCIe):</strong> устройство само генерирует циклы шины и выполняет запись/чтение оперативной памяти на полной скорости шины.</li>
-        <li><strong>IOMMU (Intel VT-d / AMD-Vi):</strong> аппаратная трансляция адресов устройств в физические адреса ОЗУ, изоляция виртуальных машин и защита от несанкционированного прямого доступа к памяти.</li>
-      </ul>
-    </div>
-  </div>
+ <!-- СЛАЙД 9: СИСТЕМНЫЕ РЕСУРСЫ: ПРЯМОЙ ДОСТУП К ПАМЯТИ (DMA) -->
+ <div class="slide" id="slide-9">
+ <div class="slide-title">8. Прямой доступ к памяти (DMA) и IOMMU</div>
+ <div class="slide-content">
+ <p><strong>DMA (Direct Memory Access)</strong> — передача массивов данных напрямую между памятью и периферией без загрузки процессора.</p>
+ <ul>
+ <li><strong>Legacy DMA (Intel 8237A):</strong> медленный контроллер чипсета, 7 каналов, ограничение блоков 64 КБ, адресное окно 16 МБ.</li>
+ <li><strong>Bus Mastering (PCIe):</strong> устройство само генерирует циклы шины и выполняет запись/чтение оперативной памяти на полной скорости шины.</li>
+ <li><strong>IOMMU (Intel VT-d / AMD-Vi):</strong> аппаратная трансляция адресов устройств в физические адреса ОЗУ, изоляция виртуальных машин и защита от несанкционированного прямого доступа к памяти.</li>
+ </ul>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 10: I/O PORT SPACE И MMIO -->
-  <div class="slide" id="slide-10">
-    <div class="slide-title">9. Адресация: порты ввода-вывода (I/O) и MMIO</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="box">
-          <h4>Изолированное I/O пространство</h4>
-          <ul>
-            <li>Объем: 64 Килобайта (адреса <code>0x0000–0xFFFF</code>).</li>
-            <li>Инструкции процессора: <code>IN</code> и <code>OUT</code>.</li>
-            <li>Фиксированные адреса: COM1 (<code>0x3F8</code>), COM2 (<code>0x2F8</code>), LPT1 (<code>0x378</code>).</li>
-            <li>Аппаратные конфликты при совпадении адресов плат!</li>
-          </ul>
-        </div>
-        <div class="box">
-          <h4>Memory-Mapped I/O (MMIO)</h4>
-          <ul>
-            <li>Регистры устройств проецируются в общую оперативную память.</li>
-            <li>Стандартные инструкции процессора: <code>MOV</code>.</li>
-            <li><strong>Base Address Registers (BAR):</strong> бесконфликтное распределение окон BIOS/UEFI.</li>
-            <li><strong>Above 4G Decoding / Resizable BAR:</strong> прямой доступ процессора ко всему объему VRAM GPU.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 10: I/O PORT SPACE И MMIO -->
+ <div class="slide" id="slide-10">
+ <div class="slide-title">9. Адресация: порты ввода-вывода (I/O) и MMIO</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="box">
+ <h4>Изолированное I/O пространство</h4>
+ <ul>
+ <li>Объем: 64 Килобайта (адреса <code>0x0000–0xFFFF</code>).</li>
+ <li>Инструкции процессора: <code>IN</code> и <code>OUT</code>.</li>
+ <li>Фиксированные адреса: COM1 (<code>0x3F8</code>), COM2 (<code>0x2F8</code>), LPT1 (<code>0x378</code>).</li>
+ <li>Аппаратные конфликты при совпадении адресов плат!</li>
+ </ul>
+ </div>
+ <div class="box">
+ <h4>Memory-Mapped I/O (MMIO)</h4>
+ <ul>
+ <li>Регистры устройств проецируются в общую оперативную память.</li>
+ <li>Стандартные инструкции процессора: <code>MOV</code>.</li>
+ <li><strong>Base Address Registers (BAR):</strong> бесконфликтное распределение окон BIOS/UEFI.</li>
+ <li><strong>Above 4G Decoding / Resizable BAR:</strong> прямой доступ процессора ко всему объему VRAM GPU.</li>
+ </ul>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 11: ПОСЛЕДОВАТЕЛЬНЫЙ ИНТЕРФЕЙС UART -->
-  <div class="slide" id="slide-11">
-    <div class="slide-title">10. Последовательный интерфейс: UART и кадрирование</div>
-    <div class="slide-content">
-      <p><strong>UART</strong> преобразует байты системной шины в последовательный поток импульсов по одной сигнальной линии передачи (Tx) и приема (Rx).</p>
-      <div class="box" style="margin-bottom: 12px;">
-        <h4>Структура асинхронного кадра (8-N-1):</h4>
-        <ul>
-          <li><strong>Старт-бит:</strong> переход линии в 0 (синхронизирует приемник).</li>
-          <li><strong>Биты данных:</strong> 8 бит (начиная с младшего значащего бита LSB).</li>
-          <li><strong>Бит четности:</strong> опционально (None — отсутствует, Even/Odd).</li>
-          <li><strong>Стоп-бит:</strong> 1 или 2 бита уровня 1 (завершение кадра).</li>
-        </ul>
-      </div>
-      <p>На передачу 1 полезного байта расходуется 10 физических бит!</p>
-    </div>
-  </div>
+ <!-- СЛАЙД 11: ПОСЛЕДОВАТЕЛЬНЫЙ ИНТЕРФЕЙС UART -->
+ <div class="slide" id="slide-11">
+ <div class="slide-title">10. Последовательный интерфейс: UART и кадрирование</div>
+ <div class="slide-content">
+ <p><strong>UART</strong> преобразует байты системной шины в последовательный поток импульсов по одной сигнальной линии передачи (Tx) и приема (Rx).</p>
+ <div class="box" style="margin-bottom: 12px;">
+ <h4>Структура асинхронного кадра (8-N-1):</h4>
+ <ul>
+ <li><strong>Старт-бит:</strong> переход линии в 0 (синхронизирует приемник).</li>
+ <li><strong>Биты данных:</strong> 8 бит (начиная с младшего значащего бита LSB).</li>
+ <li><strong>Бит четности:</strong> опционально (None — отсутствует, Even/Odd).</li>
+ <li><strong>Стоп-бит:</strong> 1 или 2 бита уровня 1 (завершение кадра).</li>
+ </ul>
+ </div>
+ <p>На передачу 1 полезного байта расходуется 10 физических бит!</p>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 12: СТАНДАРТ RS-232 И БОДРЕЙТ -->
-  <div class="slide" id="slide-12">
-    <div class="slide-title">11. Физический уровень RS-232 и понятие бодрейта</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="box">
-          <h4>Уровни напряжения RS-232</h4>
-          <p>В отличие от TTL (+5V / 0V), используется биполярная шкала:</p>
-          <ul>
-            <li>Логический 0 (Space): <strong>от +3 В до +15 В</strong>.</li>
-            <li>Логическая 1 (Mark): <strong>от -3 В до -15 В</strong>.</li>
-            <li>Дальность до 15 м (ограничена емкостью кабеля).</li>
-          </ul>
-        </div>
-        <div class="box">
-          <h4>Бодрейт vs Битрейт</h4>
-          <ul>
-            <li><strong>Бод (Baud):</strong> число изменений состояния линии в секунду.</li>
-            <li><strong>Битрейт (bps):</strong> число информационных бит в секунду.</li>
-            <li>При 2-уровневой модуляции NRZ: 1 бод = 1 бит/с.</li>
-            <li>При 115 200 бод полезная скорость = 115200 / 10 = 11.52 КБ/с.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 12: СТАНДАРТ RS-232 И БОДРЕЙТ -->
+ <div class="slide" id="slide-12">
+ <div class="slide-title">11. Физический уровень RS-232 и понятие бодрейта</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="box">
+ <h4>Уровни напряжения RS-232</h4>
+ <p>В отличие от TTL (+5V / 0V), используется биполярная шкала:</p>
+ <ul>
+ <li>Логический 0 (Space): <strong>от +3 В до +15 В</strong>.</li>
+ <li>Логическая 1 (Mark): <strong>от -3 В до -15 В</strong>.</li>
+ <li>Дальность до 15 м (ограничена емкостью кабеля).</li>
+ </ul>
+ </div>
+ <div class="box">
+ <h4>Бодрейт vs Битрейт</h4>
+ <ul>
+ <li><strong>Бод (Baud):</strong> число изменений состояния линии в секунду.</li>
+ <li><strong>Битрейт (bps):</strong> число информационных бит в секунду.</li>
+ <li>При 2-уровневой модуляции NRZ: 1 бод = 1 бит/с.</li>
+ <li>При 115 200 бод полезная скорость = 115200 / 10 = 11.52 КБ/с.</li>
+ </ul>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 13: ПАРАЛЛЕЛЬНЫЙ ПОРТ LPT -->
-  <div class="slide" id="slide-13">
-    <div class="slide-title">12. Параллельный порт IEEE 1284 (LPT)</div>
-    <div class="slide-content">
-      <p><strong>LPT-порт</strong> исторически применялся для принтеров и сканеров. Передает байт целиком по 8 параллельным проводникам данных <code>D0–D7</code>.</p>
-      <ul>
-        <li><strong>Режимы IEEE 1284:</strong> SPP (стандартный однонаправленный), EPP (двунаправленный, до 2 МБ/с), ECP (аппаратный DMA и сжатие RLE).</li>
-        <li><strong>Проблема перекрестных помех (Crosstalk):</strong> 8 параллельных проводников создают взаимные электромагнитные наводки.</li>
-        <li><strong>Физический тупик:</strong> на частотах выше 2–5 МГц перекос фаз делает параллельную передачу по кабелю длиннее 2 метров невозможной.</li>
-      </ul>
-    </div>
-  </div>
+ <!-- СЛАЙД 13: ПАРАЛЛЕЛЬНЫЙ ПОРТ LPT -->
+ <div class="slide" id="slide-13">
+ <div class="slide-title">12. Параллельный порт IEEE 1284 (LPT)</div>
+ <div class="slide-content">
+ <p><strong>LPT-порт</strong> исторически применялся для принтеров и сканеров. Передает байт целиком по 8 параллельным проводникам данных <code>D0–D7</code>.</p>
+ <ul>
+ <li><strong>Режимы IEEE 1284:</strong> SPP (стандартный однонаправленный), EPP (двунаправленный, до 2 МБ/с), ECP (аппаратный DMA и сжатие RLE).</li>
+ <li><strong>Проблема перекрестных помех (Crosstalk):</strong> 8 параллельных проводников создают взаимные электромагнитные наводки.</li>
+ <li><strong>Физический тупик:</strong> на частотах выше 2–5 МГц перекос фаз делает параллельную передачу по кабелю длиннее 2 метров невозможной.</li>
+ </ul>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 14: ИНЖЕНЕРНЫЙ ВЫБОР ИНТЕРФЕЙСОВ -->
-  <div class="slide" id="slide-14">
-    <div class="slide-title">13. Инженерный выбор подсистемы ввода-вывода</div>
-    <div class="slide-content">
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Класс задачи</th>
-              <th>Рекомендуемая шина</th>
-              <th>Системные ресурсы</th>
-              <th>Внешние порты</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>АСУ ТП / SCADA</strong></td>
-              <td>PCIe x1 / встроенный SoC</td>
-              <td>Гарантированное прерывание, RTOS</td>
-              <td>RS-485 Modbus, гальваноразвязка</td>
-            </tr>
-            <tr>
-              <td><strong>Сервер 100 GbE / NVMe</strong></td>
-              <td>PCIe 4.0/5.0 x16</td>
-              <td>MSI-X (до сотен векторов RSS), MMIO 64-bit</td>
-              <td>QSFP28 / SFP28 оптический Ethernet</td>
-            </tr>
-            <tr>
-              <td><strong>Офис / Legacy</strong></td>
-              <td>PCIe x1 с мостом</td>
-              <td>Эмуляция I/O портов (0x3F8, 0x378)</td>
-              <td>RS-232 COM, IEEE 1284 LPT</td>
-            </tr>
-            <tr>
-              <td><strong>Multi-GPU Workstation</strong></td>
-              <td>PCIe 4.0/5.0 x16/x8/x8</td>
-              <td>Resizable BAR, Above 4G, Bus Master DMA</td>
-              <td>DisplayPort 2.1, HDMI 2.1, PCIe capture</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 14: ИНЖЕНЕРНЫЙ ВЫБОР ИНТЕРФЕЙСОВ -->
+ <div class="slide" id="slide-14">
+ <div class="slide-title">13. Инженерный выбор подсистемы ввода-вывода</div>
+ <div class="slide-content">
+ <div class="table-wrap">
+ <table>
+ <thead>
+ <tr>
+ <th>Класс задачи</th>
+ <th>Рекомендуемая шина</th>
+ <th>Системные ресурсы</th>
+ <th>Внешние порты</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>АСУ ТП / SCADA</strong></td>
+ <td>PCIe x1 / встроенный SoC</td>
+ <td>Гарантированное прерывание, RTOS</td>
+ <td>RS-485 Modbus, гальваноразвязка</td>
+ </tr>
+ <tr>
+ <td><strong>Сервер 100 GbE / NVMe</strong></td>
+ <td>PCIe 4.0/5.0 x16</td>
+ <td>MSI-X (до сотен векторов RSS), MMIO 64-bit</td>
+ <td>QSFP28 / SFP28 оптический Ethernet</td>
+ </tr>
+ <tr>
+ <td><strong>Офис / Legacy</strong></td>
+ <td>PCIe x1 с мостом</td>
+ <td>Эмуляция I/O портов (0x3F8, 0x378)</td>
+ <td>RS-232 COM, IEEE 1284 LPT</td>
+ </tr>
+ <tr>
+ <td><strong>Multi-GPU Workstation</strong></td>
+ <td>PCIe 4.0/5.0 x16/x8/x8</td>
+ <td>Resizable BAR, Above 4G, Bus Master DMA</td>
+ <td>DisplayPort 2.1, HDMI 2.1, PCIe capture</td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 15: РЕАЛЬНЫЙ ИНТЕРНЕТ-МЕМ С АТРИБУЦИЕЙ -->
-  <div class="slide" id="slide-15">
-    <div class="slide-title">14. Резюме и юмор в архитектуре ЭВМ</div>
-    <div class="meme-wrap">
-      <img class="meme-img" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAIAAgADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7LooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiig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EFhY2675p55NqxrXzT4x/bO8LaffvB4Y8MX2uwRnBubi6+xrJ/tKux22/wC8q15B+2t8U7vxd8RLnwfYXMi6DoMzQGJTxPdL8skjf3trfKv+6396vnCgD728A/tjeENZ1OOw8U+Hbzw2srbVululuol/66fKrL/3y1fS1pdQXdvHcW8yTQyqrpJG25XVvusG/iFfjnX39+wD4zu9c+GmoeGr6Zpn0C5jSB2f5lgmVmVP+Askn4fSgD6aooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK+Yf2oIxZftK/BXVBjdPqa23/AftEK/+1q+nq+Y/wBq11uf2gPgfYj78WufaG/3ftFt/wDG6APpyvlr48yrrX7Zfws0CJvMbT1W9df7v7xpP/QYq+pa+TfhHOPH/wC214v8WoyyWGgW0lpbyL93cu2Bf++v3zUAfWVFFFABRRRQAUUUUAFFFFABRRRQAV5p8RPgh8NPHe+bXPDtvHeuP+P2y/cT/wDfS/e/4Fur0uigD438Z/sZ3Zj2+EPGwkiTcY7bVYfu7v7skf8A8TXZ/s8eEvjj8PJ10TxK8Op+H1kVYlW8WdYI/wCLy922Rf8Ad+7/ALNfStFAEUbbo1Zl2sy/dqWiigAooooA/Hi9upr26nu7iTzJ53aaRv7xb5mrOr1b9of4c3/w4+JWq6ZPA4026mkudMm2/LJbs25V92X7rf7v+0teU0AFfbP/AATdsLiPSvG+qNFttbiaygjf+88azMy/98yx/wDfVfJngzwvrni/xDa6B4esJr2/uG2xRonRcfMzf3VX+Jq/TT4GeAbP4afDjTvC9s6Szx7pb24Vdvnzt95vp0Vf9lVoA76iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr5Y+JkjeJv27vA+jQpui0OzWeb/ZbbNN/wDG6+opJFijaSRgsaruZmb7tfKP7LH/ABXn7RPxC+KkgZ7NGa1snZuis21f/IUS/wDfVAHuPx+8bxfD74Va14iV1F2sXkWS/wB6eT5U/wDiv+A159+w14Ok8PfCRvEN8rG/8R3H2xmk+95K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Kq7W/wBlq+b/AAz4c17xHdm00DRb/VrlukdpatKy/wDfP3a/XmigD4a+EH7IWvam8eofEW8/sWz+/wD2faOsly/+8/zJH/483+7X2H4I8I+HPBWhR6L4Y0eDTbJP4IU5kb+8zfeZv9pq6KigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAgmhjnjaGZVkjddrKy/Ky1jaH4M8IaE/maH4W0TSZP71lYRRN/46tdBRQAUUUUAFFFFABRRRQAUUUUAFFFFAHP+IfCPhXxEwk1/wvo2sSBdqtfWEU7D/vtar6R4C8D6NdC60jwZ4c064HSW10uGJv8AvpVrqKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9k=" alt="Mathjoke meme: 10 types of people">
-      <div class="attribution">
-        <strong>Мем:</strong> «Mathjoke (10 types of people in the world) — Существует 10 типов людей: те, кто понимает двоичную систему счисления, и те, кто не понимает».<br>
-        <strong>Автор:</strong> MjolnirPants (Wikimedia Commons).<br>
-        <strong>Источник:</strong> <a href="https://commons.wikimedia.org/wiki/File:Mathjoke.jpg" target="_blank" rel="noopener">Wikimedia Commons (File:Mathjoke.jpg)</a>.<br>
-        <strong>Лицензия:</strong> Creative Commons Attribution-ShareAlike 4.0 International (<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>).<br>
-        <strong>Изменения:</strong> Оптимизировано разрешение и встроено offline через Data URI (Base64) без изменения содержания.
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 15: РЕАЛЬНЫЙ ИНТЕРНЕТ-МЕМ С АТРИБУЦИЕЙ -->
+ <div class="slide" id="slide-15">
+ <div class="slide-title">14. Резюме и юмор в архитектуре ЭВМ</div>
+ <div class="meme-wrap">
+ <img class="meme-img" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAIAAgADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7LooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiig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EFhY2675p55NqxrXzT4x/bO8LaffvB4Y8MX2uwRnBubi6+xrJ/tKux22/wC8q15B+2t8U7vxd8RLnwfYXMi6DoMzQGJTxPdL8skjf3trfKv+6396vnCgD728A/tjeENZ1OOw8U+Hbzw2srbVululuol/66fKrL/3y1fS1pdQXdvHcW8yTQyqrpJG25XVvusG/iFfjnX39+wD4zu9c+GmoeGr6Zpn0C5jSB2f5lgmVmVP+Askn4fSgD6aooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK+Yf2oIxZftK/BXVBjdPqa23/AftEK/+1q+nq+Y/wBq11uf2gPgfYj78WufaG/3ftFt/wDG6APpyvlr48yrrX7Zfws0CJvMbT1W9df7v7xpP/QYq+pa+TfhHOPH/wC214v8WoyyWGgW0lpbyL93cu2Bf++v3zUAfWVFFFABRRRQAUUUUAFFFFABRRRQAV5p8RPgh8NPHe+bXPDtvHeuP+P2y/cT/wDfS/e/4Fur0uigD438Z/sZ3Zj2+EPGwkiTcY7bVYfu7v7skf8A8TXZ/s8eEvjj8PJ10TxK8Op+H1kVYlW8WdYI/wCLy922Rf8Ad+7/ALNfStFAEUbbo1Zl2sy/dqWiigAooooA/Hi9upr26nu7iTzJ53aaRv7xb5mrOr1b9of4c3/w4+JWq6ZPA4026mkudMm2/LJbs25V92X7rf7v+0teU0AFfbP/AATdsLiPSvG+qNFttbiaygjf+88azMy/98yx/wDfVfJngzwvrni/xDa6B4esJr2/uG2xRonRcfMzf3VX+Jq/TT4GeAbP4afDjTvC9s6Szx7pb24Vdvnzt95vp0Vf9lVoA76iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr5Y+JkjeJv27vA+jQpui0OzWeb/ZbbNN/wDG6+opJFijaSRgsaruZmb7tfKP7LH/ABXn7RPxC+KkgZ7NGa1snZuis21f/IUS/wDfVAHuPx+8bxfD74Va14iV1F2sXkWS/wB6eT5U/wDiv+A159+w14Ok8PfCRvEN8rG/8R3H2xmk+95K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Kq7W/wBlq+b/AAz4c17xHdm00DRb/VrlukdpatKy/wDfP3a/XmigD4a+EH7IWvam8eofEW8/sWz+/wD2faOsly/+8/zJH/483+7X2H4I8I+HPBWhR6L4Y0eDTbJP4IU5kb+8zfeZv9pq6KigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAgmhjnjaGZVkjddrKy/Ky1jaH4M8IaE/maH4W0TSZP71lYRRN/46tdBRQAUUUUAFFFFABRRRQAUUUUAFFFFAHP+IfCPhXxEwk1/wvo2sSBdqtfWEU7D/vtar6R4C8D6NdC60jwZ4c064HSW10uGJv8AvpVrqKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9k=" alt="Mathjoke meme: 10 types of people">
+ <div class="attribution">
+ <strong>Мем:</strong> «Mathjoke (10 types of people in the world) — Существует 10 типов людей: те, кто понимает двоичную систему счисления, и те, кто не понимает».<br>
+ <strong>Автор:</strong> MjolnirPants (Wikimedia Commons).<br>
+ <strong>Источник:</strong> <a href="https://commons.wikimedia.org/wiki/File:Mathjoke.jpg" target="_blank" rel="noopener">Wikimedia Commons (File:Mathjoke.jpg)</a>.<br>
+ <strong>Лицензия:</strong> Creative Commons Attribution-ShareAlike 4.0 International (<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>).<br>
+ <strong>Изменения:</strong> Оптимизировано разрешение и встроено offline через Data URI (Base64) без изменения содержания.
+ </div>
+ </div>
+ </div>
 
-  <!-- ПАНЕЛЬ УПРАВЛЕНИЯ СЛАЙДАМИ -->
-  <div class="controls">
-    <button class="nav-btn" onclick="prevSlide()">← Назад</button>
-    <div class="counter" id="slideCounter">Слайд 1 из 15</div>
-    <button class="nav-btn" onclick="nextSlide()">Вперед →</button>
-  </div>
+ <!-- ПАНЕЛЬ УПРАВЛЕНИЯ СЛАЙДАМИ -->
+ <div class="controls">
+ <button class="nav-btn" onclick="prevSlide()">← Назад</button>
+ <div class="counter" id="slideCounter">Слайд 1 из 15</div>
+ <button class="nav-btn" onclick="nextSlide()">Вперед →</button>
+ </div>
 
 </div>
 
 <script>
-  let currentSlide = 1;
-  const totalSlides = 15;
+ let currentSlide = 1;
+ const totalSlides = 15;
 
-  function showSlide(n) {
-    document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
-    const target = document.getElementById('slide-' + n);
-    if (target) {
-      target.classList.add('active');
-      currentSlide = n;
-      document.getElementById('slideCounter').textContent = `Слайд ${currentSlide} из ${totalSlides}`;
-    }
-  }
+ function showSlide(n) {
+ document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+ const target = document.getElementById('slide-' + n);
+ if (target) {
+ target.classList.add('active');
+ currentSlide = n;
+ document.getElementById('slideCounter').textContent = `Слайд ${currentSlide} из ${totalSlides}`;
+ }
+ }
 
-  function nextSlide() {
-    if (currentSlide < totalSlides) {
-      showSlide(currentSlide + 1);
-    }
-  }
+ function nextSlide() {
+ if (currentSlide < totalSlides) {
+ showSlide(currentSlide + 1);
+ }
+ }
 
-  function prevSlide() {
-    if (currentSlide > 1) {
-      showSlide(currentSlide - 1);
-    }
-  }
+ function prevSlide() {
+ if (currentSlide > 1) {
+ showSlide(currentSlide - 1);
+ }
+ }
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
-      e.preventDefault();
-      nextSlide();
-    } else if (e.key === 'ArrowLeft' || e.key === 'Backspace' || e.key === 'PageUp') {
-      e.preventDefault();
-      prevSlide();
-    } else if (e.key === 'Home') {
-      e.preventDefault();
-      showSlide(1);
-    } else if (e.key === 'End') {
-      e.preventDefault();
-      showSlide(totalSlides);
-    }
-  });
+ document.addEventListener('keydown', (e) => {
+ if (e.key === 'ArrowRight' | e.key === ' ' | e.key === 'PageDown') {
+ e.preventDefault();
+ nextSlide();
+ } else if (e.key === 'ArrowLeft' | e.key === 'Backspace' | e.key === 'PageUp') {
+ e.preventDefault();
+ prevSlide();
+ } else if (e.key === 'Home') {
+ e.preventDefault();
+ showSlide(1);
+ } else if (e.key === 'End') {
+ e.preventDefault();
+ showSlide(totalSlides);
+ }
+ });
 </script>
 </body>
 </html>

@@ -1,470 +1,452 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Домашнее задание - Практическое занятие №8: поиск по одному и нескольким полям</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --text-muted: #475569;
-      --border: #cbd5e1;
-      --accent: #0284c7;
-      --accent-hover: #0369a1;
-      --accent-soft: #f0f9ff;
-      --warn: #f59e0b;
-      --warn-soft: #fef3c7;
-      --warn-text: #92400e;
-      --success: #16a34a;
-      --success-soft: #dcfce7;
-      --danger: #dc2626;
-      --danger-soft: #fee2e2;
-    }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      padding: 24px 16px;
-      min-width: 320px;
-    }
-    .container {
-      max-width: 920px;
-      margin: 0 auto;
-      width: 100%;
-    }
-    header.hw-header {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-    h1 {
-      font-size: 1.85rem;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 12px;
-    }
-    .reserve-notice {
-      background-color: var(--warn-soft);
-      border: 2px solid var(--warn);
-      color: var(--warn-text);
-      padding: 14px 18px;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 1.05rem;
-      margin-bottom: 18px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .instruction {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      margin-bottom: 16px;
-    }
-    .student-fields {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
-    .field-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    label {
-      font-weight: 600;
-      font-size: 0.88rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-    }
-    input[type="text"] {
-      border: 1px solid var(--border);
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 1rem;
-      background: #ffffff;
-      color: var(--text);
-      outline: none;
-    }
-    input[type="text"]:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
-    }
-    section.task-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-    h2 {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 14px;
-      border-bottom: 1px solid #e2e8f0;
-      padding-bottom: 8px;
-    }
-    h3 {
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: var(--text);
-      margin: 16px 0 8px;
-    }
-    p {
-      margin-bottom: 12px;
-    }
-    ul, ol {
-      padding-left: 20px;
-      margin-bottom: 14px;
-    }
-    li {
-      margin-bottom: 6px;
-    }
-    code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.9em;
-      background: #f1f5f9;
-      padding: 2px 6px;
-      border-radius: 4px;
-      color: #0f172a;
-    }
-    pre {
-      background: #0f172a;
-      color: #f8fafc;
-      padding: 14px 18px;
-      border-radius: 8px;
-      overflow-x: auto;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.9rem;
-      margin: 12px 0 16px;
-    }
-    pre code {
-      background: transparent;
-      padding: 0;
-      color: inherit;
-    }
-    textarea.answer-area {
-      width: 100%;
-      min-height: 120px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px 14px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.95rem;
-      line-height: 1.5;
-      color: var(--text);
-      background: #ffffff;
-      resize: vertical;
-      margin-top: 8px;
-      outline: none;
-    }
-    textarea.answer-area:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
-    }
-    table.data-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 14px 0;
-      font-size: 0.9rem;
-    }
-    table.data-table th, table.data-table td {
-      border: 1px solid var(--border);
-      padding: 8px 12px;
-      text-align: left;
-    }
-    table.data-table th {
-      background: #f8fafc;
-      font-weight: 700;
-    }
-    .action-panel {
-      display: flex;
-      gap: 12px;
-      justify-content: flex-end;
-      margin-top: 24px;
-      margin-bottom: 60px;
-    }
-    .btn {
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
-      border: none;
-      transition: all 0.2s;
-    }
-    .btn-primary {
-      background: var(--accent);
-      color: #ffffff;
-    }
-    .btn-primary:hover {
-      background: var(--accent-hover);
-    }
-    .btn-secondary {
-      background: #e2e8f0;
-      color: #334155;
-    }
-    .btn-secondary:hover {
-      background: #cbd5e1;
-    }
-    .status-msg {
-      margin-right: auto;
-      align-self: center;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--success);
-      display: none;
-    }
-    @media (max-width: 640px) {
-      .student-fields {
-        grid-template-columns: 1fr;
-      }
-      .action-panel {
-        flex-direction: column;
-      }
-      .btn {
-        width: 100%;
-      }
-    }
-    @media print {
-      body {
-        background: #ffffff;
-        color: #000000;
-        padding: 0;
-      }
-      .container {
-        max-width: 100%;
-        margin: 0;
-      }
-      .action-panel {
-        display: none !important;
-      }
-      header.hw-header, section.task-card {
-        border: 1px solid #000000;
-        box-shadow: none;
-        page-break-inside: avoid;
-        margin-bottom: 14px;
-        padding: 14px;
-      }
-      textarea.answer-area {
-        border: 1px solid #000000;
-        background: transparent;
-        color: #000000;
-        min-height: 80px;
-        resize: none;
-      }
-      input {
-        border: 1px solid #000000 !important;
-        background: transparent !important;
-        color: #000000 !important;
-      }
-      input::placeholder, textarea::placeholder {
-        color: transparent !important;
-      }
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Домашнее задание - Практическое занятие №8: поиск по одному и нескольким полям</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card-bg: #ffffff;
+ --text: #0f172a;
+ --text-muted: #475569;
+ --border: #cbd5e1;
+ --accent: #0284c7;
+ --accent-hover: #0369a1;
+ --accent-soft: #f0f9ff;
+ --warn: #f59e0b;
+ --warn-soft: #fef3c7;
+ --warn-text: #92400e;
+ --success: #16a34a;
+ --success-soft: #dcfce7;
+ --danger: #dc2626;
+ --danger-soft: #fee2e2;
+ }
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ }
+ body {
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+ background-color: var(--bg);
+ color: var(--text);
+ line-height: 1.6;
+ padding: 24px 16px;
+ min-width: 320px;
+ }.container {
+ max-width: 920px;
+ margin: 0 auto;
+ width: 100%;
+ }
+ header.hw-header {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
+ h1 {
+ font-size: 1.85rem;
+ font-weight: 800;
+ color: var(--text);
+ margin-bottom: 12px;
+ }.reserve-notice {
+ background-color: var(--warn-soft);
+ border: 2px solid var(--warn);
+ color: var(--warn-text);
+ padding: 14px 18px;
+ border-radius: 8px;
+ font-weight: 700;
+ font-size: 1.05rem;
+ margin-bottom: 18px;
+ display: flex;
+ align-items: center;
+ gap: 10px;
+ }.instruction {
+ color: var(--text-muted);
+ font-size: 0.95rem;
+ margin-bottom: 16px;
+ }.student-fields {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 16px;
+ margin-top: 16px;
+ padding-top: 16px;
+ border-top: 1px solid var(--border);
+ }.field-group {
+ display: flex;
+ flex-direction: column;
+ gap: 6px;
+ }
+ label {
+ font-weight: 600;
+ font-size: 0.88rem;
+ color: var(--text-muted);
+ text-transform: uppercase;
+ }
+ input[type="text"] {
+ border: 1px solid var(--border);
+ padding: 10px 14px;
+ border-radius: 8px;
+ font-size: 1rem;
+ background: #ffffff;
+ color: var(--text);
+ outline: none;
+ }
+ input[type="text"]:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+ }
+ section.task-card {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
+ h2 {
+ font-size: 1.3rem;
+ font-weight: 700;
+ color: var(--accent);
+ margin-bottom: 14px;
+ border-bottom: 1px solid #e2e8f0;
+ padding-bottom: 8px;
+ }
+ h3 {
+ font-size: 1.05rem;
+ font-weight: 600;
+ color: var(--text);
+ margin: 16px 0 8px;
+ }
+ p {
+ margin-bottom: 12px;
+ }
+ ul, ol {
+ padding-left: 20px;
+ margin-bottom: 14px;
+ }
+ li {
+ margin-bottom: 6px;
+ }
+ code {
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 0.9em;
+ background: #f1f5f9;
+ padding: 2px 6px;
+ border-radius: 4px;
+ color: #0f172a;
+ }
+ pre {
+ background: #0f172a;
+ color: #f8fafc;
+ padding: 14px 18px;
+ border-radius: 8px;
+ overflow-x: auto;
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 0.9rem;
+ margin: 12px 0 16px;
+ }
+ pre code {
+ background: transparent;
+ padding: 0;
+ color: inherit;
+ }
+ textarea.answer-area {
+ width: 100%;
+ min-height: 120px;
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ padding: 12px 14px;
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 0.95rem;
+ line-height: 1.5;
+ color: var(--text);
+ background: #ffffff;
+ resize: vertical;
+ margin-top: 8px;
+ outline: none;
+ }
+ textarea.answer-area:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+ }
+ table.data-table {
+ width: 100%;
+ border-collapse: collapse;
+ margin: 14px 0;
+ font-size: 0.9rem;
+ }
+ table.data-table th, table.data-table td {
+ border: 1px solid var(--border);
+ padding: 8px 12px;
+ text-align: left;
+ }
+ table.data-table th {
+ background: #f8fafc;
+ font-weight: 700;
+ }.action-panel {
+ display: flex;
+ gap: 12px;
+ justify-content: flex-end;
+ margin-top: 24px;
+ margin-bottom: 60px;
+ }.btn {
+ padding: 10px 20px;
+ border-radius: 8px;
+ font-weight: 600;
+ font-size: 0.95rem;
+ cursor: pointer;
+ border: none;
+ transition: all 0.2s;
+ }.btn-primary {
+ background: var(--accent);
+ color: #ffffff;
+ }.btn-primary:hover {
+ background: var(--accent-hover);
+ }.btn-secondary {
+ background: #e2e8f0;
+ color: #334155;
+ }.btn-secondary:hover {
+ background: #cbd5e1;
+ }.status-msg {
+ margin-right: auto;
+ align-self: center;
+ font-size: 0.9rem;
+ font-weight: 600;
+ color: var(--success);
+ display: none;
+ }
+ @media (max-width: 640px) {.student-fields {
+ grid-template-columns: 1fr;
+ }.action-panel {
+ flex-direction: column;
+ }.btn {
+ width: 100%;
+ }
+ }
+ @media print {
+ body {
+ background: #ffffff;
+ color: #000000;
+ padding: 0;
+ }.container {
+ max-width: 100%;
+ margin: 0;
+ }.action-panel {
+ display: none !important;
+ }
+ header.hw-header, section.task-card {
+ border: 1px solid #000000;
+ box-shadow: none;
+ page-break-inside: avoid;
+ margin-bottom: 14px;
+ padding: 14px;
+ }
+ textarea.answer-area {
+ border: 1px solid #000000;
+ background: transparent;
+ color: #000000;
+ min-height: 80px;
+ resize: none;
+ }
+ input {
+ border: 1px solid #000000 !important;
+ background: transparent !important;
+ color: #000000 !important;
+ }
+ input::placeholder, textarea::placeholder {
+ color: transparent !important;
+ }
+ }
+ </style>
 </head>
 <body>
-  <div class="container">
-    <header class="hw-header">
-      <h1>Домашнее задание - Практическое занятие №8: поиск по одному и нескольким полям</h1>
-      <div class="reserve-notice">
-        Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
-      </div>
-      <p class="instruction">
-        Данная работа представляет собой резервное дистанционное практическое задание по дисциплине «ОП.08 Основы проектирования баз данных» (СИЭУиП). Все поля сохраняются локально в вашем браузере. После заполнения экспортируйте результат в PDF или передайте преподавателю.
-      </p>
-      <div class="student-fields">
-        <div class="field-group">
-          <label for="hw_student_name">Фамилия, Имя студента</label>
-          <input type="text" id="hw_student_name" autocomplete="off">
-        </div>
-        <div class="field-group">
-          <label for="hw_student_group">Учебная группа</label>
-          <input type="text" id="hw_student_group" autocomplete="off">
-        </div>
-      </div>
-    </header>
+ <div class="container">
+ <header class="hw-header">
+ <h1>Домашнее задание - Практическое занятие №8: поиск по одному и нескольким полям</h1>
+ <div class="reserve-notice">
+ Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+ </div>
+ <p class="instruction">
+ Данная работа представляет собой резервное дистанционное практическое задание по дисциплине «ОП.08 Основы проектирования баз данных» (СИЭУиП). Все поля сохраняются локально в вашем браузере. После заполнения экспортируйте результат в PDF или передайте преподавателю.
+ </p>
+ <div class="student-fields">
+ <div class="field-group">
+ <label for="hw_student_name">Фамилия, Имя студента</label>
+ <input type="text" id="hw_student_name" autocomplete="off">
+ </div>
+ <div class="field-group">
+ <label for="hw_student_group">Учебная группа</label>
+ <input type="text" id="hw_student_group" autocomplete="off">
+ </div>
+ </div>
+ </header>
 
-    <section class="task-card">
-      <h2>Кейс: Проектирование поискового фильтра агрегатора коммерческой недвижимости</h2>
-      <p>
-        Вы являетесь инженером баз данных федерального портала коммерческой недвижимости. В базе данных развернута таблица <code>commercial_realty</code> объемом 2&nbsp;500&nbsp;000 объектов.
-      </p>
-      
-      <pre><code>CREATE TABLE commercial_realty (
-    object_id BIGSERIAL PRIMARY KEY,
-    cadastral_number VARCHAR(30) NOT NULL UNIQUE,
-    city VARCHAR(80) NOT NULL,
-    district VARCHAR(80) NOT NULL,
-    deal_type VARCHAR(10) NOT NULL, -- 'RENT' (аренда) или 'SALE' (продажа)
-    area_sqm NUMERIC(10,2) NOT NULL,
-    price_rub NUMERIC(14,2) NOT NULL,
-    status VARCHAR(20) NOT NULL,    -- 'ACTIVE', 'RESERVED', 'ARCHIVED'
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    description TEXT
-);</code></pre>
+ <section class="task-card">
+ <h2>Кейс: Проектирование поискового фильтра агрегатора коммерческой недвижимости</h2>
+ <p>
+ Вы являетесь инженером баз данных федерального портала коммерческой недвижимости. В базе данных развернута таблица <code>commercial_realty</code> объемом 2&nbsp;500&nbsp;000 объектов.
+ </p>
+ 
+ <pre><code>CREATE TABLE commercial_realty (
+ object_id BIGSERIAL PRIMARY KEY,
+ cadastral_number VARCHAR(30) NOT NULL UNIQUE,
+ city VARCHAR(80) NOT NULL,
+ district VARCHAR(80) NOT NULL,
+ deal_type VARCHAR(10) NOT NULL, -- 'RENT' (аренда) или 'SALE' (продажа)
+ area_sqm NUMERIC(10,2) NOT NULL,
+ price_rub NUMERIC(14,2) NOT NULL,
+ status VARCHAR(20) NOT NULL, -- 'ACTIVE', 'RESERVED', 'ARCHIVED'
+ created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+ description TEXT);</code></pre>
 
-      <p>
-        <strong>Бизнес-требование:</strong> Пользователь сайта открывает форму расширенного поиска, где может указать город, район, тип сделки ('RENT' или 'SALE'), а также задать диапазоны цены (от и до) и площади (от и до). Запрос должен выполняться строго быстрее 5 миллисекунд даже под высокой нагрузкой.
-      </p>
-    </section>
+ <p>
+ <strong>Бизнес-требование:</strong> Пользователь сайта открывает форму расширенного поиска, где может указать город, район, тип сделки ('RENT' или 'SALE'), а также задать диапазоны цены (от и до) и площади (от и до). Запрос должен выполняться строго быстрее 5 миллисекунд даже под высокой нагрузкой.
+ </p>
+ </section>
 
-    <section class="task-card">
-      <h2>Задание 1. Разработка комплексного поискового фильтра и составного индекса (2 балла)</h2>
-      <p>
-        Напишите SQL-скрипт создания оптимального индекса для обслуживания формы расширенного фильтра активных объявлений. Обоснуйте порядок колонок с точки зрения правила «Равенства вперед, диапазоны в конец» и концепции частичного индекса (Partial Index). Напишите пример поискового SELECT-запроса.
-      </p>
-      <label for="hw_ans_1">Ваше архитектурное решение (DDL индексов, SQL-запрос и обоснование):</label>
-      <textarea id="hw_ans_1" class="answer-area"></textarea>
-    </section>
+ <section class="task-card">
+ <h2>Задание 1. Разработка комплексного поискового фильтра и составного индекса (2 балла)</h2>
+ <p>
+ Напишите SQL-скрипт создания оптимального индекса для обслуживания формы расширенного фильтра активных объявлений. Обоснуйте порядок колонок с точки зрения правила «Равенства вперед, диапазоны в конец» и концепции частичного индекса (Partial Index). Напишите пример поискового SELECT-запроса.
+ </p>
+ <label for="hw_ans_1">Ваше архитектурное решение (DDL индексов, SQL-запрос и обоснование):</label>
+ <textarea id="hw_ans_1" class="answer-area"></textarea>
+ </section>
 
-    <section class="task-card">
-      <h2>Задание 2. Оценка производительности: Sequential Scan vs Index Scan (1 балл)</h2>
-      <p>
-        Смоделируйте выполнение запроса через команду <code>EXPLAIN (ANALYZE, BUFFERS)</code>. Сравните поведение базы данных в двух сценариях:
-      </p>
-      <ol>
-        <li>При отсутствии составного индекса (вынужденный Sequential Scan).</li>
-        <li>При использовании спроектированного вами составного частичного B-Tree индекса.</li>
-      </ol>
-      <p>Заполните сравнительную таблицу показателей:</p>
+ <section class="task-card">
+ <h2>Задание 2. Оценка производительности: Sequential Scan vs Index Scan (1 балл)</h2>
+ <p>
+ Смоделируйте выполнение запроса через команду <code>EXPLAIN (ANALYZE, BUFFERS)</code>. Сравните поведение базы данных в двух сценариях:
+ </p>
+ <ol>
+ <li>При отсутствии составного индекса (вынужденный Sequential Scan).</li>
+ <li>При использовании спроектированного вами составного частичного B-Tree индекса.</li>
+ </ol>
+ <p>Заполните сравнительную таблицу показателей:</p>
 
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Показатель оптимизатора</th>
-            <th>Сценарий 1: Без индекса (Heap Scan)</th>
-            <th>Сценарий 2: Составной B-Tree индекс</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Основной узел плана</strong></td>
-            <td>Sequential Scan</td>
-            <td>Index Scan using idx_realty_...</td>
-          </tr>
-          <tr>
-            <td><strong>Объем прочитанных страниц (8 КБ)</strong></td>
-            <td>~220 000 блоков (1.7 ГБ данных)</td>
-            <td>3–5 блоков (24–40 КБ)</td>
-          </tr>
-          <tr>
-            <td><strong>Время выполнения (Execution Time)</strong></td>
-            <td>1 850–3 500 мс</td>
-            <td>&lt; 0.7 мс</td>
-          </tr>
-          <tr>
-            <td><strong>Строк отсеяно фильтром (Rows Removed)</strong></td>
-            <td>2 499 985 строк</td>
-            <td>0 строк (отсечение на уровне дерева)</td>
-          </tr>
-        </tbody>
-      </table>
+ <table class="data-table">
+ <thead>
+ <tr>
+ <th>Показатель оптимизатора</th>
+ <th>Сценарий 1: Без индекса (Heap Scan)</th>
+ <th>Сценарий 2: Составной B-Tree индекс</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>Основной узел плана</strong></td>
+ <td>Sequential Scan</td>
+ <td>Index Scan using idx_realty_...</td>
+ </tr>
+ <tr>
+ <td><strong>Объем прочитанных страниц (8 КБ)</strong></td>
+ <td>~220 000 блоков (1.7 ГБ данных)</td>
+ <td>3–5 блоков (24–40 КБ)</td>
+ </tr>
+ <tr>
+ <td><strong>Время выполнения (Execution Time)</strong></td>
+ <td>1 850–3 500 мс</td>
+ <td>&lt; 0.7 мс</td>
+ </tr>
+ <tr>
+ <td><strong>Строк отсеяно фильтром (Rows Removed)</strong></td>
+ <td>2 499 985 строк</td>
+ <td>0 строк (отсечение на уровне дерева)</td>
+ </tr>
+ </tbody>
+ </table>
 
-      <label for="hw_ans_2">Аналитический комментарий к плану выполнения и объяснение ускорения:</label>
-      <textarea id="hw_ans_2" class="answer-area"></textarea>
-    </section>
+ <label for="hw_ans_2">Аналитический комментарий к плану выполнения и объяснение ускорения:</label>
+ <textarea id="hw_ans_2" class="answer-area"></textarea>
+ </section>
 
-    <section class="task-card">
-      <h2>Задание 3. Полнотекстовый поиск по описанию и блок самопроверки (1 балл)</h2>
-      <p>
-        Пользователи часто ищут объекты по ключевым словам в описании: например, <em>«панорамные окна первая линия отдельный вход»</em>.
-      </p>
-      <ol>
-        <li>Почему конструкция <code>WHERE description LIKE '%первая линия%'</code> приведет к деградации производительности сервера?</li>
-        <li>Напишите DDL-команду создания инвертированного индекса GIN с использованием русской конфигурации стемминга.</li>
-        <li>Напишите поисковый запрос с оператором <code>@@</code>, находящий объявления со словами «панорамный» и «вход».</li>
-      </ol>
-      <label for="hw_ans_3">Решение и ответы на вопросы самопроверки:</label>
-      <textarea id="hw_ans_3" class="answer-area"></textarea>
-    </section>
+ <section class="task-card">
+ <h2>Задание 3. Полнотекстовый поиск по описанию и блок самопроверки (1 балл)</h2>
+ <p>
+ Пользователи часто ищут объекты по ключевым словам в описании: например, <em>«панорамные окна первая линия отдельный вход»</em>.
+ </p>
+ <ol>
+ <li>Почему конструкция <code>WHERE description LIKE '%первая линия%'</code> приведет к деградации производительности сервера?</li>
+ <li>Напишите DDL-команду создания инвертированного индекса GIN с использованием русской конфигурации стемминга.</li>
+ <li>Напишите поисковый запрос с оператором <code>@@</code>, находящий объявления со словами «панорамный» и «вход».</li>
+ </ol>
+ <label for="hw_ans_3">Решение и ответы на вопросы самопроверки:</label>
+ <textarea id="hw_ans_3" class="answer-area"></textarea>
+ </section>
 
-    <div class="action-panel">
-      <span class="status-msg" id="save_status">Данные сохранены локально</span>
-      <button type="button" class="btn btn-secondary" id="btn_clear">Очистить форму</button>
-      <button type="button" class="btn btn-primary" id="btn_print">Печать / Сохранить в PDF</button>
-    </div>
-  </div>
+ <div class="action-panel">
+ <span class="status-msg" id="save_status">Данные сохранены локально</span>
+ <button type="button" class="btn btn-secondary" id="btn_clear">Очистить форму</button>
+ <button type="button" class="btn btn-primary" id="btn_print">Печать / Сохранить в PDF</button>
+ </div>
+ </div>
 
-  <script>
-    (function() {
-      const STORAGE_KEY = 'SIE_DB_HW20_RESERVE_STORAGE';
-      const fields = ['hw_student_name', 'hw_student_group', 'hw_ans_1', 'hw_ans_2', 'hw_ans_3'];
-      const statusMsg = document.getElementById('save_status');
+ <script>
+ (function() {
+ const STORAGE_KEY = 'SIE_DB_HW20_RESERVE_STORAGE';
+ const fields = ['hw_student_name', 'hw_student_group', 'hw_ans_1', 'hw_ans_2', 'hw_ans_3'];
+ const statusMsg = document.getElementById('save_status');
 
-      function loadData() {
-        try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          if (!raw) return;
-          const data = JSON.parse(raw);
-          fields.forEach(id => {
-            const el = document.getElementById(id);
-            if (el && data[id] !== undefined) {
-              el.value = data[id];
-            }
-          });
-        } catch (e) {
-          console.error('Ошибка загрузки данных:', e);
-        }
-      }
+ function loadData() {
+ try {
+ const raw = localStorage.getItem(STORAGE_KEY);
+ if (!raw) return;
+ const data = JSON.parse(raw);
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el && data[id] !== undefined) {
+ el.value = data[id];
+ }
+ });
+ } catch (e) {
+ console.error('Ошибка загрузки данных:', e);
+ }
+ }
 
-      function saveData() {
-        try {
-          const data = {};
-          fields.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) data[id] = el.value;
-          });
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-          statusMsg.style.display = 'inline';
-          setTimeout(() => {
-            statusMsg.style.display = 'none';
-          }, 2000);
-        } catch (e) {
-          console.error('Ошибка сохранения данных:', e);
-        }
-      }
+ function saveData() {
+ try {
+ const data = {};
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) data[id] = el.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ statusMsg.style.display = 'inline';
+ setTimeout(() => {
+ statusMsg.style.display = 'none';
+ }, 2000);
+ } catch (e) {
+ console.error('Ошибка сохранения данных:', e);
+ }
+ }
 
-      fields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-          el.addEventListener('input', saveData);
-        }
-      });
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) {
+ el.addEventListener('input', saveData);
+ }
+ });
 
-      document.getElementById('btn_clear').addEventListener('click', () => {
-        if (confirm('Вы уверены, что хотите полностью очистить форму домашнего задания? Все внесенные ответы будут удалены.')) {
-          localStorage.removeItem(STORAGE_KEY);
-          fields.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.value = '';
-          });
-        }
-      });
+ document.getElementById('btn_clear').addEventListener('click', () => {
+ if (confirm('Вы уверены, что хотите полностью очистить форму домашнего задания? Все внесенные ответы будут удалены.')) {
+ localStorage.removeItem(STORAGE_KEY);
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) el.value = '';
+ });
+ }
+ });
 
-      document.getElementById('btn_print').addEventListener('click', () => {
-        window.print();
-      });
+ document.getElementById('btn_print').addEventListener('click', () => {
+ window.print();
+ });
 
-      loadData();
-    })();
-  </script>
+ loadData();
+ })();
+ </script>
 </body>
 </html>

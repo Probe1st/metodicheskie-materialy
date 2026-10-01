@@ -1,606 +1,587 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="color-scheme" content="light">
-  <title>Теоретический конспект — Нормализация БД: проверка связей</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #0284c7;
-      --accent-soft: #f0f9ff;
-      --accent-dark: #0369a1;
-      --success: #15803d;
-      --success-soft: #f0fdf4;
-      --warn: #b45309;
-      --warn-soft: #fffbeb;
-      --danger: #b91c1c;
-      --danger-soft: #fef2f2;
-      --code-bg: #0f172a;
-      --code-text: #f8fafc;
-      --radius: 12px;
-      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-    }
-    * { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      line-height: 1.65;
-      font-size: 16px;
-    }
-    .page {
-      width: min(100% - 32px, 960px);
-      margin: 32px auto 80px;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 32px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow);
-    }
-    h1 {
-      margin: 0 0 12px;
-      font-size: clamp(24px, 4vw, 32px);
-      color: var(--text);
-      line-height: 1.25;
-    }
-    .lead {
-      color: var(--muted);
-      margin: 0;
-      font-size: 16px;
-    }
-    h2 {
-      margin: 0 0 16px;
-      font-size: 21px;
-      color: var(--accent);
-      border-bottom: 2px solid var(--accent-soft);
-      padding-bottom: 8px;
-    }
-    h3 {
-      font-size: 18px;
-      margin: 22px 0 12px;
-      color: var(--text);
-    }
-    h4 {
-      font-size: 16px;
-      margin: 16px 0 8px;
-      color: var(--accent-dark);
-    }
-    p, ul, ol {
-      margin-top: 0;
-      margin-bottom: 12px;
-    }
-    ul, ol {
-      padding-left: 24px;
-    }
-    li {
-      margin-bottom: 6px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 16px 0 20px;
-      font-size: 15px;
-    }
-    th, td {
-      border: 1px solid var(--line);
-      padding: 10px 14px;
-      text-align: left;
-      vertical-align: top;
-    }
-    th {
-      background: #f1f5f9;
-      color: var(--text);
-      font-weight: 600;
-    }
-    .badge {
-      display: inline-block;
-      padding: 3px 10px;
-      font-size: 12px;
-      font-weight: 700;
-      border-radius: 999px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .badge-blue { background: var(--accent-soft); color: var(--accent-dark); border: 1px solid #bae6fd; }
-    .badge-amber { background: var(--warn-soft); color: var(--warn); border: 1px solid #fde68a; }
-    .badge-green { background: var(--success-soft); color: var(--success); border: 1px solid #bbf7d0; }
-    .badge-red { background: var(--danger-soft); color: var(--danger); border: 1px solid #fecaca; }
-    .callout {
-      border-left: 4px solid var(--accent);
-      background: var(--accent-soft);
-      padding: 16px 20px;
-      border-radius: 0 var(--radius) var(--radius) 0;
-      margin: 16px 0 20px;
-    }
-    .callout-warn {
-      border-left-color: var(--warn);
-      background: var(--warn-soft);
-    }
-    .callout-danger {
-      border-left-color: var(--danger);
-      background: var(--danger-soft);
-    }
-    .callout-title {
-      font-weight: 700;
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.9em;
-      background: #f1f5f9;
-      padding: 2px 6px;
-      border-radius: 4px;
-      color: #0f172a;
-    }
-    .formula-box {
-      background: #f8fafc;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      padding: 14px 18px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
-      font-size: 15px;
-      margin: 12px 0 16px;
-      color: #1e293b;
-    }
-    .math-sym {
-      font-weight: bold;
-      color: #0369a1;
-    }
-    .spurious-row {
-      background: #fee2e2;
-      color: #991b1b;
-      font-weight: 600;
-    }
-    .valid-row {
-      background: #ecfdf5;
-      color: #065f46;
-    }
-    .tableau-table td {
-      text-align: center;
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    }
-    .tableau-table th {
-      text-align: center;
-    }
-    .tableau-found {
-      background: #dcfce7;
-      font-weight: bold;
-      color: #166534;
-    }
-    details {
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 14px 18px;
-      margin-bottom: 12px;
-    }
-    summary {
-      cursor: pointer;
-      font-weight: 600;
-      color: var(--accent-dark);
-      outline: none;
-    }
-    summary:hover {
-      color: var(--accent);
-    }
-    details[open] summary {
-      margin-bottom: 10px;
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <meta name="color-scheme" content="light">
+ <title>Теоретический конспект — Нормализация БД: проверка связей</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #0284c7;
+ --accent-soft: #f0f9ff;
+ --accent-dark: #0369a1;
+ --success: #15803d;
+ --success-soft: #f0fdf4;
+ --warn: #b45309;
+ --warn-soft: #fffbeb;
+ --danger: #b91c1c;
+ --danger-soft: #fef2f2;
+ --code-bg: #0f172a;
+ --code-text: #f8fafc;
+ --radius: 12px;
+ --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+ }
+ * { box-sizing: border-box; }
+ html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+ body {
+ margin: 0;
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+ line-height: 1.65;
+ font-size: 16px;
+ }.page {
+ width: min(100% - 32px, 960px);
+ margin: 32px auto 80px;
+ }.card {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 32px;
+ margin-bottom: 24px;
+ box-shadow: var(--shadow);
+ }
+ h1 {
+ margin: 0 0 12px;
+ font-size: clamp(24px, 4vw, 32px);
+ color: var(--text);
+ line-height: 1.25;
+ }.lead {
+ color: var(--muted);
+ margin: 0;
+ font-size: 16px;
+ }
+ h2 {
+ margin: 0 0 16px;
+ font-size: 21px;
+ color: var(--accent);
+ border-bottom: 2px solid var(--accent-soft);
+ padding-bottom: 8px;
+ }
+ h3 {
+ font-size: 18px;
+ margin: 22px 0 12px;
+ color: var(--text);
+ }
+ h4 {
+ font-size: 16px;
+ margin: 16px 0 8px;
+ color: var(--accent-dark);
+ }
+ p, ul, ol {
+ margin-top: 0;
+ margin-bottom: 12px;
+ }
+ ul, ol {
+ padding-left: 24px;
+ }
+ li {
+ margin-bottom: 6px;
+ }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ margin: 16px 0 20px;
+ font-size: 15px;
+ }
+ th, td {
+ border: 1px solid var(--line);
+ padding: 10px 14px;
+ text-align: left;
+ vertical-align: top;
+ }
+ th {
+ background: #f1f5f9;
+ color: var(--text);
+ font-weight: 600;
+ }.badge {
+ display: inline-block;
+ padding: 3px 10px;
+ font-size: 12px;
+ font-weight: 700;
+ border-radius: 999px;
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+ }.badge-blue { background: var(--accent-soft); color: var(--accent-dark); border: 1px solid #bae6fd; }.badge-amber { background: var(--warn-soft); color: var(--warn); border: 1px solid #fde68a; }.badge-green { background: var(--success-soft); color: var(--success); border: 1px solid #bbf7d0; }.badge-red { background: var(--danger-soft); color: var(--danger); border: 1px solid #fecaca; }.callout {
+ border-left: 4px solid var(--accent);
+ background: var(--accent-soft);
+ padding: 16px 20px;
+ border-radius: 0 var(--radius) var(--radius) 0;
+ margin: 16px 0 20px;
+ }.callout-warn {
+ border-left-color: var(--warn);
+ background: var(--warn-soft);
+ }.callout-danger {
+ border-left-color: var(--danger);
+ background: var(--danger-soft);
+ }.callout-title {
+ font-weight: 700;
+ margin-bottom: 6px;
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ }
+ code {
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 0.9em;
+ background: #f1f5f9;
+ padding: 2px 6px;
+ border-radius: 4px;
+ color: #0f172a;
+ }.formula-box {
+ background: #f8fafc;
+ border: 1px solid #cbd5e1;
+ border-radius: 8px;
+ padding: 14px 18px;
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+ font-size: 15px;
+ margin: 12px 0 16px;
+ color: #1e293b;
+ }.math-sym {
+ font-weight: bold;
+ color: #0369a1;
+ }.spurious-row {
+ background: #fee2e2;
+ color: #991b1b;
+ font-weight: 600;
+ }.valid-row {
+ background: #ecfdf5;
+ color: #065f46;
+ }.tableau-table td {
+ text-align: center;
+ font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+ }.tableau-table th {
+ text-align: center;
+ }.tableau-found {
+ background: #dcfce7;
+ font-weight: bold;
+ color: #166534;
+ }
+ details {
+ background: #f8fafc;
+ border: 1px solid var(--line);
+ border-radius: 8px;
+ padding: 14px 18px;
+ margin-bottom: 12px;
+ }
+ summary {
+ cursor: pointer;
+ font-weight: 600;
+ color: var(--accent-dark);
+ outline: none;
+ }
+ summary:hover {
+ color: var(--accent);
+ }
+ details[open] summary {
+ margin-bottom: 10px;
+ }
+ </style>
 </head>
 <body>
-  <div class="page">
-    <header class="card">
-      <span class="badge badge-blue">Теоретический конспект студента</span>
-      <h1 style="margin-top: 8px;">Нормализация БД: проверка связей</h1>
-      <p class="lead">Фундаментальный конспект по проверке декомпозиции схемы отношений: свойство соединения без потерь, возникновение ложных кортежей, теорема Риссанена, алгоритм табло, многозначные зависимости (4НФ), зависимости соединения (5НФ) и осознанная денормализация в аналитических системах.</p>
-    </header>
+ <div class="page">
+ <header class="card">
+ <span class="badge badge-blue">Теоретический конспект студента</span>
+ <h1 style="margin-top: 8px;">Нормализация БД: проверка связей</h1>
+ <p class="lead">Фундаментальный конспект по проверке декомпозиции схемы отношений: свойство соединения без потерь, возникновение ложных кортежей, теорема Риссанена, алгоритм табло, многозначные зависимости (4НФ), зависимости соединения (5НФ) и осознанная денормализация в аналитических системах.</p>
+ </header>
 
-    <section class="card">
-      <h2>1. Зачем проверять связи при декомпозиции?</h2>
-      <p>В процессе проектирования реляционной базы данных исходные «плоские» таблицы декомпозируются (расщепляются) на несколько более компактных отношений. Цель нормализации — устранение аномалий вставки, обновления и удаления, обусловленных избыточностью функциональных зависимостей (ФЗ).</p>
-      <p>Однако произвольное расщепление таблицы может разрушить проект базы данных. Чтобы декомпозиция была корректной, она обязана удовлетворять двум фундаментальным критериям:</p>
-      <ol>
-        <li><strong>Соединение без потерь данных (Lossless-Join Property):</strong> при обратном объединении таблиц с помощью операции естественного соединения мы должны получить в точности исходное состояние без потери фактов и без появления паразитных строк.</li>
-        <li><strong>Сохранение функциональных зависимостей (Dependency Preservation):</strong> все исходные бизнес-правила должны проверяться локально внутри полученных таблиц без выполнения дорогостоящих межтабличных соединений.</li>
-      </ol>
+ <section class="card">
+ <h2>1. Зачем проверять связи при декомпозиции?</h2>
+ <p>В процессе проектирования реляционной базы данных исходные «плоские» таблицы декомпозируются (расщепляются) на несколько более компактных отношений. Цель нормализации — устранение аномалий вставки, обновления и удаления, обусловленных избыточностью функциональных зависимостей (ФЗ).</p>
+ <p>Однако произвольное расщепление таблицы может разрушить проект базы данных. Чтобы декомпозиция была корректной, она обязана удовлетворять двум фундаментальным критериям:</p>
+ <ol>
+ <li><strong>Соединение без потерь данных (Lossless-Join Property):</strong> при обратном объединении таблиц с помощью операции естественного соединения мы должны получить в точности исходное состояние без потери фактов и без появления паразитных строк.</li>
+ <li><strong>Сохранение функциональных зависимостей (Dependency Preservation):</strong> все исходные бизнес-правила должны проверяться локально внутри полученных таблиц без выполнения дорогостоящих межтабличных соединений.</li>
+ </ol>
 
-      <div class="callout callout-warn">
-        <div class="callout-title">
-          <span class="badge badge-amber">Важнейший парадокс терминологии</span>
-        </div>
-        <p>Термин <em>«декомпозиция с потерями» (Lossy Decomposition)</em> в теории баз данных означает вовсе не пропажу строк! Напротив, строк становится <strong>больше</strong>, чем было. «Потеря» заключается в <strong>потере точности информации</strong>: в таблице возникают ложные кортежи (Spurious Tuples), искажающие реальность.</p>
-      </div>
-    </section>
+ <div class="callout callout-warn">
+ <div class="callout-title">
+ <span class="badge badge-amber">Важнейший парадокс терминологии</span>
+ </div>
+ <p>Термин <em>«декомпозиция с потерями» (Lossy Decomposition)</em> в теории баз данных означает вовсе не пропажу строк! Напротив, строк становится <strong>больше</strong>, чем было. «Потеря» заключается в <strong>потере точности информации</strong>: в таблице возникают ложные кортежи (Spurious Tuples), искажающие реальность.</p>
+ </div>
+ </section>
 
-    <section class="card">
-      <h2>2. Иллюстрация возникновения ложных кортежей (Spurious Tuples)</h2>
-      <p>Рассмотрим конкретное отношение <code>R(Студент, Факультет, Куратор)</code>, отражающее назначение куратора студенту в рамках факультета. Исходное отношение содержит 2 реальных кортежа:</p>
+ <section class="card">
+ <h2>2. Иллюстрация возникновения ложных кортежей (Spurious Tuples)</h2>
+ <p>Рассмотрим конкретное отношение <code>R(Студент, Факультет, Куратор)</code>, отражающее назначение куратора студенту в рамках факультета. Исходное отношение содержит 2 реальных кортежа:</p>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Студент</th>
-            <th>Факультет</th>
-            <th>Куратор</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="valid-row">
-            <td>Иванов</td>
-            <td>ИТ</td>
-            <td>Петров</td>
-          </tr>
-          <tr class="valid-row">
-            <td>Смирнов</td>
-            <td>ИТ</td>
-            <td>Сидоров</td>
-          </tr>
-        </tbody>
-      </table>
+ <table>
+ <thead>
+ <tr>
+ <th>Студент</th>
+ <th>Факультет</th>
+ <th>Куратор</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr class="valid-row">
+ <td>Иванов</td>
+ <td>ИТ</td>
+ <td>Петров</td>
+ </tr>
+ <tr class="valid-row">
+ <td>Смирнов</td>
+ <td>ИТ</td>
+ <td>Сидоров</td>
+ </tr>
+ </tbody>
+ </table>
 
-      <h3>Вариант А. Корректная декомпозиция (по первичному ключу «Студент»)</h3>
-      <p>Разбиваем отношение на две подсхемы: <code>R1(Студент, Факультет)</code> и <code>R2(Студент, Куратор)</code>. Общий атрибут — <code>Студент</code>, который является первичным ключом для исходного отношения <code>R</code>.</p>
-      
-      <p>Проекции содержат:</p>
-      <ul>
-        <li><code>R1</code>: (Иванов, ИТ), (Смирнов, ИТ).</li>
-        <li><code>R2</code>: (Иванов, Петров), (Смирнов, Сидоров).</li>
-      </ul>
-      <p>Выполняем естественное соединение <code>R1 ⋈ R2</code> по общему ключу <code>Студент</code>: получаем ровно 2 исходных кортежа. Декомпозиция является <strong>соединением без потерь</strong>.</p>
+ <h3>Вариант А. Корректная декомпозиция (по первичному ключу «Студент»)</h3>
+ <p>Разбиваем отношение на две подсхемы: <code>R1(Студент, Факультет)</code> и <code>R2(Студент, Куратор)</code>. Общий атрибут — <code>Студент</code>, который является первичным ключом для исходного отношения <code>R</code>.</p>
+ 
+ <p>Проекции содержат:</p>
+ <ul>
+ <li><code>R1</code>: (Иванов, ИТ), (Смирнов, ИТ).</li>
+ <li><code>R2</code>: (Иванов, Петров), (Смирнов, Сидоров).</li>
+ </ul>
+ <p>Выполняем естественное соединение <code>R1 ⋈ R2</code> по общему ключу <code>Студент</code>: получаем ровно 2 исходных кортежа. Декомпозиция является <strong>соединением без потерь</strong>.</p>
 
-      <h3>Вариант Б. Ошибочная декомпозиция (по неключевому атрибуту «Факультет»)</h3>
-      <p>Разбиваем отношение на подсхемы: <code>R1(Студент, Факультет)</code> и <code>R3(Факультет, Куратор)</code>. Общий атрибут — <code>Факультет</code>. Ни в <code>R1</code>, ни в <code>R3</code> факультет не является ключом (на одном факультете учится много студентов и работает много кураторов).</p>
+ <h3>Вариант Б. Ошибочная декомпозиция (по неключевому атрибуту «Факультет»)</h3>
+ <p>Разбиваем отношение на подсхемы: <code>R1(Студент, Факультет)</code> и <code>R3(Факультет, Куратор)</code>. Общий атрибут — <code>Факультет</code>. Ни в <code>R1</code>, ни в <code>R3</code> факультет не является ключом (на одном факультете учится много студентов и работает много кураторов).</p>
 
-      <p>Выполняем обратное естественное соединение <code>R1 ⋈ R3</code> по условию <code>R1.Факультет = R3.Факультет</code>:</p>
+ <p>Выполняем обратное естественное соединение <code>R1 ⋈ R3</code> по условию <code>R1.Факультет = R3.Факультет</code>:</p>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Студент</th>
-            <th>Факультет</th>
-            <th>Куратор</th>
-            <th>Статус кортежа в БД</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="valid-row">
-            <td>Иванов</td>
-            <td>ИТ</td>
-            <td>Петров</td>
-            <td>Истинный кортеж (был в исходной БД)</td>
-          </tr>
-          <tr class="spurious-row">
-            <td>Иванов</td>
-            <td>ИТ</td>
-            <td>Сидоров</td>
-            <td>ЛОЖНЫЙ КОРТЕЖ (Spurious Tuple)! У Иванова куратор не Сидоров!</td>
-          </tr>
-          <tr class="spurious-row">
-            <td>Смирнов</td>
-            <td>ИТ</td>
-            <td>Петров</td>
-            <td>ЛОЖНЫЙ КОРТЕЖ (Spurious Tuple)! У Смирнова куратор не Петров!</td>
-          </tr>
-          <tr class="valid-row">
-            <td>Смирнов</td>
-            <td>ИТ</td>
-            <td>Сидоров</td>
-            <td>Истинный кортеж (был в исходной БД)</td>
-          </tr>
-        </tbody>
-      </table>
+ <table>
+ <thead>
+ <tr>
+ <th>Студент</th>
+ <th>Факультет</th>
+ <th>Куратор</th>
+ <th>Статус кортежа в БД</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr class="valid-row">
+ <td>Иванов</td>
+ <td>ИТ</td>
+ <td>Петров</td>
+ <td>Истинный кортеж (был в исходной БД)</td>
+ </tr>
+ <tr class="spurious-row">
+ <td>Иванов</td>
+ <td>ИТ</td>
+ <td>Сидоров</td>
+ <td>ЛОЖНЫЙ КОРТЕЖ (Spurious Tuple)! У Иванова куратор не Сидоров!</td>
+ </tr>
+ <tr class="spurious-row">
+ <td>Смирнов</td>
+ <td>ИТ</td>
+ <td>Петров</td>
+ <td>ЛОЖНЫЙ КОРТЕЖ (Spurious Tuple)! У Смирнова куратор не Петров!</td>
+ </tr>
+ <tr class="valid-row">
+ <td>Смирнов</td>
+ <td>ИТ</td>
+ <td>Сидоров</td>
+ <td>Истинный кортеж (был в исходной БД)</td>
+ </tr>
+ </tbody>
+ </table>
 
-      <div class="callout callout-danger">
-        <div class="callout-title">
-          <span class="badge badge-red">Катастрофические последствия</span>
-        </div>
-        <p>В результате некорректного соединения система сгенерировала ложные факты: теперь Иванов прикреплен сразу к двум кураторам, и Смирнов тоже. В финансовой системе это эквивалентно списанию чужого долга или дублированию транзакций!</p>
-      </div>
-    </section>
+ <div class="callout callout-danger">
+ <div class="callout-title">
+ <span class="badge badge-red">Катастрофические последствия</span>
+ </div>
+ <p>В результате некорректного соединения система сгенерировала ложные факты: теперь Иванов прикреплен сразу к двум кураторам, и Смирнов тоже. В финансовой системе это эквивалентно списанию чужого долга или дублированию транзакций!</p>
+ </div>
+ </section>
 
-    <section class="card">
-      <h2>3. Теорема Риссанена для бинарной декомпозиции</h2>
-      <p>Чтобы не моделировать ошибочные соединения вручную, финский ученый Йорма Риссанен в 1977 году доказал фундаментальную теорему:</p>
+ <section class="card">
+ <h2>3. Теорема Риссанена для бинарной декомпозиции</h2>
+ <p>Чтобы не моделировать ошибочные соединения вручную, финский ученый Йорма Риссанен в 1977 году доказал фундаментальную теорему:</p>
 
-      <div class="formula-box">
-        <strong>Теорема Риссанена:</strong><br>
-        Декомпозиция отношения R на два отношения R₁ и R₂ (R₁ ∪ R₂ = R) является <strong>соединением без потерь</strong> относительно множества функциональных зависимостей F тогда и только тогда, когда:<br><br>
-        <span class="math-sym">(R₁ ∩ R₂ → R₁) ∈ F⁺</span> &nbsp;&nbsp;ИЛИ&nbsp;&nbsp; <span class="math-sym">(R₁ ∩ R₂ → R₂) ∈ F⁺</span>
-      </div>
+ <div class="formula-box">
+ <strong>Теорема Риссанена:</strong><br>
+ Декомпозиция отношения R на два отношения R₁ и R₂ (R₁ ∪ R₂ = R) является <strong>соединением без потерь</strong> относительно множества функциональных зависимостей F тогда и только тогда, когда:<br><br>
+ <span class="math-sym">(R₁ ∩ R₂ → R₁) ∈ F⁺</span> &nbsp;&nbsp;ИЛИ&nbsp;&nbsp; <span class="math-sym">(R₁ ∩ R₂ → R₂) ∈ F⁺</span>
+ </div>
 
-      <p><strong>Практическое правило инженера:</strong></p>
-      <ol>
-        <li>Найдите пересечение атрибутов двух подсхем: <code>X = R₁ ∩ R₂</code>.</li>
-        <li>Вычислите замыкание атрибутов <code>X⁺</code> относительно заданного множества ФЗ F.</li>
-        <li>Проверьте: содержит ли <code>X⁺</code> все атрибуты R₁ (то есть X — суперключ R₁) либо все атрибуты R₂ (то есть X — суперключ R₂).</li>
-        <li>Если хотя бы одно условие выполнено — соединение гарантированно <strong>без потерь</strong>. Если ни одно не выполнено — декомпозиция породит ложные кортежи.</li>
-      </ol>
-    </section>
+ <p><strong>Практическое правило инженера:</strong></p>
+ <ol>
+ <li>Найдите пересечение атрибутов двух подсхем: <code>X = R₁ ∩ R₂</code>.</li>
+ <li>Вычислите замыкание атрибутов <code>X⁺</code> относительно заданного множества ФЗ F.</li>
+ <li>Проверьте: содержит ли <code>X⁺</code> все атрибуты R₁ (то есть X — суперключ R₁) либо все атрибуты R₂ (то есть X — суперключ R₂).</li>
+ <li>Если хотя бы одно условие выполнено — соединение гарантированно <strong>без потерь</strong>. Если ни одно не выполнено — декомпозиция породит ложные кортежи.</li>
+ </ol>
+ </section>
 
-    <section class="card">
-      <h2>4. Алгоритм табло (Tableau Algorithm) для произвольной декомпозиции</h2>
-      <p>Если отношение разбивается на 3 и более подсхем, теорема Риссанена не дает прямого ответа. В этом случае применяется матричный алгоритм табло (Ахо, Бири, Ульман).</p>
+ <section class="card">
+ <h2>4. Алгоритм табло (Tableau Algorithm) для произвольной декомпозиции</h2>
+ <p>Если отношение разбивается на 3 и более подсхем, теорема Риссанена не дает прямого ответа. В этом случае применяется матричный алгоритм табло (Ахо, Бири, Ульман).</p>
 
-      <h3>Пример проверки декомпозиции табло</h3>
-      <p>Дано отношение <code>R(A, B, C, D)</code> и множество ФЗ <code>F = {A → B, B → C, C → D}</code>.<br>
-      Предложена декомпозиция на 3 подсхемы: <code>R₁(A, B)</code>, <code>R₂(B, C)</code>, <code>R₃(C, D)</code>. Проверим ее на соединение без потерь.</p>
+ <h3>Пример проверки декомпозиции табло</h3>
+ <p>Дано отношение <code>R(A, B, C, D)</code> и множество ФЗ <code>F = {A → B, B → C, C → D}</code>.<br>
+ Предложена декомпозиция на 3 подсхемы: <code>R₁(A, B)</code>, <code>R₂(B, C)</code>, <code>R₃(C, D)</code>. Проверим ее на соединение без потерь.</p>
 
-      <h4>Шаг 0. Исходное табло</h4>
-      <p>Строим матрицу: строки — подсхемы, столбцы — атрибуты. Если атрибут входит в подсхему, пишем <code>a_j</code>, иначе <code>b_{ij}</code>:</p>
+ <h4>Шаг 0. Исходное табло</h4>
+ <p>Строим матрицу: строки — подсхемы, столбцы — атрибуты. Если атрибут входит в подсхему, пишем <code>a_j</code>, иначе <code>b_{ij}</code>:</p>
 
-      <table class="tableau-table">
-        <thead>
-          <tr>
-            <th>Подсхема</th>
-            <th>A</th>
-            <th>B</th>
-            <th>C</th>
-            <th>D</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>R₁(A, B)</strong></td>
-            <td>a₁</td>
-            <td>a₂</td>
-            <td>b₁₃</td>
-            <td>b₁₄</td>
-          </tr>
-          <tr>
-            <td><strong>R₂(B, C)</strong></td>
-            <td>b₂₁</td>
-            <td>a₂</td>
-            <td>a₃</td>
-            <td>b₂₄</td>
-          </tr>
-          <tr>
-            <td><strong>R₃(C, D)</strong></td>
-            <td>b₃₁</td>
-            <td>b₃₂</td>
-            <td>a₃</td>
-            <td>a₄</td>
-          </tr>
-        </tbody>
-      </table>
+ <table class="tableau-table">
+ <thead>
+ <tr>
+ <th>Подсхема</th>
+ <th>A</th>
+ <th>B</th>
+ <th>C</th>
+ <th>D</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>R₁(A, B)</strong></td>
+ <td>a₁</td>
+ <td>a₂</td>
+ <td>b₁₃</td>
+ <td>b₁₄</td>
+ </tr>
+ <tr>
+ <td><strong>R₂(B, C)</strong></td>
+ <td>b₂₁</td>
+ <td>a₂</td>
+ <td>a₃</td>
+ <td>b₂₄</td>
+ </tr>
+ <tr>
+ <td><strong>R₃(C, D)</strong></td>
+ <td>b₃₁</td>
+ <td>b₃₂</td>
+ <td>a₃</td>
+ <td>a₄</td>
+ </tr>
+ </tbody>
+ </table>
 
-      <h4>Шаг 1. Применяем зависимость B → C</h4>
-      <p>Строки R₁ и R₂ имеют одинаковое значение в столбце B (<code>a₂</code>). Следовательно, по зависимости <code>B → C</code> их значения в столбце C должны совпасть. В строке R₂ стоит <code>a₃</code>, заменяем <code>b₁₃</code> в первой строке на <code>a₃</code>:</p>
+ <h4>Шаг 1. Применяем зависимость B → C</h4>
+ <p>Строки R₁ и R₂ имеют одинаковое значение в столбце B (<code>a₂</code>). Следовательно, по зависимости <code>B → C</code> их значения в столбце C должны совпасть. В строке R₂ стоит <code>a₃</code>, заменяем <code>b₁₃</code> в первой строке на <code>a₃</code>:</p>
 
-      <table class="tableau-table">
-        <thead>
-          <tr>
-            <th>Подсхема</th>
-            <th>A</th>
-            <th>B</th>
-            <th>C</th>
-            <th>D</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>R₁(A, B)</strong></td>
-            <td>a₁</td>
-            <td>a₂</td>
-            <td style="background:#fed7aa;">a₃</td>
-            <td>b₁₄</td>
-          </tr>
-          <tr>
-            <td><strong>R₂(B, C)</strong></td>
-            <td>b₂₁</td>
-            <td>a₂</td>
-            <td>a₃</td>
-            <td>b₂₄</td>
-          </tr>
-          <tr>
-            <td><strong>R₃(C, D)</strong></td>
-            <td>b₃₁</td>
-            <td>b₃₂</td>
-            <td>a₃</td>
-            <td>a₄</td>
-          </tr>
-        </tbody>
-      </table>
+ <table class="tableau-table">
+ <thead>
+ <tr>
+ <th>Подсхема</th>
+ <th>A</th>
+ <th>B</th>
+ <th>C</th>
+ <th>D</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>R₁(A, B)</strong></td>
+ <td>a₁</td>
+ <td>a₂</td>
+ <td style="background:#fed7aa;">a₃</td>
+ <td>b₁₄</td>
+ </tr>
+ <tr>
+ <td><strong>R₂(B, C)</strong></td>
+ <td>b₂₁</td>
+ <td>a₂</td>
+ <td>a₃</td>
+ <td>b₂₄</td>
+ </tr>
+ <tr>
+ <td><strong>R₃(C, D)</strong></td>
+ <td>b₃₁</td>
+ <td>b₃₂</td>
+ <td>a₃</td>
+ <td>a₄</td>
+ </tr>
+ </tbody>
+ </table>
 
-      <h4>Шаг 2. Применяем зависимость C → D</h4>
-      <p>Теперь строки R₁, R₂ и R₃ имеют одинаковое значение в столбце C (<code>a₃</code>). В строке R₃ в столбце D стоит <code>a₄</code>. Распространяем <code>a₄</code> на строки R₁ и R₂:</p>
+ <h4>Шаг 2. Применяем зависимость C → D</h4>
+ <p>Теперь строки R₁, R₂ и R₃ имеют одинаковое значение в столбце C (<code>a₃</code>). В строке R₃ в столбце D стоит <code>a₄</code>. Распространяем <code>a₄</code> на строки R₁ и R₂:</p>
 
-      <table class="tableau-table">
-        <thead>
-          <tr>
-            <th>Подсхема</th>
-            <th>A</th>
-            <th>B</th>
-            <th>C</th>
-            <th>D</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="tableau-found">
-            <td><strong>R₁(A, B)</strong></td>
-            <td>a₁</td>
-            <td>a₂</td>
-            <td>a₃</td>
-            <td>a₄</td>
-          </tr>
-          <tr>
-            <td><strong>R₂(B, C)</strong></td>
-            <td>b₂₁</td>
-            <td>a₂</td>
-            <td>a₃</td>
-            <td style="background:#fed7aa;">a₄</td>
-          </tr>
-          <tr>
-            <td><strong>R₃(C, D)</strong></td>
-            <td>b₃₁</td>
-            <td>b₃₂</td>
-            <td>a₃</td>
-            <td>a₄</td>
-          </tr>
-        </tbody>
-      </table>
+ <table class="tableau-table">
+ <thead>
+ <tr>
+ <th>Подсхема</th>
+ <th>A</th>
+ <th>B</th>
+ <th>C</th>
+ <th>D</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr class="tableau-found">
+ <td><strong>R₁(A, B)</strong></td>
+ <td>a₁</td>
+ <td>a₂</td>
+ <td>a₃</td>
+ <td>a₄</td>
+ </tr>
+ <tr>
+ <td><strong>R₂(B, C)</strong></td>
+ <td>b₂₁</td>
+ <td>a₂</td>
+ <td>a₃</td>
+ <td style="background:#fed7aa;">a₄</td>
+ </tr>
+ <tr>
+ <td><strong>R₃(C, D)</strong></td>
+ <td>b₃₁</td>
+ <td>b₃₂</td>
+ <td>a₃</td>
+ <td>a₄</td>
+ </tr>
+ </tbody>
+ </table>
 
-      <div class="callout">
-        <div class="callout-title">
-          <span class="badge badge-green">Результат проверки табло</span>
-        </div>
-        <p>В строке R₁ получена полная последовательность универсальных символов <code>(a₁, a₂, a₃, a₄)</code>. Алгоритм завершается успешно: декомпозиция <code>R₁(A, B), R₂(B, C), R₃(C, D)</code> обладает свойством <strong>соединения без потерь</strong>!</p>
-      </div>
-    </section>
+ <div class="callout">
+ <div class="callout-title">
+ <span class="badge badge-green">Результат проверки табло</span>
+ </div>
+ <p>В строке R₁ получена полная последовательность универсальных символов <code>(a₁, a₂, a₃, a₄)</code>. Алгоритм завершается успешно: декомпозиция <code>R₁(A, B), R₂(B, C), R₃(C, D)</code> обладает свойством <strong>соединения без потерь</strong>!</p>
+ </div>
+ </section>
 
-    <section class="card">
-      <h2>5. Сохранение функциональных зависимостей (Dependency Preservation)</h2>
-      <p>Декомпозиция <code>D = {R₁, …, Rₖ}</code> отношения R сохраняет функциональные зависимости, если объединение зависимостей, проецируемых на отдельные таблицы, логически эквивалентно полному исходному множеству ФЗ:</p>
-      <div class="formula-box">
-        (π_{R₁}(F) ∪ π_{R₂}(F) ∪ … ∪ π_{Rₖ}(F))⁺ = F⁺
-      </div>
-      <p>Если зависимость разорвана, то при выполнении оператора <code>INSERT</code> в одну из таблиц СУБД не сможет проверить целостность бизнес-правила через обычный индекс <code>PRIMARY KEY / UNIQUE</code> — придется вызывать межтабличный <code>JOIN</code>, что снижает производительность на порядки.</p>
+ <section class="card">
+ <h2>5. Сохранение функциональных зависимостей (Dependency Preservation)</h2>
+ <p>Декомпозиция <code>D = {R₁, …, Rₖ}</code> отношения R сохраняет функциональные зависимости, если объединение зависимостей, проецируемых на отдельные таблицы, логически эквивалентно полному исходному множеству ФЗ:</p>
+ <div class="formula-box">
+ (π_{R₁}(F) ∪ π_{R₂}(F) ∪ … ∪ π_{Rₖ}(F))⁺ = F⁺
+ </div>
+ <p>Если зависимость разорвана, то при выполнении оператора <code>INSERT</code> в одну из таблиц СУБД не сможет проверить целостность бизнес-правила через обычный индекс <code>PRIMARY KEY / UNIQUE</code> — придется вызывать межтабличный <code>JOIN</code>, что снижает производительность на порядки.</p>
 
-      <div class="callout callout-warn">
-        <div class="callout-title">
-          <span class="badge badge-amber">3НФ против НФБК</span>
-        </div>
-        <p>Любая реляционная схема может быть декомпозирована в <strong>3НФ</strong> с одновременным сохранением ФЗ и соединением без потерь. Для <strong>НФБК (BCNF)</strong> соединение без потерь гарантируется всегда, но сохранение зависимостей удается обеспечить не для всех схем отношений!</p>
-      </div>
-    </section>
+ <div class="callout callout-warn">
+ <div class="callout-title">
+ <span class="badge badge-amber">3НФ против НФБК</span>
+ </div>
+ <p>Любая реляционная схема может быть декомпозирована в <strong>3НФ</strong> с одновременным сохранением ФЗ и соединением без потерь. Для <strong>НФБК (BCNF)</strong> соединение без потерь гарантируется всегда, но сохранение зависимостей удается обеспечить не для всех схем отношений!</p>
+ </div>
+ </section>
 
-    <section class="card">
-      <h2>6. Многозначные зависимости (MVD) и Четвертая нормальная форма (4NF)</h2>
-      <p>Что делать, когда функциональных зависимостей нет (все поля входят в первичный ключ), но избыточность все равно колоссальна? Классический пример: отношение <code>R(Преподаватель, Дисциплина, Учебник)</code>.</p>
-      <ul>
-        <li>Один преподаватель ведет несколько независимых дисциплин.</li>
-        <li>Один преподаватель использует несколько рекомендуемых учебников.</li>
-        <li>Выбор учебника никак не зависит от того, какую именно дисциплину читает преподаватель.</li>
-      </ul>
+ <section class="card">
+ <h2>6. Многозначные зависимости (MVD) и Четвертая нормальная форма (4NF)</h2>
+ <p>Что делать, когда функциональных зависимостей нет (все поля входят в первичный ключ), но избыточность все равно колоссальна? Классический пример: отношение <code>R(Преподаватель, Дисциплина, Учебник)</code>.</p>
+ <ul>
+ <li>Один преподаватель ведет несколько независимых дисциплин.</li>
+ <li>Один преподаватель использует несколько рекомендуемых учебников.</li>
+ <li>Выбор учебника никак не зависит от того, какую именно дисциплину читает преподаватель.</li>
+ </ul>
 
-      <p>Таблица вынуждена содержать декартово произведение всех дисциплин на все учебники каждого преподавателя:</p>
+ <p>Таблица вынуждена содержать декартово произведение всех дисциплин на все учебники каждого преподавателя:</p>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Преподаватель</th>
-            <th>Дисциплина</th>
-            <th>Учебник</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Кузнецов</td>
-            <td>Базы данных</td>
-            <td>Дейт К.</td>
-          </tr>
-          <tr>
-            <td>Кузнецов</td>
-            <td>Базы данных</td>
-            <td>Коннолли Т.</td>
-          </tr>
-          <tr>
-            <td>Кузнецов</td>
-            <td>Сети ЭВМ</td>
-            <td>Дейт К.</td>
-          </tr>
-          <tr>
-            <td>Кузнецов</td>
-            <td>Сети ЭВМ</td>
-            <td>Коннолли Т.</td>
-          </tr>
-        </tbody>
-      </table>
+ <table>
+ <thead>
+ <tr>
+ <th>Преподаватель</th>
+ <th>Дисциплина</th>
+ <th>Учебник</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>Кузнецов</td>
+ <td>Базы данных</td>
+ <td>Дейт К.</td>
+ </tr>
+ <tr>
+ <td>Кузнецов</td>
+ <td>Базы данных</td>
+ <td>Коннолли Т.</td>
+ </tr>
+ <tr>
+ <td>Кузнецов</td>
+ <td>Сети ЭВМ</td>
+ <td>Дейт К.</td>
+ </tr>
+ <tr>
+ <td>Кузнецов</td>
+ <td>Сети ЭВМ</td>
+ <td>Коннолли Т.</td>
+ </tr>
+ </tbody>
+ </table>
 
-      <p>Если Кузнецов начнет рекомендовать 3-й учебник (Гарсиа-Молина), придется вставить 2 новые строки (по одной на каждую дисциплину). Это аномалия обновления!</p>
+ <p>Если Кузнецов начнет рекомендовать 3-й учебник (Гарсиа-Молина), придется вставить 2 новые строки (по одной на каждую дисциплину). Это аномалия обновления!</p>
 
-      <div class="formula-box">
-        <strong>Определение MVD:</strong><br>
-        В отношении R(X, Y, Z) выполняется многозначная зависимость <span class="math-sym">X ↠ Y</span>, если набор значений Y, соответствующих заданной паре (X, Z), зависит только от X и никак не зависит от Z.
-      </div>
+ <div class="formula-box">
+ <strong>Определение MVD:</strong><br>
+ В отношении R(X, Y, Z) выполняется многозначная зависимость <span class="math-sym">X ↠ Y</span>, если набор значений Y, соответствующих заданной паре (X, Z), зависит только от X и никак не зависит от Z.
+ </div>
 
-      <div class="formula-box">
-        <strong>Теорема Фейгина (Fagin's Theorem):</strong><br>
-        Декомпозиция R(X, Y, Z) на R₁(X, Y) и R₂(X, Z) является соединением без потерь тогда и только тогда, когда в R выполняется <span class="math-sym">X ↠ Y | Z</span>.
-      </div>
+ <div class="formula-box">
+ <strong>Теорема Фейгина (Fagin's Theorem):</strong><br>
+ Декомпозиция R(X, Y, Z) на R₁(X, Y) и R₂(X, Z) является соединением без потерь тогда и только тогда, когда в R выполняется <span class="math-sym">X ↠ Y | Z</span>.
+ </div>
 
-      <div class="formula-box">
-        <strong>Четвертая нормальная форма (4NF):</strong><br>
-        Отношение находится в 4НФ, если оно находится в НФБК и для любой нетривиальной многозначной зависимости <span class="math-sym">X ↠ Y</span> множество атрибутов X является <strong>суперключом</strong> отношения.
-      </div>
+ <div class="formula-box">
+ <strong>Четвертая нормальная форма (4NF):</strong><br>
+ Отношение находится в 4НФ, если оно находится в НФБК и для любой нетривиальной многозначной зависимости <span class="math-sym">X ↠ Y</span> множество атрибутов X является <strong>суперключом</strong> отношения.
+ </div>
 
-      <p><strong>Переход к 4НФ:</strong> разбиваем отношение на 2 независимые таблицы:</p>
-      <ol>
-        <li><code>R₁(<u>Преподаватель</u>, <u>Дисциплина</u>)</code></li>
-        <li><code>R₂(<u>Преподаватель</u>, <u>Учебник</u>)</code></li>
-      </ol>
-      <p>Избыточность устранена, аномалии исчезли!</p>
-    </section>
+ <p><strong>Переход к 4НФ:</strong> разбиваем отношение на 2 независимые таблицы:</p>
+ <ol>
+ <li><code>R₁(<u>Преподаватель</u>, <u>Дисциплина</u>)</code></li>
+ <li><code>R₂(<u>Преподаватель</u>, <u>Учебник</u>)</code></li>
+ </ol>
+ <p>Избыточность устранена, аномалии исчезли!</p>
+ </section>
 
-    <section class="card">
-      <h2>7. Зависимости соединения (JD) и Пятая нормальная форма (5NF / PJNF)</h2>
-      <p>В редких практических задачах возникают циклические трехсторонние ограничения, которые невозможно разбить на 2 таблицы без потерь, но можно разбить на 3 таблицы. Это описывается <strong>зависимостью соединения (Join Dependency)</strong>:</p>
-      <div class="formula-box">
-        ⋈ [R₁, R₂, …, Rₘ] означает, что R = R₁ ⋈ R₂ ⋈ … ⋈ Rₘ.
-      </div>
-      <p><strong>Пятая нормальная форма (5NF / PJNF):</strong> отношение находится в 5НФ, если любая зависимость соединения в нем является тривиальной либо следует исключительно из потенциальных ключей отношения. 5НФ является теоретическим пределом декомпозиции без потерь в реляционной алгебре.</p>
-    </section>
+ <section class="card">
+ <h2>7. Зависимости соединения (JD) и Пятая нормальная форма (5NF / PJNF)</h2>
+ <p>В редких практических задачах возникают циклические трехсторонние ограничения, которые невозможно разбить на 2 таблицы без потерь, но можно разбить на 3 таблицы. Это описывается <strong>зависимостью соединения (Join Dependency)</strong>:</p>
+ <div class="formula-box">
+ ⋈ [R₁, R₂, …, Rₘ] означает, что R = R₁ ⋈ R₂ ⋈ … ⋈ Rₘ.
+ </div>
+ <p><strong>Пятая нормальная форма (5NF / PJNF):</strong> отношение находится в 5НФ, если любая зависимость соединения в нем является тривиальной либо следует исключительно из потенциальных ключей отношения. 5НФ является теоретическим пределом декомпозиции без потерь в реляционной алгебре.</p>
+ </section>
 
-    <section class="card">
-      <h2>8. Контролируемая денормализация в аналитических системах (OLAP)</h2>
-      <p>Хотя нормализация до 3НФ/4НФ защищает транзакционные системы (OLTP) от аномалий, в аналитических системах (хранилища данных, BI, витрины данных) нормализованная структура может вызывать серьезные проблемы производительности:</p>
-      <ul>
-        <li>Тяжелые аналитические запросы требуют объединения (JOIN) 10–15 таблиц.</li>
-        <li>Операции группировки (<code>GROUP BY</code>) по миллиардам строк создают огромную нагрузку на CPU и память.</li>
-      </ul>
+ <section class="card">
+ <h2>8. Контролируемая денормализация в аналитических системах (OLAP)</h2>
+ <p>Хотя нормализация до 3НФ/4НФ защищает транзакционные системы (OLTP) от аномалий, в аналитических системах (хранилища данных, BI, витрины данных) нормализованная структура может вызывать серьезные проблемы производительности:</p>
+ <ul>
+ <li>Тяжелые аналитические запросы требуют объединения (JOIN) 10–15 таблиц.</li>
+ <li>Операции группировки (<code>GROUP BY</code>) по миллиардам строк создают огромную нагрузку на CPU и память.</li>
+ </ul>
 
-      <p>В связи с этим в OLAP применяется <strong>осознанная денормализация</strong>:</p>
-      <ol>
-        <li><strong>Схема «Звезда» (Star Schema):</strong> центральная таблица фактов денормализуется, а измерения делаются максимально плоскими (отказ от соединений ради скорости чтения).</li>
-        <li><strong>Дублирование реквизитов:</strong> в строку чека или заказа дублируется неизменяемое название товара и артикул на момент покупки.</li>
-        <li><strong>Материализованные представления:</strong> СУБД хранит физически предрассчитанные суммы и агрегаты.</li>
-      </ol>
+ <p>В связи с этим в OLAP применяется <strong>осознанная денормализация</strong>:</p>
+ <ol>
+ <li><strong>Схема «Звезда» (Star Schema):</strong> центральная таблица фактов денормализуется, а измерения делаются максимально плоскими (отказ от соединений ради скорости чтения).</li>
+ <li><strong>Дублирование реквизитов:</strong> в строку чека или заказа дублируется неизменяемое название товара и артикул на момент покупки.</li>
+ <li><strong>Материализованные представления:</strong> СУБД хранит физически предрассчитанные суммы и агрегаты.</li>
+ </ol>
 
-      <div class="callout callout-warn">
-        <div class="callout-title">
-          <span class="badge badge-amber">Компенсирующие механизмы</span>
-        </div>
-        <p>Денормализация допустима только при наличии компенсирующих архитектурных механизмов: триггеров согласования данных, потоков CDC (Change Data Capture) или регулярных регламентных ETL-пакетов сверки целостности.</p>
-      </div>
-    </section>
+ <div class="callout callout-warn">
+ <div class="callout-title">
+ <span class="badge badge-amber">Компенсирующие механизмы</span>
+ </div>
+ <p>Денормализация допустима только при наличии компенсирующих архитектурных механизмов: триггеров согласования данных, потоков CDC (Change Data Capture) или регулярных регламентных ETL-пакетов сверки целостности.</p>
+ </div>
+ </section>
 
-    <section class="card">
-      <h2>9. Вопросы для самопроверки</h2>
-      
-      <details>
-        <summary>1. Что произойдет, если выполнить естественное соединение двух таблиц по полю, которое не является ключом ни в одной из них?</summary>
-        <p>С гарантией возникнут паразитные ложные кортежи (Spurious Tuples). Результирующая таблица будет содержать больше строк, чем исходная, и в ней появятся несуществующие в реальности комбинации данных (потеря семантической целостности).</p>
-      </details>
+ <section class="card">
+ <h2>9. Вопросы для самопроверки</h2>
+ 
+ <details>
+ <summary>1. Что произойдет, если выполнить естественное соединение двух таблиц по полю, которое не является ключом ни в одной из них?</summary>
+ <p>С гарантией возникнут паразитные ложные кортежи (Spurious Tuples). Результирующая таблица будет содержать больше строк, чем исходная, и в ней появятся несуществующие в реальности комбинации данных (потеря семантической целостности).</p>
+ </details>
 
-      <details>
-        <summary>2. Сформулируйте теорему Риссанена своими словами.</summary>
-        <p>При разбиении одной таблицы на две обратное соединение будет точным и без потерь тогда и только тогда, когда общие столбцы этих таблиц однозначно определяют все столбцы первой таблицы ИЛИ все столбцы второй таблицы (то есть общий столбец является ключом хотя бы для одной из них).</p>
-      </details>
+ <details>
+ <summary>2. Сформулируйте теорему Риссанена своими словами.</summary>
+ <p>При разбиении одной таблицы на две обратное соединение будет точным и без потерь тогда и только тогда, когда общие столбцы этих таблиц однозначно определяют все столбцы первой таблицы ИЛИ все столбцы второй таблицы (то есть общий столбец является ключом хотя бы для одной из них).</p>
+ </details>
 
-      <details>
-        <summary>3. В чем разница между функциональной и многозначной зависимостью?</summary>
-        <p>При функциональной зависимости X → Y каждому значению X соответствует ровно одно значение Y. При многозначной зависимости X ↠ Y значению X соответствует целое множество независимых значений Y, не зависящих от других атрибутов таблицы.</p>
-      </details>
+ <details>
+ <summary>3. В чем разница между функциональной и многозначной зависимостью?</summary>
+ <p>При функциональной зависимости X → Y каждому значению X соответствует ровно одно значение Y. При многозначной зависимости X ↠ Y значению X соответствует целое множество независимых значений Y, не зависящих от других атрибутов таблицы.</p>
+ </details>
 
-      <details>
-        <summary>4. Почему в хранилищах данных (OLAP) сознательно нарушают правила нормализации?</summary>
-        <p>Для ускорения чтения и построения тяжелых отчетов. Денормализация исключает ресурсоемкие операции соединения (JOIN) десятков таблиц на петабайтных массивах данных.</p>
-      </details>
-    </section>
-  </div>
+ <details>
+ <summary>4. Почему в хранилищах данных (OLAP) сознательно нарушают правила нормализации?</summary>
+ <p>Для ускорения чтения и построения тяжелых отчетов. Денормализация исключает ресурсоемкие операции соединения (JOIN) десятков таблиц на петабайтных массивах данных.</p>
+ </details>
+ </section>
+ </div>
 </body>
 </html>

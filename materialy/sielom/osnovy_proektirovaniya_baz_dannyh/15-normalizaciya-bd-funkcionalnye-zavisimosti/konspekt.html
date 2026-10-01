@@ -1,430 +1,410 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Сценарий учебного занятия: Нормализация БД: функциональные зависимости</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --text-muted: #475569;
-      --border: #e2e8f0;
-      --accent: #0284c7;
-      --accent-dark: #0369a1;
-      --accent-soft: #f0f9ff;
-      --teacher-speech: #0369a1;
-      --speech-bg: #f0f9ff;
-      --dialogue-student: #15803d;
-      --student-bg: #f0fdf4;
-    }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Сценарий учебного занятия: Нормализация БД: функциональные зависимости</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card-bg: #ffffff;
+ --text: #0f172a;
+ --text-muted: #475569;
+ --border: #e2e8f0;
+ --accent: #0284c7;
+ --accent-dark: #0369a1;
+ --accent-soft: #f0f9ff;
+ --teacher-speech: #0369a1;
+ --speech-bg: #f0f9ff;
+ --dialogue-student: #15803d;
+ --student-bg: #f0fdf4;
+ }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ }
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      padding: 24px 16px;
-    }
+ body {
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+ background-color: var(--bg);
+ color: var(--text);
+ line-height: 1.6;
+ padding: 24px 16px;
+ }.container {
+ max-width: 980px;
+ margin: 0 auto;
+ }
 
-    .container {
-      max-width: 980px;
-      margin: 0 auto;
-    }
+ header.plan-header {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    header.plan-header {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ h1 {
+ font-size: 1.9rem;
+ font-weight: 800;
+ color: var(--text);
+ margin-bottom: 8px;
+ }.subtitle {
+ font-size: 1.05rem;
+ color: var(--text-muted);
+ }
 
-    h1 {
-      font-size: 1.9rem;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 8px;
-    }
+ section.stage-card {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 26px 30px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    .subtitle {
-      font-size: 1.05rem;
-      color: var(--text-muted);
-    }
+ h2 {
+ font-size: 1.4rem;
+ font-weight: 700;
+ color: var(--accent-dark);
+ margin-bottom: 16px;
+ border-left: 4px solid var(--accent);
+ padding-left: 12px;
+ }
 
-    section.stage-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 26px 30px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ h3 {
+ font-size: 1.15rem;
+ font-weight: 600;
+ color: var(--text);
+ margin: 20px 0 12px;
+ }.stage-badge {
+ display: inline-block;
+ padding: 4px 10px;
+ background: #e0f2fe;
+ color: #0369a1;
+ font-size: 0.85rem;
+ font-weight: 700;
+ border-radius: 4px;
+ margin-bottom: 10px;
+ }.timing-badge {
+ display: inline-block;
+ padding: 4px 10px;
+ background: #fef3c7;
+ color: #92400e;
+ font-size: 0.85rem;
+ font-weight: 700;
+ border-radius: 4px;
+ margin-left: 8px;
+ }.speech-box {
+ background: var(--speech-bg);
+ border-left: 4px solid var(--teacher-speech);
+ padding: 16px 20px;
+ border-radius: 0 8px 8px 0;
+ margin: 14px 0;
+ font-size: 1rem;
+ color: #0c4a6e;
+ }.speech-box strong.speaker {
+ display: block;
+ color: var(--teacher-speech);
+ font-size: 0.9rem;
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+ margin-bottom: 6px;
+ }.student-speech {
+ background: var(--student-bg);
+ border-left: 4px solid var(--dialogue-student);
+ color: #14532d;
+ }.student-speech strong.speaker {
+ color: var(--dialogue-student);
+ }.action-note {
+ font-style: italic;
+ color: var(--text-muted);
+ margin: 10px 0;
+ padding-left: 8px;
+ border-left: 2px solid #cbd5e1;
+ }
 
-    h2 {
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: var(--accent-dark);
-      margin-bottom: 16px;
-      border-left: 4px solid var(--accent);
-      padding-left: 12px;
-    }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ margin: 14px 0;
+ font-size: 0.95rem;
+ }
 
-    h3 {
-      font-size: 1.15rem;
-      font-weight: 600;
-      color: var(--text);
-      margin: 20px 0 12px;
-    }
+ th, td {
+ border: 1px solid var(--border);
+ padding: 10px 14px;
+ text-align: left;
+ }
 
-    .stage-badge {
-      display: inline-block;
-      padding: 4px 10px;
-      background: #e0f2fe;
-      color: #0369a1;
-      font-size: 0.85rem;
-      font-weight: 700;
-      border-radius: 4px;
-      margin-bottom: 10px;
-    }
+ th {
+ background: #f1f5f9;
+ font-weight: 600;
+ }
 
-    .timing-badge {
-      display: inline-block;
-      padding: 4px 10px;
-      background: #fef3c7;
-      color: #92400e;
-      font-size: 0.85rem;
-      font-weight: 700;
-      border-radius: 4px;
-      margin-left: 8px;
-    }
-
-    .speech-box {
-      background: var(--speech-bg);
-      border-left: 4px solid var(--teacher-speech);
-      padding: 16px 20px;
-      border-radius: 0 8px 8px 0;
-      margin: 14px 0;
-      font-size: 1rem;
-      color: #0c4a6e;
-    }
-
-    .speech-box strong.speaker {
-      display: block;
-      color: var(--teacher-speech);
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 6px;
-    }
-
-    .student-speech {
-      background: var(--student-bg);
-      border-left: 4px solid var(--dialogue-student);
-      color: #14532d;
-    }
-
-    .student-speech strong.speaker {
-      color: var(--dialogue-student);
-    }
-
-    .action-note {
-      font-style: italic;
-      color: var(--text-muted);
-      margin: 10px 0;
-      padding-left: 8px;
-      border-left: 2px solid #cbd5e1;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 14px 0;
-      font-size: 0.95rem;
-    }
-
-    th, td {
-      border: 1px solid var(--border);
-      padding: 10px 14px;
-      text-align: left;
-    }
-
-    th {
-      background: #f1f5f9;
-      font-weight: 600;
-    }
-
-    code {
-      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-      font-size: 0.92em;
-      background: #e2e8f0;
-      padding: 2px 6px;
-      border-radius: 4px;
-      color: #0f172a;
-    }
-
-    .board-box {
-      background: #0f172a;
-      color: #f8fafc;
-      padding: 16px 20px;
-      border-radius: 8px;
-      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-      margin: 14px 0;
-      font-size: 0.95rem;
-      line-height: 1.5;
-    }
-  </style>
+ code {
+ font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+ font-size: 0.92em;
+ background: #e2e8f0;
+ padding: 2px 6px;
+ border-radius: 4px;
+ color: #0f172a;
+ }.board-box {
+ background: #0f172a;
+ color: #f8fafc;
+ padding: 16px 20px;
+ border-radius: 8px;
+ font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+ margin: 14px 0;
+ font-size: 0.95rem;
+ line-height: 1.5;
+ }
+ </style>
 </head>
 <body>
-  <div class="container">
-    <header class="plan-header">
-      <h1>Развернутый сценарий учебного занятия</h1>
-      <div class="subtitle">ОП.08 Основы проектирования баз данных — Занятие 15: Нормализация БД: функциональные зависимости</div>
-      <p style="margin-top: 10px; color: var(--text-muted); font-size: 0.95rem;">
-        Методическая разработка содержит полную партитуру прямой речи преподавателя, реплики обучающихся, педагогические маркеры и указания по адаптации к 80-минутному и 60-минутному регламентам.
-      </p>
-    </header>
+ <div class="container">
+ <header class="plan-header">
+ <h1>Развернутый сценарий учебного занятия</h1>
+ <div class="subtitle">ОП.08 Основы проектирования баз данных — Занятие 15: Нормализация БД: функциональные зависимости</div>
+ <p style="margin-top: 10px; color: var(--text-muted); font-size: 0.95rem;">
+ Методическая разработка содержит полную партитуру прямой речи преподавателя, реплики обучающихся, педагогические маркеры и указания по адаптации к 80-минутному и 60-минутному регламентам.
+ </p>
+ </header>
 
-    <!-- ЭТАП 1 -->
-    <section class="stage-card">
-      <span class="stage-badge">Этап 1</span>
-      <span class="timing-badge">80 мин: 10 минут (00:00–00:10) | 60 мин: 7 минут (00:00–00:07)</span>
-      <h2>Организационный момент, проблемная мотивация и постановка цели</h2>
+ <!-- ЭТАП 1 -->
+ <section class="stage-card">
+ <span class="stage-badge">Этап 1</span>
+ <span class="timing-badge">80 мин: 10 минут (00:00–00:10) | 60 мин: 7 минут (00:00–00:07)</span>
+ <h2>Организационный момент, проблемная мотивация и постановка цели</h2>
 
-      <div class="action-note">
-        Преподаватель входит в аудиторию, приветствует обучающихся, отмечает присутствующих в журнале, включает проектор с титульным слайдом презентации «Нормализация БД: функциональные зависимости».
-      </div>
+ <div class="action-note">
+ Преподаватель входит в аудиторию, приветствует обучающихся, отмечает присутствующих в журнале, включает проектор с титульным слайдом презентации «Нормализация БД: функциональные зависимости».
+ </div>
 
-      <div class="speech-box">
-        <strong class="speaker">Преподаватель:</strong>
-        Здравствуйте, коллеги! Садитесь. На прошлом занятии мы завершили проектирование концептуальной схемы: объединяли локальные представления отделов, разрешали конфликты синонимов и омонимов. Теперь перед нами стоит следующий фундаментальный вопрос: как перенести полученные сущности в таблицы реляционной базы данных так, чтобы при промышленной эксплуатации система не захлебнулась в ошибках, избыточности и противоречиях?<br><br>
-        Взгляните на экран (переключает на Слайд 2). Перед вами пример типичной ошибки начинающего разработчика — «универсальная» широкая таблица «Сотрудники и Проекты»:
-      </div>
+ <div class="speech-box">
+ <strong class="speaker">Преподаватель:</strong>
+ Здравствуйте, коллеги! Садитесь. На прошлом занятии мы завершили проектирование концептуальной схемы: объединяли локальные представления отделов, разрешали конфликты синонимов и омонимов. Теперь перед нами стоит следующий фундаментальный вопрос: как перенести полученные сущности в таблицы реляционной базы данных так, чтобы при промышленной эксплуатации система не захлебнулась в ошибках, избыточности и противоречиях?<br><br>
+ Взгляните на экран (переключает на Слайд 2). Перед вами пример типичной ошибки начинающего разработчика — «универсальная» широкая таблица «Сотрудники и Проекты»:
+ </div>
 
-      <div class="board-box">
-        Сотрудники_Проекты(EmpID, ФИО, DeptID, НазваниеОтдела, ТелефонОтдела, ProjID, НазваниеПроекта, Роль, Зарплата)
-      </div>
+ <div class="board-box">
+ Сотрудники_Проекты(EmpID, ФИО, DeptID, НазваниеОтдела, ТелефонОтдела, ProjID, НазваниеПроекта, Роль, Зарплата)
+ </div>
 
-      <div class="speech-box">
-        <strong class="speaker">Преподаватель:</strong>
-        Казалось бы: все данные под рукой, никаких операторов JOIN писать не нужно, один запрос выбирает всё! Но давайте представим, что мы запустили эту систему в реальной компании. Что произойдет, если в Отделе разработки сменится рабочий номер телефона?
-      </div>
+ <div class="speech-box">
+ <strong class="speaker">Преподаватель:</strong>
+ Казалось бы: все данные под рукой, никаких операторов JOIN писать не нужно, один запрос выбирает всё! Но давайте представим, что мы запустили эту систему в реальной компании. Что произойдет, если в Отделе разработки сменится рабочий номер телефона?
+ </div>
 
-      <div class="speech-box student-speech">
-        <strong class="speaker">Студент:</strong>
-        Придется обновить номер телефона во всех строках, где указан этот отдел. Если в отделе 200 сотрудников — то в двухстах записях сразу!
-      </div>
+ <div class="speech-box student-speech">
+ <strong class="speaker">Студент:</strong>
+ Придется обновить номер телефона во всех строках, где указан этот отдел. Если в отделе 200 сотрудников — то в двухстах записях сразу!
+ </div>
 
-      <div class="speech-box">
-        <strong class="speaker">Преподаватель:</strong>
-        Именно! Это называется <strong>аномалией обновления (Update Anomaly)</strong>. Если сервер оборвет соединение на сотой строке, у нас в половине базы будет один телефон, а во второй — другой. А теперь второй вопрос: мы создали новый перспективный «Отдел искусственного интеллекта», но еще никого туда не наняли. Сможем ли мы вставить запись об этом отделе в таблицу, если первичный ключ включает <code>EmpID</code>?
-      </div>
+ <div class="speech-box">
+ <strong class="speaker">Преподаватель:</strong>
+ Именно! Это называется <strong>аномалией обновления (Update Anomaly)</strong>. Если сервер оборвет соединение на сотой строке, у нас в половине базы будет один телефон, а во второй — другой. А теперь второй вопрос: мы создали новый перспективный «Отдел искусственного интеллекта», но еще никого туда не наняли. Сможем ли мы вставить запись об этом отделе в таблицу, если первичный ключ включает <code>EmpID</code>?
+ </div>
 
-      <div class="speech-box student-speech">
-        <strong class="speaker">Студент:</strong>
-        Нет, потому что <code>EmpID</code> не может быть NULL в первичном ключе! Придется либо придумывать фиктивного сотрудника, либо мы вообще не сохраним отдел.
-      </div>
+ <div class="speech-box student-speech">
+ <strong class="speaker">Студент:</strong>
+ Нет, потому что <code>EmpID</code> не может быть NULL в первичном ключе! Придется либо придумывать фиктивного сотрудника, либо мы вообще не сохраним отдел.
+ </div>
 
-      <div class="speech-box">
-        <strong class="speaker">Преподаватель:</strong>
-        Блестяще! Это <strong>аномалия вставки (Insertion Anomaly)</strong>. А если уволится последний сотрудник из удаленного филиала, то вместе с удалением его строки мы потеряем адрес и телефон филиала — это <strong>аномалия удаления (Deletion Anomaly)</strong>.<br><br>
-        Чтобы навсегда избавить базы данных от этих пороков, Эдгар Кодд создал теорию <strong>нормализации</strong>. А фундаментом нормализации является строгий математический аппарат — <strong>функциональные зависимости</strong>. Сегодня мы научимся строго формулировать зависимости, выводить новые факты с помощью аксиом Армстронга, вычислять замыкания атрибутов и находить все истинные ключи отношения.
-      </div>
-    </section>
+ <div class="speech-box">
+ <strong class="speaker">Преподаватель:</strong>
+ Блестяще! Это <strong>аномалия вставки (Insertion Anomaly)</strong>. А если уволится последний сотрудник из удаленного филиала, то вместе с удалением его строки мы потеряем адрес и телефон филиала — это <strong>аномалия удаления (Deletion Anomaly)</strong>.<br><br>
+ Чтобы навсегда избавить базы данных от этих пороков, Эдгар Кодд создал теорию <strong>нормализации</strong>. А фундаментом нормализации является строгий математический аппарат — <strong>функциональные зависимости</strong>. Сегодня мы научимся строго формулировать зависимости, выводить новые факты с помощью аксиом Армстронга, вычислять замыкания атрибутов и находить все истинные ключи отношения.
+ </div>
+ </section>
 
-    <!-- ЭТАП 2 -->
-    <section class="stage-card">
-      <span class="stage-badge">Этап 2</span>
-      <span class="timing-badge">80 мин: 25 минут (00:10–00:35) | 60 мин: 20 минут (00:07–00:27)</span>
-      <h2>Сообщение новых теоретических знаний: аппарат ФЗ и аксиоматика Армстронга</h2>
+ <!-- ЭТАП 2 -->
+ <section class="stage-card">
+ <span class="stage-badge">Этап 2</span>
+ <span class="timing-badge">80 мин: 25 минут (00:10–00:35) | 60 мин: 20 минут (00:07–00:27)</span>
+ <h2>Сообщение новых теоретических знаний: аппарат ФЗ и аксиоматика Армстронга</h2>
 
-      <div class="action-note">
-        Преподаватель переключает презентацию на Слайд 3 и записывает формальное определение ФЗ на доске.
-      </div>
+ <div class="action-note">
+ Преподаватель переключает презентацию на Слайд 3 и записывает формальное определение ФЗ на доске.
+ </div>
 
-      <div class="speech-box">
-        <strong class="speaker">Преподаватель:</strong>
-        Запишем строгое определение. Пусть <code>R(U)</code> — схема отношения. Говорят, что множество атрибутов <code>X</code> функционально определяет множество <code>Y</code> (записывается <code>X → Y</code>), если во всех допустимых состояниях отношения для любых двух строк <code>t₁</code> и <code>t₂</code> равенство их значений в столбцах <code>X</code> гарантирует точное равенство значений в столбцах <code>Y</code>:
-      </div>
+ <div class="speech-box">
+ <strong class="speaker">Преподаватель:</strong>
+ Запишем строгое определение. Пусть <code>R(U)</code> — схема отношения. Говорят, что множество атрибутов <code>X</code> функционально определяет множество <code>Y</code> (записывается <code>X → Y</code>), если во всех допустимых состояниях отношения для любых двух строк <code>t₁</code> и <code>t₂</code> равенство их значений в столбцах <code>X</code> гарантирует точное равенство значений в столбцах <code>Y</code>:
+ </div>
 
-      <div class="board-box">
-        X → Y  ⟺  ∀ t₁, t₂ ∈ r(R): ( t₁[X] = t₂[X]  ⟹  t₁[Y] = t₂[Y] )
-      </div>
+ <div class="board-box">
+ X → Y ⟺ ∀ t₁, t₂ ∈ r(R): ( t₁[X] = t₂[X] ⟹ t₁[Y] = t₂[Y])
+ </div>
 
-      <div class="speech-box">
-        <strong class="speaker">Преподаватель:</strong>
-        Левую часть <code>X</code> мы называем <strong>детерминантом</strong>, а правую часть <code>Y</code> — <strong>зависимой частью</strong>.<br>
-        Запомните важнейшее правило: функциональная зависимость — это закон предметной области, а не сиюминутное совпадение в выборке! Если прямо сейчас в аудитории сидит 15 человек и у всех разные фамилии и разные оценки, мы не имеем права сказать: «Оценка однозначно определяет студента». Завтра придет второй студент с оценкой «отлично», и мнимая зависимость лопнет. Зависимость должна выполняться ВСЕГДА, при любых будущих данных.
-      </div>
+ <div class="speech-box">
+ <strong class="speaker">Преподаватель:</strong>
+ Левую часть <code>X</code> мы называем <strong>детерминантом</strong>, а правую часть <code>Y</code> — <strong>зависимой частью</strong>.<br>
+ Запомните важнейшее правило: функциональная зависимость — это закон предметной области, а не сиюминутное совпадение в выборке! Если прямо сейчас в аудитории сидит 15 человек и у всех разные фамилии и разные оценки, мы не имеем права сказать: «Оценка однозначно определяет студента». Завтра придет второй студент с оценкой «отлично», и мнимая зависимость лопнет. Зависимость должна выполняться ВСЕГДА, при любых будущих данных.
+ </div>
 
-      <div class="action-note">
-        Преподаватель переходит к Слайду 4 («Классификация ФЗ»).
-      </div>
+ <div class="action-note">
+ Преподаватель переходит к Слайду 4 («Классификация ФЗ»).
+ </div>
 
-      <div class="speech-box">
-        <strong class="speaker">Преподаватель:</strong>
-        Зависимости бывают разными:
-        <ul>
-          <li><strong>Тривиальные:</strong> когда то, что справа, уже содержится слева. Например, <code>{Паспорт, ФИО} → {ФИО}</code>. Зная набор, мы автоматически знаем его часть. Это тавтология.</li>
-          <li><strong>Полные и частичные:</strong> если у нас составной детерминант, например <code>{СтудентID, ПредметID} → Оценка</code> — это полная зависимость, так как ни по одному <code>СтудентID</code>, ни по одному <code>ПредметID</code> оценку не узнать. Но если в эту же таблицу поместить <code>{СтудентID, ПредметID} → НомерГруппы</code>, то номер группы зависит только от <code>СтудентID</code>. Это <strong>частичная зависимость</strong>, и именно она порождает дублирование и нарушает Вторую нормальную форму!</li>
-          <li><strong>Транзитивные:</strong> цепочка вида <code>Сотрудник → Отдел</code>, а <code>Отдел → Телефон</code>. Отсюда косвенно следует <code>Сотрудник → Телефон</code>. Транзитивные зависимости нарушают Третью нормальную форму.</li>
-        </ul>
-      </div>
+ <div class="speech-box">
+ <strong class="speaker">Преподаватель:</strong>
+ Зависимости бывают разными:
+ <ul>
+ <li><strong>Тривиальные:</strong> когда то, что справа, уже содержится слева. Например, <code>{Паспорт, ФИО} → {ФИО}</code>. Зная набор, мы автоматически знаем его часть. Это тавтология.</li>
+ <li><strong>Полные и частичные:</strong> если у нас составной детерминант, например <code>{СтудентID, ПредметID} → Оценка</code> — это полная зависимость, так как ни по одному <code>СтудентID</code>, ни по одному <code>ПредметID</code> оценку не узнать. Но если в эту же таблицу поместить <code>{СтудентID, ПредметID} → НомерГруппы</code>, то номер группы зависит только от <code>СтудентID</code>. Это <strong>частичная зависимость</strong>, и именно она порождает дублирование и нарушает Вторую нормальную форму!</li>
+ <li><strong>Транзитивные:</strong> цепочка вида <code>Сотрудник → Отдел</code>, а <code>Отдел → Телефон</code>. Отсюда косвенно следует <code>Сотрудник → Телефон</code>. Транзитивные зависимости нарушают Третью нормальную форму.</li>
+ </ul>
+ </div>
 
-      <div class="action-note">
-        Преподаватель переключает на Слайд 5 и Слайд 6 («Аксиомы Армстронга»).
-      </div>
+ <div class="action-note">
+ Преподаватель переключает на Слайд 5 и Слайд 6 («Аксиомы Армстронга»).
+ </div>
 
-      <div class="speech-box">
-        <strong class="speaker">Преподаватель:</strong>
-        В 1974 году математик Уильям Армстронг доказал поразительную вещь: чтобы из известных зависимостей вывести ВСЕ остальные истинные следствия, достаточно всего ТРЕХ базовых аксиом:
-        <ol>
-          <li><strong>Рефлексивность:</strong> если <code>Y ⊆ X</code>, то <code>X → Y</code>.</li>
-          <li><strong>Пополнение:</strong> если <code>X → Y</code>, то приписав любые поля <code>Z</code> к обеим сторонам, мы получаем верную зависимость: <code>XZ → YZ</code>.</li>
-          <li><strong>Транзитивность:</strong> если <code>X → Y</code> и <code>Y → Z</code>, то <code>X → Z</code>.</li>
-        </ol>
-        А на практике мы пользуемся удобными следствиями — правилом <strong>объединения</strong>: <code>X → Y</code> и <code>X → Z</code> дают <code>X → YZ</code>, и правилом <strong>декомпозиции</strong>: <code>X → YZ</code> распадается на <code>X → Y</code> и <code>X → Z</code>.<br><br>
-        Остерегайтесь роковой ошибки! Можно ли расщеплять левую часть? То есть верно ли, что если <code>AB → C</code>, то <code>A → C</code>?
-      </div>
+ <div class="speech-box">
+ <strong class="speaker">Преподаватель:</strong>
+ В 1974 году математик Уильям Армстронг доказал поразительную вещь: чтобы из известных зависимостей вывести ВСЕ остальные истинные следствия, достаточно всего ТРЕХ базовых аксиом:
+ <ol>
+ <li><strong>Рефлексивность:</strong> если <code>Y ⊆ X</code>, то <code>X → Y</code>.</li>
+ <li><strong>Пополнение:</strong> если <code>X → Y</code>, то приписав любые поля <code>Z</code> к обеим сторонам, мы получаем верную зависимость: <code>XZ → YZ</code>.</li>
+ <li><strong>Транзитивность:</strong> если <code>X → Y</code> и <code>Y → Z</code>, то <code>X → Z</code>.</li>
+ </ol>
+ А на практике мы пользуемся удобными следствиями — правилом <strong>объединения</strong>: <code>X → Y</code> и <code>X → Z</code> дают <code>X → YZ</code>, и правилом <strong>декомпозиции</strong>: <code>X → YZ</code> распадается на <code>X → Y</code> и <code>X → Z</code>.<br><br>
+ Остерегайтесь роковой ошибки! Можно ли расщеплять левую часть? То есть верно ли, что если <code>AB → C</code>, то <code>A → C</code>?
+ </div>
 
-      <div class="speech-box student-speech">
-        <strong class="speaker">Студент:</strong>
-        Нет, конечно! Например, логин и пароль вместе открывают доступ к аккаунту: <code>{Логин, Пароль} → Доступ</code>. Но один логин без пароля доступ не дает!
-      </div>
+ <div class="speech-box student-speech">
+ <strong class="speaker">Студент:</strong>
+ Нет, конечно! Например, логин и пароль вместе открывают доступ к аккаунту: <code>{Логин, Пароль} → Доступ</code>. Но один логин без пароля доступ не дает!
+ </div>
 
-      <div class="speech-box">
-        <strong class="speaker">Преподаватель:</strong>
-        Великолепный контрпример! Расщеплять можно ТОЛЬКО правую часть зависимости. Запомните это навсегда.
-      </div>
-    </section>
+ <div class="speech-box">
+ <strong class="speaker">Преподаватель:</strong>
+ Великолепный контрпример! Расщеплять можно ТОЛЬКО правую часть зависимости. Запомните это навсегда.
+ </div>
+ </section>
 
-    <!-- ЭТАП 3 -->
-    <section class="stage-card">
-      <span class="stage-badge">Этап 3</span>
-      <span class="timing-badge">80 мин: 20 минут (00:35–00:55) | 60 мин: 15 минут (00:27–00:42)</span>
-      <h2>Алгоритмический практикум: замыкание X+, поиск ключей (L-R-B-N) и Minimal Cover</h2>
+ <!-- ЭТАП 3 -->
+ <section class="stage-card">
+ <span class="stage-badge">Этап 3</span>
+ <span class="timing-badge">80 мин: 20 минут (00:35–00:55) | 60 мин: 15 минут (00:27–00:42)</span>
+ <h2>Алгоритмический практикум: замыкание X+, поиск ключей (L-R-B-N) и Minimal Cover</h2>
 
-      <div class="action-note">
-        Преподаватель переходит к Слайдам 7–10 и берет мел/маркер для работы у доски.
-      </div>
+ <div class="action-note">
+ Преподаватель переходит к Слайдам 7–10 и берет мел/маркер для работы у доски.
+ </div>
 
-      <div class="speech-box">
-        <strong class="speaker">Преподаватель:</strong>
-        Теперь перейдем к главному вычислительному инструменту проектировщика — <strong>замыканию множества атрибутов X⁺</strong>. Замыкание <code>X⁺</code> — это множество абсолютно всех атрибутов, которые можно однозначно вычислить, зная исходные поля <code>X</code>.<br><br>
-        Разберем задачу. Дана схема <code>R(A, B, C, D, E)</code> со следующим набором зависимостей:
-      </div>
+ <div class="speech-box">
+ <strong class="speaker">Преподаватель:</strong>
+ Теперь перейдем к главному вычислительному инструменту проектировщика — <strong>замыканию множества атрибутов X⁺</strong>. Замыкание <code>X⁺</code> — это множество абсолютно всех атрибутов, которые можно однозначно вычислить, зная исходные поля <code>X</code>.<br><br>
+ Разберем задачу. Дана схема <code>R(A, B, C, D, E)</code> со следующим набором зависимостей:
+ </div>
 
-      <div class="board-box">
-        F = { A → BC,  CD → E,  B → D,  E → A }
-      </div>
+ <div class="board-box">
+ F = { A → BC, CD → E, B → D, E → A }
+ </div>
 
-      <div class="speech-box">
-        <strong class="speaker">Преподаватель:</strong>
-        Найдем замыкание атрибута <code>B</code>, то есть <code>{B}⁺</code>. Чертим трассировочную таблицу:
-        Шаг 0: начинаем с самого <code>{B}</code>.<br>
-        Шаг 1: смотрим на правила. Видим зависимость <code>B → D</code>. Левая часть <code>{B}</code> содержится в нашем наборе? Да! Добавляем правую часть: получаем <code>{B, D}</code>.<br>
-        Шаг 2: проверяем остальные ФЗ. Чтобы сработало <code>CD → E</code>, нужны и C, и D. У нас есть D, но нет C. Правило <code>A → BC</code> требует A — у нас его нет. <code>E → A</code> требует E — его нет.<br>
-        Новых атрибутов добавить нельзя. Алгоритм остановился!<br>
-        <strong>Итог: {B}⁺ = {B, D}</strong>.
-      </div>
+ <div class="speech-box">
+ <strong class="speaker">Преподаватель:</strong>
+ Найдем замыкание атрибута <code>B</code>, то есть <code>{B}⁺</code>. Чертим трассировочную таблицу:
+ Шаг 0: начинаем с самого <code>{B}</code>.<br>
+ Шаг 1: смотрим на правила. Видим зависимость <code>B → D</code>. Левая часть <code>{B}</code> содержится в нашем наборе? Да! Добавляем правую часть: получаем <code>{B, D}</code>.<br>
+ Шаг 2: проверяем остальные ФЗ. Чтобы сработало <code>CD → E</code>, нужны и C, и D. У нас есть D, но нет C. Правило <code>A → BC</code> требует A — у нас его нет. <code>E → A</code> требует E — его нет.<br>
+ Новых атрибутов добавить нельзя. Алгоритм остановился!<br>
+ <strong>Итог: {B}⁺ = {B, D}</strong>.
+ </div>
 
-      <div class="speech-box">
-        <strong class="speaker">Преподаватель:</strong>
-        А теперь найдем все <strong>потенциальные ключи</strong> этого отношения. Что такое потенциальный ключ? Это минимальный набор атрибутов, чье замыкание дает ВСЕ атрибуты отношения <code>U = {A, B, C, D, E}</code>.<br>
-        Чтобы не перебирать вслепую 32 комбинации подмножеств, воспользуемся инженерной классификацией <strong>L-R-B-N</strong>:
-        <ul>
-          <li>Смотрим, какие атрибуты стоят ТОЛЬКО слева (класс L): ни одного! Все атрибуты встречаются справа: A (в E→A), B и C (в A→BC), D (в B→D), E (в CD→E).</li>
-          <li>Значит, все атрибуты входят в класс <strong>B (Both — и слева, и справа)</strong>.</li>
-        </ul>
-        Давайте проверим одноэлементные множества:
-        <ul>
-          <li>Проверим <code>{A}⁺</code>: <code>A → BC</code> дает <code>{A, B, C}</code>; далее <code>B → D</code> дает <code>{A, B, C, D}</code>; далее <code>CD → E</code> дает <code>{A, B, C, D, E} = U</code>! Значит, <strong>{A} — кандидатный ключ!</strong></li>
-          <li>Проверим <code>{E}⁺</code>: <code>E → A</code> сразу дает A, а замыкание A покрывает всё! Значит, <strong>{E} — тоже кандидатный ключ!</strong></li>
-          <li>А как получить ключ из пар? Мы знаем, что E получается из <code>CD</code>. Проверим <code>{C, D}⁺</code>: по правилу <code>CD → E</code> получаем E, затем A, затем B! Значит, <strong>{C, D} — кандидатный ключ!</strong></li>
-          <li>А D можно получить из B? Да, <code>B → D</code>! Заменим D на B в паре: проверим <code>{B, C}⁺</code>: <code>B → D</code> дает D, пара CD дает E, E дает A! Значит, <strong>{B, C} — четвертый кандидатный ключ!</strong></li>
-        </ul>
-        Посмотрите, какая красивая математическая структура: у отношения целых четыре равноправных ключа: <code>{A}</code>, <code>{E}</code>, <code>{C, D}</code>, <code>{B, C}</code>! Любой из них проектировщик может назначить первичным ключом (PK).
-      </div>
+ <div class="speech-box">
+ <strong class="speaker">Преподаватель:</strong>
+ А теперь найдем все <strong>потенциальные ключи</strong> этого отношения. Что такое потенциальный ключ? Это минимальный набор атрибутов, чье замыкание дает ВСЕ атрибуты отношения <code>U = {A, B, C, D, E}</code>.<br>
+ Чтобы не перебирать вслепую 32 комбинации подмножеств, воспользуемся инженерной классификацией <strong>L-R-B-N</strong>:
+ <ul>
+ <li>Смотрим, какие атрибуты стоят ТОЛЬКО слева (класс L): ни одного! Все атрибуты встречаются справа: A (в E→A), B и C (в A→BC), D (в B→D), E (в CD→E).</li>
+ <li>Значит, все атрибуты входят в класс <strong>B (Both — и слева, и справа)</strong>.</li>
+ </ul>
+ Давайте проверим одноэлементные множества:
+ <ul>
+ <li>Проверим <code>{A}⁺</code>: <code>A → BC</code> дает <code>{A, B, C}</code>; далее <code>B → D</code> дает <code>{A, B, C, D}</code>; далее <code>CD → E</code> дает <code>{A, B, C, D, E} = U</code>! Значит, <strong>{A} — кандидатный ключ!</strong></li>
+ <li>Проверим <code>{E}⁺</code>: <code>E → A</code> сразу дает A, а замыкание A покрывает всё! Значит, <strong>{E} — тоже кандидатный ключ!</strong></li>
+ <li>А как получить ключ из пар? Мы знаем, что E получается из <code>CD</code>. Проверим <code>{C, D}⁺</code>: по правилу <code>CD → E</code> получаем E, затем A, затем B! Значит, <strong>{C, D} — кандидатный ключ!</strong></li>
+ <li>А D можно получить из B? Да, <code>B → D</code>! Заменим D на B в паре: проверим <code>{B, C}⁺</code>: <code>B → D</code> дает D, пара CD дает E, E дает A! Значит, <strong>{B, C} — четвертый кандидатный ключ!</strong></li>
+ </ul>
+ Посмотрите, какая красивая математическая структура: у отношения целых четыре равноправных ключа: <code>{A}</code>, <code>{E}</code>, <code>{C, D}</code>, <code>{B, C}</code>! Любой из них проектировщик может назначить первичным ключом (PK).
+ </div>
 
-      <div class="action-note">
-        Преподаватель переключает на Слайды 11–13 («Минимальное покрытие»).
-      </div>
+ <div class="action-note">
+ Преподаватель переключает на Слайды 11–13 («Минимальное покрытие»).
+ </div>
 
-      <div class="speech-box">
-        <strong class="speaker">Преподаватель:</strong>
-        И последнее теоретическое орудие — <strong>Minimal Cover (минимальное покрытие)</strong>. В реальных проектах аналитики приносят десятки требований, в которых половина правил дублирует друг друга. Минимальное покрытие очищает схему за три шага:
-        1. Расщепить правые части до одного поля (декомпозиция).
-        2. Удалить лишние поля из составных детерминантов слева.
-        3. Удалить целиком те зависимости, которые и так выводятся из оставшихся.
-      </div>
-    </section>
+ <div class="speech-box">
+ <strong class="speaker">Преподаватель:</strong>
+ И последнее теоретическое орудие — <strong>Minimal Cover (минимальное покрытие)</strong>. В реальных проектах аналитики приносят десятки требований, в которых половина правил дублирует друг друга. Минимальное покрытие очищает схему за три шага:
+ 1. Расщепить правые части до одного поля (декомпозиция).
+ 2. Удалить лишние поля из составных детерминантов слева.
+ 3. Удалить целиком те зависимости, которые и так выводятся из оставшихся.
+ </div>
+ </section>
 
-    <!-- ЭТАП 4 -->
-    <section class="stage-card">
-      <span class="stage-badge">Этап 4</span>
-      <span class="timing-badge">80 мин: 15 минут (00:55–01:10) | 60 мин: 12 минут (00:42–00:54)</span>
-      <h2>Самостоятельная работа в интерактивном рабочем листе zanyatie.html</h2>
+ <!-- ЭТАП 4 -->
+ <section class="stage-card">
+ <span class="stage-badge">Этап 4</span>
+ <span class="timing-badge">80 мин: 15 минут (00:55–01:10) | 60 мин: 12 минут (00:42–00:54)</span>
+ <h2>Самостоятельная работа в интерактивном рабочем листе zanyatie.html</h2>
 
-      <div class="action-note">
-        Преподаватель выводит на экран Слайд 14 с критериями оценивания и просит студентов открыть файл <code>zanyatie.html</code> в браузере.
-      </div>
+ <div class="action-note">
+ Преподаватель выводит на экран Слайд 14 с критериями оценивания и просит студентов открыть файл <code>zanyatie.html</code> в браузере.
+ </div>
 
-      <div class="speech-box">
-        <strong class="speaker">Преподаватель:</strong>
-        Коллеги, открываем на компьютерах интерактивный рабочий лист <code>zanyatie.html</code>. Вверху введите свою фамилию, имя и учебную группу. Обратите внимание: все ваши ответы автоматически кэшируются в локальной памяти браузера (localStorage), так что случайное закрытие вкладки ничего не сотрет.<br><br>
-        Распределяемся по вариантам:
-        <ul>
-          <li><strong>Вариант 1 (1-я парта каждого ряда):</strong> Формальная схема <code>R(A, B, C, D, E)</code> — вычисление <code>{B}⁺</code>, нахождение всех потенциальных ключей и минимизация покрытия.</li>
-          <li><strong>Вариант 2 (2-я парта):</strong> Прикладная база «Проекты и сотрудники» — определение составного ключа и доказательство наличия частичной зависимости, нарушающей 2НФ.</li>
-          <li><strong>Вариант 3 (3-я парта):</strong> Система «Логистика» — нахождение ключа накладных и выявление транзитивной зависимости адреса клиента, нарушающей 3НФ.</li>
-          <li><strong>Вариант 4 (4-я парта):</strong> Схема <code>R(X, Y, Z, W, V)</code> — строгое доказательство <code>X → W</code> по аксиомам Армстронга и нахождение Minimal Cover с устранением постороннего атрибута.</li>
-        </ul>
-        Время на самостоятельное решение — 15 минут. Я подхожу и отвечаю на индивидуальные вопросы.
-      </div>
+ <div class="speech-box">
+ <strong class="speaker">Преподаватель:</strong>
+ Коллеги, открываем на компьютерах интерактивный рабочий лист <code>zanyatie.html</code>. Вверху введите свою фамилию, имя и учебную группу. Обратите внимание: все ваши ответы автоматически кэшируются в локальной памяти браузера (localStorage), так что случайное закрытие вкладки ничего не сотрет.<br><br>
+ Распределяемся по вариантам:
+ <ul>
+ <li><strong>Вариант 1 (1-я парта каждого ряда):</strong> Формальная схема <code>R(A, B, C, D, E)</code> — вычисление <code>{B}⁺</code>, нахождение всех потенциальных ключей и минимизация покрытия.</li>
+ <li><strong>Вариант 2 (2-я парта):</strong> Прикладная база «Проекты и сотрудники» — определение составного ключа и доказательство наличия частичной зависимости, нарушающей 2НФ.</li>
+ <li><strong>Вариант 3 (3-я парта):</strong> Система «Логистика» — нахождение ключа накладных и выявление транзитивной зависимости адреса клиента, нарушающей 3НФ.</li>
+ <li><strong>Вариант 4 (4-я парта):</strong> Схема <code>R(X, Y, Z, W, V)</code> — строгое доказательство <code>X → W</code> по аксиомам Армстронга и нахождение Minimal Cover с устранением постороннего атрибута.</li>
+ </ul>
+ Время на самостоятельное решение — 15 минут. Я подхожу и отвечаю на индивидуальные вопросы.
+ </div>
 
-      <div class="action-note">
-        Студенты работают в веб-формах, проводят пошаговые вычисления замыканий, обосновывают ключи. Преподаватель обходит аудиторию, контролирует ход решения, предотвращает ошибки в расчете замыкания.
-      </div>
-    </section>
+ <div class="action-note">
+ Студенты работают в веб-формах, проводят пошаговые вычисления замыканий, обосновывают ключи. Преподаватель обходит аудиторию, контролирует ход решения, предотвращает ошибки в расчете замыкания.
+ </div>
+ </section>
 
-    <!-- ЭТАП 5 -->
-    <section class="stage-card">
-      <span class="stage-badge">Этап 5</span>
-      <span class="timing-badge">80 мин: 10 минут (01:10–01:20) | 60 мин: 6 минут (00:54–01:00)</span>
-      <h2>Разбор ошибок, рефлексия, интернет-мем Bobby Tables и домашнее задание</h2>
+ <!-- ЭТАП 5 -->
+ <section class="stage-card">
+ <span class="stage-badge">Этап 5</span>
+ <span class="timing-badge">80 мин: 10 минут (01:10–01:20) | 60 мин: 6 минут (00:54–01:00)</span>
+ <h2>Разбор ошибок, рефлексия, интернет-мем Bobby Tables и домашнее задание</h2>
 
-      <div class="action-note">
-        Преподаватель привлекает внимание аудитории и переключает проектор на Слайд 15 с комиксом xkcd #327.
-      </div>
+ <div class="action-note">
+ Преподаватель привлекает внимание аудитории и переключает проектор на Слайд 15 с комиксом xkcd #327.
+ </div>
 
-      <div class="speech-box">
-        <strong class="speaker">Преподаватель:</strong>
-        Время вышло. Нажмите кнопку «Сохранить ответы» в своих листах. Перед тем как подвести итоги по критериальной рубрике, взгляните на экран (Слайд 15). Это знаменитый комикс Рэндалла Манро про «Маленького Бобби Таблицу» (Little Bobby Tables).<br><br>
-        Мама назвала сына именем <code>Robert'); DROP TABLE Students;--</code>, и когда школьная программа попыталась записать его в базу без должной обработки, таблица студентов была уничтожена. Почему этот мем мы смотрим на занятии по функциональным зависимостям?
-      </div>
+ <div class="speech-box">
+ <strong class="speaker">Преподаватель:</strong>
+ Время вышло. Нажмите кнопку «Сохранить ответы» в своих листах. Перед тем как подвести итоги по критериальной рубрике, взгляните на экран (Слайд 15). Это знаменитый комикс Рэндалла Манро про «Маленького Бобби Таблицу» (Little Bobby Tables).<br><br>
+ Мама назвала сына именем <code>Robert'); DROP TABLE Students;--</code>, и когда школьная программа попыталась записать его в базу без должной обработки, таблица студентов была уничтожена. Почему этот мем мы смотрим на занятии по функциональным зависимостям?
+ </div>
 
-      <div class="speech-box student-speech">
-        <strong class="speaker">Студент:</strong>
-        Потому что когда проектировщики бросают базу ненормализованной, в одной огромной таблице хранятся и студенты, и их оценки, и факультеты. И любая ошибка уничтожает вообще все данные сразу, потому что ключи и связи не были изолированы!
-      </div>
+ <div class="speech-box student-speech">
+ <strong class="speaker">Студент:</strong>
+ Потому что когда проектировщики бросают базу ненормализованной, в одной огромной таблице хранятся и студенты, и их оценки, и факультеты. И любая ошибка уничтожает вообще все данные сразу, потому что ключи и связи не были изолированы!
+ </div>
 
-      <div class="speech-box">
-        <strong class="speaker">Преподаватель:</strong>
-        В точку! Денормализованная база — это пороховая бочка. Четкое выделение функциональных зависимостей и ключей позволяет разбить схему на независимые, надежно изолированные сущности. Если в нормализованной схеме повредится запись об одном студенте, справочники факультетов и предметов останутся невредимыми.<br><br>
-        <strong>Оценивание:</strong> Ваши работы оцениваются по 4-балльной шкале:
-        2 балла за безошибочное вычисление замыкания, 1 балл за нахождение всех ключей отношения и 1 балл за минимизацию покрытия и аналитические ответы.<br><br>
-        <strong>Домашнее задание:</strong> В папке материалов находится файл <code>domashnee_zadanie.html</code>. Это резервное дистанционное задание. Обратите внимание на плашку: вы выполняете его только в том случае, если вам назначена дистанционная отработка или требуется пересдача. Срок сдачи — до начала следующей пары.<br><br>
-        Спасибо за отличную математическую работу! Урок окончен.
-      </div>
-    </section>
-  </div>
+ <div class="speech-box">
+ <strong class="speaker">Преподаватель:</strong>
+ В точку! Денормализованная база — это пороховая бочка. Четкое выделение функциональных зависимостей и ключей позволяет разбить схему на независимые, надежно изолированные сущности. Если в нормализованной схеме повредится запись об одном студенте, справочники факультетов и предметов останутся невредимыми.<br><br>
+ <strong>Оценивание:</strong> Ваши работы оцениваются по 4-балльной шкале:
+ 2 балла за безошибочное вычисление замыкания, 1 балл за нахождение всех ключей отношения и 1 балл за минимизацию покрытия и аналитические ответы.<br><br>
+ <strong>Домашнее задание:</strong> В папке материалов находится файл <code>domashnee_zadanie.html</code>. Это резервное дистанционное задание. Обратите внимание на плашку: вы выполняете его только в том случае, если вам назначена дистанционная отработка или требуется пересдача. Срок сдачи — до начала следующей пары.<br><br>
+ Спасибо за отличную математическую работу! Урок окончен.
+ </div>
+ </section>
+ </div>
 </body>
 </html>

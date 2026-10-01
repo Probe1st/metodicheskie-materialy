@@ -1,452 +1,423 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="color-scheme" content="light">
-  <title>Системы счисления. Перевод чисел из одной системы счисления в другую — Практическая работа</title>
-  <style>
-    :root {
-      --bg: #f1f5f9;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #2563eb;
-      --accent-soft: #eff6ff;
-      --warn: #d97706;
-      --warn-soft: #fef3c7;
-      --success: #16a34a;
-      --radius: 12px;
-      --shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
-    }
-    * { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      line-height: 1.6;
-      font-size: 16px;
-    }
-    .page {
-      width: min(100% - 32px, 880px);
-      margin: 28px auto 90px;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 28px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow);
-    }
-    h1 {
-      margin: 0 0 10px;
-      font-size: clamp(24px, 4vw, 32px);
-      line-height: 1.25;
-      color: var(--text);
-    }
-    .lead {
-      color: var(--muted);
-      margin: 0;
-      font-size: 16px;
-    }
-    h2 {
-      margin: 0 0 16px;
-      font-size: 20px;
-      color: var(--accent);
-      border-bottom: 2px solid var(--accent-soft);
-      padding-bottom: 8px;
-    }
-    h3 {
-      font-size: 17px;
-      margin: 20px 0 10px;
-      color: var(--text);
-    }
-    p, ul, ol {
-      margin-top: 0;
-      margin-bottom: 12px;
-    }
-    ul, ol {
-      padding-left: 22px;
-    }
-    li {
-      margin-bottom: 6px;
-    }
-    .notice {
-      background: var(--accent-soft);
-      border-left: 4px solid var(--accent);
-      padding: 12px 16px;
-      border-radius: 4px 8px 8px 4px;
-      margin-bottom: 18px;
-      font-size: 15px;
-    }
-    .criteria-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 14px 0;
-      font-size: 15px;
-    }
-    .criteria-table th, .criteria-table td {
-      border: 1px solid var(--line);
-      padding: 10px 12px;
-      text-align: left;
-    }
-    .criteria-table th {
-      background: var(--accent-soft);
-      font-weight: 600;
-    }
-    .form-group {
-      margin-bottom: 18px;
-    }
-    label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 6px;
-      color: var(--text);
-    }
-    .hint {
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-    input[type="text"], textarea {
-      width: 100%;
-      border: 1.5px solid var(--line);
-      border-radius: 8px;
-      padding: 10px 14px;
-      font: inherit;
-      color: var(--text);
-      background: #ffffff;
-      outline: none;
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
-    input[type="text"]:focus, textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-    }
-    textarea {
-      min-height: 84px;
-      height: 84px;
-      resize: vertical;
-      line-height: 1.5;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 15px;
-    }
-    .student-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 16px;
-    }
-    .variant-selector {
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 14px;
-      margin-bottom: 18px;
-    }
-    .actions-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 24px;
-      padding-top: 18px;
-      border-top: 1px solid var(--line);
-    }
-    button {
-      padding: 10px 20px;
-      font-weight: 600;
-      font-size: 15px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: opacity 0.15s, background-color 0.15s;
-    }
-    .btn-primary {
-      background: var(--accent);
-      color: #ffffff;
-    }
-    .btn-primary:hover {
-      background: #1d4ed8;
-    }
-    .btn-secondary {
-      background: #e2e8f0;
-      color: var(--text);
-    }
-    .btn-secondary:hover {
-      background: #cbd5e1;
-    }
-    .btn-danger {
-      background: #fee2e2;
-      color: #991b1b;
-    }
-    .btn-danger:hover {
-      background: #fecaca;
-    }
-    .status-msg {
-      font-size: 14px;
-      color: var(--success);
-      margin-left: auto;
-      align-self: center;
-      display: none;
-    }
-    @media (max-width: 640px) {
-      .page { width: calc(100% - 20px); margin: 14px auto 60px; }
-      .card { padding: 18px 14px; }
-      .student-grid { grid-template-columns: 1fr; }
-      .actions-bar { flex-direction: column; }
-      .actions-bar button { width: 100%; justify-content: center; }
-      .status-msg { margin-left: 0; text-align: center; }
-    }
-    @media print {
-      body { background: white; color: black; font-size: 12pt; }
-      .page { width: 100%; margin: 0; }
-      .card { border: none; box-shadow: none; padding: 10px 0; margin-bottom: 14px; break-inside: avoid; }
-      .actions-bar, .notice, .hint { display: none; }
-      .variant-selector select { border: none; font-size: 14pt; font-weight: bold; -webkit-appearance: none; appearance: none; }
-      input[type="text"], textarea {
-        border: 1px solid #666;
-        background: white;
-        color: black;
-        width: 100%;
-        box-sizing: border-box;
-        display: block;
-      }
-      textarea {
-        height: auto !important;
-        min-height: 100px;
-        overflow: visible;
-        white-space: pre-wrap;
-        word-break: break-word;
-      }
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <meta name="color-scheme" content="light">
+ <title>Системы счисления. Перевод чисел из одной системы счисления в другую — Практическая работа</title>
+ <style>
+ :root {
+ --bg: #f1f5f9;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #2563eb;
+ --accent-soft: #eff6ff;
+ --warn: #d97706;
+ --warn-soft: #fef3c7;
+ --success: #16a34a;
+ --radius: 12px;
+ --shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+ }
+ * { box-sizing: border-box; }
+ html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+ body {
+ margin: 0;
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+ line-height: 1.6;
+ font-size: 16px;
+ }.page {
+ width: min(100% - 32px, 880px);
+ margin: 28px auto 90px;
+ }.card {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 28px;
+ margin-bottom: 24px;
+ box-shadow: var(--shadow);
+ }
+ h1 {
+ margin: 0 0 10px;
+ font-size: clamp(24px, 4vw, 32px);
+ line-height: 1.25;
+ color: var(--text);
+ }.lead {
+ color: var(--muted);
+ margin: 0;
+ font-size: 16px;
+ }
+ h2 {
+ margin: 0 0 16px;
+ font-size: 20px;
+ color: var(--accent);
+ border-bottom: 2px solid var(--accent-soft);
+ padding-bottom: 8px;
+ }
+ h3 {
+ font-size: 17px;
+ margin: 20px 0 10px;
+ color: var(--text);
+ }
+ p, ul, ol {
+ margin-top: 0;
+ margin-bottom: 12px;
+ }
+ ul, ol {
+ padding-left: 22px;
+ }
+ li {
+ margin-bottom: 6px;
+ }.notice {
+ background: var(--accent-soft);
+ border-left: 4px solid var(--accent);
+ padding: 12px 16px;
+ border-radius: 4px 8px 8px 4px;
+ margin-bottom: 18px;
+ font-size: 15px;
+ }.criteria-table {
+ width: 100%;
+ border-collapse: collapse;
+ margin: 14px 0;
+ font-size: 15px;
+ }.criteria-table th,.criteria-table td {
+ border: 1px solid var(--line);
+ padding: 10px 12px;
+ text-align: left;
+ }.criteria-table th {
+ background: var(--accent-soft);
+ font-weight: 600;
+ }.form-group {
+ margin-bottom: 18px;
+ }
+ label {
+ display: block;
+ font-weight: 600;
+ margin-bottom: 6px;
+ color: var(--text);
+ }.hint {
+ font-size: 13px;
+ color: var(--muted);
+ margin-bottom: 6px;
+ }
+ input[type="text"], textarea {
+ width: 100%;
+ border: 1.5px solid var(--line);
+ border-radius: 8px;
+ padding: 10px 14px;
+ font: inherit;
+ color: var(--text);
+ background: #ffffff;
+ outline: none;
+ transition: border-color 0.15s, box-shadow 0.15s;
+ }
+ input[type="text"]:focus, textarea:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+ }
+ textarea {
+ min-height: 84px;
+ height: 84px;
+ resize: vertical;
+ line-height: 1.5;
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 15px;
+ }.student-grid {
+ display: grid;
+ grid-template-columns: 2fr 1fr;
+ gap: 16px;
+ }.variant-selector {
+ background: #f8fafc;
+ border: 1px solid var(--line);
+ border-radius: 8px;
+ padding: 14px;
+ margin-bottom: 18px;
+ }.actions-bar {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 12px;
+ margin-top: 24px;
+ padding-top: 18px;
+ border-top: 1px solid var(--line);
+ }
+ button {
+ padding: 10px 20px;
+ font-weight: 600;
+ font-size: 15px;
+ border-radius: 8px;
+ border: none;
+ cursor: pointer;
+ display: inline-flex;
+ align-items: center;
+ gap: 6px;
+ transition: opacity 0.15s, background-color 0.15s;
+ }.btn-primary {
+ background: var(--accent);
+ color: #ffffff;
+ }.btn-primary:hover {
+ background: #1d4ed8;
+ }.btn-secondary {
+ background: #e2e8f0;
+ color: var(--text);
+ }.btn-secondary:hover {
+ background: #cbd5e1;
+ }.btn-danger {
+ background: #fee2e2;
+ color: #991b1b;
+ }.btn-danger:hover {
+ background: #fecaca;
+ }.status-msg {
+ font-size: 14px;
+ color: var(--success);
+ margin-left: auto;
+ align-self: center;
+ display: none;
+ }
+ @media (max-width: 640px) {.page { width: calc(100% - 20px); margin: 14px auto 60px; }.card { padding: 18px 14px; }.student-grid { grid-template-columns: 1fr; }.actions-bar { flex-direction: column; }.actions-bar button { width: 100%; justify-content: center; }.status-msg { margin-left: 0; text-align: center; }
+ }
+ @media print {
+ body { background: white; color: black; font-size: 12pt; }.page { width: 100%; margin: 0; }.card { border: none; box-shadow: none; padding: 10px 0; margin-bottom: 14px; break-inside: avoid; }.actions-bar,.notice,.hint { display: none; }.variant-selector select { border: none; font-size: 14pt; font-weight: bold; -webkit-appearance: none; appearance: none; }
+ input[type="text"], textarea {
+ border: 1px solid #666;
+ background: white;
+ color: black;
+ width: 100%;
+ box-sizing: border-box;
+ display: block;
+ }
+ textarea {
+ height: auto !important;
+ min-height: 100px;
+ overflow: visible;
+ white-space: pre-wrap;
+ word-break: break-word;
+ }
+ }
+ </style>
 </head>
 <body>
-  <div class="page">
-    <header class="card">
-      <h1>Системы счисления. Перевод чисел из одной системы счисления в другую</h1>
-      <p class="lead">Индивидуальная практическая работа: выполнение двух разнотипных переводов чисел с обязательной обратной проверкой и развернутым математическим обоснованием каждого шага.</p>
-    </header>
+ <div class="page">
+ <header class="card">
+ <h1>Системы счисления. Перевод чисел из одной системы счисления в другую</h1>
+ <p class="lead">Индивидуальная практическая работа: выполнение двух разнотипных переводов чисел с обязательной обратной проверкой и развернутым математическим обоснованием каждого шага.</p>
+ </header>
 
-    <section class="card">
-      <h2>Данные обучающегося</h2>
-      <div class="student-grid">
-        <div class="form-group">
-          <label for="studentName">Фамилия, Имя</label>
-          <input type="text" id="studentName">
-        </div>
-        <div class="form-group">
-          <label for="studentVariant">Вариант задания</label>
-          <select id="studentVariant" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid var(--line); font:inherit;">
-            <option value="1">Вариант 1 (Числа: 53₁₀ и 2B₁₆)</option>
-            <option value="2">Вариант 2 (Числа: 77₁₀ и 4E₁₆)</option>
-            <option value="3">Вариант 3 (Числа: 91₁₀ и 3C₁₆)</option>
-            <option value="4">Вариант 4 (Числа: 62₁₀ и 5A₁₆)</option>
-          </select>
-        </div>
-      </div>
-      <div class="notice">
-        <strong>Автосохранение:</strong> Ваши ответы автоматически сохраняются в браузере при вводе. Для сдачи работы воспользуйтесь кнопкой «Печать / Сохранить в PDF» внизу страницы.
-      </div>
-    </section>
+ <section class="card">
+ <h2>Данные обучающегося</h2>
+ <div class="student-grid">
+ <div class="form-group">
+ <label for="studentName">Фамилия, Имя</label>
+ <input type="text" id="studentName">
+ </div>
+ <div class="form-group">
+ <label for="studentVariant">Вариант задания</label>
+ <select id="studentVariant" style="width:100%; padding:10px; border-radius:8px; border:1.5px solid var(--line); font:inherit;">
+ <option value="1">Вариант 1 (Числа: 53₁₀ и 2B₁₆)</option>
+ <option value="2">Вариант 2 (Числа: 77₁₀ и 4E₁₆)</option>
+ <option value="3">Вариант 3 (Числа: 91₁₀ и 3C₁₆)</option>
+ <option value="4">Вариант 4 (Числа: 62₁₀ и 5A₁₆)</option>
+ </select>
+ </div>
+ </div>
+ <div class="notice">
+ <strong>Автосохранение:</strong> Ваши ответы автоматически сохраняются в браузере при вводе. Для сдачи работы воспользуйтесь кнопкой «Печать / Сохранить в PDF» внизу страницы.
+ </div>
+ </section>
 
-    <section class="card">
-      <h2>Критерии оценивания работы (Всего: 4 балла)</h2>
-      <p>Оценивание индивидуального продукта производится по открытым критериям:</p>
-      <table class="criteria-table">
-        <thead>
-          <tr>
-            <th>Показатель</th>
-            <th>Баллы</th>
-            <th>Содержание критерия</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Корректность перевода</strong></td>
-            <td>0 – 2</td>
-            <td>Получены точные математические результаты двух переводов. (1 балл за каждый верно найденный результат).</td>
-          </tr>
-          <tr>
-            <td><strong>Развернутое объяснение</strong></td>
-            <td>0 – 1</td>
-            <td>В полях решения приведен детальный ход рассуждения: показаны все шаги деления на основание с остатками или расчет степенных весов разрядов.</td>
-          </tr>
-          <tr>
-            <td><strong>Обратная проверка</strong></td>
-            <td>0 – 1</td>
-            <td>Выполнен обратный перевод полученных результатов в исходную систему счисления, подтверждающий совпадение исходного значения.</td>
-          </tr>
-        </tbody>
-      </table>
-      <p><em>Шкала перевода баллов:</em> 4 балла — отлично («5»), 3 балла — хорошо («4»), 2 балла — удовлетворительно («3»), менее 2 баллов — не зачтено («2»).</p>
-    </section>
+ <section class="card">
+ <h2>Критерии оценивания работы (Всего: 4 балла)</h2>
+ <p>Оценивание индивидуального продукта производится по открытым критериям:</p>
+ <table class="criteria-table">
+ <thead>
+ <tr>
+ <th>Показатель</th>
+ <th>Баллы</th>
+ <th>Содержание критерия</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>Корректность перевода</strong></td>
+ <td>0 – 2</td>
+ <td>Получены точные математические результаты двух переводов. (1 балл за каждый верно найденный результат).</td>
+ </tr>
+ <tr>
+ <td><strong>Развернутое объяснение</strong></td>
+ <td>0 – 1</td>
+ <td>В полях решения приведен детальный ход рассуждения: показаны все шаги деления на основание с остатками или расчет степенных весов разрядов.</td>
+ </tr>
+ <tr>
+ <td><strong>Обратная проверка</strong></td>
+ <td>0 – 1</td>
+ <td>Выполнен обратный перевод полученных результатов в исходную систему счисления, подтверждающий совпадение исходного значения.</td>
+ </tr>
+ </tbody>
+ </table>
+ <p><em>Шкала перевода баллов:</em> 4 балла — отлично («5»), 3 балла — хорошо («4»), 2 балла — удовлетворительно («3»), менее 2 баллов — не зачтено («2»).</p>
+ </section>
 
-    <section class="card">
-      <h2>Задание 1. Перевод десятичного числа в двоичную систему с обратной проверкой</h2>
-      <div class="variant-selector" id="task1Info">
-        <strong>Условие:</strong> Переведите десятичное число согласно вашему варианту в двоичную систему счисления методом деления на основание 2. Запишите полученный результат и проведите обратную проверку переводом полученного двоичного кода обратно в десятичную систему через развернутую форму.
-      </div>
-      
-      <div class="form-group">
-        <label for="step1_solution">Ход решения (деление на 2 с фиксацией остатков)</label>
-        <div class="hint">Укажите все операции деления, частные и остатки снизу вверх. Демонстрационный образец: 45 / 2 = 22 (ост. 1), 22 / 2 = 11 (ост. 0)...</div>
-        <textarea id="step1_solution"></textarea>
-      </div>
+ <section class="card">
+ <h2>Задание 1. Перевод десятичного числа в двоичную систему с обратной проверкой</h2>
+ <div class="variant-selector" id="task1Info">
+ <strong>Условие:</strong> Переведите десятичное число согласно вашему варианту в двоичную систему счисления методом деления на основание 2. Запишите полученный результат и проведите обратную проверку переводом полученного двоичного кода обратно в десятичную систему через развернутую форму.
+ </div>
+ 
+ <div class="form-group">
+ <label for="step1_solution">Ход решения (деление на 2 с фиксацией остатков)</label>
+ <div class="hint">Укажите все операции деления, частные и остатки снизу вверх. Демонстрационный образец: 45 / 2 = 22 (ост. 1), 22 / 2 = 11 (ост. 0)...</div>
+ <textarea id="step1_solution"></textarea>
+ </div>
 
-      <div class="form-group">
-        <label for="step1_result">Итоговый двоичный результат</label>
-        <input type="text" id="step1_result">
-      </div>
+ <div class="form-group">
+ <label for="step1_result">Итоговый двоичный результат</label>
+ <input type="text" id="step1_result">
+ </div>
 
-      <div class="form-group">
-        <label for="step1_check">Обратная проверка (развернутая форма по степеням двойки)</label>
-        <div class="hint">Запишите сумму произведений битов на веса разрядов (1, 2, 4, 8, 16...) и итоговую десятичную сумму. Демонстрационный образец: 1·32 + 0·16 + 1·8 + 1·4 + 0·2 + 1·1 = 45₁₀.</div>
-        <textarea id="step1_check"></textarea>
-      </div>
-    </section>
+ <div class="form-group">
+ <label for="step1_check">Обратная проверка (развернутая форма по степеням двойки)</label>
+ <div class="hint">Запишите сумму произведений битов на веса разрядов (1, 2, 4, 8, 16...) и итоговую десятичную сумму. Демонстрационный образец: 1·32 + 0·16 + 1·8 + 1·4 + 0·2 + 1·1 = 45₁₀.</div>
+ <textarea id="step1_check"></textarea>
+ </div>
+ </section>
 
-    <section class="card">
-      <h2>Задание 2. Перевод шестнадцатеричного числа в десятичную и двоичную системы с обратной проверкой</h2>
-      <div class="variant-selector" id="task2Info">
-        <strong>Условие:</strong> Переведите шестнадцатеричное число вашего варианта в десятичную систему (через развернутую форму) и в двоичную систему (через тетрады). Выполните обратную проверку полученного двоичного кода переводом в шестнадцатеричную форму группировкой тетрад.
-      </div>
+ <section class="card">
+ <h2>Задание 2. Перевод шестнадцатеричного числа в десятичную и двоичную системы с обратной проверкой</h2>
+ <div class="variant-selector" id="task2Info">
+ <strong>Условие:</strong> Переведите шестнадцатеричное число вашего варианта в десятичную систему (через развернутую форму) и в двоичную систему (через тетрады). Выполните обратную проверку полученного двоичного кода переводом в шестнадцатеричную форму группировкой тетрад.
+ </div>
 
-      <div class="form-group">
-        <label for="step2_dec_solution">Перевод в десятичную систему (расчет с весами разрядов 16)</label>
-        <div class="hint">Укажите развернутую форму записи с учетом числовых значений буквенных символов (A=10, B=11, C=12, D=13, E=14, F=15). Демонстрационный образец: 2D₁₆ = 2·16¹ + 13·16⁰ = 32 + 13 = 45₁₀.</div>
-        <textarea id="step2_dec_solution"></textarea>
-      </div>
+ <div class="form-group">
+ <label for="step2_dec_solution">Перевод в десятичную систему (расчет с весами разрядов 16)</label>
+ <div class="hint">Укажите развернутую форму записи с учетом числовых значений буквенных символов (A=10, B=11, C=12, D=13, E=14, F=15). Демонстрационный образец: 2D₁₆ = 2·16¹ + 13·16⁰ = 32 + 13 = 45₁₀.</div>
+ <textarea id="step2_dec_solution"></textarea>
+ </div>
 
-      <div class="form-group">
-        <label for="step2_bin_solution">Перевод в двоичную систему через тетрады</label>
-        <div class="hint">Запишите двоичную тетраду (4 бита) для каждого шестнадцатеричного знака. Демонстрационный образец: 2₁₆ = 0010₂, D₁₆ = 1101₂. Итог: 00101101₂.</div>
-        <textarea id="step2_bin_solution"></textarea>
-      </div>
+ <div class="form-group">
+ <label for="step2_bin_solution">Перевод в двоичную систему через тетрады</label>
+ <div class="hint">Запишите двоичную тетраду (4 бита) для каждого шестнадцатеричного знака. Демонстрационный образец: 2₁₆ = 0010₂, D₁₆ = 1101₂. Итог: 00101101₂.</div>
+ <textarea id="step2_bin_solution"></textarea>
+ </div>
 
-      <div class="form-group">
-        <label for="step2_check">Обратная проверка (группировка двоичных тетрад справа налево)</label>
-        <div class="hint">Разбейте полученный двоичный код на тетрады от младшего разряда и подтвердите исходный HEX-код. Демонстрационный образец: 0010 | 1101 → 0010₂ = 2₁₆, 1101₂ = 13₁₀ = D₁₆ → 2D₁₆.</div>
-        <textarea id="step2_check"></textarea>
-      </div>
-    </section>
+ <div class="form-group">
+ <label for="step2_check">Обратная проверка (группировка двоичных тетрад справа налево)</label>
+ <div class="hint">Разбейте полученный двоичный код на тетрады от младшего разряда и подтвердите исходный HEX-код. Демонстрационный образец: 0010 | 1101 → 0010₂ = 2₁₆, 1101₂ = 13₁₀ = D₁₆ → 2D₁₆.</div>
+ <textarea id="step2_check"></textarea>
+ </div>
+ </section>
 
-    <div class="card">
-      <div class="actions-bar">
-        <button type="button" class="btn-primary" id="printBtn">🖨️ Печать / Сохранить в PDF</button>
-        <button type="button" class="btn-secondary" id="saveManualBtn">💾 Сохранить</button>
-        <button type="button" class="btn-danger" id="clearBtn">🗑️ Очистить форму</button>
-        <span class="status-msg" id="statusMsg">Данные сохранены локально</span>
-      </div>
-    </div>
-  </div>
+ <div class="card">
+ <div class="actions-bar">
+ <button type="button" class="btn-primary" id="printBtn">🖨️ Печать / Сохранить в PDF</button>
+ <button type="button" class="btn-secondary" id="saveManualBtn">💾 Сохранить</button>
+ <button type="button" class="btn-danger" id="clearBtn">🗑️ Очистить форму</button>
+ <span class="status-msg" id="statusMsg">Данные сохранены локально</span>
+ </div>
+ </div>
+ </div>
 
-  <script>
-    (function() {
-      const STORAGE_KEY = 'hw03_zanyatie_autosave_v1';
-      const fields = [
-        'studentName', 'studentVariant',
-        'step1_solution', 'step1_result', 'step1_check',
-        'step2_dec_solution', 'step2_bin_solution', 'step2_check'
-      ];
+ <script>
+ (function() {
+ const STORAGE_KEY = 'hw03_zanyatie_autosave_v1';
+ const fields = [
+ 'studentName', 'studentVariant',
+ 'step1_solution', 'step1_result', 'step1_check',
+ 'step2_dec_solution', 'step2_bin_solution', 'step2_check'
+ ];
 
-      function autoResizeTextarea(textarea) {
-        if (!textarea) return;
-        textarea.style.height = 'auto';
-        const newHeight = Math.max(84, textarea.scrollHeight);
-        textarea.style.height = newHeight + 'px';
-      }
+ function autoResizeTextarea(textarea) {
+ if (!textarea) return;
+ textarea.style.height = 'auto';
+ const newHeight = Math.max(84, textarea.scrollHeight);
+ textarea.style.height = newHeight + 'px';
+ }
 
-      function updateAllTextareas() {
-        document.querySelectorAll('textarea').forEach(autoResizeTextarea);
-      }
+ function updateAllTextareas() {
+ document.querySelectorAll('textarea').forEach(autoResizeTextarea);
+ }
 
-      function saveData() {
-        const data = {};
-        fields.forEach(id => {
-          const el = document.getElementById(id);
-          if (el) data[id] = el.value;
-        });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        showStatus('Данные сохранены локально');
-      }
+ function saveData() {
+ const data = {};
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) data[id] = el.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ showStatus('Данные сохранены локально');
+ }
 
-      function loadData() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (!saved) return;
-        try {
-          const data = JSON.parse(saved);
-          fields.forEach(id => {
-            const el = document.getElementById(id);
-            if (el && data[id] !== undefined) {
-              el.value = data[id];
-            }
-          });
-          updateAllTextareas();
-        } catch (e) {
-          console.error('Ошибка восстановления данных:', e);
-        }
-      }
+ function loadData() {
+ const saved = localStorage.getItem(STORAGE_KEY);
+ if (!saved) return;
+ try {
+ const data = JSON.parse(saved);
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el && data[id] !== undefined) {
+ el.value = data[id];
+ }
+ });
+ updateAllTextareas();
+ } catch (e) {
+ console.error('Ошибка восстановления данных:', e);
+ }
+ }
 
-      function clearData() {
-        if (!confirm('Вы действительно хотите очистить все поля практической работы?')) {
-          return;
-        }
-        fields.forEach(id => {
-          const el = document.getElementById(id);
-          if (el) {
-            if (el.tagName === 'SELECT') {
-              el.selectedIndex = 0;
-            } else {
-              el.value = '';
-            }
-          }
-        });
-        localStorage.removeItem(STORAGE_KEY);
-        updateAllTextareas();
-        showStatus('Форма очищена');
-      }
+ function clearData() {
+ if (!confirm('Вы действительно хотите очистить все поля практической работы?')) {
+ return;
+ }
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) {
+ if (el.tagName === 'SELECT') {
+ el.selectedIndex = 0;
+ } else {
+ el.value = '';
+ }
+ }
+ });
+ localStorage.removeItem(STORAGE_KEY);
+ updateAllTextareas();
+ showStatus('Форма очищена');
+ }
 
-      function showStatus(text) {
-        const msg = document.getElementById('statusMsg');
-        if (!msg) return;
-        msg.textContent = text;
-        msg.style.display = 'inline';
-        setTimeout(() => {
-          msg.style.display = 'none';
-        }, 2500);
-      }
+ function showStatus(text) {
+ const msg = document.getElementById('statusMsg');
+ if (!msg) return;
+ msg.textContent = text;
+ msg.style.display = 'inline';
+ setTimeout(() => {
+ msg.style.display = 'none';
+ }, 2500);
+ }
 
-      // Event listeners
-      fields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-          el.addEventListener('input', () => {
-            if (el.tagName === 'TEXTAREA') autoResizeTextarea(el);
-            saveData();
-          });
-          el.addEventListener('change', saveData);
-        }
-      });
+ // Event listeners
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) {
+ el.addEventListener('input', () => {
+ if (el.tagName === 'TEXTAREA') autoResizeTextarea(el);
+ saveData();
+ });
+ el.addEventListener('change', saveData);
+ }
+ });
 
-      document.getElementById('saveManualBtn').addEventListener('click', saveData);
-      document.getElementById('clearBtn').addEventListener('click', clearData);
-      document.getElementById('printBtn').addEventListener('click', () => {
-        window.print();
-      });
+ document.getElementById('saveManualBtn').addEventListener('click', saveData);
+ document.getElementById('clearBtn').addEventListener('click', clearData);
+ document.getElementById('printBtn').addEventListener('click', () => {
+ window.print();
+ });
 
-      // Init on load
-      window.addEventListener('DOMContentLoaded', () => {
-        loadData();
-        updateAllTextareas();
-      });
-    })();
-  </script>
+ // Init on load
+ window.addEventListener('DOMContentLoaded', () => {
+ loadData();
+ updateAllTextareas();
+ });
+ })();
+ </script>
 </body>
 </html>

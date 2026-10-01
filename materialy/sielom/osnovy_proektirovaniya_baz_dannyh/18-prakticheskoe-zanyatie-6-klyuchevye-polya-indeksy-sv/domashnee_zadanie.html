@@ -1,444 +1,422 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Домашнее задание - Практическое занятие №6: ключевые поля, индексы, связи</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --text-muted: #475569;
-      --border: #cbd5e1;
-      --accent: #0284c7;
-      --accent-hover: #0369a1;
-      --accent-soft: #f0f9ff;
-      --warn: #f59e0b;
-      --warn-soft: #fef3c7;
-      --warn-text: #92400e;
-      --success: #16a34a;
-      --success-soft: #dcfce7;
-      --danger: #dc2626;
-      --danger-soft: #fee2e2;
-    }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      padding: 24px 16px;
-      min-width: 320px;
-    }
-    .container {
-      max-width: 920px;
-      margin: 0 auto;
-      width: 100%;
-    }
-    header.hw-header {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-    h1 {
-      font-size: 1.85rem;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 12px;
-      word-break: break-word;
-    }
-    .reserve-notice {
-      display: inline-block;
-      background-color: var(--warn-soft);
-      color: var(--warn-text);
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      margin-bottom: 14px;
-      border-left: 4px solid var(--warn);
-      line-height: 1.45;
-    }
-    .instruction {
-      font-size: 0.98rem;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-    }
-    .student-info {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
-    .info-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .info-group label {
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .info-group input {
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.95rem;
-      color: var(--text);
-      outline: none;
-      background: #ffffff;
-    }
-    .info-group input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-soft);
-    }
-    section.hw-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-    h2 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 14px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    h3 {
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: var(--text);
-      margin: 16px 0 8px;
-    }
-    p, ul, ol {
-      margin-bottom: 14px;
-      font-size: 0.98rem;
-    }
-    ul, ol {
-      padding-left: 24px;
-    }
-    li {
-      margin-bottom: 6px;
-    }
-    pre, code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 13.5px;
-    }
-    code {
-      background: #f1f5f9;
-      color: #0f172a;
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-    pre {
-      background: #0f172a;
-      color: #f8fafc;
-      padding: 14px;
-      border-radius: 8px;
-      overflow-x: auto;
-      margin: 12px 0 16px;
-      line-height: 1.45;
-    }
-    pre code { background: transparent; color: inherit; padding: 0; }
-    textarea.answer-area {
-      width: 100%;
-      min-height: 100px;
-      padding: 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 0.95rem;
-      line-height: 1.5;
-      color: var(--text);
-      resize: vertical;
-      background: #ffffff;
-      outline: none;
-      margin-top: 8px;
-    }
-    textarea.answer-area:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-soft);
-    }
-    .action-panel {
-      position: sticky;
-      bottom: 20px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      z-index: 50;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .btn {
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: all 0.2s ease;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .btn-primary { background-color: var(--accent); color: #ffffff; }
-    .btn-primary:hover { background-color: var(--accent-hover); }
-    .btn-secondary { background-color: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
-    .btn-secondary:hover { background-color: #e2e8f0; }
-    .btn-danger { background-color: #fef2f2; color: var(--danger); border: 1px solid #fca5a5; }
-    .btn-danger:hover { background-color: #fee2e2; }
-    .status-msg {
-      font-size: 0.9rem;
-      color: var(--success);
-      font-weight: 600;
-      display: none;
-    }
-    @media (max-width: 640px) {
-      body { padding: 12px 8px; }
-      header.hw-header, section.hw-card { padding: 16px 14px; }
-      h1 { font-size: 1.35rem; }
-      .student-info { grid-template-columns: 1fr; }
-      .action-panel { flex-direction: column; align-items: stretch; }
-      .btn { width: 100%; justify-content: center; }
-    }
-    @media print {
-      body { background: #ffffff; color: #000000; padding: 0; }
-      .container { max-width: 100%; margin: 0; }
-      .action-panel { display: none !important; }
-      header.hw-header, section.hw-card {
-        border: 1px solid #000000;
-        box-shadow: none;
-        page-break-inside: avoid;
-        margin-bottom: 14px;
-        padding: 14px;
-      }
-      textarea.answer-area {
-        border: 1px solid #000000;
-        background: transparent;
-        color: #000000;
-        min-height: 80px;
-        resize: none;
-        overflow: visible;
-      }
-      input {
-        border: 1px solid #000000 !important;
-        background: transparent !important;
-        color: #000000 !important;
-      }
-      input::placeholder, textarea::placeholder {
-        color: transparent !important;
-      }
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Домашнее задание - Практическое занятие №6: ключевые поля, индексы, связи</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card-bg: #ffffff;
+ --text: #0f172a;
+ --text-muted: #475569;
+ --border: #cbd5e1;
+ --accent: #0284c7;
+ --accent-hover: #0369a1;
+ --accent-soft: #f0f9ff;
+ --warn: #f59e0b;
+ --warn-soft: #fef3c7;
+ --warn-text: #92400e;
+ --success: #16a34a;
+ --success-soft: #dcfce7;
+ --danger: #dc2626;
+ --danger-soft: #fee2e2;
+ }
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ }
+ body {
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+ background-color: var(--bg);
+ color: var(--text);
+ line-height: 1.6;
+ padding: 24px 16px;
+ min-width: 320px;
+ }.container {
+ max-width: 920px;
+ margin: 0 auto;
+ width: 100%;
+ }
+ header.hw-header {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
+ h1 {
+ font-size: 1.85rem;
+ font-weight: 800;
+ color: var(--text);
+ margin-bottom: 12px;
+ word-break: break-word;
+ }.reserve-notice {
+ display: inline-block;
+ background-color: var(--warn-soft);
+ color: var(--warn-text);
+ padding: 10px 16px;
+ border-radius: 8px;
+ font-size: 0.95rem;
+ font-weight: 600;
+ margin-bottom: 14px;
+ border-left: 4px solid var(--warn);
+ line-height: 1.45;
+ }.instruction {
+ font-size: 0.98rem;
+ color: var(--text-muted);
+ margin-bottom: 16px;
+ }.student-info {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 16px;
+ padding-top: 16px;
+ border-top: 1px solid var(--border);
+ }.info-group {
+ display: flex;
+ flex-direction: column;
+ gap: 6px;
+ }.info-group label {
+ font-size: 0.82rem;
+ font-weight: 700;
+ color: var(--text-muted);
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+ }.info-group input {
+ padding: 8px 12px;
+ border: 1px solid var(--border);
+ border-radius: 6px;
+ font-size: 0.95rem;
+ color: var(--text);
+ outline: none;
+ background: #ffffff;
+ }.info-group input:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 2px var(--accent-soft);
+ }
+ section.hw-card {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
+ h2 {
+ font-size: 1.25rem;
+ font-weight: 700;
+ color: var(--accent);
+ margin-bottom: 14px;
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ }
+ h3 {
+ font-size: 1.05rem;
+ font-weight: 600;
+ color: var(--text);
+ margin: 16px 0 8px;
+ }
+ p, ul, ol {
+ margin-bottom: 14px;
+ font-size: 0.98rem;
+ }
+ ul, ol {
+ padding-left: 24px;
+ }
+ li {
+ margin-bottom: 6px;
+ }
+ pre, code {
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 13.5px;
+ }
+ code {
+ background: #f1f5f9;
+ color: #0f172a;
+ padding: 2px 6px;
+ border-radius: 4px;
+ }
+ pre {
+ background: #0f172a;
+ color: #f8fafc;
+ padding: 14px;
+ border-radius: 8px;
+ overflow-x: auto;
+ margin: 12px 0 16px;
+ line-height: 1.45;
+ }
+ pre code { background: transparent; color: inherit; padding: 0; }
+ textarea.answer-area {
+ width: 100%;
+ min-height: 100px;
+ padding: 12px;
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ font-family: inherit;
+ font-size: 0.95rem;
+ line-height: 1.5;
+ color: var(--text);
+ resize: vertical;
+ background: #ffffff;
+ outline: none;
+ margin-top: 8px;
+ }
+ textarea.answer-area:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 2px var(--accent-soft);
+ }.action-panel {
+ position: sticky;
+ bottom: 20px;
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 16px 24px;
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+ z-index: 50;
+ gap: 12px;
+ flex-wrap: wrap;
+ }.btn {
+ padding: 10px 20px;
+ border-radius: 8px;
+ font-size: 0.95rem;
+ font-weight: 600;
+ cursor: pointer;
+ border: none;
+ transition: all 0.2s ease;
+ text-decoration: none;
+ display: inline-flex;
+ align-items: center;
+ gap: 6px;
+ }.btn-primary { background-color: var(--accent); color: #ffffff; }.btn-primary:hover { background-color: var(--accent-hover); }.btn-secondary { background-color: #f1f5f9; color: var(--text); border: 1px solid var(--border); }.btn-secondary:hover { background-color: #e2e8f0; }.btn-danger { background-color: #fef2f2; color: var(--danger); border: 1px solid #fca5a5; }.btn-danger:hover { background-color: #fee2e2; }.status-msg {
+ font-size: 0.9rem;
+ color: var(--success);
+ font-weight: 600;
+ display: none;
+ }
+ @media (max-width: 640px) {
+ body { padding: 12px 8px; }
+ header.hw-header, section.hw-card { padding: 16px 14px; }
+ h1 { font-size: 1.35rem; }.student-info { grid-template-columns: 1fr; }.action-panel { flex-direction: column; align-items: stretch; }.btn { width: 100%; justify-content: center; }
+ }
+ @media print {
+ body { background: #ffffff; color: #000000; padding: 0; }.container { max-width: 100%; margin: 0; }.action-panel { display: none !important; }
+ header.hw-header, section.hw-card {
+ border: 1px solid #000000;
+ box-shadow: none;
+ page-break-inside: avoid;
+ margin-bottom: 14px;
+ padding: 14px;
+ }
+ textarea.answer-area {
+ border: 1px solid #000000;
+ background: transparent;
+ color: #000000;
+ min-height: 80px;
+ resize: none;
+ overflow: visible;
+ }
+ input {
+ border: 1px solid #000000 !important;
+ background: transparent !important;
+ color: #000000 !important;
+ }
+ input::placeholder, textarea::placeholder {
+ color: transparent !important;
+ }
+ }
+ </style>
 </head>
 <body>
-  <div class="container">
-    <header class="hw-header">
-      <h1>Домашнее задание - Практическое занятие №6: ключевые поля, индексы, связи</h1>
-      <div class="reserve-notice">
-        Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
-      </div>
-      <p class="instruction">
-        Данная работа представляет собой резервное дистанционное практическое задание по дисциплине «ОП.08 Основы проектирования баз данных» (СИЭУиП). Все поля сохраняются локально в вашем браузере. После заполнения экспортируйте результат в PDF или передайте преподавателю.
-      </p>
+ <div class="container">
+ <header class="hw-header">
+ <h1>Домашнее задание - Практическое занятие №6: ключевые поля, индексы, связи</h1>
+ <div class="reserve-notice">
+ Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+ </div>
+ <p class="instruction">
+ Данная работа представляет собой резервное дистанционное практическое задание по дисциплине «ОП.08 Основы проектирования баз данных» (СИЭУиП). Все поля сохраняются локально в вашем браузере. После заполнения экспортируйте результат в PDF или передайте преподавателю.
+ </p>
 
-      <div class="student-info">
-        <div class="info-group">
-          <label for="hw_student_name">Фамилия, Имя студента</label>
-          <input type="text" id="hw_student_name" autocomplete="off">
-        </div>
-        <div class="info-group">
-          <label for="hw_student_group">Учебная группа</label>
-          <input type="text" id="hw_student_group" autocomplete="off">
-        </div>
-      </div>
-    </header>
+ <div class="student-info">
+ <div class="info-group">
+ <label for="hw_student_name">Фамилия, Имя студента</label>
+ <input type="text" id="hw_student_name" autocomplete="off">
+ </div>
+ <div class="info-group">
+ <label for="hw_student_group">Учебная группа</label>
+ <input type="text" id="hw_student_group" autocomplete="off">
+ </div>
+ </div>
+ </header>
 
-    <!-- Задание 1 -->
-    <section class="hw-card">
-      <h2>Задание 1. Обоснование выбора полей для индексации и проблема внешних ключей</h2>
-      <p>
-        Рассмотрите реляционную схему интернет-магазина, состоящую из двух таблиц:
-      </p>
-      <ul>
-        <li><code>Клиенты (id [PK], фио, email, телефон, город, дата_регистрации)</code></li>
-        <li><code>Заказы (id [PK], client_id [FK], номер_заказа, сумма, статус, дата_создания)</code></li>
-      </ul>
-      <p>
-        <strong>Вопрос:</strong> Создает ли СУБД (PostgreSQL / Oracle) физический индекс на поле <code>client_id</code> в таблице <code>Заказы</code> автоматически при объявлении ограничения <code>FOREIGN KEY</code>? К каким двум тяжелым инженерным последствиям приводит отсутствие индекса на внешнем ключе?
-      </p>
-      <textarea class="answer-area" id="hw_ans_1"></textarea>
-    </section>
+ <!-- Задание 1 -->
+ <section class="hw-card">
+ <h2>Задание 1. Обоснование выбора полей для индексации и проблема внешних ключей</h2>
+ <p>
+ Рассмотрите реляционную схему интернет-магазина, состоящую из двух таблиц:
+ </p>
+ <ul>
+ <li><code>Клиенты (id [PK], фио, email, телефон, город, дата_регистрации)</code></li>
+ <li><code>Заказы (id [PK], client_id [FK], номер_заказа, сумма, статус, дата_создания)</code></li>
+ </ul>
+ <p>
+ <strong>Вопрос:</strong> Создает ли СУБД (PostgreSQL / Oracle) физический индекс на поле <code>client_id</code> в таблице <code>Заказы</code> автоматически при объявлении ограничения <code>FOREIGN KEY</code>? К каким двум тяжелым инженерным последствиям приводит отсутствие индекса на внешнем ключе?
+ </p>
+ <textarea class="answer-area" id="hw_ans_1"></textarea>
+ </section>
 
-    <!-- Задание 2 -->
-    <section class="hw-card">
-      <h2>Задание 2. Анализ правила левого префикса для составного индекса (Composite Index)</h2>
-      <p>
-        Для таблицы <code>Товары (id, категория_id, бренд_id, цена, рейтинг, остаток)</code> спроектирован составной B-Tree индекс:
-      </p>
-      <pre><code>CREATE INDEX idx_goods_filter ON Товары (категория_id, бренд_id, цена);</code></pre>
-      <p>
-        Проанализируйте 4 запроса и определите для каждого из них: сможет ли СУБД использовать данный индекс для быстрого поиска по дереву B-Tree? Обоснуйте ответ правилом левого префикса (Left-Prefix Rule).
-      </p>
-      <ol>
-        <li><code>SELECT * FROM Товары WHERE категория_id = 5 AND бренд_id = 12 AND цена &lt; 5000;</code></li>
-        <li><code>SELECT * FROM Товары WHERE категория_id = 5 AND цена &lt; 5000;</code></li>
-        <li><code>SELECT * FROM Товары WHERE бренд_id = 12 AND цена &lt; 5000;</code></li>
-        <li><code>SELECT * FROM Товары WHERE категория_id = 5 AND бренд_id = 12;</code></li>
-      </ol>
-      <textarea class="answer-area" id="hw_ans_2"></textarea>
-    </section>
+ <!-- Задание 2 -->
+ <section class="hw-card">
+ <h2>Задание 2. Анализ правила левого префикса для составного индекса (Composite Index)</h2>
+ <p>
+ Для таблицы <code>Товары (id, категория_id, бренд_id, цена, рейтинг, остаток)</code> спроектирован составной B-Tree индекс:
+ </p>
+ <pre><code>CREATE INDEX idx_goods_filter ON Товары (категория_id, бренд_id, цена);</code></pre>
+ <p>
+ Проанализируйте 4 запроса и определите для каждого из них: сможет ли СУБД использовать данный индекс для быстрого поиска по дереву B-Tree? Обоснуйте ответ правилом левого префикса (Left-Prefix Rule).
+ </p>
+ <ol>
+ <li><code>SELECT * FROM Товары WHERE категория_id = 5 AND бренд_id = 12 AND цена &lt; 5000;</code></li>
+ <li><code>SELECT * FROM Товары WHERE категория_id = 5 AND цена &lt; 5000;</code></li>
+ <li><code>SELECT * FROM Товары WHERE бренд_id = 12 AND цена &lt; 5000;</code></li>
+ <li><code>SELECT * FROM Товары WHERE категория_id = 5 AND бренд_id = 12;</code></li>
+ </ol>
+ <textarea class="answer-area" id="hw_ans_2"></textarea>
+ </section>
 
-    <!-- Задание 3 -->
-    <section class="hw-card">
-      <h2>Задание 3. Анализ плана выполнения запроса EXPLAIN и синтез индекса</h2>
-      <p>
-        В высоконагруженной системе логистики выполняется критический запрос поиска активных доставок:
-      </p>
-      <pre><code>SELECT * FROM deliveries 
+ <!-- Задание 3 -->
+ <section class="hw-card">
+ <h2>Задание 3. Анализ плана выполнения запроса EXPLAIN и синтез индекса</h2>
+ <p>
+ В высоконагруженной системе логистики выполняется критический запрос поиска активных доставок:
+ </p>
+ <pre><code>SELECT * FROM deliveries 
 WHERE courier_id = 42 AND delivery_date = '2026-10-01' AND status = 'IN_TRANSIT';</code></pre>
-      <p>
-        Команда <code>EXPLAIN ANALYZE</code> вернула следующий план выполнения:
-      </p>
-      <pre><code>Seq Scan on deliveries (cost=0.00..89240.00 rows=3 width=110) (actual time=12.420..184.210 rows=3 loops=1)
-  Filter: ((courier_id = 42) AND (delivery_date = '2026-10-01'::date) AND (status = 'IN_TRANSIT'::text))
-  Rows Removed by Filter: 4999997
+ <p>
+ Команда <code>EXPLAIN ANALYZE</code> вернула следующий план выполнения:
+ </p>
+ <pre><code>Seq Scan on deliveries (cost=0.00..89240.00 rows=3 width=110) (actual time=12.420..184.210 rows=3 loops=1)
+ Filter: ((courier_id = 42) AND (delivery_date = '2026-10-01'::date) AND (status = 'IN_TRANSIT'::text))
+ Rows Removed by Filter: 4999997
 Total runtime: 184.320 ms</code></pre>
-      <p>
-        <strong>Задание:</strong>
-      </p>
-      <ol>
-        <li>Проанализируйте метрики плана (тип узла, <code>cost</code>, <code>Rows Removed by Filter</code>, время). В чем заключается критический дефект?</li>
-        <li>Напишите SQL-команду создания оптимального индекса для этого запроса.</li>
-        <li>Опишите, как изменится план выполнения запроса после добавления индекса (тип сканирования, стоимость, время отклика).</li>
-      </ol>
-      <textarea class="answer-area" id="hw_ans_3"></textarea>
-    </section>
+ <p>
+ <strong>Задание:</strong>
+ </p>
+ <ol>
+ <li>Проанализируйте метрики плана (тип узла, <code>cost</code>, <code>Rows Removed by Filter</code>, время). В чем заключается критический дефект?</li>
+ <li>Напишите SQL-команду создания оптимального индекса для этого запроса.</li>
+ <li>Опишите, как изменится план выполнения запроса после добавления индекса (тип сканирования, стоимость, время отклика).</li>
+ </ol>
+ <textarea class="answer-area" id="hw_ans_3"></textarea>
+ </section>
 
-    <!-- Задание 4 -->
-    <section class="hw-card">
-      <h2>Задание 4. Анализ компромисса чтения и записи (DML Overhead)</h2>
-      <p>
-        Младший разработчик предложил решить все проблемы медленных запросов созданием отдельных индексов на абсолютно все поля таблицы <code>Транзакции (id, счет_отправителя, счет_получателя, сумма, валюта, дата, статус, комментарий, код_авторизации)</code> (итого 9 индексов).<br><br>
-        Оцените данное предложение с точки зрения архитектора баз данных. Что произойдет с операциями <code>INSERT</code> при потоке в 3 000 транзакций в секунду? Как изменятся накладные расходы дискового ввода-вывода (I/O) и объем WAL-журнала?
-      </p>
-      <textarea class="answer-area" id="hw_ans_4"></textarea>
-    </section>
+ <!-- Задание 4 -->
+ <section class="hw-card">
+ <h2>Задание 4. Анализ компромисса чтения и записи (DML Overhead)</h2>
+ <p>
+ Младший разработчик предложил решить все проблемы медленных запросов созданием отдельных индексов на абсолютно все поля таблицы <code>Транзакции (id, счет_отправителя, счет_получателя, сумма, валюта, дата, статус, комментарий, код_авторизации)</code> (итого 9 индексов).<br><br>
+ Оцените данное предложение с точки зрения архитектора баз данных. Что произойдет с операциями <code>INSERT</code> при потоке в 3 000 транзакций в секунду? Как изменятся накладные расходы дискового ввода-вывода (I/O) и объем WAL-журнала?
+ </p>
+ <textarea class="answer-area" id="hw_ans_4"></textarea>
+ </section>
 
-    <!-- Панель действий -->
-    <div class="action-panel">
-      <div style="display: flex; gap: 10px; align-items: center;">
-        <button class="btn btn-primary" id="saveBtn" type="button">Сохранить черновик</button>
-        <button class="btn btn-secondary" id="printBtn" type="button">Экспорт в PDF / Печать</button>
-        <button class="btn btn-danger" id="clearBtn" type="button">Очистить форму</button>
-      </div>
-      <span class="status-msg" id="statusMsg">Данные сохранены локально!</span>
-    </div>
+ <!-- Панель действий -->
+ <div class="action-panel">
+ <div style="display: flex; gap: 10px; align-items: center;">
+ <button class="btn btn-primary" id="saveBtn" type="button">Сохранить черновик</button>
+ <button class="btn btn-secondary" id="printBtn" type="button">Экспорт в PDF / Печать</button>
+ <button class="btn btn-danger" id="clearBtn" type="button">Очистить форму</button>
+ </div>
+ <span class="status-msg" id="statusMsg">Данные сохранены локально!</span>
+ </div>
 
-  </div>
+ </div>
 
-  <script>
-    (function() {
-      const STORAGE_KEY = 'hw_db_lesson_18_data';
-      const fields = [
-        'hw_student_name',
-        'hw_student_group',
-        'hw_ans_1',
-        'hw_ans_2',
-        'hw_ans_3',
-        'hw_ans_4'
-      ];
+ <script>
+ (function() {
+ const STORAGE_KEY = 'hw_db_lesson_18_data';
+ const fields = [
+ 'hw_student_name',
+ 'hw_student_group',
+ 'hw_ans_1',
+ 'hw_ans_2',
+ 'hw_ans_3',
+ 'hw_ans_4'
+ ];
 
-      function saveData() {
-        const data = {};
-        fields.forEach(id => {
-          const el = document.getElementById(id);
-          if (el) data[id] = el.value;
-        });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        showStatus('Данные сохранены локально!');
-      }
+ function saveData() {
+ const data = {};
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) data[id] = el.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ showStatus('Данные сохранены локально!');
+ }
 
-      function loadData() {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return;
-        try {
-          const data = JSON.parse(raw);
-          fields.forEach(id => {
-            const el = document.getElementById(id);
-            if (el && data[id] !== undefined) el.value = data[id];
-          });
-        } catch (e) {
-          console.error('Error loading data from localStorage', e);
-        }
-      }
+ function loadData() {
+ const raw = localStorage.getItem(STORAGE_KEY);
+ if (!raw) return;
+ try {
+ const data = JSON.parse(raw);
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el && data[id] !== undefined) el.value = data[id];
+ });
+ } catch (e) {
+ console.error('Error loading data from localStorage', e);
+ }
+ }
 
-      function clearData() {
-        if (confirm('Вы действительно хотите полностью очистить форму домашнего задания?')) {
-          localStorage.removeItem(STORAGE_KEY);
-          fields.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.value = '';
-          });
-          showStatus('Форма очищена.');
-        }
-      }
+ function clearData() {
+ if (confirm('Вы действительно хотите полностью очистить форму домашнего задания?')) {
+ localStorage.removeItem(STORAGE_KEY);
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) el.value = '';
+ });
+ showStatus('Форма очищена.');
+ }
+ }
 
-      function showStatus(text) {
-        const statusEl = document.getElementById('statusMsg');
-        statusEl.textContent = text;
-        statusEl.style.display = 'inline-block';
-        setTimeout(() => {
-          statusEl.style.display = 'none';
-        }, 3000);
-      }
+ function showStatus(text) {
+ const statusEl = document.getElementById('statusMsg');
+ statusEl.textContent = text;
+ statusEl.style.display = 'inline-block';
+ setTimeout(() => {
+ statusEl.style.display = 'none';
+ }, 3000);
+ }
 
-      document.getElementById('saveBtn').addEventListener('click', saveData);
-      document.getElementById('clearBtn').addEventListener('click', clearData);
-      document.getElementById('printBtn').addEventListener('click', () => {
-        window.print();
-      });
+ document.getElementById('saveBtn').addEventListener('click', saveData);
+ document.getElementById('clearBtn').addEventListener('click', clearData);
+ document.getElementById('printBtn').addEventListener('click', () => {
+ window.print();
+ });
 
-      // Автосохранение при вводе
-      fields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-          el.addEventListener('input', () => {
-            const data = {};
-            fields.forEach(fid => {
-              const fel = document.getElementById(fid);
-              if (fel) data[fid] = fel.value;
-            });
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-          });
-        }
-      });
+ // Автосохранение при вводе
+ fields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) {
+ el.addEventListener('input', () => {
+ const data = {};
+ fields.forEach(fid => {
+ const fel = document.getElementById(fid);
+ if (fel) data[fid] = fel.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ });
+ }
+ });
 
-      loadData();
-    })();
-  </script>
+ loadData();
+ })();
+ </script>
 </body>
 </html>

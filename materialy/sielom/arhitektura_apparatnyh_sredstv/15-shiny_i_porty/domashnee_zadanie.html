@@ -1,409 +1,389 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Домашнее задание - Шины. Системные ресурсы. Последовательные порты. Параллельные порты</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #1e40af;
-      --accent-soft: #eff6ff;
-      --ok: #059669;
-      --warn: #d97706;
-      --radius: 14px;
-      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.6;
-      font-size: 15px;
-      padding: 20px 14px;
-    }
-    .page {
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .header-card, .student-card, .card, .actions-card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow);
-    }
-    h1 {
-      font-size: clamp(22px, 3.5vw, 27px);
-      color: var(--accent);
-      margin-bottom: 8px;
-    }
-    .notice {
-      background: #fef3c7;
-      border-left: 4px solid #f59e0b;
-      padding: 12px 16px;
-      border-radius: 0 8px 8px 0;
-      font-size: 14.5px;
-      color: #92400e;
-      margin-top: 10px;
-      font-weight: 500;
-    }
-    .student-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 14px;
-    }
-    label {
-      display: block;
-      font-weight: 600;
-      font-size: 13.5px;
-      margin-bottom: 6px;
-      color: #1e293b;
-    }
-    input[type="text"], input[type="date"], textarea {
-      width: 100%;
-      border: 1.5px solid var(--line);
-      border-radius: 8px;
-      padding: 9px 12px;
-      font: inherit;
-      font-size: 14px;
-      background: #fff;
-      color: var(--text);
-      outline: none;
-      transition: border-color .15s, box-shadow .15s;
-    }
-    input:focus, textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
-    }
-    textarea {
-      min-height: 90px;
-      resize: vertical;
-      line-height: 1.5;
-    }
-    .example-box {
-      background: #f1f5f9;
-      border-left: 4px solid #0284c7;
-      padding: 16px 20px;
-      border-radius: 0 10px 10px 0;
-      margin: 16px 0;
-    }
-    .example-box h3 {
-      color: #0369a1;
-      font-size: 16px;
-      margin-bottom: 8px;
-    }
-    .table-wrap {
-      overflow-x: auto;
-      margin: 14px 0;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13.5px;
-    }
-    th, td {
-      border: 1px solid var(--line);
-      padding: 8px 10px;
-      text-align: left;
-      vertical-align: top;
-    }
-    th {
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-weight: 600;
-    }
-    .table-input {
-      border: 1px solid var(--line);
-      border-radius: 4px;
-      padding: 6px 8px;
-      font-size: 13px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    .btn-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: center;
-    }
-    button {
-      cursor: pointer;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 18px;
-      font: inherit;
-      font-weight: 600;
-      font-size: 14.5px;
-      transition: background .15s;
-    }
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-primary:hover { background: #1d4ed8; }
-    .btn-secondary { background: #e2e8f0; color: #334155; }
-    .btn-secondary:hover { background: #cbd5e1; }
-    .btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-    .btn-danger:hover { background: #fecaca; }
-    .status-msg {
-      font-size: 14px;
-      font-weight: 600;
-      margin-left: auto;
-    }
-    .status-saved { color: var(--ok); }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <title>Домашнее задание - Шины. Системные ресурсы. Последовательные порты. Параллельные порты</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #1e40af;
+ --accent-soft: #eff6ff;
+ --ok: #059669;
+ --warn: #d97706;
+ --radius: 14px;
+ --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+ body {
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+ line-height: 1.6;
+ font-size: 15px;
+ padding: 20px 14px;
+ }.page {
+ max-width: 900px;
+ margin: 0 auto;
+ }.header-card,.student-card,.card,.actions-card {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 24px;
+ margin-bottom: 20px;
+ box-shadow: var(--shadow);
+ }
+ h1 {
+ font-size: clamp(22px, 3.5vw, 27px);
+ color: var(--accent);
+ margin-bottom: 8px;
+ }.notice {
+ background: #fef3c7;
+ border-left: 4px solid #f59e0b;
+ padding: 12px 16px;
+ border-radius: 0 8px 8px 0;
+ font-size: 14.5px;
+ color: #92400e;
+ margin-top: 10px;
+ font-weight: 500;
+ }.student-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+ gap: 14px;
+ }
+ label {
+ display: block;
+ font-weight: 600;
+ font-size: 13.5px;
+ margin-bottom: 6px;
+ color: #1e293b;
+ }
+ input[type="text"], input[type="date"], textarea {
+ width: 100%;
+ border: 1.5px solid var(--line);
+ border-radius: 8px;
+ padding: 9px 12px;
+ font: inherit;
+ font-size: 14px;
+ background: #fff;
+ color: var(--text);
+ outline: none;
+ transition: border-color.15s, box-shadow.15s;
+ }
+ input:focus, textarea:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+ }
+ textarea {
+ min-height: 90px;
+ resize: vertical;
+ line-height: 1.5;
+ }.example-box {
+ background: #f1f5f9;
+ border-left: 4px solid #0284c7;
+ padding: 16px 20px;
+ border-radius: 0 10px 10px 0;
+ margin: 16px 0;
+ }.example-box h3 {
+ color: #0369a1;
+ font-size: 16px;
+ margin-bottom: 8px;
+ }.table-wrap {
+ overflow-x: auto;
+ margin: 14px 0;
+ }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ font-size: 13.5px;
+ }
+ th, td {
+ border: 1px solid var(--line);
+ padding: 8px 10px;
+ text-align: left;
+ vertical-align: top;
+ }
+ th {
+ background: var(--accent-soft);
+ color: var(--accent);
+ font-weight: 600;
+ }.table-input {
+ border: 1px solid var(--line);
+ border-radius: 4px;
+ padding: 6px 8px;
+ font-size: 13px;
+ width: 100%;
+ box-sizing: border-box;
+ }.btn-row {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 12px;
+ align-items: center;
+ }
+ button {
+ cursor: pointer;
+ border: none;
+ border-radius: 8px;
+ padding: 10px 18px;
+ font: inherit;
+ font-weight: 600;
+ font-size: 14.5px;
+ transition: background.15s;
+ }.btn-primary { background: var(--accent); color: #fff; }.btn-primary:hover { background: #1d4ed8; }.btn-secondary { background: #e2e8f0; color: #334155; }.btn-secondary:hover { background: #cbd5e1; }.btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }.btn-danger:hover { background: #fecaca; }.status-msg {
+ font-size: 14px;
+ font-weight: 600;
+ margin-left: auto;
+ }.status-saved { color: var(--ok); }
 
-    @media print {
-      body {
-        background: #fff;
-        padding: 0;
-        font-size: 11pt;
-        color: #000;
-      }
-      .page {
-        max-width: 100%;
-        margin: 0;
-      }
-      .header-card, .student-card, .card {
-        box-shadow: none;
-        border: 1px solid #777;
-        margin-bottom: 14pt;
-        padding: 12pt;
-        break-inside: auto;
-        page-break-inside: auto;
-      }
-      .actions-card, .btn-row {
-        display: none !important;
-      }
-      input::placeholder, textarea::placeholder {
-        color: transparent !important;
-        -webkit-text-fill-color: transparent !important;
-        opacity: 0 !important;
-      }
-      textarea {
-        height: auto !important;
-        min-height: 80px;
-        overflow: visible !important;
-        white-space: pre-wrap !important;
-        word-break: break-word !important;
-        border: 1px solid #777 !important;
-        background: #fff !important;
-        color: #000 !important;
-      }
-      input[type="text"], input[type="date"], .table-input {
-        border: 1px solid #777 !important;
-        background: #fff !important;
-        color: #000 !important;
-      }
-      table {
-        page-break-inside: auto;
-      }
-      tr {
-        page-break-inside: avoid;
-        page-break-after: auto;
-      }
-    }
-  </style>
+ @media print {
+ body {
+ background: #fff;
+ padding: 0;
+ font-size: 11pt;
+ color: #000;
+ }.page {
+ max-width: 100%;
+ margin: 0;
+ }.header-card,.student-card,.card {
+ box-shadow: none;
+ border: 1px solid #777;
+ margin-bottom: 14pt;
+ padding: 12pt;
+ break-inside: auto;
+ page-break-inside: auto;
+ }.actions-card,.btn-row {
+ display: none !important;
+ }
+ input::placeholder, textarea::placeholder {
+ color: transparent !important;
+ -webkit-text-fill-color: transparent !important;
+ opacity: 0 !important;
+ }
+ textarea {
+ height: auto !important;
+ min-height: 80px;
+ overflow: visible !important;
+ white-space: pre-wrap !important;
+ word-break: break-word !important;
+ border: 1px solid #777 !important;
+ background: #fff !important;
+ color: #000 !important;
+ }
+ input[type="text"], input[type="date"],.table-input {
+ border: 1px solid #777 !important;
+ background: #fff !important;
+ color: #000 !important;
+ }
+ table {
+ page-break-inside: auto;
+ }
+ tr {
+ page-break-inside: avoid;
+ page-break-after: auto;
+ }
+ }
+ </style>
 </head>
 <body>
 <div class="page">
 
-  <div class="header-card">
-    <h1>Домашнее задание - Шины. Системные ресурсы. Последовательные порты. Параллельные порты</h1>
-    <p class="notice">Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.</p>
-  </div>
+ <div class="header-card">
+ <h1>Домашнее задание - Шины. Системные ресурсы. Последовательные порты. Параллельные порты</h1>
+ <p class="notice">Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.</p>
+ </div>
 
-  <div class="student-card">
-    <div class="student-grid">
-      <div>
-        <label for="hw_fio">ФИО обучающегося:</label>
-        <input type="text" id="hw_fio" placeholder="Введите ФИО" autocomplete="off">
-      </div>
-      <div>
-        <label for="hw_group">Учебная группа:</label>
-        <input type="text" id="hw_group" placeholder="Введите группу" autocomplete="off">
-      </div>
-      <div>
-        <label for="hw_date">Дата сдачи:</label>
-        <input type="date" id="hw_date">
-      </div>
-    </div>
-  </div>
+ <div class="student-card">
+ <div class="student-grid">
+ <div>
+ <label for="hw_fio">ФИО обучающегося:</label>
+ <input type="text" id="hw_fio" placeholder="Введите ФИО" autocomplete="off">
+ </div>
+ <div>
+ <label for="hw_group">Учебная группа:</label>
+ <input type="text" id="hw_group" placeholder="Введите группу" autocomplete="off">
+ </div>
+ <div>
+ <label for="hw_date">Дата сдачи:</label>
+ <input type="date" id="hw_date">
+ </div>
+ </div>
+ </div>
 
-  <!-- РАЗОБРАННЫЙ ОБРАЗЕЦ -->
-  <div class="card">
-    <h2 style="color: var(--accent); font-size: 18px; margin-bottom: 10px;">Разобранный образец: расчет полезной пропускной способности и распределение системных ресурсов</h2>
-    <div class="example-box">
-      <h3>Задача-образец:</h3>
-      <p>Серверный контроллер подключен по шине <strong>PCIe 4.0 x4</strong>. Кроме того, к серверу через последовательный порт RS-232 подключен терминал управления со скоростью <strong>115 200 бод</strong> (кадрирование 8-N-1: 1 старт-бит, 8 бит данных, без четности, 1 стоп-бит). Требуется:</p>
-      <ol style="margin-left: 20px; font-size: 14px;">
-        <li>Рассчитать полезную пропускную способность PCIe 4.0 x4 с учетом канального кодирования 128b/130b.</li>
-        <li>Рассчитать скорость передачи полезных пользовательских данных по интерфейсу RS-232 в байтах в секунду.</li>
-        <li>Объяснить, почему сетевой карте 100 GbE на этом сервере необходимы прерывания MSI-X вместо традиционной линии IRQ.</li>
-      </ol>
-      
-      <h3 style="margin-top: 14px;">Эталонное решение:</h3>
-      <ol style="padding-left: 20px; font-size: 14px; line-height: 1.6;">
-        <li><strong>Расчет PCIe 4.0 x4:</strong>
-          <br>Символьная скорость PCIe 4.0 составляет 16.0 	ext{ GT/s} на одну линию (lane).
-          <br>Для 4 линий (x4) суммарная скорость передачи бит: 16.0 	imes 10<sup>9</sup> 	imes 4 = 64.0 	ext{ Гбит/с}.
-          <br>Кодирование 128b/130b передает 128 полезных бит на каждые 130 переданных символов:
-          <div class="formula">ext{ПСП}<sub>	ext{полезная</sub>} = 64.0 	imes rac{128}{130} pprox 63.015 	ext{ Гбит/с} = rac{63.015}{8} pprox 7.877	ext{ ГБ/с}.</div>
-        </li>
-        <li><strong>Расчет полезной скорости RS-232 (115200 8-N-1):</strong>
-          <br>При кадрировании 8-N-1 на каждый передаваемый байт (8 бит данных) расходуется 1 старт-бит + 8 бит данных + 1 стоп-бит = 10 физических бит.
-          <br>Поскольку используется двухуровневая модуляция (NRZ), 1 бод = 1 бит/с. Физическая скорость = 115 200 	ext{ бит/с}.
-          <br>Полезная скорость в байтах:
-          <div class="formula">ext{Скорость} = rac{115 200 	ext{ бит/с}}{10 	ext{ бит/байт}} = 11 520 	ext{ байт/с} pprox 11.25	ext{ КБ/с}.</div>
-        </li>
-        <li><strong>Обоснование прерываний MSI-X:</strong>
-          <br>Классические прерывания IRQ (линии INTx) монопольно прерывают одно ядро процессора и требуют физической линии сигнала. При потоке пакетов 100 Гбит/с (~148 млн пакетов в секунду) одно ядро захлебнется в обработке прерываний (interrupt storm). Технология <strong>MSI-X</strong> позволяет назначить до 2048 независимых векторов прерываний. Это дает возможность сетевой карте использовать технологию RSS (Receive Side Scaling), распределяя пакетные очереди и их векторы прерываний равномерно по всем физическим ядрам процессора, причем прерывание передается как обычная атомарная запись (PCIe Memory Write) в адрес контроллера Local APIC соответствующего ядра.
-        </li>
-      </ol>
-    </div>
-  </div>
+ <!-- РАЗОБРАННЫЙ ОБРАЗЕЦ -->
+ <div class="card">
+ <h2 style="color: var(--accent); font-size: 18px; margin-bottom: 10px;">Разобранный образец: расчет полезной пропускной способности и распределение системных ресурсов</h2>
+ <div class="example-box">
+ <h3>Задача-образец:</h3>
+ <p>Серверный контроллер подключен по шине <strong>PCIe 4.0 x4</strong>. Кроме того, к серверу через последовательный порт RS-232 подключен терминал управления со скоростью <strong>115 200 бод</strong> (кадрирование 8-N-1: 1 старт-бит, 8 бит данных, без четности, 1 стоп-бит). Требуется:</p>
+ <ol style="margin-left: 20px; font-size: 14px;">
+ <li>Рассчитать полезную пропускную способность PCIe 4.0 x4 с учетом канального кодирования 128b/130b.</li>
+ <li>Рассчитать скорость передачи полезных пользовательских данных по интерфейсу RS-232 в байтах в секунду.</li>
+ <li>Объяснить, почему сетевой карте 100 GbE на этом сервере необходимы прерывания MSI-X вместо традиционной линии IRQ.</li>
+ </ol>
+ 
+ <h3 style="margin-top: 14px;">Эталонное решение:</h3>
+ <ol style="padding-left: 20px; font-size: 14px; line-height: 1.6;">
+ <li><strong>Расчет PCIe 4.0 x4:</strong>
+ <br>Символьная скорость PCIe 4.0 составляет 16.0 ext{ GT/s} на одну линию (lane).
+ <br>Для 4 линий (x4) суммарная скорость передачи бит: 16.0 imes 10<sup>9</sup> imes 4 = 64.0 ext{ Гбит/с}.
+ <br>Кодирование 128b/130b передает 128 полезных бит на каждые 130 переданных символов:
+ <div class="formula">ext{ПСП}<sub>	ext{полезная</sub>} = 64.0 imes rac{128}{130} pprox 63.015 ext{ Гбит/с} = rac{63.015}{8} pprox 7.877	ext{ ГБ/с}.</div>
+ </li>
+ <li><strong>Расчет полезной скорости RS-232 (115200 8-N-1):</strong>
+ <br>При кадрировании 8-N-1 на каждый передаваемый байт (8 бит данных) расходуется 1 старт-бит + 8 бит данных + 1 стоп-бит = 10 физических бит.
+ <br>Поскольку используется двухуровневая модуляция (NRZ), 1 бод = 1 бит/с. Физическая скорость = 115 200 ext{ бит/с}.
+ <br>Полезная скорость в байтах:
+ <div class="formula">ext{Скорость} = rac{115 200 ext{ бит/с}}{10 ext{ бит/байт}} = 11 520 ext{ байт/с} pprox 11.25	ext{ КБ/с}.</div>
+ </li>
+ <li><strong>Обоснование прерываний MSI-X:</strong>
+ <br>Классические прерывания IRQ (линии INTx) монопольно прерывают одно ядро процессора и требуют физической линии сигнала. При потоке пакетов 100 Гбит/с (~148 млн пакетов в секунду) одно ядро захлебнется в обработке прерываний (interrupt storm). Технология <strong>MSI-X</strong> позволяет назначить до 2048 независимых векторов прерываний. Это дает возможность сетевой карте использовать технологию RSS (Receive Side Scaling), распределяя пакетные очереди и их векторы прерываний равномерно по всем физическим ядрам процессора, причем прерывание передается как обычная атомарная запись (PCIe Memory Write) в адрес контроллера Local APIC соответствующего ядра.
+ </li>
+ </ol>
+ </div>
+ </div>
 
-  <!-- УПРАЖНЕНИЕ 1 -->
-  <div class="card">
-    <h2 style="color: var(--accent); font-size: 18px; margin-bottom: 10px;">Упражнение 1. Расчет характеристик интерфейсов и арбитража шин</h2>
-    <p style="font-size: 14.5px; color: var(--muted); margin-bottom: 12px;">Выполните математический расчет пропускной способности и заполните поля таблицы:</p>
-    
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th style="width: 30%;">Интерфейс</th>
-            <th style="width: 35%;">Условие задачи</th>
-            <th style="width: 35%;">Расчет полезной скорости</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>PCIe 3.0 x8</strong></td>
-            <td>Символьная скорость 8.0 GT/s, кодирование 128b/130b. Рассчитайте полезную ПСП в ГБ/с.</td>
-            <td><input type="text" id="hw_ex1_pcie3" class="table-input" placeholder="Введите расчет и ответ (ГБ/с)"></td>
-          </tr>
-          <tr>
-            <td><strong>PCIe 5.0 x4 (NVMe)</strong></td>
-            <td>Символьная скорость 32.0 GT/s, кодирование 128b/130b. Рассчитайте полезную ПСП в ГБ/с.</td>
-            <td><input type="text" id="hw_ex1_pcie5" class="table-input" placeholder="Введите расчет и ответ (ГБ/с)"></td>
-          </tr>
-          <tr>
-            <td><strong>RS-232 (9600 бод, 8-E-1)</strong></td>
-            <td>9600 бод, 1 старт, 8 данных, 1 бит четности (parity), 1 стоп-бит. Рассчитайте байт/с.</td>
-            <td><input type="text" id="hw_ex1_rs232" class="table-input" placeholder="Введите расчет и полезную скорость"></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+ <!-- УПРАЖНЕНИЕ 1 -->
+ <div class="card">
+ <h2 style="color: var(--accent); font-size: 18px; margin-bottom: 10px;">Упражнение 1. Расчет характеристик интерфейсов и арбитража шин</h2>
+ <p style="font-size: 14.5px; color: var(--muted); margin-bottom: 12px;">Выполните математический расчет пропускной способности и заполните поля таблицы:</p>
+ 
+ <div class="table-wrap">
+ <table>
+ <thead>
+ <tr>
+ <th style="width: 30%;">Интерфейс</th>
+ <th style="width: 35%;">Условие задачи</th>
+ <th style="width: 35%;">Расчет полезной скорости</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>PCIe 3.0 x8</strong></td>
+ <td>Символьная скорость 8.0 GT/s, кодирование 128b/130b. Рассчитайте полезную ПСП в ГБ/с.</td>
+ <td><input type="text" id="hw_ex1_pcie3" class="table-input" placeholder="Введите расчет и ответ (ГБ/с)"></td>
+ </tr>
+ <tr>
+ <td><strong>PCIe 5.0 x4 (NVMe)</strong></td>
+ <td>Символьная скорость 32.0 GT/s, кодирование 128b/130b. Рассчитайте полезную ПСП в ГБ/с.</td>
+ <td><input type="text" id="hw_ex1_pcie5" class="table-input" placeholder="Введите расчет и ответ (ГБ/с)"></td>
+ </tr>
+ <tr>
+ <td><strong>RS-232 (9600 бод, 8-E-1)</strong></td>
+ <td>9600 бод, 1 старт, 8 данных, 1 бит четности (parity), 1 стоп-бит. Рассчитайте байт/с.</td>
+ <td><input type="text" id="hw_ex1_rs232" class="table-input" placeholder="Введите расчет и полезную скорость"></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ </div>
 
-  <!-- УПРАЖНЕНИЕ 2 -->
-  <div class="card">
-    <h2 style="color: var(--accent); font-size: 18px; margin-bottom: 10px;">Упражнение 2. Архитектурный анализ системных ресурсов</h2>
-    <div style="margin-bottom: 14px;">
-      <label for="hw_ex2_conflict"><strong>1. Конфликт адресов портов ввода-вывода (I/O Port Space):</strong> В системе установлены две платы расширения с регистрами ввода-вывода. Плата A претендует на диапазон портов <code>0x3F8–0x3FF</code>, а плата B настроена на диапазон <code>0x3F8–0x3FB</code>. К каким сбоям приведет данная конфигурация в классической шине ISA/PCI и как эта проблема устраняется с помощью механизма BAR (Base Address Register) в PCI/PCIe?</label>
-      <textarea id="hw_ex2_conflict" placeholder="Объясните физику коллизии на шине при одновременном ответе двух устройств на сигнал IOR#/IOW#, искажение данных на шине данных и роль автоконфигурации BAR в Plug and Play..."></textarea>
-    </div>
+ <!-- УПРАЖНЕНИЕ 2 -->
+ <div class="card">
+ <h2 style="color: var(--accent); font-size: 18px; margin-bottom: 10px;">Упражнение 2. Архитектурный анализ системных ресурсов</h2>
+ <div style="margin-bottom: 14px;">
+ <label for="hw_ex2_conflict"><strong>1. Конфликт адресов портов ввода-вывода (I/O Port Space):</strong> В системе установлены две платы расширения с регистрами ввода-вывода. Плата A претендует на диапазон портов <code>0x3F8–0x3FF</code>, а плата B настроена на диапазон <code>0x3F8–0x3FB</code>. К каким сбоям приведет данная конфигурация в классической шине ISA/PCI и как эта проблема устраняется с помощью механизма BAR (Base Address Register) в PCI/PCIe?</label>
+ <textarea id="hw_ex2_conflict" placeholder="Объясните физику коллизии на шине при одновременном ответе двух устройств на сигнал IOR#/IOW#, искажение данных на шине данных и роль автоконфигурации BAR в Plug and Play..."></textarea>
+ </div>
 
-    <div>
-      <label for="hw_ex2_skew"><strong>2. Физический предел параллельного интерфейса IEEE 1284 (LPT):</strong> Почему параллельный интерфейс принтера LPT при наличии 8 параллельных проводников данных не может работать на частотах выше нескольких мегагерц, в то время как последовательный дифференциальный интерфейс PCIe передает десятки гигабит в секунду по одной витой паре?</label>
-      <textarea id="hw_ex2_skew" placeholder="Раскройте влияние емкостной связи между соседними проводниками (перекрестные помехи / crosstalk), перекоса фронтов сигнала (clock skew) из-за микроскопической разницы длин дорожек, а также преимущества дифференциальной сигнализации (LVDS)..."></textarea>
-    </div>
-  </div>
+ <div>
+ <label for="hw_ex2_skew"><strong>2. Физический предел параллельного интерфейса IEEE 1284 (LPT):</strong> Почему параллельный интерфейс принтера LPT при наличии 8 параллельных проводников данных не может работать на частотах выше нескольких мегагерц, в то время как последовательный дифференциальный интерфейс PCIe передает десятки гигабит в секунду по одной витой паре?</label>
+ <textarea id="hw_ex2_skew" placeholder="Раскройте влияние емкостной связи между соседними проводниками (перекрестные помехи / crosstalk), перекоса фронтов сигнала (clock skew) из-за микроскопической разницы длин дорожек, а также преимущества дифференциальной сигнализации (LVDS)..."></textarea>
+ </div>
+ </div>
 
-  <!-- УПРАЖНЕНИЕ 3 -->
-  <div class="card">
-    <h2 style="color: var(--accent); font-size: 18px; margin-bottom: 10px;">Упражнение 3. Инженерный кейс: проектирование контроллера телеметрии</h2>
-    <label for="hw_ex3_case"><strong>Сформулируйте архитектурное решение:</strong> Требуется спроектировать модуль сбора данных с 16 промышленных расходомеров. Расстояние до приборов — до 300 метров. Каждый расходомер передает пакет 32 байта 10 раз в секунду. Выберите интерфейс (RS-232, RS-485 или LPT), обоснуйте физическую топологию (шина / звезда / точка-точка), метод арбитража доступа к среде и распределение прерываний в управляющем компьютере.</label>
-    <textarea id="hw_ex3_case" style="min-height: 110px;" placeholder="Приведите обоснованный выбор интерфейса RS-485 (дифференциальная линия, дальность до 1200 м), топологию общей шины с терминаторами 120 Ом, опрос Master-Slave (Modbus RTU), буферизацию FIFO в UART и выбор прерывания MSI/IRQ..."></textarea>
-  </div>
+ <!-- УПРАЖНЕНИЕ 3 -->
+ <div class="card">
+ <h2 style="color: var(--accent); font-size: 18px; margin-bottom: 10px;">Упражнение 3. Инженерный кейс: проектирование контроллера телеметрии</h2>
+ <label for="hw_ex3_case"><strong>Сформулируйте архитектурное решение:</strong> Требуется спроектировать модуль сбора данных с 16 промышленных расходомеров. Расстояние до приборов — до 300 метров. Каждый расходомер передает пакет 32 байта 10 раз в секунду. Выберите интерфейс (RS-232, RS-485 или LPT), обоснуйте физическую топологию (шина / звезда / точка-точка), метод арбитража доступа к среде и распределение прерываний в управляющем компьютере.</label>
+ <textarea id="hw_ex3_case" style="min-height: 110px;" placeholder="Приведите обоснованный выбор интерфейса RS-485 (дифференциальная линия, дальность до 1200 м), топологию общей шины с терминаторами 120 Ом, опрос Master-Slave (Modbus RTU), буферизацию FIFO в UART и выбор прерывания MSI/IRQ..."></textarea>
+ </div>
 
-  <!-- КНОПКИ ДЕЙСТВИЙ -->
-  <div class="actions-card">
-    <div class="btn-row">
-      <button class="btn-primary" onclick="window.print()">Распечатать / Сохранить в PDF</button>
-      <button class="btn-secondary" onclick="saveHwToLocalStorage(true)">Сохранить в браузере</button>
-      <button class="btn-danger" onclick="confirmHwReset()">Очистить форму</button>
-      <span id="save_status" class="status-msg"></span>
-    </div>
-  </div>
+ <!-- КНОПКИ ДЕЙСТВИЙ -->
+ <div class="actions-card">
+ <div class="btn-row">
+ <button class="btn-primary" onclick="window.print()">Распечатать / Сохранить в PDF</button>
+ <button class="btn-secondary" onclick="saveHwToLocalStorage(true)">Сохранить в браузере</button>
+ <button class="btn-danger" onclick="confirmHwReset()">Очистить форму</button>
+ <span id="save_status" class="status-msg"></span>
+ </div>
+ </div>
 
 </div>
 
 <script>
-  const HW_STORAGE_KEY = 'sie_hw15_domashnee_state';
-  const HW_FIELDS = [
-    'hw_fio', 'hw_group', 'hw_date',
-    'hw_ex1_pcie3', 'hw_ex1_pcie5', 'hw_ex1_rs232',
-    'hw_ex2_conflict', 'hw_ex2_skew', 'hw_ex3_case'
-  ];
+ const HW_STORAGE_KEY = 'sie_hw15_domashnee_state';
+ const HW_FIELDS = [
+ 'hw_fio', 'hw_group', 'hw_date',
+ 'hw_ex1_pcie3', 'hw_ex1_pcie5', 'hw_ex1_rs232',
+ 'hw_ex2_conflict', 'hw_ex2_skew', 'hw_ex3_case'
+ ];
 
-  function saveHwToLocalStorage(showFeedback) {
-    const data = {};
-    HW_FIELDS.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) data[id] = el.value;
-    });
-    try {
-      localStorage.setItem(HW_STORAGE_KEY, JSON.stringify(data));
-      if (showFeedback) {
-        const status = document.getElementById('save_status');
-        status.textContent = '✓ Сохранено в браузере';
-        status.className = 'status-msg status-saved';
-        setTimeout(() => { status.textContent = ''; }, 3000);
-      }
-    } catch (e) {
-      console.warn('LocalStorage error:', e);
-    }
-  }
+ function saveHwToLocalStorage(showFeedback) {
+ const data = {};
+ HW_FIELDS.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) data[id] = el.value;
+ });
+ try {
+ localStorage.setItem(HW_STORAGE_KEY, JSON.stringify(data));
+ if (showFeedback) {
+ const status = document.getElementById('save_status');
+ status.textContent = '✓ Сохранено в браузере';
+ status.className = 'status-msg status-saved';
+ setTimeout(() => { status.textContent = ''; }, 3000);
+ }
+ } catch (e) {
+ console.warn('LocalStorage error:', e);
+ }
+ }
 
-  function loadHwFromLocalStorage() {
-    try {
-      const raw = localStorage.getItem(HW_STORAGE_KEY);
-      if (raw) {
-        const data = JSON.parse(raw);
-        HW_FIELDS.forEach(id => {
-          if (data[id] !== undefined) {
-            const el = document.getElementById(id);
-            if (el) el.value = data[id];
-          }
-        });
-      }
-    } catch (e) {
-      console.warn('LocalStorage load error:', e);
-    }
-  }
+ function loadHwFromLocalStorage() {
+ try {
+ const raw = localStorage.getItem(HW_STORAGE_KEY);
+ if (raw) {
+ const data = JSON.parse(raw);
+ HW_FIELDS.forEach(id => {
+ if (data[id] !== undefined) {
+ const el = document.getElementById(id);
+ if (el) el.value = data[id];
+ }
+ });
+ }
+ } catch (e) {
+ console.warn('LocalStorage load error:', e);
+ }
+ }
 
-  function confirmHwReset() {
-    if (confirm('Внимание! Все введенные данные будут удалены. Очистить форму?')) {
-      HW_FIELDS.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-      });
-      try {
-        localStorage.removeItem(HW_STORAGE_KEY);
-      } catch (e) {}
-      const status = document.getElementById('save_status');
-      status.textContent = 'Форма очищена';
-      status.className = 'status-msg';
-      setTimeout(() => { status.textContent = ''; }, 3000);
-    }
-  }
+ function confirmHwReset() {
+ if (confirm('Внимание! Все введенные данные будут удалены. Очистить форму?')) {
+ HW_FIELDS.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) el.value = '';
+ });
+ try {
+ localStorage.removeItem(HW_STORAGE_KEY);
+ } catch (e) {}
+ const status = document.getElementById('save_status');
+ status.textContent = 'Форма очищена';
+ status.className = 'status-msg';
+ setTimeout(() => { status.textContent = ''; }, 3000);
+ }
+ }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    loadHwFromLocalStorage();
-    HW_FIELDS.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener('input', () => saveHwToLocalStorage(false));
-        el.addEventListener('change', () => saveHwToLocalStorage(false));
-      }
-    });
-  });
+ document.addEventListener('DOMContentLoaded', () => {
+ loadHwFromLocalStorage();
+ HW_FIELDS.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) {
+ el.addEventListener('input', () => saveHwToLocalStorage(false));
+ el.addEventListener('change', () => saveHwToLocalStorage(false));
+ }
+ });
+ });
 </script>
 </body>
 </html>

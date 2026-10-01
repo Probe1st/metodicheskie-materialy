@@ -1,454 +1,436 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="color-scheme" content="light">
-  <title>Теоретический конспект — Создание, модификация и удаление таблиц</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #0284c7;
-      --accent-soft: #f0f9ff;
-      --accent-dark: #0369a1;
-      --success: #15803d;
-      --success-soft: #f0fdf4;
-      --warn: #b45309;
-      --warn-soft: #fffbeb;
-      --danger: #b91c1c;
-      --danger-soft: #fef2f2;
-      --code-bg: #0f172a;
-      --code-text: #f8fafc;
-      --radius: 12px;
-      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-    }
-    * { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      line-height: 1.65;
-      font-size: 16px;
-    }
-    .page {
-      width: min(100% - 32px, 980px);
-      margin: 32px auto 80px;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 32px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow);
-    }
-    h1 {
-      margin: 0 0 12px;
-      font-size: clamp(24px, 4vw, 32px);
-      color: var(--text);
-      line-height: 1.25;
-    }
-    .lead {
-      color: var(--muted);
-      margin: 0;
-      font-size: 16px;
-    }
-    h2 {
-      margin: 0 0 16px;
-      font-size: 21px;
-      color: var(--accent-dark);
-      border-bottom: 2px solid var(--accent-soft);
-      padding-bottom: 8px;
-    }
-    h3 {
-      font-size: 18px;
-      margin: 22px 0 12px;
-      color: var(--text);
-    }
-    p { margin: 0 0 14px; }
-    ul, ol { margin: 0 0 16px 22px; padding: 0; }
-    li { margin-bottom: 6px; }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 16px 0 24px;
-      font-size: 14.5px;
-    }
-    th, td {
-      border: 1px solid var(--line);
-      padding: 10px 14px;
-      text-align: left;
-      vertical-align: top;
-    }
-    th {
-      background: var(--accent-soft);
-      color: var(--accent-dark);
-      font-weight: 700;
-    }
-    tr:nth-child(even) td { background: #f8fafc; }
-    pre {
-      background: var(--code-bg);
-      color: var(--code-text);
-      padding: 16px;
-      border-radius: 8px;
-      overflow-x: auto;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 13.5px;
-      line-height: 1.5;
-      margin: 14px 0 20px;
-    }
-    code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.9em;
-      background: #e2e8f0;
-      padding: 2px 6px;
-      border-radius: 4px;
-      color: #0f172a;
-    }
-    pre code {
-      background: transparent;
-      padding: 0;
-      color: inherit;
-    }
-    .badge {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .badge-primary { background: var(--accent-soft); color: var(--accent-dark); }
-    .badge-warn { background: var(--warn-soft); color: var(--warn); }
-    .badge-danger { background: var(--danger-soft); color: var(--danger); }
-    .callout {
-      border-left: 4px solid var(--accent);
-      background: var(--accent-soft);
-      padding: 16px 20px;
-      border-radius: 0 var(--radius) var(--radius) 0;
-      margin: 18px 0;
-    }
-    .callout-warn { border-left-color: var(--warn); background: var(--warn-soft); }
-    .callout-danger { border-left-color: var(--danger); background: var(--danger-soft); }
-    .diagram-box {
-      background: #f1f5f9;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 16px;
-      margin: 16px 0;
-      font-family: ui-monospace, monospace;
-      font-size: 13px;
-      line-height: 1.4;
-      white-space: pre;
-      overflow-x: auto;
-    }
-    .steps-container {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      margin: 16px 0;
-    }
-    .step-card {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 16px 20px;
-      background: #ffffff;
-      border-left: 5px solid var(--accent);
-    }
-    .step-num {
-      font-weight: 800;
-      color: var(--accent-dark);
-      text-transform: uppercase;
-      font-size: 12px;
-      letter-spacing: 0.05em;
-      margin-bottom: 6px;
-    }
-    @media (max-width: 768px) {
-      .page { width: 100%; padding: 12px; margin: 12px auto; }
-      .card { padding: 20px 16px; }
-      table { display: block; overflow-x: auto; }
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <meta name="color-scheme" content="light">
+ <title>Теоретический конспект — Создание, модификация и удаление таблиц</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #0284c7;
+ --accent-soft: #f0f9ff;
+ --accent-dark: #0369a1;
+ --success: #15803d;
+ --success-soft: #f0fdf4;
+ --warn: #b45309;
+ --warn-soft: #fffbeb;
+ --danger: #b91c1c;
+ --danger-soft: #fef2f2;
+ --code-bg: #0f172a;
+ --code-text: #f8fafc;
+ --radius: 12px;
+ --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+ }
+ * { box-sizing: border-box; }
+ html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+ body {
+ margin: 0;
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+ line-height: 1.65;
+ font-size: 16px;
+ }.page {
+ width: min(100% - 32px, 980px);
+ margin: 32px auto 80px;
+ }.card {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 32px;
+ margin-bottom: 24px;
+ box-shadow: var(--shadow);
+ }
+ h1 {
+ margin: 0 0 12px;
+ font-size: clamp(24px, 4vw, 32px);
+ color: var(--text);
+ line-height: 1.25;
+ }.lead {
+ color: var(--muted);
+ margin: 0;
+ font-size: 16px;
+ }
+ h2 {
+ margin: 0 0 16px;
+ font-size: 21px;
+ color: var(--accent-dark);
+ border-bottom: 2px solid var(--accent-soft);
+ padding-bottom: 8px;
+ }
+ h3 {
+ font-size: 18px;
+ margin: 22px 0 12px;
+ color: var(--text);
+ }
+ p { margin: 0 0 14px; }
+ ul, ol { margin: 0 0 16px 22px; padding: 0; }
+ li { margin-bottom: 6px; }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ margin: 16px 0 24px;
+ font-size: 14.5px;
+ }
+ th, td {
+ border: 1px solid var(--line);
+ padding: 10px 14px;
+ text-align: left;
+ vertical-align: top;
+ }
+ th {
+ background: var(--accent-soft);
+ color: var(--accent-dark);
+ font-weight: 700;
+ }
+ tr:nth-child(even) td { background: #f8fafc; }
+ pre {
+ background: var(--code-bg);
+ color: var(--code-text);
+ padding: 16px;
+ border-radius: 8px;
+ overflow-x: auto;
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 13.5px;
+ line-height: 1.5;
+ margin: 14px 0 20px;
+ }
+ code {
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 0.9em;
+ background: #e2e8f0;
+ padding: 2px 6px;
+ border-radius: 4px;
+ color: #0f172a;
+ }
+ pre code {
+ background: transparent;
+ padding: 0;
+ color: inherit;
+ }.badge {
+ display: inline-block;
+ padding: 3px 8px;
+ border-radius: 6px;
+ font-size: 12px;
+ font-weight: 700;
+ text-transform: uppercase;
+ letter-spacing: 0.5px;
+ }.badge-primary { background: var(--accent-soft); color: var(--accent-dark); }.badge-warn { background: var(--warn-soft); color: var(--warn); }.badge-danger { background: var(--danger-soft); color: var(--danger); }.callout {
+ border-left: 4px solid var(--accent);
+ background: var(--accent-soft);
+ padding: 16px 20px;
+ border-radius: 0 var(--radius) var(--radius) 0;
+ margin: 18px 0;
+ }.callout-warn { border-left-color: var(--warn); background: var(--warn-soft); }.callout-danger { border-left-color: var(--danger); background: var(--danger-soft); }.diagram-box {
+ background: #f1f5f9;
+ border: 1px solid var(--line);
+ border-radius: 8px;
+ padding: 16px;
+ margin: 16px 0;
+ font-family: ui-monospace, monospace;
+ font-size: 13px;
+ line-height: 1.4;
+ white-space: pre;
+ overflow-x: auto;
+ }.steps-container {
+ display: flex;
+ flex-direction: column;
+ gap: 16px;
+ margin: 16px 0;
+ }.step-card {
+ border: 1px solid var(--line);
+ border-radius: 8px;
+ padding: 16px 20px;
+ background: #ffffff;
+ border-left: 5px solid var(--accent);
+ }.step-num {
+ font-weight: 800;
+ color: var(--accent-dark);
+ text-transform: uppercase;
+ font-size: 12px;
+ letter-spacing: 0.05em;
+ margin-bottom: 6px;
+ }
+ @media (max-width: 768px) {.page { width: 100%; padding: 12px; margin: 12px auto; }.card { padding: 20px 16px; }
+ table { display: block; overflow-x: auto; }
+ }
+ </style>
 </head>
 <body>
-  <div class="page">
+ <div class="page">
 
-    <!-- Заголовок конспекта -->
-    <header class="card">
-      <span class="badge badge-primary">Теоретический конспект студента</span>
-      <h1 style="margin-top: 10px;">Создание, модификация и удаление таблиц в реляционных СУБД</h1>
-      <p class="lead">Дисциплина: ОП.08 Основы проектирования баз данных | Тема 5. Организация запросов SQL (§2.2 с.7–8 программы) | СИЭУиП</p>
-    </header>
+ <!-- Заголовок конспекта -->
+ <header class="card">
+ <span class="badge badge-primary">Теоретический конспект студента</span>
+ <h1 style="margin-top: 10px;">Создание, модификация и удаление таблиц в реляционных СУБД</h1>
+ <p class="lead">Дисциплина: ОП.08 Основы проектирования баз данных | Тема 5. Организация запросов SQL | СИЭУиП</p>
+ </header>
 
-    <!-- 1. Введение в DDL: Анатомия системного каталога -->
-    <section class="card">
-      <h2>1. Введение в DDL: Системный каталог и объекты базы данных</h2>
-      <p>Язык SQL традиционно подразделяется на несколько функциональных подмножеств. Если <strong>DML (Data Manipulation Language)</strong> отвечает за операции над строками внутри уже существующих таблиц (<code>SELECT</code>, <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>), то <strong>DDL (Data Definition Language)</strong> управляет самим мета-слоем — структурой базы данных, ее типами, схемами, отношениями, индексами и ограничениями целостности.</p>
-      
-      <p>В современных объектно-реляционных СУБД (PostgreSQL) таблица не является изолированным текстовым описанием. Каждое отношение представляет собой запись в системных каталогах ядра:</p>
-      <ul>
-        <li><code>pg_class</code> — регистрирует факт существования отношения (таблицы, индекса, представления, последовательности), связывает имя с уникальным идентификатором объекта (OID) и физическим файлом на диске (<code>relfilenode</code>).</li>
-        <li><code>pg_attribute</code> — описывает каждый столбец таблицы: его порядковый номер (<code>attnum</code>), тип данных (<code>atttypid</code>), модификатор длины (<code>atttypmod</code>) и флаг обязательности (<code>attnotnull</code>).</li>
-        <li><code>pg_constraint</code> — хранит все декларированные ограничения (первичные ключи, внешние ключи, уникальные индексы, предикаты <code>CHECK</code>).</li>
-      </ul>
+ <!-- 1. Введение в DDL: Анатомия системного каталога -->
+ <section class="card">
+ <h2>1. Введение в DDL: Системный каталог и объекты базы данных</h2>
+ <p>Язык SQL традиционно подразделяется на несколько функциональных подмножеств. Если <strong>DML (Data Manipulation Language)</strong> отвечает за операции над строками внутри уже существующих таблиц (<code>SELECT</code>, <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>), то <strong>DDL (Data Definition Language)</strong> управляет самим мета-слоем — структурой базы данных, ее типами, схемами, отношениями, индексами и ограничениями целостности.</p>
+ 
+ <p>В современных объектно-реляционных СУБД (PostgreSQL) таблица не является изолированным текстовым описанием. Каждое отношение представляет собой запись в системных каталогах ядра:</p>
+ <ul>
+ <li><code>pg_class</code> — регистрирует факт существования отношения (таблицы, индекса, представления, последовательности), связывает имя с уникальным идентификатором объекта (OID) и физическим файлом на диске (<code>relfilenode</code>).</li>
+ <li><code>pg_attribute</code> — описывает каждый столбец таблицы: его порядковый номер (<code>attnum</code>), тип данных (<code>atttypid</code>), модификатор длины (<code>atttypmod</code>) и флаг обязательности (<code>attnotnull</code>).</li>
+ <li><code>pg_constraint</code> — хранит все декларированные ограничения (первичные ключи, внешние ключи, уникальные индексы, предикаты <code>CHECK</code>).</li>
+ </ul>
 
-      <div class="diagram-box">
+ <div class="diagram-box">
 ┌────────────────────────────────────────────────────────────────────────┐
-│                        СИСТЕМНЫЙ КАТАЛОГ СУБД                          │
-│                                                                        │
-│   pg_class (OID: 16450, relname: 'warehouses', relfilenode: 28941)     │
-│        │                                                               │
-│        ├──► pg_attribute (warehouse_id, name, city, usable_area_sqm)  │
-│        │                                                               │
-│        ├──► pg_constraint (pk_warehouses, chk_area_positive)           │
-│        │                                                               │
-│        └──► Дисковый файл кучи (Heap Page 0, Page 1, ... Page N)       │
+│ СИСТЕМНЫЙ КАТАЛОГ СУБД │
+│ │
+│ pg_class (OID: 16450, relname: 'warehouses', relfilenode: 28941) │
+│ │ │
+│ ├──► pg_attribute (warehouse_id, name, city, usable_area_sqm) │
+│ │ │
+│ ├──► pg_constraint (pk_warehouses, chk_area_positive) │
+│ │ │
+│ └──► Дисковый файл кучи (Heap Page 0, Page 1,... Page N) │
 └────────────────────────────────────────────────────────────────────────┘</div>
-      <p>Когда вы выполняете команду DDL, ядро СУБД обновляет строки в системных таблицах каталога, проверяет совместимость существующих кортежей с новыми правилами и, при необходимости, перестраивает дисковые страницы данных.</p>
-    </section>
+ <p>Когда вы выполняете команду DDL, ядро СУБД обновляет строки в системных таблицах каталога, проверяет совместимость существующих кортежей с новыми правилами и, при необходимости, перестраивает дисковые страницы данных.</p>
+ </section>
 
-    <!-- 2. Синтаксис и опции CREATE TABLE -->
-    <section class="card">
-      <h2>2. Оператор CREATE TABLE: Полная спецификация и лучшие практики</h2>
-      <p>Оператор <code>CREATE TABLE</code> аллоцирует новую таблицу. В промышленном проектировании базовый синтаксис дополняется атрибутами отказоустойчивости, значениями по умолчанию и декларативными ограничениями.</p>
+ <!-- 2. Синтаксис и опции CREATE TABLE -->
+ <section class="card">
+ <h2>2. Оператор CREATE TABLE: Полная спецификация и лучшие практики</h2>
+ <p>Оператор <code>CREATE TABLE</code> аллоцирует новую таблицу. В промышленном проектировании базовый синтаксис дополняется атрибутами отказоустойчивости, значениями по умолчанию и декларативными ограничениями.</p>
 
-      <h3>2.1. Анатомия промышленного запроса CREATE TABLE</h3>
-      <pre><code>CREATE TABLE IF NOT EXISTS warehouses (
-    -- 1. Суррогатный первичный ключ
-    warehouse_id SERIAL PRIMARY KEY,
-    
-    -- 2. Строковые атрибуты фиксированной и переменной длины
-    warehouse_code VARCHAR(20) NOT NULL,
-    warehouse_name VARCHAR(150) NOT NULL,
-    city VARCHAR(80) NOT NULL,
-    
-    -- 3. Точные числовые типы с фиксированной точкой для физических величин
-    total_area_sqm NUMERIC(10, 2) NOT NULL,
-    
-    -- 4. Логические флаги с дефолтным значением
-    is_active BOOLEAN NOT NULL DEFAULT TRUE,
-    
-    -- 5. Метки времени для аудита жизненного цикла записи
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    
-    -- 6. Именованные ограничения уровня таблицы
-    CONSTRAINT unq_warehouse_code UNIQUE (warehouse_code),
-    CONSTRAINT chk_total_area_positive CHECK (total_area_sqm > 0.00)
-);</code></pre>
+ <h3>2.1. Анатомия промышленного запроса CREATE TABLE</h3>
+ <pre><code>CREATE TABLE IF NOT EXISTS warehouses (
+ -- 1. Суррогатный первичный ключ
+ warehouse_id SERIAL PRIMARY KEY,
+ 
+ -- 2. Строковые атрибуты фиксированной и переменной длины
+ warehouse_code VARCHAR(20) NOT NULL,
+ warehouse_name VARCHAR(150) NOT NULL,
+ city VARCHAR(80) NOT NULL,
+ 
+ -- 3. Точные числовые типы с фиксированной точкой для физических величин
+ total_area_sqm NUMERIC(10, 2) NOT NULL,
+ 
+ -- 4. Логические флаги с дефолтным значением
+ is_active BOOLEAN NOT NULL DEFAULT TRUE,
+ 
+ -- 5. Метки времени для аудита жизненного цикла записи
+ created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ 
+ -- 6. Именованные ограничения уровня таблицы
+ CONSTRAINT unq_warehouse_code UNIQUE (warehouse_code),
+ CONSTRAINT chk_total_area_positive CHECK (total_area_sqm > 0.00));</code></pre>
 
-      <h3>2.2. Создание временных таблиц: CREATE TEMPORARY TABLE</h3>
-      <p>Временные таблицы создаются с ключевым словом <code>TEMPORARY</code> (или <code>TEMP</code>). Они кардинально отличаются от стандартных постоянных отношений:</p>
-      <ul>
-        <li><strong>Область видимости:</strong> видны исключительно в рамках открытого сеанса (соединения). Другие пользователи СУБД не видят ни схемы, ни данных временной таблицы.</li>
-        <li><strong>Автоматическая схема:</strong> СУБД автоматически создает для них временное пространство имен вида <code>pg_temp_XX</code>. Если имя временной таблицы совпадает с именем постоянной, временная таблица экранирует постоянную до завершения сеанса!</li>
-        <li><strong>Управление временем жизни (ON COMMIT):</strong>
-          <ul>
-            <li><code>ON COMMIT PRESERVE ROWS</code> (по умолчанию) — строки сохраняются до конца сеанса клиента.</li>
-            <li><code>ON COMMIT DROP</code> — таблица автоматически удаляется после завершения текущей транзакции (<code>COMMIT</code>).</li>
-            <li><code>ON COMMIT DELETE ROWS</code> — таблица очищается от данных в конце транзакции, но структура сохраняется.</li>
-          </ul>
-        </li>
-      </ul>
-      <pre><code>-- Создание временного буфера для разбора поступившей партии
+ <h3>2.2. Создание временных таблиц: CREATE TEMPORARY TABLE</h3>
+ <p>Временные таблицы создаются с ключевым словом <code>TEMPORARY</code> (или <code>TEMP</code>). Они кардинально отличаются от стандартных постоянных отношений:</p>
+ <ul>
+ <li><strong>Область видимости:</strong> видны исключительно в рамках открытого сеанса (соединения). Другие пользователи СУБД не видят ни схемы, ни данных временной таблицы.</li>
+ <li><strong>Автоматическая схема:</strong> СУБД автоматически создает для них временное пространство имен вида <code>pg_temp_XX</code>. Если имя временной таблицы совпадает с именем постоянной, временная таблица экранирует постоянную до завершения сеанса!</li>
+ <li><strong>Управление временем жизни (ON COMMIT):</strong>
+ <ul>
+ <li><code>ON COMMIT PRESERVE ROWS</code> (по умолчанию) — строки сохраняются до конца сеанса клиента.</li>
+ <li><code>ON COMMIT DROP</code> — таблица автоматически удаляется после завершения текущей транзакции (<code>COMMIT</code>).</li>
+ <li><code>ON COMMIT DELETE ROWS</code> — таблица очищается от данных в конце транзакции, но структура сохраняется.</li>
+ </ul>
+ </li>
+ </ul>
+ <pre><code>-- Создание временного буфера для разбора поступившей партии
 CREATE TEMPORARY TABLE temp_incoming_shipment (
-    barcode VARCHAR(64) NOT NULL,
-    quantity INT NOT NULL CHECK (quantity > 0)
-) ON COMMIT PRESERVE ROWS;</code></pre>
-    </section>
+ barcode VARCHAR(64) NOT NULL,
+ quantity INT NOT NULL CHECK (quantity > 0)) ON COMMIT PRESERVE ROWS;</code></pre>
+ </section>
 
-    <!-- 3. Семейство команд ALTER TABLE -->
-    <section class="card">
-      <h2>3. Модификация структуры: Семейство операторов ALTER TABLE</h2>
-      <p>В процессе промышленной эксплуатации база данных неизбежно эволюционирует. Оператор <code>ALTER TABLE</code> позволяет изменять топологию отношения без удаления данных.</p>
+ <!-- 3. Семейство команд ALTER TABLE -->
+ <section class="card">
+ <h2>3. Модификация структуры: Семейство операторов ALTER TABLE</h2>
+ <p>В процессе промышленной эксплуатации база данных неизбежно эволюционирует. Оператор <code>ALTER TABLE</code> позволяет изменять топологию отношения без удаления данных.</p>
 
-      <h3>3.1. Табличные примеры синтаксиса и назначения</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Операция ALTER TABLE</th>
-            <th>Синтаксический шаблон SQL</th>
-            <th>Бизнес-сценарий применения</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>ADD COLUMN</strong></td>
-            <td><code>ALTER TABLE t ADD COLUMN col_name TYPE DEFAULT val [NOT NULL];</code></td>
-            <td>Появление нового атрибута сущности (например, добавление поля <code>temperature_zone</code>).</td>
-          </tr>
-          <tr>
-            <td><strong>DROP COLUMN</strong></td>
-            <td><code>ALTER TABLE t DROP COLUMN col_name [CASCADE];</code></td>
-            <td>Удаление устаревшего реквизита. С опцией <code>CASCADE</code> удаляет зависимые представления и индексы.</td>
-          </tr>
-          <tr>
-            <td><strong>ALTER COLUMN TYPE (c USING)</strong></td>
-            <td><code>ALTER TABLE t ALTER COLUMN col TYPE new_t USING col::new_t;</code></td>
-            <td>Масштабирование разрядности (из <code>INTEGER</code> в <code>NUMERIC(10,2)</code>) или конвертация строки в дату.</td>
-          </tr>
-          <tr>
-            <td><strong>ADD CONSTRAINT</strong></td>
-            <td><code>ALTER TABLE t ADD CONSTRAINT name FOREIGN KEY (col) REFERENCES p(id);</code></td>
-            <td>Ужесточение правил целостности данных или связывание независимых таблиц внешним ключом.</td>
-          </tr>
-          <tr>
-            <td><strong>DROP CONSTRAINT</strong></td>
-            <td><code>ALTER TABLE t DROP CONSTRAINT constraint_name;</code></td>
-            <td>Снятие устаревшего ограничения уникальности или внешнего ключа для рефакторинга схемы.</td>
-          </tr>
-          <tr>
-            <td><strong>RENAME COLUMN / TABLE</strong></td>
-            <td><code>ALTER TABLE t RENAME COLUMN old_c TO new_c;</code><br><code>ALTER TABLE t RENAME TO new_name;</code></td>
-            <td>Рефакторинг терминологии предметной области (например, унификация именования атрибутов).</td>
-          </tr>
-        </tbody>
-      </table>
+ <h3>3.1. Табличные примеры синтаксиса и назначения</h3>
+ <table>
+ <thead>
+ <tr>
+ <th>Операция ALTER TABLE</th>
+ <th>Синтаксический шаблон SQL</th>
+ <th>Бизнес-сценарий применения</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>ADD COLUMN</strong></td>
+ <td><code>ALTER TABLE t ADD COLUMN col_name TYPE DEFAULT val [NOT NULL];</code></td>
+ <td>Появление нового атрибута сущности (например, добавление поля <code>temperature_zone</code>).</td>
+ </tr>
+ <tr>
+ <td><strong>DROP COLUMN</strong></td>
+ <td><code>ALTER TABLE t DROP COLUMN col_name [CASCADE];</code></td>
+ <td>Удаление устаревшего реквизита. С опцией <code>CASCADE</code> удаляет зависимые представления и индексы.</td>
+ </tr>
+ <tr>
+ <td><strong>ALTER COLUMN TYPE (c USING)</strong></td>
+ <td><code>ALTER TABLE t ALTER COLUMN col TYPE new_t USING col::new_t;</code></td>
+ <td>Масштабирование разрядности (из <code>INTEGER</code> в <code>NUMERIC(10,2)</code>) или конвертация строки в дату.</td>
+ </tr>
+ <tr>
+ <td><strong>ADD CONSTRAINT</strong></td>
+ <td><code>ALTER TABLE t ADD CONSTRAINT name FOREIGN KEY (col) REFERENCES p(id);</code></td>
+ <td>Ужесточение правил целостности данных или связывание независимых таблиц внешним ключом.</td>
+ </tr>
+ <tr>
+ <td><strong>DROP CONSTRAINT</strong></td>
+ <td><code>ALTER TABLE t DROP CONSTRAINT constraint_name;</code></td>
+ <td>Снятие устаревшего ограничения уникальности или внешнего ключа для рефакторинга схемы.</td>
+ </tr>
+ <tr>
+ <td><strong>RENAME COLUMN / TABLE</strong></td>
+ <td><code>ALTER TABLE t RENAME COLUMN old_c TO new_c;</code><br><code>ALTER TABLE t RENAME TO new_name;</code></td>
+ <td>Рефакторинг терминологии предметной области (например, унификация именования атрибутов).</td>
+ </tr>
+ </tbody>
+ </table>
 
-      <h3>3.2. Роль выражения USING при конвертации типов</h3>
-      <p>Когда вы меняете тип столбца, ядро СУБД должно перекодировать существующие бинарные данные кортежей на всех страницах диска. Если автоматическое неявное приведение (implicit cast) отсутствует, СУБД возвращает ошибку:</p>
-      <pre><code>-- ОШИБКА: колонка "price" не может быть автоматически приведена к типу numeric
+ <h3>3.2. Роль выражения USING при конвертации типов</h3>
+ <p>Когда вы меняете тип столбца, ядро СУБД должно перекодировать существующие бинарные данные кортежей на всех страницах диска. Если автоматическое неявное приведение (implicit cast) отсутствует, СУБД возвращает ошибку:</p>
+ <pre><code>-- ОШИБКА: колонка "price" не может быть автоматически приведена к типу numeric
 ALTER TABLE hotel_rooms ALTER COLUMN price TYPE NUMERIC(10, 2);</code></pre>
-      <p>Конструкция <code>USING</code> передает парсеру явную функцию преобразования. Это может быть как простое приведение через оператор <code>::</code>, так и сложная логика с функциями обработки строк:</p>
-      <pre><code>-- Преобразование целого числа в точное десятичное:
+ <p>Конструкция <code>USING</code> передает парсеру явную функцию преобразования. Это может быть как простое приведение через оператор <code>::</code>, так и сложная логика с функциями обработки строк:</p>
+ <pre><code>-- Преобразование целого числа в точное десятичное:
 ALTER TABLE hotel_rooms 
-    ALTER COLUMN price TYPE NUMERIC(10, 2) 
-    USING price::NUMERIC(10, 2);
+ ALTER COLUMN price TYPE NUMERIC(10, 2) 
+ USING price::NUMERIC(10, 2);
 
 -- Преобразование текстовой даты из формата 'DD.MM.YYYY' в системный DATE:
 ALTER TABLE contracts 
-    ALTER COLUMN signing_date TYPE DATE 
-    USING to_date(signing_date, 'DD.MM.YYYY');</code></pre>
-    </section>
+ ALTER COLUMN signing_date TYPE DATE 
+ USING to_date(signing_date, 'DD.MM.YYYY');</code></pre>
+ </section>
 
-    <!-- 4. Схемы эволюции структуры без простоя (Zero-Downtime) -->
-    <section class="card">
-      <h2>4. Схемы эволюции структуры без простоя сервиса (Zero-Downtime Migration)</h2>
-      <p>В высоконагруженных промышленных системах (банковский эквайринг, маркетплейсы) недопустимо останавливать прием клиентских запросов для обновления схемы. Применение наивного <code>ALTER TABLE</code> приводит к захвату блокировки <strong>AccessExclusiveLock</strong>, которая парализует все входящие запросы <code>SELECT</code> и <code>INSERT</code>.</p>
+ <!-- 4. Схемы эволюции структуры без простоя (Zero-Downtime) -->
+ <section class="card">
+ <h2>4. Схемы эволюции структуры без простоя сервиса (Zero-Downtime Migration)</h2>
+ <p>В высоконагруженных промышленных системах (банковский эквайринг, маркетплейсы) недопустимо останавливать прием клиентских запросов для обновления схемы. Применение наивного <code>ALTER TABLE</code> приводит к захвату блокировки <strong>AccessExclusiveLock</strong>, которая парализует все входящие запросы <code>SELECT</code> и <code>INSERT</code>.</p>
 
-      <div class="steps-container">
-        <div class="step-card">
-          <div class="step-num">Этап 1: Добавление нового столбца без блокировки чтения</div>
-          <p>Вместо изменения существующего столбца «на месте» с тяжелой перезаписью дисковых страниц добавляется новый столбец с константным значением по умолчанию:</p>
-          <pre><code>ALTER TABLE hotel_rooms ADD COLUMN price_numeric NUMERIC(10, 2) DEFAULT 0.00;</code></pre>
-          <p><em>В PostgreSQL 11+ это действие модифицирует только метаданные каталога за долю миллисекунды (O(1)).</em></p>
-        </div>
+ <div class="steps-container">
+ <div class="step-card">
+ <div class="step-num">Этап 1: Добавление нового столбца без блокировки чтения</div>
+ <p>Вместо изменения существующего столбца «на месте» с тяжелой перезаписью дисковых страниц добавляется новый столбец с константным значением по умолчанию:</p>
+ <pre><code>ALTER TABLE hotel_rooms ADD COLUMN price_numeric NUMERIC(10, 2) DEFAULT 0.00;</code></pre>
+ <p><em>В PostgreSQL 11+ это действие модифицирует только метаданные каталога за долю миллисекунды (O(1)).</em></p>
+ </div>
 
-        <div class="step-card">
-          <div class="step-num">Этап 2: Двусторонний триггер синхронизации (Dual-Writing)</div>
-          <p>Создается триггер, который при любых операциях <code>INSERT</code> или <code>UPDATE</code> автоматически дублирует данные из старой колонки в новую. Теперь приложение может писать в старую колонку, но новая колонка всегда актуальна.</p>
-        </div>
+ <div class="step-card">
+ <div class="step-num">Этап 2: Двусторонний триггер синхронизации (Dual-Writing)</div>
+ <p>Создается триггер, который при любых операциях <code>INSERT</code> или <code>UPDATE</code> автоматически дублирует данные из старой колонки в новую. Теперь приложение может писать в старую колонку, но новая колонка всегда актуальна.</p>
+ </div>
 
-        <div class="step-card">
-          <div class="step-num">Этап 3: Фоновая миграция исторических данных (Backfill)</div>
-          <p>Небольшими порциями (батчами по 1000 строк) исторические данные копируются из старого столбца в новый. Это предотвращает длительные транзакции и переполнение журнала WAL:</p>
-          <pre><code>UPDATE hotel_rooms SET price_numeric = price::NUMERIC(10, 2) 
+ <div class="step-card">
+ <div class="step-num">Этап 3: Фоновая миграция исторических данных (Backfill)</div>
+ <p>Небольшими порциями (батчами по 1000 строк) исторические данные копируются из старого столбца в новый. Это предотвращает длительные транзакции и переполнение журнала WAL:</p>
+ <pre><code>UPDATE hotel_rooms SET price_numeric = price::NUMERIC(10, 2) 
 WHERE room_id BETWEEN 1 AND 1000 AND price_numeric = 0.00;</code></pre>
-        </div>
+ </div>
 
-        <div class="step-card">
-          <div class="step-num">Этап 4: Безопасное наложение ограничений (NOT VALID + VALIDATE)</div>
-          <p>Если на новую колонку требуется наложить ограничение <code>CHECK</code>, наивный <code>ADD CONSTRAINT</code> заблокирует таблицу для полной проверки. Инженерное решение разбивает операцию на два шага:</p>
-          <pre><code>-- Шаг 4.1: Мгновенное наложение правила только на НОВЫЕ строки
+ <div class="step-card">
+ <div class="step-num">Этап 4: Безопасное наложение ограничений (NOT VALID + VALIDATE)</div>
+ <p>Если на новую колонку требуется наложить ограничение <code>CHECK</code>, наивный <code>ADD CONSTRAINT</code> заблокирует таблицу для полной проверки. Инженерное решение разбивает операцию на два шага:</p>
+ <pre><code>-- Шаг 4.1: Мгновенное наложение правила только на НОВЫЕ строки
 ALTER TABLE hotel_rooms 
-    ADD CONSTRAINT chk_price_positive CHECK (price_numeric > 0) NOT VALID;
+ ADD CONSTRAINT chk_price_positive CHECK (price_numeric > 0) NOT VALID;
 
 -- Шаг 4.2: Фоновая валидация существующих строк без блокировки SELECT и INSERT!
 ALTER TABLE hotel_rooms 
-    VALIDATE CONSTRAINT chk_price_positive;</code></pre>
-        </div>
+ VALIDATE CONSTRAINT chk_price_positive;</code></pre>
+ </div>
 
-        <div class="step-card">
-          <div class="step-num">Этап 5: Переключение кода бэкенда и удаление старого столбца</div>
-          <p>После развертывания новой версии приложения, читающей из <code>price_numeric</code>, триггер удаляется, а старый столбец логически отключается через <code>DROP COLUMN</code>.</p>
-        </div>
-      </div>
-    </section>
+ <div class="step-card">
+ <div class="step-num">Этап 5: Переключение кода бэкенда и удаление старого столбца</div>
+ <p>После развертывания новой версии приложения, читающей из <code>price_numeric</code>, триггер удаляется, а старый столбец логически отключается через <code>DROP COLUMN</code>.</p>
+ </div>
+ </div>
+ </section>
 
-    <!-- 5. Диаграммы ограничений внешних ключей и режимы CASCADE / RESTRICT -->
-    <section class="card">
-      <h2>5. Диаграммы ограничений внешних ключей: CASCADE против RESTRICT</h2>
-      <p>Ограничение внешнего ключа (<code>FOREIGN KEY</code>) связывает зависимую (дочернюю) таблицу с родительской, предотвращая появление «висячих ссылок» (orphaned records). При удалении или обновлении строки в родительской таблице стандарт SQL предусматривает различные режимы ссылочной целостности.</p>
+ <!-- 5. Диаграммы ограничений внешних ключей и режимы CASCADE / RESTRICT -->
+ <section class="card">
+ <h2>5. Диаграммы ограничений внешних ключей: CASCADE против RESTRICT</h2>
+ <p>Ограничение внешнего ключа (<code>FOREIGN KEY</code>) связывает зависимую (дочернюю) таблицу с родительской, предотвращая появление «висячих ссылок» (orphaned records). При удалении или обновлении строки в родительской таблице стандарт SQL предусматривает различные режимы ссылочной целостности.</p>
 
-      <div class="diagram-box">
- ┌──────────────────────────┐               ┌──────────────────────────┐
- │    РОДИТЕЛЬСКАЯ ТАБЛИЦА  │               │     ДОЧЕРНЯЯ ТАБЛИЦА     │
- │       bank_clients       │               │      bank_accounts       │
- ├──────────────────────────┤               ├──────────────────────────┤
- │ client_id (PK) : 101     │◄──────────────┤ account_id (PK) : 55001   │
- │ full_name     : 'Иванов' │       │       │ client_id (FK)  : 101     │
- └──────────────────────────┘       │       │ balance         : 7500.00 │
-               ▲                    │       └──────────────────────────┘
-               │                    │
-        DELETE FROM clients         │
-         WHERE client_id = 101;     │
-                                    ▼
-       ┌────────────────────────────────────────────────────────┐
-       │   Вариант А: ON DELETE RESTRICT (поведение по умолчанию) │
-       │   СУБД блокирует операцию! Ошибка 23503:               │
-       │   "update or delete on table violates foreign key"     │
-       └────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-       ┌────────────────────────────────────────────────────────┐
-       │   Вариант Б: ON DELETE CASCADE                         │
-       │   СУБД автоматически удаляет ВСЕ счета клиента 101!    │
-       │   Строка 55001 в bank_accounts безвозвратно удалена!   │
-       └────────────────────────────────────────────────────────┘</div>
+ <div class="diagram-box">
+ ┌──────────────────────────┐ ┌──────────────────────────┐
+ │ РОДИТЕЛЬСКАЯ ТАБЛИЦА │ │ ДОЧЕРНЯЯ ТАБЛИЦА │
+ │ bank_clients │ │ bank_accounts │
+ ├──────────────────────────┤ ├──────────────────────────┤
+ │ client_id (PK) : 101 │◄──────────────┤ account_id (PK) : 55001 │
+ │ full_name : 'Иванов' │ │ │ client_id (FK) : 101 │
+ └──────────────────────────┘ │ │ balance : 7500.00 │
+ ▲ │ └──────────────────────────┘
+ │ │
+ DELETE FROM clients │
+ WHERE client_id = 101; │
+ ▼
+ ┌────────────────────────────────────────────────────────┐
+ │ Вариант А: ON DELETE RESTRICT (поведение по умолчанию) │
+ │ СУБД блокирует операцию! Ошибка 23503: │
+ │ "update or delete on table violates foreign key" │
+ └────────────────────────────────────────────────────────┘
+ │
+ ▼
+ ┌────────────────────────────────────────────────────────┐
+ │ Вариант Б: ON DELETE CASCADE │
+ │ СУБД автоматически удаляет ВСЕ счета клиента 101! │
+ │ Строка 55001 в bank_accounts безвозвратно удалена! │
+ └────────────────────────────────────────────────────────┘</div>
 
-      <h3>5.1. Различие между ON DELETE CASCADE и DROP TABLE ... CASCADE</h3>
-      <div class="callout callout-danger">
-        <strong>Критическое различие двух видов CASCADE:</strong>
-        <ol>
-          <li><code>FOREIGN KEY ... ON DELETE CASCADE</code> — это правило уровня <strong>манипулирования данными (DML)</strong>. При удалении строки из таблицы клиентов СУБД каскадно удаляет строки счетов из дочерней таблицы. Сами таблицы остаются целыми.</li>
-          <li><code>DROP TABLE parent_table CASCADE</code> — это команда уровня <strong>определения данных (DDL)</strong>. Она физически уничтожает саму таблицу <code>parent_table</code> и <strong>автоматически удаляет зависимые ограничения внешнего ключа в дочерних таблицах</strong>, а также удаляет зависимые представления (VIEW). Сами строки в дочерней таблице НЕ удаляются, но таблица лишается внешнего ключа и теряет ссылочную целостность!</li>
-        </ol>
-      </div>
-    </section>
+ <h3>5.1. Различие между ON DELETE CASCADE и DROP TABLE... CASCADE</h3>
+ <div class="callout callout-danger">
+ <strong>Критическое различие двух видов CASCADE:</strong>
+ <ol>
+ <li><code>FOREIGN KEY... ON DELETE CASCADE</code> — это правило уровня <strong>манипулирования данными (DML)</strong>. При удалении строки из таблицы клиентов СУБД каскадно удаляет строки счетов из дочерней таблицы. Сами таблицы остаются целыми.</li>
+ <li><code>DROP TABLE parent_table CASCADE</code> — это команда уровня <strong>определения данных (DDL)</strong>. Она физически уничтожает саму таблицу <code>parent_table</code> и <strong>автоматически удаляет зависимые ограничения внешнего ключа в дочерних таблицах</strong>, а также удаляет зависимые представления (VIEW). Сами строки в дочерней таблице НЕ удаляются, но таблица лишается внешнего ключа и теряет ссылочную целостность!</li>
+ </ol>
+ </div>
+ </section>
 
-    <!-- 6. Очистка таблиц: TRUNCATE TABLE vs DELETE -->
-    <section class="card">
-      <h2>6. Быстрая очистка: Оператор TRUNCATE TABLE и сброс последовательностей</h2>
-      <p>Когда требуется полностью очистить таблицу (например, после завершения учебного семестра или при обновлении промежуточных логов), использование <code>DELETE FROM table_name;</code> является грубой инженерной ошибкой на больших объемах данных.</p>
+ <!-- 6. Очистка таблиц: TRUNCATE TABLE vs DELETE -->
+ <section class="card">
+ <h2>6. Быстрая очистка: Оператор TRUNCATE TABLE и сброс последовательностей</h2>
+ <p>Когда требуется полностью очистить таблицу (например, после завершения учебного семестра или при обновлении промежуточных логов), использование <code>DELETE FROM table_name;</code> является грубой инженерной ошибкой на больших объемах данных.</p>
 
-      <h3>6.1. Почему TRUNCATE быстрее DELETE в сотни раз?</h3>
-      <ul>
-        <li><code>DELETE</code> построчно считывает каждую страницу в оперативную память (shared buffers), записывает образ старой строки в журнал транзакций (WAL) и устанавливает заголовочный флаг <code>t_xmax</code> («мертвый кортеж»). Место на диске не освобождается до выполнения утилиты <code>VACUUM FULL</code>.</li>
-        <li><code>TRUNCATE</code> является операцией DDL. СУБД деаллоцирует физический файл кучи (<code>relfilenode</code>) и мгновенно связывает имя таблицы в каталоге с новым пустым дисковым файлом. Операция выполняется за фиксированное время O(1) независимо от того, хранилось ли в таблице 10 строк или 100 000 000 строк.</li>
-      </ul>
+ <h3>6.1. Почему TRUNCATE быстрее DELETE в сотни раз?</h3>
+ <ul>
+ <li><code>DELETE</code> построчно считывает каждую страницу в оперативную память (shared buffers), записывает образ старой строки в журнал транзакций (WAL) и устанавливает заголовочный флаг <code>t_xmax</code> («мертвый кортеж»). Место на диске не освобождается до выполнения утилиты <code>VACUUM FULL</code>.</li>
+ <li><code>TRUNCATE</code> является операцией DDL. СУБД деаллоцирует физический файл кучи (<code>relfilenode</code>) и мгновенно связывает имя таблицы в каталоге с новым пустым дисковым файлом. Операция выполняется за фиксированное время O(1) независимо от того, хранилось ли в таблице 10 строк или 100 000 000 строк.</li>
+ </ul>
 
-      <h3>6.2. Управление генераторами последовательностей (RESTART IDENTITY)</h3>
-      <p>При использовании автоинкрементных столбцов (<code>SERIAL</code>, <code>BIGSERIAL</code>, <code>IDENTITY</code>) таблица ассоциирована с объектом генератора последовательностей (<code>SEQUENCE</code>):</p>
-      <pre><code>-- 1. Очистка данных с продолжением нумерации (CONTINUE IDENTITY по умолчанию)
+ <h3>6.2. Управление генераторами последовательностей (RESTART IDENTITY)</h3>
+ <p>При использовании автоинкрементных столбцов (<code>SERIAL</code>, <code>BIGSERIAL</code>, <code>IDENTITY</code>) таблица ассоциирована с объектом генератора последовательностей (<code>SEQUENCE</code>):</p>
+ <pre><code>-- 1. Очистка данных с продолжением нумерации (CONTINUE IDENTITY по умолчанию)
 -- Если последняя запись имела ID=500, то следующая вставка получит ID=501:
 TRUNCATE TABLE student_attendance_log;
 
 -- 2. Очистка данных со сбросом автоинкремента в начальное значение:
 -- Счетчик последовательности сбрасывается в 1:
 TRUNCATE TABLE student_attendance_log RESTART IDENTITY;</code></pre>
-    </section>
+ </section>
 
-    <!-- 7. Вопросы для самопроверки -->
-    <section class="card">
-      <h2>7. Вопросы для самопроверки и закрепления материала</h2>
-      <ol>
-        <li><strong>В чем заключается концептуальная разница между языками DDL и DML на уровне ядра СУБД?</strong> Какие структуры данных изменяет DDL?</li>
-        <li><strong>Почему при изменении типа данных столбца с помощью команды <code>ALTER COLUMN TYPE</code> часто требуется выражение <code>USING</code>?</strong> Приведите пример конвертации данных, где <code>USING</code> обязателен.</li>
-        <li><strong>Что произойдет при выполнении команды <code>DROP TABLE customers RESTRICT;</code>, если в базе существует дочерняя таблица <code>orders</code> с внешним ключом на <code>customers</code>?</strong></li>
-        <li><strong>Каковы фатальные последствия неосмотрительного применения <code>DROP TABLE ... CASCADE</code> в промышленной базе данных?</strong> Удаляются ли данные в дочерних таблицах?</li>
-        <li><strong>По каким пяти фундаментальным критериям операция <code>TRUNCATE TABLE</code> превосходит <code>DELETE FROM table</code>?</strong> В каких ситуациях применять <code>TRUNCATE</code> запрещено?</li>
-        <li><strong>Какую роль играет опция <code>RESTART IDENTITY</code> при выполнении <code>TRUNCATE TABLE</code>?</strong></li>
-        <li><strong>Какая блокировка захватывается ядром СУБД при выполнении команд DDL (<code>ALTER TABLE</code>)?</strong> Как эта блокировка может вызвать аварийную остановку (Outage) высоконагруженного веб-приложения?</li>
-        <li><strong>Опишите двухфазный алгоритм добавления ограничения <code>CHECK</code> на многомиллионной таблице без остановки сервиса.</strong></li>
-      </ol>
-    </section>
+ <!-- 7. Вопросы для самопроверки -->
+ <section class="card">
+ <h2>7. Вопросы для самопроверки и закрепления материала</h2>
+ <ol>
+ <li><strong>В чем заключается концептуальная разница между языками DDL и DML на уровне ядра СУБД?</strong> Какие структуры данных изменяет DDL?</li>
+ <li><strong>Почему при изменении типа данных столбца с помощью команды <code>ALTER COLUMN TYPE</code> часто требуется выражение <code>USING</code>?</strong> Приведите пример конвертации данных, где <code>USING</code> обязателен.</li>
+ <li><strong>Что произойдет при выполнении команды <code>DROP TABLE customers RESTRICT;</code>, если в базе существует дочерняя таблица <code>orders</code> с внешним ключом на <code>customers</code>?</strong></li>
+ <li><strong>Каковы фатальные последствия неосмотрительного применения <code>DROP TABLE... CASCADE</code> в промышленной базе данных?</strong> Удаляются ли данные в дочерних таблицах?</li>
+ <li><strong>По каким пяти фундаментальным критериям операция <code>TRUNCATE TABLE</code> превосходит <code>DELETE FROM table</code>?</strong> В каких ситуациях применять <code>TRUNCATE</code> запрещено?</li>
+ <li><strong>Какую роль играет опция <code>RESTART IDENTITY</code> при выполнении <code>TRUNCATE TABLE</code>?</strong></li>
+ <li><strong>Какая блокировка захватывается ядром СУБД при выполнении команд DDL (<code>ALTER TABLE</code>)?</strong> Как эта блокировка может вызвать аварийную остановку (Outage) высоконагруженного веб-приложения?</li>
+ <li><strong>Опишите двухфазный алгоритм добавления ограничения <code>CHECK</code> на многомиллионной таблице без остановки сервиса.</strong></li>
+ </ol>
+ </section>
 
-  </div>
+ </div>
 </body>
 </html>

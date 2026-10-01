@@ -1,621 +1,595 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Практикум: Виды памяти и принципы работы (Подбор и расчет совместимости подсистемы памяти)</title>
-  <style>
-    :root {
-      --bg: #f1f5f9;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #1e40af;
-      --accent-soft: #eff6ff;
-      --task-bg: #f8fafc;
-      --border-task: #94a3b8;
-      --ok: #059669;
-      --warn: #d97706;
-      --radius: 14px;
-      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.6;
-      font-size: 15.5px;
-      padding: 20px 14px;
-    }
-    .page {
-      max-width: 960px;
-      margin: 0 auto;
-    }
-    .header-card, .student-card, .task-card, .actions-card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow);
-    }
-    h1 {
-      font-size: clamp(22px, 3.5vw, 28px);
-      color: var(--accent);
-      margin-bottom: 8px;
-    }
-    .desc {
-      color: var(--muted);
-      font-size: 15px;
-    }
-    .student-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 14px;
-    }
-    label {
-      display: block;
-      font-weight: 600;
-      font-size: 13.5px;
-      margin-bottom: 6px;
-      color: #1e293b;
-    }
-    input[type="text"], input[type="date"], select, textarea {
-      width: 100%;
-      border: 1.5px solid var(--line);
-      border-radius: 8px;
-      padding: 9px 12px;
-      font: inherit;
-      font-size: 14.5px;
-      background: #fff;
-      color: var(--text);
-      outline: none;
-      transition: border-color .15s, box-shadow .15s;
-    }
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
-    }
-    textarea {
-      min-height: 85px;
-      resize: vertical;
-      line-height: 1.5;
-    }
-    .criteria-box {
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      border-radius: 10px;
-      padding: 14px 18px;
-      margin-bottom: 18px;
-      font-size: 14px;
-    }
-    .criteria-box strong { color: var(--ok); }
-    .task-title {
-      font-size: 17.5px;
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .task-help {
-      background: var(--accent-soft);
-      border-left: 3px solid var(--accent);
-      padding: 10px 14px;
-      border-radius: 0 6px 6px 0;
-      margin-bottom: 14px;
-      font-size: 14px;
-      color: #1e3a8a;
-    }
-    .table-wrap {
-      overflow-x: auto;
-      margin: 14px 0;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13.5px;
-    }
-    th, td {
-      border: 1px solid var(--line);
-      padding: 8px 10px;
-      text-align: left;
-      vertical-align: top;
-    }
-    th {
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-weight: 600;
-    }
-    .table-input {
-      border: 1px solid var(--line);
-      border-radius: 4px;
-      padding: 6px 8px;
-      font-size: 13px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    .btn-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: center;
-    }
-    button {
-      cursor: pointer;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 18px;
-      font: inherit;
-      font-weight: 600;
-      font-size: 14.5px;
-      transition: background .15s, transform .05s;
-    }
-    button:active { transform: scale(0.98); }
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-primary:hover { background: #1d4ed8; }
-    .btn-secondary { background: #e2e8f0; color: #334155; }
-    .btn-secondary:hover { background: #cbd5e1; }
-    .btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-    .btn-danger:hover { background: #fecaca; }
-    .status-msg {
-      font-size: 14px;
-      font-weight: 600;
-      margin-left: auto;
-    }
-    .status-saved { color: var(--ok); }
-    .variant-card {
-      background: var(--task-bg);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 16px;
-      margin-top: 14px;
-    }
-    .variant-title {
-      font-weight: 700;
-      color: #1e293b;
-      margin-bottom: 8px;
-      font-size: 15px;
-    }
-    .print-select-text { display: none; }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <title>Практикум: Виды памяти и принципы работы (Подбор и расчет совместимости подсистемы памяти)</title>
+ <style>
+ :root {
+ --bg: #f1f5f9;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #1e40af;
+ --accent-soft: #eff6ff;
+ --task-bg: #f8fafc;
+ --border-task: #94a3b8;
+ --ok: #059669;
+ --warn: #d97706;
+ --radius: 14px;
+ --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+ body {
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+ line-height: 1.6;
+ font-size: 15.5px;
+ padding: 20px 14px;
+ }.page {
+ max-width: 960px;
+ margin: 0 auto;
+ }.header-card,.student-card,.task-card,.actions-card {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 24px;
+ margin-bottom: 20px;
+ box-shadow: var(--shadow);
+ }
+ h1 {
+ font-size: clamp(22px, 3.5vw, 28px);
+ color: var(--accent);
+ margin-bottom: 8px;
+ }.desc {
+ color: var(--muted);
+ font-size: 15px;
+ }.student-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+ gap: 14px;
+ }
+ label {
+ display: block;
+ font-weight: 600;
+ font-size: 13.5px;
+ margin-bottom: 6px;
+ color: #1e293b;
+ }
+ input[type="text"], input[type="date"], select, textarea {
+ width: 100%;
+ border: 1.5px solid var(--line);
+ border-radius: 8px;
+ padding: 9px 12px;
+ font: inherit;
+ font-size: 14.5px;
+ background: #fff;
+ color: var(--text);
+ outline: none;
+ transition: border-color.15s, box-shadow.15s;
+ }
+ input:focus, select:focus, textarea:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+ }
+ textarea {
+ min-height: 85px;
+ resize: vertical;
+ line-height: 1.5;
+ }.criteria-box {
+ background: #f0fdf4;
+ border: 1px solid #bbf7d0;
+ border-radius: 10px;
+ padding: 14px 18px;
+ margin-bottom: 18px;
+ font-size: 14px;
+ }.criteria-box strong { color: var(--ok); }.task-title {
+ font-size: 17.5px;
+ font-weight: 700;
+ color: var(--accent);
+ margin-bottom: 10px;
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ }.task-help {
+ background: var(--accent-soft);
+ border-left: 3px solid var(--accent);
+ padding: 10px 14px;
+ border-radius: 0 6px 6px 0;
+ margin-bottom: 14px;
+ font-size: 14px;
+ color: #1e3a8a;
+ }.table-wrap {
+ overflow-x: auto;
+ margin: 14px 0;
+ }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ font-size: 13.5px;
+ }
+ th, td {
+ border: 1px solid var(--line);
+ padding: 8px 10px;
+ text-align: left;
+ vertical-align: top;
+ }
+ th {
+ background: var(--accent-soft);
+ color: var(--accent);
+ font-weight: 600;
+ }.table-input {
+ border: 1px solid var(--line);
+ border-radius: 4px;
+ padding: 6px 8px;
+ font-size: 13px;
+ width: 100%;
+ box-sizing: border-box;
+ }.btn-row {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 12px;
+ align-items: center;
+ }
+ button {
+ cursor: pointer;
+ border: none;
+ border-radius: 8px;
+ padding: 10px 18px;
+ font: inherit;
+ font-weight: 600;
+ font-size: 14.5px;
+ transition: background.15s, transform.05s;
+ }
+ button:active { transform: scale(0.98); }.btn-primary { background: var(--accent); color: #fff; }.btn-primary:hover { background: #1d4ed8; }.btn-secondary { background: #e2e8f0; color: #334155; }.btn-secondary:hover { background: #cbd5e1; }.btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }.btn-danger:hover { background: #fecaca; }.status-msg {
+ font-size: 14px;
+ font-weight: 600;
+ margin-left: auto;
+ }.status-saved { color: var(--ok); }.variant-card {
+ background: var(--task-bg);
+ border: 1px solid var(--line);
+ border-radius: 10px;
+ padding: 16px;
+ margin-top: 14px;
+ }.variant-title {
+ font-weight: 700;
+ color: #1e293b;
+ margin-bottom: 8px;
+ font-size: 15px;
+ }.print-select-text { display: none; }
 
-    @media print {
-      body {
-        background: #fff;
-        padding: 0;
-        font-size: 11pt;
-        color: #000;
-      }
-      .page {
-        max-width: 100%;
-        margin: 0;
-      }
-      .header-card, .student-card, .task-card {
-        box-shadow: none;
-        border: 1px solid #777;
-        margin-bottom: 14pt;
-        padding: 12pt;
-        break-inside: auto;
-        page-break-inside: auto;
-      }
-      .actions-card, .btn-row {
-        display: none !important;
-      }
-      input::placeholder, textarea::placeholder {
-        color: transparent !important;
-        -webkit-text-fill-color: transparent !important;
-        opacity: 0 !important;
-      }
-      select {
-        display: none !important;
-      }
-      .print-select-text {
-        display: block !important;
-        min-height: 20px;
-        border: 1px solid #777 !important;
-        border-radius: 4px;
-        padding: 4px 6px;
-        background: #fff !important;
-      }
-      textarea {
-        height: auto !important;
-        min-height: 80px;
-        overflow: visible !important;
-        white-space: pre-wrap !important;
-        word-break: break-word !important;
-        border: 1px solid #777 !important;
-        background: #fff !important;
-        color: #000 !important;
-      }
-      input[type="text"], input[type="date"], .table-input {
-        border: 1px solid #777 !important;
-        background: #fff !important;
-        color: #000 !important;
-      }
-    }
-  </style>
+ @media print {
+ body {
+ background: #fff;
+ padding: 0;
+ font-size: 11pt;
+ color: #000;
+ }.page {
+ max-width: 100%;
+ margin: 0;
+ }.header-card,.student-card,.task-card {
+ box-shadow: none;
+ border: 1px solid #777;
+ margin-bottom: 14pt;
+ padding: 12pt;
+ break-inside: auto;
+ page-break-inside: auto;
+ }.actions-card,.btn-row {
+ display: none !important;
+ }
+ input::placeholder, textarea::placeholder {
+ color: transparent !important;
+ -webkit-text-fill-color: transparent !important;
+ opacity: 0 !important;
+ }
+ select {
+ display: none !important;
+ }.print-select-text {
+ display: block !important;
+ min-height: 20px;
+ border: 1px solid #777 !important;
+ border-radius: 4px;
+ padding: 4px 6px;
+ background: #fff !important;
+ }
+ textarea {
+ height: auto !important;
+ min-height: 80px;
+ overflow: visible !important;
+ white-space: pre-wrap !important;
+ word-break: break-word !important;
+ border: 1px solid #777 !important;
+ background: #fff !important;
+ color: #000 !important;
+ }
+ input[type="text"], input[type="date"],.table-input {
+ border: 1px solid #777 !important;
+ background: #fff !important;
+ color: #000 !important;
+ }
+ }
+ </style>
 </head>
 <body>
 <div class="page">
 
-  <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
-  <div class="header-card">
-    <h1>Практикум: Виды памяти и принципы работы (Подбор подсистемы памяти)</h1>
-    <p class="desc">Интерактивный рабочий лист студента по дисциплине «Архитектура аппаратных средств» (СИЭУиП, практическое занятие №5, занятие 14). Сравнительный анализ архитектур DDR4 и DDR5, расчет пропускной способности подсистемы памяти (ПСП) и наносекундной задержки, комплексный чек-лист совместимости и индивидуальный протокол подбора ОЗУ и NVMe SSD под целевую платформу.</p>
-  </div>
+ <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
+ <div class="header-card">
+ <h1>Практикум: Виды памяти и принципы работы (Подбор подсистемы памяти)</h1>
+ <p class="desc">Интерактивный рабочий лист студента по дисциплине «Архитектура аппаратных средств» (СИЭУиП, практическое занятие №5, занятие 14). Сравнительный анализ архитектур DDR4 и DDR5, расчет пропускной способности подсистемы памяти (ПСП) и наносекундной задержки, комплексный чек-лист совместимости и индивидуальный протокол подбора ОЗУ и NVMe SSD под целевую платформу.</p>
+ </div>
 
-  <!-- РЕКВИЗИТЫ СТУДЕНТА (ЧИСТЫЕ ПОЛЯ ВВОДА БЕЗ ВЫМЫШЛЕННЫХ ДАННЫХ) -->
-  <div class="student-card">
-    <div class="student-grid">
-      <div>
-        <label for="student_fio">ФИО обучающегося:</label>
-        <input type="text" id="student_fio" placeholder="Введите ФИО" autocomplete="off">
-      </div>
-      <div>
-        <label for="student_group">Учебная группа:</label>
-        <input type="text" id="student_group" placeholder="Введите группу" autocomplete="off">
-      </div>
-      <div>
-        <label for="work_date">Дата выполнения:</label>
-        <input type="date" id="work_date">
-      </div>
-      <div>
-        <label for="work_variant">Вариант платформы:</label>
-        <select id="work_variant" onchange="updateVariantSelection()">
-          <option value="">-- Выберите вариант --</option>
-          <option value="1">Вариант 1: Компактный офисный ПК / Тонкий клиент</option>
-          <option value="2">Вариант 2: Игровая станция соревновательного уровня (AM5)</option>
-          <option value="3">Вариант 3: Профессиональная рабочая станция 3D/видео (LGA1700)</option>
-          <option value="4">Вариант 4: Сервер баз данных начального уровня / NAS</option>
-        </select>
-        <div id="print_work_variant" class="print-select-text">Вариант не выбран</div>
-      </div>
-    </div>
-  </div>
+ <!-- РЕКВИЗИТЫ СТУДЕНТА (ЧИСТЫЕ ПОЛЯ ВВОДА БЕЗ ВЫМЫШЛЕННЫХ ДАННЫХ) -->
+ <div class="student-card">
+ <div class="student-grid">
+ <div>
+ <label for="student_fio">ФИО обучающегося:</label>
+ <input type="text" id="student_fio" placeholder="Введите ФИО" autocomplete="off">
+ </div>
+ <div>
+ <label for="student_group">Учебная группа:</label>
+ <input type="text" id="student_group" placeholder="Введите группу" autocomplete="off">
+ </div>
+ <div>
+ <label for="work_date">Дата выполнения:</label>
+ <input type="date" id="work_date">
+ </div>
+ <div>
+ <label for="work_variant">Вариант платформы:</label>
+ <select id="work_variant" onchange="updateVariantSelection()">
+ <option value="">-- Выберите вариант --</option>
+ <option value="1">Вариант 1: Компактный офисный ПК / Тонкий клиент</option>
+ <option value="2">Вариант 2: Игровая станция соревновательного уровня (AM5)</option>
+ <option value="3">Вариант 3: Профессиональная рабочая станция 3D/видео (LGA1700)</option>
+ <option value="4">Вариант 4: Сервер баз данных начального уровня / NAS</option>
+ </select>
+ <div id="print_work_variant" class="print-select-text">Вариант не выбран</div>
+ </div>
+ </div>
+ </div>
 
-  <!-- КРИТЕРИИ ОЦЕНИВАНИЯ -->
-  <div class="criteria-box">
-    <strong>Критерии оценивания практической работы (4-балльная открытая шкала):</strong>
-    <ul style="margin: 6px 0 0 18px; font-size: 13.5px;">
-      <li><strong>Корректность (до 2 баллов):</strong> безошибочное заполнение архитектурных различий DDR4/DDR5; математически точный расчет теоретической ПСП (в ГБ/с) и физической задержки t<sub>lat</sub> (в нс) для всех 4 конфигураций.</li>
-      <li><strong>Объяснение (1 балл):</strong> аргументированное раскрытие роли On-Die ECC vs True ECC, ранговости 1R/2R, топологии Daisy Chain (слоты A2/B2) и температурного парадокса NVMe SSD.</li>
-      <li><strong>Проверка совместимости (1 балл):</strong> корректное прохождение чек-листа совместимости и исчерпывающее обоснование спецификации памяти и накопителя под выбранный вариант платформы.</li>
-      <li><strong>Шкала:</strong> 4 балла — «5» (отлично); 3 балла — «4» (хорошо); 2 балла — «3» (удовлетворительно); 0–1 балл — «2».</li>
-    </ul>
-  </div>
+ <!-- КРИТЕРИИ ОЦЕНИВАНИЯ -->
+ <div class="criteria-box">
+ <strong>Критерии оценивания практической работы (4-балльная открытая шкала):</strong>
+ <ul style="margin: 6px 0 0 18px; font-size: 13.5px;">
+ <li><strong>Корректность (до 2 баллов):</strong> безошибочное заполнение архитектурных различий DDR4/DDR5; математически точный расчет теоретической ПСП (в ГБ/с) и физической задержки t<sub>lat</sub> (в нс) для всех 4 конфигураций.</li>
+ <li><strong>Объяснение (1 балл):</strong> аргументированное раскрытие роли On-Die ECC vs True ECC, ранговости 1R/2R, топологии Daisy Chain (слоты A2/B2) и температурного парадокса NVMe SSD.</li>
+ <li><strong>Проверка совместимости (1 балл):</strong> корректное прохождение чек-листа совместимости и исчерпывающее обоснование спецификации памяти и накопителя под выбранный вариант платформы.</li>
+ <li><strong>Шкала:</strong> 4 балла — «5» (отлично); 3 балла — «4» (хорошо); 2 балла — «3» (удовлетворительно); 0–1 балл — «2».</li>
+ </ul>
+ </div>
 
-  <!-- ЗАДАНИЕ 1 -->
-  <div class="task-card">
-    <div class="task-title">Задание 1. Сравнительный анализ архитектуры стандартов памяти (DDR4 vs DDR5)</div>
-    <div class="task-help">
-      Заполните аналитическую таблицу конструктивных и микроархитектурных различий модулей оперативной памяти. В поле для объяснения раскройте разницу между On-Die ECC и серверным True ECC.
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th style="width: 25%;">Архитектурный параметр</th>
-            <th style="width: 35%;">DDR4 SDRAM</th>
-            <th style="width: 40%;">DDR5 SDRAM</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Номинальное напряжение питания (JEDEC)</strong></td>
-            <td><input type="text" id="t1_volt_ddr4" class="table-input" placeholder="Например: 1.2 В"></td>
-            <td><input type="text" id="t1_volt_ddr5" class="table-input" placeholder="Например: 1.1 В"></td>
-          </tr>
-          <tr>
-            <td><strong>Организация каналов на одном модуле</strong></td>
-            <td><input type="text" id="t1_chan_ddr4" class="table-input" placeholder="Например: 1 канал 64 бит"></td>
-            <td><input type="text" id="t1_chan_ddr5" class="table-input" placeholder="Например: 2 субканала по 32 бит"></td>
-          </tr>
-          <tr>
-            <td><strong>Расположение схемы управления питанием (PMIC)</strong></td>
-            <td><input type="text" id="t1_pmic_ddr4" class="table-input" placeholder="На материнской плате"></td>
-            <td><input type="text" id="t1_pmic_ddr5" class="table-input" placeholder="На самом модуле памяти"></td>
-          </tr>
-          <tr>
-            <td><strong>Длина пакета (Burst Length) и Prefetch</strong></td>
-            <td><input type="text" id="t1_bl_ddr4" class="table-input" placeholder="BL8 (Prefetch 8n)"></td>
-            <td><input type="text" id="t1_bl_ddr5" class="table-input" placeholder="BL16 (Prefetch 16n = 64 байта)"></td>
-          </tr>
-          <tr>
-            <td><strong>Встроенная коррекция ошибок чипа (On-Die ECC)</strong></td>
-            <td><input type="text" id="t1_ecc_ddr4" class="table-input" placeholder="Отсутствует в базовых чипах"></td>
-            <td><input type="text" id="t1_ecc_ddr5" class="table-input" placeholder="Обязательна на кристалле DRAM"></td>
-          </tr>
-          <tr>
-            <td><strong>Число контактов и положение ключа (Notch)</strong></td>
-            <td><input type="text" id="t1_key_ddr4" class="table-input" placeholder="288 пин, ключ с краю"></td>
-            <td><input type="text" id="t1_key_ddr5" class="table-input" placeholder="288 пин, ключ ближе к центру"></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div style="margin-top: 14px;">
-      <label for="ans_ecc_difference">Объяснение: почему On-Die ECC в DDR5 не защищает шину данных между модулем и процессором, и зачем серверам нужен True Sideband ECC?</label>
-      <textarea id="ans_ecc_difference" placeholder="Раскройте механизм On-Die ECC (исправление ошибок внутри ячеек кремния) и объясните, почему данные на шине материнской платы остаются уязвимыми без True ECC (80 бит)..."></textarea>
-    </div>
-  </div>
+ <!-- ЗАДАНИЕ 1 -->
+ <div class="task-card">
+ <div class="task-title">Задание 1. Сравнительный анализ архитектуры стандартов памяти (DDR4 vs DDR5)</div>
+ <div class="task-help">
+ Заполните аналитическую таблицу конструктивных и микроархитектурных различий модулей оперативной памяти. В поле для объяснения раскройте разницу между On-Die ECC и серверным True ECC.
+ </div>
+ <div class="table-wrap">
+ <table>
+ <thead>
+ <tr>
+ <th style="width: 25%;">Архитектурный параметр</th>
+ <th style="width: 35%;">DDR4 SDRAM</th>
+ <th style="width: 40%;">DDR5 SDRAM</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>Номинальное напряжение питания (JEDEC)</strong></td>
+ <td><input type="text" id="t1_volt_ddr4" class="table-input" placeholder="Например: 1.2 В"></td>
+ <td><input type="text" id="t1_volt_ddr5" class="table-input" placeholder="Например: 1.1 В"></td>
+ </tr>
+ <tr>
+ <td><strong>Организация каналов на одном модуле</strong></td>
+ <td><input type="text" id="t1_chan_ddr4" class="table-input" placeholder="Например: 1 канал 64 бит"></td>
+ <td><input type="text" id="t1_chan_ddr5" class="table-input" placeholder="Например: 2 субканала по 32 бит"></td>
+ </tr>
+ <tr>
+ <td><strong>Расположение схемы управления питанием (PMIC)</strong></td>
+ <td><input type="text" id="t1_pmic_ddr4" class="table-input" placeholder="На материнской плате"></td>
+ <td><input type="text" id="t1_pmic_ddr5" class="table-input" placeholder="На самом модуле памяти"></td>
+ </tr>
+ <tr>
+ <td><strong>Длина пакета (Burst Length) и Prefetch</strong></td>
+ <td><input type="text" id="t1_bl_ddr4" class="table-input" placeholder="BL8 (Prefetch 8n)"></td>
+ <td><input type="text" id="t1_bl_ddr5" class="table-input" placeholder="BL16 (Prefetch 16n = 64 байта)"></td>
+ </tr>
+ <tr>
+ <td><strong>Встроенная коррекция ошибок чипа (On-Die ECC)</strong></td>
+ <td><input type="text" id="t1_ecc_ddr4" class="table-input" placeholder="Отсутствует в базовых чипах"></td>
+ <td><input type="text" id="t1_ecc_ddr5" class="table-input" placeholder="Обязательна на кристалле DRAM"></td>
+ </tr>
+ <tr>
+ <td><strong>Число контактов и положение ключа (Notch)</strong></td>
+ <td><input type="text" id="t1_key_ddr4" class="table-input" placeholder="288 пин, ключ с краю"></td>
+ <td><input type="text" id="t1_key_ddr5" class="table-input" placeholder="288 пин, ключ ближе к центру"></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ <div style="margin-top: 14px;">
+ <label for="ans_ecc_difference">Объяснение: почему On-Die ECC в DDR5 не защищает шину данных между модулем и процессором, и зачем серверам нужен True Sideband ECC?</label>
+ <textarea id="ans_ecc_difference" placeholder="Раскройте механизм On-Die ECC (исправление ошибок внутри ячеек кремния) и объясните, почему данные на шине материнской платы остаются уязвимыми без True ECC (80 бит)..."></textarea>
+ </div>
+ </div>
 
-  <!-- ЗАДАНИЕ 2 -->
-  <div class="task-card">
-    <div class="task-title">Задание 2. Расчет пропускной способности (ПСП) и физической задержки доступа</div>
-    <div class="task-help">
-      Используя формулы:<br>
-      • <strong>Теоретическая ПСП (ГБ/с):</strong> ПСП = Частота (MT/s) × Ширина шины за такт (байт) div 1000<br>
-      • <strong>Истинная задержка (нс):</strong> t<sub>lat</sub> = (CL × 2000) / Частота (MT/s)<br>
-      <em>Справочно:</em> Dual Channel (2 канала) = 128 бит = 16 байт за такт; Quad Channel (4 канала) = 256 бит = 32 байта за такт.
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th style="width: 25%;">Конфигурация памяти</th>
-            <th style="width: 15%;">Каналы / Байт</th>
-            <th style="width: 30%;">Расчет и значение ПСП (ГБ/с)</th>
-            <th style="width: 30%;">Расчет и значение t<sub>lat</sub> (нс)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>DDR4-3200 CL16-18-18</strong></td>
-            <td>Dual (16 байт)</td>
-            <td><input type="text" id="t2_bw_1" class="table-input" placeholder="3200 × 16 = 51.2 ГБ/с"></td>
-            <td><input type="text" id="t2_lat_1" class="table-input" placeholder="16 × 2000 / 3200 = 10.0 нс"></td>
-          </tr>
-          <tr>
-            <td><strong>DDR5-5600 CL40-40-40</strong></td>
-            <td>Dual (16 байт)</td>
-            <td><input type="text" id="t2_bw_2" class="table-input" placeholder="5600 × 16 = 89.6 ГБ/с"></td>
-            <td><input type="text" id="t2_lat_2" class="table-input" placeholder="40 × 2000 / 5600 ≈ 14.29 нс"></td>
-          </tr>
-          <tr>
-            <td><strong>DDR5-6000 CL30-36-36</strong></td>
-            <td>Dual (16 байт)</td>
-            <td><input type="text" id="t2_bw_3" class="table-input" placeholder="6000 × 16 = 96.0 ГБ/с"></td>
-            <td><input type="text" id="t2_lat_3" class="table-input" placeholder="30 × 2000 / 6000 = 10.0 нс"></td>
-          </tr>
-          <tr>
-            <td><strong>DDR5-4800 CL40 (Сервер)</strong></td>
-            <td>Quad (32 байта)</td>
-            <td><input type="text" id="t2_bw_4" class="table-input" placeholder="4800 × 32 = 153.6 ГБ/с"></td>
-            <td><input type="text" id="t2_lat_4" class="table-input" placeholder="40 × 2000 / 4800 ≈ 16.67 нс"></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div style="margin-top: 14px;">
-      <label for="ans_latency_paradox">Аналитический вывод: почему DDR4-3200 CL16 и DDR5-6000 CL30 имеют одинаковую наносекундную задержку (10 нс), но DDR5 значительно быстрее в реальных задачах?</label>
-      <textarea id="ans_latency_paradox" placeholder="Объясните физическую разницу между тактами задержки и пропускной способностью шины, а также роль двух субканалов DDR5..."></textarea>
-    </div>
-  </div>
+ <!-- ЗАДАНИЕ 2 -->
+ <div class="task-card">
+ <div class="task-title">Задание 2. Расчет пропускной способности (ПСП) и физической задержки доступа</div>
+ <div class="task-help">
+ Используя формулы:<br>
+ • <strong>Теоретическая ПСП (ГБ/с):</strong> ПСП = Частота (MT/s) × Ширина шины за такт (байт) div 1000<br>
+ • <strong>Истинная задержка (нс):</strong> t<sub>lat</sub> = (CL × 2000) / Частота (MT/s)<br>
+ <em>Справочно:</em> Dual Channel (2 канала) = 128 бит = 16 байт за такт; Quad Channel (4 канала) = 256 бит = 32 байта за такт.
+ </div>
+ <div class="table-wrap">
+ <table>
+ <thead>
+ <tr>
+ <th style="width: 25%;">Конфигурация памяти</th>
+ <th style="width: 15%;">Каналы / Байт</th>
+ <th style="width: 30%;">Расчет и значение ПСП (ГБ/с)</th>
+ <th style="width: 30%;">Расчет и значение t<sub>lat</sub> (нс)</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>DDR4-3200 CL16-18-18</strong></td>
+ <td>Dual (16 байт)</td>
+ <td><input type="text" id="t2_bw_1" class="table-input" placeholder="3200 × 16 = 51.2 ГБ/с"></td>
+ <td><input type="text" id="t2_lat_1" class="table-input" placeholder="16 × 2000 / 3200 = 10.0 нс"></td>
+ </tr>
+ <tr>
+ <td><strong>DDR5-5600 CL40-40-40</strong></td>
+ <td>Dual (16 байт)</td>
+ <td><input type="text" id="t2_bw_2" class="table-input" placeholder="5600 × 16 = 89.6 ГБ/с"></td>
+ <td><input type="text" id="t2_lat_2" class="table-input" placeholder="40 × 2000 / 5600 ≈ 14.29 нс"></td>
+ </tr>
+ <tr>
+ <td><strong>DDR5-6000 CL30-36-36</strong></td>
+ <td>Dual (16 байт)</td>
+ <td><input type="text" id="t2_bw_3" class="table-input" placeholder="6000 × 16 = 96.0 ГБ/с"></td>
+ <td><input type="text" id="t2_lat_3" class="table-input" placeholder="30 × 2000 / 6000 = 10.0 нс"></td>
+ </tr>
+ <tr>
+ <td><strong>DDR5-4800 CL40 (Сервер)</strong></td>
+ <td>Quad (32 байта)</td>
+ <td><input type="text" id="t2_bw_4" class="table-input" placeholder="4800 × 32 = 153.6 ГБ/с"></td>
+ <td><input type="text" id="t2_lat_4" class="table-input" placeholder="40 × 2000 / 4800 ≈ 16.67 нс"></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ <div style="margin-top: 14px;">
+ <label for="ans_latency_paradox">Аналитический вывод: почему DDR4-3200 CL16 и DDR5-6000 CL30 имеют одинаковую наносекундную задержку (10 нс), но DDR5 значительно быстрее в реальных задачах?</label>
+ <textarea id="ans_latency_paradox" placeholder="Объясните физическую разницу между тактами задержки и пропускной способностью шины, а также роль двух субканалов DDR5..."></textarea>
+ </div>
+ </div>
 
-  <!-- ЗАДАНИЕ 3 -->
-  <div class="task-card">
-    <div class="task-title">Задание 3. Чек-лист проверки аппаратной совместимости подсистемы памяти</div>
-    <div class="task-help">
-      Опишите ключевые контрольные точки, которые обязан проверить инженер-проектировщик при подборе оперативной памяти и твердотельного накопителя NVMe.
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th style="width: 30%;">Контрольный узел / Параметр</th>
-            <th style="width: 70%;">Правило инженерной проверки и допустимые ограничения</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>1. Сокет ЦП и контроллер памяти (IMC)</strong></td>
-            <td><input type="text" id="t3_c1" class="table-input" placeholder="Проверка типа памяти (DDR4 vs DDR5), поддерживаемого встроенным IMC процессора"></td>
-          </tr>
-          <tr>
-            <td><strong>2. Форм-фактор модулей (DIMM vs SO-DIMM)</strong></td>
-            <td><input type="text" id="t3_c2" class="table-input" placeholder="DIMM для десктопов; SO-DIMM для ноутбуков и ультракомпактных плат Mini-ITX"></td>
-          </tr>
-          <tr>
-            <td><strong>3. Топология слотов (Daisy Chain vs T-Topology)</strong></td>
-            <td><input type="text" id="t3_c3" class="table-input" placeholder="На Daisy Chain 2 модуля ставить строго в слоты A2 и B2 во избежание отражения сигналов"></td>
-          </tr>
-          <tr>
-            <td><strong>4. Ранговость (1R vs 2R) и лимиты 1DPC / 2DPC</strong></td>
-            <td><input type="text" id="t3_c4" class="table-input" placeholder="4 планки 2R перегружают шину: контроллер IMC сбрасывает частоту до 3600–4400 МГц"></td>
-          </tr>
-          <tr>
-            <td><strong>5. Профили разгона (XMP 3.0 / AMD EXPO)</strong></td>
-            <td><input type="text" id="t3_c5" class="table-input" placeholder="Проверка поддержки профилей разгона чипсетом материнской платы и стабильности напряжений"></td>
-          </tr>
-          <tr>
-            <td><strong>6. Требования к отказоустойчивости (True ECC)</strong></td>
-            <td><input type="text" id="t3_c6" class="table-input" placeholder="Для серверов и СУБД обязательна поддержка True Sideband ECC процессором и чипсетом"></td>
-          </tr>
-          <tr>
-            <td><strong>7. Интерфейс NVMe SSD и температурный режим</strong></td>
-            <td><input type="text" id="t3_c7" class="table-input" placeholder="Поколение PCIe x4, наличие радиатора на контроллер для исключения троттлинга выше 70°C"></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div style="margin-top: 14px;">
-      <label for="ans_daisy_chain_rule">Объяснение: почему при установке 2 модулей на плату Daisy Chain категорически нельзя использовать слоты A1 и B1?</label>
-      <textarea id="ans_daisy_chain_rule" placeholder="Объясните возникновение открытых участков проводников (stubs), волновое сопротивление шины и помехи отражения..."></textarea>
-    </div>
-  </div>
+ <!-- ЗАДАНИЕ 3 -->
+ <div class="task-card">
+ <div class="task-title">Задание 3. Чек-лист проверки аппаратной совместимости подсистемы памяти</div>
+ <div class="task-help">
+ Опишите ключевые контрольные точки, которые обязан проверить инженер-проектировщик при подборе оперативной памяти и твердотельного накопителя NVMe.
+ </div>
+ <div class="table-wrap">
+ <table>
+ <thead>
+ <tr>
+ <th style="width: 30%;">Контрольный узел / Параметр</th>
+ <th style="width: 70%;">Правило инженерной проверки и допустимые ограничения</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>1. Сокет ЦП и контроллер памяти (IMC)</strong></td>
+ <td><input type="text" id="t3_c1" class="table-input" placeholder="Проверка типа памяти (DDR4 vs DDR5), поддерживаемого встроенным IMC процессора"></td>
+ </tr>
+ <tr>
+ <td><strong>2. Форм-фактор модулей (DIMM vs SO-DIMM)</strong></td>
+ <td><input type="text" id="t3_c2" class="table-input" placeholder="DIMM для десктопов; SO-DIMM для ноутбуков и ультракомпактных плат Mini-ITX"></td>
+ </tr>
+ <tr>
+ <td><strong>3. Топология слотов (Daisy Chain vs T-Topology)</strong></td>
+ <td><input type="text" id="t3_c3" class="table-input" placeholder="На Daisy Chain 2 модуля ставить строго в слоты A2 и B2 во избежание отражения сигналов"></td>
+ </tr>
+ <tr>
+ <td><strong>4. Ранговость (1R vs 2R) и лимиты 1DPC / 2DPC</strong></td>
+ <td><input type="text" id="t3_c4" class="table-input" placeholder="4 планки 2R перегружают шину: контроллер IMC сбрасывает частоту до 3600–4400 МГц"></td>
+ </tr>
+ <tr>
+ <td><strong>5. Профили разгона (XMP 3.0 / AMD EXPO)</strong></td>
+ <td><input type="text" id="t3_c5" class="table-input" placeholder="Проверка поддержки профилей разгона чипсетом материнской платы и стабильности напряжений"></td>
+ </tr>
+ <tr>
+ <td><strong>6. Требования к отказоустойчивости (True ECC)</strong></td>
+ <td><input type="text" id="t3_c6" class="table-input" placeholder="Для серверов и СУБД обязательна поддержка True Sideband ECC процессором и чипсетом"></td>
+ </tr>
+ <tr>
+ <td><strong>7. Интерфейс NVMe SSD и температурный режим</strong></td>
+ <td><input type="text" id="t3_c7" class="table-input" placeholder="Поколение PCIe x4, наличие радиатора на контроллер для исключения троттлинга выше 70°C"></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ <div style="margin-top: 14px;">
+ <label for="ans_daisy_chain_rule">Объяснение: почему при установке 2 модулей на плату Daisy Chain категорически нельзя использовать слоты A1 и B1?</label>
+ <textarea id="ans_daisy_chain_rule" placeholder="Объясните возникновение открытых участков проводников (stubs), волновое сопротивление шины и помехи отражения..."></textarea>
+ </div>
+ </div>
 
-  <!-- ЗАДАНИЕ 4: ИНДИВИДУАЛЬНЫЙ ПРОТОКОЛ ПО ВАРИАНТУ -->
-  <div class="task-card">
-    <div class="task-title">Задание 4. Индивидуальный инженерный протокол подбора памяти под целевую платформу</div>
-    <div class="task-help">
-      Сформируйте спецификацию модулей оперативной памяти и твердотельного накопителя NVMe строго для выбранного варианта платформы.
-    </div>
+ <!-- ЗАДАНИЕ 4: ИНДИВИДУАЛЬНЫЙ ПРОТОКОЛ ПО ВАРИАНТУ -->
+ <div class="task-card">
+ <div class="task-title">Задание 4. Индивидуальный инженерный протокол подбора памяти под целевую платформу</div>
+ <div class="task-help">
+ Сформируйте спецификацию модулей оперативной памяти и твердотельного накопителя NVMe строго для выбранного варианта платформы.
+ </div>
 
-    <div class="variant-card">
-      <div id="display_variant_title" class="variant-title">Вариант не выбран в шапке страницы (выберите вариант в карточке студента выше)</div>
-      <div id="display_variant_desc" style="font-size: 14px; color: var(--muted); margin-bottom: 12px;">
-        Выберите вариант в шапке рабочего листа для отображения технического задания.
-      </div>
-    </div>
+ <div class="variant-card">
+ <div id="display_variant_title" class="variant-title">Вариант не выбран в шапке страницы (выберите вариант в карточке студента выше)</div>
+ <div id="display_variant_desc" style="font-size: 14px; color: var(--muted); margin-bottom: 12px;">
+ Выберите вариант в шапке рабочего листа для отображения технического задания.
+ </div>
+ </div>
 
-    <div style="margin-top: 16px;">
-      <label for="ans_proto_ram">1. Спецификация оперативной памяти (ОЗУ):</label>
-      <textarea id="ans_proto_ram" placeholder="Укажите: стандарт (DDR4/DDR5), объем комплекта, число модулей, форм-фактор (DIMM/SO-DIMM), ранговость (1R/2R), слоты установки (A2/B2), профиль (JEDEC/XMP/EXPO), напряжение, тайминги и расчетную ПСП..."></textarea>
-    </div>
+ <div style="margin-top: 16px;">
+ <label for="ans_proto_ram">1. Спецификация оперативной памяти (ОЗУ):</label>
+ <textarea id="ans_proto_ram" placeholder="Укажите: стандарт (DDR4/DDR5), объем комплекта, число модулей, форм-фактор (DIMM/SO-DIMM), ранговость (1R/2R), слоты установки (A2/B2), профиль (JEDEC/XMP/EXPO), напряжение, тайминги и расчетную ПСП..."></textarea>
+ </div>
 
-    <div style="margin-top: 14px;">
-      <label for="ans_proto_ssd">2. Спецификация накопителя постоянной памяти (NVMe SSD):</label>
-      <textarea id="ans_proto_ssd" placeholder="Укажите: интерфейс и поколение PCIe (3.0/4.0/5.0 x4), объем, тип буфера (DRAM-буфер vs HMB), скорости чтения/записи, требования к радиатору охлаждения и специализированные функции (PLP для серверов)..."></textarea>
-    </div>
+ <div style="margin-top: 14px;">
+ <label for="ans_proto_ssd">2. Спецификация накопителя постоянной памяти (NVMe SSD):</label>
+ <textarea id="ans_proto_ssd" placeholder="Укажите: интерфейс и поколение PCIe (3.0/4.0/5.0 x4), объем, тип буфера (DRAM-буфер vs HMB), скорости чтения/записи, требования к радиатору охлаждения и специализированные функции (PLP для серверов)..."></textarea>
+ </div>
 
-    <div style="margin-top: 14px;">
-      <label for="ans_proto_justification">3. Инженерное обоснование совместимости и защиты от аппаратных узких мест:</label>
-      <textarea id="ans_proto_justification" placeholder="Докажите отсутствие конфликтов: почему не возникнет перегрузки контроллера памяти IMC, почему память заработает на паспортной частоте, как организовано охлаждение контроллера SSD..."></textarea>
-    </div>
-  </div>
+ <div style="margin-top: 14px;">
+ <label for="ans_proto_justification">3. Инженерное обоснование совместимости и защиты от аппаратных узких мест:</label>
+ <textarea id="ans_proto_justification" placeholder="Докажите отсутствие конфликтов: почему не возникнет перегрузки контроллера памяти IMC, почему память заработает на паспортной частоте, как организовано охлаждение контроллера SSD..."></textarea>
+ </div>
+ </div>
 
-  <!-- ПАНЕЛЬ ДЕЙСТВИЙ -->
-  <div class="actions-card">
-    <div class="btn-row">
-      <button class="btn-primary" onclick="saveToLocalStorage(true)">💾 Сохранить черновик</button>
-      <button class="btn-secondary" onclick="window.print()">🖨️ Распечатать / Экспорт в PDF</button>
-      <button class="btn-danger" onclick="confirmReset()">🗑️ Очистить форму</button>
-      <div id="save_status" class="status-msg"></div>
-    </div>
-  </div>
+ <!-- ПАНЕЛЬ ДЕЙСТВИЙ -->
+ <div class="actions-card">
+ <div class="btn-row">
+ <button class="btn-primary" onclick="saveToLocalStorage(true)">💾 Сохранить черновик</button>
+ <button class="btn-secondary" onclick="window.print()">🖨️ Распечатать / Экспорт в PDF</button>
+ <button class="btn-danger" onclick="confirmReset()">🗑️ Очистить форму</button>
+ <div id="save_status" class="status-msg"></div>
+ </div>
+ </div>
 
 </div>
 
 <script>
-  const STORAGE_KEY = 'sie_hw14_zanyatie_data';
-  const FORM_FIELDS = [
-    'student_fio', 'student_group', 'work_date', 'work_variant',
-    't1_volt_ddr4', 't1_volt_ddr5',
-    't1_chan_ddr4', 't1_chan_ddr5',
-    't1_pmic_ddr4', 't1_pmic_ddr5',
-    't1_bl_ddr4', 't1_bl_ddr5',
-    't1_ecc_ddr4', 't1_ecc_ddr5',
-    't1_key_ddr4', 't1_key_ddr5',
-    'ans_ecc_difference',
-    't2_bw_1', 't2_lat_1',
-    't2_bw_2', 't2_lat_2',
-    't2_bw_3', 't2_lat_3',
-    't2_bw_4', 't2_lat_4',
-    'ans_latency_paradox',
-    't3_c1', 't3_c2', 't3_c3', 't3_c4', 't3_c5', 't3_c6', 't3_c7',
-    'ans_daisy_chain_rule',
-    'ans_proto_ram', 'ans_proto_ssd', 'ans_proto_justification'
-  ];
+ const STORAGE_KEY = 'sie_hw14_zanyatie_data';
+ const FORM_FIELDS = [
+ 'student_fio', 'student_group', 'work_date', 'work_variant',
+ 't1_volt_ddr4', 't1_volt_ddr5',
+ 't1_chan_ddr4', 't1_chan_ddr5',
+ 't1_pmic_ddr4', 't1_pmic_ddr5',
+ 't1_bl_ddr4', 't1_bl_ddr5',
+ 't1_ecc_ddr4', 't1_ecc_ddr5',
+ 't1_key_ddr4', 't1_key_ddr5',
+ 'ans_ecc_difference',
+ 't2_bw_1', 't2_lat_1',
+ 't2_bw_2', 't2_lat_2',
+ 't2_bw_3', 't2_lat_3',
+ 't2_bw_4', 't2_lat_4',
+ 'ans_latency_paradox',
+ 't3_c1', 't3_c2', 't3_c3', 't3_c4', 't3_c5', 't3_c6', 't3_c7',
+ 'ans_daisy_chain_rule',
+ 'ans_proto_ram', 'ans_proto_ssd', 'ans_proto_justification'
+ ];
 
-  const VARIANT_DETAILS = {
-    '1': {
-      title: 'Вариант 1: Компактный офисный ПК / Тонкий клиент на базе Mini-ITX / NUC',
-      desc: 'Технические требования: компактный корпус с ограниченным охлаждением, процессор уровня Core i3 / Core 5 Ultra или Ryzen 5 5600G/8500G. Бюджет ограничен. Требуется тишина, умеренное энергопотребление и абсолютная стабильность 24/7. Форм-фактор памяти: SO-DIMM или низкопрофильные DIMM. Накопитель не должен перегреваться без массивного радиатора.'
-    },
-    '2': {
-      title: 'Вариант 2: Игровая станция соревновательного уровня (AMD Socket AM5)',
-      desc: 'Технические требования: процессор AMD Ryzen 7 7800X3D, материнская плата B650 (Daisy Chain). Цель — максимальный FPS и минимальная задержка кадра (0.1% Low) в киберспортивных дисциплинах. Необходим оптимальный баланс частоты и задержки в синхронном режиме контроллера IMC (1:1 UCLK=MCLK). Скоростной NVMe накопитель PCIe 4.0 с DRAM-буфером и радиатором платы.'
-    },
-    '3': {
-      title: 'Вариант 3: Профессиональная рабочая станция 3D-графики, CAD/CAM и видеомонтажа 4K/8K (LGA1700)',
-      desc: 'Технические требования: процессор Intel Core i9-14900K, материнская плата Z790 (Daisy Chain). Требуемый объем памяти: 64–96–128 ГБ. Задача: разрешить архитектурную дилемму между 4 планками 2R (риск падения частоты до 4400 МГц) и non-binary комплектом 2×48GB. Скоростной рабочий диск PCIe 5.0 / 4.0 под scratch disk с защитой от перегрева.'
-    },
-    '4': {
-      title: 'Вариант 4: Сервер баз данных начального уровня / Надежное сетевое хранилище (NAS)',
-      desc: 'Технические требования: платформа AMD EPYC 4004 / Ryzen Pro или Intel Xeon E-2300, серверная плата. Непрерывная работа 24/7/365, нулевая терпимость к сбоям данных. Обязательна поддержка True Sideband ECC (DDR5 ECC UDIMM). Накопитель NVMe корпоративного класса с аппаратной защитой от потери питания (PLP) и высоким ресурсом записи DWPD.'
-    }
-  };
+ const VARIANT_DETAILS = {
+ '1': {
+ title: 'Вариант 1: Компактный офисный ПК / Тонкий клиент на базе Mini-ITX / NUC',
+ desc: 'Технические требования: компактный корпус с ограниченным охлаждением, процессор уровня Core i3 / Core 5 Ultra или Ryzen 5 5600G/8500G. Бюджет ограничен. Требуется тишина, умеренное энергопотребление и абсолютная стабильность 24/7. Форм-фактор памяти: SO-DIMM или низкопрофильные DIMM. Накопитель не должен перегреваться без массивного радиатора.'
+ },
+ '2': {
+ title: 'Вариант 2: Игровая станция соревновательного уровня (AMD Socket AM5)',
+ desc: 'Технические требования: процессор AMD Ryzen 7 7800X3D, материнская плата B650 (Daisy Chain). Цель — максимальный FPS и минимальная задержка кадра (0.1% Low) в киберспортивных дисциплинах. Необходим оптимальный баланс частоты и задержки в синхронном режиме контроллера IMC (1:1 UCLK=MCLK). Скоростной NVMe накопитель PCIe 4.0 с DRAM-буфером и радиатором платы.'
+ },
+ '3': {
+ title: 'Вариант 3: Профессиональная рабочая станция 3D-графики, CAD/CAM и видеомонтажа 4K/8K (LGA1700)',
+ desc: 'Технические требования: процессор Intel Core i9-14900K, материнская плата Z790 (Daisy Chain). Требуемый объем памяти: 64–96–128 ГБ. Задача: разрешить архитектурную дилемму между 4 планками 2R (риск падения частоты до 4400 МГц) и non-binary комплектом 2×48GB. Скоростной рабочий диск PCIe 5.0 / 4.0 под scratch disk с защитой от перегрева.'
+ },
+ '4': {
+ title: 'Вариант 4: Сервер баз данных начального уровня / Надежное сетевое хранилище (NAS)',
+ desc: 'Технические требования: платформа AMD EPYC 4004 / Ryzen Pro или Intel Xeon E-2300, серверная плата. Непрерывная работа 24/7/365, нулевая терпимость к сбоям данных. Обязательна поддержка True Sideband ECC (DDR5 ECC UDIMM). Накопитель NVMe корпоративного класса с аппаратной защитой от потери питания (PLP) и высоким ресурсом записи DWPD.'
+ }
+ };
 
-  function updateVariantSelection() {
-    const sel = document.getElementById('work_variant');
-    const val = sel.value;
-    const titleElem = document.getElementById('display_variant_title');
-    const descElem = document.getElementById('display_variant_desc');
-    const printElem = document.getElementById('print_work_variant');
+ function updateVariantSelection() {
+ const sel = document.getElementById('work_variant');
+ const val = sel.value;
+ const titleElem = document.getElementById('display_variant_title');
+ const descElem = document.getElementById('display_variant_desc');
+ const printElem = document.getElementById('print_work_variant');
 
-    if (val && VARIANT_DETAILS[val]) {
-      titleElem.textContent = VARIANT_DETAILS[val].title;
-      descElem.textContent = VARIANT_DETAILS[val].desc;
-      printElem.textContent = sel.options[sel.selectedIndex].text;
-    } else {
-      titleElem.textContent = 'Вариант не выбран в шапке страницы (выберите вариант в карточке студента выше)';
-      descElem.textContent = 'Выберите вариант в шапке рабочего листа для отображения технического задания.';
-      printElem.textContent = 'Вариант не выбран';
-    }
-    saveToLocalStorage(false);
-  }
+ if (val && VARIANT_DETAILS[val]) {
+ titleElem.textContent = VARIANT_DETAILS[val].title;
+ descElem.textContent = VARIANT_DETAILS[val].desc;
+ printElem.textContent = sel.options[sel.selectedIndex].text;
+ } else {
+ titleElem.textContent = 'Вариант не выбран в шапке страницы (выберите вариант в карточке студента выше)';
+ descElem.textContent = 'Выберите вариант в шапке рабочего листа для отображения технического задания.';
+ printElem.textContent = 'Вариант не выбран';
+ }
+ saveToLocalStorage(false);
+ }
 
-  function saveToLocalStorage(showFeedback) {
-    const data = {};
-    FORM_FIELDS.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) data[id] = el.value;
-    });
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      if (showFeedback) {
-        const status = document.getElementById('save_status');
-        status.textContent = '✓ Сохранено в браузере';
-        status.className = 'status-msg status-saved';
-        setTimeout(() => { status.textContent = ''; }, 3000);
-      }
-    } catch (e) {
-      console.warn('LocalStorage error:', e);
-    }
-  }
+ function saveToLocalStorage(showFeedback) {
+ const data = {};
+ FORM_FIELDS.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) data[id] = el.value;
+ });
+ try {
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ if (showFeedback) {
+ const status = document.getElementById('save_status');
+ status.textContent = '✓ Сохранено в браузере';
+ status.className = 'status-msg status-saved';
+ setTimeout(() => { status.textContent = ''; }, 3000);
+ }
+ } catch (e) {
+ console.warn('LocalStorage error:', e);
+ }
+ }
 
-  function loadFromLocalStorage() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const data = JSON.parse(raw);
-        FORM_FIELDS.forEach(id => {
-          if (data[id] !== undefined) {
-            const el = document.getElementById(id);
-            if (el) el.value = data[id];
-          }
-        });
-      }
-    } catch (e) {
-      console.warn('LocalStorage load error:', e);
-    }
-    updateVariantSelection();
-  }
+ function loadFromLocalStorage() {
+ try {
+ const raw = localStorage.getItem(STORAGE_KEY);
+ if (raw) {
+ const data = JSON.parse(raw);
+ FORM_FIELDS.forEach(id => {
+ if (data[id] !== undefined) {
+ const el = document.getElementById(id);
+ if (el) el.value = data[id];
+ }
+ });
+ }
+ } catch (e) {
+ console.warn('LocalStorage load error:', e);
+ }
+ updateVariantSelection();
+ }
 
-  function confirmReset() {
-    if (confirm('Внимание! Все введенные данные в практическом бланке будут безвозвратно удалены. Продолжить очистку?')) {
-      FORM_FIELDS.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-      });
-      try {
-        localStorage.removeItem(STORAGE_KEY);
-      } catch (e) {}
-      updateVariantSelection();
-      const status = document.getElementById('save_status');
-      status.textContent = 'Форма очищена';
-      status.className = 'status-msg';
-      setTimeout(() => { status.textContent = ''; }, 3000);
-    }
-  }
+ function confirmReset() {
+ if (confirm('Внимание! Все введенные данные в практическом бланке будут безвозвратно удалены. Продолжить очистку?')) {
+ FORM_FIELDS.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) el.value = '';
+ });
+ try {
+ localStorage.removeItem(STORAGE_KEY);
+ } catch (e) {}
+ updateVariantSelection();
+ const status = document.getElementById('save_status');
+ status.textContent = 'Форма очищена';
+ status.className = 'status-msg';
+ setTimeout(() => { status.textContent = ''; }, 3000);
+ }
+ }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    loadFromLocalStorage();
-    FORM_FIELDS.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener('input', () => saveToLocalStorage(false));
-        el.addEventListener('change', () => saveToLocalStorage(false));
-      }
-    });
-  });
+ document.addEventListener('DOMContentLoaded', () => {
+ loadFromLocalStorage();
+ FORM_FIELDS.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) {
+ el.addEventListener('input', () => saveToLocalStorage(false));
+ el.addEventListener('change', () => saveToLocalStorage(false));
+ }
+ });
+ });
 
-  window.addEventListener('beforeprint', () => {
-    updateVariantSelection();
-  });
+ window.addEventListener('beforeprint', () => {
+ updateVariantSelection();
+ });
 </script>
 </body>
 </html>

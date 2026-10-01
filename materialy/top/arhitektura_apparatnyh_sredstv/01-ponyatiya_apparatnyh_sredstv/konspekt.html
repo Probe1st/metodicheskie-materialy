@@ -1,1326 +1,1199 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Конспект преподавателя — Понятия аппаратных средств ЭВМ и архитектура аппаратных средств</title>
-  <style>
-    :root {
-      --bg-canvas: #f6f8fb;
-      --bg-surface: #ffffff;
-      --bg-subtle: #edf2f9;
-      --border-subtle: #d7e0ea;
-      --border-strong: #9ab4d0;
-      --text-main: #14213d;
-      --text-muted: #4a5c73;
-      --text-soft: #6c7e95;
-      --accent-primary: #1d4ed8;
-      --accent-primary-light: #eff6ff;
-      --accent-teal: #0f766e;
-      --accent-teal-light: #f0fdfa;
-      --accent-amber: #b45309;
-      --accent-amber-light: #fffbeb;
-      --accent-rose: #be123c;
-      --accent-rose-light: #fff1f2;
-      --accent-slate: #334155;
-      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
-      --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.08);
-      --radius-sm: 6px;
-      --radius-md: 10px;
-      --radius-lg: 14px;
-      --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-    }
-
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      background-color: var(--bg-canvas);
-      color: var(--text-main);
-      font-family: var(--font-body);
-      font-size: 16px;
-      line-height: 1.6;
-      padding: 24px 16px;
-    }
-
-    .container {
-      max-width: 1080px;
-      margin: 0 auto;
-    }
-
-    header.doc-header {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      padding: 32px 36px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .topic-badge {
-      display: inline-block;
-      padding: 4px 12px;
-      background: var(--accent-primary-light);
-      color: var(--accent-primary);
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      border-radius: var(--radius-sm);
-      margin-bottom: 12px;
-    }
-
-    h1 {
-      font-size: 28px;
-      font-weight: 800;
-      line-height: 1.25;
-      color: var(--text-main);
-      margin-bottom: 12px;
-    }
-
-    .doc-lead {
-      font-size: 17px;
-      color: var(--text-muted);
-      max-width: 900px;
-      margin-bottom: 20px;
-    }
-
-    .meta-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 12px;
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border-subtle);
-    }
-
-    .meta-card {
-      background: var(--bg-subtle);
-      border-radius: var(--radius-sm);
-      padding: 10px 14px;
-    }
-
-    .meta-card .label {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--text-soft);
-      font-weight: 600;
-      display: block;
-      margin-bottom: 2px;
-    }
-
-    .meta-card .value {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text-main);
-    }
-
-    /* Timing bar */
-    .timeline-summary {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 20px 24px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .timeline-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text-main);
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .timing-strip {
-      display: flex;
-      height: 28px;
-      border-radius: var(--radius-sm);
-      overflow: hidden;
-      margin-bottom: 12px;
-      border: 1px solid var(--border-subtle);
-    }
-
-    .timing-segment {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffffff;
-      font-size: 12px;
-      font-weight: 700;
-      transition: opacity 0.2s ease;
-      cursor: default;
-    }
-
-    .seg-1 { background-color: #64748b; width: 5.5%; }   /* 5 min */
-    .seg-2 { background-color: #1d4ed8; width: 33.3%; }  /* 30 min */
-    .seg-3 { background-color: #0f766e; width: 22.2%; }  /* 20 min */
-    .seg-4 { background-color: #d97706; width: 22.2%; }  /* 20 min */
-    .seg-5 { background-color: #7c3aed; width: 11.1%; }  /* 10 min */
-    .seg-6 { background-color: #475569; width: 5.5%; }   /* 5 min */
-
-    .timing-legend {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 8px 14px;
-      font-size: 13px;
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--text-muted);
-    }
-
-    .legend-color {
-      width: 12px;
-      height: 12px;
-      border-radius: 3px;
-      flex-shrink: 0;
-    }
-
-    .quick-nav {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 16px 20px;
-      margin-bottom: 28px;
-    }
-
-    .quick-nav-title {
-      font-size: 13px;
-      text-transform: uppercase;
-      font-weight: 700;
-      color: var(--text-soft);
-      letter-spacing: 0.05em;
-      margin-bottom: 10px;
-    }
-
-    .quick-nav-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .quick-nav-links a {
-      display: inline-block;
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 600;
-      padding: 4px 10px;
-      background: var(--bg-subtle);
-      color: var(--text-main);
-      border-radius: var(--radius-sm);
-      transition: background 0.15s ease, color 0.15s ease;
-    }
-
-    .quick-nav-links a:hover {
-      background: var(--accent-primary);
-      color: #ffffff;
-    }
-
-    /* Section Styles */
-    section.stage-card {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      padding: 32px;
-      margin-bottom: 28px;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .stage-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 20px;
-      padding-bottom: 16px;
-      border-bottom: 2px solid var(--bg-subtle);
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .stage-title-wrap {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .stage-number {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 38px;
-      height: 38px;
-      background: var(--accent-primary);
-      color: #ffffff;
-      font-size: 16px;
-      font-weight: 800;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    h2 {
-      font-size: 22px;
-      font-weight: 800;
-      color: var(--text-main);
-      line-height: 1.3;
-    }
-
-    .stage-duration {
-      font-size: 13px;
-      font-weight: 700;
-      padding: 6px 12px;
-      border-radius: var(--radius-sm);
-      background: var(--bg-subtle);
-      color: var(--text-muted);
-      border: 1px solid var(--border-subtle);
-      white-space: nowrap;
-    }
-
-    h3 {
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--text-main);
-      margin: 24px 0 12px 0;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    h3::before {
-      content: "";
-      display: inline-block;
-      width: 4px;
-      height: 16px;
-      background: var(--accent-primary);
-      border-radius: 2px;
-    }
-
-    p {
-      margin-bottom: 14px;
-      color: var(--text-main);
-    }
-
-    /* Pedagogical Blocks */
-    .speech-box {
-      background: #f8fafc;
-      border-left: 4px solid var(--accent-primary);
-      border-radius: 0 var(--radius-md) var(--radius-md) 0;
-      padding: 16px 20px;
-      margin: 16px 0;
-      font-size: 15.5px;
-      color: #1e293b;
-    }
-
-    .speech-box .speaker-tag {
-      font-size: 12px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--accent-primary);
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .demo-box {
-      background: var(--accent-teal-light);
-      border: 1px solid #99f6e4;
-      border-left: 4px solid var(--accent-teal);
-      border-radius: var(--radius-sm);
-      padding: 18px 20px;
-      margin: 18px 0;
-    }
-
-    .demo-box .demo-title {
-      font-size: 14px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--accent-teal);
-      margin-bottom: 8px;
-    }
-
-    .warning-box {
-      background: var(--accent-rose-light);
-      border: 1px solid #fecdd3;
-      border-left: 4px solid var(--accent-rose);
-      border-radius: var(--radius-sm);
-      padding: 16px 20px;
-      margin: 18px 0;
-    }
-
-    .warning-box .warning-title {
-      font-size: 14px;
-      font-weight: 800;
-      color: var(--accent-rose);
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    .qa-card {
-      background: #ffffff;
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 16px 18px;
-      margin-bottom: 14px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-    }
-
-    .qa-card .question-text {
-      font-weight: 700;
-      color: var(--accent-primary);
-      margin-bottom: 8px;
-      font-size: 15px;
-    }
-
-    .qa-card .answer-analysis {
-      font-size: 14.5px;
-      color: var(--text-muted);
-      border-top: 1px dashed var(--border-subtle);
-      padding-top: 8px;
-      margin-top: 8px;
-    }
-
-    .qa-card .answer-tag {
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      padding: 2px 6px;
-      border-radius: 4px;
-      display: inline-block;
-      margin-right: 6px;
-    }
-
-    .tag-correct { background: #dcfce7; color: #166534; }
-    .tag-wrong { background: #fee2e2; color: #991b1b; }
-    .tag-partial { background: #fef3c7; color: #92400e; }
-
-    /* Comparison Table */
-    /* Comparison Table & Local Scroll */
-    .table-container {
-      width: 100%;
-      max-width: 100%;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      margin: 18px 0;
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-    }
-    table.data-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14.5px;
-      text-align: left;
-    }
-
-    table.data-table th, table.data-table td {
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--border-subtle);
-      vertical-align: top;
-    }
-
-    table.data-table th {
-      background: var(--bg-subtle);
-      color: var(--text-main);
-      font-weight: 700;
-      font-size: 13.5px;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-    }
-
-    table.data-table tr:last-child td {
-      border-bottom: none;
-    }
-
-    table.data-table tr:hover {
-      background: #f8fafc;
-    }
-
-    /* Diagram Styles */
-    .diagram-container {
-      background: #ffffff;
-      border: 2px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 24px;
-      margin: 22px 0;
-    }
-
-    .diagram-caption {
-      font-size: 13.5px;
-      font-weight: 700;
-      color: var(--text-soft);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 16px;
-      text-align: center;
-    }
-
-    .flow-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 16px;
-    }
-
-    @media (min-width: 820px) {
-      .flow-grid {
-        grid-template-columns: repeat(4, 1fr);
-      }
-    }
-
-    .flow-node {
-      background: var(--bg-subtle);
-      border: 1px solid var(--border-strong);
-      border-radius: var(--radius-md);
-      padding: 16px 14px;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    .flow-node.highlight-volatile {
-      border-color: #f59e0b;
-      background: #fffbeb;
-    }
-
-    .flow-node.highlight-nonvolatile {
-      border-color: #10b981;
-      background: #ecfdf5;
-    }
-
-    .flow-node .node-step {
-      font-size: 11px;
-      font-weight: 800;
-      text-transform: uppercase;
-      color: var(--text-soft);
-      margin-bottom: 4px;
-    }
-
-    .flow-node .node-title {
-      font-size: 15px;
-      font-weight: 800;
-      color: var(--text-main);
-      margin-bottom: 6px;
-    }
-
-    .flow-node .node-desc {
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.4;
-    }
-
-    .flow-connector {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 6px 0;
-      color: var(--accent-primary);
-      font-weight: 800;
-      font-size: 18px;
-    }
-
-    @media (min-width: 820px) {
-      .flow-connector {
-        display: none;
-      }
-    }
-
-    .diagram-note {
-      margin-top: 16px;
-      padding: 12px 14px;
-      background: #f1f5f9;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.5;
-    }
-
-    /* Rubric / Criteria Table */
-    .criteria-block {
-      background: #f8fafc;
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 20px;
-      margin: 18px 0;
-    }
-
-    .rubric-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 12px;
-      margin-top: 12px;
-    }
-
-    .rubric-card {
-      background: #ffffff;
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      padding: 14px;
-    }
-
-    .rubric-card .score {
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--accent-primary);
-      margin-bottom: 4px;
-    }
-
-    .rubric-card .title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text-main);
-      margin-bottom: 6px;
-    }
-
-    .rubric-card .desc {
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.4;
-    }
-
-    /* Interactive controls */
-    .controls-panel {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 16px 0;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      font-size: 13.5px;
-      font-weight: 600;
-      border-radius: var(--radius-sm);
-      border: 1px solid transparent;
-      cursor: pointer;
-      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-      background: #ffffff;
-      color: var(--text-main);
-      border-color: var(--border-subtle);
-    }
-
-    .btn:hover {
-      background: var(--bg-subtle);
-      border-color: var(--border-strong);
-    }
-
-    .btn-primary {
-      background: var(--accent-primary);
-      color: #ffffff;
-    }
-
-    .btn-primary:hover {
-      background: #1e40af;
-      border-color: #1e40af;
-    }
-
-    .badge-timing {
-      display: inline-block;
-      font-size: 12px;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 4px;
-      background: #e2e8f0;
-      color: #334155;
-      margin-right: 6px;
-    }
-
-    /* Mobile viewports */
-    @media (max-width: 640px) {
-      body {
-        padding: 12px 8px;
-      }
-      header.doc-header {
-        padding: 20px 16px;
-      }
-      section.stage-card {
-        padding: 18px 14px;
-      }
-      .timeline-summary {
-        padding: 16px 14px;
-      }
-      .stage-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-      }
-      .stage-title-wrap {
-        align-items: flex-start;
-        width: 100%;
-      }
-      .stage-duration {
-        white-space: normal;
-        display: inline-block;
-        max-width: 100%;
-        word-break: break-word;
-      }
-      table.data-table {
-        min-width: 540px;
-      }
-    }
-
-    /* Print styles */
-    @media print {
-      body {
-        background: #ffffff;
-        color: #000000;
-        padding: 0;
-        font-size: 12pt;
-      }
-      .container {
-        max-width: 100%;
-      }
-      .controls-panel, .quick-nav, .timing-strip {
-        display: none !important;
-      }
-      header.doc-header, section.stage-card, .timeline-summary {
-        box-shadow: none !important;
-        border: 1px solid #cccccc !important;
-        page-break-inside: avoid;
-        margin-bottom: 16pt;
-        padding: 16pt;
-      }
-      a {
-        text-decoration: none;
-        color: #000000;
-      }
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Конспект преподавателя — Понятия аппаратных средств ЭВМ и архитектура аппаратных средств</title>
+ <style>
+ :root {
+ --bg-canvas: #f6f8fb;
+ --bg-surface: #ffffff;
+ --bg-subtle: #edf2f9;
+ --border-subtle: #d7e0ea;
+ --border-strong: #9ab4d0;
+ --text-main: #14213d;
+ --text-muted: #4a5c73;
+ --text-soft: #6c7e95;
+ --accent-primary: #1d4ed8;
+ --accent-primary-light: #eff6ff;
+ --accent-teal: #0f766e;
+ --accent-teal-light: #f0fdfa;
+ --accent-amber: #b45309;
+ --accent-amber-light: #fffbeb;
+ --accent-rose: #be123c;
+ --accent-rose-light: #fff1f2;
+ --accent-slate: #334155;
+ --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
+ --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.08);
+ --radius-sm: 6px;
+ --radius-md: 10px;
+ --radius-lg: 14px;
+ --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+ --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+ }
+
+ *, *::before, *::after {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ }
+
+ body {
+ background-color: var(--bg-canvas);
+ color: var(--text-main);
+ font-family: var(--font-body);
+ font-size: 16px;
+ line-height: 1.6;
+ padding: 24px 16px;
+ }.container {
+ max-width: 1080px;
+ margin: 0 auto;
+ }
+
+ header.doc-header {
+ background: var(--bg-surface);
+ border: 1px solid var(--border-subtle);
+ border-radius: var(--radius-lg);
+ padding: 32px 36px;
+ margin-bottom: 24px;
+ box-shadow: var(--shadow-sm);
+ }.topic-badge {
+ display: inline-block;
+ padding: 4px 12px;
+ background: var(--accent-primary-light);
+ color: var(--accent-primary);
+ font-size: 13px;
+ font-weight: 700;
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+ border-radius: var(--radius-sm);
+ margin-bottom: 12px;
+ }
+
+ h1 {
+ font-size: 28px;
+ font-weight: 800;
+ line-height: 1.25;
+ color: var(--text-main);
+ margin-bottom: 12px;
+ }.doc-lead {
+ font-size: 17px;
+ color: var(--text-muted);
+ max-width: 900px;
+ margin-bottom: 20px;
+ }.meta-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+ gap: 12px;
+ margin-top: 16px;
+ padding-top: 16px;
+ border-top: 1px solid var(--border-subtle);
+ }.meta-card {
+ background: var(--bg-subtle);
+ border-radius: var(--radius-sm);
+ padding: 10px 14px;
+ }.meta-card.label {
+ font-size: 12px;
+ text-transform: uppercase;
+ letter-spacing: 0.04em;
+ color: var(--text-soft);
+ font-weight: 600;
+ display: block;
+ margin-bottom: 2px;
+ }.meta-card.value {
+ font-size: 14px;
+ font-weight: 700;
+ color: var(--text-main);
+ }
+
+ /* Timing bar */.timeline-summary {
+ background: var(--bg-surface);
+ border: 1px solid var(--border-subtle);
+ border-radius: var(--radius-md);
+ padding: 20px 24px;
+ margin-bottom: 24px;
+ box-shadow: var(--shadow-sm);
+ }.timeline-title {
+ font-size: 15px;
+ font-weight: 700;
+ color: var(--text-main);
+ margin-bottom: 12px;
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ flex-wrap: wrap;
+ gap: 8px;
+ }.timing-strip {
+ display: flex;
+ height: 28px;
+ border-radius: var(--radius-sm);
+ overflow: hidden;
+ margin-bottom: 12px;
+ border: 1px solid var(--border-subtle);
+ }.timing-segment {
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ color: #ffffff;
+ font-size: 12px;
+ font-weight: 700;
+ transition: opacity 0.2s ease;
+ cursor: default;
+ }.seg-1 { background-color: #64748b; width: 5.5%; } /* 5 min */.seg-2 { background-color: #1d4ed8; width: 33.3%; } /* 30 min */.seg-3 { background-color: #0f766e; width: 22.2%; } /* 20 min */.seg-4 { background-color: #d97706; width: 22.2%; } /* 20 min */.seg-5 { background-color: #7c3aed; width: 11.1%; } /* 10 min */.seg-6 { background-color: #475569; width: 5.5%; } /* 5 min */.timing-legend {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+ gap: 8px 14px;
+ font-size: 13px;
+ }.legend-item {
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ color: var(--text-muted);
+ }.legend-color {
+ width: 12px;
+ height: 12px;
+ border-radius: 3px;
+ flex-shrink: 0;
+ }.quick-nav {
+ background: var(--bg-surface);
+ border: 1px solid var(--border-subtle);
+ border-radius: var(--radius-md);
+ padding: 16px 20px;
+ margin-bottom: 28px;
+ }.quick-nav-title {
+ font-size: 13px;
+ text-transform: uppercase;
+ font-weight: 700;
+ color: var(--text-soft);
+ letter-spacing: 0.05em;
+ margin-bottom: 10px;
+ }.quick-nav-links {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 8px;
+ }.quick-nav-links a {
+ display: inline-block;
+ text-decoration: none;
+ font-size: 13px;
+ font-weight: 600;
+ padding: 4px 10px;
+ background: var(--bg-subtle);
+ color: var(--text-main);
+ border-radius: var(--radius-sm);
+ transition: background 0.15s ease, color 0.15s ease;
+ }.quick-nav-links a:hover {
+ background: var(--accent-primary);
+ color: #ffffff;
+ }
+
+ /* Section Styles */
+ section.stage-card {
+ background: var(--bg-surface);
+ border: 1px solid var(--border-subtle);
+ border-radius: var(--radius-lg);
+ padding: 32px;
+ margin-bottom: 28px;
+ box-shadow: var(--shadow-sm);
+ }.stage-header {
+ display: flex;
+ justify-content: space-between;
+ align-items: flex-start;
+ margin-bottom: 20px;
+ padding-bottom: 16px;
+ border-bottom: 2px solid var(--bg-subtle);
+ flex-wrap: wrap;
+ gap: 12px;
+ }.stage-title-wrap {
+ display: flex;
+ align-items: center;
+ gap: 12px;
+ }.stage-number {
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ width: 38px;
+ height: 38px;
+ background: var(--accent-primary);
+ color: #ffffff;
+ font-size: 16px;
+ font-weight: 800;
+ border-radius: 50%;
+ flex-shrink: 0;
+ }
+
+ h2 {
+ font-size: 22px;
+ font-weight: 800;
+ color: var(--text-main);
+ line-height: 1.3;
+ }.stage-duration {
+ font-size: 13px;
+ font-weight: 700;
+ padding: 6px 12px;
+ border-radius: var(--radius-sm);
+ background: var(--bg-subtle);
+ color: var(--text-muted);
+ border: 1px solid var(--border-subtle);
+ white-space: nowrap;
+ }
+
+ h3 {
+ font-size: 17px;
+ font-weight: 700;
+ color: var(--text-main);
+ margin: 24px 0 12px 0;
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ }
+
+ h3::before {
+ content: "";
+ display: inline-block;
+ width: 4px;
+ height: 16px;
+ background: var(--accent-primary);
+ border-radius: 2px;
+ }
+
+ p {
+ margin-bottom: 14px;
+ color: var(--text-main);
+ }
+
+ /* Pedagogical Blocks */.speech-box {
+ background: #f8fafc;
+ border-left: 4px solid var(--accent-primary);
+ border-radius: 0 var(--radius-md) var(--radius-md) 0;
+ padding: 16px 20px;
+ margin: 16px 0;
+ font-size: 15.5px;
+ color: #1e293b;
+ }.speech-box.speaker-tag {
+ font-size: 12px;
+ font-weight: 800;
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+ color: var(--accent-primary);
+ margin-bottom: 6px;
+ display: flex;
+ align-items: center;
+ gap: 6px;
+ }.demo-box {
+ background: var(--accent-teal-light);
+ border: 1px solid #99f6e4;
+ border-left: 4px solid var(--accent-teal);
+ border-radius: var(--radius-sm);
+ padding: 18px 20px;
+ margin: 18px 0;
+ }.demo-box.demo-title {
+ font-size: 14px;
+ font-weight: 800;
+ text-transform: uppercase;
+ letter-spacing: 0.04em;
+ color: var(--accent-teal);
+ margin-bottom: 8px;
+ }.warning-box {
+ background: var(--accent-rose-light);
+ border: 1px solid #fecdd3;
+ border-left: 4px solid var(--accent-rose);
+ border-radius: var(--radius-sm);
+ padding: 16px 20px;
+ margin: 18px 0;
+ }.warning-box.warning-title {
+ font-size: 14px;
+ font-weight: 800;
+ color: var(--accent-rose);
+ margin-bottom: 6px;
+ text-transform: uppercase;
+ letter-spacing: 0.04em;
+ }.qa-card {
+ background: #ffffff;
+ border: 1px solid var(--border-subtle);
+ border-radius: var(--radius-md);
+ padding: 16px 18px;
+ margin-bottom: 14px;
+ box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+ }.qa-card.question-text {
+ font-weight: 700;
+ color: var(--accent-primary);
+ margin-bottom: 8px;
+ font-size: 15px;
+ }.qa-card.answer-analysis {
+ font-size: 14.5px;
+ color: var(--text-muted);
+ border-top: 1px dashed var(--border-subtle);
+ padding-top: 8px;
+ margin-top: 8px;
+ }.qa-card.answer-tag {
+ font-size: 12px;
+ font-weight: 700;
+ text-transform: uppercase;
+ padding: 2px 6px;
+ border-radius: 4px;
+ display: inline-block;
+ margin-right: 6px;
+ }.tag-correct { background: #dcfce7; color: #166534; }.tag-wrong { background: #fee2e2; color: #991b1b; }.tag-partial { background: #fef3c7; color: #92400e; }
+
+ /* Comparison Table */
+ /* Comparison Table & Local Scroll */.table-container {
+ width: 100%;
+ max-width: 100%;
+ overflow-x: auto;
+ -webkit-overflow-scrolling: touch;
+ margin: 18px 0;
+ border: 1px solid var(--border-subtle);
+ border-radius: var(--radius-md);
+ }
+ table.data-table {
+ width: 100%;
+ border-collapse: collapse;
+ font-size: 14.5px;
+ text-align: left;
+ }
+
+ table.data-table th, table.data-table td {
+ padding: 12px 14px;
+ border-bottom: 1px solid var(--border-subtle);
+ vertical-align: top;
+ }
+
+ table.data-table th {
+ background: var(--bg-subtle);
+ color: var(--text-main);
+ font-weight: 700;
+ font-size: 13.5px;
+ text-transform: uppercase;
+ letter-spacing: 0.03em;
+ }
+
+ table.data-table tr:last-child td {
+ border-bottom: none;
+ }
+
+ table.data-table tr:hover {
+ background: #f8fafc;
+ }
+
+ /* Diagram Styles */.diagram-container {
+ background: #ffffff;
+ border: 2px solid var(--border-subtle);
+ border-radius: var(--radius-md);
+ padding: 24px;
+ margin: 22px 0;
+ }.diagram-caption {
+ font-size: 13.5px;
+ font-weight: 700;
+ color: var(--text-soft);
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+ margin-bottom: 16px;
+ text-align: center;
+ }.flow-grid {
+ display: grid;
+ grid-template-columns: 1fr;
+ gap: 16px;
+ }
+
+ @media (min-width: 820px) {.flow-grid {
+ grid-template-columns: repeat(4, 1fr);
+ }
+ }.flow-node {
+ background: var(--bg-subtle);
+ border: 1px solid var(--border-strong);
+ border-radius: var(--radius-md);
+ padding: 16px 14px;
+ position: relative;
+ display: flex;
+ flex-direction: column;
+ justify-content: space-between;
+ }.flow-node.highlight-volatile {
+ border-color: #f59e0b;
+ background: #fffbeb;
+ }.flow-node.highlight-nonvolatile {
+ border-color: #10b981;
+ background: #ecfdf5;
+ }.flow-node.node-step {
+ font-size: 11px;
+ font-weight: 800;
+ text-transform: uppercase;
+ color: var(--text-soft);
+ margin-bottom: 4px;
+ }.flow-node.node-title {
+ font-size: 15px;
+ font-weight: 800;
+ color: var(--text-main);
+ margin-bottom: 6px;
+ }.flow-node.node-desc {
+ font-size: 13px;
+ color: var(--text-muted);
+ line-height: 1.4;
+ }.flow-connector {
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ padding: 6px 0;
+ color: var(--accent-primary);
+ font-weight: 800;
+ font-size: 18px;
+ }
+
+ @media (min-width: 820px) {.flow-connector {
+ display: none;
+ }
+ }.diagram-note {
+ margin-top: 16px;
+ padding: 12px 14px;
+ background: #f1f5f9;
+ border-radius: var(--radius-sm);
+ font-size: 13px;
+ color: var(--text-muted);
+ line-height: 1.5;
+ }
+
+ /* Rubric / Criteria Table */.criteria-block {
+ background: #f8fafc;
+ border: 1px solid var(--border-subtle);
+ border-radius: var(--radius-md);
+ padding: 20px;
+ margin: 18px 0;
+ }.rubric-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+ gap: 12px;
+ margin-top: 12px;
+ }.rubric-card {
+ background: #ffffff;
+ border: 1px solid var(--border-subtle);
+ border-radius: var(--radius-sm);
+ padding: 14px;
+ }.rubric-card.score {
+ font-size: 18px;
+ font-weight: 800;
+ color: var(--accent-primary);
+ margin-bottom: 4px;
+ }.rubric-card.title {
+ font-size: 14px;
+ font-weight: 700;
+ color: var(--text-main);
+ margin-bottom: 6px;
+ }.rubric-card.desc {
+ font-size: 13px;
+ color: var(--text-muted);
+ line-height: 1.4;
+ }
+
+ /* Interactive controls */.controls-panel {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 10px;
+ margin: 16px 0;
+ }.btn {
+ display: inline-flex;
+ align-items: center;
+ gap: 6px;
+ padding: 8px 16px;
+ font-size: 13.5px;
+ font-weight: 600;
+ border-radius: var(--radius-sm);
+ border: 1px solid transparent;
+ cursor: pointer;
+ transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+ background: #ffffff;
+ color: var(--text-main);
+ border-color: var(--border-subtle);
+ }.btn:hover {
+ background: var(--bg-subtle);
+ border-color: var(--border-strong);
+ }.btn-primary {
+ background: var(--accent-primary);
+ color: #ffffff;
+ }.btn-primary:hover {
+ background: #1e40af;
+ border-color: #1e40af;
+ }.badge-timing {
+ display: inline-block;
+ font-size: 12px;
+ font-weight: 700;
+ padding: 2px 6px;
+ border-radius: 4px;
+ background: #e2e8f0;
+ color: #334155;
+ margin-right: 6px;
+ }
+
+ /* Mobile viewports */
+ @media (max-width: 640px) {
+ body {
+ padding: 12px 8px;
+ }
+ header.doc-header {
+ padding: 20px 16px;
+ }
+ section.stage-card {
+ padding: 18px 14px;
+ }.timeline-summary {
+ padding: 16px 14px;
+ }.stage-header {
+ flex-direction: column;
+ align-items: flex-start;
+ gap: 10px;
+ }.stage-title-wrap {
+ align-items: flex-start;
+ width: 100%;
+ }.stage-duration {
+ white-space: normal;
+ display: inline-block;
+ max-width: 100%;
+ word-break: break-word;
+ }
+ table.data-table {
+ min-width: 540px;
+ }
+ }
+
+ /* Print styles */
+ @media print {
+ body {
+ background: #ffffff;
+ color: #000000;
+ padding: 0;
+ font-size: 12pt;
+ }.container {
+ max-width: 100%;
+ }.controls-panel,.quick-nav,.timing-strip {
+ display: none !important;
+ }
+ header.doc-header, section.stage-card,.timeline-summary {
+ box-shadow: none !important;
+ border: 1px solid #cccccc !important;
+ page-break-inside: avoid;
+ margin-bottom: 16pt;
+ padding: 16pt;
+ }
+ a {
+ text-decoration: none;
+ color: #000000;
+ }
+ }
+ </style>
 </head>
 <body>
 
 <div class="container">
 
-  <!-- Шапка документа без служебных внешних идентификаторов -->
-  <header class="doc-header">
-    <div class="topic-badge">Конспект учебного занятия • Преподавателю</div>
-    <h1>Понятия аппаратных средств ЭВМ и архитектура аппаратных средств</h1>
-    <p class="doc-lead">
-      Подробное поурочное руководство: структура объяснения, прямая речь преподавателя, педагогические приёмы, микро-демонстрации, разбор типичных когнитивных искажений учащихся, критерии индивидуальной экспресс-оценки и сценарии тайминга (90 минут базовый / 60 минут сокращённый).
-    </p>
+ <!-- Шапка документа без служебных внешних идентификаторов -->
+ <header class="doc-header">
+ <div class="topic-badge">Конспект учебного занятия • Преподавателю</div>
+ <h1>Понятия аппаратных средств ЭВМ и архитектура аппаратных средств</h1>
+ <p class="doc-lead">
+ Подробное поурочное руководство: структура объяснения, прямая речь преподавателя, педагогические приёмы, микро-демонстрации, разбор типичных когнитивных искажений учащихся, критерии индивидуальной экспресс-оценки и сценарии тайминга (90 минут базовый / 60 минут сокращённый).
+ </p>
 
-    <div class="meta-grid">
-      <div class="meta-card">
-        <span class="label">Дидактическая цель</span>
-        <span class="value">Разграничить аппаратные средства и архитектуру; освоить маршрут данных</span>
-      </div>
-      <div class="meta-card">
-        <span class="label">Ключевой сквозной пример</span>
-        <span class="value">Клавиатура → ОЗУ → Процессор → Экран (SSD только при сохранении)</span>
-      </div>
-      <div class="meta-card">
-        <span class="label">Оценочная точка</span>
-        <span class="value">Индивидуальная схема системы по условию рабочего листа (шкала: 0–4 балла)</span>
-      </div>
-      <div class="meta-card">
-        <span class="label">Практическое применение</span>
-        <span class="value">Основа для анализа параметров вычислительной системы</span>
-      </div>
-    </div>
-  </header>
+ <div class="meta-grid">
+ <div class="meta-card">
+ <span class="label">Дидактическая цель</span>
+ <span class="value">Разграничить аппаратные средства и архитектуру; освоить маршрут данных</span>
+ </div>
+ <div class="meta-card">
+ <span class="label">Ключевой сквозной пример</span>
+ <span class="value">Клавиатура → ОЗУ → Процессор → Экран (SSD только при сохранении)</span>
+ </div>
+ <div class="meta-card">
+ <span class="label">Оценочная точка</span>
+ <span class="value">Индивидуальная схема системы по условию рабочего листа (шкала: 0–4 балла)</span>
+ </div>
+ <div class="meta-card">
+ <span class="label">Практическое применение</span>
+ <span class="value">Основа для анализа параметров вычислительной системы</span>
+ </div>
+ </div>
+ </header>
 
-  <!-- Сводка времени и интерактивное переключение сценария -->
-  <div class="timeline-summary">
-    <div class="timeline-title">
-      <span>Распределение учебного времени занятия</span>
-      <div class="controls-panel" style="margin: 0;">
-        <button class="btn btn-primary" id="btn-mode-90" onclick="setScenario(90)">Основной сценарий: 90 минут</button>
-        <button class="btn" id="btn-mode-60" onclick="setScenario(60)">Сокращённый сценарий: 60 минут</button>
-        <button class="btn" onclick="window.print()">Печать конспекта</button>
-      </div>
-    </div>
+ <!-- Сводка времени и интерактивное переключение сценария -->
+ <div class="timeline-summary">
+ <div class="timeline-title">
+ <span>Распределение учебного времени занятия</span>
+ <div class="controls-panel" style="margin: 0;">
+ <button class="btn btn-primary" id="btn-mode-90" onclick="setScenario(90)">Основной сценарий: 90 минут</button>
+ <button class="btn" id="btn-mode-60" onclick="setScenario(60)">Сокращённый сценарий: 60 минут</button>
+ <button class="btn" onclick="window.print()">Печать конспекта</button>
+ </div>
+ </div>
 
-    <div class="timing-strip" id="timing-bar">
-      <div class="timing-segment seg-1" title="Входная проверка и мотивационный импульс: 5 мин">5м</div>
-      <div class="timing-segment seg-2" title="Теоретический блок: понятия и сквозной маршрут: 30 мин">30м</div>
-      <div class="timing-segment seg-3" title="Практическая демонстрация и поиск типичных ошибок: 20 мин">20м</div>
-      <div class="timing-segment seg-4" title="Индивидуальное составление схемы и объяснение: 20 мин">20м</div>
-      <div class="timing-segment seg-5" title="Фронтальная обратная связь и разбор работ: 10 мин">10м</div>
-      <div class="timing-segment seg-6" title="Подведение итогов и фиксация задания: 5 мин">5м</div>
-    </div>
+ <div class="timing-strip" id="timing-bar">
+ <div class="timing-segment seg-1" title="Входная проверка и мотивационный импульс: 5 мин">5м</div>
+ <div class="timing-segment seg-2" title="Теоретический блок: понятия и сквозной маршрут: 30 мин">30м</div>
+ <div class="timing-segment seg-3" title="Практическая демонстрация и поиск типичных ошибок: 20 мин">20м</div>
+ <div class="timing-segment seg-4" title="Индивидуальное составление схемы и объяснение: 20 мин">20м</div>
+ <div class="timing-segment seg-5" title="Фронтальная обратная связь и разбор работ: 10 мин">10м</div>
+ <div class="timing-segment seg-6" title="Подведение итогов и фиксация задания: 5 мин">5м</div>
+ </div>
 
-    <div class="timing-legend" id="timing-legend">
-      <div class="legend-item"><div class="legend-color" style="background:#64748b"></div><span>1. Вход и импульс (5 мин)</span></div>
-      <div class="legend-item"><div class="legend-color" style="background:#1d4ed8"></div><span>2. Понятия и маршрут (30 мин)</span></div>
-      <div class="legend-item"><div class="legend-color" style="background:#0f766e"></div><span>3. Демо и поиск ошибок (20 мин)</span></div>
-      <div class="legend-item"><div class="legend-color" style="background:#d97706"></div><span>4. Индивидуальная схема (20 мин)</span></div>
-      <div class="legend-item"><div class="legend-color" style="background:#7c3aed"></div><span>5. Обратная связь (10 мин)</span></div>
-      <div class="legend-item"><div class="legend-color" style="background:#475569"></div><span>6. Итог занятия (5 мин)</span></div>
-    </div>
-  </div>
+ <div class="timing-legend" id="timing-legend">
+ <div class="legend-item"><div class="legend-color" style="background:#64748b"></div><span>1. Вход и импульс (5 мин)</span></div>
+ <div class="legend-item"><div class="legend-color" style="background:#1d4ed8"></div><span>2. Понятия и маршрут (30 мин)</span></div>
+ <div class="legend-item"><div class="legend-color" style="background:#0f766e"></div><span>3. Демо и поиск ошибок (20 мин)</span></div>
+ <div class="legend-item"><div class="legend-color" style="background:#d97706"></div><span>4. Индивидуальная схема (20 мин)</span></div>
+ <div class="legend-item"><div class="legend-color" style="background:#7c3aed"></div><span>5. Обратная связь (10 мин)</span></div>
+ <div class="legend-item"><div class="legend-color" style="background:#475569"></div><span>6. Итог занятия (5 мин)</span></div>
+ </div>
+ </div>
 
-  <!-- Быстрая навигация по этапам -->
-  <nav class="quick-nav">
-    <div class="quick-nav-title">Быстрый переход к разделам конспекта:</div>
-    <div class="quick-nav-links">
-      <a href="#stage-1">1. Входная проверка (5 мин)</a>
-      <a href="#stage-2">2. Аппаратные средства и архитектура (30 мин)</a>
-      <a href="#stage-3">3. Демонстрация и сквозной пример (20 мин)</a>
-      <a href="#stage-4">4. Индивидуальная работа со схемой (20 мин)</a>
-      <a href="#stage-5">5. Анализ ответов и типичные путаницы (10 мин)</a>
-      <a href="#stage-6">6. Итог и домашняя работа (5 мин)</a>
-      <a href="#method-notes">Методические рекомендации и сокращение</a>
-    </div>
-  </nav>
+ <!-- Быстрая навигация по этапам -->
+ <nav class="quick-nav">
+ <div class="quick-nav-title">Быстрый переход к разделам конспекта:</div>
+ <div class="quick-nav-links">
+ <a href="#stage-1">1. Входная проверка (5 мин)</a>
+ <a href="#stage-2">2. Аппаратные средства и архитектура (30 мин)</a>
+ <a href="#stage-3">3. Демонстрация и сквозной пример (20 мин)</a>
+ <a href="#stage-4">4. Индивидуальная работа со схемой (20 мин)</a>
+ <a href="#stage-5">5. Анализ ответов и типичные путаницы (10 мин)</a>
+ <a href="#stage-6">6. Итог и домашняя работа (5 мин)</a>
+ <a href="#method-notes">Методические рекомендации и сокращение</a>
+ </div>
+ </nav>
 
-  <!-- =========================================================================
-       ЭТАП 1
-       ========================================================================= -->
-  <section class="stage-card" id="stage-1">
-    <div class="stage-header">
-      <div class="stage-title-wrap">
-        <span class="stage-number">1</span>
-        <div>
-          <h2>Входная проверка и проблемная ситуация</h2>
-          <p style="margin: 0; font-size: 13.5px; color: var(--text-soft);">Активизация представлений, столкновение с противоречием «физическое железо vs организация работы»</p>
-        </div>
-      </div>
-      <span class="stage-duration" id="dur-stage-1">Базовый: 5 минут (Сокращённый: 5 минут)</span>
-    </div>
+ <!-- =========================================================================
+ ЭТАП 1
+ ========================================================================= -->
+ <section class="stage-card" id="stage-1">
+ <div class="stage-header">
+ <div class="stage-title-wrap">
+ <span class="stage-number">1</span>
+ <div>
+ <h2>Входная проверка и проблемная ситуация</h2>
+ <p style="margin: 0; font-size: 13.5px; color: var(--text-soft);">Активизация представлений, столкновение с противоречием «физическое железо vs организация работы»</p>
+ </div>
+ </div>
+ <span class="stage-duration" id="dur-stage-1">Базовый: 5 минут (Сокращённый: 5 минут)</span>
+ </div>
 
-    <h3>Педагогическая задача этапа</h3>
-    <p>
-      Диагностировать бытовой уровень понимания устройства компьютера. Преодолеть поверхностное восприятие компьютера как «монолитного ящика с экраном» и поставить перед студентами фундаментальный инженерный вопрос: почему одинаковый набор кремниевых чипов и проводников может работать с кардинально разной эффективностью и надежностью?
-    </p>
+ <h3>Педагогическая задача этапа</h3>
+ <p>
+ Диагностировать бытовой уровень понимания устройства компьютера. Преодолеть поверхностное восприятие компьютера как «монолитного ящика с экраном» и поставить перед студентами фундаментальный инженерный вопрос: почему одинаковый набор кремниевых чипов и проводников может работать с кардинально разной эффективностью и надежностью?
+ </p>
 
-    <h3>Прямая речь преподавателя: запуск занятия</h3>
-    <div class="speech-box">
-      <div class="speaker-tag">Слова преподавателя:</div>
-      «Здравствуйте. Сегодня мы начинаем изучение фундаментальной дисциплины, без которой невозможно стать ни квалифицированным системным инженером, ни разработчиком высоконагруженного ПО. Представьте ситуацию: перед вами на столе лежат материнская плата, процессор, планка оперативной памяти, накопитель и блок питания. Это физические объекты, которые можно взвесить на весах, потрогать руками или измерить их температуру пирометром. Это — <strong>аппаратные средства</strong> (hardware).
-      <br><br>
-      А теперь вопрос на размышление: если мы сложим все эти детали в одну картонную коробку, станет ли эта коробка компьютером? Очевидно, нет. Чего не хватает? Не хватает логической взаимосвязи, согласованного набора правил, интерфейсов и протоколов, по которым эти устройства обмениваются сигналами, адресами и данными. Вот эта принципиальная схема взаимодействия, логическая структура и правила сопряжения блоков и называются <strong>архитектурой</strong>. Сегодня наша цель — научиться строго разделять физическую деталь и архитектурный принцип, а также пошагово проследить путь одного единственного байта от нажатия клавиши до сохранения на накопителе.»
-    </div>
+ <h3>Прямая речь преподавателя: запуск занятия</h3>
+ <div class="speech-box">
+ <div class="speaker-tag">Слова преподавателя:</div>
+ «Здравствуйте. Сегодня мы начинаем изучение фундаментальной дисциплины, без которой невозможно стать ни квалифицированным системным инженером, ни разработчиком высоконагруженного ПО. Представьте ситуацию: перед вами на столе лежат материнская плата, процессор, планка оперативной памяти, накопитель и блок питания. Это физические объекты, которые можно взвесить на весах, потрогать руками или измерить их температуру пирометром. Это — <strong>аппаратные средства</strong> (hardware).
+ <br><br>
+ А теперь вопрос на размышление: если мы сложим все эти детали в одну картонную коробку, станет ли эта коробка компьютером? Очевидно, нет. Чего не хватает? Не хватает логической взаимосвязи, согласованного набора правил, интерфейсов и протоколов, по которым эти устройства обмениваются сигналами, адресами и данными. Вот эта принципиальная схема взаимодействия, логическая структура и правила сопряжения блоков и называются <strong>архитектурой</strong>. Сегодня наша цель — научиться строго разделять физическую деталь и архитектурный принцип, а также пошагово проследить путь одного единственного байта от нажатия клавиши до сохранения на накопителе.»
+ </div>
 
-    <h3>Входной микро-опрос (метод предсказания до объяснения)</h3>
-    <p>
-      Преподаватель задает аудитории быстрый диагностический вопрос. Время на обдумывание — 45 секунд, фиксация версий в рабочих тетрадях/листах.
-    </p>
+ <h3>Входной микро-опрос (метод предсказания до объяснения)</h3>
+ <p>
+ Преподаватель задает аудитории быстрый диагностический вопрос. Время на обдумывание — 45 секунд, фиксация версий в рабочих тетрадях/листах.
+ </p>
 
-    <div class="qa-card">
-      <div class="question-text">Вопрос преподавателя аудитории:</div>
-      <p>«Вы печатаете конспект в текстовом редакторе. Нажали клавишу "А". Буква мгновенно появилась на экране. В этот же момент выдернули шнур питания из розетки. Осталась ли буква "А" внутри компьютера? Где именно она находилась в долю секунды перед отключением питания?»</p>
-      <div class="answer-analysis">
-        <p><span class="answer-tag tag-wrong">Типичный ошибочный ответ:</span> «Буква осталась на жестком диске / SSD в файле редактора» или «Буква осталась в процессоре, потому что он её обработал».</p>
-        <p><span class="answer-tag tag-correct">Корректный инженерный ответ:</span> «Буква хранилась исключительно в оперативной памяти (энергозависимый буфер приложения), и при отключении питания была безвозвратно утеряна, так как операция записи на долговременный накопитель не вызывалась».</p>
-        <p><strong>Методический акцент преподавателя:</strong> Зафиксируйте этот ответ на доске. Мы вернемся к нему через 20 минут, когда полностью распишем маршрут данных.</p>
-      </div>
-    </div>
-  </section>
+ <div class="qa-card">
+ <div class="question-text">Вопрос преподавателя аудитории:</div>
+ <p>«Вы печатаете конспект в текстовом редакторе. Нажали клавишу "А". Буква мгновенно появилась на экране. В этот же момент выдернули шнур питания из розетки. Осталась ли буква "А" внутри компьютера? Где именно она находилась в долю секунды перед отключением питания?»</p>
+ <div class="answer-analysis">
+ <p><span class="answer-tag tag-wrong">Типичный ошибочный ответ:</span> «Буква осталась на жестком диске / SSD в файле редактора» или «Буква осталась в процессоре, потому что он её обработал».</p>
+ <p><span class="answer-tag tag-correct">Корректный инженерный ответ:</span> «Буква хранилась исключительно в оперативной памяти (энергозависимый буфер приложения), и при отключении питания была безвозвратно утеряна, так как операция записи на долговременный накопитель не вызывалась».</p>
+ <p><strong>Методический акцент преподавателя:</strong> Зафиксируйте этот ответ на доске. Мы вернемся к нему через 20 минут, когда полностью распишем маршрут данных.</p>
+ </div>
+ </div>
+ </section>
 
-  <!-- =========================================================================
-       ЭТАП 2
-       ========================================================================= -->
-  <section class="stage-card" id="stage-2">
-    <div class="stage-header">
-      <div class="stage-title-wrap">
-        <span class="stage-number">2</span>
-        <div>
-          <h2>Аппаратные средства и архитектура: границы понятий</h2>
-          <p style="margin: 0; font-size: 13.5px; color: var(--text-soft);">Формирование терминологического базиса, разбор аналогий и контрпримеров</p>
-        </div>
-      </div>
-      <span class="stage-duration" id="dur-stage-2">Базовый: 30 минут (Сокращённый: 20 минут)</span>
-    </div>
+ <!-- =========================================================================
+ ЭТАП 2
+ ========================================================================= -->
+ <section class="stage-card" id="stage-2">
+ <div class="stage-header">
+ <div class="stage-title-wrap">
+ <span class="stage-number">2</span>
+ <div>
+ <h2>Аппаратные средства и архитектура: границы понятий</h2>
+ <p style="margin: 0; font-size: 13.5px; color: var(--text-soft);">Формирование терминологического базиса, разбор аналогий и контрпримеров</p>
+ </div>
+ </div>
+ <span class="stage-duration" id="dur-stage-2">Базовый: 30 минут (Сокращённый: 20 минут)</span>
+ </div>
 
-    <h3>Разбор ключевых определений</h3>
-    <p>Преподаватель вводит три взаимосвязанных, но не тождественных понятия. Запись на доске под диктовку с выделением существенных признаков:</p>
+ <h3>Разбор ключевых определений</h3>
+ <p>Преподаватель вводит три взаимосвязанных, но не тождественных понятия. Запись на доске под диктовку с выделением существенных признаков:</p>
 
-    <div class="table-container">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th style="width: 25%;">Понятие</th>
-            <th style="width: 40%;">Строгое определение</th>
-            <th style="width: 35%;">Примеры и критерий отличия</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Аппаратные средства (Hardware)</strong></td>
-            <td>Совокупность физических электронных, магнитных, оптических и электромеханических компонентов, узлов и проводников, образующих материальную часть вычислительной машины.</td>
-            <td>Транзисторы процессора, текстолит печатной платы, чипы памяти DDR5, магнитные пластины HDD, контакты разъема PCIe, светодиод оптической мыши.</td>
-          </tr>
-          <tr>
-            <td><strong>Архитектура ЭВМ (Computer Architecture)</strong></td>
-            <td>Концептуальная структура и функциональная организация аппаратных и программных средств, определяющая способ взаимодействия узлов, систему адресации, формат команд и распределение обязанностей между блоками с точки зрения логики вычислений.</td>
-            <td>Архитектура фон Неймана (единая память для команд и данных), Гарвардская архитектура (раздельная память), системы команд (x86-64 CISC, ARM RISC), разрядность шин адреса и данных.</td>
-          </tr>
-          <tr>
-            <td><strong>Компонент вычислительной системы</strong></td>
-            <td>Функционально и конструктивно обособленный модуль (узел), выполняющий строго регламентированную задачу в структуре ЭВМ и имеющий стандартизированные интерфейсы сопряжения.</td>
-            <td>Центральный процессор (CPU), модуль оперативной памяти (RAM), контроллер прямого доступа к памяти (DMA), твердотельный накопитель (SSD), графический ускоритель (GPU).</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+ <div class="table-container">
+ <table class="data-table">
+ <thead>
+ <tr>
+ <th style="width: 25%;">Понятие</th>
+ <th style="width: 40%;">Строгое определение</th>
+ <th style="width: 35%;">Примеры и критерий отличия</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>Аппаратные средства (Hardware)</strong></td>
+ <td>Совокупность физических электронных, магнитных, оптических и электромеханических компонентов, узлов и проводников, образующих материальную часть вычислительной машины.</td>
+ <td>Транзисторы процессора, текстолит печатной платы, чипы памяти DDR5, магнитные пластины HDD, контакты разъема PCIe, светодиод оптической мыши.</td>
+ </tr>
+ <tr>
+ <td><strong>Архитектура ЭВМ (Computer Architecture)</strong></td>
+ <td>Концептуальная структура и функциональная организация аппаратных и программных средств, определяющая способ взаимодействия узлов, систему адресации, формат команд и распределение обязанностей между блоками с точки зрения логики вычислений.</td>
+ <td>Архитектура фон Неймана (единая память для команд и данных), Гарвардская архитектура (раздельная память), системы команд (x86-64 CISC, ARM RISC), разрядность шин адреса и данных.</td>
+ </tr>
+ <tr>
+ <td><strong>Компонент вычислительной системы</strong></td>
+ <td>Функционально и конструктивно обособленный модуль (узел), выполняющий строго регламентированную задачу в структуре ЭВМ и имеющий стандартизированные интерфейсы сопряжения.</td>
+ <td>Центральный процессор (CPU), модуль оперативной памяти (RAM), контроллер прямого доступа к памяти (DMA), твердотельный накопитель (SSD), графический ускоритель (GPU).</td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
 
-    <h3>Прямая речь преподавателя: преодоление путаницы «Деталь vs Архитектура»</h3>
-    <div class="speech-box">
-      <div class="speaker-tag">Слова преподавателя:</div>
-      «Обратите внимание на распространенную ошибку начинающих специалистов. Часто говорят: "Я купил процессор Intel Core i7 — это моя новая архитектура". Это грубая ошибка формулировки! 
-      <br><br>
-      Кремниевый кристалл в пластиковом или керамическом корпусе с золочеными ножками — это <strong>аппаратное средство</strong>. Вы можете его уронить, разбить, измерить его энергопотребление в ваттах.
-      <br>
-      А вот набор инструкций, который этот процессор выполняет (например, x86-64), структура его конвейера, количество уровней кэш-памяти и то, как процессор связывается с оперативной памятью через системного агента, — это <strong>архитектура</strong>.
-      <br><br>
-      <strong>Контрпример для закрепления:</strong> Возьмем два абсолютно разных физических процессора — один изготовлен по техпроцессу 3 нанометра компанией Apple (архитектура ARM), а второй — промышленный микроконтроллер для автомобильного тормоза ABS. Они могут быть внешне похожи или непохожи, но если оба реализуют модель команд ARM Cortex, их архитектурный базис одинаков. И наоборот: процессор на сокете LGA1700 и плата на сокете AM5 физически несовместимы, хотя обе системы на уровне прикладных программ реализуют архитектуру x86-64.»
-    </div>
+ <h3>Прямая речь преподавателя: преодоление путаницы «Деталь vs Архитектура»</h3>
+ <div class="speech-box">
+ <div class="speaker-tag">Слова преподавателя:</div>
+ «Обратите внимание на распространенную ошибку начинающих специалистов. Часто говорят: "Я купил процессор Intel Core i7 — это моя новая архитектура". Это грубая ошибка формулировки! 
+ <br><br>
+ Кремниевый кристалл в пластиковом или керамическом корпусе с золочеными ножками — это <strong>аппаратное средство</strong>. Вы можете его уронить, разбить, измерить его энергопотребление в ваттах.
+ <br>
+ А вот набор инструкций, который этот процессор выполняет (например, x86-64), структура его конвейера, количество уровней кэш-памяти и то, как процессор связывается с оперативной памятью через системного агента, — это <strong>архитектура</strong>.
+ <br><br>
+ <strong>Контрпример для закрепления:</strong> Возьмем два абсолютно разных физических процессора — один изготовлен по техпроцессу 3 нанометра компанией Apple (архитектура ARM), а второй — промышленный микроконтроллер для автомобильного тормоза ABS. Они могут быть внешне похожи или непохожи, но если оба реализуют модель команд ARM Cortex, их архитектурный базис одинаков. И наоборот: процессор на сокете LGA1700 и плата на сокете AM5 физически несовместимы, хотя обе системы на уровне прикладных программ реализуют архитектуру x86-64.»
+ </div>
 
-    <h3>Разбор архитектурной аналогии и её строгих инженерных границ</h3>
-    <p>Для наглядности часто привлекают строительную аналогию (здание) или организационную аналогию (офис/кухня). Преподаватель обязан показать не только силу аналогии, но и границы её применимости:</p>
+ <h3>Разбор архитектурной аналогии и её строгих инженерных границ</h3>
+ <p>Для наглядности часто привлекают строительную аналогию (здание) или организационную аналогию (офис/кухня). Преподаватель обязан показать не только силу аналогии, но и границы её применимости:</p>
 
-    <div class="demo-box">
-      <div class="demo-title">Педагогический приём: Аналогия со строительством здания</div>
-      <p><strong>Суть сравнения:</strong> Кирпичи, арматура, бетонные перекрытия, медные водопроводные трубы — это <em>аппаратные средства</em>. Архитектурный чертеж дома (расположение комнат, расчет несущих стен, схема разводки вентиляции и электричества, правила эвакуации при пожаре) — это <em>архитектура</em>.</p>
-      <p><strong>Граница аналогии (где она перестает работать!):</strong> В строительстве проект статичен: после постройки кирпич не меняет своих свойств в зависимости от того, кто вошел в комнату. В вычислительной технике архитектура — это <em>динамический процесс</em>. Архитектура определяет, как поток электрических импульсов во времени меняет состояния триггеров и регистров, как процессор переключает режимы защиты (Ring 0 / Ring 3) и как оперативная память регенерирует свой заряд каждую миллисекунду. Компьютер — это не дом, это логическая фабрика реального времени.</p>
-    </div>
+ <div class="demo-box">
+ <div class="demo-title">Педагогический приём: Аналогия со строительством здания</div>
+ <p><strong>Суть сравнения:</strong> Кирпичи, арматура, бетонные перекрытия, медные водопроводные трубы — это <em>аппаратные средства</em>. Архитектурный чертеж дома (расположение комнат, расчет несущих стен, схема разводки вентиляции и электричества, правила эвакуации при пожаре) — это <em>архитектура</em>.</p>
+ <p><strong>Граница аналогии (где она перестает работать!):</strong> В строительстве проект статичен: после постройки кирпич не меняет своих свойств в зависимости от того, кто вошел в комнату. В вычислительной технике архитектура — это <em>динамический процесс</em>. Архитектура определяет, как поток электрических импульсов во времени меняет состояния триггеров и регистров, как процессор переключает режимы защиты (Ring 0 / Ring 3) и как оперативная память регенерирует свой заряд каждую миллисекунду. Компьютер — это не дом, это логическая фабрика реального времени.</p>
+ </div>
 
-    <h3>Экспресс-проверка понимания разграничений (фронтальный диалог)</h3>
-    <div class="qa-card">
-      <div class="question-text">Ситуация 1: «Инженер заменил медный радиатор кулера на процессор с алюминиевым. Изменилась ли архитектура компьютера?»</div>
-      <div class="answer-analysis">
-        <p><span class="answer-tag tag-correct">Ответ:</span> <strong>Нет, не изменилась.</strong> Изменились физические (аппаратные) параметры теплоотвода. Логическая схема взаимодействия процессора с памятью, команды и формат данных остались неизменными.</p>
-      </div>
-    </div>
+ <h3>Экспресс-проверка понимания разграничений (фронтальный диалог)</h3>
+ <div class="qa-card">
+ <div class="question-text">Ситуация 1: «Инженер заменил медный радиатор кулера на процессор с алюминиевым. Изменилась ли архитектура компьютера?»</div>
+ <div class="answer-analysis">
+ <p><span class="answer-tag tag-correct">Ответ:</span> <strong>Нет, не изменилась.</strong> Изменились физические (аппаратные) параметры теплоотвода. Логическая схема взаимодействия процессора с памятью, команды и формат данных остались неизменными.</p>
+ </div>
+ </div>
 
-    <div class="qa-card">
-      <div class="question-text">Ситуация 2: «Инженер переключил режим контроллера накопителя с IDE-совместимого (Legacy) на AHCI / NVMe. Изменились ли аппаратные микросхемы?»</div>
-      <div class="answer-analysis">
-        <p><span class="answer-tag tag-correct">Ответ:</span> <strong>Аппаратные средства остались теми же</strong> (физический чип накопителя не меняли), но <strong>архитектура взаимодействия контроллера и процессора изменилась</strong>: перешли на другой протокол очередей команд (NCQ/NVMe Queues), изменился формат дескрипторов и способ обработки прерываний.</p>
-      </div>
-    </div>
-  </section>
+ <div class="qa-card">
+ <div class="question-text">Ситуация 2: «Инженер переключил режим контроллера накопителя с IDE-совместимого (Legacy) на AHCI / NVMe. Изменились ли аппаратные микросхемы?»</div>
+ <div class="answer-analysis">
+ <p><span class="answer-tag tag-correct">Ответ:</span> <strong>Аппаратные средства остались теми же</strong> (физический чип накопителя не меняли), но <strong>архитектура взаимодействия контроллера и процессора изменилась</strong>: перешли на другой протокол очередей команд (NCQ/NVMe Queues), изменился формат дескрипторов и способ обработки прерываний.</p>
+ </div>
+ </div>
+ </section>
 
-  <!-- =========================================================================
-       ЭТАП 3
-       ========================================================================= -->
-  <section class="stage-card" id="stage-3">
-    <div class="stage-header">
-      <div class="stage-title-wrap">
-        <span class="stage-number">3</span>
-        <div>
-          <h2>Сквозной функциональный маршрут данных и микро-демонстрация</h2>
-          <p style="margin: 0; font-size: 13.5px; color: var(--text-soft);">Пошаговое отслеживание потока информации от ввода до отображения и долговременного хранения</p>
-        </div>
-      </div>
-      <span class="stage-duration" id="dur-stage-3">Базовый: 20 минут (Сокращённый: 10 минут)</span>
-    </div>
+ <!-- =========================================================================
+ ЭТАП 3
+ ========================================================================= -->
+ <section class="stage-card" id="stage-3">
+ <div class="stage-header">
+ <div class="stage-title-wrap">
+ <span class="stage-number">3</span>
+ <div>
+ <h2>Сквозной функциональный маршрут данных и микро-демонстрация</h2>
+ <p style="margin: 0; font-size: 13.5px; color: var(--text-soft);">Пошаговое отслеживание потока информации от ввода до отображения и долговременного хранения</p>
+ </div>
+ </div>
+ <span class="stage-duration" id="dur-stage-3">Базовый: 20 минут (Сокращённый: 10 минут)</span>
+ </div>
 
-    <h3>Сквозной пример: От нажатия клавиши до записи файла</h3>
-    <p>
-      Преподаватель последовательно чертит на доске (или выводит на проектор интерактивную функциональную схему) и проговаривает цепочку превращения физического события в логические данные.
-    </p>
+ <h3>Сквозной пример: От нажатия клавиши до записи файла</h3>
+ <p>
+ Преподаватель последовательно чертит на доске (или выводит на проектор интерактивную функциональную схему) и проговаривает цепочку превращения физического события в логические данные.
+ </p>
 
-    <!-- Адаптивная схема маршрута данных -->
-    <div class="diagram-container">
-      <div class="diagram-caption">Функциональная схема сквозного прохождения данных в ЭВМ</div>
-      <div class="flow-grid">
-        <div class="flow-node">
-          <div class="node-step">Шаг 1: Ввод</div>
-          <div class="node-title">Клавиатура & Контроллер ввода</div>
-          <div class="node-desc">Замыкание контакта → скан-код (аппаратный сигнал) → интерфейсный контроллер (USB/HID) → генерация прерывания (IRQ).</div>
-        </div>
+ <!-- Адаптивная схема маршрута данных -->
+ <div class="diagram-container">
+ <div class="diagram-caption">Функциональная схема сквозного прохождения данных в ЭВМ</div>
+ <div class="flow-grid">
+ <div class="flow-node">
+ <div class="node-step">Шаг 1: Ввод</div>
+ <div class="node-title">Клавиатура & Контроллер ввода</div>
+ <div class="node-desc">Замыкание контакта → скан-код (аппаратный сигнал) → интерфейсный контроллер (USB/HID) → генерация прерывания (IRQ).</div>
+ </div>
 
-        <div class="flow-connector">↓ / →</div>
+ <div class="flow-connector">↓ / →</div>
 
-        <div class="flow-node highlight-volatile">
-          <div class="node-step">Шаг 2: Временная память</div>
-          <div class="node-title">ОЗУ (RAM) & Буфер ОС</div>
-          <div class="node-desc">Драйвер ОС помещает код клавиши в системный кольцевой буфер в оперативной памяти. <em>Энергозависимое временное хранение!</em></div>
-        </div>
+ <div class="flow-node highlight-volatile">
+ <div class="node-step">Шаг 2: Временная память</div>
+ <div class="node-title">ОЗУ (RAM) & Буфер ОС</div>
+ <div class="node-desc">Драйвер ОС помещает код клавиши в системный кольцевой буфер в оперативной памяти. <em>Энергозависимое временное хранение!</em></div>
+ </div>
 
-        <div class="flow-connector">↓ / →</div>
+ <div class="flow-connector">↓ / →</div>
 
-        <div class="flow-node">
-          <div class="node-step">Шаг 3: Обработка</div>
-          <div class="node-title">Центральный процессор (CPU)</div>
-          <div class="node-desc">Чтение скан-кода из ОЗУ в регистры CPU → преобразование в символ Unicode → вызов функции приложения → обновление буфера документа.</div>
-        </div>
+ <div class="flow-node">
+ <div class="node-step">Шаг 3: Обработка</div>
+ <div class="node-title">Центральный процессор (CPU)</div>
+ <div class="node-desc">Чтение скан-кода из ОЗУ в регистры CPU → преобразование в символ Unicode → вызов функции приложения → обновление буфера документа.</div>
+ </div>
 
-        <div class="flow-connector">↓ / →</div>
+ <div class="flow-connector">↓ / →</div>
 
-        <div class="flow-node">
-          <div class="node-step">Шаг 4: Вывод</div>
-          <div class="node-title">Видеопамять & Монитор</div>
-          <div class="node-desc">Отрисовка глифа символа в видеопамяти (VRAM фреймбуфер) → формирование видеосигнала (HDMI/DP) → отображение пикселей на экране.</div>
-        </div>
-      </div>
+ <div class="flow-node">
+ <div class="node-step">Шаг 4: Вывод</div>
+ <div class="node-title">Видеопамять & Монитор</div>
+ <div class="node-desc">Отрисовка глифа символа в видеопамяти (VRAM фреймбуфер) → формирование видеосигнала (HDMI/DP) → отображение пикселей на экране.</div>
+ </div>
+ </div>
 
-      <div style="margin: 18px 0 10px 0; border-top: 2px dashed #94a3b8; padding-top: 14px;">
-        <div class="flow-node highlight-nonvolatile" style="max-width: 580px; margin: 0 auto;">
-          <div class="node-step" style="color: #065f46;">Особый изолированный шаг: Долговременное хранение</div>
-          <div class="node-title" style="color: #065f46;">Накопитель (SSD / HDD)</div>
-          <div class="node-desc">
-            <strong>Инициируется только при запросе программы (включая автосохранение) или явной команде пользователя</strong> («Сохранить», Ctrl+S). 
-            ОС переносит блок байтов из буфера ОЗУ через системную шину и дисковый контроллер в энергонезависимые ячейки NAND Flash. При отсутствии такого программного запроса данные на накопитель <strong>автоматически не попадают</strong>.
-          </div>
-        </div>
-      </div>
+ <div style="margin: 18px 0 10px 0; border-top: 2px dashed #94a3b8; padding-top: 14px;">
+ <div class="flow-node highlight-nonvolatile" style="max-width: 580px; margin: 0 auto;">
+ <div class="node-step" style="color: #065f46;">Особый изолированный шаг: Долговременное хранение</div>
+ <div class="node-title" style="color: #065f46;">Накопитель (SSD / HDD)</div>
+ <div class="node-desc">
+ <strong>Инициируется только при запросе программы (включая автосохранение) или явной команде пользователя</strong> («Сохранить», Ctrl+S). 
+ ОС переносит блок байтов из буфера ОЗУ через системную шину и дисковый контроллер в энергонезависимые ячейки NAND Flash. При отсутствии такого программного запроса данные на накопитель <strong>автоматически не попадают</strong>.
+ </div>
+ </div>
+ </div>
 
-      <div class="diagram-note">
-        <strong>Методическое предостережение:</strong> Обратите внимание учащихся, что данная схема является <em>функциональной моделью</em>. В реальном компьютере процессор не передает сигналы дисплею напрямую медным проводом: обмен идет через системную шину, чипсет, шину PCI Express, видеокарту и контроллер дисплея.
-      </div>
-    </div>
+ <div class="diagram-note">
+ <strong>Методическое предостережение:</strong> Обратите внимание учащихся, что данная схема является <em>функциональной моделью</em>. В реальном компьютере процессор не передает сигналы дисплею напрямую медным проводом: обмен идет через системную шину, чипсет, шину PCI Express, видеокарту и контроллер дисплея.
+ </div>
+ </div>
 
-    <h3>Прямая речь преподавателя: объяснение разницы ОЗУ и Накопителя</h3>
-    <div class="speech-box">
-      <div class="speaker-tag">Слова преподавателя:</div>
-      «Посмотрите внимательно на блок ОЗУ и блок SSD. В обыденной речи люди часто называют и то, и другое одним словом — "память". Говорят: "У меня на телефоне 256 гигабайт памяти". Это бытовой язык, который для инженера недопустим!
-      <br><br>
-      <strong>Оперативная память (ОЗУ / RAM)</strong> — это рабочее пространство процессора. Это кремниевые микросхемы сверхбыстрого доступа, но они <em>энергозависимы</em>. Каждая ячейка держит заряд микроскопического конденсатора. Пропало питание — заряд стек, все данные превратились в ноль за доли секунды.
-      <br>
-      <strong>Накопитель (SSD / HDD)</strong> — это внешняя долговременная <em>энергонезависимая</em> память. Она работает в десятки и сотни раз медленнее, чем шина оперативной памяти, но сохраняет физическое состояние (электрический заряд в плавающем затворе Flash-ячейки или вектор намагниченности домена) годами без подачи питания.
-      <br><br>
-      Пока вы набираете текст и не произошла процедура сохранения — либо по явному нажатию кнопки "Сохранить", либо по фоновому таймеру автосохранения самой программы — вашего актуального файла как физической структуры на накопителе не существует! В файловой системе на SSD нет ни новой записи, ни выделенных кластеров под несохраненные правки. Есть только временный рабочий буфер в оперативной памяти. Если приложение аварийно завершится или выключится электропитание до сохранения, этот буфер исчезнет безвозвратно.»
+ <h3>Прямая речь преподавателя: объяснение разницы ОЗУ и Накопителя</h3>
+ <div class="speech-box">
+ <div class="speaker-tag">Слова преподавателя:</div>
+ «Посмотрите внимательно на блок ОЗУ и блок SSD. В обыденной речи люди часто называют и то, и другое одним словом — "память". Говорят: "У меня на телефоне 256 гигабайт памяти". Это бытовой язык, который для инженера недопустим!
+ <br><br>
+ <strong>Оперативная память (ОЗУ / RAM)</strong> — это рабочее пространство процессора. Это кремниевые микросхемы сверхбыстрого доступа, но они <em>энергозависимы</em>. Каждая ячейка держит заряд микроскопического конденсатора. Пропало питание — заряд стек, все данные превратились в ноль за доли секунды.
+ <br>
+ <strong>Накопитель (SSD / HDD)</strong> — это внешняя долговременная <em>энергонезависимая</em> память. Она работает в десятки и сотни раз медленнее, чем шина оперативной памяти, но сохраняет физическое состояние (электрический заряд в плавающем затворе Flash-ячейки или вектор намагниченности домена) годами без подачи питания.
+ <br><br>
+ Пока вы набираете текст и не произошла процедура сохранения — либо по явному нажатию кнопки "Сохранить", либо по фоновому таймеру автосохранения самой программы — вашего актуального файла как физической структуры на накопителе не существует! В файловой системе на SSD нет ни новой записи, ни выделенных кластеров под несохраненные правки. Есть только временный рабочий буфер в оперативной памяти. Если приложение аварийно завершится или выключится электропитание до сохранения, этот буфер исчезнет безвозвратно.»
 
-    <h3>Микро-демонстрация на занятии</h3>
-    <div class="demo-box">
-      <div class="demo-title">Сценарий живой микро-демонстрации преподавателя (3 минуты)</div>
-      <ol style="margin-left: 20px; line-height: 1.6;">
-        <li>Преподаватель открывает на демонстрационном компьютере терминал/диспетчер задач и простейший текстовый редактор.</li>
-        <li>В редакторе набирается строка текста длиной 50 символов. Файл <em>не сохраняется</em> на диск.</li>
-        <li>Преподаватель открывает проводник в целевой папке: размер файла равен 0 байт (или файл вообще отсутствует).</li>
-        <li>В мониторе ресурсов преподаватель показывает процесс редактора: процесс потребляет 18 Мбайт в графе «Оперативная память (рабочий набор)», а активность диска в графе «Дисковые операции записи» равна <strong>0 КБ/с</strong>.</li>
-        <li>Нажимается сочетание клавиш Ctrl+S. В мониторе ресурсов мгновенно фиксируется разовый всплеск дисковой записи, а в файловой системе появляется файл с ненулевым размером.</li>
-      </ol>
-      <p style="margin-top: 8px;"><strong>Педагогический вывод:</strong> Учащиеся своими глазами видят подтверждение принципа: экран отображает состояние из буфера ОЗУ, а запись на SSD — это отдельный прерывающий процесс.</p>
-    </div>
-  </section>
+ <h3>Микро-демонстрация на занятии</h3>
+ <div class="demo-box">
+ <div class="demo-title">Сценарий живой микро-демонстрации преподавателя (3 минуты)</div>
+ <ol style="margin-left: 20px; line-height: 1.6;">
+ <li>Преподаватель открывает на демонстрационном компьютере терминал/диспетчер задач и простейший текстовый редактор.</li>
+ <li>В редакторе набирается строка текста длиной 50 символов. Файл <em>не сохраняется</em> на диск.</li>
+ <li>Преподаватель открывает проводник в целевой папке: размер файла равен 0 байт (или файл вообще отсутствует).</li>
+ <li>В мониторе ресурсов преподаватель показывает процесс редактора: процесс потребляет 18 Мбайт в графе «Оперативная память (рабочий набор)», а активность диска в графе «Дисковые операции записи» равна <strong>0 КБ/с</strong>.</li>
+ <li>Нажимается сочетание клавиш Ctrl+S. В мониторе ресурсов мгновенно фиксируется разовый всплеск дисковой записи, а в файловой системе появляется файл с ненулевым размером.</li>
+ </ol>
+ <p style="margin-top: 8px;"><strong>Педагогический вывод:</strong> Учащиеся своими глазами видят подтверждение принципа: экран отображает состояние из буфера ОЗУ, а запись на SSD — это отдельный прерывающий процесс.</p>
+ </div>
+ </section>
 
-  <!-- =========================================================================
-       ЭТАП 4
-       ========================================================================= -->
-  <section class="stage-card" id="stage-4">
-    <div class="stage-header">
-      <div class="stage-title-wrap">
-        <span class="stage-number">4</span>
-        <div>
-          <h2>Индивидуальная работа: составление схемы и объяснение</h2>
-          <p style="margin: 0; font-size: 13.5px; color: var(--text-soft);">Самостоятельное действие каждого учащегося с немедленной фиксацией результата</p>
-        </div>
-      </div>
-      <span class="stage-duration" id="dur-stage-4">Базовый: 20 минут (Сокращённый: 15 минут)</span>
-    </div>
+ <!-- =========================================================================
+ ЭТАП 4
+ ========================================================================= -->
+ <section class="stage-card" id="stage-4">
+ <div class="stage-header">
+ <div class="stage-title-wrap">
+ <span class="stage-number">4</span>
+ <div>
+ <h2>Индивидуальная работа: составление схемы и объяснение</h2>
+ <p style="margin: 0; font-size: 13.5px; color: var(--text-soft);">Самостоятельное действие каждого учащегося с немедленной фиксацией результата</p>
+ </div>
+ </div>
+ <span class="stage-duration" id="dur-stage-4">Базовый: 20 минут (Сокращённый: 15 минут)</span>
+ </div>
 
-    <h3>Инструктаж преподавателя по выполнению индивидуальной работы</h3>
-    <div class="speech-box">
-      <div class="speaker-tag">Слова преподавателя:</div>
-      «Маршрут ввода с клавиатуры мы подробно разобрали как тренировочную модель. Теперь каждый из вас переходит к выполнению индивидуальной оценочной работы в своем рабочем листе.
-      <br><br>
-      Вам предложена ситуация: <strong>пользователь сканирует документ, изображение уже выведено на экран и кадрируется в программе, но команда экспорта файла ещё не отдавалась</strong>.
-      <br><br>
-      Ваша задача — самостоятельно составить функциональную схему прохождения информации для этого условия и дать краткое письменное объяснение:
-      <br>
-      1) Выберите и обозначьте задействованные аппаратные узлы системы и их роли;
-      2) Укажите стрелками направления информационных потоков между ними;
-      3) Объясните, где именно физически находятся данные в текущий момент кадрирования;
-      4) Определите, при каком событии и куда эти данные могут быть записаны для долговременного хранения.»
-    </div>
-    <h3>Открытые критерии оценивания индивидуальной работы (Максимум 4 балла)</h3>
-    <div class="criteria-block">
-      <div style="font-weight: 800; font-size: 15px; color: var(--text-main); margin-bottom: 4px;">
-        Шкала оценивания схемы и пояснений:
-      </div>
-      <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 12px;">
-        Критерии открыты учащимся перед началом выполнения. Проверка осуществляется преподавателем во время самостоятельной работы (выборочный опрос у мест) и при проверке сданных листов.
-      </p>
+ <h3>Инструктаж преподавателя по выполнению индивидуальной работы</h3>
+ <div class="speech-box">
+ <div class="speaker-tag">Слова преподавателя:</div>
+ «Маршрут ввода с клавиатуры мы подробно разобрали как тренировочную модель. Теперь каждый из вас переходит к выполнению индивидуальной оценочной работы в своем рабочем листе.
+ <br><br>
+ Вам предложена ситуация: <strong>пользователь сканирует документ, изображение уже выведено на экран и кадрируется в программе, но команда экспорта файла ещё не отдавалась</strong>.
+ <br><br>
+ Ваша задача — самостоятельно составить функциональную схему прохождения информации для этого условия и дать краткое письменное объяснение:
+ <br>
+ 1) Выберите и обозначьте задействованные аппаратные узлы системы и их роли;
+ 2) Укажите стрелками направления информационных потоков между ними;
+ 3) Объясните, где именно физически находятся данные в текущий момент кадрирования;
+ 4) Определите, при каком событии и куда эти данные могут быть записаны для долговременного хранения.»
+ </div>
+ <h3>Открытые критерии оценивания индивидуальной работы (Максимум 4 балла)</h3>
+ <div class="criteria-block">
+ <div style="font-weight: 800; font-size: 15px; color: var(--text-main); margin-bottom: 4px;">
+ Шкала оценивания схемы и пояснений:
+ </div>
+ <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 12px;">
+ Критерии открыты учащимся перед началом выполнения. Проверка осуществляется преподавателем во время самостоятельной работы (выборочный опрос у мест) и при проверке сданных листов.
+ </p>
 
-      <div class="rubric-grid">
-        <div class="rubric-card">
-          <div class="score">до 2 баллов</div>
-          <div class="title">Элементы и связи схемы</div>
-          <div class="desc">
-            <strong>2 балла:</strong> Все функциональные узлы указаны верно, направления связей корректны, разграничены временная обработка и постоянное хранение.<br>
-            <strong>1 балл:</strong> Пропущен функциональный узел или неверно указано направление передачи.<br>
-            <strong>0 баллов:</strong> Грубые ошибки в составе или последовательности узлов.
-          </div>
-        </div>
+ <div class="rubric-grid">
+ <div class="rubric-card">
+ <div class="score">до 2 баллов</div>
+ <div class="title">Элементы и связи схемы</div>
+ <div class="desc">
+ <strong>2 балла:</strong> Все функциональные узлы указаны верно, направления связей корректны, разграничены временная обработка и постоянное хранение.<br>
+ <strong>1 балл:</strong> Пропущен функциональный узел или неверно указано направление передачи.<br>
+ <strong>0 баллов:</strong> Грубые ошибки в составе или последовательности узлов.
+ </div>
+ </div>
 
-        <div class="rubric-card">
-          <div class="score">до 1 балла</div>
-          <div class="title">Причинно-следственное объяснение</div>
-          <div class="desc">
-            <strong>1 балл:</strong> Письменно обоснована последовательность обработки данных от оцифровки до вывода и точно указаны условия долговременной записи.<br>
-            <strong>0 баллов:</strong> Формальный пересказ названий компонентов без объяснения логики событий и условий сохранения.
-          </div>
-        </div>
-        <div class="rubric-card">
-          <div class="score">до 1 балла</div>
-          <div class="title">Опровержение неверного суждения</div>
-          <div class="desc">
-            <strong>1 балл:</strong> Самостоятельно сформулировано правдоподобное ошибочное утверждение о состоянии данных в данном сценарии и дано его аргументированное опровержение.<br>
-            <strong>0 баллов:</strong> Ошибочное утверждение не сформулировано либо аргументация опровержения отсутствует.
-          </div>
-        </div>
-      </div>
-    </div>
-    <h3>Организация работы в аудитории</h3>
-    <p>
-      Преподаватель осуществляет активный мониторинг («педагогический обход аудитории»). Не сидит за кафедрой, а проходит по рядам, обращая внимание на графическое оформление схем. При обнаружении типичной ошибки (например, стрелка от клавиатуры напрямую в SSD) преподаватель не исправляет её молча ручкой, а задает наводящий вопрос учащемуся.
-    </p>
-  </section>
+ <div class="rubric-card">
+ <div class="score">до 1 балла</div>
+ <div class="title">Причинно-следственное объяснение</div>
+ <div class="desc">
+ <strong>1 балл:</strong> Письменно обоснована последовательность обработки данных от оцифровки до вывода и точно указаны условия долговременной записи.<br>
+ <strong>0 баллов:</strong> Формальный пересказ названий компонентов без объяснения логики событий и условий сохранения.
+ </div>
+ </div>
+ <div class="rubric-card">
+ <div class="score">до 1 балла</div>
+ <div class="title">Опровержение неверного суждения</div>
+ <div class="desc">
+ <strong>1 балл:</strong> Самостоятельно сформулировано правдоподобное ошибочное утверждение о состоянии данных в данном сценарии и дано его аргументированное опровержение.<br>
+ <strong>0 баллов:</strong> Ошибочное утверждение не сформулировано либо аргументация опровержения отсутствует.
+ </div>
+ </div>
+ </div>
+ </div>
+ <h3>Организация работы в аудитории</h3>
+ <p>
+ Преподаватель осуществляет активный мониторинг («педагогический обход аудитории»). Не сидит за кафедрой, а проходит по рядам, обращая внимание на графическое оформление схем. При обнаружении типичной ошибки (например, стрелка от клавиатуры напрямую в SSD) преподаватель не исправляет её молча ручкой, а задает наводящий вопрос учащемуся.
+ </p>
+ </section>
 
-  <!-- =========================================================================
-       ЭТАП 5
-       ========================================================================= -->
-  <section class="stage-card" id="stage-5">
-    <div class="stage-header">
-      <div class="stage-title-wrap">
-        <span class="stage-number">5</span>
-        <div>
-          <h2>Разбор ответов, обратная связь и типичные путаницы</h2>
-          <p style="margin: 0; font-size: 13.5px; color: var(--text-soft);">Коллективный разбор когнитивных искажений и сопоставление работ с открытыми критериями</p>
-        </div>
-      </div>
-      <span class="stage-duration" id="dur-stage-5">Базовый: 10 минут (Сокращённый: 5 минут)</span>
-    </div>
+ <!-- =========================================================================
+ ЭТАП 5
+ ========================================================================= -->
+ <section class="stage-card" id="stage-5">
+ <div class="stage-header">
+ <div class="stage-title-wrap">
+ <span class="stage-number">5</span>
+ <div>
+ <h2>Разбор ответов, обратная связь и типичные путаницы</h2>
+ <p style="margin: 0; font-size: 13.5px; color: var(--text-soft);">Коллективный разбор когнитивных искажений и сопоставление работ с открытыми критериями</p>
+ </div>
+ </div>
+ <span class="stage-duration" id="dur-stage-5">Базовый: 10 минут (Сокращённый: 5 минут)</span>
+ </div>
 
-    <h3>Каталог типичных когнитивных путаниц учащихся и готовые реплики преподавателя</h3>
+ <h3>Каталог типичных когнитивных путаниц учащихся и готовые реплики преподавателя</h3>
 
-    <div class="warning-box">
-      <div class="warning-title">Путаница 1: Прямая запись периферии на накопитель</div>
-      <p><strong>Ошибочное утверждение студента:</strong> «Клавиатура посылает букву сразу в файл на жесткий диск, а диск уже передает её процессору».</p>
-      <p><strong>Готовая формулировка разбора:</strong> «Накопитель — это пассивное устройство длительного хранения. Он не умеет самостоятельно перехватывать сигналы портов ввода-вывода. Любые входящие данные обязаны сначала пройти через буфер в оперативной памяти и обработку процессором, который и отдает дисковому контроллеру команду записи».</p>
-    </div>
+ <div class="warning-box">
+ <div class="warning-title">Путаница 1: Прямая запись периферии на накопитель</div>
+ <p><strong>Ошибочное утверждение студента:</strong> «Клавиатура посылает букву сразу в файл на жесткий диск, а диск уже передает её процессору».</p>
+ <p><strong>Готовая формулировка разбора:</strong> «Накопитель — это пассивное устройство длительного хранения. Он не умеет самостоятельно перехватывать сигналы портов ввода-вывода. Любые входящие данные обязаны сначала пройти через буфер в оперативной памяти и обработку процессором, который и отдает дисковому контроллеру команду записи».</p>
+ </div>
 
-    <div class="warning-box">
-      <div class="warning-title">Путаница 2: Отождествление физического разъема и логической архитектуры</div>
-      <p><strong>Ошибочное утверждение студента:</strong> «Разъем Type-C — это архитектура передачи данных».</p>
-      <p><strong>Готовая формулировка разбора:</strong> «Форма штекера, количество контактов и их геометрия — это спецификация <em>физического интерфейса</em> (аппаратное средство). По одному и тому же кабелю Type-C могут работать совершенно разные архитектурные протоколы: USB 2.0, USB4, Thunderbolt 4 или DisplayPort Alt Mode. Не путайте форму контакта и логику протокола».</p>
-    </div>
+ <div class="warning-box">
+ <div class="warning-title">Путаница 2: Отождествление физического разъема и логической архитектуры</div>
+ <p><strong>Ошибочное утверждение студента:</strong> «Разъем Type-C — это архитектура передачи данных».</p>
+ <p><strong>Готовая формулировка разбора:</strong> «Форма штекера, количество контактов и их геометрия — это спецификация <em>физического интерфейса</em> (аппаратное средство). По одному и тому же кабелю Type-C могут работать совершенно разные архитектурные протоколы: USB 2.0, USB4, Thunderbolt 4 или DisplayPort Alt Mode. Не путайте форму контакта и логику протокола».</p>
+ </div>
 
-    <div class="warning-box">
-      <div class="warning-title">Путаница 3: Представление о процессоре как о месте постоянного хранения данных</div>
-      <p><strong>Ошибочное утверждение студента:</strong> «Вся информация хранится в процессоре, потому что там есть регистры и кэш».</p>
-      <p><strong>Готовая формулировка разбора:</strong> «Регистры и кэш процессора имеют суммарный объем от нескольких десятков килобайт до нескольких десятков мегабайт. Их назначение — хранить операнды, обрабатываемые прямо сейчас в текущем такте. В процессоре нет долговременного хранилища файлов. Данные прокачиваются через процессор, как вода через турбину».</p>
-    </div>
+ <div class="warning-box">
+ <div class="warning-title">Путаница 3: Представление о процессоре как о месте постоянного хранения данных</div>
+ <p><strong>Ошибочное утверждение студента:</strong> «Вся информация хранится в процессоре, потому что там есть регистры и кэш».</p>
+ <p><strong>Готовая формулировка разбора:</strong> «Регистры и кэш процессора имеют суммарный объем от нескольких десятков килобайт до нескольких десятков мегабайт. Их назначение — хранить операнды, обрабатываемые прямо сейчас в текущем такте. В процессоре нет долговременного хранилища файлов. Данные прокачиваются через процессор, как вода через турбину».</p>
+ </div>
 
-    <h3>Фронтальный экспресс-разбор выполненных схем</h3>
-    <p>
-      Преподаватель предлагает разобрать одну из работ и организовать фронтальную проверку по открытым 4-балльным критериям.
-    </p>
-  </section>
+ <h3>Фронтальный экспресс-разбор выполненных схем</h3>
+ <p>
+ Преподаватель предлагает разобрать одну из работ и организовать фронтальную проверку по открытым 4-балльным критериям.
+ </p>
+ </section>
 
-  <!-- =========================================================================
-       ЭТАП 6
-       ========================================================================= -->
-  <section class="stage-card" id="stage-6">
-    <div class="stage-header">
-      <div class="stage-title-wrap">
-        <span class="stage-number">6</span>
-        <div>
-          <h2>Подведение итогов занятия и организация самостоятельной работы</h2>
-          <p style="margin: 0; font-size: 13.5px; color: var(--text-soft);">Рефлексия, закрепление предметного результата и методические указания к домашней работе</p>
-        </div>
-      </div>
-      <span class="stage-duration" id="dur-stage-6">Базовый: 5 минут (Сокращённый: 5 минут)</span>
-    </div>
+ <!-- =========================================================================
+ ЭТАП 6
+ ========================================================================= -->
+ <section class="stage-card" id="stage-6">
+ <div class="stage-header">
+ <div class="stage-title-wrap">
+ <span class="stage-number">6</span>
+ <div>
+ <h2>Подведение итогов занятия и организация самостоятельной работы</h2>
+ <p style="margin: 0; font-size: 13.5px; color: var(--text-soft);">Рефлексия, закрепление предметного результата и методические указания к домашней работе</p>
+ </div>
+ </div>
+ <span class="stage-duration" id="dur-stage-6">Базовый: 5 минут (Сокращённый: 5 минут)</span>
+ </div>
 
-    <h3>Прямая речь преподавателя: итоговое обобщение</h3>
-    <div class="speech-box">
-      <div class="speaker-tag">Слова преподавателя:</div>
-      «Подведем итог нашего занятия. Сегодня мы заложили прочный инженерный фундамент:
-      <br>
-      1. Мы строго развели понятия: <strong>аппаратные средства</strong> — это физическая материальная часть (детали, проводники, кремний); <strong>архитектура</strong> — это логическая структура, система команд, принципы взаимосвязи и протоколы обмена.
-      <br>
-      2. Мы пошагово разобрали маршрут данных: ввод через контроллер → буферизация в оперативной памяти → логическая обработка в регистрах процессора → вывод во фреймбуфер видеопамяти и на экран.
-      <br>
-      3. Мы навсегда зафиксировали: ОЗУ — это энергозависимое временное рабочее пространство. Запись на долговременный накопитель (SSD/HDD) происходит только при запросе программы, включая автосохранение, или при явном вызове команды сохранения пользователем под управлением ОС.»
-    </div>
+ <h3>Прямая речь преподавателя: итоговое обобщение</h3>
+ <div class="speech-box">
+ <div class="speaker-tag">Слова преподавателя:</div>
+ «Подведем итог нашего занятия. Сегодня мы заложили прочный инженерный фундамент:
+ <br>
+ 1. Мы строго развели понятия: <strong>аппаратные средства</strong> — это физическая материальная часть (детали, проводники, кремний); <strong>архитектура</strong> — это логическая структура, система команд, принципы взаимосвязи и протоколы обмена.
+ <br>
+ 2. Мы пошагово разобрали маршрут данных: ввод через контроллер → буферизация в оперативной памяти → логическая обработка в регистрах процессора → вывод во фреймбуфер видеопамяти и на экран.
+ <br>
+ 3. Мы навсегда зафиксировали: ОЗУ — это энергозависимое временное рабочее пространство. Запись на долговременный накопитель (SSD/HDD) происходит только при запросе программы, включая автосохранение, или при явном вызове команды сохранения пользователем под управлением ОС.»
+ </div>
 
-    <h3>Педагогическая инструкция по самостоятельной (домашней) работе (60 минут)</h3>
-    <div class="criteria-block">
-      <div style="font-weight: 800; font-size: 14.5px; color: var(--text-main); margin-bottom: 8px;">
-        Методические указания преподавателя по сопровождению домашней работы:
-      </div>
-      <p style="font-size: 14.5px; line-height: 1.6; color: var(--text-muted); margin-bottom: 10px;">
-        Самостоятельная внеаудиторная работа рассчитана строго на <strong>60 минут</strong> и направлена на индивидуальное закрепление понятий архитектуры, аппаратных средств и динамики потоков данных. Преподаватель ориентирует учащихся на выполнение утвержденного самостоятельного задания без дублирования или подмены его условий:
-      </p>
-      <ul style="margin-left: 20px; line-height: 1.6; font-size: 14.5px; color: var(--text-muted);">
-        <li><strong>Фокус проверки:</strong> способность разграничить физический узел и логический принцип сопряжения на новом предметном материале; понимание того, почему замена или сбой модуля ОЗУ приводит к потере несохраненного состояния буферов, но не разрушает структуру файлов на накопителе.</li>
-        <li><strong>Критерии оценивания:</strong> соответствуют открытой 4-балльной шкале (выделение функциональных компонентов, корректность направлений информационных потоков и аргументированное объяснение причинно-следственных связей).</li>
-        <li><strong>Контрольная точка:</strong> проверить после сдачи, затруднения разобрать индивидуально.</li>
-      </ul>
-    </div>
-  </section>
+ <h3>Педагогическая инструкция по самостоятельной (домашней) работе (60 минут)</h3>
+ <div class="criteria-block">
+ <div style="font-weight: 800; font-size: 14.5px; color: var(--text-main); margin-bottom: 8px;">
+ Методические указания преподавателя по сопровождению домашней работы:
+ </div>
+ <p style="font-size: 14.5px; line-height: 1.6; color: var(--text-muted); margin-bottom: 10px;">
+ Самостоятельная внеаудиторная работа рассчитана строго на <strong>60 минут</strong> и направлена на индивидуальное закрепление понятий архитектуры, аппаратных средств и динамики потоков данных. Преподаватель ориентирует учащихся на выполнение утвержденного самостоятельного задания без дублирования или подмены его условий:
+ </p>
+ <ul style="margin-left: 20px; line-height: 1.6; font-size: 14.5px; color: var(--text-muted);">
+ <li><strong>Фокус проверки:</strong> способность разграничить физический узел и логический принцип сопряжения на новом предметном материале; понимание того, почему замена или сбой модуля ОЗУ приводит к потере несохраненного состояния буферов, но не разрушает структуру файлов на накопителе.</li>
+ <li><strong>Критерии оценивания:</strong> соответствуют открытой 4-балльной шкале (выделение функциональных компонентов, корректность направлений информационных потоков и аргументированное объяснение причинно-следственных связей).</li>
+ <li><strong>Контрольная точка:</strong> проверить после сдачи, затруднения разобрать индивидуально.</li>
+ </ul>
+ </div>
+ </section>
 
-  <!-- =========================================================================
-       МЕТОДИЧЕСКИЙ РАЗДЕЛ
-       ========================================================================= -->
-  <section class="stage-card" id="method-notes">
-    <div class="stage-header">
-      <div class="stage-title-wrap">
-        <span class="stage-number" style="background: var(--accent-teal);">М</span>
-        <div>
-          <h2>Методические рекомендации и адаптация сценариев (90 vs 60 минут)</h2>
-          <p style="margin: 0; font-size: 13.5px; color: var(--text-soft);">Инструкция для преподавателя по управлению темпом занятия при различных ограничениях сетки расписания</p>
-        </div>
-      </div>
-    </div>
+ <!-- =========================================================================
+ МЕТОДИЧЕСКИЙ РАЗДЕЛ
+ ========================================================================= -->
+ <section class="stage-card" id="method-notes">
+ <div class="stage-header">
+ <div class="stage-title-wrap">
+ <span class="stage-number" style="background: var(--accent-teal);">М</span>
+ <div>
+ <h2>Методические рекомендации и адаптация сценариев (90 vs 60 минут)</h2>
+ <p style="margin: 0; font-size: 13.5px; color: var(--text-soft);">Инструкция для преподавателя по управлению темпом занятия при различных ограничениях сетки расписания</p>
+ </div>
+ </div>
+ </div>
 
-    <div class="table-container">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Этап занятия</th>
-            <th>Основной сценарий (90 минут)</th>
-            <th>Сокращённый сценарий (60 минут)</th>
-            <th>Что именно переносится в самостоятельную работу при 60 мин</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>1. Вход и проблемный вопрос</strong></td>
-            <td>5 минут</td>
-            <td>5 минут</td>
-            <td>Сохраняется в полном объеме (необходим для мотивации).</td>
-          </tr>
-          <tr>
-            <td><strong>2. Теоретическое объяснение понятий</strong></td>
-            <td>30 минут</td>
-            <td>20 минут</td>
-            <td>Уменьшается количество второстепенных исторических примеров; разбор архитектурной аналогии с домом дается кратко; глубокое сравнение CISC/RISC переносится на профильные темы.</td>
-          </tr>
-          <tr>
-            <td><strong>3. Демонстрация и сквозной маршрут</strong></td>
-            <td>20 минут</td>
-            <td>10 минут</td>
-            <td>Схема демонстрируется в готовом виде с акцентом на клавиатура → ОЗУ → CPU → Экран; живая микро-демонстрация монитора ресурсов сокращается до показа одного снимка.</td>
-          </tr>
-          <tr>
-            <td><strong>4. Индивидуальное составление схемы</strong></td>
-            <td>20 минут</td>
-            <td>15 минут</td>
-            <td><strong>Обязательный результат сохраняется:</strong> каждый студент обязан составить индивидуальную функциональную схему по условию рабочего листа и обосновать маршрут данных.</td>
-          </tr>
-          <tr>
-            <td><strong>5. Разбор типичных ошибок и обратная связь</strong></td>
-            <td>10 минут</td>
-            <td>5 минут</td>
-            <td>Разбирается фронтально только одна главная ошибка — попытка связать клавиатуру напрямую с SSD в обход ОЗУ.</td>
-          </tr>
-          <tr>
-            <td><strong>6. Итог занятия и инструктаж</strong></td>
-            <td>5 минут</td>
-            <td>5 минут</td>
-            <td>Четкая фиксация критериев проверки и рекомендаций по самостоятельной работе.</td>
-          </tr>
-          <tr>
-            <td><strong>ИТОГО</strong></td>
-            <td><strong>90 минут</strong></td>
-            <td><strong>60 минут</strong></td>
-            <td><strong>Инвариант:</strong> понимание разницы Hardware vs Architecture и способность изобразить маршрут данных гарантируются в обоих сценариях.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+ <div class="table-container">
+ <table class="data-table">
+ <thead>
+ <tr>
+ <th>Этап занятия</th>
+ <th>Основной сценарий (90 минут)</th>
+ <th>Сокращённый сценарий (60 минут)</th>
+ <th>Что именно переносится в самостоятельную работу при 60 мин</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>1. Вход и проблемный вопрос</strong></td>
+ <td>5 минут</td>
+ <td>5 минут</td>
+ <td>Сохраняется в полном объеме (необходим для мотивации).</td>
+ </tr>
+ <tr>
+ <td><strong>2. Теоретическое объяснение понятий</strong></td>
+ <td>30 минут</td>
+ <td>20 минут</td>
+ <td>Уменьшается количество второстепенных исторических примеров; разбор архитектурной аналогии с домом дается кратко; глубокое сравнение CISC/RISC переносится на профильные темы.</td>
+ </tr>
+ <tr>
+ <td><strong>3. Демонстрация и сквозной маршрут</strong></td>
+ <td>20 минут</td>
+ <td>10 минут</td>
+ <td>Схема демонстрируется в готовом виде с акцентом на клавиатура → ОЗУ → CPU → Экран; живая микро-демонстрация монитора ресурсов сокращается до показа одного снимка.</td>
+ </tr>
+ <tr>
+ <td><strong>4. Индивидуальное составление схемы</strong></td>
+ <td>20 минут</td>
+ <td>15 минут</td>
+ <td><strong>Обязательный результат сохраняется:</strong> каждый студент обязан составить индивидуальную функциональную схему по условию рабочего листа и обосновать маршрут данных.</td>
+ </tr>
+ <tr>
+ <td><strong>5. Разбор типичных ошибок и обратная связь</strong></td>
+ <td>10 минут</td>
+ <td>5 минут</td>
+ <td>Разбирается фронтально только одна главная ошибка — попытка связать клавиатуру напрямую с SSD в обход ОЗУ.</td>
+ </tr>
+ <tr>
+ <td><strong>6. Итог занятия и инструктаж</strong></td>
+ <td>5 минут</td>
+ <td>5 минут</td>
+ <td>Четкая фиксация критериев проверки и рекомендаций по самостоятельной работе.</td>
+ </tr>
+ <tr>
+ <td><strong>ИТОГО</strong></td>
+ <td><strong>90 минут</strong></td>
+ <td><strong>60 минут</strong></td>
+ <td><strong>Инвариант:</strong> понимание разницы Hardware vs Architecture и способность изобразить маршрут данных гарантируются в обоих сценариях.</td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
 
-    <h3>Рекомендации по работе с отсутствовавшими студентами</h3>
-    <p>
-      Если обучающийся пропустил занятие, ему не выставляется автоматическая оценка. По возвращении студенту выдается индивидуальный бланк с кейсом: «Построить функциональную схему прохождения звукового сигнала (микрофон → аудиокодек → ОЗУ → процессор → динамики, с сохранением в WAV-файл на диск) с обоснованием роли аппаратных средств и архитектуры». Оценивание производится по тем же 4-балльным открытым критериям.
-    </p>
+ <h3>Рекомендации по работе с отсутствовавшими студентами</h3>
+ <p>
+ Если обучающийся пропустил занятие, ему не выставляется автоматическая оценка. По возвращении студенту выдается индивидуальный бланк с кейсом: «Построить функциональную схему прохождения звукового сигнала (микрофон → аудиокодек → ОЗУ → процессор → динамики, с сохранением в WAV-файл на диск) с обоснованием роли аппаратных средств и архитектуры». Оценивание производится по тем же 4-балльным открытым критериям.
+ </p>
 
-    <h3>Защита от перегрузки терминологией</h3>
-    <p>
-      Критически важно не перегружать вводный материал узкоспециализированными терминами микроэлектроники (физикой полупроводников p-n переходов, таблицами микрокоманд и таймингами CL-tRCD-tRP). Сохраняйте строгий фокус: <strong>функциональная роль блока</strong>, <strong>маршрут информации</strong>, <strong>логический принцип сопряжения</strong>.
-    </p>
-  </section>
+ <h3>Защита от перегрузки терминологией</h3>
+ <p>
+ Критически важно не перегружать вводный материал узкоспециализированными терминами микроэлектроники (физикой полупроводников p-n переходов, таблицами микрокоманд и таймингами CL-tRCD-tRP). Сохраняйте строгий фокус: <strong>функциональная роль блока</strong>, <strong>маршрут информации</strong>, <strong>логический принцип сопряжения</strong>.
+ </p>
+ </section>
 
 </div>
 
 <script>
-  // Интерактивное переключение сценария времени (90 мин / 60 мин)
-  function setScenario(minutes) {
-    const btn90 = document.getElementById('btn-mode-90');
-    const btn60 = document.getElementById('btn-mode-60');
-    const timingBar = document.getElementById('timing-bar');
-    const legend = document.getElementById('timing-legend');
+ // Интерактивное переключение сценария времени (90 мин / 60 мин)
+ function setScenario(minutes) {
+ const btn90 = document.getElementById('btn-mode-90');
+ const btn60 = document.getElementById('btn-mode-60');
+ const timingBar = document.getElementById('timing-bar');
+ const legend = document.getElementById('timing-legend');
 
-    const dur1 = document.getElementById('dur-stage-1');
-    const dur2 = document.getElementById('dur-stage-2');
-    const dur3 = document.getElementById('dur-stage-3');
-    const dur4 = document.getElementById('dur-stage-4');
-    const dur5 = document.getElementById('dur-stage-5');
-    const dur6 = document.getElementById('dur-stage-6');
+ const dur1 = document.getElementById('dur-stage-1');
+ const dur2 = document.getElementById('dur-stage-2');
+ const dur3 = document.getElementById('dur-stage-3');
+ const dur4 = document.getElementById('dur-stage-4');
+ const dur5 = document.getElementById('dur-stage-5');
+ const dur6 = document.getElementById('dur-stage-6');
 
-    if (minutes === 60) {
-      btn60.className = 'btn btn-primary';
-      btn90.className = 'btn';
+ if (minutes === 60) {
+ btn60.className = 'btn btn-primary';
+ btn90.className = 'btn';
 
-      // 5 + 20 + 10 + 15 + 5 + 5 = 60
-      timingBar.innerHTML = `
-        <div class="timing-segment seg-1" style="width: 8.33%;" title="Вход: 5 мин">5м</div>
-        <div class="timing-segment seg-2" style="width: 33.33%;" title="Понятия: 20 мин">20м</div>
-        <div class="timing-segment seg-3" style="width: 16.67%;" title="Демонстрация: 10 мин">10м</div>
-        <div class="timing-segment seg-4" style="width: 25.0%;" title="Индивидуальная схема: 15 мин">15м</div>
-        <div class="timing-segment seg-5" style="width: 8.33%;" title="Обратная связь: 5 мин">5м</div>
-        <div class="timing-segment seg-6" style="width: 8.33%;" title="Итог: 5 мин">5м</div>
-      `;
+ // 5 + 20 + 10 + 15 + 5 + 5 = 60
+ timingBar.innerHTML = `
+ <div class="timing-segment seg-1" style="width: 8.33%;" title="Вход: 5 мин">5м</div>
+ <div class="timing-segment seg-2" style="width: 33.33%;" title="Понятия: 20 мин">20м</div>
+ <div class="timing-segment seg-3" style="width: 16.67%;" title="Демонстрация: 10 мин">10м</div>
+ <div class="timing-segment seg-4" style="width: 25.0%;" title="Индивидуальная схема: 15 мин">15м</div>
+ <div class="timing-segment seg-5" style="width: 8.33%;" title="Обратная связь: 5 мин">5м</div>
+ <div class="timing-segment seg-6" style="width: 8.33%;" title="Итог: 5 мин">5м</div>
+ `;
 
-      legend.innerHTML = `
-        <div class="legend-item"><div class="legend-color" style="background:#64748b"></div><span>1. Вход и импульс (5 мин)</span></div>
-        <div class="legend-item"><div class="legend-color" style="background:#1d4ed8"></div><span>2. Понятия и маршрут (20 мин)</span></div>
-        <div class="legend-item"><div class="legend-color" style="background:#0f766e"></div><span>3. Демо и поиск ошибок (10 мин)</span></div>
-        <div class="legend-item"><div class="legend-color" style="background:#d97706"></div><span>4. Индивидуальная схема (15 мин)</span></div>
-        <div class="legend-item"><div class="legend-color" style="background:#7c3aed"></div><span>5. Обратная связь (5 мин)</span></div>
-        <div class="legend-item"><div class="legend-color" style="background:#475569"></div><span>6. Итог занятия (5 мин)</span></div>
-      `;
+ legend.innerHTML = `
+ <div class="legend-item"><div class="legend-color" style="background:#64748b"></div><span>1. Вход и импульс (5 мин)</span></div>
+ <div class="legend-item"><div class="legend-color" style="background:#1d4ed8"></div><span>2. Понятия и маршрут (20 мин)</span></div>
+ <div class="legend-item"><div class="legend-color" style="background:#0f766e"></div><span>3. Демо и поиск ошибок (10 мин)</span></div>
+ <div class="legend-item"><div class="legend-color" style="background:#d97706"></div><span>4. Индивидуальная схема (15 мин)</span></div>
+ <div class="legend-item"><div class="legend-color" style="background:#7c3aed"></div><span>5. Обратная связь (5 мин)</span></div>
+ <div class="legend-item"><div class="legend-color" style="background:#475569"></div><span>6. Итог занятия (5 мин)</span></div>
+ `;
 
-      dur1.textContent = 'Текущий режим: 5 минут';
-      dur2.textContent = 'Текущий режим: 20 минут';
-      dur3.textContent = 'Текущий режим: 10 минут';
-      dur4.textContent = 'Текущий режим: 15 минут';
-      dur5.textContent = 'Текущий режим: 5 минут';
-      dur6.textContent = 'Текущий режим: 5 минут';
-    } else {
-      btn90.className = 'btn btn-primary';
-      btn60.className = 'btn';
+ dur1.textContent = 'Текущий режим: 5 минут';
+ dur2.textContent = 'Текущий режим: 20 минут';
+ dur3.textContent = 'Текущий режим: 10 минут';
+ dur4.textContent = 'Текущий режим: 15 минут';
+ dur5.textContent = 'Текущий режим: 5 минут';
+ dur6.textContent = 'Текущий режим: 5 минут';
+ } else {
+ btn90.className = 'btn btn-primary';
+ btn60.className = 'btn';
 
-      // 5 + 30 + 20 + 20 + 10 + 5 = 90
-      timingBar.innerHTML = `
-        <div class="timing-segment seg-1" style="width: 5.55%;" title="Вход: 5 мин">5м</div>
-        <div class="timing-segment seg-2" style="width: 33.33%;" title="Понятия: 30 мин">30м</div>
-        <div class="timing-segment seg-3" style="width: 22.22%;" title="Демонстрация: 20 мин">20м</div>
-        <div class="timing-segment seg-4" style="width: 22.22%;" title="Индивидуальная схема: 20 мин">20м</div>
-        <div class="timing-segment seg-5" style="width: 11.11%;" title="Обратная связь: 10 мин">10м</div>
-        <div class="timing-segment seg-6" style="width: 5.55%;" title="Итог: 5 мин">5м</div>
-      `;
+ // 5 + 30 + 20 + 20 + 10 + 5 = 90
+ timingBar.innerHTML = `
+ <div class="timing-segment seg-1" style="width: 5.55%;" title="Вход: 5 мин">5м</div>
+ <div class="timing-segment seg-2" style="width: 33.33%;" title="Понятия: 30 мин">30м</div>
+ <div class="timing-segment seg-3" style="width: 22.22%;" title="Демонстрация: 20 мин">20м</div>
+ <div class="timing-segment seg-4" style="width: 22.22%;" title="Индивидуальная схема: 20 мин">20м</div>
+ <div class="timing-segment seg-5" style="width: 11.11%;" title="Обратная связь: 10 мин">10м</div>
+ <div class="timing-segment seg-6" style="width: 5.55%;" title="Итог: 5 мин">5м</div>
+ `;
 
-      legend.innerHTML = `
-        <div class="legend-item"><div class="legend-color" style="background:#64748b"></div><span>1. Вход и импульс (5 мин)</span></div>
-        <div class="legend-item"><div class="legend-color" style="background:#1d4ed8"></div><span>2. Понятия и маршрут (30 мин)</span></div>
-        <div class="legend-item"><div class="legend-color" style="background:#0f766e"></div><span>3. Демо и поиск ошибок (20 мин)</span></div>
-        <div class="legend-item"><div class="legend-color" style="background:#d97706"></div><span>4. Индивидуальная схема (20 мин)</span></div>
-        <div class="legend-item"><div class="legend-color" style="background:#7c3aed"></div><span>5. Обратная связь (10 мин)</span></div>
-        <div class="legend-item"><div class="legend-color" style="background:#475569"></div><span>6. Итог занятия (5 мин)</span></div>
-      `;
+ legend.innerHTML = `
+ <div class="legend-item"><div class="legend-color" style="background:#64748b"></div><span>1. Вход и импульс (5 мин)</span></div>
+ <div class="legend-item"><div class="legend-color" style="background:#1d4ed8"></div><span>2. Понятия и маршрут (30 мин)</span></div>
+ <div class="legend-item"><div class="legend-color" style="background:#0f766e"></div><span>3. Демо и поиск ошибок (20 мин)</span></div>
+ <div class="legend-item"><div class="legend-color" style="background:#d97706"></div><span>4. Индивидуальная схема (20 мин)</span></div>
+ <div class="legend-item"><div class="legend-color" style="background:#7c3aed"></div><span>5. Обратная связь (10 мин)</span></div>
+ <div class="legend-item"><div class="legend-color" style="background:#475569"></div><span>6. Итог занятия (5 мин)</span></div>
+ `;
 
-      dur1.textContent = 'Текущий режим: 5 минут';
-      dur2.textContent = 'Текущий режим: 30 минут';
-      dur3.textContent = 'Текущий режим: 20 минут';
-      dur4.textContent = 'Текущий режим: 20 минут';
-      dur5.textContent = 'Текущий режим: 10 минут';
-      dur6.textContent = 'Текущий режим: 5 минут';
-    }
-  }
+ dur1.textContent = 'Текущий режим: 5 минут';
+ dur2.textContent = 'Текущий режим: 30 минут';
+ dur3.textContent = 'Текущий режим: 20 минут';
+ dur4.textContent = 'Текущий режим: 20 минут';
+ dur5.textContent = 'Текущий режим: 10 минут';
+ dur6.textContent = 'Текущий режим: 5 минут';
+ }
+ }
 </script>
 
 </body>

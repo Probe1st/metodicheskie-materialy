@@ -1,508 +1,494 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Технологическая карта занятия: Организация интерфейса с пользователем: ввод</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --text-muted: #475569;
-      --border: #e2e8f0;
-      --accent: #0284c7;
-      --accent-dark: #0369a1;
-      --accent-soft: #f0f9ff;
-    }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Технологическая карта занятия: Организация интерфейса с пользователем: ввод</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card-bg: #ffffff;
+ --text: #0f172a;
+ --text-muted: #475569;
+ --border: #e2e8f0;
+ --accent: #0284c7;
+ --accent-dark: #0369a1;
+ --accent-soft: #f0f9ff;
+ }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ }
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.55;
-      padding: 24px 16px;
-    }
+ body {
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+ background-color: var(--bg);
+ color: var(--text);
+ line-height: 1.55;
+ padding: 24px 16px;
+ }.container {
+ max-width: 1040px;
+ margin: 0 auto;
+ }
 
-    .container {
-      max-width: 1040px;
-      margin: 0 auto;
-    }
+ header.tk-header {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    header.tk-header {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ h1 {
+ font-size: 1.85rem;
+ font-weight: 800;
+ color: var(--text);
+ margin-bottom: 8px;
+ }.subtitle {
+ font-size: 1.05rem;
+ color: var(--text-muted);
+ }
 
-    h1 {
-      font-size: 1.85rem;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 8px;
-    }
+ section {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    .subtitle {
-      font-size: 1.05rem;
-      color: var(--text-muted);
-    }
+ h2 {
+ font-size: 1.35rem;
+ font-weight: 700;
+ color: var(--accent-dark);
+ margin-bottom: 16px;
+ border-bottom: 2px solid var(--accent-soft);
+ padding-bottom: 8px;
+ }.meta-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+ gap: 16px;
+ margin-bottom: 12px;
+ }.meta-item {
+ display: flex;
+ flex-direction: column;
+ gap: 4px;
+ }.meta-label {
+ font-size: 0.8rem;
+ font-weight: 700;
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+ color: var(--text-muted);
+ }.meta-val {
+ font-size: 0.95rem;
+ font-weight: 600;
+ color: var(--text);
+ }
 
-    section {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ table.tk-table {
+ width: 100%;
+ border-collapse: collapse;
+ margin-top: 12px;
+ font-size: 0.95rem;
+ }
 
-    h2 {
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: var(--accent-dark);
-      margin-bottom: 16px;
-      border-bottom: 2px solid var(--accent-soft);
-      padding-bottom: 8px;
-    }
+ table.tk-table th, table.tk-table td {
+ border: 1px solid var(--border);
+ padding: 12px 14px;
+ vertical-align: top;
+ text-align: left;
+ }
 
-    .meta-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 16px;
-      margin-bottom: 12px;
-    }
+ table.tk-table th {
+ background-color: #f1f5f9;
+ color: var(--text);
+ font-weight: 700;
+ }
 
-    .meta-item {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
+ table.tk-table tr:nth-child(even) {
+ background-color: #f8fafc;
+ }.badge-stage {
+ display: inline-block;
+ padding: 3px 8px;
+ background-color: var(--accent-soft);
+ color: var(--accent-dark);
+ border-radius: 4px;
+ font-weight: 700;
+ font-size: 0.8rem;
+ margin-bottom: 4px;
+ }
 
-    .meta-label {
-      font-size: 0.8rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-    }
+ ul {
+ margin-left: 18px;
+ margin-top: 4px;
+ }
 
-    .meta-val {
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: var(--text);
-    }
+ li {
+ margin-bottom: 6px;
+ }
 
-    table.tk-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 12px;
-      font-size: 0.95rem;
-    }
+ code {
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 0.88em;
+ background-color: #f1f5f9;
+ padding: 1px 4px;
+ border-radius: 3px;
+ color: #0369a1;
+ }
 
-    table.tk-table th, table.tk-table td {
-      border: 1px solid var(--border);
-      padding: 12px 14px;
-      vertical-align: top;
-      text-align: left;
-    }
-
-    table.tk-table th {
-      background-color: #f1f5f9;
-      color: var(--text);
-      font-weight: 700;
-    }
-
-    table.tk-table tr:nth-child(even) {
-      background-color: #f8fafc;
-    }
-
-    .badge-stage {
-      display: inline-block;
-      padding: 3px 8px;
-      background-color: var(--accent-soft);
-      color: var(--accent-dark);
-      border-radius: 4px;
-      font-weight: 700;
-      font-size: 0.8rem;
-      margin-bottom: 4px;
-    }
-
-    ul {
-      margin-left: 18px;
-      margin-top: 4px;
-    }
-
-    li {
-      margin-bottom: 6px;
-    }
-
-    code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.88em;
-      background-color: #f1f5f9;
-      padding: 1px 4px;
-      border-radius: 3px;
-      color: #0369a1;
-    }
-
-    @media (max-width: 768px) {
-      body { padding: 12px 8px; }
-      header.tk-header, section { padding: 16px; }
-      table.tk-table { display: block; overflow-x: auto; }
-    }
-  </style>
+ @media (max-width: 768px) {
+ body { padding: 12px 8px; }
+ header.tk-header, section { padding: 16px; }
+ table.tk-table { display: block; overflow-x: auto; }
+ }
+ </style>
 </head>
 <body>
-  <div class="container">
-    <header class="tk-header">
-      <h1>Технологическая карта учебного занятия</h1>
-      <div class="subtitle">Тема 4. Проектирование структур баз данных &mdash; Организация интерфейса с пользователем: ввод (Занятие №23)</div>
-    </header>
+ <div class="container">
+ <header class="tk-header">
+ <h1>Технологическая карта учебного занятия</h1>
+ <div class="subtitle">Тема 4. Проектирование структур баз данных &mdash; Организация интерфейса с пользователем: ввод (Занятие №23)</div>
+ </header>
 
-    <section>
-      <h2>Паспорт учебного занятия</h2>
-      <div class="meta-grid">
-        <div class="meta-item">
-          <span class="meta-label">Дисциплина</span>
-          <span class="meta-val">ОП.08 Основы проектирования баз данных</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Специальность</span>
-          <span class="meta-val">09.02.06 Сетевое и системное администрирование</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Тематический раздел</span>
-          <span class="meta-val">Тема 4. Проектирование структур баз данных (§2.2 с.7&ndash;8 программы)</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Тема занятия</span>
-          <span class="meta-val">Организация интерфейса с пользователем: ввод (Занятие №23)</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Регламент времени</span>
-          <span class="meta-val">2 академических часа (80 минут основной / 60 минут сокращенный)</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Используемые педагогические технологии</span>
-          <span class="meta-val">Информационно-коммуникационные технологии, проблемно-ориентированное обучение, кейс-стади, развивающее обучение</span>
-        </div>
-        <div class="meta-item" style="grid-column: 1 / -1;">
-          <span class="meta-label">Цель занятия</span>
-          <span class="meta-val">Сформировать у обучающихся теоретические знания и проектные умения в области организации интерфейса пользователя для ввода данных в реляционные БД: изучение n-уровневой архитектуры и паттерна MVC, освоение механизмов Data Binding, проектирование сопряжения элементов экранных форм (Masked Input, Combobox/Select, RadioGroup, Checkbox, DatePicker, Master-Detail) с атрибутами таблиц и первичными/внешними ключами СУБД с соблюдением требований эргономики UI.</span>
-        </div>
-        <div class="meta-item" style="grid-column: 1 / -1;">
-          <span class="meta-label">Дидактические средства</span>
-          <span class="meta-val">Интерактивная презентация (15 слайдов с культовым веб-комиксом Bobby Tables), интерактивный рабочий лист студента zanyatie.html (4 варианта проектных кейсов экранных форм), теоретический конспект lekciya.html, методическое руководство metodicheskiy_material.html, критериальная рубрика .rubrika.md, мультимедийный проектор.</span>
-        </div>
-        <div class="meta-item" style="grid-column: 1 / -1;">
-          <span class="meta-label">Формируемые компетенции</span>
-          <span class="meta-val">ОК 01, ОК 02, ОК 04, ОК 07, ПК 1.1, ПК 1.2, ПК 1.5</span>
-        </div>
-      </div>
-    </section>
+ <section>
+ <h2>Паспорт учебного занятия</h2>
+ <div class="meta-grid">
+ <div class="meta-item">
+ <span class="meta-label">Дисциплина</span>
+ <span class="meta-val">ОП.08 Основы проектирования баз данных</span>
+ </div>
+ <div class="meta-item">
+ <span class="meta-label">Специальность</span>
+ <span class="meta-val">09.02.06 Сетевое и системное администрирование</span>
+ </div>
+ <div class="meta-item">
+ <span class="meta-label">Тематический раздел</span>
+ <span class="meta-val">Тема 4. Проектирование структур баз данных (&ndash;8 программы)</span>
+ </div>
+ <div class="meta-item">
+ <span class="meta-label">Тема занятия</span>
+ <span class="meta-val">Организация интерфейса с пользователем: ввод (Занятие №23)</span>
+ </div>
+ <div class="meta-item">
+ <span class="meta-label">Регламент времени</span>
+ <span class="meta-val">2 академических часа (80 минут основной / 60 минут сокращенный)</span>
+ </div>
+ <div class="meta-item">
+ <span class="meta-label">Используемые педагогические технологии</span>
+ <span class="meta-val">Информационно-коммуникационные технологии, проблемно-ориентированное обучение, кейс-стади, развивающее обучение</span>
+ </div>
+ <div class="meta-item" style="grid-column: 1 / -1;">
+ <span class="meta-label">Цель занятия</span>
+ <span class="meta-val">Сформировать у обучающихся теоретические знания и проектные умения в области организации интерфейса пользователя для ввода данных в реляционные БД: изучение n-уровневой архитектуры и паттерна MVC, освоение механизмов Data Binding, проектирование сопряжения элементов экранных форм (Masked Input, Combobox/Select, RadioGroup, Checkbox, DatePicker, Master-Detail) с атрибутами таблиц и первичными/внешними ключами СУБД с соблюдением требований эргономики UI.</span>
+ </div>
+ <div class="meta-item" style="grid-column: 1 / -1;">
+ <span class="meta-label">Дидактические средства</span>
+ <span class="meta-val">Интерактивная презентация (15 слайдов с культовым веб-комиксом Bobby Tables), интерактивный рабочий лист студента zanyatie.html (4 варианта проектных кейсов экранных форм), теоретический конспект lekciya.html, методическое руководство metodicheskiy_material.html, критериальная рубрика.rubrika.md, мультимедийный проектор.</span>
+ </div>
+ <div class="meta-item" style="grid-column: 1 / -1;">
+ <span class="meta-label">Формируемые компетенции</span>
+ <span class="meta-val">ОК 01, ОК 02, ОК 04, ОК 07, ПК 1.1, ПК 1.2, ПК 1.5</span>
+ </div>
+ </div>
+ </section>
 
-    <section>
-      <h2>Структура занятия &mdash; Основной регламент (80 минут)</h2>
-      <table class="tk-table">
-        <thead>
-          <tr>
-            <th style="width: 20%;">Этап и хронометраж</th>
-            <th style="width: 40%;">Деятельность преподавателя</th>
-            <th style="width: 40%;">Деятельность студентов</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 1</span><br>
-              <strong>Организационный момент и мотивация</strong><br>
-              <em>5 минут</em>
-            </td>
-            <td>
-              <ul>
-                <li>Приветствует обучающихся, отмечает явку, проверяет готовность рабочих мест и проектора.</li>
-                <li>Ставит мотивационный кейс: аварийный сбой корпоративной ERP-системы, вызванный тем, что операторы вводили названия филиалов вручную в текстовое поле, породив сотни дубликатов и сломав финансовую аналитику.</li>
-                <li>Формулирует тему занятия, цель и регламент работы на пару.</li>
-              </ul>
-            </td>
-            <td>
-              <ul>
-                <li>Приветствуют преподавателя, занимают рабочие места.</li>
-                <li>Осмысливают проблему неконтролируемого текстового ввода и необходимость интерфейсных ограничителей.</li>
-                <li>Фиксируют тему занятия в конспектах.</li>
-              </ul>
-            </td>
-          </tr>
+ <section>
+ <h2>Структура занятия &mdash; Основной регламент (80 минут)</h2>
+ <table class="tk-table">
+ <thead>
+ <tr>
+ <th style="width: 20%;">Этап и хронометраж</th>
+ <th style="width: 40%;">Деятельность преподавателя</th>
+ <th style="width: 40%;">Деятельность студентов</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 1</span><br>
+ <strong>Организационный момент и мотивация</strong><br>
+ <em>5 минут</em>
+ </td>
+ <td>
+ <ul>
+ <li>Приветствует обучающихся, отмечает явку, проверяет готовность рабочих мест и проектора.</li>
+ <li>Ставит мотивационный кейс: аварийный сбой корпоративной ERP-системы, вызванный тем, что операторы вводили названия филиалов вручную в текстовое поле, породив сотни дубликатов и сломав финансовую аналитику.</li>
+ <li>Формулирует тему занятия, цель и регламент работы на пару.</li>
+ </ul>
+ </td>
+ <td>
+ <ul>
+ <li>Приветствуют преподавателя, занимают рабочие места.</li>
+ <li>Осмысливают проблему неконтролируемого текстового ввода и необходимость интерфейсных ограничителей.</li>
+ <li>Фиксируют тему занятия в конспектах.</li>
+ </ul>
+ </td>
+ </tr>
 
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 2</span><br>
-              <strong>Актуализация опорных знаний</strong><br>
-              <em>8 минут</em>
-            </td>
-            <td>
-              <ul>
-                <li>Проводит фронтальный экспресс-опрос по ранее изученным темам: ограничения первичного и внешнего ключа (<code>PRIMARY KEY</code>, <code>FOREIGN KEY</code>), ограничения <code>CHECK</code> и <code>NOT NULL</code>.</li>
-                <li>Задает проблемный вопрос: «Как гарантировать, что оператор выберет существующий внешний ключ из связанной таблицы, если он не знает числовых идентификаторов ID?»</li>
-                <li>Подводит группу к понятию экранных элементов управления (Combobox, Autocomplete) и механизму разделения Text/Value.</li>
-              </ul>
-            </td>
-            <td>
-              <ul>
-                <li>Отвечают на вопросы преподавателя, повторяют понятия ссылочной целостности и внешних ключей.</li>
-                <li>Участвуют в диалоге, выдвигают гипотезы о сопряжении выпадающих списков со справочниками БД.</li>
-              </ul>
-            </td>
-          </tr>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 2</span><br>
+ <strong>Актуализация опорных знаний</strong><br>
+ <em>8 минут</em>
+ </td>
+ <td>
+ <ul>
+ <li>Проводит фронтальный экспресс-опрос по ранее изученным темам: ограничения первичного и внешнего ключа (<code>PRIMARY KEY</code>, <code>FOREIGN KEY</code>), ограничения <code>CHECK</code> и <code>NOT NULL</code>.</li>
+ <li>Задает проблемный вопрос: «Как гарантировать, что оператор выберет существующий внешний ключ из связанной таблицы, если он не знает числовых идентификаторов ID?»</li>
+ <li>Подводит группу к понятию экранных элементов управления (Combobox, Autocomplete) и механизму разделения Text/Value.</li>
+ </ul>
+ </td>
+ <td>
+ <ul>
+ <li>Отвечают на вопросы преподавателя, повторяют понятия ссылочной целостности и внешних ключей.</li>
+ <li>Участвуют в диалоге, выдвигают гипотезы о сопряжении выпадающих списков со справочниками БД.</li>
+ </ul>
+ </td>
+ </tr>
 
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 3</span><br>
-              <strong>Сообщение новых знаний</strong><br>
-              <em>35 минут</em>
-            </td>
-            <td>
-              <ul>
-                <li>Демонстрирует интерактивную презентацию <code>prezentaciya.html</code> (слайды 2&ndash;14).</li>
-                <li>Объясняет n-уровневую архитектуру (View &rarr; Controller &rarr; DAO/ORM &rarr; Database) и недопустимость прямого SQL из клиентского кода (слайды 2&ndash;3).</li>
-                <li>Раскрывает паттерны MVC/MVVM и концепцию Data Binding (одностороннее и двустороннее связывание, слайды 4&ndash;5).</li>
-                <li>Анализирует соответствие элементов интерфейса типам данных СУБД: текстовые поля с масками, Combobox для внешних ключей, RadioGroup для ENUM/CHECK, Checkbox для BOOLEAN, DatePicker в стандарте ISO 8601 (слайды 6&ndash;9).</li>
-                <li>Излагает архитектуру сложных форм Master-Detail и транзакционную механику фиксации документа со спецификацией (слайды 10&ndash;11).</li>
-                <li>Разбирает двухуровневую модель валидации (Client UX vs Database Integrity) и законы эргономики UI (Tab Order, индикаторы NOT NULL, Double Submit Prevention, слайды 12&ndash;14).</li>
-              </ul>
-            </td>
-            <td>
-              <ul>
-                <li>Слушают лекцию преподавателя, анализируют схемы взаимодействия слоев и таблицы маппинга.</li>
-                <li>Записывают в конспекты ключевые понятия: Data Binding, DTO, Value/Display Member, Master-Detail.</li>
-                <li>Задают уточняющие вопросы по транзакционной фиксации связанных таблиц.</li>
-              </ul>
-            </td>
-          </tr>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 3</span><br>
+ <strong>Сообщение новых знаний</strong><br>
+ <em>35 минут</em>
+ </td>
+ <td>
+ <ul>
+ <li>Демонстрирует интерактивную презентацию <code>prezentaciya.html</code> (слайды 2&ndash;14).</li>
+ <li>Объясняет n-уровневую архитектуру (View &rarr; Controller &rarr; DAO/ORM &rarr; Database) и недопустимость прямого SQL из клиентского кода (слайды 2&ndash;3).</li>
+ <li>Раскрывает паттерны MVC/MVVM и концепцию Data Binding (одностороннее и двустороннее связывание, слайды 4&ndash;5).</li>
+ <li>Анализирует соответствие элементов интерфейса типам данных СУБД: текстовые поля с масками, Combobox для внешних ключей, RadioGroup для ENUM/CHECK, Checkbox для BOOLEAN, DatePicker в стандарте ISO 8601 (слайды 6&ndash;9).</li>
+ <li>Излагает архитектуру сложных форм Master-Detail и транзакционную механику фиксации документа со спецификацией (слайды 10&ndash;11).</li>
+ <li>Разбирает двухуровневую модель валидации (Client UX vs Database Integrity) и законы эргономики UI (Tab Order, индикаторы NOT NULL, Double Submit Prevention, слайды 12&ndash;14).</li>
+ </ul>
+ </td>
+ <td>
+ <ul>
+ <li>Слушают лекцию преподавателя, анализируют схемы взаимодействия слоев и таблицы маппинга.</li>
+ <li>Записывают в конспекты ключевые понятия: Data Binding, DTO, Value/Display Member, Master-Detail.</li>
+ <li>Задают уточняющие вопросы по транзакционной фиксации связанных таблиц.</li>
+ </ul>
+ </td>
+ </tr>
 
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 4</span><br>
-              <strong>Демонстрация сквозного инженерного кейса</strong><br>
-              <em>12 минут</em>
-            </td>
-            <td>
-              <ul>
-                <li>На проекторе подробно разбирает сквозной инженерный кейс: форму регистрации оптового заказа (Master-Detail).</li>
-                <li>Показывает экранную компоновку: шапка документа (Клиент из Select, Склад, Дата) + табличная сетка спецификации (Товар, Количество, Цена, Скидка).</li>
-                <li>Демонстрирует JSON-структуру DTO, схему валидации и выполнение транзакции <code>BEGIN; INSERT INTO orders ... INSERT INTO order_items ... COMMIT;</code> на стороне сервера СУБД.</li>
-              </ul>
-            </td>
-            <td>
-              <ul>
-                <li>Следят за разбором кейса на проекторе.</li>
-                <li>Сопоставляют поля экранной формы с колонками таблиц <code>orders</code> и <code>order_items</code>.</li>
-                <li>Фиксируют алгоритм формирования DTO и транзакционного сохранения спецификации.</li>
-              </ul>
-            </td>
-          </tr>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 4</span><br>
+ <strong>Демонстрация сквозного инженерного кейса</strong><br>
+ <em>12 минут</em>
+ </td>
+ <td>
+ <ul>
+ <li>На проекторе подробно разбирает сквозной инженерный кейс: форму регистрации оптового заказа (Master-Detail).</li>
+ <li>Показывает экранную компоновку: шапка документа (Клиент из Select, Склад, Дата) + табличная сетка спецификации (Товар, Количество, Цена, Скидка).</li>
+ <li>Демонстрирует JSON-структуру DTO, схему валидации и выполнение транзакции <code>BEGIN; INSERT INTO orders... INSERT INTO order_items... COMMIT;</code> на стороне сервера СУБД.</li>
+ </ul>
+ </td>
+ <td>
+ <ul>
+ <li>Следят за разбором кейса на проекторе.</li>
+ <li>Сопоставляют поля экранной формы с колонками таблиц <code>orders</code> и <code>order_items</code>.</li>
+ <li>Фиксируют алгоритм формирования DTO и транзакционного сохранения спецификации.</li>
+ </ul>
+ </td>
+ </tr>
 
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 5</span><br>
-              <strong>Первичное закрепление знаний</strong><br>
-              <em>14 минут</em>
-            </td>
-            <td>
-              <ul>
-                <li>Инструктирует обучающихся по выполнению заданий в интерактивном рабочем листе <code>zanyatie.html</code>.</li>
-                <li>Распределяет студентов по 4 проектным вариантам:
-                  <ol>
-                    <li>Вариант 1: Заказ в оптовой CRM (Master-Detail, выбор клиента из справочника).</li>
-                    <li>Вариант 2: Путевой лист АТП (автомобиль, водитель, маршрут, DatePicker, одометр).</li>
-                    <li>Вариант 3: Госпитализация в стационар (персональные данные, отделение, врач, МКБ-10 Autocomplete).</li>
-                    <li>Вариант 4: Заявка в IT Service Desk (радиокнопки приоритета Low/Medium/High, категория, файлы).</li>
-                  </ol>
-                </li>
-                <li>Осуществляет индивидуальное консультирование, контролирует правильность маппинга элементов формы на атрибуты БД и соблюдение эргономики UI.</li>
-              </ul>
-            </td>
-            <td>
-              <ul>
-                <li>Открывают рабочий лист <code>zanyatie.html</code>, заполняют поля ФИО и группы, переключаются на назначенный вариант.</li>
-                <li>Проектируют эскиз экранной формы ввода, определяют состав элементов UI.</li>
-                <li>Заполняют матрицу сопряжения контролов с колонками БД, настраивают правила валидации.</li>
-                <li>Отвечают на контрольные вопросы самопроверки и сохраняют данные в LocalStorage.</li>
-              </ul>
-            </td>
-          </tr>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 5</span><br>
+ <strong>Первичное закрепление знаний</strong><br>
+ <em>14 минут</em>
+ </td>
+ <td>
+ <ul>
+ <li>Инструктирует обучающихся по выполнению заданий в интерактивном рабочем листе <code>zanyatie.html</code>.</li>
+ <li>Распределяет студентов по 4 проектным вариантам:
+ <ol>
+ <li>Вариант 1: Заказ в оптовой CRM (Master-Detail, выбор клиента из справочника).</li>
+ <li>Вариант 2: Путевой лист АТП (автомобиль, водитель, маршрут, DatePicker, одометр).</li>
+ <li>Вариант 3: Госпитализация в стационар (персональные данные, отделение, врач, МКБ-10 Autocomplete).</li>
+ <li>Вариант 4: Заявка в IT Service Desk (радиокнопки приоритета Low/Medium/High, категория, файлы).</li>
+ </ol>
+ </li>
+ <li>Осуществляет индивидуальное консультирование, контролирует правильность маппинга элементов формы на атрибуты БД и соблюдение эргономики UI.</li>
+ </ul>
+ </td>
+ <td>
+ <ul>
+ <li>Открывают рабочий лист <code>zanyatie.html</code>, заполняют поля ФИО и группы, переключаются на назначенный вариант.</li>
+ <li>Проектируют эскиз экранной формы ввода, определяют состав элементов UI.</li>
+ <li>Заполняют матрицу сопряжения контролов с колонками БД, настраивают правила валидации.</li>
+ <li>Отвечают на контрольные вопросы самопроверки и сохраняют данные в LocalStorage.</li>
+ </ul>
+ </td>
+ </tr>
 
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 6</span><br>
-              <strong>Итог урока. Домашнее задание</strong><br>
-              <em>6 минут</em>
-            </td>
-            <td>
-              <ul>
-                <li>Организует экспресс-разбор типичных студенческих ошибок (сохранение текста вместо ID внешнего ключа, отсутствие транзакционности в Master-Detail).</li>
-                <li>Демонстрирует слайд 15 с культовым веб-комиксом Bobby Tables (xkcd #327), акцентируя внимание на инженерной ответственности разработчика за целостность БД.</li>
-                <li>Озвучивает критерии оценки по 4-балльной рубрике (<code>.rubrika.md</code>).</li>
-                <li>Инструктирует по сохранению результатов в PDF через диалог печати браузера.</li>
-                <li>Разъясняет регламент резервного дистанционного задания <code>domashnee_zadanie.html</code>.</li>
-              </ul>
-            </td>
-            <td>
-              <ul>
-                <li>Участвуют в анализе ошибок, соотносят свои проектные решения с эталонами.</li>
-                <li>Сохраняют заполненный рабочий лист в PDF-документ.</li>
-                <li>Ознакомляются с условиями резервного домашнего задания.</li>
-              </ul>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 6</span><br>
+ <strong>Итог урока. Домашнее задание</strong><br>
+ <em>6 минут</em>
+ </td>
+ <td>
+ <ul>
+ <li>Организует экспресс-разбор типичных студенческих ошибок (сохранение текста вместо ID внешнего ключа, отсутствие транзакционности в Master-Detail).</li>
+ <li>Демонстрирует слайд 15 с культовым веб-комиксом Bobby Tables (xkcd #327), акцентируя внимание на инженерной ответственности разработчика за целостность БД.</li>
+ <li>Озвучивает критерии оценки по 4-балльной рубрике (<code>.rubrika.md</code>).</li>
+ <li>Инструктирует по сохранению результатов в PDF через диалог печати браузера.</li>
+ <li>Разъясняет регламент резервного дистанционного задания <code>domashnee_zadanie.html</code>.</li>
+ </ul>
+ </td>
+ <td>
+ <ul>
+ <li>Участвуют в анализе ошибок, соотносят свои проектные решения с эталонами.</li>
+ <li>Сохраняют заполненный рабочий лист в PDF-документ.</li>
+ <li>Ознакомляются с условиями резервного домашнего задания.</li>
+ </ul>
+ </td>
+ </tr>
+ </tbody>
+ </table>
+ </section>
 
-    <section>
-      <h2>Структура занятия &mdash; Сокращенный регламент (60 минут)</h2>
-      <table class="tk-table">
-        <thead>
-          <tr>
-            <th style="width: 20%;">Этап и хронометраж</th>
-            <th style="width: 40%;">Деятельность преподавателя</th>
-            <th style="width: 40%;">Деятельность студентов</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 1</span><br>
-              <strong>Организационный момент и мотивация</strong><br>
-              <em>3 минуты</em>
-            </td>
-            <td>
-              <ul>
-                <li>Краткое приветствие, быстрая сверка явки по журналу.</li>
-                <li>Динамичная постановка проблемного кейса: неконтролируемый ввод текстовых данных ломает отчеты СУБД.</li>
-                <li>Объявление темы и экспресс-плана 60-минутной пары.</li>
-              </ul>
-            </td>
-            <td>
-              <ul>
-                <li>Быстро готовят рабочие места, настраивают браузер.</li>
-                <li>Включаются в учебную деятельность, фиксируют тему занятия.</li>
-              </ul>
-            </td>
-          </tr>
+ <section>
+ <h2>Структура занятия &mdash; Сокращенный регламент (60 минут)</h2>
+ <table class="tk-table">
+ <thead>
+ <tr>
+ <th style="width: 20%;">Этап и хронометраж</th>
+ <th style="width: 40%;">Деятельность преподавателя</th>
+ <th style="width: 40%;">Деятельность студентов</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 1</span><br>
+ <strong>Организационный момент и мотивация</strong><br>
+ <em>3 минуты</em>
+ </td>
+ <td>
+ <ul>
+ <li>Краткое приветствие, быстрая сверка явки по журналу.</li>
+ <li>Динамичная постановка проблемного кейса: неконтролируемый ввод текстовых данных ломает отчеты СУБД.</li>
+ <li>Объявление темы и экспресс-плана 60-минутной пары.</li>
+ </ul>
+ </td>
+ <td>
+ <ul>
+ <li>Быстро готовят рабочие места, настраивают браузер.</li>
+ <li>Включаются в учебную деятельность, фиксируют тему занятия.</li>
+ </ul>
+ </td>
+ </tr>
 
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 2</span><br>
-              <strong>Актуализация опорных знаний</strong><br>
-              <em>5 минут</em>
-            </td>
-            <td>
-              <ul>
-                <li>Блиц-опрос: «Что произойдет при попытке вставить несуществующий внешний ключ? Как выпадающий список защищает от этой ошибки?»</li>
-              </ul>
-            </td>
-            <td>
-              <ul>
-                <li>Отвечают с места, формулируют принцип соответствия Display Member &rarr; Value Member.</li>
-              </ul>
-            </td>
-          </tr>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 2</span><br>
+ <strong>Актуализация опорных знаний</strong><br>
+ <em>5 минут</em>
+ </td>
+ <td>
+ <ul>
+ <li>Блиц-опрос: «Что произойдет при попытке вставить несуществующий внешний ключ? Как выпадающий список защищает от этой ошибки?»</li>
+ </ul>
+ </td>
+ <td>
+ <ul>
+ <li>Отвечают с места, формулируют принцип соответствия Display Member &rarr; Value Member.</li>
+ </ul>
+ </td>
+ </tr>
 
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 3</span><br>
-              <strong>Сообщение новых знаний</strong><br>
-              <em>27 минут</em>
-            </td>
-            <td>
-              <ul>
-                <li>Концентрированное изложение материала по слайдам 2&ndash;14 в высоком темпе:
-                  <ul>
-                    <li>Слои приложения и запрет прямого SQL из интерфейса;</li>
-                    <li>Паттерн Data Binding и маппинг элементов формы на атрибуты таблиц;</li>
-                    <li>Контролы: Masked Input, Combobox (FK), RadioGroup, Checkbox, DatePicker (ISO 8601);</li>
-                    <li>Компоновка Master-Detail и транзакция сохранения шапки и спецификации;</li>
-                    <li>Правила эргономики UI и двухуровневая валидация.</li>
-                  </ul>
-                </li>
-              </ul>
-            </td>
-            <td>
-              <ul>
-                <li>Интенсивно конспектируют схему уровней приложения и матрицу маппинга контролов.</li>
-                <li>Изучают визуальные примеры слайдов презентации.</li>
-              </ul>
-            </td>
-          </tr>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 3</span><br>
+ <strong>Сообщение новых знаний</strong><br>
+ <em>27 минут</em>
+ </td>
+ <td>
+ <ul>
+ <li>Концентрированное изложение материала по слайдам 2&ndash;14 в высоком темпе:
+ <ul>
+ <li>Слои приложения и запрет прямого SQL из интерфейса;</li>
+ <li>Паттерн Data Binding и маппинг элементов формы на атрибуты таблиц;</li>
+ <li>Контролы: Masked Input, Combobox (FK), RadioGroup, Checkbox, DatePicker (ISO 8601);</li>
+ <li>Компоновка Master-Detail и транзакция сохранения шапки и спецификации;</li>
+ <li>Правила эргономики UI и двухуровневая валидация.</li>
+ </ul>
+ </li>
+ </ul>
+ </td>
+ <td>
+ <ul>
+ <li>Интенсивно конспектируют схему уровней приложения и матрицу маппинга контролов.</li>
+ <li>Изучают визуальные примеры слайдов презентации.</li>
+ </ul>
+ </td>
+ </tr>
 
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 4</span><br>
-              <strong>Демонстрация сквозного инженерного кейса</strong><br>
-              <em>10 минут</em>
-            </td>
-            <td>
-              <ul>
-                <li>Экспресс-демонстрация формы оптового заказа: структура шапки, табличная часть спецификации, схема отправки DTO и фиксация в транзакции.</li>
-              </ul>
-            </td>
-            <td>
-              <ul>
-                <li>Отслеживают сквозную цепочку: ввод оператора &rarr; DTO &rarr; SQL транзакция &rarr; строки таблиц БД.</li>
-              </ul>
-            </td>
-          </tr>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 4</span><br>
+ <strong>Демонстрация сквозного инженерного кейса</strong><br>
+ <em>10 минут</em>
+ </td>
+ <td>
+ <ul>
+ <li>Экспресс-демонстрация формы оптового заказа: структура шапки, табличная часть спецификации, схема отправки DTO и фиксация в транзакции.</li>
+ </ul>
+ </td>
+ <td>
+ <ul>
+ <li>Отслеживают сквозную цепочку: ввод оператора &rarr; DTO &rarr; SQL транзакция &rarr; строки таблиц БД.</li>
+ </ul>
+ </td>
+ </tr>
 
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 5</span><br>
-              <strong>Первичное закрепление знаний</strong><br>
-              <em>11 минут</em>
-            </td>
-            <td>
-              <ul>
-                <li>Организует оперативную индивидуальную работу в <code>zanyatie.html</code> по 4 вариантам.</li>
-                <li>Фокусирует внимание студентов на заполнении ключевой матрицы маппинга полей и схеме формы.</li>
-              </ul>
-            </td>
-            <td>
-              <ul>
-                <li>Заполняют поля рабочего листа, формулируют схему формы ввода и соответствие колонкам БД.</li>
-              </ul>
-            </td>
-          </tr>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 5</span><br>
+ <strong>Первичное закрепление знаний</strong><br>
+ <em>11 минут</em>
+ </td>
+ <td>
+ <ul>
+ <li>Организует оперативную индивидуальную работу в <code>zanyatie.html</code> по 4 вариантам.</li>
+ <li>Фокусирует внимание студентов на заполнении ключевой матрицы маппинга полей и схеме формы.</li>
+ </ul>
+ </td>
+ <td>
+ <ul>
+ <li>Заполняют поля рабочего листа, формулируют схему формы ввода и соответствие колонкам БД.</li>
+ </ul>
+ </td>
+ </tr>
 
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 6</span><br>
-              <strong>Итог урока. Домашнее задание</strong><br>
-              <em>4 минуты</em>
-            </td>
-            <td>
-              <ul>
-                <li>Экспресс-подведение итогов, демонстрация слайда 15 с комиксом Bobby Tables.</li>
-                <li>Выставление оценок по рубрике, напоминание о регламенте резервного домашнего задания.</li>
-              </ul>
-            </td>
-            <td>
-              <ul>
-                <li>Сохраняют рабочий лист в PDF, фиксируют замечания преподавателя.</li>
-              </ul>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-  </div>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 6</span><br>
+ <strong>Итог урока. Домашнее задание</strong><br>
+ <em>4 минуты</em>
+ </td>
+ <td>
+ <ul>
+ <li>Экспресс-подведение итогов, демонстрация слайда 15 с комиксом Bobby Tables.</li>
+ <li>Выставление оценок по рубрике, напоминание о регламенте резервного домашнего задания.</li>
+ </ul>
+ </td>
+ <td>
+ <ul>
+ <li>Сохраняют рабочий лист в PDF, фиксируют замечания преподавателя.</li>
+ </ul>
+ </td>
+ </tr>
+ </tbody>
+ </table>
+ </section>
+ </div>
 </body>
 </html>

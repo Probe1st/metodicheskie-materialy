@@ -1,463 +1,443 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Домашнее задание - Конструкция, подключение и инсталляция периферийных устройств — часть 2</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #1e40af;
-      --accent-soft: #eff6ff;
-      --radius: 12px;
-      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-      --success: #059669;
-      --warn: #d97706;
-      --danger: #dc2626;
-      --code-bg: #0f172a;
-      --code-text: #f8fafc;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.6;
-      font-size: 15px;
-      padding: 24px 16px;
-    }
-    .container {
-      max-width: 920px;
-      margin: 0 auto;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow);
-    }
-    h1 {
-      font-size: clamp(20px, 3.2vw, 25px);
-      color: var(--accent);
-      margin-bottom: 12px;
-      line-height: 1.3;
-    }
-    h2 {
-      font-size: 18px;
-      color: var(--accent);
-      margin: 22px 0 10px;
-      border-bottom: 1.5px solid var(--accent-soft);
-      padding-bottom: 6px;
-    }
-    h3 {
-      font-size: 15.5px;
-      margin: 16px 0 6px;
-      color: #1e293b;
-    }
-    p, ul, ol { margin-bottom: 12px; }
-    ul, ol { padding-left: 20px; }
-    li { margin-bottom: 6px; }
-    .reserve-banner {
-      background: #fef3c7;
-      border-left: 5px solid #f59e0b;
-      padding: 14px 18px;
-      border-radius: 0 8px 8px 0;
-      color: #92400e;
-      font-size: 14.5px;
-      font-weight: 600;
-      margin: 14px 0 18px;
-    }
-    .example-card {
-      background: var(--accent-soft);
-      border: 1.5px solid #bfdbfe;
-      border-radius: 10px;
-      padding: 18px;
-      margin: 14px 0;
-    }
-    .example-title {
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 8px;
-      font-size: 15px;
-    }
-    .student-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-      margin-bottom: 12px;
-    }
-    label {
-      display: block;
-      font-weight: 600;
-      font-size: 13.5px;
-      margin-bottom: 6px;
-      color: #1e293b;
-    }
-    input[type="text"], textarea, select {
-      width: 100%;
-      border: 1.5px solid var(--line);
-      border-radius: 8px;
-      padding: 9px 12px;
-      font: inherit;
-      font-size: 14px;
-      background: #fff;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    input:focus, textarea:focus, select:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.12);
-    }
-    textarea {
-      min-height: 95px;
-      resize: vertical;
-    }
-    code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 13.5px;
-      background: #e2e8f0;
-      color: #0f172a;
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-    pre {
-      background: var(--code-bg);
-      color: var(--code-text);
-      padding: 12px 14px;
-      border-radius: 8px;
-      overflow-x: auto;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 13.5px;
-      line-height: 1.45;
-      margin: 10px 0;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 14px 0;
-      font-size: 13.5px;
-    }
-    th, td {
-      border: 1px solid var(--line);
-      padding: 8px 10px;
-      text-align: left;
-      vertical-align: top;
-    }
-    th {
-      background: var(--accent-soft);
-      font-weight: 700;
-      color: var(--accent);
-    }
-    .btn-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 14px;
-    }
-    .btn-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    button {
-      padding: 10px 18px;
-      border-radius: 8px;
-      font: inherit;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: background 0.15s, transform 0.05s;
-    }
-    button:active { transform: translateY(1px); }
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-primary:hover { background: #1d4ed8; }
-    .btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
-    .btn-danger:hover { background: #fecaca; }
-    .status-msg {
-      font-size: 13.5px;
-      font-weight: 500;
-      color: var(--success);
-    }
-    .print-mirror {
-      display: none;
-      white-space: pre-wrap;
-      word-break: break-word;
-      font-size: 14px;
-      line-height: 1.5;
-      padding: 8px 12px;
-      border: 1.5px solid #cbd5e1;
-      border-radius: 8px;
-      background: #fafafa;
-      min-height: 60px;
-    }
-    .rubric-card {
-      background: #f8fafc;
-      border: 1px dashed var(--line);
-    }
-    @media (max-width: 480px) {
-      body { padding: 12px 8px; font-size: 13.5px; }
-      .card { padding: 16px; }
-      .btn-group { flex-direction: column; align-items: stretch; }
-      button { width: 100%; }
-    }
-    @media print {
-      body { background: #fff; padding: 0; font-size: 10.5pt; color: #000; }
-      .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 10pt; padding: 12pt; }
-      .btn-group, .status-msg { display: none !important; }
-      textarea { display: none !important; }
-      .print-mirror { display: block !important; }
-      input::placeholder, textarea::placeholder { color: transparent !important; }
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <title>Домашнее задание - Конструкция, подключение и инсталляция периферийных устройств — часть 2</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #1e40af;
+ --accent-soft: #eff6ff;
+ --radius: 12px;
+ --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+ --success: #059669;
+ --warn: #d97706;
+ --danger: #dc2626;
+ --code-bg: #0f172a;
+ --code-text: #f8fafc;
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+ body {
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+ line-height: 1.6;
+ font-size: 15px;
+ padding: 24px 16px;
+ }.container {
+ max-width: 920px;
+ margin: 0 auto;
+ }.card {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 24px;
+ margin-bottom: 20px;
+ box-shadow: var(--shadow);
+ }
+ h1 {
+ font-size: clamp(20px, 3.2vw, 25px);
+ color: var(--accent);
+ margin-bottom: 12px;
+ line-height: 1.3;
+ }
+ h2 {
+ font-size: 18px;
+ color: var(--accent);
+ margin: 22px 0 10px;
+ border-bottom: 1.5px solid var(--accent-soft);
+ padding-bottom: 6px;
+ }
+ h3 {
+ font-size: 15.5px;
+ margin: 16px 0 6px;
+ color: #1e293b;
+ }
+ p, ul, ol { margin-bottom: 12px; }
+ ul, ol { padding-left: 20px; }
+ li { margin-bottom: 6px; }.reserve-banner {
+ background: #fef3c7;
+ border-left: 5px solid #f59e0b;
+ padding: 14px 18px;
+ border-radius: 0 8px 8px 0;
+ color: #92400e;
+ font-size: 14.5px;
+ font-weight: 600;
+ margin: 14px 0 18px;
+ }.example-card {
+ background: var(--accent-soft);
+ border: 1.5px solid #bfdbfe;
+ border-radius: 10px;
+ padding: 18px;
+ margin: 14px 0;
+ }.example-title {
+ font-weight: 700;
+ color: var(--accent);
+ margin-bottom: 8px;
+ font-size: 15px;
+ }.student-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+ gap: 16px;
+ margin-bottom: 12px;
+ }
+ label {
+ display: block;
+ font-weight: 600;
+ font-size: 13.5px;
+ margin-bottom: 6px;
+ color: #1e293b;
+ }
+ input[type="text"], textarea, select {
+ width: 100%;
+ border: 1.5px solid var(--line);
+ border-radius: 8px;
+ padding: 9px 12px;
+ font: inherit;
+ font-size: 14px;
+ background: #fff;
+ color: var(--text);
+ outline: none;
+ transition: border-color 0.2s, box-shadow 0.2s;
+ }
+ input:focus, textarea:focus, select:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.12);
+ }
+ textarea {
+ min-height: 95px;
+ resize: vertical;
+ }
+ code {
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 13.5px;
+ background: #e2e8f0;
+ color: #0f172a;
+ padding: 2px 6px;
+ border-radius: 4px;
+ }
+ pre {
+ background: var(--code-bg);
+ color: var(--code-text);
+ padding: 12px 14px;
+ border-radius: 8px;
+ overflow-x: auto;
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 13.5px;
+ line-height: 1.45;
+ margin: 10px 0;
+ }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ margin: 14px 0;
+ font-size: 13.5px;
+ }
+ th, td {
+ border: 1px solid var(--line);
+ padding: 8px 10px;
+ text-align: left;
+ vertical-align: top;
+ }
+ th {
+ background: var(--accent-soft);
+ font-weight: 700;
+ color: var(--accent);
+ }.btn-group {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 12px;
+ align-items: center;
+ justify-content: space-between;
+ margin-top: 14px;
+ }.btn-actions {
+ display: flex;
+ gap: 10px;
+ flex-wrap: wrap;
+ }
+ button {
+ padding: 10px 18px;
+ border-radius: 8px;
+ font: inherit;
+ font-size: 14px;
+ font-weight: 600;
+ cursor: pointer;
+ border: none;
+ transition: background 0.15s, transform 0.05s;
+ }
+ button:active { transform: translateY(1px); }.btn-primary { background: var(--accent); color: #fff; }.btn-primary:hover { background: #1d4ed8; }.btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }.btn-danger:hover { background: #fecaca; }.status-msg {
+ font-size: 13.5px;
+ font-weight: 500;
+ color: var(--success);
+ }.print-mirror {
+ display: none;
+ white-space: pre-wrap;
+ word-break: break-word;
+ font-size: 14px;
+ line-height: 1.5;
+ padding: 8px 12px;
+ border: 1.5px solid #cbd5e1;
+ border-radius: 8px;
+ background: #fafafa;
+ min-height: 60px;
+ }.rubric-card {
+ background: #f8fafc;
+ border: 1px dashed var(--line);
+ }
+ @media (max-width: 480px) {
+ body { padding: 12px 8px; font-size: 13.5px; }.card { padding: 16px; }.btn-group { flex-direction: column; align-items: stretch; }
+ button { width: 100%; }
+ }
+ @media print {
+ body { background: #fff; padding: 0; font-size: 10.5pt; color: #000; }.card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 10pt; padding: 12pt; }.btn-group,.status-msg { display: none !important; }
+ textarea { display: none !important; }.print-mirror { display: block !important; }
+ input::placeholder, textarea::placeholder { color: transparent !important; }
+ }
+ </style>
 </head>
 <body>
 <div class="container">
 
-  <!-- ШАПКА ЗАДАНИЯ -->
-  <div class="card">
-    <h1>Домашнее задание - Конструкция, подключение и инсталляция периферийных устройств — часть 2</h1>
-    <div class="reserve-banner">
-      Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
-    </div>
-    <p>Задание направлено на закрепление навыков идентификации аппаратных средств по сигнатурам шин ввода-вывода (Hardware ID) и освоение регламента офлайн-инсталляции драйверов на изолированных рабочих станциях без доступа к сети Интернет.</p>
-  </div>
+ <!-- ШАПКА ЗАДАНИЯ -->
+ <div class="card">
+ <h1>Домашнее задание - Конструкция, подключение и инсталляция периферийных устройств — часть 2</h1>
+ <div class="reserve-banner">
+ Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+ </div>
+ <p>Задание направлено на закрепление навыков идентификации аппаратных средств по сигнатурам шин ввода-вывода (Hardware ID) и освоение регламента офлайн-инсталляции драйверов на изолированных рабочих станциях без доступа к сети Интернет.</p>
+ </div>
 
-  <!-- ДАННЫЕ СТУДЕНТА -->
-  <div class="card">
-    <h2>Сведения об обучающемся</h2>
-    <div class="student-grid">
-      <div>
-        <label for="hw_fio">Фамилия, Имя обучающегося:</label>
-        <input type="text" id="hw_fio" autocomplete="name">
-      </div>
-      <div>
-        <label for="hw_group">Учебная группа:</label>
-        <input type="text" id="hw_group">
-      </div>
-    </div>
-  </div>
+ <!-- ДАННЫЕ СТУДЕНТА -->
+ <div class="card">
+ <h2>Сведения об обучающемся</h2>
+ <div class="student-grid">
+ <div>
+ <label for="hw_fio">Фамилия, Имя обучающегося:</label>
+ <input type="text" id="hw_fio" autocomplete="name">
+ </div>
+ <div>
+ <label for="hw_group">Учебная группа:</label>
+ <input type="text" id="hw_group">
+ </div>
+ </div>
+ </div>
 
-  <!-- ТЕОРЕТИЧЕСКИЙ РАЗБОР И ЭТАЛОННЫЙ ПРИМЕР -->
-  <div class="card">
-    <h2>1. Теоретический алгоритм и разобранный пример</h2>
-    <p>На изолированных объектах критической информационной инфраструктуры (КИИ) подключение компьютеров к глобальной сети Интернет запрещено политиками безопасности. Установка оборудования выполняется исключительно из локального проверенного дистрибутива.</p>
-    
-    <div class="example-card">
-      <div class="example-title">Эталонный разобранный кейс: Инсталляция сетевого контроллера Realtek PCIe</div>
-      <p><strong>Исходные данные:</strong> в Диспетчере устройств сетевой адаптер отображается как «Неизвестное устройство» с кодом ошибки 28. Во вкладке «Сведения» &rarr; «ИД оборудования» зафиксирована строка:</p>
-      <pre>PCI\VEN_10EC&DEV_8168&SUBSYS_816810EC&REV_06</pre>
-      <p><strong>Анализ дескриптора:</strong></p>
-      <ul>
-        <li><code>VEN_10EC</code>: Vendor ID = Realtek Semiconductor Corp.</li>
-        <li><code>DEV_8168</code>: Device ID = гигабитный сетевой чип RTL8168/8111 PCI-E Gigabit Ethernet.</li>
-        <li><code>SUBSYS_816810EC</code>: референсная плата вендора Realtek.</li>
-        <li><code>REV_06</code>: шестая ревизия кремниевого кристалла.</li>
-      </ul>
-      <p><strong>Пошаговый офлайн-алгоритм установки:</strong></p>
-      <ol>
-        <li>Администратор переносит на защищенном оптическом носителе официальный архив с проверенным пакетом драйвера (<code>rt640x64.inf</code>, <code>rt640x64.sys</code>, <code>rt640x64.cat</code>).</li>
-        <li>Архив распаковывается в локальный каталог <code>C:\Drivers\Realtek_LAN\</code>.</li>
-        <li>В командной строке от имени администратора выполняется добавление пакета в Driver Store:
-          <pre>pnputil.exe /add-driver "C:\Drivers\Realtek_LAN\rt640x64.inf" /install</pre>
-        </li>
-        <li>Утилита <code>pnputil</code> сверяет хэши файлов по каталогу <code>rt640x64.cat</code> с сертификатом WHQL, копирует пакет в <code>FileRepository</code> и инициирует энумерацию PnP.</li>
-        <li>Устройство автоматически стартует в ветке «Сетевые адаптеры» со статусом «Устройство работает нормально» (Код 0).</li>
-      </ol>
-    </div>
-  </div>
+ <!-- ТЕОРЕТИЧЕСКИЙ РАЗБОР И ЭТАЛОННЫЙ ПРИМЕР -->
+ <div class="card">
+ <h2>1. Теоретический алгоритм и разобранный пример</h2>
+ <p>На изолированных объектах критической информационной инфраструктуры (КИИ) подключение компьютеров к глобальной сети Интернет запрещено политиками безопасности. Установка оборудования выполняется исключительно из локального проверенного дистрибутива.</p>
+ 
+ <div class="example-card">
+ <div class="example-title">Эталонный разобранный кейс: Инсталляция сетевого контроллера Realtek PCIe</div>
+ <p><strong>Исходные данные:</strong> в Диспетчере устройств сетевой адаптер отображается как «Неизвестное устройство» с кодом ошибки 28. Во вкладке «Сведения» &rarr; «ИД оборудования» зафиксирована строка:</p>
+ <pre>PCI\VEN_10EC&DEV_8168&SUBSYS_816810EC&REV_06</pre>
+ <p><strong>Анализ дескриптора:</strong></p>
+ <ul>
+ <li><code>VEN_10EC</code>: Vendor ID = Realtek Semiconductor Corp.</li>
+ <li><code>DEV_8168</code>: Device ID = гигабитный сетевой чип RTL8168/8111 PCI-E Gigabit Ethernet.</li>
+ <li><code>SUBSYS_816810EC</code>: референсная плата вендора Realtek.</li>
+ <li><code>REV_06</code>: шестая ревизия кремниевого кристалла.</li>
+ </ul>
+ <p><strong>Пошаговый офлайн-алгоритм установки:</strong></p>
+ <ol>
+ <li>Администратор переносит на защищенном оптическом носителе официальный архив с проверенным пакетом драйвера (<code>rt640x64.inf</code>, <code>rt640x64.sys</code>, <code>rt640x64.cat</code>).</li>
+ <li>Архив распаковывается в локальный каталог <code>C:\Drivers\Realtek_LAN\</code>.</li>
+ <li>В командной строке от имени администратора выполняется добавление пакета в Driver Store:
+ <pre>pnputil.exe /add-driver "C:\Drivers\Realtek_LAN\rt640x64.inf" /install</pre>
+ </li>
+ <li>Утилита <code>pnputil</code> сверяет хэши файлов по каталогу <code>rt640x64.cat</code> с сертификатом WHQL, копирует пакет в <code>FileRepository</code> и инициирует энумерацию PnP.</li>
+ <li>Устройство автоматически стартует в ветке «Сетевые адаптеры» со статусом «Устройство работает нормально» (Код 0).</li>
+ </ol>
+ </div>
+ </div>
 
-  <!-- ЗАДАНИЕ 1 -->
-  <div class="card">
-    <h2>2. Задание 1. Идентификация оборудования по Hardware ID</h2>
-    <p>Ниже представлены четыре аппаратные строки, полученные из Диспетчера устройств на различных компьютерах. Расшифруйте каждую строку: определите тип шины, шестнадцатеричные идентификаторы производителя и модели, компанию-производителя и назначение оборудования.</p>
+ <!-- ЗАДАНИЕ 1 -->
+ <div class="card">
+ <h2>2. Задание 1. Идентификация оборудования по Hardware ID</h2>
+ <p>Ниже представлены четыре аппаратные строки, полученные из Диспетчера устройств на различных компьютерах. Расшифруйте каждую строку: определите тип шины, шестнадцатеричные идентификаторы производителя и модели, компанию-производителя и назначение оборудования.</p>
 
-    <table>
-      <thead>
-        <tr>
-          <th style="width: 35%;">Аппаратный идентификатор (Hardware ID)</th>
-          <th style="width: 65%;">Ваш детальный инженерный анализ</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>
-            <strong>Устройство А:</strong><br>
-            <code>USB\VID_1235&PID_8210&REV_0300</code>
-          </td>
-          <td>
-            <label for="hw_ans_1a">Анализ устройства А (шина, VID, PID, вендор, устройство, класс):</label>
-            <textarea id="hw_ans_1a"></textarea>
-            <div class="print-mirror" id="hw_ans_1a_mirror"></div>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <strong>Устройство Б:</strong><br>
-            <code>USB\VID_0403&PID_6001&REV_0600</code>
-          </td>
-          <td>
-            <label for="hw_ans_1b">Анализ устройства Б (шина, VID, PID, вендор, устройство, класс):</label>
-            <textarea id="hw_ans_1b"></textarea>
-            <div class="print-mirror" id="hw_ans_1b_mirror"></div>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <strong>Устройство В:</strong><br>
-            <code>PCI\VEN_8086&DEV_15F3&SUBSYS_00008086&REV_03</code>
-          </td>
-          <td>
-            <label for="hw_ans_1c">Анализ устройства В (шина, VEN, DEV, вендор, устройство):</label>
-            <textarea id="hw_ans_1c"></textarea>
-            <div class="print-mirror" id="hw_ans_1c_mirror"></div>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <strong>Устройство Г:</strong><br>
-            <code>USB\VID_04A9&PID_190E&REV_0100</code>
-          </td>
-          <td>
-            <label for="hw_ans_1d">Анализ устройства Г (шина, VID, PID, вендор, устройство, класс):</label>
-            <textarea id="hw_ans_1d"></textarea>
-            <div class="print-mirror" id="hw_ans_1d_mirror"></div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+ <table>
+ <thead>
+ <tr>
+ <th style="width: 35%;">Аппаратный идентификатор (Hardware ID)</th>
+ <th style="width: 65%;">Ваш детальный инженерный анализ</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>
+ <strong>Устройство А:</strong><br>
+ <code>USB\VID_1235&PID_8210&REV_0300</code>
+ </td>
+ <td>
+ <label for="hw_ans_1a">Анализ устройства А (шина, VID, PID, вендор, устройство, класс):</label>
+ <textarea id="hw_ans_1a"></textarea>
+ <div class="print-mirror" id="hw_ans_1a_mirror"></div>
+ </td>
+ </tr>
+ <tr>
+ <td>
+ <strong>Устройство Б:</strong><br>
+ <code>USB\VID_0403&PID_6001&REV_0600</code>
+ </td>
+ <td>
+ <label for="hw_ans_1b">Анализ устройства Б (шина, VID, PID, вендор, устройство, класс):</label>
+ <textarea id="hw_ans_1b"></textarea>
+ <div class="print-mirror" id="hw_ans_1b_mirror"></div>
+ </td>
+ </tr>
+ <tr>
+ <td>
+ <strong>Устройство В:</strong><br>
+ <code>PCI\VEN_8086&DEV_15F3&SUBSYS_00008086&REV_03</code>
+ </td>
+ <td>
+ <label for="hw_ans_1c">Анализ устройства В (шина, VEN, DEV, вендор, устройство):</label>
+ <textarea id="hw_ans_1c"></textarea>
+ <div class="print-mirror" id="hw_ans_1c_mirror"></div>
+ </td>
+ </tr>
+ <tr>
+ <td>
+ <strong>Устройство Г:</strong><br>
+ <code>USB\VID_04A9&PID_190E&REV_0100</code>
+ </td>
+ <td>
+ <label for="hw_ans_1d">Анализ устройства Г (шина, VID, PID, вендор, устройство, класс):</label>
+ <textarea id="hw_ans_1d"></textarea>
+ <div class="print-mirror" id="hw_ans_1d_mirror"></div>
+ </td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
 
-  <!-- ЗАДАНИЕ 2 -->
-  <div class="card">
-    <h2>3. Задание 2. Пошаговый регламент офлайн-инсталляции драйвера</h2>
-    <p><strong>Сценарий:</strong> На автономном сервере без подключения к сети Интернет требуется установить специализированный драйвер графического планшета и драйвер виртуального COM-порта сканера штрихкодов. Исходный дистрибутив производителя представляет собой исполняемый файл <code>Installer.exe</code> объемом 250 МБ.</p>
-    
-    <label for="hw_ans_2">Опишите пошаговый алгоритм действий администратора (извлечение содержимого пакета без запуска мастера установки, проверка сертификата, команды консоли для добавления в Driver Store, верификация через PowerShell):</label>
-    <textarea id="hw_ans_2" style="min-height: 120px;"></textarea>
-    <div class="print-mirror" id="hw_ans_2_mirror"></div>
-  </div>
+ <!-- ЗАДАНИЕ 2 -->
+ <div class="card">
+ <h2>3. Задание 2. Пошаговый регламент офлайн-инсталляции драйвера</h2>
+ <p><strong>Сценарий:</strong> На автономном сервере без подключения к сети Интернет требуется установить специализированный драйвер графического планшета и драйвер виртуального COM-порта сканера штрихкодов. Исходный дистрибутив производителя представляет собой исполняемый файл <code>Installer.exe</code> объемом 250 МБ.</p>
+ 
+ <label for="hw_ans_2">Опишите пошаговый алгоритм действий администратора (извлечение содержимого пакета без запуска мастера установки, проверка сертификата, команды консоли для добавления в Driver Store, верификация через PowerShell):</label>
+ <textarea id="hw_ans_2" style="min-height: 120px;"></textarea>
+ <div class="print-mirror" id="hw_ans_2_mirror"></div>
+ </div>
 
-  <!-- ЗАДАНИЕ 3 -->
-  <div class="card">
-    <h2>4. Задание 3. Диагностический анализ системного сбоя</h2>
-    <p><strong>Ситуация:</strong> При подключении внешнего USB-накопителя или сканера система выдает ошибку <strong>«Код 43: Сбой запроса дескриптора устройства»</strong>. Младший системный администратор трижды переустановил драйвер чипсета и драйвер устройства, но ошибка не исчезла.</p>
+ <!-- ЗАДАНИЕ 3 -->
+ <div class="card">
+ <h2>4. Задание 3. Диагностический анализ системного сбоя</h2>
+ <p><strong>Ситуация:</strong> При подключении внешнего USB-накопителя или сканера система выдает ошибку <strong>«Код 43: Сбой запроса дескриптора устройства»</strong>. Младший системный администратор трижды переустановил драйвер чипсета и драйвер устройства, но ошибка не исчезла.</p>
 
-    <label for="hw_ans_3">Объясните физическую и системную причину ошибки Код 43. Почему манипуляции с драйверами оказались бесполезны и какие 3 аппаратных действия необходимо предпринять для локализации неисправности?</label>
-    <textarea id="hw_ans_3" style="min-height: 110px;"></textarea>
-    <div class="print-mirror" id="hw_ans_3_mirror"></div>
-  </div>
+ <label for="hw_ans_3">Объясните физическую и системную причину ошибки Код 43. Почему манипуляции с драйверами оказались бесполезны и какие 3 аппаратных действия необходимо предпринять для локализации неисправности?</label>
+ <textarea id="hw_ans_3" style="min-height: 110px;"></textarea>
+ <div class="print-mirror" id="hw_ans_3_mirror"></div>
+ </div>
 
-  <!-- КРИТЕРИИ ОЦЕНИВАНИЯ -->
-  <div class="card rubric-card">
-    <h2>Критерии оценивания домашнего задания (4 балла)</h2>
-    <ul>
-      <li><strong>4 балла:</strong> Все 4 идентификатора в Задании 1 расшифрованы безошибочно (названы вендоры и модели чипов); алгоритм офлайн-инсталляции в Задании 2 содержит распаковку пакета и корректный синтаксис <code>pnputil</code>; в Задании 3 доказана аппаратная природа ошибки Код 43 и предложены действия по проверке кабеля, питания и портов.</li>
-      <li><strong>3 балла:</strong> Допущены незначительные неточности в 1 из устройств Задания 1 или не указан ключ <code>/install</code> в команде <code>pnputil</code>, но физика процессов раскрыта верно.</li>
-      <li><strong>2 балла:</strong> Расшифрованы только 2 идентификатора, алгоритм офлайн-инсталляции описан схематично без команд консоли.</li>
-      <li><strong>0–1 балл:</strong> Грубые ошибки, неверное определение типов шин, утверждение, что ошибка Код 43 лечится установкой драйвера.</li>
-    </ul>
-  </div>
+ <!-- КРИТЕРИИ ОЦЕНИВАНИЯ -->
+ <div class="card rubric-card">
+ <h2>Критерии оценивания домашнего задания (4 балла)</h2>
+ <ul>
+ <li><strong>4 балла:</strong> Все 4 идентификатора в Задании 1 расшифрованы безошибочно (названы вендоры и модели чипов); алгоритм офлайн-инсталляции в Задании 2 содержит распаковку пакета и корректный синтаксис <code>pnputil</code>; в Задании 3 доказана аппаратная природа ошибки Код 43 и предложены действия по проверке кабеля, питания и портов.</li>
+ <li><strong>3 балла:</strong> Допущены незначительные неточности в 1 из устройств Задания 1 или не указан ключ <code>/install</code> в команде <code>pnputil</code>, но физика процессов раскрыта верно.</li>
+ <li><strong>2 балла:</strong> Расшифрованы только 2 идентификатора, алгоритм офлайн-инсталляции описан схематично без команд консоли.</li>
+ <li><strong>0–1 балл:</strong> Грубые ошибки, неверное определение типов шин, утверждение, что ошибка Код 43 лечится установкой драйвера.</li>
+ </ul>
+ </div>
 
-  <!-- ПАНЕЛЬ ДЕЙСТВИЙ -->
-  <div class="card">
-    <div class="btn-group">
-      <div class="btn-actions">
-        <button type="button" class="btn-primary" onclick="saveData()">Сохранить ответы</button>
-        <button type="button" class="btn-primary" style="background:#059669;" onclick="printDoc()">Сохранить в PDF</button>
-        <button type="button" class="btn-danger" onclick="clearData()">Очистить форму</button>
-      </div>
-      <div class="status-msg" id="status_msg"></div>
-    </div>
-  </div>
+ <!-- ПАНЕЛЬ ДЕЙСТВИЙ -->
+ <div class="card">
+ <div class="btn-group">
+ <div class="btn-actions">
+ <button type="button" class="btn-primary" onclick="saveData()">Сохранить ответы</button>
+ <button type="button" class="btn-primary" style="background:#059669;" onclick="printDoc()">Сохранить в PDF</button>
+ <button type="button" class="btn-danger" onclick="clearData()">Очистить форму</button>
+ </div>
+ <div class="status-msg" id="status_msg"></div>
+ </div>
+ </div>
 
 </div>
 
 <script>
-  const STORAGE_KEY = 'hw_pnp_14_data';
-  const textFields = [
-    'hw_fio', 'hw_group',
-    'hw_ans_1a', 'hw_ans_1b', 'hw_ans_1c', 'hw_ans_1d',
-    'hw_ans_2', 'hw_ans_3'
-  ];
+ const STORAGE_KEY = 'hw_pnp_14_data';
+ const textFields = [
+ 'hw_fio', 'hw_group',
+ 'hw_ans_1a', 'hw_ans_1b', 'hw_ans_1c', 'hw_ans_1d',
+ 'hw_ans_2', 'hw_ans_3'
+ ];
 
-  function updateMirrors() {
-    ['hw_ans_1a', 'hw_ans_1b', 'hw_ans_1c', 'hw_ans_1d', 'hw_ans_2', 'hw_ans_3'].forEach(id => {
-      const input = document.getElementById(id);
-      const mirror = document.getElementById(id + '_mirror');
-      if (input && mirror) {
-        mirror.textContent = input.value || '(ответ не внесен)';
-      }
-    });
-  }
+ function updateMirrors() {
+ ['hw_ans_1a', 'hw_ans_1b', 'hw_ans_1c', 'hw_ans_1d', 'hw_ans_2', 'hw_ans_3'].forEach(id => {
+ const input = document.getElementById(id);
+ const mirror = document.getElementById(id + '_mirror');
+ if (input && mirror) {
+ mirror.textContent = input.value | '(ответ не внесен)';
+ }
+ });
+ }
 
-  function saveData() {
-    const data = {};
-    textFields.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) data[id] = el.value;
-    });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    updateMirrors();
-    const msg = document.getElementById('status_msg');
-    msg.textContent = 'Сохранено в браузере: ' + new Date().toLocaleTimeString();
-    setTimeout(() => { msg.textContent = ''; }, 3500);
-  }
+ function saveData() {
+ const data = {};
+ textFields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) data[id] = el.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ updateMirrors();
+ const msg = document.getElementById('status_msg');
+ msg.textContent = 'Сохранено в браузере: ' + new Date().toLocaleTimeString();
+ setTimeout(() => { msg.textContent = ''; }, 3500);
+ }
 
-  function loadData() {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    try {
-      const data = JSON.parse(raw);
-      textFields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el && data[id] !== undefined) {
-          el.value = data[id];
-        }
-      });
-      updateMirrors();
-    } catch (e) {
-      console.error(e);
-    }
-  }
+ function loadData() {
+ const raw = localStorage.getItem(STORAGE_KEY);
+ if (!raw) return;
+ try {
+ const data = JSON.parse(raw);
+ textFields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el && data[id] !== undefined) {
+ el.value = data[id];
+ }
+ });
+ updateMirrors();
+ } catch (e) {
+ console.error(e);
+ }
+ }
 
-  function clearData() {
-    if (confirm('Вы уверены, что хотите полностью очистить форму? Все введенные данные будут удалены.')) {
-      localStorage.removeItem(STORAGE_KEY);
-      textFields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-      });
-      updateMirrors();
-      const msg = document.getElementById('status_msg');
-      msg.textContent = 'Форма очищена';
-      setTimeout(() => { msg.textContent = ''; }, 2500);
-    }
-  }
+ function clearData() {
+ if (confirm('Вы уверены, что хотите полностью очистить форму? Все введенные данные будут удалены.')) {
+ localStorage.removeItem(STORAGE_KEY);
+ textFields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) el.value = '';
+ });
+ updateMirrors();
+ const msg = document.getElementById('status_msg');
+ msg.textContent = 'Форма очищена';
+ setTimeout(() => { msg.textContent = ''; }, 2500);
+ }
+ }
 
-  function printDoc() {
-    updateMirrors();
-    window.print();
-  }
+ function printDoc() {
+ updateMirrors();
+ window.print();
+ }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    loadData();
-    textFields.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener('input', updateMirrors);
-      }
-    });
-  });
+ document.addEventListener('DOMContentLoaded', () => {
+ loadData();
+ textFields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) {
+ el.addEventListener('input', updateMirrors);
+ }
+ });
+ });
 </script>
 </body>
 </html>

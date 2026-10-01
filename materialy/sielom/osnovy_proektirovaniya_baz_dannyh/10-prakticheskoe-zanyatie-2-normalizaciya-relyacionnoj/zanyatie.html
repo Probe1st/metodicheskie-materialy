@@ -1,899 +1,866 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="color-scheme" content="light">
-  <title>Практическая работа — Практическое занятие №2: нормализация реляционной БД</title>
-  <style>
-    :root {
-      --bg: #f1f5f9;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #2563eb;
-      --accent-soft: #eff6ff;
-      --accent-dark: #1d4ed8;
-      --warn: #d97706;
-      --warn-soft: #fef3c7;
-      --success: #16a34a;
-      --success-soft: #f0fdf4;
-      --danger: #dc2626;
-      --danger-soft: #fef2f2;
-      --radius: 12px;
-      --shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
-    }
-    * { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      line-height: 1.6;
-      font-size: 15.5px;
-    }
-    .page {
-      width: min(100% - 24px, 920px);
-      margin: 24px auto 90px;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow);
-    }
-    h1 {
-      margin: 0 0 10px;
-      font-size: clamp(20px, 3.5vw, 28px);
-      line-height: 1.25;
-      color: var(--text);
-    }
-    .lead {
-      color: var(--muted);
-      margin: 0;
-      font-size: 15px;
-    }
-    h2 {
-      margin: 0 0 14px;
-      font-size: 19px;
-      color: var(--accent);
-      border-bottom: 2px solid var(--accent-soft);
-      padding-bottom: 6px;
-    }
-    h3 {
-      font-size: 16.5px;
-      margin: 18px 0 10px;
-      color: var(--text);
-    }
-    p, ul, ol {
-      margin-top: 0;
-      margin-bottom: 12px;
-    }
-    ul, ol {
-      padding-left: 20px;
-    }
-    li {
-      margin-bottom: 5px;
-    }
-    .notice {
-      background: var(--accent-soft);
-      border-left: 4px solid var(--accent);
-      padding: 12px 16px;
-      border-radius: 4px 8px 8px 4px;
-      margin-bottom: 16px;
-      font-size: 14.5px;
-    }
-    .student-info-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-      margin-top: 14px;
-    }
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .form-group label {
-      font-size: 13.5px;
-      font-weight: 600;
-      color: var(--muted);
-    }
-    input[type="text"], select, textarea {
-      width: 100%;
-      padding: 9px 12px;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      font-size: 14.5px;
-      font-family: inherit;
-      color: var(--text);
-      background: #ffffff;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    input[type="text"]:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-    }
-    textarea {
-      min-height: 80px;
-      resize: vertical;
-      line-height: 1.5;
-    }
-    .variant-selector-box {
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 16px;
-      margin: 16px 0;
-    }
-    .variant-content {
-      display: none;
-    }
-    .variant-content.active {
-      display: block;
-    }
-    table.data-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 14px 0;
-      font-size: 13.5px;
-    }
-    table.data-table th, table.data-table td {
-      border: 1px solid var(--line);
-      padding: 8px 10px;
-      text-align: left;
-      vertical-align: top;
-    }
-    table.data-table th {
-      background: #f1f5f9;
-      font-weight: 600;
-    }
-    .task-step {
-      background: #ffffff;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 18px;
-      margin-bottom: 16px;
-    }
-    .task-step-title {
-      font-size: 15.5px;
-      font-weight: 600;
-      color: var(--accent-dark);
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .badge {
-      display: inline-block;
-      padding: 2px 7px;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: 600;
-      background: #e2e8f0;
-      color: #334155;
-    }
-    .badge-blue {
-      background: #dbeafe;
-      color: #1e40af;
-    }
-    .badge-green {
-      background: #dcfce7;
-      color: #166534;
-    }
-    .checklist-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      margin-bottom: 10px;
-      font-size: 14.5px;
-    }
-    .checklist-item input[type="checkbox"] {
-      margin-top: 4px;
-      width: 17px;
-      height: 17px;
-      accent-color: var(--accent);
-      cursor: pointer;
-    }
-    .action-bar {
-      position: sticky;
-      bottom: 16px;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(8px);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 12px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      z-index: 50;
-      margin-top: 24px;
-    }
-    .btn {
-      padding: 9px 16px;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
-    }
-    .btn-primary {
-      background: var(--accent);
-      color: #ffffff;
-    }
-    .btn-primary:hover {
-      background: var(--accent-dark);
-    }
-    .btn-outline {
-      background: transparent;
-      border: 1px solid var(--line);
-      color: var(--text);
-    }
-    .btn-outline:hover {
-      background: #f1f5f9;
-    }
-    .btn-danger {
-      background: #fee2e2;
-      color: var(--danger);
-      border: 1px solid #fecaca;
-    }
-    .btn-danger:hover {
-      background: #fecaca;
-    }
-    .status-msg {
-      font-size: 13.5px;
-      font-weight: 500;
-      color: var(--muted);
-    }
-    code {
-      background: #f1f5f9;
-      padding: 2px 5px;
-      border-radius: 4px;
-      font-size: 0.9em;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <meta name="color-scheme" content="light">
+ <title>Практическая работа — Практическое занятие №2: нормализация реляционной БД</title>
+ <style>
+ :root {
+ --bg: #f1f5f9;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #2563eb;
+ --accent-soft: #eff6ff;
+ --accent-dark: #1d4ed8;
+ --warn: #d97706;
+ --warn-soft: #fef3c7;
+ --success: #16a34a;
+ --success-soft: #f0fdf4;
+ --danger: #dc2626;
+ --danger-soft: #fef2f2;
+ --radius: 12px;
+ --shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+ }
+ * { box-sizing: border-box; }
+ html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+ body {
+ margin: 0;
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+ line-height: 1.6;
+ font-size: 15.5px;
+ }.page {
+ width: min(100% - 24px, 920px);
+ margin: 24px auto 90px;
+ }.card {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 24px;
+ margin-bottom: 20px;
+ box-shadow: var(--shadow);
+ }
+ h1 {
+ margin: 0 0 10px;
+ font-size: clamp(20px, 3.5vw, 28px);
+ line-height: 1.25;
+ color: var(--text);
+ }.lead {
+ color: var(--muted);
+ margin: 0;
+ font-size: 15px;
+ }
+ h2 {
+ margin: 0 0 14px;
+ font-size: 19px;
+ color: var(--accent);
+ border-bottom: 2px solid var(--accent-soft);
+ padding-bottom: 6px;
+ }
+ h3 {
+ font-size: 16.5px;
+ margin: 18px 0 10px;
+ color: var(--text);
+ }
+ p, ul, ol {
+ margin-top: 0;
+ margin-bottom: 12px;
+ }
+ ul, ol {
+ padding-left: 20px;
+ }
+ li {
+ margin-bottom: 5px;
+ }.notice {
+ background: var(--accent-soft);
+ border-left: 4px solid var(--accent);
+ padding: 12px 16px;
+ border-radius: 4px 8px 8px 4px;
+ margin-bottom: 16px;
+ font-size: 14.5px;
+ }.student-info-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+ gap: 16px;
+ margin-top: 14px;
+ }.form-group {
+ display: flex;
+ flex-direction: column;
+ gap: 6px;
+ }.form-group label {
+ font-size: 13.5px;
+ font-weight: 600;
+ color: var(--muted);
+ }
+ input[type="text"], select, textarea {
+ width: 100%;
+ padding: 9px 12px;
+ border: 1px solid var(--line);
+ border-radius: 6px;
+ font-size: 14.5px;
+ font-family: inherit;
+ color: var(--text);
+ background: #ffffff;
+ transition: border-color 0.2s, box-shadow 0.2s;
+ }
+ input[type="text"]:focus, select:focus, textarea:focus {
+ outline: none;
+ border-color: var(--accent);
+ box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+ }
+ textarea {
+ min-height: 80px;
+ resize: vertical;
+ line-height: 1.5;
+ }.variant-selector-box {
+ background: #f8fafc;
+ border: 1px solid var(--line);
+ border-radius: 8px;
+ padding: 16px;
+ margin: 16px 0;
+ }.variant-content {
+ display: none;
+ }.variant-content.active {
+ display: block;
+ }
+ table.data-table {
+ width: 100%;
+ border-collapse: collapse;
+ margin: 14px 0;
+ font-size: 13.5px;
+ }
+ table.data-table th, table.data-table td {
+ border: 1px solid var(--line);
+ padding: 8px 10px;
+ text-align: left;
+ vertical-align: top;
+ }
+ table.data-table th {
+ background: #f1f5f9;
+ font-weight: 600;
+ }.task-step {
+ background: #ffffff;
+ border: 1px solid var(--line);
+ border-radius: 8px;
+ padding: 18px;
+ margin-bottom: 16px;
+ }.task-step-title {
+ font-size: 15.5px;
+ font-weight: 600;
+ color: var(--accent-dark);
+ margin-bottom: 10px;
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ }.badge {
+ display: inline-block;
+ padding: 2px 7px;
+ border-radius: 4px;
+ font-size: 12px;
+ font-weight: 600;
+ background: #e2e8f0;
+ color: #334155;
+ }.badge-blue {
+ background: #dbeafe;
+ color: #1e40af;
+ }.badge-green {
+ background: #dcfce7;
+ color: #166534;
+ }.checklist-item {
+ display: flex;
+ align-items: flex-start;
+ gap: 10px;
+ margin-bottom: 10px;
+ font-size: 14.5px;
+ }.checklist-item input[type="checkbox"] {
+ margin-top: 4px;
+ width: 17px;
+ height: 17px;
+ accent-color: var(--accent);
+ cursor: pointer;
+ }.action-bar {
+ position: sticky;
+ bottom: 16px;
+ background: rgba(255, 255, 255, 0.95);
+ backdrop-filter: blur(8px);
+ border: 1px solid var(--line);
+ border-radius: 12px;
+ padding: 12px 20px;
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ gap: 12px;
+ box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+ z-index: 50;
+ margin-top: 24px;
+ }.btn {
+ padding: 9px 16px;
+ border-radius: 6px;
+ font-size: 14px;
+ font-weight: 600;
+ cursor: pointer;
+ border: none;
+ display: inline-flex;
+ align-items: center;
+ gap: 6px;
+ transition: all 0.2s;
+ }.btn-primary {
+ background: var(--accent);
+ color: #ffffff;
+ }.btn-primary:hover {
+ background: var(--accent-dark);
+ }.btn-outline {
+ background: transparent;
+ border: 1px solid var(--line);
+ color: var(--text);
+ }.btn-outline:hover {
+ background: #f1f5f9;
+ }.btn-danger {
+ background: #fee2e2;
+ color: var(--danger);
+ border: 1px solid #fecaca;
+ }.btn-danger:hover {
+ background: #fecaca;
+ }.status-msg {
+ font-size: 13.5px;
+ font-weight: 500;
+ color: var(--muted);
+ }
+ code {
+ background: #f1f5f9;
+ padding: 2px 5px;
+ border-radius: 4px;
+ font-size: 0.9em;
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ }
 
-    @media (max-width: 600px) {
-      .page {
-        width: 100%;
-        margin: 12px auto 80px;
-        padding: 0 10px;
-      }
-      .card {
-        padding: 16px;
-      }
-      .action-bar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .action-bar .btn {
-        justify-content: center;
-      }
-      table.data-table {
-        display: block;
-        overflow-x: auto;
-      }
-    }
+ @media (max-width: 600px) {.page {
+ width: 100%;
+ margin: 12px auto 80px;
+ padding: 0 10px;
+ }.card {
+ padding: 16px;
+ }.action-bar {
+ flex-direction: column;
+ align-items: stretch;
+ }.action-bar.btn {
+ justify-content: center;
+ }
+ table.data-table {
+ display: block;
+ overflow-x: auto;
+ }
+ }
 
-    @media print {
-      body {
-        background: #ffffff !important;
-        color: #000000 !important;
-        font-size: 12pt;
-      }
-      .page {
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-      }
-      .card {
-        border: 1px solid #94a3b8 !important;
-        box-shadow: none !important;
-        padding: 14px !important;
-        margin-bottom: 14px !important;
-        page-break-inside: avoid;
-      }
-      .action-bar, .variant-selector-box label, #variantSelect {
-        display: none !important;
-      }
-      input[type="text"], select, textarea {
-        border: 1px solid #000000 !important;
-        background: transparent !important;
-        color: #000000 !important;
-        resize: none !important;
-        overflow: visible !important;
-        height: auto !important;
-      }
-      input::placeholder, textarea::placeholder {
-        color: transparent !important;
-      }
-    }
-  </style>
+ @media print {
+ body {
+ background: #ffffff !important;
+ color: #000000 !important;
+ font-size: 12pt;
+ }.page {
+ width: 100% !important;
+ margin: 0 !important;
+ padding: 0 !important;
+ }.card {
+ border: 1px solid #94a3b8 !important;
+ box-shadow: none !important;
+ padding: 14px !important;
+ margin-bottom: 14px !important;
+ page-break-inside: avoid;
+ }.action-bar,.variant-selector-box label, #variantSelect {
+ display: none !important;
+ }
+ input[type="text"], select, textarea {
+ border: 1px solid #000000 !important;
+ background: transparent !important;
+ color: #000000 !important;
+ resize: none !important;
+ overflow: visible !important;
+ height: auto !important;
+ }
+ input::placeholder, textarea::placeholder {
+ color: transparent !important;
+ }
+ }
+ </style>
 </head>
 <body>
-  <div class="page">
-    <header class="card">
-      <h1>Интерактивный рабочий лист студента</h1>
-      <p class="lead"><strong>Дисциплина:</strong> ОП.08 Основы проектирования баз данных<br>
-      <strong>Тема рабочей программы (§2.2 с.7):</strong> Тема 2. Взаимосвязи в моделях и реляционный подход к построению моделей<br>
-      <strong>Занятие 10:</strong> Практическое занятие №2: нормализация реляционной БД (1НФ &rarr; 2НФ, FD, Lossless-Join)</p>
+ <div class="page">
+ <header class="card">
+ <h1>Интерактивный рабочий лист студента</h1>
+ <p class="lead"><strong>Дисциплина:</strong> ОП.08 Основы проектирования баз данных<br>
+ <strong>Тема рабочей программы:</strong> Тема 2. Взаимосвязи в моделях и реляционный подход к построению моделей<br>
+ <strong>Занятие 10:</strong> Практическое занятие №2: нормализация реляционной БД (1НФ &rarr; 2НФ, FD, Lossless-Join)</p>
 
-      <div class="student-info-grid">
-        <div class="form-group">
-          <label for="studentFio">ФИО обучающегося:</label>
-          <input type="text" id="studentFio" autocomplete="name">
-        </div>
-        <div class="form-group">
-          <label for="studentGroup">Учебная группа:</label>
-          <input type="text" id="studentGroup" autocomplete="off">
-        </div>
-      </div>
-    </header>
+ <div class="student-info-grid">
+ <div class="form-group">
+ <label for="studentFio">ФИО обучающегося:</label>
+ <input type="text" id="studentFio" autocomplete="name">
+ </div>
+ <div class="form-group">
+ <label for="studentGroup">Учебная группа:</label>
+ <input type="text" id="studentGroup" autocomplete="off">
+ </div>
+ </div>
+ </header>
 
-    <section class="card">
-      <h2>Выбор индивидуального практического варианта</h2>
-      <div class="variant-selector-box">
-        <div class="form-group">
-          <label for="variantSelect">Выберите назначенный преподавателем вариант (1–4):</label>
-          <select id="variantSelect" onchange="switchVariant(this.value)">
-            <option value="1">Вариант 1: Универсальная ведомость оптовых поставок товаров</option>
-            <option value="2">Вариант 2: Журнал регистрации пациентов поликлиники</option>
-            <option value="3">Вариант 3: Ведомость успеваемости студентов в сессию</option>
-            <option value="4">Вариант 4: Путевой лист автоколонны предприятия</option>
-          </select>
-        </div>
-      </div>
+ <section class="card">
+ <h2>Выбор индивидуального практического варианта</h2>
+ <div class="variant-selector-box">
+ <div class="form-group">
+ <label for="variantSelect">Выберите назначенный преподавателем вариант (1–4):</label>
+ <select id="variantSelect" onchange="switchVariant(this.value)">
+ <option value="1">Вариант 1: Универсальная ведомость оптовых поставок товаров</option>
+ <option value="2">Вариант 2: Журнал регистрации пациентов поликлиники</option>
+ <option value="3">Вариант 3: Ведомость успеваемости студентов в сессию</option>
+ <option value="4">Вариант 4: Путевой лист автоколонны предприятия</option>
+ </select>
+ </div>
+ </div>
 
-      <!-- ВАРИАНТ 1 -->
-      <div id="variant1" class="variant-content active">
-        <div class="notice">
-          <strong>Вариант 1: Универсальная ведомость оптовых поставок</strong><br>
-          Исходное отношение: <code>Универсальная_ведомость_поставок { Номер_накладной, Артикул_товара, Дата_поставки, Поставщик, Название_товара, Единица_измерения, Цена_закупки, Количество }</code>.<br>
-          Составной первичный ключ: <code>{Номер_накладной, Артикул_товара}</code>.
-        </div>
+ <!-- ВАРИАНТ 1 -->
+ <div id="variant1" class="variant-content active">
+ <div class="notice">
+ <strong>Вариант 1: Универсальная ведомость оптовых поставок</strong><br>
+ Исходное отношение: <code>Универсальная_ведомость_поставок { Номер_накладной, Артикул_товара, Дата_поставки, Поставщик, Название_товара, Единица_измерения, Цена_закупки, Количество }</code>.<br>
+ Составной первичный ключ: <code>{Номер_накладной, Артикул_товара}</code>.
+ </div>
 
-        <h3>Фрагмент исходной таблицы в 1НФ:</h3>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th><u>Номер накладной</u>*</th>
-              <th><u>Артикул</u>*</th>
-              <th>Дата поставки</th>
-              <th>Поставщик</th>
-              <th>Название товара</th>
-              <th>Ед. изм.</th>
-              <th>Цена закупки (руб.)</th>
-              <th>Количество</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>ТТН-101</strong></td>
-              <td><strong>ART-881</strong></td>
-              <td>2026-10-01</td>
-              <td>ООО «СеверСнаб»</td>
-              <td>Кабель витая пара UTP Cat5e</td>
-              <td>м</td>
-              <td>45.00</td>
-              <td>500</td>
-            </tr>
-            <tr>
-              <td><strong>ТТН-101</strong></td>
-              <td><strong>ART-105</strong></td>
-              <td>2026-10-01</td>
-              <td>ООО «СеверСнаб»</td>
-              <td>Патч-панель 24 порта RJ-45</td>
-              <td>шт</td>
-              <td>1800.00</td>
-              <td>4</td>
-            </tr>
-            <tr>
-              <td><strong>ТТН-102</strong></td>
-              <td><strong>ART-881</strong></td>
-              <td>2026-10-02</td>
-              <td>АО «ЮграТрейд»</td>
-              <td>Кабель витая пара UTP Cat5e</td>
-              <td>м</td>
-              <td>45.00</td>
-              <td>200</td>
-            </tr>
-          </tbody>
-        </table>
+ <h3>Фрагмент исходной таблицы в 1НФ:</h3>
+ <table class="data-table">
+ <thead>
+ <tr>
+ <th><u>Номер накладной</u>*</th>
+ <th><u>Артикул</u>*</th>
+ <th>Дата поставки</th>
+ <th>Поставщик</th>
+ <th>Название товара</th>
+ <th>Ед. изм.</th>
+ <th>Цена закупки (руб.)</th>
+ <th>Количество</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>ТТН-101</strong></td>
+ <td><strong>ART-881</strong></td>
+ <td>2026-10-01</td>
+ <td>ООО «СеверСнаб»</td>
+ <td>Кабель витая пара UTP Cat5e</td>
+ <td>м</td>
+ <td>45.00</td>
+ <td>500</td>
+ </tr>
+ <tr>
+ <td><strong>ТТН-101</strong></td>
+ <td><strong>ART-105</strong></td>
+ <td>2026-10-01</td>
+ <td>ООО «СеверСнаб»</td>
+ <td>Патч-панель 24 порта RJ-45</td>
+ <td>шт</td>
+ <td>1800.00</td>
+ <td>4</td>
+ </tr>
+ <tr>
+ <td><strong>ТТН-102</strong></td>
+ <td><strong>ART-881</strong></td>
+ <td>2026-10-02</td>
+ <td>АО «ЮграТрейд»</td>
+ <td>Кабель витая пара UTP Cat5e</td>
+ <td>м</td>
+ <td>45.00</td>
+ <td>200</td>
+ </tr>
+ </tbody>
+ </table>
 
-        <!-- Шаг 1 -->
-        <div class="task-step">
-          <div class="task-step-title"><span class="badge badge-blue">Шаг 1</span> Обоснование первичного ключа и выявление аномалий 1НФ</div>
-          <div class="form-group">
-            <label for="v1_step1_key">1.1. Обоснуйте необходимость составного первичного ключа {Номер_накладной, Артикул_товара}:</label>
-            <textarea id="v1_step1_key"></textarea>
-          </div>
-          <div class="form-group" style="margin-top: 10px;">
-            <label for="v1_step1_anomalies">1.2. Опишите проявление аномалий вставки, удаления и модификации в исходной таблице:</label>
-            <textarea id="v1_step1_anomalies"></textarea>
-          </div>
-        </div>
+ <!-- Шаг 1 -->
+ <div class="task-step">
+ <div class="task-step-title"><span class="badge badge-blue">Шаг 1</span> Обоснование первичного ключа и выявление аномалий 1НФ</div>
+ <div class="form-group">
+ <label for="v1_step1_key">1.1. Обоснуйте необходимость составного первичного ключа {Номер_накладной, Артикул_товара}:</label>
+ <textarea id="v1_step1_key"></textarea>
+ </div>
+ <div class="form-group" style="margin-top: 10px;">
+ <label for="v1_step1_anomalies">1.2. Опишите проявление аномалий вставки, удаления и модификации в исходной таблице:</label>
+ <textarea id="v1_step1_anomalies"></textarea>
+ </div>
+ </div>
 
-        <!-- Шаг 2 -->
-        <div class="task-step">
-          <div class="task-step-title"><span class="badge badge-blue">Шаг 2</span> Выявление и классификация функциональных зависимостей (FD)</div>
-          <div class="form-group">
-            <label for="v1_step2_fd">Запишите все нетривиальные функциональные зависимости в формате X &rarr; Y и укажите их тип (полная / частичная):</label>
-            <textarea id="v1_step2_fd"></textarea>
-          </div>
-        </div>
+ <!-- Шаг 2 -->
+ <div class="task-step">
+ <div class="task-step-title"><span class="badge badge-blue">Шаг 2</span> Выявление и классификация функциональных зависимостей (FD)</div>
+ <div class="form-group">
+ <label for="v1_step2_fd">Запишите все нетривиальные функциональные зависимости в формате X &rarr; Y и укажите их тип (полная / частичная):</label>
+ <textarea id="v1_step2_fd"></textarea>
+ </div>
+ </div>
 
-        <!-- Шаг 3 -->
-        <div class="task-step">
-          <div class="task-step-title"><span class="badge badge-green">Шаг 3</span> Декомпозиция универсального отношения в схемы 2НФ (Lossless-Join)</div>
-          <div class="form-group">
-            <label for="v1_step3_decomp">Укажите схемы 3 нормализованных таблиц (Накладные, Товары, Позиции_накладной) с указанием PK и FK:</label>
-            <textarea id="v1_step3_decomp"></textarea>
-          </div>
-        </div>
+ <!-- Шаг 3 -->
+ <div class="task-step">
+ <div class="task-step-title"><span class="badge badge-green">Шаг 3</span> Декомпозиция универсального отношения в схемы 2НФ (Lossless-Join)</div>
+ <div class="form-group">
+ <label for="v1_step3_decomp">Укажите схемы 3 нормализованных таблиц (Накладные, Товары, Позиции_накладной) с указанием PK и FK:</label>
+ <textarea id="v1_step3_decomp"></textarea>
+ </div>
+ </div>
 
-        <!-- Шаг 4 -->
-        <div class="task-step">
-          <div class="task-step-title"><span class="badge badge-green">Шаг 4</span> Доказательство декомпозиции без потерь и ликвидации аномалий</div>
-          <div class="form-group">
-            <label for="v1_step4_proof">Докажите сохранение данных естественным соединением (JOIN) и устранение аномалий:</label>
-            <textarea id="v1_step4_proof"></textarea>
-          </div>
-        </div>
-      </div>
+ <!-- Шаг 4 -->
+ <div class="task-step">
+ <div class="task-step-title"><span class="badge badge-green">Шаг 4</span> Доказательство декомпозиции без потерь и ликвидации аномалий</div>
+ <div class="form-group">
+ <label for="v1_step4_proof">Докажите сохранение данных естественным соединением (JOIN) и устранение аномалий:</label>
+ <textarea id="v1_step4_proof"></textarea>
+ </div>
+ </div>
+ </div>
 
-      <!-- ВАРИАНТ 2 -->
-      <div id="variant2" class="variant-content">
-        <div class="notice">
-          <strong>Вариант 2: Журнал регистрации пациентов поликлиники</strong><br>
-          Исходное отношение: <code>Журнал_пациентов { Номер_талона, СНИЛС_пациента, ФИО_пациента, Дата_рождения, Номер_кабинета, ФИО_врача, Специальность_врача, Диагноз }</code>.<br>
-          Составной первичный ключ: <code>{Номер_талона, СНИЛС_пациента}</code>.
-        </div>
+ <!-- ВАРИАНТ 2 -->
+ <div id="variant2" class="variant-content">
+ <div class="notice">
+ <strong>Вариант 2: Журнал регистрации пациентов поликлиники</strong><br>
+ Исходное отношение: <code>Журнал_пациентов { Номер_талона, СНИЛС_пациента, ФИО_пациента, Дата_рождения, Номер_кабинета, ФИО_врача, Специальность_врача, Диагноз }</code>.<br>
+ Составной первичный ключ: <code>{Номер_талона, СНИЛС_пациента}</code>.
+ </div>
 
-        <h3>Фрагмент исходной таблицы в 1НФ:</h3>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th><u>Номер талона</u>*</th>
-              <th><u>СНИЛС</u>*</th>
-              <th>ФИО пациента</th>
-              <th>Дата рожд.</th>
-              <th>Кабинет</th>
-              <th>ФИО врача</th>
-              <th>Специальность</th>
-              <th>Диагноз</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>ТАЛ-201</strong></td>
-              <td><strong>111-222-333 44</strong></td>
-              <td>Иванов Сергей Павлович</td>
-              <td>1985-04-12</td>
-              <td>Каб. 204</td>
-              <td>Петров А.В.</td>
-              <td>Терапевт</td>
-              <td>Острый бронхит (J20)</td>
-            </tr>
-            <tr>
-              <td><strong>ТАЛ-202</strong></td>
-              <td><strong>111-222-333 44</strong></td>
-              <td>Иванов Сергей Павлович</td>
-              <td>1985-04-12</td>
-              <td>Каб. 310</td>
-              <td>Сидорова М.Н.</td>
-              <td>Офтальмолог</td>
-              <td>Миопия слабой ст. (H52.1)</td>
-            </tr>
-            <tr>
-              <td><strong>ТАЛ-203</strong></td>
-              <td><strong>555-666-777 88</strong></td>
-              <td>Смирнова Анна Игоревна</td>
-              <td>1992-11-25</td>
-              <td>Каб. 204</td>
-              <td>Петров А.В.</td>
-              <td>Терапевт</td>
-              <td>ОРВИ (J06.9)</td>
-            </tr>
-          </tbody>
-        </table>
+ <h3>Фрагмент исходной таблицы в 1НФ:</h3>
+ <table class="data-table">
+ <thead>
+ <tr>
+ <th><u>Номер талона</u>*</th>
+ <th><u>СНИЛС</u>*</th>
+ <th>ФИО пациента</th>
+ <th>Дата рожд.</th>
+ <th>Кабинет</th>
+ <th>ФИО врача</th>
+ <th>Специальность</th>
+ <th>Диагноз</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>ТАЛ-201</strong></td>
+ <td><strong>111-222-333 44</strong></td>
+ <td>Иванов Сергей Павлович</td>
+ <td>1985-04-12</td>
+ <td>Каб. 204</td>
+ <td>Петров А.В.</td>
+ <td>Терапевт</td>
+ <td>Острый бронхит (J20)</td>
+ </tr>
+ <tr>
+ <td><strong>ТАЛ-202</strong></td>
+ <td><strong>111-222-333 44</strong></td>
+ <td>Иванов Сергей Павлович</td>
+ <td>1985-04-12</td>
+ <td>Каб. 310</td>
+ <td>Сидорова М.Н.</td>
+ <td>Офтальмолог</td>
+ <td>Миопия слабой ст. (H52.1)</td>
+ </tr>
+ <tr>
+ <td><strong>ТАЛ-203</strong></td>
+ <td><strong>555-666-777 88</strong></td>
+ <td>Смирнова Анна Игоревна</td>
+ <td>1992-11-25</td>
+ <td>Каб. 204</td>
+ <td>Петров А.В.</td>
+ <td>Терапевт</td>
+ <td>ОРВИ (J06.9)</td>
+ </tr>
+ </tbody>
+ </table>
 
-        <!-- Шаг 1 -->
-        <div class="task-step">
-          <div class="task-step-title"><span class="badge badge-blue">Шаг 1</span> Обоснование первичного ключа и выявление аномалий 1НФ</div>
-          <div class="form-group">
-            <label for="v2_step1_key">1.1. Обоснуйте составной первичный ключ {Номер_талона, СНИЛС_пациента}:</label>
-            <textarea id="v2_step1_key"></textarea>
-          </div>
-          <div class="form-group" style="margin-top: 10px;">
-            <label for="v2_step1_anomalies">1.2. Опишите аномалии модификации, вставки и удаления в журнале поликлиники:</label>
-            <textarea id="v2_step1_anomalies"></textarea>
-          </div>
-        </div>
+ <!-- Шаг 1 -->
+ <div class="task-step">
+ <div class="task-step-title"><span class="badge badge-blue">Шаг 1</span> Обоснование первичного ключа и выявление аномалий 1НФ</div>
+ <div class="form-group">
+ <label for="v2_step1_key">1.1. Обоснуйте составной первичный ключ {Номер_талона, СНИЛС_пациента}:</label>
+ <textarea id="v2_step1_key"></textarea>
+ </div>
+ <div class="form-group" style="margin-top: 10px;">
+ <label for="v2_step1_anomalies">1.2. Опишите аномалии модификации, вставки и удаления в журнале поликлиники:</label>
+ <textarea id="v2_step1_anomalies"></textarea>
+ </div>
+ </div>
 
-        <!-- Шаг 2 -->
-        <div class="task-step">
-          <div class="task-step-title"><span class="badge badge-blue">Шаг 2</span> Выявление функциональных зависимостей (FD)</div>
-          <div class="form-group">
-            <label for="v2_step2_fd">Запишите функциональные зависимости (от СНИЛС, от талона и от полного ключа):</label>
-            <textarea id="v2_step2_fd"></textarea>
-          </div>
-        </div>
+ <!-- Шаг 2 -->
+ <div class="task-step">
+ <div class="task-step-title"><span class="badge badge-blue">Шаг 2</span> Выявление функциональных зависимостей (FD)</div>
+ <div class="form-group">
+ <label for="v2_step2_fd">Запишите функциональные зависимости (от СНИЛС, от талона и от полного ключа):</label>
+ <textarea id="v2_step2_fd"></textarea>
+ </div>
+ </div>
 
-        <!-- Шаг 3 -->
-        <div class="task-step">
-          <div class="task-step-title"><span class="badge badge-green">Шаг 3</span> Декомпозиция отношения в схемы 2НФ</div>
-          <div class="form-group">
-            <label for="v2_step3_decomp">Спроектируйте схемы 3 таблиц (Пациенты, Приемы_врачей, Регистрация_посещений) с PK и FK:</label>
-            <textarea id="v2_step3_decomp"></textarea>
-          </div>
-        </div>
+ <!-- Шаг 3 -->
+ <div class="task-step">
+ <div class="task-step-title"><span class="badge badge-green">Шаг 3</span> Декомпозиция отношения в схемы 2НФ</div>
+ <div class="form-group">
+ <label for="v2_step3_decomp">Спроектируйте схемы 3 таблиц (Пациенты, Приемы_врачей, Регистрация_посещений) с PK и FK:</label>
+ <textarea id="v2_step3_decomp"></textarea>
+ </div>
+ </div>
 
-        <!-- Шаг 4 -->
-        <div class="task-step">
-          <div class="task-step-title"><span class="badge badge-green">Шаг 4</span> Доказательство отсутствия аномалий</div>
-          <div class="form-group">
-            <label for="v2_step4_proof">Докажите сохранение целостности без потерь и ликвидацию дублирования личных данных:</label>
-            <textarea id="v2_step4_proof"></textarea>
-          </div>
-        </div>
-      </div>
+ <!-- Шаг 4 -->
+ <div class="task-step">
+ <div class="task-step-title"><span class="badge badge-green">Шаг 4</span> Доказательство отсутствия аномалий</div>
+ <div class="form-group">
+ <label for="v2_step4_proof">Докажите сохранение целостности без потерь и ликвидацию дублирования личных данных:</label>
+ <textarea id="v2_step4_proof"></textarea>
+ </div>
+ </div>
+ </div>
 
-      <!-- ВАРИАНТ 3 -->
-      <div id="variant3" class="variant-content">
-        <div class="notice">
-          <strong>Вариант 3: Ведомость успеваемости студентов в сессию</strong><br>
-          Исходное отношение: <code>Ведомость_успеваемости { Номер_зачетки, Код_дисциплины, ФИО_студента, Группа, Название_дисциплины, Семестр, Часы, Оценка }</code>.<br>
-          Составной первичный ключ: <code>{Номер_зачетки, Код_дисциплины}</code>.
-        </div>
+ <!-- ВАРИАНТ 3 -->
+ <div id="variant3" class="variant-content">
+ <div class="notice">
+ <strong>Вариант 3: Ведомость успеваемости студентов в сессию</strong><br>
+ Исходное отношение: <code>Ведомость_успеваемости { Номер_зачетки, Код_дисциплины, ФИО_студента, Группа, Название_дисциплины, Семестр, Часы, Оценка }</code>.<br>
+ Составной первичный ключ: <code>{Номер_зачетки, Код_дисциплины}</code>.
+ </div>
 
-        <h3>Фрагмент исходной таблицы в 1НФ:</h3>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th><u>Номер зачетки</u>*</th>
-              <th><u>Код дисциплины</u>*</th>
-              <th>ФИО студента</th>
-              <th>Группа</th>
-              <th>Название дисциплины</th>
-              <th>Семестр</th>
-              <th>Часы</th>
-              <th>Оценка</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>ЗК-2024-01</strong></td>
-              <td><strong>ОП.08</strong></td>
-              <td>Васильев Максим Олегович</td>
-              <td>ИС-22-1</td>
-              <td>Основы проектирования баз данных</td>
-              <td>4</td>
-              <td>72</td>
-              <td>5 (отлично)</td>
-            </tr>
-            <tr>
-              <td><strong>ЗК-2024-01</strong></td>
-              <td><strong>ОП.02</strong></td>
-              <td>Васильев Максим Олегович</td>
-              <td>ИС-22-1</td>
-              <td>Архитектура аппаратных средств</td>
-              <td>3</td>
-              <td>68</td>
-              <td>4 (хорошо)</td>
-            </tr>
-            <tr>
-              <td><strong>ЗК-2024-02</strong></td>
-              <td><strong>ОП.08</strong></td>
-              <td>Морозова Дарья Андреевна</td>
-              <td>ИС-22-1</td>
-              <td>Основы проектирования баз данных</td>
-              <td>4</td>
-              <td>72</td>
-              <td>5 (отлично)</td>
-            </tr>
-          </tbody>
-        </table>
+ <h3>Фрагмент исходной таблицы в 1НФ:</h3>
+ <table class="data-table">
+ <thead>
+ <tr>
+ <th><u>Номер зачетки</u>*</th>
+ <th><u>Код дисциплины</u>*</th>
+ <th>ФИО студента</th>
+ <th>Группа</th>
+ <th>Название дисциплины</th>
+ <th>Семестр</th>
+ <th>Часы</th>
+ <th>Оценка</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>ЗК-2024-01</strong></td>
+ <td><strong>ОП.08</strong></td>
+ <td>Васильев Максим Олегович</td>
+ <td>ИС-22-1</td>
+ <td>Основы проектирования баз данных</td>
+ <td>4</td>
+ <td>72</td>
+ <td>5 (отлично)</td>
+ </tr>
+ <tr>
+ <td><strong>ЗК-2024-01</strong></td>
+ <td><strong>ОП.02</strong></td>
+ <td>Васильев Максим Олегович</td>
+ <td>ИС-22-1</td>
+ <td>Архитектура аппаратных средств</td>
+ <td>3</td>
+ <td>68</td>
+ <td>4 (хорошо)</td>
+ </tr>
+ <tr>
+ <td><strong>ЗК-2024-02</strong></td>
+ <td><strong>ОП.08</strong></td>
+ <td>Морозова Дарья Андреевна</td>
+ <td>ИС-22-1</td>
+ <td>Основы проектирования баз данных</td>
+ <td>4</td>
+ <td>72</td>
+ <td>5 (отлично)</td>
+ </tr>
+ </tbody>
+ </table>
 
-        <!-- Шаг 1 -->
-        <div class="task-step">
-          <div class="task-step-title"><span class="badge badge-blue">Шаг 1</span> Обоснование первичного ключа и выявление аномалий 1НФ</div>
-          <div class="form-group">
-            <label for="v3_step1_key">1.1. Обоснуйте составной ключ {Номер_зачетки, Код_дисциплины}:</label>
-            <textarea id="v3_step1_key"></textarea>
-          </div>
-          <div class="form-group" style="margin-top: 10px;">
-            <label for="v3_step1_anomalies">1.2. Опишите аномалии манипулирования в сводной ведомости успеваемости:</label>
-            <textarea id="v3_step1_anomalies"></textarea>
-          </div>
-        </div>
+ <!-- Шаг 1 -->
+ <div class="task-step">
+ <div class="task-step-title"><span class="badge badge-blue">Шаг 1</span> Обоснование первичного ключа и выявление аномалий 1НФ</div>
+ <div class="form-group">
+ <label for="v3_step1_key">1.1. Обоснуйте составной ключ {Номер_зачетки, Код_дисциплины}:</label>
+ <textarea id="v3_step1_key"></textarea>
+ </div>
+ <div class="form-group" style="margin-top: 10px;">
+ <label for="v3_step1_anomalies">1.2. Опишите аномалии манипулирования в сводной ведомости успеваемости:</label>
+ <textarea id="v3_step1_anomalies"></textarea>
+ </div>
+ </div>
 
-        <!-- Шаг 2 -->
-        <div class="task-step">
-          <div class="task-step-title"><span class="badge badge-blue">Шаг 2</span> Функциональные зависимости успеваемости</div>
-          <div class="form-group">
-            <label for="v3_step2_fd">Выпишите формулы FD с разделением на частичные и полные:</label>
-            <textarea id="v3_step2_fd"></textarea>
-          </div>
-        </div>
+ <!-- Шаг 2 -->
+ <div class="task-step">
+ <div class="task-step-title"><span class="badge badge-blue">Шаг 2</span> Функциональные зависимости успеваемости</div>
+ <div class="form-group">
+ <label for="v3_step2_fd">Выпишите формулы FD с разделением на частичные и полные:</label>
+ <textarea id="v3_step2_fd"></textarea>
+ </div>
+ </div>
 
-        <!-- Шаг 3 -->
-        <div class="task-step">
-          <div class="task-step-title"><span class="badge badge-green">Шаг 3</span> Декомпозиция ведомости в схемы 2НФ</div>
-          <div class="form-group">
-            <label for="v3_step3_decomp">Определите 3 таблицы (Студенты, Дисциплины, Оценки_в_сессию) с PK и FK:</label>
-            <textarea id="v3_step3_decomp"></textarea>
-          </div>
-        </div>
+ <!-- Шаг 3 -->
+ <div class="task-step">
+ <div class="task-step-title"><span class="badge badge-green">Шаг 3</span> Декомпозиция ведомости в схемы 2НФ</div>
+ <div class="form-group">
+ <label for="v3_step3_decomp">Определите 3 таблицы (Студенты, Дисциплины, Оценки_в_сессию) с PK и FK:</label>
+ <textarea id="v3_step3_decomp"></textarea>
+ </div>
+ </div>
 
-        <!-- Шаг 4 -->
-        <div class="task-step">
-          <div class="task-step-title"><span class="badge badge-green">Шаг 4</span> Доказательство отсутствия потерь</div>
-          <div class="form-group">
-            <label for="v3_step4_proof">Докажите теорему Хита и устранение аномалий при добавлении новой дисциплины:</label>
-            <textarea id="v3_step4_proof"></textarea>
-          </div>
-        </div>
-      </div>
+ <!-- Шаг 4 -->
+ <div class="task-step">
+ <div class="task-step-title"><span class="badge badge-green">Шаг 4</span> Доказательство отсутствия потерь</div>
+ <div class="form-group">
+ <label for="v3_step4_proof">Докажите теорему Хита и устранение аномалий при добавлении новой дисциплины:</label>
+ <textarea id="v3_step4_proof"></textarea>
+ </div>
+ </div>
+ </div>
 
-      <!-- ВАРИАНТ 4 -->
-      <div id="variant4" class="variant-content">
-        <div class="notice">
-          <strong>Вариант 4: Путевой лист автоколонны предприятия</strong><br>
-          Исходное отношение: <code>Путевой_лист_автоколонны { Номер_листа, Код_автомобиля, Дата_выезда, Марка_авто, Госномер, Табельный_номер_водителя, ФИО_водителя, Пробег_рейса }</code>.<br>
-          Составной первичный ключ: <code>{Номер_листа, Код_автомобиля}</code>.
-        </div>
+ <!-- ВАРИАНТ 4 -->
+ <div id="variant4" class="variant-content">
+ <div class="notice">
+ <strong>Вариант 4: Путевой лист автоколонны предприятия</strong><br>
+ Исходное отношение: <code>Путевой_лист_автоколонны { Номер_листа, Код_автомобиля, Дата_выезда, Марка_авто, Госномер, Табельный_номер_водителя, ФИО_водителя, Пробег_рейса }</code>.<br>
+ Составной первичный ключ: <code>{Номер_листа, Код_автомобиля}</code>.
+ </div>
 
-        <h3>Фрагмент исходной таблицы в 1НФ:</h3>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th><u>Номер листа</u>*</th>
-              <th><u>Код авто</u>*</th>
-              <th>Дата выезда</th>
-              <th>Марка авто</th>
-              <th>Госномер</th>
-              <th>Таб. № водит.</th>
-              <th>ФИО водителя</th>
-              <th>Пробег рейса (км)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>ПЛ-701</strong></td>
-              <td><strong>CAR-01</strong></td>
-              <td>2026-10-01</td>
-              <td>ГАЗон NEXT 10т</td>
-              <td>А102ВЕ 186</td>
-              <td>VOD-12</td>
-              <td>Семенов Виктор Аркадьевич</td>
-              <td>240</td>
-            </tr>
-            <tr>
-              <td><strong>ПЛ-701</strong></td>
-              <td><strong>CAR-05</strong></td>
-              <td>2026-10-01</td>
-              <td>Лада Ларгус Фургон</td>
-              <td>В450МУ 186</td>
-              <td>VOD-12</td>
-              <td>Семенов Виктор Аркадьевич</td>
-              <td>85</td>
-            </tr>
-            <tr>
-              <td><strong>ПЛ-702</strong></td>
-              <td><strong>CAR-01</strong></td>
-              <td>2026-10-02</td>
-              <td>ГАЗон NEXT 10т</td>
-              <td>А102ВЕ 186</td>
-              <td>VOD-33</td>
-              <td>Ковалев Роман Юрьевич</td>
-              <td>310</td>
-            </tr>
-          </tbody>
-        </table>
+ <h3>Фрагмент исходной таблицы в 1НФ:</h3>
+ <table class="data-table">
+ <thead>
+ <tr>
+ <th><u>Номер листа</u>*</th>
+ <th><u>Код авто</u>*</th>
+ <th>Дата выезда</th>
+ <th>Марка авто</th>
+ <th>Госномер</th>
+ <th>Таб. № водит.</th>
+ <th>ФИО водителя</th>
+ <th>Пробег рейса (км)</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>ПЛ-701</strong></td>
+ <td><strong>CAR-01</strong></td>
+ <td>2026-10-01</td>
+ <td>ГАЗон NEXT 10т</td>
+ <td>А102ВЕ 186</td>
+ <td>VOD-12</td>
+ <td>Семенов Виктор Аркадьевич</td>
+ <td>240</td>
+ </tr>
+ <tr>
+ <td><strong>ПЛ-701</strong></td>
+ <td><strong>CAR-05</strong></td>
+ <td>2026-10-01</td>
+ <td>Лада Ларгус Фургон</td>
+ <td>В450МУ 186</td>
+ <td>VOD-12</td>
+ <td>Семенов Виктор Аркадьевич</td>
+ <td>85</td>
+ </tr>
+ <tr>
+ <td><strong>ПЛ-702</strong></td>
+ <td><strong>CAR-01</strong></td>
+ <td>2026-10-02</td>
+ <td>ГАЗон NEXT 10т</td>
+ <td>А102ВЕ 186</td>
+ <td>VOD-33</td>
+ <td>Ковалев Роман Юрьевич</td>
+ <td>310</td>
+ </tr>
+ </tbody>
+ </table>
 
-        <!-- Шаг 1 -->
-        <div class="task-step">
-          <div class="task-step-title"><span class="badge badge-blue">Шаг 1</span> Обоснование первичного ключа и выявление аномалий 1НФ</div>
-          <div class="form-group">
-            <label for="v4_step1_key">1.1. Обоснуйте составной ключ {Номер_листа, Код_автомобиля}:</label>
-            <textarea id="v4_step1_key"></textarea>
-          </div>
-          <div class="form-group" style="margin-top: 10px;">
-            <label for="v4_step1_anomalies">1.2. Опишите аномалии манипулирования в путевом листе автоколонны:</label>
-            <textarea id="v4_step1_anomalies"></textarea>
-          </div>
-        </div>
+ <!-- Шаг 1 -->
+ <div class="task-step">
+ <div class="task-step-title"><span class="badge badge-blue">Шаг 1</span> Обоснование первичного ключа и выявление аномалий 1НФ</div>
+ <div class="form-group">
+ <label for="v4_step1_key">1.1. Обоснуйте составной ключ {Номер_листа, Код_автомобиля}:</label>
+ <textarea id="v4_step1_key"></textarea>
+ </div>
+ <div class="form-group" style="margin-top: 10px;">
+ <label for="v4_step1_anomalies">1.2. Опишите аномалии манипулирования в путевом листе автоколонны:</label>
+ <textarea id="v4_step1_anomalies"></textarea>
+ </div>
+ </div>
 
-        <!-- Шаг 2 -->
-        <div class="task-step">
-          <div class="task-step-title"><span class="badge badge-blue">Шаг 2</span> Функциональные зависимости автоколонны</div>
-          <div class="form-group">
-            <label for="v4_step2_fd">Выпишите формулы FD с разделением на частичные и полные:</label>
-            <textarea id="v4_step2_fd"></textarea>
-          </div>
-        </div>
+ <!-- Шаг 2 -->
+ <div class="task-step">
+ <div class="task-step-title"><span class="badge badge-blue">Шаг 2</span> Функциональные зависимости автоколонны</div>
+ <div class="form-group">
+ <label for="v4_step2_fd">Выпишите формулы FD с разделением на частичные и полные:</label>
+ <textarea id="v4_step2_fd"></textarea>
+ </div>
+ </div>
 
-        <!-- Шаг 3 -->
-        <div class="task-step">
-          <div class="task-step-title"><span class="badge badge-green">Шаг 3</span> Декомпозиция путевого листа в схемы 2НФ</div>
-          <div class="form-group">
-            <label for="v4_step3_decomp">Определите 3 таблицы (Рейсы_по_листу, Автомобили, Спецификация_выезда) с PK и FK:</label>
-            <textarea id="v4_step3_decomp"></textarea>
-          </div>
-        </div>
+ <!-- Шаг 3 -->
+ <div class="task-step">
+ <div class="task-step-title"><span class="badge badge-green">Шаг 3</span> Декомпозиция путевого листа в схемы 2НФ</div>
+ <div class="form-group">
+ <label for="v4_step3_decomp">Определите 3 таблицы (Рейсы_по_листу, Автомобили, Спецификация_выезда) с PK и FK:</label>
+ <textarea id="v4_step3_decomp"></textarea>
+ </div>
+ </div>
 
-        <!-- Шаг 4 -->
-        <div class="task-step">
-          <div class="task-step-title"><span class="badge badge-green">Шаг 4</span> Доказательство отсутствия потерь</div>
-          <div class="form-group">
-            <label for="v4_step4_proof">Докажите естественное соединение без потерь и безопасность операций модификации:</label>
-            <textarea id="v4_step4_proof"></textarea>
-          </div>
-        </div>
-      </div>
-    </section>
+ <!-- Шаг 4 -->
+ <div class="task-step">
+ <div class="task-step-title"><span class="badge badge-green">Шаг 4</span> Доказательство отсутствия потерь</div>
+ <div class="form-group">
+ <label for="v4_step4_proof">Докажите естественное соединение без потерь и безопасность операций модификации:</label>
+ <textarea id="v4_step4_proof"></textarea>
+ </div>
+ </div>
+ </div>
+ </section>
 
-    <!-- Чек-лист самопроверки -->
-    <section class="card">
-      <h2>Чек-лист инженерной самопроверки</h2>
-      <div class="checklist-item">
-        <input type="checkbox" id="chk1">
-        <label for="chk1">Составной первичный ключ определен строго и содержит минимально необходимое число атрибутов для различимости кортежей.</label>
-      </div>
-      <div class="checklist-item">
-        <input type="checkbox" id="chk2">
-        <label for="chk2">Выписаны все нетривиальные функциональные зависимости (FD), и четко разграничены полные зависимости от частичных.</label>
-      </div>
-      <div class="checklist-item">
-        <input type="checkbox" id="chk3">
-        <label for="chk3">Частичные зависимости устранены выносом атрибутов в отдельные отношения с простыми первичными ключами.</label>
-      </div>
-      <div class="checklist-item">
-        <input type="checkbox" id="chk4">
-        <label for="chk4">В подчиненной связующей таблице сохранены внешние ключи (FK), обеспечивающие декомпозицию без потерь данных (Lossless-Join).</label>
-      </div>
-      <div class="checklist-item">
-        <input type="checkbox" id="chk5">
-        <label for="chk5">Доказано устранение трех видов аномалий (вставки, удаления, обновления) на конкретных фактах предметной области.</label>
-      </div>
-    </section>
+ <!-- Чек-лист самопроверки -->
+ <section class="card">
+ <h2>Чек-лист инженерной самопроверки</h2>
+ <div class="checklist-item">
+ <input type="checkbox" id="chk1">
+ <label for="chk1">Составной первичный ключ определен строго и содержит минимально необходимое число атрибутов для различимости кортежей.</label>
+ </div>
+ <div class="checklist-item">
+ <input type="checkbox" id="chk2">
+ <label for="chk2">Выписаны все нетривиальные функциональные зависимости (FD), и четко разграничены полные зависимости от частичных.</label>
+ </div>
+ <div class="checklist-item">
+ <input type="checkbox" id="chk3">
+ <label for="chk3">Частичные зависимости устранены выносом атрибутов в отдельные отношения с простыми первичными ключами.</label>
+ </div>
+ <div class="checklist-item">
+ <input type="checkbox" id="chk4">
+ <label for="chk4">В подчиненной связующей таблице сохранены внешние ключи (FK), обеспечивающие декомпозицию без потерь данных (Lossless-Join).</label>
+ </div>
+ <div class="checklist-item">
+ <input type="checkbox" id="chk5">
+ <label for="chk5">Доказано устранение трех видов аномалий (вставки, удаления, обновления) на конкретных фактах предметной области.</label>
+ </div>
+ </section>
 
-    <!-- Панель управления -->
-    <div class="action-bar">
-      <div class="status-msg" id="statusMessage">Данные не сохранены</div>
-      <div style="display: flex; gap: 8px;">
-        <button type="button" class="btn btn-outline" onclick="window.print()">Печать / PDF</button>
-        <button type="button" class="btn btn-danger" onclick="clearFormData()">Очистить</button>
-        <button type="button" class="btn btn-primary" onclick="saveFormData()">Сохранить данные</button>
-      </div>
-    </div>
-  </div>
+ <!-- Панель управления -->
+ <div class="action-bar">
+ <div class="status-msg" id="statusMessage">Данные не сохранены</div>
+ <div style="display: flex; gap: 8px;">
+ <button type="button" class="btn btn-outline" onclick="window.print()">Печать / PDF</button>
+ <button type="button" class="btn btn-danger" onclick="clearFormData()">Очистить</button>
+ <button type="button" class="btn btn-primary" onclick="saveFormData()">Сохранить данные</button>
+ </div>
+ </div>
+ </div>
 
-  <script>
-    const STORAGE_KEY = 'db_hw_10_student_data';
+ <script>
+ const STORAGE_KEY = 'db_hw_10_student_data';
 
-    const inputIds = [
-      'studentFio', 'studentGroup', 'variantSelect',
-      'v1_step1_key', 'v1_step1_anomalies', 'v1_step2_fd', 'v1_step3_decomp', 'v1_step4_proof',
-      'v2_step1_key', 'v2_step1_anomalies', 'v2_step2_fd', 'v2_step3_decomp', 'v2_step4_proof',
-      'v3_step1_key', 'v3_step1_anomalies', 'v3_step2_fd', 'v3_step3_decomp', 'v3_step4_proof',
-      'v4_step1_key', 'v4_step1_anomalies', 'v4_step2_fd', 'v4_step3_decomp', 'v4_step4_proof',
-      'chk1', 'chk2', 'chk3', 'chk4', 'chk5'
-    ];
+ const inputIds = [
+ 'studentFio', 'studentGroup', 'variantSelect',
+ 'v1_step1_key', 'v1_step1_anomalies', 'v1_step2_fd', 'v1_step3_decomp', 'v1_step4_proof',
+ 'v2_step1_key', 'v2_step1_anomalies', 'v2_step2_fd', 'v2_step3_decomp', 'v2_step4_proof',
+ 'v3_step1_key', 'v3_step1_anomalies', 'v3_step2_fd', 'v3_step3_decomp', 'v3_step4_proof',
+ 'v4_step1_key', 'v4_step1_anomalies', 'v4_step2_fd', 'v4_step3_decomp', 'v4_step4_proof',
+ 'chk1', 'chk2', 'chk3', 'chk4', 'chk5'
+ ];
 
-    function switchVariant(val) {
-      document.querySelectorAll('.variant-content').forEach(el => el.classList.remove('active'));
-      const activeEl = document.getElementById('variant' + val);
-      if (activeEl) {
-        activeEl.classList.add('active');
-      }
-      autoSave();
-    }
+ function switchVariant(val) {
+ document.querySelectorAll('.variant-content').forEach(el => el.classList.remove('active'));
+ const activeEl = document.getElementById('variant' + val);
+ if (activeEl) {
+ activeEl.classList.add('active');
+ }
+ autoSave();
+ }
 
-    function saveFormData() {
-      const data = {};
-      inputIds.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-          if (el.type === 'checkbox') {
-            data[id] = el.checked;
-          } else {
-            data[id] = el.value;
-          }
-        }
-      });
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      showStatus('Данные успешно сохранены в браузере!', '#15803d');
-    }
+ function saveFormData() {
+ const data = {};
+ inputIds.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) {
+ if (el.type === 'checkbox') {
+ data[id] = el.checked;
+ } else {
+ data[id] = el.value;
+ }
+ }
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ showStatus('Данные успешно сохранены в браузере!', '#15803d');
+ }
 
-    function autoSave() {
-      const data = {};
-      inputIds.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-          if (el.type === 'checkbox') {
-            data[id] = el.checked;
-          } else {
-            data[id] = el.value;
-          }
-        }
-      });
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      showStatus('Автосохранение выполнено', '#0284c7');
-    }
+ function autoSave() {
+ const data = {};
+ inputIds.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) {
+ if (el.type === 'checkbox') {
+ data[id] = el.checked;
+ } else {
+ data[id] = el.value;
+ }
+ }
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ showStatus('Автосохранение выполнено', '#0284c7');
+ }
 
-    function loadFormData() {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      try {
-        const data = JSON.parse(raw);
-        inputIds.forEach(id => {
-          if (data[id] !== undefined) {
-            const el = document.getElementById(id);
-            if (el) {
-              if (el.type === 'checkbox') {
-                el.checked = Boolean(data[id]);
-              } else {
-                el.value = data[id];
-              }
-            }
-          }
-        });
-        if (data.variantSelect) {
-          switchVariant(data.variantSelect);
-        }
-        showStatus('Загружены ранее сохраненные данные', '#0369a1');
-      } catch (e) {
-        console.error('Ошибка загрузки данных:', e);
-      }
-    }
+ function loadFormData() {
+ const raw = localStorage.getItem(STORAGE_KEY);
+ if (!raw) return;
+ try {
+ const data = JSON.parse(raw);
+ inputIds.forEach(id => {
+ if (data[id] !== undefined) {
+ const el = document.getElementById(id);
+ if (el) {
+ if (el.type === 'checkbox') {
+ el.checked = Boolean(data[id]);
+ } else {
+ el.value = data[id];
+ }
+ }
+ }
+ });
+ if (data.variantSelect) {
+ switchVariant(data.variantSelect);
+ }
+ showStatus('Загружены ранее сохраненные данные', '#0369a1');
+ } catch (e) {
+ console.error('Ошибка загрузки данных:', e);
+ }
+ }
 
-    function clearFormData() {
-      if (confirm('Вы действительно хотите очистить все введенные данные рабочего листа?')) {
-        localStorage.removeItem(STORAGE_KEY);
-        inputIds.forEach(id => {
-          const el = document.getElementById(id);
-          if (el) {
-            if (el.type === 'checkbox') {
-              el.checked = false;
-            } else if (id !== 'variantSelect') {
-              el.value = '';
-            }
-          }
-        });
-        showStatus('Все поля очищены', '#b91c1c');
-      }
-    }
+ function clearFormData() {
+ if (confirm('Вы действительно хотите очистить все введенные данные рабочего листа?')) {
+ localStorage.removeItem(STORAGE_KEY);
+ inputIds.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) {
+ if (el.type === 'checkbox') {
+ el.checked = false;
+ } else if (id !== 'variantSelect') {
+ el.value = '';
+ }
+ }
+ });
+ showStatus('Все поля очищены', '#b91c1c');
+ }
+ }
 
-    function showStatus(text, color) {
-      const statusEl = document.getElementById('statusMessage');
-      if (statusEl) {
-        statusEl.textContent = text;
-        statusEl.style.color = color || 'var(--muted)';
-      }
-    }
+ function showStatus(text, color) {
+ const statusEl = document.getElementById('statusMessage');
+ if (statusEl) {
+ statusEl.textContent = text;
+ statusEl.style.color = color | 'var(--muted)';
+ }
+ }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      loadFormData();
-      inputIds.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-          el.addEventListener('input', autoSave);
-          el.addEventListener('change', autoSave);
-        }
-      });
-    });
-  </script>
+ document.addEventListener('DOMContentLoaded', () => {
+ loadFormData();
+ inputIds.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) {
+ el.addEventListener('input', autoSave);
+ el.addEventListener('change', autoSave);
+ }
+ });
+ });
+ </script>
 </body>
 </html>

@@ -1,350 +1,313 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Лекционный конспект — Практическое занятие №10: исполняемый файл проекта, этап 1</title>
-  <style>
-    :root {
-      --primary: #0f172a;
-      --accent: #2563eb;
-      --accent-light: #eff6ff;
-      --bg: #f8fafc;
-      --surface: #ffffff;
-      --border: #e2e8f0;
-      --text: #0f172a;
-      --text-muted: #64748b;
-      --success: #16a34a;
-      --warning: #d97706;
-      --danger: #dc2626;
-      --code-bg: #0f172a;
-      --code-text: #f8fafc;
-    }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Лекционный конспект — Практическое занятие №10: исполняемый файл проекта, этап 1</title>
+ <style>
+ :root {
+ --primary: #0f172a;
+ --accent: #2563eb;
+ --accent-light: #eff6ff;
+ --bg: #f8fafc;
+ --surface: #ffffff;
+ --border: #e2e8f0;
+ --text: #0f172a;
+ --text-muted: #64748b;
+ --success: #16a34a;
+ --warning: #d97706;
+ --danger: #dc2626;
+ --code-bg: #0f172a;
+ --code-text: #f8fafc;
+ }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      padding: 2rem 1rem;
-    }
+ body {
+ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+ background-color: var(--bg);
+ color: var(--text);
+ line-height: 1.6;
+ padding: 2rem 1rem;
+ }.container {
+ max-width: 960px;
+ margin: 0 auto;
+ background: var(--surface);
+ border-radius: 12px;
+ box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+ border: 1px solid var(--border);
+ overflow: hidden;
+ }.header {
+ background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+ color: #ffffff;
+ padding: 2.5rem 2rem;
+ border-bottom: 4px solid var(--accent);
+ }.header-badge {
+ display: inline-block;
+ background: rgba(37, 99, 235, 0.25);
+ border: 1px solid rgba(147, 197, 253, 0.3);
+ color: #93c5fd;
+ font-size: 0.85rem;
+ font-weight: 600;
+ padding: 0.35rem 0.8rem;
+ border-radius: 9999px;
+ margin-bottom: 1rem;
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+ }.header h1 {
+ font-size: 2rem;
+ line-height: 1.25;
+ font-weight: 800;
+ margin-bottom: 0.75rem;
+ }.header p {
+ color: #cbd5e1;
+ font-size: 1.05rem;
+ max-width: 800px;
+ }.content { padding: 2.5rem 2rem; }
 
-    .container {
-      max-width: 960px;
-      margin: 0 auto;
-      background: var(--surface);
-      border-radius: 12px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-      border: 1px solid var(--border);
-      overflow: hidden;
-    }
+ h2 {
+ font-size: 1.45rem;
+ font-weight: 700;
+ color: var(--primary);
+ margin-top: 2.25rem;
+ margin-bottom: 1rem;
+ padding-bottom: 0.5rem;
+ border-bottom: 2px solid var(--border);
+ }
 
-    .header {
-      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-      color: #ffffff;
-      padding: 2.5rem 2rem;
-      border-bottom: 4px solid var(--accent);
-    }
+ h2:first-of-type { margin-top: 0; }
 
-    .header-badge {
-      display: inline-block;
-      background: rgba(37, 99, 235, 0.25);
-      border: 1px solid rgba(147, 197, 253, 0.3);
-      color: #93c5fd;
-      font-size: 0.85rem;
-      font-weight: 600;
-      padding: 0.35rem 0.8rem;
-      border-radius: 9999px;
-      margin-bottom: 1rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
+ h3 {
+ font-size: 1.15rem;
+ font-weight: 600;
+ color: #1e293b;
+ margin-top: 1.5rem;
+ margin-bottom: 0.75rem;
+ }
 
-    .header h1 {
-      font-size: 2rem;
-      line-height: 1.25;
-      font-weight: 800;
-      margin-bottom: 0.75rem;
-    }
+ p { margin-bottom: 1rem; color: #334155; }
+ ul, ol { margin-bottom: 1.25rem; padding-left: 1.5rem; }
+ li { margin-bottom: 0.45rem; color: #334155; }.card {
+ background: var(--surface);
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ padding: 1.25rem;
+ margin-bottom: 1.25rem;
+ }.card-accent { border-left: 4px solid var(--accent); background: #f8fafc; }.card-warn { border-left: 4px solid var(--warning); background: #fefce8; }.card-danger { border-left: 4px solid var(--danger); background: #fef2f2; }
 
-    .header p {
-      color: #cbd5e1;
-      font-size: 1.05rem;
-      max-width: 800px;
-    }
+ pre {
+ background-color: var(--code-bg);
+ color: var(--code-text);
+ padding: 1.25rem;
+ border-radius: 8px;
+ overflow-x: auto;
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 0.875rem;
+ line-height: 1.5;
+ margin-bottom: 1.25rem;
+ }
 
-    .content { padding: 2.5rem 2rem; }
+ code {
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 0.875em;
+ background: #f1f5f9;
+ color: #0f172a;
+ padding: 0.15rem 0.35rem;
+ border-radius: 4px;
+ border: 1px solid #e2e8f0;
+ }
 
-    h2 {
-      font-size: 1.45rem;
-      font-weight: 700;
-      color: var(--primary);
-      margin-top: 2.25rem;
-      margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 2px solid var(--border);
-    }
+ pre code { background: transparent; color: inherit; padding: 0; border: none; }.diagram {
+ background: #0f172a;
+ color: #38bdf8;
+ padding: 1.25rem;
+ border-radius: 8px;
+ font-family: ui-monospace, monospace;
+ font-size: 0.85rem;
+ line-height: 1.4;
+ white-space: pre;
+ overflow-x: auto;
+ margin-bottom: 1.5rem;
+ }.grid-2 {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 1.25rem;
+ margin-bottom: 1.25rem;
+ }
 
-    h2:first-of-type { margin-top: 0; }
-
-    h3 {
-      font-size: 1.15rem;
-      font-weight: 600;
-      color: #1e293b;
-      margin-top: 1.5rem;
-      margin-bottom: 0.75rem;
-    }
-
-    p { margin-bottom: 1rem; color: #334155; }
-    ul, ol { margin-bottom: 1.25rem; padding-left: 1.5rem; }
-    li { margin-bottom: 0.45rem; color: #334155; }
-
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1.25rem;
-      margin-bottom: 1.25rem;
-    }
-
-    .card-accent { border-left: 4px solid var(--accent); background: #f8fafc; }
-    .card-warn { border-left: 4px solid var(--warning); background: #fefce8; }
-    .card-danger { border-left: 4px solid var(--danger); background: #fef2f2; }
-
-    pre {
-      background-color: var(--code-bg);
-      color: var(--code-text);
-      padding: 1.25rem;
-      border-radius: 8px;
-      overflow-x: auto;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.875rem;
-      line-height: 1.5;
-      margin-bottom: 1.25rem;
-    }
-
-    code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.875em;
-      background: #f1f5f9;
-      color: #0f172a;
-      padding: 0.15rem 0.35rem;
-      border-radius: 4px;
-      border: 1px solid #e2e8f0;
-    }
-
-    pre code { background: transparent; color: inherit; padding: 0; border: none; }
-
-    .diagram {
-      background: #0f172a;
-      color: #38bdf8;
-      padding: 1.25rem;
-      border-radius: 8px;
-      font-family: ui-monospace, monospace;
-      font-size: 0.85rem;
-      line-height: 1.4;
-      white-space: pre;
-      overflow-x: auto;
-      margin-bottom: 1.5rem;
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.25rem;
-      margin-bottom: 1.25rem;
-    }
-
-    @media (max-width: 768px) {
-      .grid-2 { grid-template-columns: 1fr; }
-      body { padding: 1rem 0.5rem; }
-      .content, .header { padding: 1.5rem 1rem; }
-    }
-
-    .qa-box {
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1rem 1.25rem;
-      margin-bottom: 1rem;
-      background: #fafafa;
-    }
-
-    .qa-question {
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 0.4rem;
-    }
-
-    .qa-answer {
-      color: #475569;
-      font-size: 0.95rem;
-    }
-  </style>
+ @media (max-width: 768px) {.grid-2 { grid-template-columns: 1fr; }
+ body { padding: 1rem 0.5rem; }.content,.header { padding: 1.5rem 1rem; }
+ }.qa-box {
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ padding: 1rem 1.25rem;
+ margin-bottom: 1rem;
+ background: #fafafa;
+ }.qa-question {
+ font-weight: 700;
+ color: var(--primary);
+ margin-bottom: 0.4rem;
+ }.qa-answer {
+ color: #475569;
+ font-size: 0.95rem;
+ }
+ </style>
 </head>
 <body>
-  <div class="container">
-    <header class="header">
-      <div class="header-badge">СИЭУиП • Конспект лекций • Занятие 27</div>
-      <h1>Архитектура исполняемого файла проекта: подключение к СУБД и пул соединений</h1>
-      <p>Фундаментальный теоретический конспект для студентов: сетевой жизненный цикл соединения, архитектура Connection Pool, синтаксис конфигураций (JSON, YAML, .env) и вопросы для самопроверки.</p>
-    </header>
+ <div class="container">
+ <header class="header">
+ <div class="header-badge">СИЭУиП • Конспект лекций • Занятие 27</div>
+ <h1>Архитектура исполняемого файла проекта: подключение к СУБД и пул соединений</h1>
+ <p>Фундаментальный теоретический конспект для студентов: сетевой жизненный цикл соединения, архитектура Connection Pool, синтаксис конфигураций (JSON, YAML,.env) и вопросы для самопроверки.</p>
+ </header>
 
-    <main class="content">
-      <h2>1. Сетевое взаимодействие клиентского приложения и СУБД</h2>
-      <p>Любая современная реляционная база данных (PostgreSQL, MySQL, Microsoft SQL Server) в архитектуре информационной системы функционирует как независимый сетевой сервис. Исполняемый файл клиентского приложения (Desktop GUI, Web API Backend, консольная утилита) взаимодействует с СУБД по сетевому протоколу поверх стека <strong>TCP/IP</strong>.</p>
-      
-      <p>Для того чтобы клиентская программа могла выполнить хотя бы один SQL-запрос, в операционной системе должен быть пройден сложный многоступенчатый процесс инициализации сетевого канала:</p>
+ <main class="content">
+ <h2>1. Сетевое взаимодействие клиентского приложения и СУБД</h2>
+ <p>Любая современная реляционная база данных (PostgreSQL, MySQL, Microsoft SQL Server) в архитектуре информационной системы функционирует как независимый сетевой сервис. Исполняемый файл клиентского приложения (Desktop GUI, Web API Backend, консольная утилита) взаимодействует с СУБД по сетевому протоколу поверх стека <strong>TCP/IP</strong>.</p>
+ 
+ <p>Для того чтобы клиентская программа могла выполнить хотя бы один SQL-запрос, в операционной системе должен быть пройден сложный многоступенчатый процесс инициализации сетевого канала:</p>
 
-      <div class="diagram">
+ <div class="diagram">
 +-----------------------------------------------------------------------------------+
-|               ПОЛНЫЙ ЖИЗНЕННЫЙ ЦИКЛ ПОДКЛЮЧЕНИЯ К СУБД (HANDSHAKE)               |
+| ПОЛНЫЙ ЖИЗНЕННЫЙ ЦИКЛ ПОДКЛЮЧЕНИЯ К СУБД (HANDSHAKE) |
 +-----------------------------------------------------------------------------------+
-  [Клиентское приложение]                                     [Сервер СУБД (PostgreSQL)]
-             |                                                              |
-    (1)      |------ TCP SYN (Port 5432) ---------------------------------->| (L4 Socket)
-             |<----- TCP SYN-ACK -------------------------------------------|
-             |------ TCP ACK ---------------------------------------------->| [TCP сокет открыт]
-             |                                                              |
-    (2)      |------ SSL Request Code (80877103) -------------------------->| (L7 TLS)
-             |<----- Server 'S' (SSL Supported) ----------------------------|
-             |<====> TLS Handshake: Exchange Certificates, ECDHE Keys <====>| [Канал зашифрован]
-             |                                                              |
-    (3)      |------ StartupMessage (user=app_user, database=prod_db) ----->| (Аутентификация)
-             |<----- AuthenticationSASL (SCRAM-SHA-256 challenge) ---------|
-             |------ SASL Client Proof (Хэшированный ответ) --------------->|
-             |<----- AuthenticationOk (Postgres Backend процесс выделен) ----| [Сессия создана]
-             |                                                              |
-    (4)      |======================== ПУЛ СОЕДИНЕНИЙ ======================|
-             |  Соединение помещается в пул готовых сокетов (Ready State)   |
-             |                                                              |
-    (5)      |------ Query: "SELECT 1;" (Аренда сокета из пула) ----------->| (Выполнение)
-             |<----- Data Rows + CommandComplete ('SELECT 1') --------------|
-             |                                                              |
-    (6)      |==> Сокет освобождается и ВОЗВРАЩАЕТСЯ В ПУЛ (НЕ ЗАКРЫВАЕТСЯ)  |
-             +--------------------------------------------------------------+
-      </div>
+ [Клиентское приложение] [Сервер СУБД (PostgreSQL)]
+ |
+ (1) |------ TCP SYN (Port 5432) ---------------------------------->| (L4 Socket)
+ |<----- TCP SYN-ACK -------------------------------------------|------ TCP ACK ---------------------------------------------->| [TCP сокет открыт]
+ |
+ (2) |------ SSL Request Code (80877103) -------------------------->| (L7 TLS)
+ |<----- Server 'S' (SSL Supported) ----------------------------|<====> TLS Handshake: Exchange Certificates, ECDHE Keys <====>| [Канал зашифрован]
+ |
+ (3) |------ StartupMessage (user=app_user, database=prod_db) ----->| (Аутентификация)
+ |<----- AuthenticationSASL (SCRAM-SHA-256 challenge) ---------|------ SASL Client Proof (Хэшированный ответ) --------------->|<----- AuthenticationOk (Postgres Backend процесс выделен) ----| [Сессия создана]
+ |
+ (4) |======================== ПУЛ СОЕДИНЕНИЙ ======================| Соединение помещается в пул готовых сокетов (Ready State) |
+ (5) |------ Query: "SELECT 1;" (Аренда сокета из пула) ----------->| (Выполнение)
+ |<----- Data Rows + CommandComplete ('SELECT 1') --------------|
+ (6) |==> Сокет освобождается и ВОЗВРАЩАЕТСЯ В ПУЛ (НЕ ЗАКРЫВАЕТСЯ) |
+ +--------------------------------------------------------------+
+ </div>
 
-      <p>В отсутствие пула соединений шаги (1)–(3) повторяются <strong>на каждый запрос</strong>, отнимая от 80 до 200 миллисекунд процессорного времени и сетевых задержек. При высокой нагрузке сервер СУБД тратит все ресурсы на создание процессов и падает.</p>
+ <p>В отсутствие пула соединений шаги (1)–(3) повторяются <strong>на каждый запрос</strong>, отнимая от 80 до 200 миллисекунд процессорного времени и сетевых задержек. При высокой нагрузке сервер СУБД тратит все ресурсы на создание процессов и падает.</p>
 
-      <h2>2. Строка подключения (Connection String) и её параметры</h2>
-      <p><strong>Connection String</strong> — это стандартизированная строка, содержащая полную метаинформацию, необходимую драйверу для установления физического сокета с базой данных.</p>
+ <h2>2. Строка подключения (Connection String) и её параметры</h2>
+ <p><strong>Connection String</strong> — это стандартизированная строка, содержащая полную метаинформацию, необходимую драйверу для установления физического сокета с базой данных.</p>
 
-      <div class="grid-2">
-        <div class="card card-accent">
-          <h3>Стандарт URI (Uniform Resource Identifier)</h3>
-          <p>Используется в ORM, современных веб-фреймворках (Node.js Prisma, Python SQLAlchemy, Go GORM):</p>
-          <pre><code>postgresql://user:password@hostname:5432/dbname?sslmode=verify-full&connect_timeout=5</code></pre>
-        </div>
-        <div class="card card-accent">
-          <h3>Стандарт Key-Value (libpq)</h3>
-          <p>Используется в классических утилитах PostgreSQL (psql, pg_dump), C/C++, .NET Npgsql:</p>
-          <pre><code>host=hostname port=5432 dbname=dbname user=user password=password sslmode=verify-full connect_timeout=5</code></pre>
-        </div>
-      </div>
+ <div class="grid-2">
+ <div class="card card-accent">
+ <h3>Стандарт URI (Uniform Resource Identifier)</h3>
+ <p>Используется в ORM, современных веб-фреймворках (Node.js Prisma, Python SQLAlchemy, Go GORM):</p>
+ <pre><code>postgresql://user:password@hostname:5432/dbname?sslmode=verify-full&connect_timeout=5</code></pre>
+ </div>
+ <div class="card card-accent">
+ <h3>Стандарт Key-Value (libpq)</h3>
+ <p>Используется в классических утилитах PostgreSQL (psql, pg_dump), C/C++,.NET Npgsql:</p>
+ <pre><code>host=hostname port=5432 dbname=dbname user=user password=password sslmode=verify-full connect_timeout=5</code></pre>
+ </div>
+ </div>
 
-      <h3>Детальная анатомия параметров</h3>
-      <ul>
-        <li><code>Driver / Scheme:</code> определяет сетевой протокол (<code>postgresql://</code>, <code>mysql://</code>, <code>sqlserver://</code>).</li>
-        <li><code>Host:</code> сетевое имя хоста (DNS) или IP-адрес сервера (например, <code>127.0.0.1</code> или <code>db.corp.internal</code>).</li>
-        <li><code>Port:</code> номер сетевого порта, который слушает СУБД (PostgreSQL: <code>5432</code>, MySQL: <code>3306</code>, MS SQL: <code>1433</code>).</li>
-        <li><code>Database (dbname):</code> конкретная база данных в инстансе СУБД, к которой привязывается сессия.</li>
-        <li><code>User & Password:</code> учетные данные пользователя базы данных для проверки прав.</li>
-        <li><code>SSL Mode:</code> режим шифрования трафика:
-          <ul>
-            <li><code>disable:</code> шифрование отключено (трафик передается в открытом виде);</li>
-            <li><code>require:</code> трафик шифруется, но подлинность сертификата сервера не проверяется (уязвимо к MitM);</li>
-            <li><code>verify-ca:</code> проверяется, что сертификат подписан доверенным удостоверяющим центром (CA);</li>
-            <li><code>verify-full:</code> максимальный уровень защиты: проверяется доверенная подпись CA <em>и</em> совпадение имени хоста с CN/SAN в сертификате.</li>
-          </ul>
-        </li>
-        <li><code>Connect Timeout:</code> предельное время ожидания ответа сервера при рукопожатии (в секундах). Предотвращает зависание потоков приложения при сетевой изоляции.</li>
-      </ul>
+ <h3>Детальная анатомия параметров</h3>
+ <ul>
+ <li><code>Driver / Scheme:</code> определяет сетевой протокол (<code>postgresql://</code>, <code>mysql://</code>, <code>sqlserver://</code>).</li>
+ <li><code>Host:</code> сетевое имя хоста (DNS) или IP-адрес сервера (например, <code>127.0.0.1</code> или <code>db.corp.internal</code>).</li>
+ <li><code>Port:</code> номер сетевого порта, который слушает СУБД (PostgreSQL: <code>5432</code>, MySQL: <code>3306</code>, MS SQL: <code>1433</code>).</li>
+ <li><code>Database (dbname):</code> конкретная база данных в инстансе СУБД, к которой привязывается сессия.</li>
+ <li><code>User & Password:</code> учетные данные пользователя базы данных для проверки прав.</li>
+ <li><code>SSL Mode:</code> режим шифрования трафика:
+ <ul>
+ <li><code>disable:</code> шифрование отключено (трафик передается в открытом виде);</li>
+ <li><code>require:</code> трафик шифруется, но подлинность сертификата сервера не проверяется (уязвимо к MitM);</li>
+ <li><code>verify-ca:</code> проверяется, что сертификат подписан доверенным удостоверяющим центром (CA);</li>
+ <li><code>verify-full:</code> максимальный уровень защиты: проверяется доверенная подпись CA <em>и</em> совпадение имени хоста с CN/SAN в сертификате.</li>
+ </ul>
+ </li>
+ <li><code>Connect Timeout:</code> предельное время ожидания ответа сервера при рукопожатии (в секундах). Предотвращает зависание потоков приложения при сетевой изоляции.</li>
+ </ul>
 
-      <h2>3. Архитектура и принципы работы пула соединений (Connection Pool)</h2>
-      <p>Пул соединений — это программный кэш открытых физических соединений с СУБД, управляемый клиентом или выделенным прокси-сервером (pgBouncer, HikariCP, c3p0, SQLAlchemy Pool).</p>
+ <h2>3. Архитектура и принципы работы пула соединений (Connection Pool)</h2>
+ <p>Пул соединений — это программный кэш открытых физических соединений с СУБД, управляемый клиентом или выделенным прокси-сервером (pgBouncer, HikariCP, c3p0, SQLAlchemy Pool).</p>
 
-      <div class="card card-warn">
-        <h3>Жизненный цикл сокета в пуле соединений:</h3>
-        <ol>
-          <li><strong>Инициализация пула (Pool Warm-up):</strong> при старте приложения создается <code>min_connections</code> (например, 2 или 5) готовых физических TCP-сессий с СУБД.</li>
-          <li><strong>Аренда (Acquire / Borrow):</strong> рабочий поток приложения запрашивает соединение у пула: <code>conn = pool.get_connection()</code>. Задержка составляет менее 1 мс.</li>
-          <li><strong>Выполнение транзакции (Transaction Execution):</strong> через полученный сокет отправляются SQL-команды.</li>
-          <li><strong>Освобождение (Release / Return):</strong> поток вызывает <code>conn.close()</code>, но драйвер <strong>не разрывает TCP-сокет</strong>, а возвращает его обратно в статус доступных для других потоков.</li>
-          <li><strong>Очистка по бездействию (Idle Eviction):</strong> если число соединений превышает минимум и сокет простаивает дольше <code>idle_timeout</code>, он безопасно закрывается.</li>
-        </ol>
-      </div>
+ <div class="card card-warn">
+ <h3>Жизненный цикл сокета в пуле соединений:</h3>
+ <ol>
+ <li><strong>Инициализация пула (Pool Warm-up):</strong> при старте приложения создается <code>min_connections</code> (например, 2 или 5) готовых физических TCP-сессий с СУБД.</li>
+ <li><strong>Аренда (Acquire / Borrow):</strong> рабочий поток приложения запрашивает соединение у пула: <code>conn = pool.get_connection()</code>. Задержка составляет менее 1 мс.</li>
+ <li><strong>Выполнение транзакции (Transaction Execution):</strong> через полученный сокет отправляются SQL-команды.</li>
+ <li><strong>Освобождение (Release / Return):</strong> поток вызывает <code>conn.close()</code>, но драйвер <strong>не разрывает TCP-сокет</strong>, а возвращает его обратно в статус доступных для других потоков.</li>
+ <li><strong>Очистка по бездействию (Idle Eviction):</strong> если число соединений превышает минимум и сокет простаивает дольше <code>idle_timeout</code>, он безопасно закрывается.</li>
+ </ol>
+ </div>
 
-      <div class="card card-danger">
-        <h3>Критическая опасность: Утечка соединений (Connection Leak)</h3>
-        <p>Если разработчик арендовал сокет из пула и забыл вызвать возврат (или возникло неотловленное исключение до вызова закрытия), сокет навсегда выбывает из пула. Когда свободные сокеты заканчиваются, новые запросы становятся в очередь и падают с <code>ConnectionTimeoutException (Pool exhausted)</code>.</p>
-        <p><strong>Золотое правило:</strong> всегда использовать автоматическое управление ресурсами:</p>
-        <pre><code># Python: контекстный менеджер гарантирует возврат в пул даже при падении!
+ <div class="card card-danger">
+ <h3>Критическая опасность: Утечка соединений (Connection Leak)</h3>
+ <p>Если разработчик арендовал сокет из пула и забыл вызвать возврат (или возникло неотловленное исключение до вызова закрытия), сокет навсегда выбывает из пула. Когда свободные сокеты заканчиваются, новые запросы становятся в очередь и падают с <code>ConnectionTimeoutException (Pool exhausted)</code>.</p>
+ <p><strong>Золотое правило:</strong> всегда использовать автоматическое управление ресурсами:</p>
+ <pre><code># Python: контекстный менеджер гарантирует возврат в пул даже при падении!
 with db_pool.connection() as conn:
-    with conn.cursor() as cur:
-        cur.execute("SELECT 1")
-        result = cur.fetchone()
+ with conn.cursor() as cur:
+ cur.execute("SELECT 1")
+ result = cur.fetchone()
 
 // C#: блок using гарантирует вызов Dispose() и возврат в пул
 using (var conn = new NpgsqlConnection(connString)) {
-    conn.Open();
-    // выполнение операций
+ conn.Open();
+ // выполнение операций
 }</code></pre>
-      </div>
+ </div>
 
-      <h2>4. Синтаксис и форматы файлов конфигурации</h2>
-      <p>В соответствии с методологией <strong>12-Factor App</strong> (пункт III. Config), параметры подключения строго отделяются от исходного кода программы.</p>
+ <h2>4. Синтаксис и форматы файлов конфигурации</h2>
+ <p>В соответствии с методологией <strong>12-Factor App</strong> (пункт III. Config), параметры подключения строго отделяются от исходного кода программы.</p>
 
-      <div class="grid-2">
-        <div class="card">
-          <h3>1. Формат JSON (config.json)</h3>
-          <p>Иерархический, типизированный, встроенный парсер во всех языках:</p>
-          <pre><code>{
-  "database": {
-    "host": "127.0.0.1",
-    "port": 5432,
-    "name": "warehouse_db",
-    "user": "app_user",
-    "password": "SecurePassword123!",
-    "pool": {
-      "min_size": 2,
-      "max_size": 5,
-      "idle_timeout_sec": 300
-    },
-    "ssl": {
-      "mode": "verify-full",
-      "ca_path": "/etc/ssl/ca.crt"
-    }
-  }
+ <div class="grid-2">
+ <div class="card">
+ <h3>1. Формат JSON (config.json)</h3>
+ <p>Иерархический, типизированный, встроенный парсер во всех языках:</p>
+ <pre><code>{
+ "database": {
+ "host": "127.0.0.1",
+ "port": 5432,
+ "name": "warehouse_db",
+ "user": "app_user",
+ "password": "SecurePassword123!",
+ "pool": {
+ "min_size": 2,
+ "max_size": 5,
+ "idle_timeout_sec": 300
+ },
+ "ssl": {
+ "mode": "verify-full",
+ "ca_path": "/etc/ssl/ca.crt"
+ }
+ }
 }</code></pre>
-        </div>
+ </div>
 
-        <div class="card">
-          <h3>2. Формат YAML (config.yaml)</h3>
-          <p>Лаконичный, человекочитаемый синтаксис на основе отступов:</p>
-          <pre><code>database:
-  host: "127.0.0.1"
-  port: 5432
-  name: "medical_records"
-  user: "registry_svc"
-  password: "RegistrySecretKey#2026"
-  pool:
-    min_connections: 2
-    max_connections: 10
-    idle_timeout: 300
-  ssl:
-    mode: "verify-full"
-    ca_cert: "./certs/root-ca.crt"
-    client_cert: "./certs/client.crt"
-    client_key: "./certs/client.key"</code></pre>
-        </div>
-      </div>
+ <div class="card">
+ <h3>2. Формат YAML (config.yaml)</h3>
+ <p>Лаконичный, человекочитаемый синтаксис на основе отступов:</p>
+ <pre><code>database:
+ host: "127.0.0.1"
+ port: 5432
+ name: "medical_records"
+ user: "registry_svc"
+ password: "RegistrySecretKey#2026"
+ pool:
+ min_connections: 2
+ max_connections: 10
+ idle_timeout: 300
+ ssl:
+ mode: "verify-full"
+ ca_cert: "./certs/root-ca.crt"
+ client_cert: "./certs/client.crt"
+ client_key: "./certs/client.key"</code></pre>
+ </div>
+ </div>
 
-      <div class="card card-accent">
-        <h3>3. Формат переменных окружения (.env)</h3>
-        <p>Стандарт для контейнеризации (Docker, Kubernetes) и микросервисов. Файл <code>.env</code> никогда не добавляется в Git!</p>
-        <pre><code>DB_HOST=127.0.0.1
+ <div class="card card-accent">
+ <h3>3. Формат переменных окружения (.env)</h3>
+ <p>Стандарт для контейнеризации (Docker, Kubernetes) и микросервисов. Файл <code>.env</code> никогда не добавляется в Git!</p>
+ <pre><code>DB_HOST=127.0.0.1
 DB_PORT=5432
 DB_NAME=college_portal
 DB_USER=portal_admin
@@ -353,42 +316,42 @@ DB_POOL_MIN=2
 DB_POOL_MAX=8
 DB_CONNECT_TIMEOUT=5
 DB_SSLMODE=verify-full</code></pre>
-      </div>
+ </div>
 
-      <h2>5. Диагностика и логирование сетевых ошибок</h2>
-      <p>При запуске исполняемого модуля первоочередной задачей является выполнение <strong>Health Check</strong> (тестового пинга) базы данных запросом <code>SELECT 1;</code>. Если СУБД недоступна, приложение должно перехватить исключение и записать событие в лог:</p>
+ <h2>5. Диагностика и логирование сетевых ошибок</h2>
+ <p>При запуске исполняемого модуля первоочередной задачей является выполнение <strong>Health Check</strong> (тестового пинга) базы данных запросом <code>SELECT 1;</code>. Если СУБД недоступна, приложение должно перехватить исключение и записать событие в лог:</p>
 
-      <pre><code>[2026-10-01 10:15:32.418] [ERROR] [DB_CONN] Failed to connect to PostgreSQL at 127.0.0.1:5432.
+ <pre><code>[2026-10-01 10:15:32.418] [ERROR] [DB_CONN] Failed to connect to PostgreSQL at 127.0.0.1:5432.
 Error Code: ECONNREFUSED (SQLState: 08001).
 Message: Connection refused. Is the database server running on host "127.0.0.1" and accepting TCP/IP connections?
 Action: Retrying in 5 seconds (Attempt 1 of 3)...</code></pre>
 
-      <h2>6. Вопросы для самопроверки студентов</h2>
-      <div class="qa-box">
-        <div class="qa-question">1. В чем заключается физическое отличие открытия нового TCP-соединения от аренды сокета из пула соединений?</div>
-        <div class="qa-answer">Открытие нового соединения требует тройного рукопожатия TCP, TLS-хэндшейка, выделения памяти и порождения процесса <code>postgres backend</code> на сервере (задержка 100–200 мс). Аренда из пула использует уже открытый прогретый сокет за 0.2–0.5 мс.</div>
-      </div>
+ <h2>6. Вопросы для самопроверки студентов</h2>
+ <div class="qa-box">
+ <div class="qa-question">1. В чем заключается физическое отличие открытия нового TCP-соединения от аренды сокета из пула соединений?</div>
+ <div class="qa-answer">Открытие нового соединения требует тройного рукопожатия TCP, TLS-хэндшейка, выделения памяти и порождения процесса <code>postgres backend</code> на сервере (задержка 100–200 мс). Аренда из пула использует уже открытый прогретый сокет за 0.2–0.5 мс.</div>
+ </div>
 
-      <div class="qa-box">
-        <div class="qa-question">2. Чем опасен режим sslmode=disable и в каких случаях обязателен sslmode=verify-full?</div>
-        <div class="qa-answer">При <code>sslmode=disable</code> все учетные данные и запросы передаются открытым текстом и могут быть перехвачены сниффером. Режим <code>verify-full</code> обязателен для защиты от подделки сервера и атак Man-in-the-Middle при передаче персональных данных.</div>
-      </div>
+ <div class="qa-box">
+ <div class="qa-question">2. Чем опасен режим sslmode=disable и в каких случаях обязателен sslmode=verify-full?</div>
+ <div class="qa-answer">При <code>sslmode=disable</code> все учетные данные и запросы передаются открытым текстом и могут быть перехвачены сниффером. Режим <code>verify-full</code> обязателен для защиты от подделки сервера и атак Man-in-the-Middle при передаче персональных данных.</div>
+ </div>
 
-      <div class="qa-box">
-        <div class="qa-question">3. Что происходит с приложением, если в коде возникает Connection Leak (утечка соединений)?</div>
-        <div class="qa-answer">Соединения не возвращаются в пул, лимит <code>max_connections</code> исчерпывается, все последующие запросы становятся в очередь и завершаются аварийным отказом по таймауту.</div>
-      </div>
+ <div class="qa-box">
+ <div class="qa-question">3. Что происходит с приложением, если в коде возникает Connection Leak (утечка соединений)?</div>
+ <div class="qa-answer">Соединения не возвращаются в пул, лимит <code>max_connections</code> исчерпывается, все последующие запросы становятся в очередь и завершаются аварийным отказом по таймауту.</div>
+ </div>
 
-      <div class="qa-box">
-        <div class="qa-question">4. Почему параметр connect_timeout не рекомендуется оставлять равным 0 (бесконечность)?</div>
-        <div class="qa-answer">При разрыве сетевого соединения или зависании узла поток приложения зависнет навсегда в ожидании TCP ACK, расходуя системную память и блокируя выполнение программы.</div>
-      </div>
+ <div class="qa-box">
+ <div class="qa-question">4. Почему параметр connect_timeout не рекомендуется оставлять равным 0 (бесконечность)?</div>
+ <div class="qa-answer">При разрыве сетевого соединения или зависании узла поток приложения зависнет навсегда в ожидании TCP ACK, расходуя системную память и блокируя выполнение программы.</div>
+ </div>
 
-      <div class="qa-box">
-        <div class="qa-question">5. Почему файл с переменными окружения (.env) категорически запрещено публиковать в системе контроля версий?</div>
-        <div class="qa-answer">Файл содержит открытые секреты (пароли, закрытые ключи SSL). При попадании в Git они становятся доступны третьим лицам и приводят к компрометации всей базы данных.</div>
-      </div>
-    </main>
-  </div>
+ <div class="qa-box">
+ <div class="qa-question">5. Почему файл с переменными окружения (.env) категорически запрещено публиковать в системе контроля версий?</div>
+ <div class="qa-answer">Файл содержит открытые секреты (пароли, закрытые ключи SSL). При попадании в Git они становятся доступны третьим лицам и приводят к компрометации всей базы данных.</div>
+ </div>
+ </main>
+ </div>
 </body>
 </html>

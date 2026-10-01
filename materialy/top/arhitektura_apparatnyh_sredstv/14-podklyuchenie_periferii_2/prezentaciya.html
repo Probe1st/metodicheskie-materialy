@@ -1,569 +1,532 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Презентация: Конструкция, подключение и инсталляция периферийных устройств</title>
-  <style>
-    :root {
-      --bg: #0b0f19;
-      --card-bg: #161e2e;
-      --text: #f1f5f9;
-      --muted: #94a3b8;
-      --accent: #38bdf8;
-      --accent-secondary: #818cf8;
-      --line: #2d3748;
-      --success: #34d399;
-      --warn: #fbbf24;
-      --danger: #f87171;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      overflow: hidden;
-      height: 100vh;
-      width: 100vw;
-      display: flex;
-      flex-direction: column;
-    }
-    .pres-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      position: relative;
-    }
-    .slide {
-      display: none;
-      flex: 1;
-      padding: 36px 54px;
-      overflow-y: auto;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .slide.active {
-      display: flex;
-    }
-    .slide-1 {
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      background: radial-gradient(circle at center, #1e293b 0%, #0b0f19 100%);
-    }
-    .slide-1 h1 {
-      font-size: clamp(32px, 5.5vw, 62px);
-      line-height: 1.25;
-      color: #38bdf8;
-      font-weight: 800;
-      max-width: 1100px;
-      letter-spacing: -0.02em;
-    }
-    .slide-title {
-      font-size: clamp(22px, 3.2vw, 32px);
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 22px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      border-bottom: 2px solid var(--line);
-      padding-bottom: 10px;
-    }
-    .slide-content {
-      font-size: clamp(15px, 1.8vw, 19px);
-      line-height: 1.6;
-      color: #e2e8f0;
-      max-width: 1300px;
-    }
-    .grid-2 {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 24px;
-      margin: 16px 0;
-    }
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-      margin: 16px 0;
-    }
-    .box {
-      background: var(--card-bg);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .box h4 {
-      color: var(--accent);
-      font-size: 18px;
-      margin-bottom: 4px;
-    }
-    .box p, .box li {
-      font-size: 15px;
-      color: #cbd5e1;
-      line-height: 1.5;
-    }
-    .box ul, .box ol {
-      padding-left: 20px;
-    }
-    .code-box {
-      background: #090d16;
-      border: 1px solid #1e293b;
-      border-radius: 8px;
-      padding: 14px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 14px;
-      color: #38bdf8;
-      overflow-x: auto;
-      line-height: 1.45;
-    }
-    .badge {
-      display: inline-block;
-      padding: 3px 9px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .badge-ok { background: rgba(52, 211, 153, 0.2); color: var(--success); }
-    .badge-warn { background: rgba(251, 191, 36, 0.2); color: var(--warn); }
-    .badge-danger { background: rgba(248, 113, 113, 0.2); color: var(--danger); }
-    .badge-info { background: rgba(56, 189, 248, 0.2); color: var(--accent); }
-
-    .meme-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-      margin-top: 10px;
-    }
-    .meme-img {
-      max-height: 52vh;
-      max-width: 90%;
-      border-radius: 10px;
-      border: 1px solid var(--line);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-      object-fit: contain;
-    }
-    .attribution {
-      font-size: 13.5px;
-      color: var(--muted);
-      line-height: 1.5;
-      text-align: center;
-      max-width: 800px;
-    }
-
-    .controls {
-      height: 60px;
-      background: #080c14;
-      border-top: 1px solid var(--line);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 24px;
-      z-index: 10;
-    }
-    .controls-btns {
-      display: flex;
-      gap: 12px;
-    }
-    .nav-btn {
-      background: var(--card-bg);
-      color: var(--text);
-      border: 1px solid var(--line);
-      padding: 8px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      transition: all 0.2s;
-    }
-    .nav-btn:hover:not(:disabled) {
-      background: #1e293b;
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-    .nav-btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-    .slide-counter {
-      font-size: 14px;
-      color: var(--muted);
-      font-weight: 500;
-    }
-    @media (max-width: 768px) {
-      .slide { padding: 20px 16px; }
-      .grid-2, .grid-3 { grid-template-columns: 1fr; }
-      .slide-1 h1 { font-size: 26px; }
-      .slide-title { font-size: 19px; }
-      .meme-img { max-height: 40vh; }
-    }
-    @media print {
-      body { overflow: visible; height: auto; }
-      .slide { display: block !important; page-break-after: always; padding: 20px; }
-      .controls { display: none !important; }
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <title>Презентация: Конструкция, подключение и инсталляция периферийных устройств</title>
+ <style>
+ :root {
+ --bg: #0b0f19;
+ --card-bg: #161e2e;
+ --text: #f1f5f9;
+ --muted: #94a3b8;
+ --accent: #38bdf8;
+ --accent-secondary: #818cf8;
+ --line: #2d3748;
+ --success: #34d399;
+ --warn: #fbbf24;
+ --danger: #f87171;
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+ body {
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+ overflow: hidden;
+ height: 100vh;
+ width: 100vw;
+ display: flex;
+ flex-direction: column;
+ }.pres-container {
+ flex: 1;
+ display: flex;
+ flex-direction: column;
+ height: 100%;
+ position: relative;
+ }.slide {
+ display: none;
+ flex: 1;
+ padding: 36px 54px;
+ overflow-y: auto;
+ flex-direction: column;
+ justify-content: center;
+ }.slide.active {
+ display: flex;
+ }.slide-1 {
+ justify-content: center;
+ align-items: center;
+ text-align: center;
+ background: radial-gradient(circle at center, #1e293b 0%, #0b0f19 100%);
+ }.slide-1 h1 {
+ font-size: clamp(32px, 5.5vw, 62px);
+ line-height: 1.25;
+ color: #38bdf8;
+ font-weight: 800;
+ max-width: 1100px;
+ letter-spacing: -0.02em;
+ }.slide-title {
+ font-size: clamp(22px, 3.2vw, 32px);
+ font-weight: 700;
+ color: var(--accent);
+ margin-bottom: 22px;
+ display: flex;
+ align-items: center;
+ gap: 12px;
+ border-bottom: 2px solid var(--line);
+ padding-bottom: 10px;
+ }.slide-content {
+ font-size: clamp(15px, 1.8vw, 19px);
+ line-height: 1.6;
+ color: #e2e8f0;
+ max-width: 1300px;
+ }.grid-2 {
+ display: grid;
+ grid-template-columns: repeat(2, 1fr);
+ gap: 24px;
+ margin: 16px 0;
+ }.grid-3 {
+ display: grid;
+ grid-template-columns: repeat(3, 1fr);
+ gap: 20px;
+ margin: 16px 0;
+ }.box {
+ background: var(--card-bg);
+ border: 1px solid var(--line);
+ border-radius: 12px;
+ padding: 20px;
+ display: flex;
+ flex-direction: column;
+ gap: 10px;
+ }.box h4 {
+ color: var(--accent);
+ font-size: 18px;
+ margin-bottom: 4px;
+ }.box p,.box li {
+ font-size: 15px;
+ color: #cbd5e1;
+ line-height: 1.5;
+ }.box ul,.box ol {
+ padding-left: 20px;
+ }.code-box {
+ background: #090d16;
+ border: 1px solid #1e293b;
+ border-radius: 8px;
+ padding: 14px;
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 14px;
+ color: #38bdf8;
+ overflow-x: auto;
+ line-height: 1.45;
+ }.badge {
+ display: inline-block;
+ padding: 3px 9px;
+ border-radius: 6px;
+ font-size: 12px;
+ font-weight: 700;
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+ }.badge-ok { background: rgba(52, 211, 153, 0.2); color: var(--success); }.badge-warn { background: rgba(251, 191, 36, 0.2); color: var(--warn); }.badge-danger { background: rgba(248, 113, 113, 0.2); color: var(--danger); }.badge-info { background: rgba(56, 189, 248, 0.2); color: var(--accent); }.meme-wrap {
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ gap: 16px;
+ margin-top: 10px;
+ }.meme-img {
+ max-height: 52vh;
+ max-width: 90%;
+ border-radius: 10px;
+ border: 1px solid var(--line);
+ box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+ object-fit: contain;
+ }.attribution {
+ font-size: 13.5px;
+ color: var(--muted);
+ line-height: 1.5;
+ text-align: center;
+ max-width: 800px;
+ }.controls {
+ height: 60px;
+ background: #080c14;
+ border-top: 1px solid var(--line);
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ padding: 0 24px;
+ z-index: 10;
+ }.controls-btns {
+ display: flex;
+ gap: 12px;
+ }.nav-btn {
+ background: var(--card-bg);
+ color: var(--text);
+ border: 1px solid var(--line);
+ padding: 8px 16px;
+ border-radius: 8px;
+ cursor: pointer;
+ font-size: 14px;
+ font-weight: 600;
+ transition: all 0.2s;
+ }.nav-btn:hover:not(:disabled) {
+ background: #1e293b;
+ border-color: var(--accent);
+ color: var(--accent);
+ }.nav-btn:disabled {
+ opacity: 0.4;
+ cursor: not-allowed;
+ }.slide-counter {
+ font-size: 14px;
+ color: var(--muted);
+ font-weight: 500;
+ }
+ @media (max-width: 768px) {.slide { padding: 20px 16px; }.grid-2,.grid-3 { grid-template-columns: 1fr; }.slide-1 h1 { font-size: 26px; }.slide-title { font-size: 19px; }.meme-img { max-height: 40vh; }
+ }
+ @media print {
+ body { overflow: visible; height: auto; }.slide { display: block !important; page-break-after: always; padding: 20px; }.controls { display: none !important; }
+ }
+ </style>
 </head>
 <body>
 
 <div class="pres-container">
 
-  <!-- СЛАЙД 1: СТРОГО ТОЛЬКО НАЗВАНИЕ ТЕМЫ -->
-  <div class="slide slide-1 active" id="slide-1">
-    <h1>Конструкция, подключение и инсталляция периферийных устройств</h1>
-  </div>
+ <!-- СЛАЙД 1: СТРОГО ТОЛЬКО НАЗВАНИЕ ТЕМЫ -->
+ <div class="slide slide-1 active" id="slide-1">
+ <h1>Конструкция, подключение и инсталляция периферийных устройств</h1>
+ </div>
 
-  <!-- СЛАЙД 2: ПРОБЛЕМА -->
-  <div class="slide" id="slide-2">
-    <div class="slide-title">1. От физического контакта к абстракции ядра ОС</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="box">
-          <h4>Физический уровень (Hardware Layer)</h4>
-          <ul>
-            <li>Замыкание электрических цепей питания (+5V, GND) и дифференциальных линий передачи данных (D+/D- в USB, Rx/Tx в PCIe).</li>
-            <li>Подтяжка резисторов (Pull-up): определение скорости шины (Low, Full, High, SuperSpeed).</li>
-            <li>Аппаратные прерывания контроллера шины xHCI / PCIe Root Complex.</li>
-          </ul>
-        </div>
-        <div class="box">
-          <h4>Программный уровень (OS Subsystem)</h4>
-          <ul>
-            <li>Перевод физических сигналов в пакеты дескрипторов.</li>
-            <li>Регистрация устройства в системном дереве (Device Tree).</li>
-            <li>Назначение базовых адресов ввода-вывода (BAR), векторов прерываний (MSI-X) и прямого доступа к памяти (DMA).</li>
-            <li>Связывание устройства с кодом обработчика — <strong>драйвером</strong>.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="code-box">
-        Ключевой вызов: Как операционной системе безошибочно сопоставить незнакомую кремниевую микросхему с нужным бинарным драйвером без участия человека?
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 2: ПРОБЛЕМА -->
+ <div class="slide" id="slide-2">
+ <div class="slide-title">1. От физического контакта к абстракции ядра ОС</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="box">
+ <h4>Физический уровень (Hardware Layer)</h4>
+ <ul>
+ <li>Замыкание электрических цепей питания (+5V, GND) и дифференциальных линий передачи данных (D+/D- в USB, Rx/Tx в PCIe).</li>
+ <li>Подтяжка резисторов (Pull-up): определение скорости шины (Low, Full, High, SuperSpeed).</li>
+ <li>Аппаратные прерывания контроллера шины xHCI / PCIe Root Complex.</li>
+ </ul>
+ </div>
+ <div class="box">
+ <h4>Программный уровень (OS Subsystem)</h4>
+ <ul>
+ <li>Перевод физических сигналов в пакеты дескрипторов.</li>
+ <li>Регистрация устройства в системном дереве (Device Tree).</li>
+ <li>Назначение базовых адресов ввода-вывода (BAR), векторов прерываний (MSI-X) и прямого доступа к памяти (DMA).</li>
+ <li>Связывание устройства с кодом обработчика — <strong>драйвером</strong>.</li>
+ </ul>
+ </div>
+ </div>
+ <div class="code-box">
+ Ключевой вызов: Как операционной системе безошибочно сопоставить незнакомую кремниевую микросхему с нужным бинарным драйвером без участия человека?
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 3: АРХИТЕКТУРА PNP -->
-  <div class="slide" id="slide-3">
-    <div class="slide-title">2. Архитектура Plug and Play: фазы PnP-энумерации</div>
-    <div class="slide-content">
-      <div class="grid-3">
-        <div class="box">
-          <h4>1. Обнаружение (Detection)</h4>
-          <p>Драйвер шины (Bus Driver) фиксирует подключение и опрашивает конечную точку Control Endpoint 0 пакетом <code>GET_DESCRIPTOR</code>.</p>
-          <span class="badge badge-info">Bus Driver: usbhub3.sys</span>
-        </div>
-        <div class="box">
-          <h4>2. Идентификация (Matching)</h4>
-          <p>Формируется стек Hardware ID. Диспетчер PnP ищет соответствие в системном хранилище Driver Store по алгоритму ранжирования (Driver Ranking).</p>
-          <span class="badge badge-warn">PnP Manager: FileRepository</span>
-        </div>
-        <div class="box">
-          <h4>3. Старт (Initialization)</h4>
-          <p>Загружается функциональный драйвер (FDO). Ядро отправляет пакет <code>IRP_MN_START_DEVICE</code>. Устройство переводится в активное состояние D0.</p>
-          <span class="badge badge-ok">FDO: D0 Active State</span>
-        </div>
-      </div>
-      <div class="box">
-        <p><strong>Результат энумерации:</strong> Создание узла devnode в системном пространстве ядра, доступного для приложений через системные дескрипторы и API ввода-вывода.</p>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 3: АРХИТЕКТУРА PNP -->
+ <div class="slide" id="slide-3">
+ <div class="slide-title">2. Архитектура Plug and Play: фазы PnP-энумерации</div>
+ <div class="slide-content">
+ <div class="grid-3">
+ <div class="box">
+ <h4>1. Обнаружение (Detection)</h4>
+ <p>Драйвер шины (Bus Driver) фиксирует подключение и опрашивает конечную точку Control Endpoint 0 пакетом <code>GET_DESCRIPTOR</code>.</p>
+ <span class="badge badge-info">Bus Driver: usbhub3.sys</span>
+ </div>
+ <div class="box">
+ <h4>2. Идентификация (Matching)</h4>
+ <p>Формируется стек Hardware ID. Диспетчер PnP ищет соответствие в системном хранилище Driver Store по алгоритму ранжирования (Driver Ranking).</p>
+ <span class="badge badge-warn">PnP Manager: FileRepository</span>
+ </div>
+ <div class="box">
+ <h4>3. Старт (Initialization)</h4>
+ <p>Загружается функциональный драйвер (FDO). Ядро отправляет пакет <code>IRP_MN_START_DEVICE</code>. Устройство переводится в активное состояние D0.</p>
+ <span class="badge badge-ok">FDO: D0 Active State</span>
+ </div>
+ </div>
+ <div class="box">
+ <p><strong>Результат энумерации:</strong> Создание узла devnode в системном пространстве ядра, доступного для приложений через системные дескрипторы и API ввода-вывода.</p>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 4: АНАТОМИЯ HARDWARE ID -->
-  <div class="slide" id="slide-4">
-    <div class="slide-title">3. Анатомия Hardware ID: форматы идентификаторов</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="box">
-          <h4>Шина PCI / PCI Express</h4>
-          <div class="code-box">PCI\VEN_10DE&DEV_1F08&SUBSYS_37551462&REV_A1</div>
-          <ul>
-            <li><code>VEN_10DE</code> — Vendor ID производителя кристалла (10DE = NVIDIA).</li>
-            <li><code>DEV_1F08</code> — Device ID конкретного чипа (TU106 / RTX 2060).</li>
-            <li><code>SUBSYS_37551462</code> — Subsystem ID (1462 = MSI, 3755 = модель платы).</li>
-            <li><code>REV_A1</code> — Аппаратная ревизия кремниевого кристалла.</li>
-          </ul>
-        </div>
-        <div class="box">
-          <h4>Шина USB (Universal Serial Bus)</h4>
-          <div class="code-box">USB\VID_046D&PID_C52B&REV_2411</div>
-          <ul>
-            <li><code>VID_046D</code> — Vendor ID разработчика USB-устройства (046D = Logitech).</li>
-            <li><code>PID_C52B</code> — Product ID конкретного изделия (Unifying Receiver).</li>
-            <li><code>REV_2411</code> — Ревизия прошивки в формате BCD (v24.11).</li>
-            <li><code>USB\Class_03</code> — Совместимый класс (Compatible ID: HID).</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 4: АНАТОМИЯ HARDWARE ID -->
+ <div class="slide" id="slide-4">
+ <div class="slide-title">3. Анатомия Hardware ID: форматы идентификаторов</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="box">
+ <h4>Шина PCI / PCI Express</h4>
+ <div class="code-box">PCI\VEN_10DE&DEV_1F08&SUBSYS_37551462&REV_A1</div>
+ <ul>
+ <li><code>VEN_10DE</code> — Vendor ID производителя кристалла (10DE = NVIDIA).</li>
+ <li><code>DEV_1F08</code> — Device ID конкретного чипа (TU106 / RTX 2060).</li>
+ <li><code>SUBSYS_37551462</code> — Subsystem ID (1462 = MSI, 3755 = модель платы).</li>
+ <li><code>REV_A1</code> — Аппаратная ревизия кремниевого кристалла.</li>
+ </ul>
+ </div>
+ <div class="box">
+ <h4>Шина USB (Universal Serial Bus)</h4>
+ <div class="code-box">USB\VID_046D&PID_C52B&REV_2411</div>
+ <ul>
+ <li><code>VID_046D</code> — Vendor ID разработчика USB-устройства (046D = Logitech).</li>
+ <li><code>PID_C52B</code> — Product ID конкретного изделия (Unifying Receiver).</li>
+ <li><code>REV_2411</code> — Ревизия прошивки в формате BCD (v24.11).</li>
+ <li><code>USB\Class_03</code> — Совместимый класс (Compatible ID: HID).</li>
+ </ul>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 5: ДРАЙВЕРЫ И DRIVER STORE -->
-  <div class="slide" id="slide-5">
-    <div class="slide-title">4. Хранилище Driver Store: структура пакета драйвера</div>
-    <div class="slide-content">
-      <div class="grid-3">
-        <div class="box">
-          <h4>1. Файл манифеста (.INF)</h4>
-          <p>Текстовый конфигурационный скрипт. Содержит секции:</p>
-          <ul>
-            <li><code>[Version]</code> — класс и подпись</li>
-            <li><code>[Manufacturer]</code> — список вендоров</li>
-            <li><code>[Models]</code> — сопоставление Hardware ID с именами сервисов</li>
-          </ul>
-        </div>
-        <div class="box">
-          <h4>2. Каталог безопасности (.CAT)</h4>
-          <p>Файл цифровой подписи (Security Catalog). Содержит криптографические хэши (SHA-256) всех компонентов пакета, подписанные ключом сертификации Microsoft WHQL.</p>
-        </div>
-        <div class="box">
-          <h4>3. Бинарные модули (.SYS / .DLL)</h4>
-          <p>Исполняемый машинный код драйвера: <code>.sys</code> для ядра (Ring 0) или динамические библиотеки взаимодействия с пользовательскими приложениями.</p>
-        </div>
-      </div>
-      <div class="code-box">
-        Системный репозиторий: C:\Windows\System32\DriverStore\FileRepository\&lt;driver_folder&gt;
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 5: ДРАЙВЕРЫ И DRIVER STORE -->
+ <div class="slide" id="slide-5">
+ <div class="slide-title">4. Хранилище Driver Store: структура пакета драйвера</div>
+ <div class="slide-content">
+ <div class="grid-3">
+ <div class="box">
+ <h4>1. Файл манифеста (.INF)</h4>
+ <p>Текстовый конфигурационный скрипт. Содержит секции:</p>
+ <ul>
+ <li><code>[Version]</code> — класс и подпись</li>
+ <li><code>[Manufacturer]</code> — список вендоров</li>
+ <li><code>[Models]</code> — сопоставление Hardware ID с именами сервисов</li>
+ </ul>
+ </div>
+ <div class="box">
+ <h4>2. Каталог безопасности (.CAT)</h4>
+ <p>Файл цифровой подписи (Security Catalog). Содержит криптографические хэши (SHA-256) всех компонентов пакета, подписанные ключом сертификации Microsoft WHQL.</p>
+ </div>
+ <div class="box">
+ <h4>3. Бинарные модули (.SYS /.DLL)</h4>
+ <p>Исполняемый машинный код драйвера: <code>.sys</code> для ядра (Ring 0) или динамические библиотеки взаимодействия с пользовательскими приложениями.</p>
+ </div>
+ </div>
+ <div class="code-box">
+ Системный репозиторий: C:\Windows\System32\DriverStore\FileRepository\&lt;driver_folder&gt;
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 6: WHQL И KMDF/UMDF -->
-  <div class="slide" id="slide-6">
-    <div class="slide-title">5. Цифровая подпись WHQL и уровни изоляции</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="box">
-          <h4>KMDF (Kernel-Mode Driver Framework)</h4>
-          <p><span class="badge badge-danger">Ring 0 — Режим ядра</span></p>
-          <ul>
-            <li>Прямой доступ к физической памяти и регистрам устройств.</li>
-            <li>Минимальная латентность (видеокарты, диски NVMe, сетевые адаптеры).</li>
-            <li><strong>Риск:</strong> любая ошибка — синий экран смерти (BSOD).</li>
-            <li>Требует обязательной проверки цифровой подписи (DSE).</li>
-          </ul>
-        </div>
-        <div class="box">
-          <h4>UMDF (User-Mode Driver Framework)</h4>
-          <p><span class="badge badge-ok">Ring 3 — Режим пользователя</span></p>
-          <ul>
-            <li>Изолированный системный процесс <code>WUDFHost.exe</code>.</li>
-            <li>Доступ к "железу" только через системные шлюзы.</li>
-            <li><strong>Безопасность:</strong> сбой драйвера перезапускает процесс хоста без падения всей операционной системы.</li>
-            <li>Применяется для датчиков, USB-гаджетов, смарт-карт.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="box">
-        <p><strong>WHQL (Windows Hardware Quality Labs):</strong> официальная сертификация Microsoft. Гарантирует стабильность драйвера при стресс-нагрузках и соответствие стандартам энергосбережения.</p>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 6: WHQL И KMDF/UMDF -->
+ <div class="slide" id="slide-6">
+ <div class="slide-title">5. Цифровая подпись WHQL и уровни изоляции</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="box">
+ <h4>KMDF (Kernel-Mode Driver Framework)</h4>
+ <p><span class="badge badge-danger">Ring 0 — Режим ядра</span></p>
+ <ul>
+ <li>Прямой доступ к физической памяти и регистрам устройств.</li>
+ <li>Минимальная латентность (видеокарты, диски NVMe, сетевые адаптеры).</li>
+ <li><strong>Риск:</strong> любая ошибка — синий экран смерти (BSOD).</li>
+ <li>Требует обязательной проверки цифровой подписи (DSE).</li>
+ </ul>
+ </div>
+ <div class="box">
+ <h4>UMDF (User-Mode Driver Framework)</h4>
+ <p><span class="badge badge-ok">Ring 3 — Режим пользователя</span></p>
+ <ul>
+ <li>Изолированный системный процесс <code>WUDFHost.exe</code>.</li>
+ <li>Доступ к "железу" только через системные шлюзы.</li>
+ <li><strong>Безопасность:</strong> сбой драйвера перезапускает процесс хоста без падения всей операционной системы.</li>
+ <li>Применяется для датчиков, USB-гаджетов, смарт-карт.</li>
+ </ul>
+ </div>
+ </div>
+ <div class="box">
+ <p><strong>WHQL (Windows Hardware Quality Labs):</strong> официальная сертификация Microsoft. Гарантирует стабильность драйвера при стресс-нагрузках и соответствие стандартам энергосбережения.</p>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 7: USB CLASS DRIVERS -->
-  <div class="slide" id="slide-7">
-    <div class="slide-title">6. Стандартные классы USB (In-box Class Drivers)</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="box">
-          <h4>USB HID (Класс 03h)</h4>
-          <p>Клавиатуры, мыши, сканеры штрихкодов. Драйвер <code>hidusb.sys</code>. Обмен данными через Report Descriptors, частота опроса до 1000 Гц.</p>
-        </div>
-        <div class="box">
-          <h4>USB Mass Storage (Класс 08h)</h4>
-          <p>Накопители данных. Драйвер <code>usbstor.sys</code> (BOT) и <code>uaspstor.sys</code> (UASP с поддержкой очередей команд SCSI NCQ до 32 потоков).</p>
-        </div>
-        <div class="box">
-          <h4>USB Video Class / UVC (Класс 0Eh)</h4>
-          <p>Веб-камеры и платы захвата. Драйвер <code>usbvideo.sys</code>. Прямая трансляция изохронного несжатого потока (YUY2) или потоков MJPEG/H.264.</p>
-        </div>
-        <div class="box">
-          <h4>USB Audio Class / UAC (Класс 01h)</h4>
-          <p>UAC 1.0 (Full-Speed, до 96 кГц 24-бит стерео) и UAC 2.0 (High-Speed, до 384 кГц 32-бит многоканально, асинхронная тактовая частота).</p>
-        </div>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 7: USB CLASS DRIVERS -->
+ <div class="slide" id="slide-7">
+ <div class="slide-title">6. Стандартные классы USB (In-box Class Drivers)</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="box">
+ <h4>USB HID (Класс 03h)</h4>
+ <p>Клавиатуры, мыши, сканеры штрихкодов. Драйвер <code>hidusb.sys</code>. Обмен данными через Report Descriptors, частота опроса до 1000 Гц.</p>
+ </div>
+ <div class="box">
+ <h4>USB Mass Storage (Класс 08h)</h4>
+ <p>Накопители данных. Драйвер <code>usbstor.sys</code> (BOT) и <code>uaspstor.sys</code> (UASP с поддержкой очередей команд SCSI NCQ до 32 потоков).</p>
+ </div>
+ <div class="box">
+ <h4>USB Video Class / UVC (Класс 0Eh)</h4>
+ <p>Веб-камеры и платы захвата. Драйвер <code>usbvideo.sys</code>. Прямая трансляция изохронного несжатого потока (YUY2) или потоков MJPEG/H.264.</p>
+ </div>
+ <div class="box">
+ <h4>USB Audio Class / UAC (Класс 01h)</h4>
+ <p>UAC 1.0 (Full-Speed, до 96 кГц 24-бит стерео) и UAC 2.0 (High-Speed, до 384 кГц 32-бит многоканально, асинхронная тактовая частота).</p>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 8: СЕТЕВАЯ ПЕЧАТЬ -->
-  <div class="slide" id="slide-8">
-    <div class="slide-title">7. Сетевая печать: транспортные протоколы</div>
-    <div class="slide-content">
-      <div class="grid-3">
-        <div class="box">
-          <h4>RAW 9100 (HP JetDirect)</h4>
-          <p><span class="badge badge-ok">TCP 9100</span></p>
-          <p>Прямой TCP-сокет. Минимум задержек и оверхеда. Промышленный корпоративный стандарт для статических IP-адресов.</p>
-        </div>
-        <div class="box">
-          <h4>LPR / LPD (RFC 1179)</h4>
-          <p><span class="badge badge-warn">TCP 515</span></p>
-          <p>Классический стек UNIX. Требует точного имени очереди печати (Queue: <code>lp</code>, <code>raw</code>). Медленнее RAW 9100.</p>
-        </div>
-        <div class="box">
-          <h4>IPP / IPPS (RFC 8011)</h4>
-          <p><span class="badge badge-info">TCP 631 (HTTP/S)</span></p>
-          <p>Современный веб-протокол. Шифрование TLS, контроль доступа, печать без драйверов (Mopria, AirPrint).</p>
-        </div>
-      </div>
-      <div class="box">
-        <h4>Критический риск протокола WSD (Web Services for Devices)</h4>
-        <p>Использует мультикаст UDP 3702. В сегментированных сетях маршрутизаторы блокируют мультикаст между VLAN. При динамическом DHCP принтер периодически "исчезает" из сети. Решение: <strong>всегда фиксировать статический IP и порт Standard TCP/IP (RAW 9100)</strong>.</p>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 8: СЕТЕВАЯ ПЕЧАТЬ -->
+ <div class="slide" id="slide-8">
+ <div class="slide-title">7. Сетевая печать: транспортные протоколы</div>
+ <div class="slide-content">
+ <div class="grid-3">
+ <div class="box">
+ <h4>RAW 9100 (HP JetDirect)</h4>
+ <p><span class="badge badge-ok">TCP 9100</span></p>
+ <p>Прямой TCP-сокет. Минимум задержек и оверхеда. Промышленный корпоративный стандарт для статических IP-адресов.</p>
+ </div>
+ <div class="box">
+ <h4>LPR / LPD (RFC 1179)</h4>
+ <p><span class="badge badge-warn">TCP 515</span></p>
+ <p>Классический стек UNIX. Требует точного имени очереди печати (Queue: <code>lp</code>, <code>raw</code>). Медленнее RAW 9100.</p>
+ </div>
+ <div class="box">
+ <h4>IPP / IPPS (RFC 8011)</h4>
+ <p><span class="badge badge-info">TCP 631 (HTTP/S)</span></p>
+ <p>Современный веб-протокол. Шифрование TLS, контроль доступа, печать без драйверов (Mopria, AirPrint).</p>
+ </div>
+ </div>
+ <div class="box">
+ <h4>Критический риск протокола WSD (Web Services for Devices)</h4>
+ <p>Использует мультикаст UDP 3702. В сегментированных сетях маршрутизаторы блокируют мультикаст между VLAN. При динамическом DHCP принтер периодически "исчезает" из сети. Решение: <strong>всегда фиксировать статический IP и порт Standard TCP/IP (RAW 9100)</strong>.</p>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 9: ДРАЙВЕРЫ ПЕЧАТИ -->
-  <div class="slide" id="slide-9">
-    <div class="slide-title">8. Архитектура драйверов печати: PCL6 против PostScript 3</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="box">
-          <h4>Драйвер PCL6 (PCL XL)</h4>
-          <ul>
-            <li>Разработка компании Hewlett-Packard.</li>
-            <li>Ориентирован на высокую скорость вывода офисных документов, электронных таблиц и текста.</li>
-            <li>Компактный объем спул-файла (EMF/PCL).</li>
-            <li>Минимальная нагрузка на сеть и процессор принтера.</li>
-          </ul>
-        </div>
-        <div class="box">
-          <h4>Драйвер PostScript 3 (Adobe PS)</h4>
-          <ul>
-            <li>Математический язык описания страниц.</li>
-            <li>Абсолютная геометрическая точность кривых Безье, шрифтовой кернинг и безупречное цветоделение CMYK.</li>
-            <li>Стандарт для издательств, полиграфии и САПР.</li>
-            <li>Требует наличия мощного аппаратного процессора RIP и ОЗУ на принтере.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="box">
-        <h4>Universal Print Driver (UPD)</h4>
-        <p>Универсальный драйвер вендора. Динамически запрашивает возможности конкретного принтера по протоколу SNMP и на лету настраивает интерфейс пользователя (наличие дуплекса, лотков, финишеров).</p>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 9: ДРАЙВЕРЫ ПЕЧАТИ -->
+ <div class="slide" id="slide-9">
+ <div class="slide-title">8. Архитектура драйверов печати: PCL6 против PostScript 3</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="box">
+ <h4>Драйвер PCL6 (PCL XL)</h4>
+ <ul>
+ <li>Разработка компании Hewlett-Packard.</li>
+ <li>Ориентирован на высокую скорость вывода офисных документов, электронных таблиц и текста.</li>
+ <li>Компактный объем спул-файла (EMF/PCL).</li>
+ <li>Минимальная нагрузка на сеть и процессор принтера.</li>
+ </ul>
+ </div>
+ <div class="box">
+ <h4>Драйвер PostScript 3 (Adobe PS)</h4>
+ <ul>
+ <li>Математический язык описания страниц.</li>
+ <li>Абсолютная геометрическая точность кривых Безье, шрифтовой кернинг и безупречное цветоделение CMYK.</li>
+ <li>Стандарт для издательств, полиграфии и САПР.</li>
+ <li>Требует наличия мощного аппаратного процессора RIP и ОЗУ на принтере.</li>
+ </ul>
+ </div>
+ </div>
+ <div class="box">
+ <h4>Universal Print Driver (UPD)</h4>
+ <p>Универсальный драйвер вендора. Динамически запрашивает возможности конкретного принтера по протоколу SNMP и на лету настраивает интерфейс пользователя (наличие дуплекса, лотков, финишеров).</p>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 10: ЗВУК USB AUDIO 2.0 И ASIO -->
-  <div class="slide" id="slide-10">
-    <div class="slide-title">9. Профессиональный звук: USB Audio Class 2.0 и ASIO</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="box">
-          <h4>Windows WASAPI Mixer</h4>
-          <div class="code-box">DAW &rarr; WASAPI &rarr; Resampler &rarr; Mixer &rarr; Driver &rarr; DAC</div>
-          <p>Системный программный микшер Windows. Выполняет принудительную передискретизацию (SRC) и создает задержку <strong>30–80 миллисекунд</strong> (непригодно для живой записи и мониторинга).</p>
-        </div>
-        <div class="box">
-          <h4>Специализированный драйвер ASIO</h4>
-          <div class="code-box">DAW &rarr; [Прямой DMA-доступ ASIO] &rarr; DAC</div>
-          <p>Steinberg Audio Stream Input/Output. Прямой доступ к аппаратному буферу звуковой карты USB. Сквозная задержка падает до <strong>2–5 миллисекунд</strong>.</p>
-        </div>
-      </div>
-      <div class="box">
-        <h4>Расчет сквозной задержки (Round-Trip Latency):</h4>
-        <div class="code-box">Latency = (Input Buffer + Output Buffer + Safety Buffer) / Sample Rate + AD/DA Delay</div>
-        <p>При частоте 48 кГц и буфере 64 сэмпла: 64 / 48000 pprox 1.33 мс. Суммарная сквозная задержка тракта составляет около 4–5 мс.</p>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 10: ЗВУК USB AUDIO 2.0 И ASIO -->
+ <div class="slide" id="slide-10">
+ <div class="slide-title">9. Профессиональный звук: USB Audio Class 2.0 и ASIO</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="box">
+ <h4>Windows WASAPI Mixer</h4>
+ <div class="code-box">DAW &rarr; WASAPI &rarr; Resampler &rarr; Mixer &rarr; Driver &rarr; DAC</div>
+ <p>Системный программный микшер Windows. Выполняет принудительную передискретизацию (SRC) и создает задержку <strong>30–80 миллисекунд</strong> (непригодно для живой записи и мониторинга).</p>
+ </div>
+ <div class="box">
+ <h4>Специализированный драйвер ASIO</h4>
+ <div class="code-box">DAW &rarr; [Прямой DMA-доступ ASIO] &rarr; DAC</div>
+ <p>Steinberg Audio Stream Input/Output. Прямой доступ к аппаратному буферу звуковой карты USB. Сквозная задержка падает до <strong>2–5 миллисекунд</strong>.</p>
+ </div>
+ </div>
+ <div class="box">
+ <h4>Расчет сквозной задержки (Round-Trip Latency):</h4>
+ <div class="code-box">Latency = (Input Buffer + Output Buffer + Safety Buffer) / Sample Rate + AD/DA Delay</div>
+ <p>При частоте 48 кГц и буфере 64 сэмпла: 64 / 48000 pprox 1.33 мс. Суммарная сквозная задержка тракта составляет около 4–5 мс.</p>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 11: ГРАФИЧЕСКИЕ ПЛАНШЕТЫ -->
-  <div class="slide" id="slide-11">
-    <div class="slide-title">10. Специализированный ввод: графические планшеты</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="box">
-          <h4>Электромагнитный резонанс (EMR)</h4>
-          <ul>
-            <li>Планшет генерирует радиочастотное поле сеткой антенн.</li>
-            <li>Безаккумуляторное перо (Stylus) отражает сигнал резонансным контуром LC.</li>
-            <li>Планшет регистрирует координаты XY, угол наклона и <strong>8192 уровня нажатия</strong> пьезоэлектрического датчика.</li>
-          </ul>
-        </div>
-        <div class="box">
-          <h4>Аппаратный конфликт: Windows Ink</h4>
-          <ul>
-            <li>Служба Windows Ink по умолчанию перехватывает клик пера как сенсорный ввод.</li>
-            <li>Удержание пера на месте интерпретируется как правый клик с анимацией кольца.</li>
-            <li>Возникает задержка первого штриха и "залипание" кисти в Photoshop/Krita.</li>
-            <li>Решение: отключение Windows Ink в драйвере и переход на <strong>WinTab API</strong>.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 11: ГРАФИЧЕСКИЕ ПЛАНШЕТЫ -->
+ <div class="slide" id="slide-11">
+ <div class="slide-title">10. Специализированный ввод: графические планшеты</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="box">
+ <h4>Электромагнитный резонанс (EMR)</h4>
+ <ul>
+ <li>Планшет генерирует радиочастотное поле сеткой антенн.</li>
+ <li>Безаккумуляторное перо (Stylus) отражает сигнал резонансным контуром LC.</li>
+ <li>Планшет регистрирует координаты XY, угол наклона и <strong>8192 уровня нажатия</strong> пьезоэлектрического датчика.</li>
+ </ul>
+ </div>
+ <div class="box">
+ <h4>Аппаратный конфликт: Windows Ink</h4>
+ <ul>
+ <li>Служба Windows Ink по умолчанию перехватывает клик пера как сенсорный ввод.</li>
+ <li>Удержание пера на месте интерпретируется как правый клик с анимацией кольца.</li>
+ <li>Возникает задержка первого штриха и "залипание" кисти в Photoshop/Krita.</li>
+ <li>Решение: отключение Windows Ink в драйвере и переход на <strong>WinTab API</strong>.</li>
+ </ul>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 12: СКАНЕРЫ ШТРИХКОДОВ И VCP -->
-  <div class="slide" id="slide-12">
-    <div class="slide-title">11. Промышленная периферия: сканеры ШК и Virtual COM</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="box">
-          <h4>Режим эмуляции клавиатуры (USB HID POS)</h4>
-          <p><span class="badge badge-warn">Недостатки в производстве</span></p>
-          <ul>
-            <li>Печатает символы штрихкода в активное текстовое поле операционной системы.</li>
-            <li>Критическая зависимость от раскладки: при активной русской раскладке штрихкод искажается в нечитаемые символы.</li>
-            <li>Нельзя контролировать фоновый прием данных приложением.</li>
-          </ul>
-        </div>
-        <div class="box">
-          <h4>Режим Virtual COM Port (VCP / CDC ACM)</h4>
-          <p><span class="badge badge-ok">Инженерный стандарт</span></p>
-          <ul>
-            <li>Устройство регистрируется как виртуальный последовательный порт (например, COM3).</li>
-            <li>Передача сырых байт через UART (Baud Rate: 9600 или 115200, 8-N-1).</li>
-            <li>Полная независимость от фокуса окна и раскладки клавиатуры ОС.</li>
-            <li>Настройка префиксов/суффиксов (CR, LF, STX, ETX) для парсинга пакетов.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 12: СКАНЕРЫ ШТРИХКОДОВ И VCP -->
+ <div class="slide" id="slide-12">
+ <div class="slide-title">11. Промышленная периферия: сканеры ШК и Virtual COM</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="box">
+ <h4>Режим эмуляции клавиатуры (USB HID POS)</h4>
+ <p><span class="badge badge-warn">Недостатки в производстве</span></p>
+ <ul>
+ <li>Печатает символы штрихкода в активное текстовое поле операционной системы.</li>
+ <li>Критическая зависимость от раскладки: при активной русской раскладке штрихкод искажается в нечитаемые символы.</li>
+ <li>Нельзя контролировать фоновый прием данных приложением.</li>
+ </ul>
+ </div>
+ <div class="box">
+ <h4>Режим Virtual COM Port (VCP / CDC ACM)</h4>
+ <p><span class="badge badge-ok">Инженерный стандарт</span></p>
+ <ul>
+ <li>Устройство регистрируется как виртуальный последовательный порт (например, COM3).</li>
+ <li>Передача сырых байт через UART (Baud Rate: 9600 или 115200, 8-N-1).</li>
+ <li>Полная независимость от фокуса окна и раскладки клавиатуры ОС.</li>
+ <li>Настройка префиксов/суффиксов (CR, LF, STX, ETX) для парсинга пакетов.</li>
+ </ul>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 13: ДИАГНОСТИКА В ДИСПЕТЧЕРЕ -->
-  <div class="slide" id="slide-13">
-    <div class="slide-title">12. Диагностика периферии: коды ошибок Диспетчера</div>
-    <div class="slide-content">
-      <div class="grid-3">
-        <div class="box">
-          <h4>Код 10</h4>
-          <p><span class="badge badge-danger">CM_PROB_FAILED_START</span></p>
-          <p><strong>Суть:</strong> Драйвер загружен, но сбойнул вызов старта (<code>IRP_MN_START_DEVICE</code>).</p>
-          <p><strong>Причины:</strong> Сбой прошивки контроллера, конфликт памяти/прерываний, несовместимость версий.</p>
-        </div>
-        <div class="box">
-          <h4>Код 28</h4>
-          <p><span class="badge badge-warn">CM_PROB_FAILED_INSTALL</span></p>
-          <p><strong>Суть:</strong> Для устройства не найден подходящий драйвер.</p>
-          <p><strong>Решение:</strong> Считать Hardware ID (VID/PID или VEN/DEV), найти соответствующий INF-файл и добавить в Driver Store.</p>
-        </div>
-        <div class="box">
-          <h4>Код 43</h4>
-          <p><span class="badge badge-danger">FAILED_POSTING</span></p>
-          <p><strong>Суть:</strong> Сбой дескриптора (Device Descriptor Request Failed).</p>
-          <p><strong>Причины:</strong> Физический дефект! Просадка напряжения 5V, обрыв D+/D-, помехи кабеля. Драйвером не лечится!</p>
-        </div>
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 13: ДИАГНОСТИКА В ДИСПЕТЧЕРЕ -->
+ <div class="slide" id="slide-13">
+ <div class="slide-title">12. Диагностика периферии: коды ошибок Диспетчера</div>
+ <div class="slide-content">
+ <div class="grid-3">
+ <div class="box">
+ <h4>Код 10</h4>
+ <p><span class="badge badge-danger">CM_PROB_FAILED_START</span></p>
+ <p><strong>Суть:</strong> Драйвер загружен, но сбойнул вызов старта (<code>IRP_MN_START_DEVICE</code>).</p>
+ <p><strong>Причины:</strong> Сбой прошивки контроллера, конфликт памяти/прерываний, несовместимость версий.</p>
+ </div>
+ <div class="box">
+ <h4>Код 28</h4>
+ <p><span class="badge badge-warn">CM_PROB_FAILED_INSTALL</span></p>
+ <p><strong>Суть:</strong> Для устройства не найден подходящий драйвер.</p>
+ <p><strong>Решение:</strong> Считать Hardware ID (VID/PID или VEN/DEV), найти соответствующий INF-файл и добавить в Driver Store.</p>
+ </div>
+ <div class="box">
+ <h4>Код 43</h4>
+ <p><span class="badge badge-danger">FAILED_POSTING</span></p>
+ <p><strong>Суть:</strong> Сбой дескриптора (Device Descriptor Request Failed).</p>
+ <p><strong>Причины:</strong> Физический дефект! Просадка напряжения 5V, обрыв D+/D-, помехи кабеля. Драйвером не лечится!</p>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 14: КОНСОЛЬНЫЙ ИНСТРУМЕНТАРИЙ -->
-  <div class="slide" id="slide-14">
-    <div class="slide-title">13. Системные инструменты отладки оборудования</div>
-    <div class="slide-content">
-      <div class="grid-2">
-        <div class="box">
-          <h4>Windows: PowerShell и PnPUtil</h4>
-          <div class="code-box"># Поиск сбойных устройств
+ <!-- СЛАЙД 14: КОНСОЛЬНЫЙ ИНСТРУМЕНТАРИЙ -->
+ <div class="slide" id="slide-14">
+ <div class="slide-title">13. Системные инструменты отладки оборудования</div>
+ <div class="slide-content">
+ <div class="grid-2">
+ <div class="box">
+ <h4>Windows: PowerShell и PnPUtil</h4>
+ <div class="code-box"># Поиск сбойных устройств
 Get-PnpDevice | Where-Object Status -ne "OK"
 
 # Добавление драйвера в Driver Store
@@ -571,10 +534,10 @@ pnputil.exe /add-driver *.inf /install
 
 # Журнал инсталляции устройств (SetupAPI)
 Get-Content C:\Windows\INF\setupapi.dev.log -Tail 50</div>
-        </div>
-        <div class="box">
-          <h4>Linux: Утилиты ядра и шины</h4>
-          <div class="code-box"># Детальное дерево USB с классами устройств
+ </div>
+ <div class="box">
+ <h4>Linux: Утилиты ядра и шины</h4>
+ <div class="code-box"># Детальное дерево USB с классами устройств
 lsusb -tv
 
 # Поиск устройств PCI с модулями ядра
@@ -582,86 +545,86 @@ lspci -nnk
 
 # Лог сообщений ядра в реальном времени
 dmesg -wH | grep -E -i "usb|error"</div>
-        </div>
-      </div>
-    </div>
-  </div>
+ </div>
+ </div>
+ </div>
+ </div>
 
-  <!-- СЛАЙД 15: РЕАЛЬНЫЙ ПОПУЛЯРНЫЙ ИНТЕРНЕТ-МЕМ СО СВОБОДНОЙ ЛИЦЕНЗИЕЙ -->
-  <div class="slide" id="slide-15">
-    <div class="slide-title">14. Архитектурный юмор: основы системного мышления</div>
-    <div class="meme-wrap">
-      <img class="meme-img" src="data:image/jpeg;base64,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8Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsf//Z" alt="Mathjoke Meme">
-      <div class="attribution">
-        <strong>Мем:</strong> «Mathjoke (10 types of people in the world) — В мире существует 10 типов людей: те, кто понимает двоичную систему счисления, и те, кто её не понимает (а также те, кто читает аппаратные дескрипторы устройств, и те, кто слепо нажимает "Далее")».<br>
-        <strong>Автор:</strong> MjolnirPants (Wikimedia Commons).<br>
-        <strong>Лицензия:</strong> Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).<br>
-        <strong>Атрибуция:</strong> Изображение встроено автономно в формате Data URI (data:image/jpeg;base64) без сторонних сетевых запросов.
-      </div>
-    </div>
-  </div>
+ <!-- СЛАЙД 15: РЕАЛЬНЫЙ ПОПУЛЯРНЫЙ ИНТЕРНЕТ-МЕМ СО СВОБОДНОЙ ЛИЦЕНЗИЕЙ -->
+ <div class="slide" id="slide-15">
+ <div class="slide-title">14. Архитектурный юмор: основы системного мышления</div>
+ <div class="meme-wrap">
+ <img class="meme-img" src="data:image/jpeg;base64,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8Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsf//Z" alt="Mathjoke Meme">
+ <div class="attribution">
+ <strong>Мем:</strong> «Mathjoke (10 types of people in the world) — В мире существует 10 типов людей: те, кто понимает двоичную систему счисления, и те, кто её не понимает (а также те, кто читает аппаратные дескрипторы устройств, и те, кто слепо нажимает "Далее")».<br>
+ <strong>Автор:</strong> MjolnirPants (Wikimedia Commons).<br>
+ <strong>Лицензия:</strong> Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).<br>
+ <strong>Атрибуция:</strong> Изображение встроено автономно в формате Data URI (data:image/jpeg;base64) без сторонних сетевых запросов.
+ </div>
+ </div>
+ </div>
 
-  <!-- ПАНЕЛЬ УПРАВЛЕНИЯ СЛАЙДАМИ -->
-  <div class="controls">
-    <div class="controls-btns">
-      <button type="button" class="nav-btn" id="btn_prev" onclick="prevSlide()">← Назад</button>
-      <button type="button" class="nav-btn" id="btn_next" onclick="nextSlide()">Вперед →</button>
-    </div>
-    <div class="slide-counter" id="slide_counter">Слайд 1 из 15</div>
-  </div>
+ <!-- ПАНЕЛЬ УПРАВЛЕНИЯ СЛАЙДАМИ -->
+ <div class="controls">
+ <div class="controls-btns">
+ <button type="button" class="nav-btn" id="btn_prev" onclick="prevSlide()">← Назад</button>
+ <button type="button" class="nav-btn" id="btn_next" onclick="nextSlide()">Вперед →</button>
+ </div>
+ <div class="slide-counter" id="slide_counter">Слайд 1 из 15</div>
+ </div>
 
 </div>
 
 <script>
-  let currentSlide = 1;
-  const totalSlides = 15;
+ let currentSlide = 1;
+ const totalSlides = 15;
 
-  function showSlide(n) {
-    if (n < 1) n = 1;
-    if (n > totalSlides) n = totalSlides;
-    currentSlide = n;
+ function showSlide(n) {
+ if (n < 1) n = 1;
+ if (n > totalSlides) n = totalSlides;
+ currentSlide = n;
 
-    for (let i = 1; i <= totalSlides; i++) {
-      const el = document.getElementById("slide-" + i);
-      if (el) {
-        if (i === currentSlide) {
-          el.classList.add("active");
-        } else {
-          el.classList.remove("active");
-        }
-      }
-    }
+ for (let i = 1; i <= totalSlides; i++) {
+ const el = document.getElementById("slide-" + i);
+ if (el) {
+ if (i === currentSlide) {
+ el.classList.add("active");
+ } else {
+ el.classList.remove("active");
+ }
+ }
+ }
 
-    document.getElementById("slide_counter").textContent = "Слайд " + currentSlide + " из " + totalSlides;
-    document.getElementById("btn_prev").disabled = (currentSlide === 1);
-    document.getElementById("btn_next").disabled = (currentSlide === totalSlides);
-  }
+ document.getElementById("slide_counter").textContent = "Слайд " + currentSlide + " из " + totalSlides;
+ document.getElementById("btn_prev").disabled = (currentSlide === 1);
+ document.getElementById("btn_next").disabled = (currentSlide === totalSlides);
+ }
 
-  function prevSlide() {
-    if (currentSlide > 1) showSlide(currentSlide - 1);
-  }
+ function prevSlide() {
+ if (currentSlide > 1) showSlide(currentSlide - 1);
+ }
 
-  function nextSlide() {
-    if (currentSlide < totalSlides) showSlide(currentSlide + 1);
-  }
+ function nextSlide() {
+ if (currentSlide < totalSlides) showSlide(currentSlide + 1);
+ }
 
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") {
-      e.preventDefault();
-      nextSlide();
-    } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
-      e.preventDefault();
-      prevSlide();
-    } else if (e.key === "Home") {
-      e.preventDefault();
-      showSlide(1);
-    } else if (e.key === "End") {
-      e.preventDefault();
-      showSlide(totalSlides);
-    }
-  });
+ document.addEventListener("keydown", (e) => {
+ if (e.key === "ArrowRight" | e.key === "PageDown" | e.key === " ") {
+ e.preventDefault();
+ nextSlide();
+ } else if (e.key === "ArrowLeft" | e.key === "PageUp") {
+ e.preventDefault();
+ prevSlide();
+ } else if (e.key === "Home") {
+ e.preventDefault();
+ showSlide(1);
+ } else if (e.key === "End") {
+ e.preventDefault();
+ showSlide(totalSlides);
+ }
+ });
 
-  showSlide(1);
+ showSlide(1);
 </script>
 </body>
 </html>

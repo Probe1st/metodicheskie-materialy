@@ -1,593 +1,579 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="color-scheme" content="light">
-  <title>Теоретический конспект — Нормализация БД: функциональные зависимости</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #0284c7;
-      --accent-soft: #f0f9ff;
-      --accent-dark: #0369a1;
-      --success: #15803d;
-      --success-soft: #f0fdf4;
-      --warn: #b45309;
-      --warn-soft: #fffbeb;
-      --danger: #b91c1c;
-      --danger-soft: #fef2f2;
-      --code-bg: #0f172a;
-      --code-text: #f8fafc;
-      --radius: 12px;
-      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-    }
-    * { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      line-height: 1.65;
-      font-size: 16px;
-    }
-    .page {
-      width: min(100% - 32px, 960px);
-      margin: 32px auto 80px;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 32px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow);
-    }
-    h1 {
-      margin: 0 0 12px;
-      font-size: clamp(24px, 4vw, 32px);
-      color: var(--text);
-      line-height: 1.25;
-    }
-    .lead {
-      color: var(--muted);
-      margin: 0;
-      font-size: 16px;
-    }
-    h2 {
-      margin: 0 0 16px;
-      font-size: 21px;
-      color: var(--accent);
-      border-bottom: 2px solid var(--accent-soft);
-      padding-bottom: 8px;
-    }
-    h3 {
-      font-size: 18px;
-      margin: 22px 0 12px;
-      color: var(--text);
-    }
-    h4 {
-      font-size: 16px;
-      margin: 16px 0 8px;
-      color: var(--accent-dark);
-    }
-    p, ul, ol {
-      margin-top: 0;
-      margin-bottom: 12px;
-    }
-    ul, ol {
-      padding-left: 24px;
-    }
-    li {
-      margin-bottom: 6px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 16px 0 20px;
-      font-size: 15px;
-    }
-    th, td {
-      border: 1px solid var(--line);
-      padding: 10px 14px;
-      text-align: left;
-      vertical-align: top;
-    }
-    th {
-      background: #f1f5f9;
-      color: var(--text);
-      font-weight: 600;
-    }
-    tr:nth-child(even) td {
-      background: #f8fafc;
-    }
-    .notice {
-      padding: 16px 20px;
-      border-radius: 8px;
-      margin: 18px 0;
-      border-left: 4px solid var(--accent);
-      background: var(--accent-soft);
-    }
-    .notice-warn {
-      border-left-color: var(--warn);
-      background: var(--warn-soft);
-      color: #78350f;
-    }
-    .notice-danger {
-      border-left-color: var(--danger);
-      background: var(--danger-soft);
-      color: #7f1d1d;
-    }
-    .notice-success {
-      border-left-color: var(--success);
-      background: var(--success-soft);
-      color: #14532d;
-    }
-    code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.9em;
-      background: #e2e8f0;
-      padding: 2px 6px;
-      border-radius: 4px;
-      color: #0f172a;
-    }
-    pre {
-      background: var(--code-bg);
-      color: var(--code-text);
-      padding: 16px 20px;
-      border-radius: 8px;
-      overflow-x: auto;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-    pre code {
-      background: transparent;
-      color: inherit;
-      padding: 0;
-    }
-    .badge {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .badge-primary { background: #e0f2fe; color: #0369a1; }
-    .formula {
-      background: #f1f5f9;
-      border-left: 3px solid var(--accent);
-      padding: 10px 16px;
-      margin: 12px 0;
-      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-      font-size: 15px;
-      color: #0f172a;
-    }
-    .meta-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid var(--line);
-      font-size: 14px;
-    }
-    .meta-item strong {
-      display: block;
-      color: var(--muted);
-      font-size: 12px;
-      text-transform: uppercase;
-    }
-    .q-box {
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 14px 18px;
-      margin-bottom: 12px;
-    }
-    .q-title {
-      font-weight: 700;
-      color: var(--accent-dark);
-      margin-bottom: 4px;
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <meta name="color-scheme" content="light">
+ <title>Теоретический конспект — Нормализация БД: функциональные зависимости</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #0284c7;
+ --accent-soft: #f0f9ff;
+ --accent-dark: #0369a1;
+ --success: #15803d;
+ --success-soft: #f0fdf4;
+ --warn: #b45309;
+ --warn-soft: #fffbeb;
+ --danger: #b91c1c;
+ --danger-soft: #fef2f2;
+ --code-bg: #0f172a;
+ --code-text: #f8fafc;
+ --radius: 12px;
+ --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+ }
+ * { box-sizing: border-box; }
+ html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+ body {
+ margin: 0;
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+ line-height: 1.65;
+ font-size: 16px;
+ }.page {
+ width: min(100% - 32px, 960px);
+ margin: 32px auto 80px;
+ }.card {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 32px;
+ margin-bottom: 24px;
+ box-shadow: var(--shadow);
+ }
+ h1 {
+ margin: 0 0 12px;
+ font-size: clamp(24px, 4vw, 32px);
+ color: var(--text);
+ line-height: 1.25;
+ }.lead {
+ color: var(--muted);
+ margin: 0;
+ font-size: 16px;
+ }
+ h2 {
+ margin: 0 0 16px;
+ font-size: 21px;
+ color: var(--accent);
+ border-bottom: 2px solid var(--accent-soft);
+ padding-bottom: 8px;
+ }
+ h3 {
+ font-size: 18px;
+ margin: 22px 0 12px;
+ color: var(--text);
+ }
+ h4 {
+ font-size: 16px;
+ margin: 16px 0 8px;
+ color: var(--accent-dark);
+ }
+ p, ul, ol {
+ margin-top: 0;
+ margin-bottom: 12px;
+ }
+ ul, ol {
+ padding-left: 24px;
+ }
+ li {
+ margin-bottom: 6px;
+ }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ margin: 16px 0 20px;
+ font-size: 15px;
+ }
+ th, td {
+ border: 1px solid var(--line);
+ padding: 10px 14px;
+ text-align: left;
+ vertical-align: top;
+ }
+ th {
+ background: #f1f5f9;
+ color: var(--text);
+ font-weight: 600;
+ }
+ tr:nth-child(even) td {
+ background: #f8fafc;
+ }.notice {
+ padding: 16px 20px;
+ border-radius: 8px;
+ margin: 18px 0;
+ border-left: 4px solid var(--accent);
+ background: var(--accent-soft);
+ }.notice-warn {
+ border-left-color: var(--warn);
+ background: var(--warn-soft);
+ color: #78350f;
+ }.notice-danger {
+ border-left-color: var(--danger);
+ background: var(--danger-soft);
+ color: #7f1d1d;
+ }.notice-success {
+ border-left-color: var(--success);
+ background: var(--success-soft);
+ color: #14532d;
+ }
+ code {
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 0.9em;
+ background: #e2e8f0;
+ padding: 2px 6px;
+ border-radius: 4px;
+ color: #0f172a;
+ }
+ pre {
+ background: var(--code-bg);
+ color: var(--code-text);
+ padding: 16px 20px;
+ border-radius: 8px;
+ overflow-x: auto;
+ font-size: 14px;
+ line-height: 1.5;
+ }
+ pre code {
+ background: transparent;
+ color: inherit;
+ padding: 0;
+ }.badge {
+ display: inline-block;
+ padding: 3px 8px;
+ border-radius: 6px;
+ font-size: 12px;
+ font-weight: 600;
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+ }.badge-primary { background: #e0f2fe; color: #0369a1; }.formula {
+ background: #f1f5f9;
+ border-left: 3px solid var(--accent);
+ padding: 10px 16px;
+ margin: 12px 0;
+ font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+ font-size: 15px;
+ color: #0f172a;
+ }.meta-row {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+ gap: 12px;
+ margin-top: 16px;
+ padding-top: 16px;
+ border-top: 1px solid var(--line);
+ font-size: 14px;
+ }.meta-item strong {
+ display: block;
+ color: var(--muted);
+ font-size: 12px;
+ text-transform: uppercase;
+ }.q-box {
+ background: #f8fafc;
+ border: 1px solid var(--line);
+ border-radius: 8px;
+ padding: 14px 18px;
+ margin-bottom: 12px;
+ }.q-title {
+ font-weight: 700;
+ color: var(--accent-dark);
+ margin-bottom: 4px;
+ }
+ </style>
 </head>
 <body>
-  <main class="page">
-    <header class="card">
-      <span class="badge badge-primary">Теоретический конспект</span>
-      <h1>Нормализация БД: функциональные зависимости</h1>
-      <p class="lead">Фундаментальные основы реляционной теории: математический аппарат функциональных зависимостей, аксиоматика Армстронга, алгоритм вычисления замыкания атрибутов, поиск потенциальных ключей и каноническая минимизация схемы.</p>
-      <div class="meta-row">
-        <div class="meta-item">
-          <strong>Дисциплина</strong>
-          ОП.08 Основы проектирования баз данных
-        </div>
-        <div class="meta-item">
-          <strong>Раздел</strong>
-          Тема 3. Этапы проектирования баз данных (§2.2 с.7 программы)
-        </div>
-        <div class="meta-item">
-          <strong>Занятие</strong>
-          № 15 (урок с объяснением теории)
-        </div>
-        <div class="meta-item">
-          <strong>Ключевые понятия</strong>
-          ФЗ, аксиомы Армстронга, замыкание X+, суперключ, Minimal Cover
-        </div>
-      </div>
-    </header>
+ <main class="page">
+ <header class="card">
+ <span class="badge badge-primary">Теоретический конспект</span>
+ <h1>Нормализация БД: функциональные зависимости</h1>
+ <p class="lead">Фундаментальные основы реляционной теории: математический аппарат функциональных зависимостей, аксиоматика Армстронга, алгоритм вычисления замыкания атрибутов, поиск потенциальных ключей и каноническая минимизация схемы.</p>
+ <div class="meta-row">
+ <div class="meta-item">
+ <strong>Дисциплина</strong>
+ ОП.08 Основы проектирования баз данных
+ </div>
+ <div class="meta-item">
+ <strong>Раздел</strong>
+ Тема 3. Этапы проектирования баз данных
+ </div>
+ <div class="meta-item">
+ <strong>Занятие</strong>
+ № 15 (урок с объяснением теории)
+ </div>
+ <div class="meta-item">
+ <strong>Ключевые понятия</strong>
+ ФЗ, аксиомы Армстронга, замыкание X+, суперключ, Minimal Cover
+ </div>
+ </div>
+ </header>
 
-    <!-- РАЗДЕЛ 1: АНОМАЛИИ И ЦЕЛЬ НОРМАЛИЗАЦИИ -->
-    <section class="card">
-      <h2>1. Почему проектировщику необходима нормализация?</h2>
-      <p>Создание базы данных без строгого математического анализа часто приводит к объединению множества разнородных атрибутов в одну «универсальную» таблицу. Рассмотрим наивную структуру базы данных компании, где в едином отношении хранятся сведения о сотрудниках, их отделах и проектных ролях:</p>
+ <!-- РАЗДЕЛ 1: АНОМАЛИИ И ЦЕЛЬ НОРМАЛИЗАЦИИ -->
+ <section class="card">
+ <h2>1. Почему проектировщику необходима нормализация?</h2>
+ <p>Создание базы данных без строгого математического анализа часто приводит к объединению множества разнородных атрибутов в одну «универсальную» таблицу. Рассмотрим наивную структуру базы данных компании, где в едином отношении хранятся сведения о сотрудниках, их отделах и проектных ролях:</p>
 
-      <div class="formula">
-        Сотрудники_Проекты(EmpID, ФИО, DeptID, НазваниеОтдела, ТелефонОтдела, ProjID, НазваниеПроекта, Роль, Зарплата)
-      </div>
+ <div class="formula">
+ Сотрудники_Проекты(EmpID, ФИО, DeptID, НазваниеОтдела, ТелефонОтдела, ProjID, НазваниеПроекта, Роль, Зарплата)
+ </div>
 
-      <p>Такой подход порождает четыре классические <strong>аномалии реляционных баз данных</strong>:</p>
+ <p>Такой подход порождает четыре классические <strong>аномалии реляционных баз данных</strong>:</p>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Вид аномалии</th>
-            <th>В чем проявляется дефект</th>
-            <th>Практический пример разрушения целостности</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Избыточность данных (Redundancy)</strong></td>
-            <td>Одни и те же факты дублируются в сотнях и тысячах строк.</td>
-            <td>Если в отделе 50 сотрудников, то телефон и название отдела будут скопированы 50 раз. Это приводит к перерасходу дискового пространства и памяти буферного пула.</td>
-          </tr>
-          <tr>
-            <td><strong>Аномалия обновления (Update Anomaly)</strong></td>
-            <td>Изменение одного свойства реального объекта требует изменения множества записей.</td>
-            <td>При смене телефонного номера отдела его необходимо обновить во всех 50 строках. Если сервер оборвет транзакцию на 25-й строке, база данных окажется в противоречивом состоянии.</td>
-          </tr>
-          <tr>
-            <td><strong>Аномалия вставки (Insertion Anomaly)</strong></td>
-            <td>Невозможность внести информацию об одной сущности без фиктивного создания другой.</td>
-            <td>Мы не можем зарегистрировать новый «Отдел инноваций», пока в него не нанят хотя бы один реальный сотрудник с конкретным <code>EmpID</code> (если <code>EmpID</code> входит в первичный ключ).</td>
-          </tr>
-          <tr>
-            <td><strong>Аномалия удаления (Deletion Anomaly)</strong></td>
-            <td>Удаление одной записи приводит к непреднамеренной потере других независимых данных.</td>
-            <td>Если увольняется единственный сотрудник отдела, то вместе с кортежем сотрудника удаляется вся информация о существовании самого отдела и его телефоне.</td>
-          </tr>
-        </tbody>
-      </table>
+ <table>
+ <thead>
+ <tr>
+ <th>Вид аномалии</th>
+ <th>В чем проявляется дефект</th>
+ <th>Практический пример разрушения целостности</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>Избыточность данных (Redundancy)</strong></td>
+ <td>Одни и те же факты дублируются в сотнях и тысячах строк.</td>
+ <td>Если в отделе 50 сотрудников, то телефон и название отдела будут скопированы 50 раз. Это приводит к перерасходу дискового пространства и памяти буферного пула.</td>
+ </tr>
+ <tr>
+ <td><strong>Аномалия обновления (Update Anomaly)</strong></td>
+ <td>Изменение одного свойства реального объекта требует изменения множества записей.</td>
+ <td>При смене телефонного номера отдела его необходимо обновить во всех 50 строках. Если сервер оборвет транзакцию на 25-й строке, база данных окажется в противоречивом состоянии.</td>
+ </tr>
+ <tr>
+ <td><strong>Аномалия вставки (Insertion Anomaly)</strong></td>
+ <td>Невозможность внести информацию об одной сущности без фиктивного создания другой.</td>
+ <td>Мы не можем зарегистрировать новый «Отдел инноваций», пока в него не нанят хотя бы один реальный сотрудник с конкретным <code>EmpID</code> (если <code>EmpID</code> входит в первичный ключ).</td>
+ </tr>
+ <tr>
+ <td><strong>Аномалия удаления (Deletion Anomaly)</strong></td>
+ <td>Удаление одной записи приводит к непреднамеренной потере других независимых данных.</td>
+ <td>Если увольняется единственный сотрудник отдела, то вместе с кортежем сотрудника удаляется вся информация о существовании самого отдела и его телефоне.</td>
+ </tr>
+ </tbody>
+ </table>
 
-      <div class="notice notice-success">
-        <strong>Вывод:</strong> Нормализация — это научно обоснованный процесс декомпозиции (разбиения) исходного отношения на несколько связанных отношений меньшей размерности с целью устранения избыточности и потенциальных аномалий без потери исходной информации. Базовым математическим аппаратом нормализации выступает теория <strong>функциональных зависимостей</strong>.
-      </div>
-    </section>
+ <div class="notice notice-success">
+ <strong>Вывод:</strong> Нормализация — это научно обоснованный процесс декомпозиции (разбиения) исходного отношения на несколько связанных отношений меньшей размерности с целью устранения избыточности и потенциальных аномалий без потери исходной информации. Базовым математическим аппаратом нормализации выступает теория <strong>функциональных зависимостей</strong>.
+ </div>
+ </section>
 
-    <!-- РАЗДЕЛ 2: ФУНКЦИОНАЛЬНЫЕ ЗАВИСИМОСТИ -->
-    <section class="card">
-      <h2>2. Понятие и классификация функциональных зависимостей (ФЗ)</h2>
-      
-      <h3>2.1. Формальное определение</h3>
-      <p>Пусть <code>R(U)</code> — схема отношения, где <code>U</code> — совокупность всех атрибутов. Пусть <code>X</code> и <code>Y</code> — произвольные подмножества атрибутов (<code>X ⊆ U</code>, <code>Y ⊆ U</code>).</p>
-      
-      <div class="formula">
-        Говорят, что атрибут (или группа атрибутов) Y <strong>функционально зависит</strong> от X (обозначается <strong>X → Y</strong>), если в любом допустимом состоянии отношения R для любых двух строк (кортежей) t₁ и t₂, у которых совпадают значения атрибутов X, обязательно совпадают и значения атрибутов Y:<br>
-        <strong>t₁[X] = t₂[X]  ⟹  t₁[Y] = t₂[Y]</strong>
-      </div>
+ <!-- РАЗДЕЛ 2: ФУНКЦИОНАЛЬНЫЕ ЗАВИСИМОСТИ -->
+ <section class="card">
+ <h2>2. Понятие и классификация функциональных зависимостей (ФЗ)</h2>
+ 
+ <h3>2.1. Формальное определение</h3>
+ <p>Пусть <code>R(U)</code> — схема отношения, где <code>U</code> — совокупность всех атрибутов. Пусть <code>X</code> и <code>Y</code> — произвольные подмножества атрибутов (<code>X ⊆ U</code>, <code>Y ⊆ U</code>).</p>
+ 
+ <div class="formula">
+ Говорят, что атрибут (или группа атрибутов) Y <strong>функционально зависит</strong> от X (обозначается <strong>X → Y</strong>), если в любом допустимом состоянии отношения R для любых двух строк (кортежей) t₁ и t₂, у которых совпадают значения атрибутов X, обязательно совпадают и значения атрибутов Y:<br>
+ <strong>t₁[X] = t₂[X] ⟹ t₁[Y] = t₂[Y]</strong>
+ </div>
 
-      <p>Множество <code>X</code> называют <strong>детерминантом</strong> (определяющим набором), а <code>Y</code> — <strong>зависимой частью</strong>.</p>
+ <p>Множество <code>X</code> называют <strong>детерминантом</strong> (определяющим набором), а <code>Y</code> — <strong>зависимой частью</strong>.</p>
 
-      <div class="notice notice-warn">
-        <strong>Запомните главное различие:</strong> ФЗ <code>X → Y</code> — это <em>семантическое ограничение предметной области</em>, а не сиюминутное свойство загруженных данных! Нельзя просто взглянуть на текущую выборку из 5 строк и объявить, что если у всех разные имена, то <code>Имя → Паспорт</code>. ФЗ задается бизнес-логикой и правилами реального мира.
-      </div>
+ <div class="notice notice-warn">
+ <strong>Запомните главное различие:</strong> ФЗ <code>X → Y</code> — это <em>семантическое ограничение предметной области</em>, а не сиюминутное свойство загруженных данных! Нельзя просто взглянуть на текущую выборку из 5 строк и объявить, что если у всех разные имена, то <code>Имя → Паспорт</code>. ФЗ задается бизнес-логикой и правилами реального мира.
+ </div>
 
-      <h3>2.2. Классификация функциональных зависимостей</h3>
-      <ul>
-        <li><strong>Тривиальная зависимость:</strong> Правая часть полностью содержится в левой: <code>Y ⊆ X</code>.<br>
-            <em>Пример:</em> <code>{Паспорт, ФИО} → {ФИО}</code>. Такая зависимость тривиально истинна всегда, так как зная набор данных, мы всегда знаем его составную часть.</li>
-        <li><strong>Нетривиальная зависимость:</strong> Правая часть содержит хотя бы один атрибут, отсутствующий в детерминанте: <code>Y ⊈ X</code>.<br>
-            <em>Пример:</em> <code>{НомерСчета} → {Баланс, Валюта}</code>.</li>
-        <li><strong>Полная функциональная зависимость:</strong> Атрибут <code>Y</code> зависит от составного детерминанта <code>X</code> в целом, но не зависит ни от одной его части.<br>
-            <em>Пример:</em> Оценка студента зависит от пары <code>{СтудентID, ПредметID} → Оценка</code>. Отдельно от <code>СтудентID</code> или от <code>ПредметID</code> оценка не зависит.</li>
-        <li><strong>Частичная функциональная зависимость:</strong> Атрибут зависит не от всего составного ключа, а лишь от некоторой его части.<br>
-            <em>Пример:</em> В отношении с ключом <code>{СтудентID, ПредметID}</code> зависимость <code>СтудентID → НомерГруппы</code> является частичной. Наличие частичных зависимостей неключевых полей от первичного ключа нарушает Вторую нормальную форму (2НФ).</li>
-        <li><strong>Транзитивная функциональная зависимость:</strong> Зависимость вида <code>X → Z</code>, опосредованная промежуточным набором <code>Y</code>: если <code>X → Y</code> и <code>Y → Z</code>, причем обратной зависимости <code>Y ↛ X</code> не существует, а <code>Z</code> не входит в <code>X ∪ Y</code>.<br>
-            <em>Пример:</em> <code>ТабельныйНомер → НомерОтдела</code>, а <code>НомерОтдела → ТелефонОтдела</code>. Зависимость <code>ТабельныйНомер → ТелефонОтдела</code> является транзитивной. Наличие транзитивных зависимостей неключевых полей нарушает Третью нормальную форму (3НФ).</li>
-      </ul>
-    </section>
+ <h3>2.2. Классификация функциональных зависимостей</h3>
+ <ul>
+ <li><strong>Тривиальная зависимость:</strong> Правая часть полностью содержится в левой: <code>Y ⊆ X</code>.<br>
+ <em>Пример:</em> <code>{Паспорт, ФИО} → {ФИО}</code>. Такая зависимость тривиально истинна всегда, так как зная набор данных, мы всегда знаем его составную часть.</li>
+ <li><strong>Нетривиальная зависимость:</strong> Правая часть содержит хотя бы один атрибут, отсутствующий в детерминанте: <code>Y ⊈ X</code>.<br>
+ <em>Пример:</em> <code>{НомерСчета} → {Баланс, Валюта}</code>.</li>
+ <li><strong>Полная функциональная зависимость:</strong> Атрибут <code>Y</code> зависит от составного детерминанта <code>X</code> в целом, но не зависит ни от одной его части.<br>
+ <em>Пример:</em> Оценка студента зависит от пары <code>{СтудентID, ПредметID} → Оценка</code>. Отдельно от <code>СтудентID</code> или от <code>ПредметID</code> оценка не зависит.</li>
+ <li><strong>Частичная функциональная зависимость:</strong> Атрибут зависит не от всего составного ключа, а лишь от некоторой его части.<br>
+ <em>Пример:</em> В отношении с ключом <code>{СтудентID, ПредметID}</code> зависимость <code>СтудентID → НомерГруппы</code> является частичной. Наличие частичных зависимостей неключевых полей от первичного ключа нарушает Вторую нормальную форму (2НФ).</li>
+ <li><strong>Транзитивная функциональная зависимость:</strong> Зависимость вида <code>X → Z</code>, опосредованная промежуточным набором <code>Y</code>: если <code>X → Y</code> и <code>Y → Z</code>, причем обратной зависимости <code>Y ↛ X</code> не существует, а <code>Z</code> не входит в <code>X ∪ Y</code>.<br>
+ <em>Пример:</em> <code>ТабельныйНомер → НомерОтдела</code>, а <code>НомерОтдела → ТелефонОтдела</code>. Зависимость <code>ТабельныйНомер → ТелефонОтдела</code> является транзитивной. Наличие транзитивных зависимостей неключевых полей нарушает Третью нормальную форму (3НФ).</li>
+ </ul>
+ </section>
 
-    <!-- РАЗДЕЛ 3: АКСИОМАТИКА И МАТРИЦА АРМСТРОНГА -->
-    <section class="card">
-      <h2>3. Аксиомы Армстронга и матрица применения правил вывода</h2>
-      <p>В 1974 году Уильям Армстронг доказал, что любая верная для заданной схемы функциональная зависимость может быть выведена из исходного набора зависимостей с помощью всего трех базовых аксиом. Эта система аксиом является <strong>корректной</strong> (все выводимые зависимости действительно выполняются) и <strong>полной</strong> (любая истинная зависимость может быть выведена).</p>
+ <!-- РАЗДЕЛ 3: АКСИОМАТИКА И МАТРИЦА АРМСТРОНГА -->
+ <section class="card">
+ <h2>3. Аксиомы Армстронга и матрица применения правил вывода</h2>
+ <p>В 1974 году Уильям Армстронг доказал, что любая верная для заданной схемы функциональная зависимость может быть выведена из исходного набора зависимостей с помощью всего трех базовых аксиом. Эта система аксиом является <strong>корректной</strong> (все выводимые зависимости действительно выполняются) и <strong>полной</strong> (любая истинная зависимость может быть выведена).</p>
 
-      <h3>3.1. Базовые аксиомы</h3>
-      <ol>
-        <li><strong>Рефлексивность (Reflexivity):</strong> Если <code>Y ⊆ X</code>, то <code>X → Y</code>. В частности, <code>X → X</code>.</li>
-        <li><strong>Пополнение (Augmentation):</strong> Если <code>X → Y</code>, то для любого множества атрибутов <code>Z</code> верно: <code>XZ → YZ</code> (а также <code>XZ → Y</code>).</li>
-        <li><strong>Транзитивность (Transitivity):</strong> Если <code>X → Y</code> и <code>Y → Z</code>, то <code>X → Z</code>.</li>
-      </ol>
+ <h3>3.1. Базовые аксиомы</h3>
+ <ol>
+ <li><strong>Рефлексивность (Reflexivity):</strong> Если <code>Y ⊆ X</code>, то <code>X → Y</code>. В частности, <code>X → X</code>.</li>
+ <li><strong>Пополнение (Augmentation):</strong> Если <code>X → Y</code>, то для любого множества атрибутов <code>Z</code> верно: <code>XZ → YZ</code> (а также <code>XZ → Y</code>).</li>
+ <li><strong>Транзитивность (Transitivity):</strong> Если <code>X → Y</code> и <code>Y → Z</code>, то <code>X → Z</code>.</li>
+ </ol>
 
-      <h3>3.2. Матрица применения правил вывода Армстронга на практике</h3>
-      <p>Для ускорения логического анализа проектировщики используют вспомогательные производные правила. Матрица ниже иллюстрирует, когда и какое правило следует применять в инженерных расчетах:</p>
+ <h3>3.2. Матрица применения правил вывода Армстронга на практике</h3>
+ <p>Для ускорения логического анализа проектировщики используют вспомогательные производные правила. Матрица ниже иллюстрирует, когда и какое правило следует применять в инженерных расчетах:</p>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Инженерная задача</th>
-            <th>Применяемое правило</th>
-            <th>Исходные условия</th>
-            <th>Результат вывода</th>
-            <th>Практический пример</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Склеить несколько правых частей с общим детерминантом</strong></td>
-            <td><strong>Объединение (Union)</strong></td>
-            <td><code>X → Y</code> и <code>X → Z</code></td>
-            <td><code>X → YZ</code></td>
-            <td><code>Паспорт → ФИО</code> и <code>Паспорт → ДатаРождения</code> ⟹ <code>Паспорт → {ФИО, ДатаРождения}</code>.</td>
-          </tr>
-          <tr>
-            <td><strong>Разделить сложную правую часть на независимые атомарные ФЗ</strong></td>
-            <td><strong>Декомпозиция (Decomposition)</strong></td>
-            <td><code>X → YZ</code></td>
-            <td><code>X → Y</code> и <code>X → Z</code></td>
-            <td><code>АвтомобильID → {Марка, Цвет}</code> ⟹ <code>АвтомобильID → Марка</code> и <code>АвтомобильID → Цвет</code>.</td>
-          </tr>
-          <tr>
-            <td><strong>Заменить промежуточный атрибут в составном детерминанте</strong></td>
-            <td><strong>Псевдотранзитивность (Pseudotransitivity)</strong></td>
-            <td><code>X → Y</code> и <code>YZ → W</code></td>
-            <td><code>XZ → W</code></td>
-            <td>Если <code>СтудентID → Группа</code> и <code>{Группа, Предмет} → Преподаватель</code>, то <code>{СтудентID, Предмет} → Преподаватель</code>.</td>
-          </tr>
-          <tr>
-            <td><strong>Параллельно скомбинировать две независимые зависимости</strong></td>
-            <td><strong>Композиция (Composition)</strong></td>
-            <td><code>X → Y</code> и <code>Z → W</code></td>
-            <td><code>XZ → YW</code></td>
-            <td><code>ЗаказID → Дата</code> и <code>ТоварID → Цена</code> ⟹ <code>{ЗаказID, ТоварID} → {Дата, Цена}</code>.</td>
-          </tr>
-          <tr>
-            <td><strong>Накопить атрибуты в правой части через транзитивный мост</strong></td>
-            <td><strong>Накопление (Accumulation)</strong></td>
-            <td><code>X → YZ</code> и <code>Z → W</code></td>
-            <td><code>X → YZW</code></td>
-            <td><code>Договор → {Клиент, Город}</code> и <code>Город → Регион</code> ⟹ <code>Договор → {Клиент, Город, Регион}</code>.</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
+ <table>
+ <thead>
+ <tr>
+ <th>Инженерная задача</th>
+ <th>Применяемое правило</th>
+ <th>Исходные условия</th>
+ <th>Результат вывода</th>
+ <th>Практический пример</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>Склеить несколько правых частей с общим детерминантом</strong></td>
+ <td><strong>Объединение (Union)</strong></td>
+ <td><code>X → Y</code> и <code>X → Z</code></td>
+ <td><code>X → YZ</code></td>
+ <td><code>Паспорт → ФИО</code> и <code>Паспорт → ДатаРождения</code> ⟹ <code>Паспорт → {ФИО, ДатаРождения}</code>.</td>
+ </tr>
+ <tr>
+ <td><strong>Разделить сложную правую часть на независимые атомарные ФЗ</strong></td>
+ <td><strong>Декомпозиция (Decomposition)</strong></td>
+ <td><code>X → YZ</code></td>
+ <td><code>X → Y</code> и <code>X → Z</code></td>
+ <td><code>АвтомобильID → {Марка, Цвет}</code> ⟹ <code>АвтомобильID → Марка</code> и <code>АвтомобильID → Цвет</code>.</td>
+ </tr>
+ <tr>
+ <td><strong>Заменить промежуточный атрибут в составном детерминанте</strong></td>
+ <td><strong>Псевдотранзитивность (Pseudotransitivity)</strong></td>
+ <td><code>X → Y</code> и <code>YZ → W</code></td>
+ <td><code>XZ → W</code></td>
+ <td>Если <code>СтудентID → Группа</code> и <code>{Группа, Предмет} → Преподаватель</code>, то <code>{СтудентID, Предмет} → Преподаватель</code>.</td>
+ </tr>
+ <tr>
+ <td><strong>Параллельно скомбинировать две независимые зависимости</strong></td>
+ <td><strong>Композиция (Composition)</strong></td>
+ <td><code>X → Y</code> и <code>Z → W</code></td>
+ <td><code>XZ → YW</code></td>
+ <td><code>ЗаказID → Дата</code> и <code>ТоварID → Цена</code> ⟹ <code>{ЗаказID, ТоварID} → {Дата, Цена}</code>.</td>
+ </tr>
+ <tr>
+ <td><strong>Накопить атрибуты в правой части через транзитивный мост</strong></td>
+ <td><strong>Накопление (Accumulation)</strong></td>
+ <td><code>X → YZ</code> и <code>Z → W</code></td>
+ <td><code>X → YZW</code></td>
+ <td><code>Договор → {Клиент, Город}</code> и <code>Город → Регион</code> ⟹ <code>Договор → {Клиент, Город, Регион}</code>.</td>
+ </tr>
+ </tbody>
+ </table>
+ </section>
 
-    <!-- РАЗДЕЛ 4: ЗАМЫКАНИЕ АТРИБУТОВ -->
-    <section class="card">
-      <h2>4. Алгоритм нахождения замыкания множества атрибутов X+</h2>
-      <p><strong>Замыканием множества атрибутов <code>X</code> относительно множества зависимостей <code>F</code></strong> (обозначается <code>X⁺</code>) называется совокупность всех атрибутов схемы, которые функционально определяются набором <code>X</code> на основе правил вывода: <code>X⁺ = {A ∈ U | F ⊢ X → A}</code>.</p>
-      
-      <p>Вычисление замыкания — ключевой алгоритм всей реляционной теории. С его помощью проверяется истинность любой произвольной ФЗ <code>X → Y</code> (достаточно проверить, входит ли <code>Y ⊆ X⁺</code>) и определяются первичные ключи отношений.</p>
+ <!-- РАЗДЕЛ 4: ЗАМЫКАНИЕ АТРИБУТОВ -->
+ <section class="card">
+ <h2>4. Алгоритм нахождения замыкания множества атрибутов X+</h2>
+ <p><strong>Замыканием множества атрибутов <code>X</code> относительно множества зависимостей <code>F</code></strong> (обозначается <code>X⁺</code>) называется совокупность всех атрибутов схемы, которые функционально определяются набором <code>X</code> на основе правил вывода: <code>X⁺ = {A ∈ U | F ⊢ X → A}</code>.</p>
+ 
+ <p>Вычисление замыкания — ключевой алгоритм всей реляционной теории. С его помощью проверяется истинность любой произвольной ФЗ <code>X → Y</code> (достаточно проверить, входит ли <code>Y ⊆ X⁺</code>) и определяются первичные ключи отношений.</p>
 
-      <h3>Пошаговый псевдокод</h3>
-      <pre><code>Вход: Набор атрибутов X, множество зависимостей F.
+ <h3>Пошаговый псевдокод</h3>
+ <pre><code>Вход: Набор атрибутов X, множество зависимостей F.
 Выход: Множество X⁺.
 
 Шаг 1. Инициализировать результат исходным набором:
-       X⁺ := X;
+ X⁺ := X;
 
 Шаг 2. В цикле просматривать все зависимости A → B из F:
-       ЕСЛИ левая часть A является подмножеством X⁺ (A ⊆ X⁺),
-       ТО добавить атрибуты правой части B к результату:
-          X⁺ := X⁺ ∪ B;
+ ЕСЛИ левая часть A является подмножеством X⁺ (A ⊆ X⁺),
+ ТО добавить атрибуты правой части B к результату:
+ X⁺ := X⁺ ∪ B;
 
 Шаг 3. Повторять шаг 2 до тех пор, пока на очередной итерации
-       множество X⁺ перестанет пополняться новыми атрибутами (достигнута неподвижная точка).
+ множество X⁺ перестанет пополняться новыми атрибутами (достигнута неподвижная точка).
 
 Шаг 4. Вернуть X⁺.</code></pre>
 
-      <h3>Пошаговый пример трассировки 1</h3>
-      <p>Дано отношение со схемой <code>R(A, B, C, D, E, F)</code> и множеством зависимостей:</p>
-      <div class="formula">
-        F = { A → B, BC → D, E → C, D → A }
-      </div>
-      <p><strong>Задача:</strong> Вычислить замыкание атрибутов <code>{B, E}⁺</code>.</p>
+ <h3>Пошаговый пример трассировки 1</h3>
+ <p>Дано отношение со схемой <code>R(A, B, C, D, E, F)</code> и множеством зависимостей:</p>
+ <div class="formula">
+ F = { A → B, BC → D, E → C, D → A }
+ </div>
+ <p><strong>Задача:</strong> Вычислить замыкание атрибутов <code>{B, E}⁺</code>.</p>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Шаг итерации</th>
-            <th>Проверяемая ФЗ</th>
-            <th>Условие применимости (LHS ⊆ Текущее)</th>
-            <th>Результат добавления в X⁺</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Старт</strong></td>
-            <td>—</td>
-            <td>Инициализация</td>
-            <td><code>{B, E}</code></td>
-          </tr>
-          <tr>
-            <td><strong>Итерация 1</strong></td>
-            <td><code>E → C</code></td>
-            <td><code>{E} ⊆ {B, E}</code> (ИСТИНА)</td>
-            <td>Добавляем C: <code>{B, E, C}</code></td>
-          </tr>
-          <tr>
-            <td><strong>Итерация 1</strong></td>
-            <td><code>BC → D</code></td>
-            <td><code>{B, C} ⊆ {B, E, C}</code> (ИСТИНА)</td>
-            <td>Добавляем D: <code>{B, E, C, D}</code></td>
-          </tr>
-          <tr>
-            <td><strong>Итерация 1</strong></td>
-            <td><code>D → A</code></td>
-            <td><code>{D} ⊆ {B, E, C, D}</code> (ИСТИНА)</td>
-            <td>Добавляем A: <code>{B, E, C, D, A}</code></td>
-          </tr>
-          <tr>
-            <td><strong>Итерация 2</strong></td>
-            <td><code>A → B</code></td>
-            <td><code>{A} ⊆ {A, B, C, D, E}</code> (ИСТИНА)</td>
-            <td>B уже в наборе: <code>{A, B, C, D, E}</code></td>
-          </tr>
-          <tr>
-            <td><strong>Итерация 2</strong></td>
-            <td>Оставшиеся ФЗ</td>
-            <td>Новых атрибутов не дают</td>
-            <td><code>{A, B, C, D, E}</code></td>
-          </tr>
-        </tbody>
-      </table>
-      <p><strong>Итог:</strong> <code>{B, E}⁺ = {A, B, C, D, E}</code>. Атрибут <code>F</code> в замыкание не вошел, следовательно <code>{B, E}</code> не является суперключом.</p>
-    </section>
+ <table>
+ <thead>
+ <tr>
+ <th>Шаг итерации</th>
+ <th>Проверяемая ФЗ</th>
+ <th>Условие применимости (LHS ⊆ Текущее)</th>
+ <th>Результат добавления в X⁺</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>Старт</strong></td>
+ <td>—</td>
+ <td>Инициализация</td>
+ <td><code>{B, E}</code></td>
+ </tr>
+ <tr>
+ <td><strong>Итерация 1</strong></td>
+ <td><code>E → C</code></td>
+ <td><code>{E} ⊆ {B, E}</code> (ИСТИНА)</td>
+ <td>Добавляем C: <code>{B, E, C}</code></td>
+ </tr>
+ <tr>
+ <td><strong>Итерация 1</strong></td>
+ <td><code>BC → D</code></td>
+ <td><code>{B, C} ⊆ {B, E, C}</code> (ИСТИНА)</td>
+ <td>Добавляем D: <code>{B, E, C, D}</code></td>
+ </tr>
+ <tr>
+ <td><strong>Итерация 1</strong></td>
+ <td><code>D → A</code></td>
+ <td><code>{D} ⊆ {B, E, C, D}</code> (ИСТИНА)</td>
+ <td>Добавляем A: <code>{B, E, C, D, A}</code></td>
+ </tr>
+ <tr>
+ <td><strong>Итерация 2</strong></td>
+ <td><code>A → B</code></td>
+ <td><code>{A} ⊆ {A, B, C, D, E}</code> (ИСТИНА)</td>
+ <td>B уже в наборе: <code>{A, B, C, D, E}</code></td>
+ </tr>
+ <tr>
+ <td><strong>Итерация 2</strong></td>
+ <td>Оставшиеся ФЗ</td>
+ <td>Новых атрибутов не дают</td>
+ <td><code>{A, B, C, D, E}</code></td>
+ </tr>
+ </tbody>
+ </table>
+ <p><strong>Итог:</strong> <code>{B, E}⁺ = {A, B, C, D, E}</code>. Атрибут <code>F</code> в замыкание не вошел, следовательно <code>{B, E}</code> не является суперключом.</p>
+ </section>
 
-    <!-- РАЗДЕЛ 5: ПОТЕНЦИАЛЬНЫЕ КЛЮЧИ -->
-    <section class="card">
-      <h2>5. Определение потенциальных ключей отношения</h2>
-      
-      <p>Иерархия ключевых понятий строится следующим образом:</p>
-      <ul>
-        <li><strong>Суперключ (Superkey):</strong> Любой набор атрибутов <code>K</code>, чье замыкание включает все атрибуты отношения: <code>K⁺ = U</code>.</li>
-        <li><strong>Потенциальный (кандидатный) ключ (Candidate Key):</strong> <em>Минимальный</em> суперключ. Это означает, что <code>K⁺ = U</code>, но если убрать из <code>K</code> хотя бы один атрибут, то замыкание перестанет покрывать всё отношение.</li>
-        <li><strong>Первичный ключ (Primary Key):</strong> Один из потенциальных ключей, официально назначенный проектировщиком для связывания таблиц через внешние ключи.</li>
-      </ul>
+ <!-- РАЗДЕЛ 5: ПОТЕНЦИАЛЬНЫЕ КЛЮЧИ -->
+ <section class="card">
+ <h2>5. Определение потенциальных ключей отношения</h2>
+ 
+ <p>Иерархия ключевых понятий строится следующим образом:</p>
+ <ul>
+ <li><strong>Суперключ (Superkey):</strong> Любой набор атрибутов <code>K</code>, чье замыкание включает все атрибуты отношения: <code>K⁺ = U</code>.</li>
+ <li><strong>Потенциальный (кандидатный) ключ (Candidate Key):</strong> <em>Минимальный</em> суперключ. Это означает, что <code>K⁺ = U</code>, но если убрать из <code>K</code> хотя бы один атрибут, то замыкание перестанет покрывать всё отношение.</li>
+ <li><strong>Первичный ключ (Primary Key):</strong> Один из потенциальных ключей, официально назначенный проектировщиком для связывания таблиц через внешние ключи.</li>
+ </ul>
 
-      <h3>Эвристический алгоритм поиска ключей: Метод L-R-B-N</h3>
-      <p>Полный перебор всех <code>2ⁿ</code> подмножеств атрибутов неэффективен. Профессиональный проектировщик классифицирует атрибуты на 4 группы по их участию в ФЗ <code>F</code>:</p>
+ <h3>Эвристический алгоритм поиска ключей: Метод L-R-B-N</h3>
+ <p>Полный перебор всех <code>2ⁿ</code> подмножеств атрибутов неэффективен. Профессиональный проектировщик классифицирует атрибуты на 4 группы по их участию в ФЗ <code>F</code>:</p>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Группа</th>
-            <th>Участие во множестве F</th>
-            <th>Правило для ключа</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>L (Left only)</strong></td>
-            <td>Встречается только слева</td>
-            <td><strong>Обязательно входит</strong> в абсолютно каждый потенциальный ключ отношения.</td>
-          </tr>
-          <tr>
-            <td><strong>R (Right only)</strong></td>
-            <td>Встречается только справа</td>
-            <td><strong>Никогда не входит</strong> ни в один потенциальный ключ (он зависим).</td>
-          </tr>
-          <tr>
-            <td><strong>N (Neither)</strong></td>
-            <td>Вообще не встречается в ФЗ</td>
-            <td><strong>Обязательно входит</strong> в абсолютно каждый потенциальный ключ.</td>
-          </tr>
-          <tr>
-            <td><strong>B (Both)</strong></td>
-            <td>Встречается и слева, и справа</td>
-            <td>Может входить или не входить. Перебираются только комбинации <code>(L ∪ N) ∪ B'</code>.</td>
-          </tr>
-        </tbody>
-      </table>
+ <table>
+ <thead>
+ <tr>
+ <th>Группа</th>
+ <th>Участие во множестве F</th>
+ <th>Правило для ключа</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>L (Left only)</strong></td>
+ <td>Встречается только слева</td>
+ <td><strong>Обязательно входит</strong> в абсолютно каждый потенциальный ключ отношения.</td>
+ </tr>
+ <tr>
+ <td><strong>R (Right only)</strong></td>
+ <td>Встречается только справа</td>
+ <td><strong>Никогда не входит</strong> ни в один потенциальный ключ (он зависим).</td>
+ </tr>
+ <tr>
+ <td><strong>N (Neither)</strong></td>
+ <td>Вообще не встречается в ФЗ</td>
+ <td><strong>Обязательно входит</strong> в абсолютно каждый потенциальный ключ.</td>
+ </tr>
+ <tr>
+ <td><strong>B (Both)</strong></td>
+ <td>Встречается и слева, и справа</td>
+ <td>Может входить или не входить. Перебираются только комбинации <code>(L ∪ N) ∪ B'</code>.</td>
+ </tr>
+ </tbody>
+ </table>
 
-      <div class="notice notice-success">
-        <strong>Алгоритм поиска всех ключей:</strong>
-        <ol>
-          <li>Определить базовое ядро <code>Core = L ∪ N</code>.</li>
-          <li>Вычислить <code>(Core)⁺</code>. Если <code>(Core)⁺ = U</code>, то <code>Core</code> — <em>единственный</em> потенциальный ключ! Поиск завершен.</li>
-          <li>Если <code>(Core)⁺ ⊂ U</code>, поочередно добавляем к <code>Core</code> по одному атрибуту из группы <code>B</code>, затем по два, отсекая надмножества уже найденных ключей.</li>
-        </ol>
-      </div>
-    </section>
+ <div class="notice notice-success">
+ <strong>Алгоритм поиска всех ключей:</strong>
+ <ol>
+ <li>Определить базовое ядро <code>Core = L ∪ N</code>.</li>
+ <li>Вычислить <code>(Core)⁺</code>. Если <code>(Core)⁺ = U</code>, то <code>Core</code> — <em>единственный</em> потенциальный ключ! Поиск завершен.</li>
+ <li>Если <code>(Core)⁺ ⊂ U</code>, поочередно добавляем к <code>Core</code> по одному атрибуту из группы <code>B</code>, затем по два, отсекая надмножества уже найденных ключей.</li>
+ </ol>
+ </div>
+ </section>
 
-    <!-- РАЗДЕЛ 6: МИНИМАЛЬНОЕ ПОКРЫТИЕ -->
-    <section class="card">
-      <h2>6. Каноническое (минимальное) покрытие ФЗ (Minimal Cover)</h2>
-      <p>В реальных проектах множество бизнес-правил может содержать избыточные зависимости и лишние поля в составных ключах. <strong>Минимальное покрытие</strong> <code>F_c</code> для множества зависимостей <code>F</code> — это эквивалентный набор ФЗ минимального размера без логического балласта.</p>
+ <!-- РАЗДЕЛ 6: МИНИМАЛЬНОЕ ПОКРЫТИЕ -->
+ <section class="card">
+ <h2>6. Каноническое (минимальное) покрытие ФЗ (Minimal Cover)</h2>
+ <p>В реальных проектах множество бизнес-правил может содержать избыточные зависимости и лишние поля в составных ключах. <strong>Минимальное покрытие</strong> <code>F_c</code> для множества зависимостей <code>F</code> — это эквивалентный набор ФЗ минимального размера без логического балласта.</p>
 
-      <h3>Три требования к минимальному покрытию:</h3>
-      <ol>
-        <li><strong>Каноническая правая часть (Singleton RHS):</strong> Каждая зависимость имеет ровно один атрибут справа: <code>X → A</code>.</li>
-        <li><strong>Неизбыточность детерминантов (No extraneous LHS attributes):</strong> Ни из одной левой части нельзя удалить атрибут без потери выводимости.</li>
-        <li><strong>Неизбыточность зависимостей (No redundant FDs):</strong> Ни одну ФЗ нельзя удалить целиком без потери выводимости.</li>
-      </ol>
+ <h3>Три требования к минимальному покрытию:</h3>
+ <ol>
+ <li><strong>Каноническая правая часть (Singleton RHS):</strong> Каждая зависимость имеет ровно один атрибут справа: <code>X → A</code>.</li>
+ <li><strong>Неизбыточность детерминантов (No extraneous LHS attributes):</strong> Ни из одной левой части нельзя удалить атрибут без потери выводимости.</li>
+ <li><strong>Неизбыточность зависимостей (No redundant FDs):</strong> Ни одну ФЗ нельзя удалить целиком без потери выводимости.</li>
+ </ol>
 
-      <h3>Пошаговый пример минимизации покрытия</h3>
-      <p>Дано отношение <code>R(A, B, C, D)</code> и исходное множество зависимостей:</p>
-      <div class="formula">
-        F = { AB → CD, A → B, C → D, D → C, AB → D }
-      </div>
+ <h3>Пошаговый пример минимизации покрытия</h3>
+ <p>Дано отношение <code>R(A, B, C, D)</code> и исходное множество зависимостей:</p>
+ <div class="formula">
+ F = { AB → CD, A → B, C → D, D → C, AB → D }
+ </div>
 
-      <h4>Шаг 1. Расщепление правых частей (Singleton RHS)</h4>
-      <p>Зависимость <code>AB → CD</code> расщепляем по правилу декомпозиции на <code>AB → C</code> и <code>AB → D</code>:</p>
-      <div class="formula">
-        F₁ = { AB → C, AB → D, A → B, C → D, D → C, AB → D }
-      </div>
-      <p>Удаляем явный дубликат <code>AB → D</code>: <code>F₁ = { AB → C, AB → D, A → B, C → D, D → C }</code>.</p>
+ <h4>Шаг 1. Расщепление правых частей (Singleton RHS)</h4>
+ <p>Зависимость <code>AB → CD</code> расщепляем по правилу декомпозиции на <code>AB → C</code> и <code>AB → D</code>:</p>
+ <div class="formula">
+ F₁ = { AB → C, AB → D, A → B, C → D, D → C, AB → D }
+ </div>
+ <p>Удаляем явный дубликат <code>AB → D</code>: <code>F₁ = { AB → C, AB → D, A → B, C → D, D → C }</code>.</p>
 
-      <h4>Шаг 2. Проверка и устранение посторонних атрибутов слева (LHS)</h4>
-      <p>Проверим составной детерминант <code>AB → C</code>. Можно ли удалить <code>B</code> (проверяем <code>A → C</code>)?<br>
-      Вычисляем замыкание <code>{A}⁺</code> во множестве <code>F₁</code>:<br>
-      <code>{A}⁺</code>: по <code>A → B</code> получаем <code>{A, B}</code>; по <code>AB → C</code> получаем <code>{A, B, C}</code>.<br>
-      Так как <code>C ∈ {A}⁺</code>, атрибут <code>B</code> в детерминанте <code>AB → C</code> является <strong>посторонним (избыточным)</strong>! Заменяем <code>AB → C</code> на <code>A → C</code>.<br>
-      Аналогично для <code>AB → D</code>: <code>D ∈ {A}⁺</code>, заменяем на <code>A → D</code>.<br>
-      Текущее множество:</p>
-      <div class="formula">
-        F₂ = { A → C, A → D, A → B, C → D, D → C }
-      </div>
+ <h4>Шаг 2. Проверка и устранение посторонних атрибутов слева (LHS)</h4>
+ <p>Проверим составной детерминант <code>AB → C</code>. Можно ли удалить <code>B</code> (проверяем <code>A → C</code>)?<br>
+ Вычисляем замыкание <code>{A}⁺</code> во множестве <code>F₁</code>:<br>
+ <code>{A}⁺</code>: по <code>A → B</code> получаем <code>{A, B}</code>; по <code>AB → C</code> получаем <code>{A, B, C}</code>.<br>
+ Так как <code>C ∈ {A}⁺</code>, атрибут <code>B</code> в детерминанте <code>AB → C</code> является <strong>посторонним (избыточным)</strong>! Заменяем <code>AB → C</code> на <code>A → C</code>.<br>
+ Аналогично для <code>AB → D</code>: <code>D ∈ {A}⁺</code>, заменяем на <code>A → D</code>.<br>
+ Текущее множество:</p>
+ <div class="formula">
+ F₂ = { A → C, A → D, A → B, C → D, D → C }
+ </div>
 
-      <h4>Шаг 3. Устранение избыточных зависимостей</h4>
-      <p>Проверяем каждую зависимость на возможность вывода из остальных:</p>
-      <ul>
-        <li>Проверяем <code>A → D</code>: удалим ее и проверим <code>{A}⁺</code> в оставшемся множестве <code>{A → C, A → B, C → D, D → C}</code>.<br>
-            <code>{A}⁺ = {A} ∪ {C} (из A→C) ∪ {B} (из A→B) ∪ {D} (из C→D) = {A, B, C, D}</code>.<br>
-            Атрибут <code>D</code> выводится через транзитивную цепочку <code>A → C</code> и <code>C → D</code>! Следовательно, зависимость <code>A → D</code> <strong>избыточна</strong> и удаляется.</li>
-        <li>Проверяем остальные зависимости (<code>A → C</code>, <code>A → B</code>, <code>C → D</code>, <code>D → C</code>) — ни одна из них не выводится из оставшихся.</li>
-      </ul>
+ <h4>Шаг 3. Устранение избыточных зависимостей</h4>
+ <p>Проверяем каждую зависимость на возможность вывода из остальных:</p>
+ <ul>
+ <li>Проверяем <code>A → D</code>: удалим ее и проверим <code>{A}⁺</code> в оставшемся множестве <code>{A → C, A → B, C → D, D → C}</code>.<br>
+ <code>{A}⁺ = {A} ∪ {C} (из A→C) ∪ {B} (из A→B) ∪ {D} (из C→D) = {A, B, C, D}</code>.<br>
+ Атрибут <code>D</code> выводится через транзитивную цепочку <code>A → C</code> и <code>C → D</code>! Следовательно, зависимость <code>A → D</code> <strong>избыточна</strong> и удаляется.</li>
+ <li>Проверяем остальные зависимости (<code>A → C</code>, <code>A → B</code>, <code>C → D</code>, <code>D → C</code>) — ни одна из них не выводится из оставшихся.</li>
+ </ul>
 
-      <div class="notice notice-success">
-        <strong>Итоговое минимальное покрытие:</strong><br>
-        <code>F_min = { A → B, A → C, C → D, D → C }</code>
-      </div>
-    </section>
+ <div class="notice notice-success">
+ <strong>Итоговое минимальное покрытие:</strong><br>
+ <code>F_min = { A → B, A → C, C → D, D → C }</code>
+ </div>
+ </section>
 
-    <!-- РАЗДЕЛ 7: САМОПРОВЕРКА -->
-    <section class="card">
-      <h2>7. Вопросы и задания для самопроверки</h2>
+ <!-- РАЗДЕЛ 7: САМОПРОВЕРКА -->
+ <section class="card">
+ <h2>7. Вопросы и задания для самопроверки</h2>
 
-      <div class="q-box">
-        <div class="q-title">Вопрос 1: В чем различие между тривиальной и нетривиальной ФЗ?</div>
-        <p>ФЗ <code>X → Y</code> тривиальна, если зависимая часть уже является подмножеством детерминанта (<code>Y ⊆ X</code>). Она не несет новой информации (например, <code>{ID, Имя} → {Имя}</code>). Нетривиальная зависимость содержит хотя бы один новый атрибут справа.</p>
-      </div>
+ <div class="q-box">
+ <div class="q-title">Вопрос 1: В чем различие между тривиальной и нетривиальной ФЗ?</div>
+ <p>ФЗ <code>X → Y</code> тривиальна, если зависимая часть уже является подмножеством детерминанта (<code>Y ⊆ X</code>). Она не несет новой информации (например, <code>{ID, Имя} → {Имя}</code>). Нетривиальная зависимость содержит хотя бы один новый атрибут справа.</p>
+ </div>
 
-      <div class="q-box">
-        <div class="q-title">Вопрос 2: Почему аксиома пополнения требует добавления атрибутов с обеих сторон?</div>
-        <p>Потому что если <code>X → Y</code>, то расширение обеих частей <code>XZ → YZ</code> гарантирует однозначность. Если бы мы добавили атрибуты только справа (<code>X → YZ</code>), это означало бы ложное утверждение, будто исходный набор <code>X</code> определяет посторонний атрибут <code>Z</code>.</p>
-      </div>
+ <div class="q-box">
+ <div class="q-title">Вопрос 2: Почему аксиома пополнения требует добавления атрибутов с обеих сторон?</div>
+ <p>Потому что если <code>X → Y</code>, то расширение обеих частей <code>XZ → YZ</code> гарантирует однозначность. Если бы мы добавили атрибуты только справа (<code>X → YZ</code>), это означало бы ложное утверждение, будто исходный набор <code>X</code> определяет посторонний атрибут <code>Z</code>.</p>
+ </div>
 
-      <div class="q-box">
-        <div class="q-title">Вопрос 3: Чем потенциальный ключ отличается от суперключа?</div>
-        <p>Суперключ — это любой набор атрибутов, однозначно идентифицирующий кортеж (<code>K⁺ = U</code>). Потенциальный ключ — это <em>минимальный</em> суперключ, то есть суперключ, не содержащий избыточных атрибутов.</p>
-      </div>
+ <div class="q-box">
+ <div class="q-title">Вопрос 3: Чем потенциальный ключ отличается от суперключа?</div>
+ <p>Суперключ — это любой набор атрибутов, однозначно идентифицирующий кортеж (<code>K⁺ = U</code>). Потенциальный ключ — это <em>минимальный</em> суперключ, то есть суперключ, не содержащий избыточных атрибутов.</p>
+ </div>
 
-      <div class="q-box">
-        <div class="q-title">Вопрос 4: Как правило декомпозиции правых частей помогает в минимальном покрытии?</div>
-        <p>Декомпозиция <code>X → YZ ⟹ X → Y, X → Z</code> переводит все зависимости к атомарным правым частям, что позволяет независимо проверять на избыточность каждую отдельную связь.</p>
-      </div>
+ <div class="q-box">
+ <div class="q-title">Вопрос 4: Как правило декомпозиции правых частей помогает в минимальном покрытии?</div>
+ <p>Декомпозиция <code>X → YZ ⟹ X → Y, X → Z</code> переводит все зависимости к атомарным правым частям, что позволяет независимо проверять на избыточность каждую отдельную связь.</p>
+ </div>
 
-      <div class="q-box">
-        <div class="q-title">Вопрос 5: Какая аномалия возникает при нарушении 2НФ (наличии частичной ФЗ)?</div>
-        <p>Возникает избыточность данных и аномалия обновления: свойства сущности, зависящей лишь от части ключа, будут многократно дублироваться для каждой комбинации составного ключа.</p>
-      </div>
-    </section>
-  </main>
+ <div class="q-box">
+ <div class="q-title">Вопрос 5: Какая аномалия возникает при нарушении 2НФ (наличии частичной ФЗ)?</div>
+ <p>Возникает избыточность данных и аномалия обновления: свойства сущности, зависящей лишь от части ключа, будут многократно дублироваться для каждой комбинации составного ключа.</p>
+ </div>
+ </section>
+ </main>
 </body>
 </html>

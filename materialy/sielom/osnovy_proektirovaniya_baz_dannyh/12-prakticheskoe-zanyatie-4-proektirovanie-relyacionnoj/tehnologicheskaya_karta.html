@@ -1,399 +1,384 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Технологическая карта занятия: Практическое занятие №4: проектирование реляционной БД</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --text-muted: #475569;
-      --border: #e2e8f0;
-      --accent: #0284c7;
-      --accent-dark: #0369a1;
-      --accent-soft: #f0f9ff;
-    }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Технологическая карта занятия: Практическое занятие №4: проектирование реляционной БД</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card-bg: #ffffff;
+ --text: #0f172a;
+ --text-muted: #475569;
+ --border: #e2e8f0;
+ --accent: #0284c7;
+ --accent-dark: #0369a1;
+ --accent-soft: #f0f9ff;
+ }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ }
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.55;
-      padding: 24px 16px;
-    }
+ body {
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+ background-color: var(--bg);
+ color: var(--text);
+ line-height: 1.55;
+ padding: 24px 16px;
+ }.container {
+ max-width: 1040px;
+ margin: 0 auto;
+ }
 
-    .container {
-      max-width: 1040px;
-      margin: 0 auto;
-    }
+ header.tk-header {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    header.tk-header {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ h1 {
+ font-size: 1.85rem;
+ font-weight: 800;
+ color: var(--text);
+ margin-bottom: 8px;
+ }.subtitle {
+ font-size: 1.05rem;
+ color: var(--text-muted);
+ }
 
-    h1 {
-      font-size: 1.85rem;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 8px;
-    }
+ section {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    .subtitle {
-      font-size: 1.05rem;
-      color: var(--text-muted);
-    }
+ h2 {
+ font-size: 1.35rem;
+ font-weight: 700;
+ color: var(--accent-dark);
+ margin-bottom: 14px;
+ border-left: 4px solid var(--accent);
+ padding-left: 12px;
+ }
 
-    section {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ h3 {
+ font-size: 1.1rem;
+ font-weight: 700;
+ color: var(--text);
+ margin: 18px 0 10px;
+ }.meta-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+ gap: 12px 20px;
+ font-size: 0.95rem;
+ margin-bottom: 16px;
+ }.meta-item {
+ display: flex;
+ flex-direction: column;
+ gap: 2px;
+ }.meta-label {
+ font-size: 0.8rem;
+ text-transform: uppercase;
+ font-weight: 700;
+ color: var(--text-muted);
+ letter-spacing: 0.05em;
+ }.meta-val {
+ color: var(--text);
+ font-weight: 500;
+ }
 
-    h2 {
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: var(--accent-dark);
-      margin-bottom: 14px;
-      border-left: 4px solid var(--accent);
-      padding-left: 12px;
-    }
+ table.tk-table {
+ width: 100%;
+ border-collapse: collapse;
+ margin-top: 14px;
+ font-size: 0.92rem;
+ }
 
-    h3 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--text);
-      margin: 18px 0 10px;
-    }
+ table.tk-table th, table.tk-table td {
+ border: 1px solid var(--border);
+ padding: 10px 12px;
+ vertical-align: top;
+ }
 
-    .meta-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 12px 20px;
-      font-size: 0.95rem;
-      margin-bottom: 16px;
-    }
+ table.tk-table th {
+ background-color: #f1f5f9;
+ color: #334155;
+ font-weight: 700;
+ text-align: left;
+ }.badge-stage {
+ display: inline-block;
+ padding: 3px 8px;
+ border-radius: 4px;
+ font-size: 0.8rem;
+ font-weight: 700;
+ background: #e0f2fe;
+ color: #0369a1;
+ margin-bottom: 4px;
+ }
 
-    .meta-item {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
+ ul {
+ margin-left: 18px;
+ margin-top: 4px;
+ }
 
-    .meta-label {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      font-weight: 700;
-      color: var(--text-muted);
-      letter-spacing: 0.05em;
-    }
+ li {
+ margin-bottom: 4px;
+ }
 
-    .meta-val {
-      color: var(--text);
-      font-weight: 500;
-    }
-
-    table.tk-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 14px;
-      font-size: 0.92rem;
-    }
-
-    table.tk-table th, table.tk-table td {
-      border: 1px solid var(--border);
-      padding: 10px 12px;
-      vertical-align: top;
-    }
-
-    table.tk-table th {
-      background-color: #f1f5f9;
-      color: #334155;
-      font-weight: 700;
-      text-align: left;
-    }
-
-    .badge-stage {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 4px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      background: #e0f2fe;
-      color: #0369a1;
-      margin-bottom: 4px;
-    }
-
-    ul {
-      margin-left: 18px;
-      margin-top: 4px;
-    }
-
-    li {
-      margin-bottom: 4px;
-    }
-
-    @media (max-width: 600px) {
-      body { padding: 12px 8px; }
-      header.tk-header, section { padding: 16px 14px; }
-      h1 { font-size: 1.45rem; }
-      .meta-grid { grid-template-columns: 1fr; }
-      table.tk-table { display: block; overflow-x: auto; white-space: normal; }
-    }
-  </style>
+ @media (max-width: 600px) {
+ body { padding: 12px 8px; }
+ header.tk-header, section { padding: 16px 14px; }
+ h1 { font-size: 1.45rem; }.meta-grid { grid-template-columns: 1fr; }
+ table.tk-table { display: block; overflow-x: auto; white-space: normal; }
+ }
+ </style>
 </head>
 <body>
-  <div class="container">
-    <header class="tk-header">
-      <h1>Технологическая карта учебного занятия</h1>
-      <div class="subtitle">ОП.08 Основы проектирования баз данных — Занятие 12: Практическое занятие №4: проектирование реляционной БД</div>
-    </header>
+ <div class="container">
+ <header class="tk-header">
+ <h1>Технологическая карта учебного занятия</h1>
+ <div class="subtitle">ОП.08 Основы проектирования баз данных — Занятие 12: Практическое занятие №4: проектирование реляционной БД</div>
+ </header>
 
-    <section>
-      <h2>Паспорт учебного занятия</h2>
-      <div class="meta-grid">
-        <div class="meta-item">
-          <span class="meta-label">Дисциплина</span>
-          <span class="meta-val">ОП.08 Основы проектирования баз данных</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Специальность</span>
-          <span class="meta-val">09.02.06 Сетевое и системное администрирование</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Тематический раздел</span>
-          <span class="meta-val">Тема 2. Взаимосвязи в моделях и реляционный подход к построению моделей (§2.2 с.7 программы)</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Тема занятия</span>
-          <span class="meta-val">Практическое занятие №4: проектирование реляционной БД (Занятие №12)</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Регламент времени</span>
-          <span class="meta-val">2 академических часа (80 минут основной / 60 минут сокращенный)</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Используемые педагогические технологии</span>
-          <span class="meta-val">Технология проблемного обучения, информационно-коммуникационные технологии, развивающее обучение, метод кейсов</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Цель занятия</span>
-          <span class="meta-val">Сформировать практические навыки сквозного физического проектирования реляционной базы данных: нормализация предметных отношений до 3NF/BCNF, устранение транзитивных зависимостей, генерация DDL-скриптов с ограничениями целостности (PK, FK, UNIQUE, NOT NULL, CHECK) и валидация схемы репрезентативным набором тестовых кортежей.</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Дидактические средства</span>
-          <span class="meta-val">Интерактивная презентация (15 слайдов, мем Little Bobby Tables), интерактивный рабочий лист студента zanyatie.html (4 комплексных варианта), закрытая критериальная рубрика преподавателя .rubrika.md</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Формируемые компетенции</span>
-          <span class="meta-val">ОК 01 (выбор способов решения профессиональных задач), ОК 02 (использование ИКТ), ПК 1.1–ПК 1.5 (проектирование структур баз данных, разработка модулей программного обеспечения, обеспечение целостности данных)</span>
-        </div>
-      </div>
-    </section>
+ <section>
+ <h2>Паспорт учебного занятия</h2>
+ <div class="meta-grid">
+ <div class="meta-item">
+ <span class="meta-label">Дисциплина</span>
+ <span class="meta-val">ОП.08 Основы проектирования баз данных</span>
+ </div>
+ <div class="meta-item">
+ <span class="meta-label">Специальность</span>
+ <span class="meta-val">09.02.06 Сетевое и системное администрирование</span>
+ </div>
+ <div class="meta-item">
+ <span class="meta-label">Тематический раздел</span>
+ <span class="meta-val">Тема 2. Взаимосвязи в моделях и реляционный подход к построению моделей</span>
+ </div>
+ <div class="meta-item">
+ <span class="meta-label">Тема занятия</span>
+ <span class="meta-val">Практическое занятие №4: проектирование реляционной БД (Занятие №12)</span>
+ </div>
+ <div class="meta-item">
+ <span class="meta-label">Регламент времени</span>
+ <span class="meta-val">2 академических часа (80 минут основной / 60 минут сокращенный)</span>
+ </div>
+ <div class="meta-item">
+ <span class="meta-label">Используемые педагогические технологии</span>
+ <span class="meta-val">Технология проблемного обучения, информационно-коммуникационные технологии, развивающее обучение, метод кейсов</span>
+ </div>
+ <div class="meta-item">
+ <span class="meta-label">Цель занятия</span>
+ <span class="meta-val">Сформировать практические навыки сквозного физического проектирования реляционной базы данных: нормализация предметных отношений до 3NF/BCNF, устранение транзитивных зависимостей, генерация DDL-скриптов с ограничениями целостности (PK, FK, UNIQUE, NOT NULL, CHECK) и валидация схемы репрезентативным набором тестовых кортежей.</span>
+ </div>
+ <div class="meta-item">
+ <span class="meta-label">Дидактические средства</span>
+ <span class="meta-val">Интерактивная презентация (15 слайдов, мем Little Bobby Tables), интерактивный рабочий лист студента zanyatie.html (4 комплексных варианта), закрытая критериальная рубрика преподавателя.rubrika.md</span>
+ </div>
+ <div class="meta-item">
+ <span class="meta-label">Формируемые компетенции</span>
+ <span class="meta-val">ОК 01 (выбор способов решения профессиональных задач), ОК 02 (использование ИКТ), ПК 1.1–ПК 1.5 (проектирование структур баз данных, разработка модулей программного обеспечения, обеспечение целостности данных)</span>
+ </div>
+ </div>
+ </section>
 
-    <!-- Основной регламент 80 минут -->
-    <section>
-      <h2>Поминутная структура занятия — Основной регламент (80 минут)</h2>
-      <table class="tk-table">
-        <thead>
-          <tr>
-            <th style="width: 14%;">Этап и время</th>
-            <th style="width: 18%;">Цель этапа</th>
-            <th style="width: 32%;">Деятельность преподавателя</th>
-            <th style="width: 26%;">Деятельность студентов</th>
-            <th style="width: 10%;">Компетенции</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 1</span><br>
-              <strong>Организационный и мотивационный</strong><br>
-              <em>5 мин (00:00–00:05)</em>
-            </td>
-            <td>Организация внимания, формулирование проблемной ситуации, постановка цели</td>
-            <td>Приветствует студентов, фиксирует явку. Демонстрирует проблемный кейс: изменение оклада должности в ненормализованной таблице сотрудников (риск рассинхронизации 500 записей). Ставит цель занятия: сквозное проектирование реляционной БД в 3NF с защитой целостности на уровне ядра СУБД.</td>
-            <td>Готовят рабочие места, открывают рабочие листы <code>zanyatie.html</code>. Анализируют кейс, отвечают на вопрос о последствиях аномалии обновления (Update Anomaly).</td>
-            <td>ОК 01, ОК 02</td>
-          </tr>
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 2</span><br>
-              <strong>Теоретический экспресс-инструктаж</strong><br>
-              <em>15 мин (00:05–00:20)</em>
-            </td>
-            <td>Актуализация математического аппарата 3NF, BCNF и синтаксиса ANSI SQL DDL</td>
-            <td>Демонстрирует презентацию (слайды 1–9). Разбирает транзитивную зависимость X → Y → Z, критерий Заньоло-Кодда для 3NF и строгость формы Бойса-Кодда (BCNF). Объясняет топологический порядок создания таблиц (DAG зависимостей) и опасности «слепого CASCADE».</td>
-            <td>Слушают объяснение, фиксируют разницу между 3NF и BCNF в конспекте. Анализируют граф зависимостей, формулируют условия декомпозиции без потерь по теореме Хита.</td>
-            <td>ОК 01, ПК 1.1</td>
-          </tr>
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 3</span><br>
-              <strong>Демонстрация эталонного кейса</strong><br>
-              <em>10 мин (00:20–00:30)</em>
-            </td>
-            <td>Наглядный показ алгоритма перехода от ТЗ к DDL и тестовым данным</td>
-            <td>Демонстрирует на экране разложение таблицы: вынос сущности должности, объявление первичного ключа и внешнего ключа с правилом <code>ON DELETE RESTRICT</code>, наложение ограничения <code>CHECK (salary >= 19242)</code>, вставку 2 тестовых записей. Показывает, как СУБД блокирует ошибочную вставку.</td>
-            <td>Следят за логикой преобразования схемы, соотносят действия преподавателя со структурой рабочего листа, задают уточняющие вопросы по синтаксису DDL.</td>
-            <td>ОК 02, ПК 1.2</td>
-          </tr>
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 4</span><br>
-              <strong>Самостоятельная практическая работа</strong><br>
-              <em>35 мин (00:30–01:05)</em>
-            </td>
-            <td>Индивидуальное проектирование реляционной схемы по 4 вариантам</td>
-            <td>Распределяет студентов по 4 отраслевым вариантам (Отдел кадров, Аптечный склад, Учебный центр, СТО). Проводит индивидуальный тьюторинг: контролирует устранение транзитивности, топологию DDL, выбор типов (NUMERIC vs FLOAT) и состав тестовых кортежей.</td>
-            <td>Самостоятельно выполняют проектирование в <code>zanyatie.html</code>: выявляют ФЗ, строят 3NF схему из 3–4 таблиц, пишут DDL <code>CREATE TABLE</code> со всеми ограничениями, формируют 5 кортежей <code>INSERT INTO</code>, отвечают на вопросы самопроверки.</td>
-            <td>ОК 01, ОК 02, ПК 1.1, ПК 1.2, ПК 1.5</td>
-          </tr>
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 5</span><br>
-              <strong>Экспертная верификация и разбор ошибок</strong><br>
-              <em>10 мин (01:05–01:15)</em>
-            </td>
-            <td>Коррекция типовых архитектурных ошибок, разбор крайних случаев</td>
-            <td>Организует фронтальный разбор типовых ошибок: оставление оклада в сотрудниках, CASCADE на справочниках, нарушение порядка CREATE/INSERT. Демонстрирует слайд 15 с культовым веб-комиксом Bobby Tables (xkcd #327), объясняя риски пренебрежения целостностью.</td>
-            <td>Сверяют свои решения с эталонами, выявляют и исправляют неточности в скриптах, анализируют юмористический слайд и формулируют правила защиты данных.</td>
-            <td>ОК 01, ПК 1.5</td>
-          </tr>
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 6</span><br>
-              <strong>Подведение итогов, рефлексия, ДЗ</strong><br>
-              <em>5 мин (01:15–01:20)</em>
-            </td>
-            <td>Оценивание по критериальной рубрике, рефлексия, инструктаж по резервному заданию</td>
-            <td>Выставляет баллы по 4-балльной шкале рубрики. Напоминает о сохранении работы в PDF/распечатке. Разъясняет статус резервного дистанционного задания (<code>domashnee_zadanie.html</code>) для пропустивших пару студентов.</td>
-            <td>Сохраняют данные в локальном хранилище и генерируют отчетную копию. Осуществляют самооценку по критериальной рубрике.</td>
-            <td>ОК 01, ОК 09</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
+ <!-- Основной регламент 80 минут -->
+ <section>
+ <h2>Поминутная структура занятия — Основной регламент (80 минут)</h2>
+ <table class="tk-table">
+ <thead>
+ <tr>
+ <th style="width: 14%;">Этап и время</th>
+ <th style="width: 18%;">Цель этапа</th>
+ <th style="width: 32%;">Деятельность преподавателя</th>
+ <th style="width: 26%;">Деятельность студентов</th>
+ <th style="width: 10%;">Компетенции</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 1</span><br>
+ <strong>Организационный и мотивационный</strong><br>
+ <em>5 мин (00:00–00:05)</em>
+ </td>
+ <td>Организация внимания, формулирование проблемной ситуации, постановка цели</td>
+ <td>Приветствует студентов, фиксирует явку. Демонстрирует проблемный кейс: изменение оклада должности в ненормализованной таблице сотрудников (риск рассинхронизации 500 записей). Ставит цель занятия: сквозное проектирование реляционной БД в 3NF с защитой целостности на уровне ядра СУБД.</td>
+ <td>Готовят рабочие места, открывают рабочие листы <code>zanyatie.html</code>. Анализируют кейс, отвечают на вопрос о последствиях аномалии обновления (Update Anomaly).</td>
+ <td>ОК 01, ОК 02</td>
+ </tr>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 2</span><br>
+ <strong>Теоретический экспресс-инструктаж</strong><br>
+ <em>15 мин (00:05–00:20)</em>
+ </td>
+ <td>Актуализация математического аппарата 3NF, BCNF и синтаксиса ANSI SQL DDL</td>
+ <td>Демонстрирует презентацию (слайды 1–9). Разбирает транзитивную зависимость X → Y → Z, критерий Заньоло-Кодда для 3NF и строгость формы Бойса-Кодда (BCNF). Объясняет топологический порядок создания таблиц (DAG зависимостей) и опасности «слепого CASCADE».</td>
+ <td>Слушают объяснение, фиксируют разницу между 3NF и BCNF в конспекте. Анализируют граф зависимостей, формулируют условия декомпозиции без потерь по теореме Хита.</td>
+ <td>ОК 01, ПК 1.1</td>
+ </tr>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 3</span><br>
+ <strong>Демонстрация эталонного кейса</strong><br>
+ <em>10 мин (00:20–00:30)</em>
+ </td>
+ <td>Наглядный показ алгоритма перехода от ТЗ к DDL и тестовым данным</td>
+ <td>Демонстрирует на экране разложение таблицы: вынос сущности должности, объявление первичного ключа и внешнего ключа с правилом <code>ON DELETE RESTRICT</code>, наложение ограничения <code>CHECK (salary >= 19242)</code>, вставку 2 тестовых записей. Показывает, как СУБД блокирует ошибочную вставку.</td>
+ <td>Следят за логикой преобразования схемы, соотносят действия преподавателя со структурой рабочего листа, задают уточняющие вопросы по синтаксису DDL.</td>
+ <td>ОК 02, ПК 1.2</td>
+ </tr>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 4</span><br>
+ <strong>Самостоятельная практическая работа</strong><br>
+ <em>35 мин (00:30–01:05)</em>
+ </td>
+ <td>Индивидуальное проектирование реляционной схемы по 4 вариантам</td>
+ <td>Распределяет студентов по 4 отраслевым вариантам (Отдел кадров, Аптечный склад, Учебный центр, СТО). Проводит индивидуальный тьюторинг: контролирует устранение транзитивности, топологию DDL, выбор типов (NUMERIC vs FLOAT) и состав тестовых кортежей.</td>
+ <td>Самостоятельно выполняют проектирование в <code>zanyatie.html</code>: выявляют ФЗ, строят 3NF схему из 3–4 таблиц, пишут DDL <code>CREATE TABLE</code> со всеми ограничениями, формируют 5 кортежей <code>INSERT INTO</code>, отвечают на вопросы самопроверки.</td>
+ <td>ОК 01, ОК 02, ПК 1.1, ПК 1.2, ПК 1.5</td>
+ </tr>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 5</span><br>
+ <strong>Экспертная верификация и разбор ошибок</strong><br>
+ <em>10 мин (01:05–01:15)</em>
+ </td>
+ <td>Коррекция типовых архитектурных ошибок, разбор крайних случаев</td>
+ <td>Организует фронтальный разбор типовых ошибок: оставление оклада в сотрудниках, CASCADE на справочниках, нарушение порядка CREATE/INSERT. Демонстрирует слайд 15 с культовым веб-комиксом Bobby Tables (xkcd #327), объясняя риски пренебрежения целостностью.</td>
+ <td>Сверяют свои решения с эталонами, выявляют и исправляют неточности в скриптах, анализируют юмористический слайд и формулируют правила защиты данных.</td>
+ <td>ОК 01, ПК 1.5</td>
+ </tr>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 6</span><br>
+ <strong>Подведение итогов, рефлексия, ДЗ</strong><br>
+ <em>5 мин (01:15–01:20)</em>
+ </td>
+ <td>Оценивание по критериальной рубрике, рефлексия, инструктаж по резервному заданию</td>
+ <td>Выставляет баллы по 4-балльной шкале рубрики. Напоминает о сохранении работы в PDF/распечатке. Разъясняет статус резервного дистанционного задания (<code>domashnee_zadanie.html</code>) для пропустивших пару студентов.</td>
+ <td>Сохраняют данные в локальном хранилище и генерируют отчетную копию. Осуществляют самооценку по критериальной рубрике.</td>
+ <td>ОК 01, ОК 09</td>
+ </tr>
+ </tbody>
+ </table>
+ </section>
 
-    <!-- Сокращенный регламент 60 минут -->
-    <section>
-      <h2>Поминутная структура занятия — Сокращенный регламент (60 минут)</h2>
-      <table class="tk-table">
-        <thead>
-          <tr>
-            <th style="width: 14%;">Этап и время</th>
-            <th style="width: 18%;">Цель этапа</th>
-            <th style="width: 32%;">Деятельность преподавателя</th>
-            <th style="width: 26%;">Деятельность студентов</th>
-            <th style="width: 10%;">Компетенции</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 1</span><br>
-              <strong>Оргмомент и постановка проблемы</strong><br>
-              <em>3 мин (00:00–00:03)</em>
-            </td>
-            <td>Быстрая мобилизация внимания, постановка практической задачи</td>
-            <td>Кратко приветствует студентов, отмечает присутствующих. Сразу формулирует инженерную задачу: устранение транзитивности X → Y → Z и разработка DDL с ограничениями.</td>
-            <td>Включаются в работу, открывают рабочий лист <code>zanyatie.html</code>, выбирают назначенный вариант.</td>
-            <td>ОК 01, ОК 02</td>
-          </tr>
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 2</span><br>
-              <strong>Компактный инструктаж по 3NF и DDL</strong><br>
-              <em>12 мин (00:03–00:15)</em>
-            </td>
-            <td>Интенсивная актуализация ключевых правил проектирования</td>
-            <td>Показывает ключевые слайды презентации (3NF, BCNF, DAG зависимостей, шаблон CREATE TABLE). Акцентирует внимание на правиле: справочник создается раньше дочерней таблицы; внешний ключ — строго <code>ON DELETE RESTRICT</code>.</td>
-            <td>Фиксируют алгоритм декомпозиции, проверяют готовность к физическому проектированию структуры таблиц.</td>
-            <td>ОК 01, ПК 1.1</td>
-          </tr>
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 3</span><br>
-              <strong>Самостоятельная практическая работа</strong><br>
-              <em>32 мин (00:15–00:47)</em>
-            </td>
-            <td>Выполнение комплексного задания по вариантам в рабочем листе</td>
-            <td>Курирует выполнение работы, оказывает адресную помощь отстающим студентам, проверяет отсутствие транзитивных связей в спецификациях таблиц.</td>
-            <td>Проектируют 3–4 таблицы в 3NF, пишут DDL-скрипт с ключами и предикатами CHECK, формируют тестовый пакет из 5 кортежей, отвечают на вопросы самопроверки.</td>
-            <td>ОК 01, ОК 02, ПК 1.1, ПК 1.2, ПК 1.5</td>
-          </tr>
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 4</span><br>
-              <strong>Фронтальный экспресс-разбор ошибок</strong><br>
-              <em>8 мин (00:47–00:55)</em>
-            </td>
-            <td>Оперативная коррекция типичных дефектов в DDL-скриптах</td>
-            <td>Разбирает 2 ключевые ошибки: забытый UNIQUE на бизнес-ключ и синтаксис каскадного удаления. Показывает мем Bobby Tables как напоминание о цене ошибок в БД.</td>
-            <td>Корректируют свои скрипты, проверяют корректность логики ограничений и связей.</td>
-            <td>ОК 01, ПК 1.5</td>
-          </tr>
-          <tr>
-            <td>
-              <span class="badge-stage">Этап 5</span><br>
-              <strong>Рефлексия, фиксация результатов</strong><br>
-              <em>5 мин (00:55–01:00)</em>
-            </td>
-            <td>Критериальная оценка, сохранение данных, завершение пары</td>
-            <td>Фиксирует баллы по критериям рубрики, дает рекомендации по резервному заданию для пропустивших занятие.</td>
-            <td>Сохраняют рабочий лист в localStorage, подготавливают файл к отправке преподавателю.</td>
-            <td>ОК 01, ОК 09</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
+ <!-- Сокращенный регламент 60 минут -->
+ <section>
+ <h2>Поминутная структура занятия — Сокращенный регламент (60 минут)</h2>
+ <table class="tk-table">
+ <thead>
+ <tr>
+ <th style="width: 14%;">Этап и время</th>
+ <th style="width: 18%;">Цель этапа</th>
+ <th style="width: 32%;">Деятельность преподавателя</th>
+ <th style="width: 26%;">Деятельность студентов</th>
+ <th style="width: 10%;">Компетенции</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 1</span><br>
+ <strong>Оргмомент и постановка проблемы</strong><br>
+ <em>3 мин (00:00–00:03)</em>
+ </td>
+ <td>Быстрая мобилизация внимания, постановка практической задачи</td>
+ <td>Кратко приветствует студентов, отмечает присутствующих. Сразу формулирует инженерную задачу: устранение транзитивности X → Y → Z и разработка DDL с ограничениями.</td>
+ <td>Включаются в работу, открывают рабочий лист <code>zanyatie.html</code>, выбирают назначенный вариант.</td>
+ <td>ОК 01, ОК 02</td>
+ </tr>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 2</span><br>
+ <strong>Компактный инструктаж по 3NF и DDL</strong><br>
+ <em>12 мин (00:03–00:15)</em>
+ </td>
+ <td>Интенсивная актуализация ключевых правил проектирования</td>
+ <td>Показывает ключевые слайды презентации (3NF, BCNF, DAG зависимостей, шаблон CREATE TABLE). Акцентирует внимание на правиле: справочник создается раньше дочерней таблицы; внешний ключ — строго <code>ON DELETE RESTRICT</code>.</td>
+ <td>Фиксируют алгоритм декомпозиции, проверяют готовность к физическому проектированию структуры таблиц.</td>
+ <td>ОК 01, ПК 1.1</td>
+ </tr>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 3</span><br>
+ <strong>Самостоятельная практическая работа</strong><br>
+ <em>32 мин (00:15–00:47)</em>
+ </td>
+ <td>Выполнение комплексного задания по вариантам в рабочем листе</td>
+ <td>Курирует выполнение работы, оказывает адресную помощь отстающим студентам, проверяет отсутствие транзитивных связей в спецификациях таблиц.</td>
+ <td>Проектируют 3–4 таблицы в 3NF, пишут DDL-скрипт с ключами и предикатами CHECK, формируют тестовый пакет из 5 кортежей, отвечают на вопросы самопроверки.</td>
+ <td>ОК 01, ОК 02, ПК 1.1, ПК 1.2, ПК 1.5</td>
+ </tr>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 4</span><br>
+ <strong>Фронтальный экспресс-разбор ошибок</strong><br>
+ <em>8 мин (00:47–00:55)</em>
+ </td>
+ <td>Оперативная коррекция типичных дефектов в DDL-скриптах</td>
+ <td>Разбирает 2 ключевые ошибки: забытый UNIQUE на бизнес-ключ и синтаксис каскадного удаления. Показывает мем Bobby Tables как напоминание о цене ошибок в БД.</td>
+ <td>Корректируют свои скрипты, проверяют корректность логики ограничений и связей.</td>
+ <td>ОК 01, ПК 1.5</td>
+ </tr>
+ <tr>
+ <td>
+ <span class="badge-stage">Этап 5</span><br>
+ <strong>Рефлексия, фиксация результатов</strong><br>
+ <em>5 мин (00:55–01:00)</em>
+ </td>
+ <td>Критериальная оценка, сохранение данных, завершение пары</td>
+ <td>Фиксирует баллы по критериям рубрики, дает рекомендации по резервному заданию для пропустивших занятие.</td>
+ <td>Сохраняют рабочий лист в localStorage, подготавливают файл к отправке преподавателю.</td>
+ <td>ОК 01, ОК 09</td>
+ </tr>
+ </tbody>
+ </table>
+ </section>
 
-    <!-- Спецификация практических вариантов -->
-    <section>
-      <h2>Спецификация практических вариантов занятия</h2>
-      <div class="meta-grid">
-        <div class="meta-item">
-          <span class="meta-label">Вариант 1: Отдел кадров предприятия</span>
-          <span class="meta-val">Таблицы: <code>departments</code>, <code>positions</code>, <code>employees</code>, <code>appointment_orders</code>. Дидактический фокус: вынос базового оклада из сотрудников в справочник должностей (устранение транзитивности <code>emp_id → pos_id → base_salary</code>). DDL + 5 тестовых записей.</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Вариант 2: Аптечный склад</span>
-          <span class="meta-val">Таблицы: <code>manufacturers</code>, <code>medicines</code>, <code>batches</code>, <code>sales_invoices</code>. Дидактический фокус: устранение транзитивности страны производителя через таблицу производителей. Валидация сроков годности (CHECK expiry_date > manufacture_date).</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Вариант 3: Учебный центр доп. образования</span>
-          <span class="meta-val">Таблицы: <code>courses</code>, <code>study_groups</code>, <code>students</code>, <code>payments</code>. Дидактический фокус: нормализация до 3NF, вынос стоимости и часов курса, каскадный контроль статуса оплаты (CHECK payment_amount > 0).</span>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">Вариант 4: Станция техобслуживания (СТО)</span>
-          <span class="meta-val">Таблицы: <code>clients</code>, <code>vehicles</code>, <code>repair_orders</code>, <code>work_items</code>. Дидактический фокус: устранение транзитивных зависимостей данных владельца через связку Автомобиль → Клиент. Проверка связности кортежей и ограничений пробега/стоимости.</span>
-        </div>
-      </div>
-    </section>
+ <!-- Спецификация практических вариантов -->
+ <section>
+ <h2>Спецификация практических вариантов занятия</h2>
+ <div class="meta-grid">
+ <div class="meta-item">
+ <span class="meta-label">Вариант 1: Отдел кадров предприятия</span>
+ <span class="meta-val">Таблицы: <code>departments</code>, <code>positions</code>, <code>employees</code>, <code>appointment_orders</code>. Дидактический фокус: вынос базового оклада из сотрудников в справочник должностей (устранение транзитивности <code>emp_id → pos_id → base_salary</code>). DDL + 5 тестовых записей.</span>
+ </div>
+ <div class="meta-item">
+ <span class="meta-label">Вариант 2: Аптечный склад</span>
+ <span class="meta-val">Таблицы: <code>manufacturers</code>, <code>medicines</code>, <code>batches</code>, <code>sales_invoices</code>. Дидактический фокус: устранение транзитивности страны производителя через таблицу производителей. Валидация сроков годности (CHECK expiry_date > manufacture_date).</span>
+ </div>
+ <div class="meta-item">
+ <span class="meta-label">Вариант 3: Учебный центр доп. образования</span>
+ <span class="meta-val">Таблицы: <code>courses</code>, <code>study_groups</code>, <code>students</code>, <code>payments</code>. Дидактический фокус: нормализация до 3NF, вынос стоимости и часов курса, каскадный контроль статуса оплаты (CHECK payment_amount > 0).</span>
+ </div>
+ <div class="meta-item">
+ <span class="meta-label">Вариант 4: Станция техобслуживания (СТО)</span>
+ <span class="meta-val">Таблицы: <code>clients</code>, <code>vehicles</code>, <code>repair_orders</code>, <code>work_items</code>. Дидактический фокус: устранение транзитивных зависимостей данных владельца через связку Автомобиль → Клиент. Проверка связности кортежей и ограничений пробега/стоимости.</span>
+ </div>
+ </div>
+ </section>
 
-    <section>
-      <h2>Учебно-материальное обеспечение занятия</h2>
-      <ul>
-        <li><strong>Аппаратное обеспечение:</strong> Персональные компьютеры обучающихся, мультимедийный проектор, экран.</li>
-        <li><strong>Программное обеспечение:</strong> Локальный современный веб-браузер (Chromium / Firefox) с поддержкой HTML5, CSS Grid, LocalStorage. Автономная среда без внешних зависимостей.</li>
-        <li><strong>Методическое обеспечение:</strong> Интерактивный рабочий лист <code>zanyatie.html</code>, презентация <code>prezentaciya.html</code>, теоретический конспект <code>lekciya.html</code>, методические рекомендации преподавателя <code>metodicheskiy_material.html</code>, критериальная рубрика <code>.rubrika.md</code>.</li>
-      </ul>
-    </section>
-  </div>
+ <section>
+ <h2>Учебно-материальное обеспечение занятия</h2>
+ <ul>
+ <li><strong>Аппаратное обеспечение:</strong> Персональные компьютеры обучающихся, мультимедийный проектор, экран.</li>
+ <li><strong>Программное обеспечение:</strong> Локальный современный веб-браузер (Chromium / Firefox) с поддержкой HTML5, CSS Grid, LocalStorage. Автономная среда без внешних зависимостей.</li>
+ <li><strong>Методическое обеспечение:</strong> Интерактивный рабочий лист <code>zanyatie.html</code>, презентация <code>prezentaciya.html</code>, теоретический конспект <code>lekciya.html</code>, методические рекомендации преподавателя <code>metodicheskiy_material.html</code>, критериальная рубрика <code>.rubrika.md</code>.</li>
+ </ul>
+ </section>
+ </div>
 </body>
 </html>

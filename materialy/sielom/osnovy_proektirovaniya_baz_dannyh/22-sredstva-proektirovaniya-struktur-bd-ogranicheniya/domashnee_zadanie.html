@@ -1,456 +1,417 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Домашнее задание - Средства проектирования структур БД: ограничения</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --text-muted: #475569;
-      --border: #cbd5e1;
-      --accent: #0284c7;
-      --accent-hover: #0369a1;
-      --accent-soft: #f0f9ff;
-      --warn: #f59e0b;
-      --warn-soft: #fef3c7;
-      --warn-text: #92400e;
-      --success: #16a34a;
-      --success-soft: #dcfce7;
-      --danger: #dc2626;
-      --danger-soft: #fee2e2;
-    }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Домашнее задание - Средства проектирования структур БД: ограничения</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card-bg: #ffffff;
+ --text: #0f172a;
+ --text-muted: #475569;
+ --border: #cbd5e1;
+ --accent: #0284c7;
+ --accent-hover: #0369a1;
+ --accent-soft: #f0f9ff;
+ --warn: #f59e0b;
+ --warn-soft: #fef3c7;
+ --warn-text: #92400e;
+ --success: #16a34a;
+ --success-soft: #dcfce7;
+ --danger: #dc2626;
+ --danger-soft: #fee2e2;
+ }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ }
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      padding: 24px 16px;
-      min-width: 320px;
-    }
+ body {
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+ background-color: var(--bg);
+ color: var(--text);
+ line-height: 1.6;
+ padding: 24px 16px;
+ min-width: 320px;
+ }.container {
+ max-width: 920px;
+ margin: 0 auto;
+ width: 100%;
+ }
 
-    .container {
-      max-width: 920px;
-      margin: 0 auto;
-      width: 100%;
-    }
+ header.hw-header {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    header.hw-header {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+ h1 {
+ font-size: 1.85rem;
+ font-weight: 800;
+ color: var(--text);
+ margin-bottom: 12px;
+ word-break: break-word;
+ }.reserve-notice {
+ display: inline-block;
+ background-color: var(--warn-soft);
+ color: var(--warn-text);
+ padding: 10px 16px;
+ border-radius: 8px;
+ font-size: 0.95rem;
+ font-weight: 600;
+ margin-bottom: 14px;
+ border-left: 4px solid var(--warn);
+ line-height: 1.45;
+ }.instruction {
+ font-size: 0.98rem;
+ color: var(--text-muted);
+ line-height: 1.55;
+ margin-bottom: 12px;
+ }.student-meta {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 16px;
+ margin-top: 18px;
+ padding-top: 16px;
+ border-top: 1px solid var(--border);
+ }.meta-field {
+ display: flex;
+ flex-direction: column;
+ gap: 6px;
+ }.meta-field label {
+ font-size: 0.85rem;
+ font-weight: 600;
+ color: var(--text-muted);
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+ }.meta-field input {
+ padding: 8px 12px;
+ border: 1px solid var(--border);
+ border-radius: 6px;
+ font-size: 0.95rem;
+ color: var(--text);
+ outline: none;
+ background: #ffffff;
+ }.meta-field input:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 2px var(--accent-soft);
+ }
 
-    h1 {
-      font-size: 1.85rem;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 12px;
-      word-break: break-word;
-    }
+ section.task-section {
+ background: var(--card-bg);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px 28px;
+ margin-bottom: 24px;
+ box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+ }
 
-    .reserve-notice {
-      display: inline-block;
-      background-color: var(--warn-soft);
-      color: var(--warn-text);
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      margin-bottom: 14px;
-      border-left: 4px solid var(--warn);
-      line-height: 1.45;
-    }
+ h2 {
+ font-size: 1.35rem;
+ font-weight: 700;
+ color: var(--accent-hover);
+ margin-bottom: 14px;
+ }.task-desc {
+ font-size: 0.96rem;
+ color: var(--text);
+ line-height: 1.6;
+ margin-bottom: 16px;
+ }
 
-    .instruction {
-      font-size: 0.98rem;
-      color: var(--text-muted);
-      line-height: 1.55;
-      margin-bottom: 12px;
-    }
+ pre, code {
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ font-size: 14px;
+ }
 
-    .student-meta {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 18px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
+ code {
+ background: #f1f5f9;
+ color: #0369a1;
+ padding: 2px 6px;
+ border-radius: 4px;
+ }
 
-    .meta-field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+ pre {
+ background: #0f172a;
+ color: #f8fafc;
+ padding: 14px;
+ border-radius: 8px;
+ overflow-x: auto;
+ margin: 12px 0;
+ }.answer-box {
+ margin-top: 14px;
+ }.answer-box label {
+ display: block;
+ font-size: 0.88rem;
+ font-weight: 700;
+ color: var(--text-muted);
+ margin-bottom: 6px;
+ }
 
-    .meta-field label {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
+ textarea.answer-input {
+ width: 100%;
+ min-height: 130px;
+ padding: 12px;
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ font-family: ui-monospace, monospace;
+ font-size: 0.92rem;
+ color: var(--text);
+ background: #ffffff;
+ outline: none;
+ resize: vertical;
+ line-height: 1.5;
+ }
 
-    .meta-field input {
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.95rem;
-      color: var(--text);
-      outline: none;
-      background: #ffffff;
-    }
+ textarea.answer-input:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 2px var(--accent-soft);
+ }.action-bar {
+ display: flex;
+ gap: 12px;
+ margin-bottom: 32px;
+ flex-wrap: wrap;
+ }.btn {
+ padding: 10px 20px;
+ border-radius: 8px;
+ font-size: 0.95rem;
+ font-weight: 600;
+ cursor: pointer;
+ border: 1px solid transparent;
+ display: inline-flex;
+ align-items: center;
+ gap: 6px;
+ transition: all 0.2s;
+ }.btn-primary {
+ background: var(--accent);
+ color: #ffffff;
+ }.btn-primary:hover {
+ background: var(--accent-hover);
+ }.btn-outline {
+ background: #ffffff;
+ border-color: var(--border);
+ color: var(--text);
+ }.btn-outline:hover {
+ background: #f1f5f9;
+ }.badge-points {
+ display: inline-block;
+ padding: 3px 8px;
+ background: var(--accent-soft);
+ color: var(--accent-hover);
+ border-radius: 4px;
+ font-size: 0.82rem;
+ font-weight: 700;
+ margin-left: 8px;
+ }
 
-    .meta-field input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-soft);
-    }
+ @media (max-width: 640px) {.student-meta {
+ grid-template-columns: 1fr;
+ }
+ body {
+ padding: 12px 8px;
+ }
+ header.hw-header, section.task-section {
+ padding: 16px;
+ }
+ }
 
-    section.task-section {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-
-    h2 {
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: var(--accent-hover);
-      margin-bottom: 14px;
-    }
-
-    .task-desc {
-      font-size: 0.96rem;
-      color: var(--text);
-      line-height: 1.6;
-      margin-bottom: 16px;
-    }
-
-    pre, code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 14px;
-    }
-
-    code {
-      background: #f1f5f9;
-      color: #0369a1;
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-
-    pre {
-      background: #0f172a;
-      color: #f8fafc;
-      padding: 14px;
-      border-radius: 8px;
-      overflow-x: auto;
-      margin: 12px 0;
-    }
-
-    .answer-box {
-      margin-top: 14px;
-    }
-
-    .answer-box label {
-      display: block;
-      font-size: 0.88rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-    }
-
-    textarea.answer-input {
-      width: 100%;
-      min-height: 130px;
-      padding: 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-family: ui-monospace, monospace;
-      font-size: 0.92rem;
-      color: var(--text);
-      background: #ffffff;
-      outline: none;
-      resize: vertical;
-      line-height: 1.5;
-    }
-
-    textarea.answer-input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent-soft);
-    }
-
-    .action-bar {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 32px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: 1px solid transparent;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
-    }
-
-    .btn-primary {
-      background: var(--accent);
-      color: #ffffff;
-    }
-
-    .btn-primary:hover {
-      background: var(--accent-hover);
-    }
-
-    .btn-outline {
-      background: #ffffff;
-      border-color: var(--border);
-      color: var(--text);
-    }
-
-    .btn-outline:hover {
-      background: #f1f5f9;
-    }
-
-    .badge-points {
-      display: inline-block;
-      padding: 3px 8px;
-      background: var(--accent-soft);
-      color: var(--accent-hover);
-      border-radius: 4px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      margin-left: 8px;
-    }
-
-    @media (max-width: 640px) {
-      .student-meta {
-        grid-template-columns: 1fr;
-      }
-      body {
-        padding: 12px 8px;
-      }
-      header.hw-header, section.task-section {
-        padding: 16px;
-      }
-    }
-
-    @media print {
-      body {
-        background: #ffffff;
-        color: #000000;
-        padding: 0;
-      }
-      .action-bar {
-        display: none !important;
-      }
-      header.hw-header, section.task-section {
-        border: 1px solid #000000;
-        box-shadow: none;
-        page-break-inside: avoid;
-        margin-bottom: 14px;
-      }
-      textarea.answer-input {
-        border: 1px solid #000000;
-        background: transparent;
-        color: #000000;
-      }
-      input::placeholder, textarea::placeholder {
-        color: transparent !important;
-      }
-    }
-  </style>
+ @media print {
+ body {
+ background: #ffffff;
+ color: #000000;
+ padding: 0;
+ }.action-bar {
+ display: none !important;
+ }
+ header.hw-header, section.task-section {
+ border: 1px solid #000000;
+ box-shadow: none;
+ page-break-inside: avoid;
+ margin-bottom: 14px;
+ }
+ textarea.answer-input {
+ border: 1px solid #000000;
+ background: transparent;
+ color: #000000;
+ }
+ input::placeholder, textarea::placeholder {
+ color: transparent !important;
+ }
+ }
+ </style>
 </head>
 <body>
-  <div class="container">
-    <header class="hw-header">
-      <h1>Домашнее задание - Средства проектирования структур БД: ограничения</h1>
-      
-      <div class="reserve-notice">
-        Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
-      </div>
+ <div class="container">
+ <header class="hw-header">
+ <h1>Домашнее задание - Средства проектирования структур БД: ограничения</h1>
+ 
+ <div class="reserve-notice">
+ Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+ </div>
 
-      <p class="instruction">
-        Резервное практическое задание предназначено для дистанционного закрепления теоретического материала занятия №22 «Средства проектирования структур БД: ограничения» (§2.2 с.7–8 учебной программы дисциплины «ОП.08 Основы проектирования баз данных»). При выполнении заданий сформируйте синтаксически корректные DDL-скрипты на диалекте PostgreSQL/ANSI SQL и проведите аналитическую проверку на отсутствие взаимных логических противоречий.
-      </p>
+ <p class="instruction">
+ Резервное практическое задание предназначено для дистанционного закрепления теоретического материала занятия №22 «Средства проектирования структур БД: ограничения» (учебной программы дисциплины «ОП.08 Основы проектирования баз данных»). При выполнении заданий сформируйте синтаксически корректные DDL-скрипты на диалекте PostgreSQL/ANSI SQL и проведите аналитическую проверку на отсутствие взаимных логических противоречий.
+ </p>
 
-      <div class="student-meta">
-        <div class="meta-field">
-          <label for="hwFio">ФИО студента</label>
-          <input type="text" id="hwFio">
-        </div>
-        <div class="meta-field">
-          <label for="hwGroup">Учебная группа</label>
-          <input type="text" id="hwGroup">
-        </div>
-      </div>
-    </header>
+ <div class="student-meta">
+ <div class="meta-field">
+ <label for="hwFio">ФИО студента</label>
+ <input type="text" id="hwFio">
+ </div>
+ <div class="meta-field">
+ <label for="hwGroup">Учебная группа</label>
+ <input type="text" id="hwGroup">
+ </div>
+ </div>
+ </header>
 
-    <!-- ЗАДАНИЕ 1 -->
-    <section class="task-section">
-      <h2>Задание 1. Проектирование доменов и DDL с регулярными выражениями (POSIX regex) <span class="badge-points">2 балла</span></h2>
-      <div class="task-desc">
-        <p>Разработайте схему таблицы учетных записей медицинского портала <code>patient_profiles</code> со следующими полями:</p>
-        <ul>
-          <li><code>profile_id (BIGSERIAL PRIMARY KEY)</code> — суррогатный ключ;</li>
-          <li><code>snils (CHAR(14) NOT NULL)</code> — СНИЛС гражданина РФ, строго в формате <code>ХХХ-ХХХ-ХХХ ХХ</code> (3 цифры, дефис, 3 цифры, дефис, 3 цифры, пробел, 2 цифры);</li>
-          <li><code>oms_policy (VARCHAR(16) NOT NULL)</code> — единый полис ОМС, состоящий строго из 16 арабских цифр;</li>
-          <li><code>contact_email (VARCHAR(255) NOT NULL)</code> — адрес электронной почты, соответствующий международному стандарту (наличие имени пользователя, символа @, доменного имени и доменной зоны от 2 букв);</li>
-          <li><code>birth_date (DATE NOT NULL)</code> — дата рождения пациента;</li>
-          <li><code>registration_timestamp (TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP)</code> — отметка времени регистрации.</li>
-        </ul>
-        <p><strong>Требования:</strong> составьте DDL-скрипт с созданием ограничений CHECK (или CREATE DOMAIN). Обязательно используйте операторы сопоставления регулярных выражений <code>~</code> / <code>~*</code> с граничными якорями <code>^</code> и <code>$</code>. Добавьте ограничение совершеннолетия или логической допустимости возраста (пациент родился не позже сегодняшнего дня и не ранее 1900 года).</p>
-      </div>
+ <!-- ЗАДАНИЕ 1 -->
+ <section class="task-section">
+ <h2>Задание 1. Проектирование доменов и DDL с регулярными выражениями (POSIX regex) <span class="badge-points">2 балла</span></h2>
+ <div class="task-desc">
+ <p>Разработайте схему таблицы учетных записей медицинского портала <code>patient_profiles</code> со следующими полями:</p>
+ <ul>
+ <li><code>profile_id (BIGSERIAL PRIMARY KEY)</code> — суррогатный ключ;</li>
+ <li><code>snils (CHAR(14) NOT NULL)</code> — СНИЛС гражданина РФ, строго в формате <code>ХХХ-ХХХ-ХХХ ХХ</code> (3 цифры, дефис, 3 цифры, дефис, 3 цифры, пробел, 2 цифры);</li>
+ <li><code>oms_policy (VARCHAR(16) NOT NULL)</code> — единый полис ОМС, состоящий строго из 16 арабских цифр;</li>
+ <li><code>contact_email (VARCHAR(255) NOT NULL)</code> — адрес электронной почты, соответствующий международному стандарту (наличие имени пользователя, символа @, доменного имени и доменной зоны от 2 букв);</li>
+ <li><code>birth_date (DATE NOT NULL)</code> — дата рождения пациента;</li>
+ <li><code>registration_timestamp (TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP)</code> — отметка времени регистрации.</li>
+ </ul>
+ <p><strong>Требования:</strong> составьте DDL-скрипт с созданием ограничений CHECK (или CREATE DOMAIN). Обязательно используйте операторы сопоставления регулярных выражений <code>~</code> / <code>~*</code> с граничными якорями <code>^</code> и <code>$</code>. Добавьте ограничение совершеннолетия или логической допустимости возраста (пациент родился не позже сегодняшнего дня и не ранее 1900 года).</p>
+ </div>
 
-      <div class="answer-box">
-        <label for="hwAns1">Ваш DDL-скрипт с регулярными выражениями и проверка предикатов:</label>
-        <textarea id="hwAns1" class="answer-input" placeholder="CREATE TABLE patient_profiles (...);"></textarea>
-      </div>
-    </section>
+ <div class="answer-box">
+ <label for="hwAns1">Ваш DDL-скрипт с регулярными выражениями и проверка предикатов:</label>
+ <textarea id="hwAns1" class="answer-input" placeholder="CREATE TABLE patient_profiles (...);"></textarea>
+ </div>
+ </section>
 
-    <!-- ЗАДАНИЕ 2 -->
-    <section class="task-section">
-      <h2>Задание 2. Анализ схемы на отсутствие логических противоречий <span class="badge-points">1 балл</span></h2>
-      <div class="task-desc">
-        <p>Младший разработчик спроектировал следующую таблицу для учета скидочных карт магазина бытовой электроники:</p>
-        <pre><code>CREATE TABLE loyalty_cards (
-    card_id INT PRIMARY KEY,
-    owner_fio VARCHAR(100) NOT NULL,
-    discount_rate NUMERIC(5,2) NOT NULL,
-    min_spend NUMERIC(10,2) NOT NULL,
-    max_spend NUMERIC(10,2) NOT NULL,
-    card_status VARCHAR(20) NOT NULL,
-    CONSTRAINT chk_discount_bounds CHECK (discount_rate > 5 AND discount_rate &lt; 3),
-    CONSTRAINT chk_spend_range CHECK (min_spend >= 10000 AND max_spend &lt;= 5000),
-    CONSTRAINT chk_status_active CHECK (card_status IN ('ACTIVE', 'BLOCKED') AND card_status = 'PENDING')
-);</code></pre>
-        <p><strong>Вопросы для анализа:</strong></p>
-        <ol>
-          <li>Найдите все логические противоречия и несовместные предикаты в данной таблице. Почему в нее невозможно вставить ни одну строку?</li>
-          <li>Предложите исправленный, непротиворечивый блок ограничений CHECK, отражающий корректные бизнес-правила: скидка от 3% до 25%, минимальный порог расходов строго меньше максимального порога, статус карты — один из трех: <code>'ACTIVE'</code>, <code>'BLOCKED'</code> или <code>'PENDING'</code>.</li>
-        </ol>
-      </div>
+ <!-- ЗАДАНИЕ 2 -->
+ <section class="task-section">
+ <h2>Задание 2. Анализ схемы на отсутствие логических противоречий <span class="badge-points">1 балл</span></h2>
+ <div class="task-desc">
+ <p>Младший разработчик спроектировал следующую таблицу для учета скидочных карт магазина бытовой электроники:</p>
+ <pre><code>CREATE TABLE loyalty_cards (
+ card_id INT PRIMARY KEY,
+ owner_fio VARCHAR(100) NOT NULL,
+ discount_rate NUMERIC(5,2) NOT NULL,
+ min_spend NUMERIC(10,2) NOT NULL,
+ max_spend NUMERIC(10,2) NOT NULL,
+ card_status VARCHAR(20) NOT NULL,
+ CONSTRAINT chk_discount_bounds CHECK (discount_rate > 5 AND discount_rate &lt; 3),
+ CONSTRAINT chk_spend_range CHECK (min_spend >= 10000 AND max_spend &lt;= 5000),
+ CONSTRAINT chk_status_active CHECK (card_status IN ('ACTIVE', 'BLOCKED') AND card_status = 'PENDING'));</code></pre>
+ <p><strong>Вопросы для анализа:</strong></p>
+ <ol>
+ <li>Найдите все логические противоречия и несовместные предикаты в данной таблице. Почему в нее невозможно вставить ни одну строку?</li>
+ <li>Предложите исправленный, непротиворечивый блок ограничений CHECK, отражающий корректные бизнес-правила: скидка от 3% до 25%, минимальный порог расходов строго меньше максимального порога, статус карты — один из трех: <code>'ACTIVE'</code>, <code>'BLOCKED'</code> или <code>'PENDING'</code>.</li>
+ </ol>
+ </div>
 
-      <div class="answer-box">
-        <label for="hwAns2">Анализ коллизий и исправленный блок ограничений:</label>
-        <textarea id="hwAns2" class="answer-input" placeholder="1. Описание найденных логических противоречий...&#10;2. Исправленный SQL-код..."></textarea>
-      </div>
-    </section>
+ <div class="answer-box">
+ <label for="hwAns2">Анализ коллизий и исправленный блок ограничений:</label>
+ <textarea id="hwAns2" class="answer-input" placeholder="1. Описание найденных логических противоречий...&#10;2. Исправленный SQL-код..."></textarea>
+ </div>
+ </section>
 
-    <!-- ЗАДАНИЕ 3 -->
-    <section class="task-section">
-      <h2>Задание 3. Проектирование непересекающихся интервалов и циклической целостности <span class="badge-points">1 балл</span></h2>
-      <div class="task-desc">
-        <p>Спроектируйте фрагмент базы данных для сервиса коворкинга:</p>
-        <ol>
-          <li>Таблица <code>coworking_desks</code> (рабочие места) и таблица <code>desk_rentals</code> (аренда столов). Реализуйте защиту от повторного бронирования одного и того же стола <code>desk_id</code> на пересекающиеся периоды времени через ограничение <code>EXCLUDE USING gist</code> с интервальным типом <code>TSRANGE</code>.</li>
-          <li>В таблицу <code>coworking_zones</code> (зоны коворкинга) и <code>coworking_desks</code> добавьте циклическую связь: каждая зона имеет флагманский VIP-стол (поле <code>vip_desk_id</code> в зонах), а каждый стол принадлежит зоне (поле <code>zone_id</code> в столах). Настройте ограничение внешнего ключа как <code>DEFERRABLE INITIALLY DEFERRED</code> и напишите транзакцию атомарной вставки нового коворкинга с VIP-столом.</li>
-        </ol>
-      </div>
+ <!-- ЗАДАНИЕ 3 -->
+ <section class="task-section">
+ <h2>Задание 3. Проектирование непересекающихся интервалов и циклической целостности <span class="badge-points">1 балл</span></h2>
+ <div class="task-desc">
+ <p>Спроектируйте фрагмент базы данных для сервиса коворкинга:</p>
+ <ol>
+ <li>Таблица <code>coworking_desks</code> (рабочие места) и таблица <code>desk_rentals</code> (аренда столов). Реализуйте защиту от повторного бронирования одного и того же стола <code>desk_id</code> на пересекающиеся периоды времени через ограничение <code>EXCLUDE USING gist</code> с интервальным типом <code>TSRANGE</code>.</li>
+ <li>В таблицу <code>coworking_zones</code> (зоны коворкинга) и <code>coworking_desks</code> добавьте циклическую связь: каждая зона имеет флагманский VIP-стол (поле <code>vip_desk_id</code> в зонах), а каждый стол принадлежит зоне (поле <code>zone_id</code> в столах). Настройте ограничение внешнего ключа как <code>DEFERRABLE INITIALLY DEFERRED</code> и напишите транзакцию атомарной вставки нового коворкинга с VIP-столом.</li>
+ </ol>
+ </div>
 
-      <div class="answer-box">
-        <label for="hwAns3">DDL-код с EXCLUDE USING gist и транзакцией DEFERRABLE:</label>
-        <textarea id="hwAns3" class="answer-input" placeholder="-- EXCLUDE и DEFERRABLE скрипт..."></textarea>
-      </div>
-    </section>
+ <div class="answer-box">
+ <label for="hwAns3">DDL-код с EXCLUDE USING gist и транзакцией DEFERRABLE:</label>
+ <textarea id="hwAns3" class="answer-input" placeholder="-- EXCLUDE и DEFERRABLE скрипт..."></textarea>
+ </div>
+ </section>
 
-    <div class="action-bar">
-      <button type="button" class="btn btn-primary" id="saveHwBtn">Сохранить ответы</button>
-      <button type="button" class="btn btn-outline" id="printHwBtn">Распечатать / Экспорт в PDF</button>
-      <button type="button" class="btn btn-outline" id="clearHwBtn">Очистить форму</button>
-      <span id="saveStatus" style="display:none; color: var(--success); font-weight: 600; align-self: center;">✓ Ответы сохранены в браузере</span>
-    </div>
-  </div>
+ <div class="action-bar">
+ <button type="button" class="btn btn-primary" id="saveHwBtn">Сохранить ответы</button>
+ <button type="button" class="btn btn-outline" id="printHwBtn">Распечатать / Экспорт в PDF</button>
+ <button type="button" class="btn btn-outline" id="clearHwBtn">Очистить форму</button>
+ <span id="saveStatus" style="display:none; color: var(--success); font-weight: 600; align-self: center;">✓ Ответы сохранены в браузере</span>
+ </div>
+ </div>
 
-  <script>
-    (function() {
-      const HW_KEY = 'hw_db_lesson_22_saved_data';
+ <script>
+ (function() {
+ const HW_KEY = 'hw_db_lesson_22_saved_data';
 
-      function getFields() {
-        return [
-          document.getElementById('hwFio'),
-          document.getElementById('hwGroup'),
-          document.getElementById('hwAns1'),
-          document.getElementById('hwAns2'),
-          document.getElementById('hwAns3')
-        ];
-      }
+ function getFields() {
+ return [
+ document.getElementById('hwFio'),
+ document.getElementById('hwGroup'),
+ document.getElementById('hwAns1'),
+ document.getElementById('hwAns2'),
+ document.getElementById('hwAns3')
+ ];
+ }
 
-      function saveHw() {
-        const data = {};
-        getFields().forEach(f => {
-          if (f && f.id) data[f.id] = f.value;
-        });
-        localStorage.setItem(HW_KEY, JSON.stringify(data));
-        const status = document.getElementById('saveStatus');
-        if (status) {
-          status.style.display = 'inline';
-          setTimeout(() => { status.style.display = 'none'; }, 2500);
-        }
-      }
+ function saveHw() {
+ const data = {};
+ getFields().forEach(f => {
+ if (f && f.id) data[f.id] = f.value;
+ });
+ localStorage.setItem(HW_KEY, JSON.stringify(data));
+ const status = document.getElementById('saveStatus');
+ if (status) {
+ status.style.display = 'inline';
+ setTimeout(() => { status.style.display = 'none'; }, 2500);
+ }
+ }
 
-      function loadHw() {
-        const raw = localStorage.getItem(HW_KEY);
-        if (!raw) return;
-        try {
-          const parsed = JSON.parse(raw);
-          Object.keys(parsed).forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.value = parsed[id];
-          });
-        } catch (e) {
-          console.error('Ошибка восстановления ДЗ:', e);
-        }
-      }
+ function loadHw() {
+ const raw = localStorage.getItem(HW_KEY);
+ if (!raw) return;
+ try {
+ const parsed = JSON.parse(raw);
+ Object.keys(parsed).forEach(id => {
+ const el = document.getElementById(id);
+ if (el) el.value = parsed[id];
+ });
+ } catch (e) {
+ console.error('Ошибка восстановления ДЗ:', e);
+ }
+ }
 
-      function clearHw() {
-        if (confirm('Вы действительно хотите полностью очистить все поля домашнего задания?')) {
-          localStorage.removeItem(HW_KEY);
-          getFields().forEach(f => { if (f) f.value = ''; });
-        }
-      }
+ function clearHw() {
+ if (confirm('Вы действительно хотите полностью очистить все поля домашнего задания?')) {
+ localStorage.removeItem(HW_KEY);
+ getFields().forEach(f => { if (f) f.value = ''; });
+ }
+ }
 
-      document.getElementById('saveHwBtn').addEventListener('click', saveHw);
-      document.getElementById('clearHwBtn').addEventListener('click', clearHw);
-      document.getElementById('printHwBtn').addEventListener('click', () => {
-        saveHw();
-        window.print();
-      });
+ document.getElementById('saveHwBtn').addEventListener('click', saveHw);
+ document.getElementById('clearHwBtn').addEventListener('click', clearHw);
+ document.getElementById('printHwBtn').addEventListener('click', () => {
+ saveHw();
+ window.print();
+ });
 
-      document.addEventListener('input', (e) => {
-        if (e.target.matches('input, textarea')) {
-          const data = {};
-          getFields().forEach(f => {
-            if (f && f.id) data[f.id] = f.value;
-          });
-          localStorage.setItem(HW_KEY, JSON.stringify(data));
-        }
-      });
+ document.addEventListener('input', (e) => {
+ if (e.target.matches('input, textarea')) {
+ const data = {};
+ getFields().forEach(f => {
+ if (f && f.id) data[f.id] = f.value;
+ });
+ localStorage.setItem(HW_KEY, JSON.stringify(data));
+ }
+ });
 
-      window.addEventListener('DOMContentLoaded', loadHw);
-    })();
-  </script>
+ window.addEventListener('DOMContentLoaded', loadHw);
+ })();
+ </script>
 </body>
 </html>

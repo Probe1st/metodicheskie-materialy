@@ -1,681 +1,647 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Рабочий лист: Технологии повышения производительности процессоров</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #1e40af;
-      --accent-soft: #eff6ff;
-      --ok: #059669;
-      --warn: #d97706;
-      --danger: #dc2626;
-      --radius: 14px;
-      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.6;
-      font-size: 15px;
-      padding: 20px 14px;
-    }
-    .page {
-      max-width: 960px;
-      margin: 0 auto;
-    }
-    .header-card, .student-card, .task-card, .actions-card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow);
-    }
-    h1 {
-      font-size: clamp(20px, 3.2vw, 26px);
-      color: var(--accent);
-      margin-bottom: 8px;
-    }
-    .desc {
-      color: var(--muted);
-      font-size: 14.5px;
-    }
-    .student-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-    }
-    label {
-      display: block;
-      font-weight: 600;
-      font-size: 13.5px;
-      margin-bottom: 6px;
-      color: #1e293b;
-    }
-    input[type="text"], input[type="date"], select, textarea {
-      width: 100%;
-      border: 1.5px solid var(--line);
-      border-radius: 8px;
-      padding: 9px 12px;
-      font: inherit;
-      font-size: 14px;
-      background: #fff;
-      color: var(--text);
-      outline: none;
-      transition: border-color .15s, box-shadow .15s;
-    }
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
-    }
-    textarea {
-      min-height: 95px;
-      resize: vertical;
-    }
-    .task-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 8px;
-    }
-    .task-intro {
-      font-size: 14px;
-      color: var(--muted);
-      margin-bottom: 16px;
-    }
-    .table-wrap {
-      overflow-x: auto;
-      margin-bottom: 14px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13.5px;
-    }
-    th, td {
-      border: 1px solid var(--line);
-      padding: 8px 10px;
-      text-align: left;
-      vertical-align: middle;
-    }
-    th {
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-weight: 700;
-    }
-    .table-input {
-      padding: 6px 8px;
-      font-size: 13.5px;
-    }
-    .case-box {
-      background: #f1f5f9;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-    .case-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .badge {
-      display: inline-block;
-      padding: 3px 10px;
-      border-radius: 6px;
-      font-size: 12.5px;
-      font-weight: 600;
-      background: #e2e8f0;
-      color: #334155;
-    }
-    .variant-section {
-      display: none;
-    }
-    .variant-section.active {
-      display: block;
-    }
-    .btn-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .btn {
-      padding: 9px 18px;
-      border-radius: 8px;
-      font: inherit;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      border: 1.5px solid transparent;
-      transition: all .15s;
-    }
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-    }
-    .btn-primary:hover {
-      background: #1d4ed8;
-    }
-    .btn-secondary {
-      background: #fff;
-      color: var(--text);
-      border-color: var(--line);
-    }
-    .btn-secondary:hover {
-      background: #f1f5f9;
-    }
-    .btn-danger {
-      background: #fff;
-      color: var(--danger);
-      border-color: #fecaca;
-    }
-    .btn-danger:hover {
-      background: #fee2e2;
-    }
-    .actions-card {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-    .save-status {
-      font-size: 13.5px;
-      color: var(--ok);
-      font-weight: 600;
-      opacity: 0;
-      transition: opacity .3s;
-    }
-    .save-status.show {
-      opacity: 1;
-    }
-    code {
-      background: #e2e8f0;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-family: ui-monospace, monospace;
-      font-size: 13px;
-    }
-    .formula-tag {
-      background: var(--accent-soft);
-      border-left: 3px solid var(--accent);
-      padding: 8px 12px;
-      border-radius: 0 6px 6px 0;
-      font-family: ui-monospace, monospace;
-      font-size: 13.5px;
-      color: #1e40af;
-      margin: 10px 0;
-    }
-    /* ПЕЧАТНЫЕ СТИЛИ С ВЫПОЛНЕНИЕМ СТРОГИХ ТРЕБОВАНИЙ */
-    @media print {
-      body {
-        background: #fff !important;
-        color: #000 !important;
-        padding: 0 !important;
-        font-size: 10pt !important;
-      }
-      .page {
-        max-width: 100% !important;
-      }
-      .actions-card, .btn-group {
-        display: none !important;
-      }
-      .header-card, .student-card, .task-card {
-        box-shadow: none !important;
-        border: 1px solid #999 !important;
-        break-inside: avoid;
-        margin-bottom: 10pt !important;
-        padding: 12pt !important;
-      }
-      .variant-section {
-        display: block !important; /* При печати видны выбранный или все варианты */
-      }
-      input[type="text"], input[type="date"], select, textarea {
-        border: 1px solid #777 !important;
-        background: transparent !important;
-        color: #000 !important;
-        box-shadow: none !important;
-        border-radius: 4px !important;
-      }
-      ::placeholder {
-        color: transparent !important;
-      }
-      textarea {
-        min-height: 80px !important;
-      }
-      table {
-        font-size: 9pt !important;
-      }
-      th, td {
-        padding: 4pt 6pt !important;
-      }
-    }
-    /* АДАПТИВНОСТЬ ДЛЯ ЭКРАНОВ 375 PX */
-    @media (max-width: 480px) {
-      body {
-        padding: 10px 6px;
-        font-size: 14px;
-      }
-      .header-card, .student-card, .task-card, .actions-card {
-        padding: 14px 10px;
-        border-radius: 10px;
-      }
-      .student-grid {
-        grid-template-columns: 1fr;
-        gap: 10px;
-      }
-      h1 {
-        font-size: 19px;
-      }
-      .task-title {
-        font-size: 16px;
-      }
-      table {
-        font-size: 12px;
-      }
-      th, td {
-        padding: 5px 6px;
-      }
-      .btn {
-        width: 100%;
-        text-align: center;
-      }
-      .btn-group {
-        width: 100%;
-      }
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <title>Рабочий лист: Технологии повышения производительности процессоров</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #1e40af;
+ --accent-soft: #eff6ff;
+ --ok: #059669;
+ --warn: #d97706;
+ --danger: #dc2626;
+ --radius: 14px;
+ --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+ body {
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+ line-height: 1.6;
+ font-size: 15px;
+ padding: 20px 14px;
+ }.page {
+ max-width: 960px;
+ margin: 0 auto;
+ }.header-card,.student-card,.task-card,.actions-card {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 24px;
+ margin-bottom: 20px;
+ box-shadow: var(--shadow);
+ }
+ h1 {
+ font-size: clamp(20px, 3.2vw, 26px);
+ color: var(--accent);
+ margin-bottom: 8px;
+ }.desc {
+ color: var(--muted);
+ font-size: 14.5px;
+ }.student-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+ gap: 16px;
+ }
+ label {
+ display: block;
+ font-weight: 600;
+ font-size: 13.5px;
+ margin-bottom: 6px;
+ color: #1e293b;
+ }
+ input[type="text"], input[type="date"], select, textarea {
+ width: 100%;
+ border: 1.5px solid var(--line);
+ border-radius: 8px;
+ padding: 9px 12px;
+ font: inherit;
+ font-size: 14px;
+ background: #fff;
+ color: var(--text);
+ outline: none;
+ transition: border-color.15s, box-shadow.15s;
+ }
+ input:focus, select:focus, textarea:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+ }
+ textarea {
+ min-height: 95px;
+ resize: vertical;
+ }.task-title {
+ font-size: 18px;
+ font-weight: 700;
+ color: var(--accent);
+ margin-bottom: 8px;
+ }.task-intro {
+ font-size: 14px;
+ color: var(--muted);
+ margin-bottom: 16px;
+ }.table-wrap {
+ overflow-x: auto;
+ margin-bottom: 14px;
+ }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ font-size: 13.5px;
+ }
+ th, td {
+ border: 1px solid var(--line);
+ padding: 8px 10px;
+ text-align: left;
+ vertical-align: middle;
+ }
+ th {
+ background: var(--accent-soft);
+ color: var(--accent);
+ font-weight: 700;
+ }.table-input {
+ padding: 6px 8px;
+ font-size: 13.5px;
+ }.case-box {
+ background: #f1f5f9;
+ border: 1px solid var(--line);
+ border-radius: 10px;
+ padding: 16px;
+ margin-bottom: 16px;
+ }.case-header {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ margin-bottom: 10px;
+ }.badge {
+ display: inline-block;
+ padding: 3px 10px;
+ border-radius: 6px;
+ font-size: 12.5px;
+ font-weight: 600;
+ background: #e2e8f0;
+ color: #334155;
+ }.variant-section {
+ display: none;
+ }.variant-section.active {
+ display: block;
+ }.btn-group {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 10px;
+ }.btn {
+ padding: 9px 18px;
+ border-radius: 8px;
+ font: inherit;
+ font-size: 14px;
+ font-weight: 600;
+ cursor: pointer;
+ border: 1.5px solid transparent;
+ transition: all.15s;
+ }.btn-primary {
+ background: var(--accent);
+ color: #fff;
+ }.btn-primary:hover {
+ background: #1d4ed8;
+ }.btn-secondary {
+ background: #fff;
+ color: var(--text);
+ border-color: var(--line);
+ }.btn-secondary:hover {
+ background: #f1f5f9;
+ }.btn-danger {
+ background: #fff;
+ color: var(--danger);
+ border-color: #fecaca;
+ }.btn-danger:hover {
+ background: #fee2e2;
+ }.actions-card {
+ display: flex;
+ flex-wrap: wrap;
+ align-items: center;
+ justify-content: space-between;
+ gap: 12px;
+ }.save-status {
+ font-size: 13.5px;
+ color: var(--ok);
+ font-weight: 600;
+ opacity: 0;
+ transition: opacity.3s;
+ }.save-status.show {
+ opacity: 1;
+ }
+ code {
+ background: #e2e8f0;
+ padding: 2px 6px;
+ border-radius: 4px;
+ font-family: ui-monospace, monospace;
+ font-size: 13px;
+ }.formula-tag {
+ background: var(--accent-soft);
+ border-left: 3px solid var(--accent);
+ padding: 8px 12px;
+ border-radius: 0 6px 6px 0;
+ font-family: ui-monospace, monospace;
+ font-size: 13.5px;
+ color: #1e40af;
+ margin: 10px 0;
+ }
+ /* ПЕЧАТНЫЕ СТИЛИ С ВЫПОЛНЕНИЕМ СТРОГИХ ТРЕБОВАНИЙ */
+ @media print {
+ body {
+ background: #fff !important;
+ color: #000 !important;
+ padding: 0 !important;
+ font-size: 10pt !important;
+ }.page {
+ max-width: 100% !important;
+ }.actions-card,.btn-group {
+ display: none !important;
+ }.header-card,.student-card,.task-card {
+ box-shadow: none !important;
+ border: 1px solid #999 !important;
+ break-inside: avoid;
+ margin-bottom: 10pt !important;
+ padding: 12pt !important;
+ }.variant-section {
+ display: block !important; /* При печати видны выбранный или все варианты */
+ }
+ input[type="text"], input[type="date"], select, textarea {
+ border: 1px solid #777 !important;
+ background: transparent !important;
+ color: #000 !important;
+ box-shadow: none !important;
+ border-radius: 4px !important;
+ }
+ ::placeholder {
+ color: transparent !important;
+ }
+ textarea {
+ min-height: 80px !important;
+ }
+ table {
+ font-size: 9pt !important;
+ }
+ th, td {
+ padding: 4pt 6pt !important;
+ }
+ }
+ /* АДАПТИВНОСТЬ ДЛЯ ЭКРАНОВ 375 PX */
+ @media (max-width: 480px) {
+ body {
+ padding: 10px 6px;
+ font-size: 14px;
+ }.header-card,.student-card,.task-card,.actions-card {
+ padding: 14px 10px;
+ border-radius: 10px;
+ }.student-grid {
+ grid-template-columns: 1fr;
+ gap: 10px;
+ }
+ h1 {
+ font-size: 19px;
+ }.task-title {
+ font-size: 16px;
+ }
+ table {
+ font-size: 12px;
+ }
+ th, td {
+ padding: 5px 6px;
+ }.btn {
+ width: 100%;
+ text-align: center;
+ }.btn-group {
+ width: 100%;
+ }
+ }
+ </style>
 </head>
 <body>
 <div class="page">
 
-  <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
-  <div class="header-card">
-    <h1>Практический рабочий лист: Производительность процессоров</h1>
-    <p class="desc">Дисциплина: ОП.02 Архитектура аппаратных средств &bull; Раздел 3 (§2.2 с.8 программы)</p>
-  </div>
+ <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
+ <div class="header-card">
+ <h1>Практический рабочий лист: Производительность процессоров</h1>
+ <p class="desc">Дисциплина: ОП.02 Архитектура аппаратных средств &bull; Раздел 3</p>
+ </div>
 
-  <!-- БЛОК ИДЕНТИФИКАЦИИ СТУДЕНТА (ЧИСТЫЕ ПЛЕЙСХОЛДЕРЫ) -->
-  <div class="student-card">
-    <div class="student-grid">
-      <div>
-        <label for="student_fio">ФИО студента:</label>
-        <input type="text" id="student_fio" placeholder="">
-      </div>
-      <div>
-        <label for="student_group">Учебная группа:</label>
-        <input type="text" id="student_group" placeholder="">
-      </div>
-      <div>
-        <label for="student_date">Дата проведения:</label>
-        <input type="date" id="student_date">
-      </div>
-      <div>
-        <label for="variant_select">Выбор аналитического варианта:</label>
-        <select id="variant_select" onchange="switchVariant(this.value)">
-          <option value="1">Вариант 1: Конвейерные RAW-конфликты и Форвардинг</option>
-          <option value="2">Вариант 2: Расчет предела закона Амдала (75%, 90%, 95%)</option>
-          <option value="3">Вариант 3: Штраф промаха ветвления (19-ступенчатый конвейер)</option>
-          <option value="4">Вариант 4: Векторное ускорение SIMD (AVX2 / AVX-512 FLOPS)</option>
-        </select>
-      </div>
-    </div>
-  </div>
+ <!-- БЛОК ИДЕНТИФИКАЦИИ СТУДЕНТА (ЧИСТЫЕ ПЛЕЙСХОЛДЕРЫ) -->
+ <div class="student-card">
+ <div class="student-grid">
+ <div>
+ <label for="student_fio">ФИО студента:</label>
+ <input type="text" id="student_fio" placeholder="">
+ </div>
+ <div>
+ <label for="student_group">Учебная группа:</label>
+ <input type="text" id="student_group" placeholder="">
+ </div>
+ <div>
+ <label for="student_date">Дата проведения:</label>
+ <input type="date" id="student_date">
+ </div>
+ <div>
+ <label for="variant_select">Выбор аналитического варианта:</label>
+ <select id="variant_select" onchange="switchVariant(this.value)">
+ <option value="1">Вариант 1: Конвейерные RAW-конфликты и Форвардинг</option>
+ <option value="2">Вариант 2: Расчет предела закона Амдала (75%, 90%, 95%)</option>
+ <option value="3">Вариант 3: Штраф промаха ветвления (19-ступенчатый конвейер)</option>
+ <option value="4">Вариант 4: Векторное ускорение SIMD (AVX2 / AVX-512 FLOPS)</option>
+ </select>
+ </div>
+ </div>
+ </div>
 
-  <!-- ВАРИАНТ 1: АНАЛИЗ КОНВЕЙЕРНЫХ RAW КОНФЛИКТОВ И ФОРВАРДИНГА -->
-  <div class="task-card variant-section active" id="sec_var1">
-    <div class="case-header">
-      <div class="task-title">Вариант 1: Анализ конвейерных конфликтов по данным (RAW) и аппаратного форвардинга</div>
-      <span class="badge">Конвейер &bull; RAW &bull; Forwarding</span>
-    </div>
-    <div class="task-intro">
-      Исследуйте выполнение цепочки инструкций на 5-ступенчатом конвейере RISC (IF, ID, EX, MEM, WB):
-    </div>
-    <div class="case-box">
-      <code>I1: ADD R1, R2, R3</code> &mdash; результат <code>R1</code> готов в конце стадии EX (T3), запись в РОН на WB (T5)<br>
-      <code>I2: SUB R4, R1, R5</code> &mdash; чтение <code>R1</code> на стадии ID (T3 без форвардинга / T4 с форвардингом)<br>
-      <code>I3: AND R6, R1, R7</code> &mdash; чтение <code>R1</code> на стадии ID<br>
-      <code>I4: OR  R8, R1, R9</code> &mdash; чтение <code>R1</code> на стадии ID
-    </div>
+ <!-- ВАРИАНТ 1: АНАЛИЗ КОНВЕЙЕРНЫХ RAW КОНФЛИКТОВ И ФОРВАРДИНГА -->
+ <div class="task-card variant-section active" id="sec_var1">
+ <div class="case-header">
+ <div class="task-title">Вариант 1: Анализ конвейерных конфликтов по данным (RAW) и аппаратного форвардинга</div>
+ <span class="badge">Конвейер &bull; RAW &bull; Forwarding</span>
+ </div>
+ <div class="task-intro">
+ Исследуйте выполнение цепочки инструкций на 5-ступенчатом конвейере RISC (IF, ID, EX, MEM, WB):
+ </div>
+ <div class="case-box">
+ <code>I1: ADD R1, R2, R3</code> &mdash; результат <code>R1</code> готов в конце стадии EX (T3), запись в РОН на WB (T5)<br>
+ <code>I2: SUB R4, R1, R5</code> &mdash; чтение <code>R1</code> на стадии ID (T3 без форвардинга / T4 с форвардингом)<br>
+ <code>I3: AND R6, R1, R7</code> &mdash; чтение <code>R1</code> на стадии ID<br>
+ <code>I4: OR R8, R1, R9</code> &mdash; чтение <code>R1</code> на стадии ID
+ </div>
 
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Инженерный параметр</th>
-            <th>Режим 1: Без форвардинга (вставка пузырей NOP/Stall)</th>
-            <th>Режим 2: С аппаратным форвардингом (Bypassing)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Где и между какими командами возникает RAW?</strong></td>
-            <td><input type="text" class="table-input" id="v1_raw_desc_1" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v1_raw_desc_2" placeholder=""></td>
-          </tr>
-          <tr>
-            <td><strong>Число тактов задержки (пузырей / stalls) команды I2</strong></td>
-            <td><input type="text" class="table-input" id="v1_stalls_1" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v1_stalls_2" placeholder=""></td>
-          </tr>
-          <tr>
-            <td><strong>Суммарное время выполнения 4 команд (тактов)</strong></td>
-            <td><input type="text" class="table-input" id="v1_total_1" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v1_total_2" placeholder=""></td>
-          </tr>
-          <tr>
-            <td><strong>Откуда и куда передаются сигналы в схеме Forwarding</strong></td>
-            <td>Не применимо (ожидание в ID)</td>
-            <td><input type="text" class="table-input" id="v1_fwd_path" placeholder=""></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+ <div class="table-wrap">
+ <table>
+ <thead>
+ <tr>
+ <th>Инженерный параметр</th>
+ <th>Режим 1: Без форвардинга (вставка пузырей NOP/Stall)</th>
+ <th>Режим 2: С аппаратным форвардингом (Bypassing)</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>Где и между какими командами возникает RAW?</strong></td>
+ <td><input type="text" class="table-input" id="v1_raw_desc_1" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v1_raw_desc_2" placeholder=""></td>
+ </tr>
+ <tr>
+ <td><strong>Число тактов задержки (пузырей / stalls) команды I2</strong></td>
+ <td><input type="text" class="table-input" id="v1_stalls_1" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v1_stalls_2" placeholder=""></td>
+ </tr>
+ <tr>
+ <td><strong>Суммарное время выполнения 4 команд (тактов)</strong></td>
+ <td><input type="text" class="table-input" id="v1_total_1" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v1_total_2" placeholder=""></td>
+ </tr>
+ <tr>
+ <td><strong>Откуда и куда передаются сигналы в схеме Forwarding</strong></td>
+ <td>Не применимо (ожидание в ID)</td>
+ <td><input type="text" class="table-input" id="v1_fwd_path" placeholder=""></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
 
-    <label for="v1_analysis">Инженерный вывод по Варианту 1 (почему Load-Use конфликт требует 1 такт простоя даже с форвардингом?):</label>
-    <textarea id="v1_analysis" placeholder=""></textarea>
-  </div>
+ <label for="v1_analysis">Инженерный вывод по Варианту 1 (почему Load-Use конфликт требует 1 такт простоя даже с форвардингом?):</label>
+ <textarea id="v1_analysis" placeholder=""></textarea>
+ </div>
 
-  <!-- ВАРИАНТ 2: РАСЧЕТ ТЕОРЕТИЧЕСКОГО ПРЕДЕЛА УСКОРЕНИЯ ПО ЗАКОНУ АМДАЛА -->
-  <div class="task-card variant-section" id="sec_var2">
-    <div class="case-header">
-      <div class="task-title">Вариант 2: Расчет предела ускорения параллельной системы по закону Амдала</div>
-      <span class="badge">Закон Амдала &bull; Многоядерность</span>
-    </div>
-    <div class="task-intro">
-      Рассчитайте теоретическое ускорение S(N) = frac{1}{(1-p) + p/N} и предел S<sub>max</sub> = frac{1}{1-p} при росте числа ядер:
-    </div>
+ <!-- ВАРИАНТ 2: РАСЧЕТ ТЕОРЕТИЧЕСКОГО ПРЕДЕЛА УСКОРЕНИЯ ПО ЗАКОНУ АМДАЛА -->
+ <div class="task-card variant-section" id="sec_var2">
+ <div class="case-header">
+ <div class="task-title">Вариант 2: Расчет предела ускорения параллельной системы по закону Амдала</div>
+ <span class="badge">Закон Амдала &bull; Многоядерность</span>
+ </div>
+ <div class="task-intro">
+ Рассчитайте теоретическое ускорение S(N) = frac{1}{(1-p) + p/N} и предел S<sub>max</sub> = frac{1}{1-p} при росте числа ядер:
+ </div>
 
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Доля параллельного кода (p)</th>
-            <th>N = 2 ядра</th>
-            <th>N = 4 ядра</th>
-            <th>N = 8 ядер</th>
-            <th>N = 16 ядер</th>
-            <th>N = 64 ядра</th>
-            <th>Предел при N &rarr; &infin;</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>p = 75% (0.75)</strong></td>
-            <td><input type="text" class="table-input" id="v2_p75_2" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v2_p75_4" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v2_p75_8" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v2_p75_16" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v2_p75_64" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v2_p75_inf" placeholder=""></td>
-          </tr>
-          <tr>
-            <td><strong>p = 90% (0.90)</strong></td>
-            <td><input type="text" class="table-input" id="v2_p90_2" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v2_p90_4" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v2_p90_8" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v2_p90_16" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v2_p90_64" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v2_p90_inf" placeholder=""></td>
-          </tr>
-          <tr>
-            <td><strong>p = 95% (0.95)</strong></td>
-            <td><input type="text" class="table-input" id="v2_p95_2" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v2_p95_4" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v2_p95_8" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v2_p95_16" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v2_p95_64" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v2_p95_inf" placeholder=""></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+ <div class="table-wrap">
+ <table>
+ <thead>
+ <tr>
+ <th>Доля параллельного кода (p)</th>
+ <th>N = 2 ядра</th>
+ <th>N = 4 ядра</th>
+ <th>N = 8 ядер</th>
+ <th>N = 16 ядер</th>
+ <th>N = 64 ядра</th>
+ <th>Предел при N &rarr; &infin;</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>p = 75% (0.75)</strong></td>
+ <td><input type="text" class="table-input" id="v2_p75_2" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v2_p75_4" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v2_p75_8" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v2_p75_16" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v2_p75_64" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v2_p75_inf" placeholder=""></td>
+ </tr>
+ <tr>
+ <td><strong>p = 90% (0.90)</strong></td>
+ <td><input type="text" class="table-input" id="v2_p90_2" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v2_p90_4" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v2_p90_8" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v2_p90_16" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v2_p90_64" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v2_p90_inf" placeholder=""></td>
+ </tr>
+ <tr>
+ <td><strong>p = 95% (0.95)</strong></td>
+ <td><input type="text" class="table-input" id="v2_p95_2" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v2_p95_4" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v2_p95_8" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v2_p95_16" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v2_p95_64" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v2_p95_inf" placeholder=""></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
 
-    <label for="v2_analysis">Инженерный вывод по Варианту 2 (почему покупка 64-ядерного процессора не ускоряет программу на 64 раза?):</label>
-    <textarea id="v2_analysis" placeholder=""></textarea>
-  </div>
+ <label for="v2_analysis">Инженерный вывод по Варианту 2 (почему покупка 64-ядерного процессора не ускоряет программу на 64 раза?):</label>
+ <textarea id="v2_analysis" placeholder=""></textarea>
+ </div>
 
-  <!-- ВАРИАНТ 3: АНАЛИЗ ШТРАФА ЗА ОШИБКУ ПРЕДСКАЗАНИЯ ВЕТВЛЕНИЙ -->
-  <div class="task-card variant-section" id="sec_var3">
-    <div class="case-header">
-      <div class="task-title">Вариант 3: Анализ штрафа за ошибку предсказания ветвлений (Branch Misprediction)</div>
-      <span class="badge">Глубокий конвейер &bull; TAGE &bull; Flush</span>
-    </div>
-    <div class="task-intro">
-      Глубокий 19-ступенчатый конвейер (N<sub>penalty</sub> = 19 тактов). Доля переходов f<sub>branch</sub> = 20\% (0.20), базовый CPI<sub>base</sub> = 1.0.
-    </div>
-    <div class="formula-tag">
-      CPI_eff = CPI_base + f_branch &times; (1 - Accuracy) &times; N_penalty &nbsp;|&nbsp; IPC_eff = 1 / CPI_eff
-    </div>
+ <!-- ВАРИАНТ 3: АНАЛИЗ ШТРАФА ЗА ОШИБКУ ПРЕДСКАЗАНИЯ ВЕТВЛЕНИЙ -->
+ <div class="task-card variant-section" id="sec_var3">
+ <div class="case-header">
+ <div class="task-title">Вариант 3: Анализ штрафа за ошибку предсказания ветвлений (Branch Misprediction)</div>
+ <span class="badge">Глубокий конвейер &bull; TAGE &bull; Flush</span>
+ </div>
+ <div class="task-intro">
+ Глубокий 19-ступенчатый конвейер (N<sub>penalty</sub> = 19 тактов). Доля переходов f<sub>branch</sub> = 20\% (0.20), базовый CPI<sub>base</sub> = 1.0.
+ </div>
+ <div class="formula-tag">
+ CPI_eff = CPI_base + f_branch &times; (1 - Accuracy) &times; N_penalty &nbsp;|&nbsp; IPC_eff = 1 / CPI_eff
+ </div>
 
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Алгоритм предсказателя переходов</th>
-            <th>Точность (Accuracy)</th>
-            <th>Добавочные такты штрафа</th>
-            <th>Эффективный CPI_eff</th>
-            <th>Реальный темп IPC_eff</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Случайное угадывание</strong></td>
-            <td>50% (0.50)</td>
-            <td><input type="text" class="table-input" id="v3_pen_50" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v3_cpi_50" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v3_ipc_50" placeholder=""></td>
-          </tr>
-          <tr>
-            <td><strong>2-битный насыщающийся счетчик</strong></td>
-            <td>85% (0.85)</td>
-            <td><input type="text" class="table-input" id="v3_pen_85" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v3_cpi_85" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v3_ipc_85" placeholder=""></td>
-          </tr>
-          <tr>
-            <td><strong>Двухуровневый адаптивный (gshare)</strong></td>
-            <td>93% (0.93)</td>
-            <td><input type="text" class="table-input" id="v3_pen_93" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v3_cpi_93" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v3_ipc_93" placeholder=""></td>
-          </tr>
-          <tr>
-            <td><strong>Современный TAGE-предсказатель</strong></td>
-            <td>98% (0.98)</td>
-            <td><input type="text" class="table-input" id="v3_pen_98" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v3_cpi_98" placeholder=""></td>
-            <td><input type="text" class="table-input" id="v3_ipc_98" placeholder=""></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+ <div class="table-wrap">
+ <table>
+ <thead>
+ <tr>
+ <th>Алгоритм предсказателя переходов</th>
+ <th>Точность (Accuracy)</th>
+ <th>Добавочные такты штрафа</th>
+ <th>Эффективный CPI_eff</th>
+ <th>Реальный темп IPC_eff</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>Случайное угадывание</strong></td>
+ <td>50% (0.50)</td>
+ <td><input type="text" class="table-input" id="v3_pen_50" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v3_cpi_50" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v3_ipc_50" placeholder=""></td>
+ </tr>
+ <tr>
+ <td><strong>2-битный насыщающийся счетчик</strong></td>
+ <td>85% (0.85)</td>
+ <td><input type="text" class="table-input" id="v3_pen_85" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v3_cpi_85" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v3_ipc_85" placeholder=""></td>
+ </tr>
+ <tr>
+ <td><strong>Двухуровневый адаптивный (gshare)</strong></td>
+ <td>93% (0.93)</td>
+ <td><input type="text" class="table-input" id="v3_pen_93" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v3_cpi_93" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v3_ipc_93" placeholder=""></td>
+ </tr>
+ <tr>
+ <td><strong>Современный TAGE-предсказатель</strong></td>
+ <td>98% (0.98)</td>
+ <td><input type="text" class="table-input" id="v3_pen_98" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v3_cpi_98" placeholder=""></td>
+ <td><input type="text" class="table-input" id="v3_ipc_98" placeholder=""></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
 
-    <label for="v3_analysis">Инженерный вывод по Варианту 3 (почему в глубоких конвейерах качество предсказателя важнее гигагерц?):</label>
-    <textarea id="v3_analysis" placeholder=""></textarea>
-  </div>
+ <label for="v3_analysis">Инженерный вывод по Варианту 3 (почему в глубоких конвейерах качество предсказателя важнее гигагерц?):</label>
+ <textarea id="v3_analysis" placeholder=""></textarea>
+ </div>
 
-  <!-- ВАРИАНТ 4: ВЕКТОРНОЕ УСКОРЕНИЕ SIMD (AVX2 / AVX-512 FLOPS) -->
-  <div class="task-card variant-section" id="sec_var4">
-    <div class="case-header">
-      <div class="task-title">Вариант 4: Векторное ускорение SIMD (AVX2 / AVX-512) и расчет пиковых FLOPS</div>
-      <span class="badge">SIMD &bull; FMA &bull; FLOPS &bull; AVX-512</span>
-    </div>
-    <div class="task-intro">
-      Ядро работает на частоте 4.0 ГГц (4.0 × 10<sup>9</sup> Гц) с 2 исполнительными портами FMA (2 флопа за такт на элемент). Данные: <code>float32</code> (32 бита).
-    </div>
-    <div class="formula-tag">
-      Peak_FLOPS = Число_портов &times; Элементов_в_векторе &times; 2 (FMA) &times; Тактовая_частота (ГГц)
-    </div>
+ <!-- ВАРИАНТ 4: ВЕКТОРНОЕ УСКОРЕНИЕ SIMD (AVX2 / AVX-512 FLOPS) -->
+ <div class="task-card variant-section" id="sec_var4">
+ <div class="case-header">
+ <div class="task-title">Вариант 4: Векторное ускорение SIMD (AVX2 / AVX-512) и расчет пиковых FLOPS</div>
+ <span class="badge">SIMD &bull; FMA &bull; FLOPS &bull; AVX-512</span>
+ </div>
+ <div class="task-intro">
+ Ядро работает на частоте 4.0 ГГц (4.0 × 10<sup>9</sup> Гц) с 2 исполнительными портами FMA (2 флопа за такт на элемент). Данные: <code>float32</code> (32 бита).
+ </div>
+ <div class="formula-tag">
+ Peak_FLOPS = Число_портов &times; Элементов_в_векторе &times; 2 (FMA) &times; Тактовая_частота (ГГц)
+ </div>
 
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Архитектурное расширение</th>
-            <th>Разрядность регистров</th>
-            <th>Элементов float32 в регистре</th>
-            <th>Операций FMA за такт на 2 порта</th>
-            <th>Пиковая скорость ячейки (GFLOPS)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Базовый скаляр (x87 / скалярный FPU)</strong></td>
-            <td>32 бита</td>
-            <td>1 элемент</td>
-            <td>2 &times; 1 = 2 оп/такт</td>
-            <td><input type="text" class="table-input" id="v4_flops_scalar" placeholder=""></td>
-          </tr>
-          <tr>
-            <td><strong>SSE / SSE4.2 (XMM регистры)</strong></td>
-            <td>128 бит</td>
-            <td>4 элемента</td>
-            <td>2 &times; 4 = 8 оп/такт</td>
-            <td><input type="text" class="table-input" id="v4_flops_sse" placeholder=""></td>
-          </tr>
-          <tr>
-            <td><strong>AVX / AVX2 (YMM регистры)</strong></td>
-            <td>256 бит</td>
-            <td>8 элементов</td>
-            <td>2 &times; 8 = 16 оп/такт</td>
-            <td><input type="text" class="table-input" id="v4_flops_avx2" placeholder=""></td>
-          </tr>
-          <tr>
-            <td><strong>AVX-512 (ZMM регистры)</strong></td>
-            <td>512 бит</td>
-            <td>16 элементов</td>
-            <td>2 &times; 16 = 32 оп/такт</td>
-            <td><input type="text" class="table-input" id="v4_flops_avx512" placeholder=""></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+ <div class="table-wrap">
+ <table>
+ <thead>
+ <tr>
+ <th>Архитектурное расширение</th>
+ <th>Разрядность регистров</th>
+ <th>Элементов float32 в регистре</th>
+ <th>Операций FMA за такт на 2 порта</th>
+ <th>Пиковая скорость ячейки (GFLOPS)</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>Базовый скаляр (x87 / скалярный FPU)</strong></td>
+ <td>32 бита</td>
+ <td>1 элемент</td>
+ <td>2 &times; 1 = 2 оп/такт</td>
+ <td><input type="text" class="table-input" id="v4_flops_scalar" placeholder=""></td>
+ </tr>
+ <tr>
+ <td><strong>SSE / SSE4.2 (XMM регистры)</strong></td>
+ <td>128 бит</td>
+ <td>4 элемента</td>
+ <td>2 &times; 4 = 8 оп/такт</td>
+ <td><input type="text" class="table-input" id="v4_flops_sse" placeholder=""></td>
+ </tr>
+ <tr>
+ <td><strong>AVX / AVX2 (YMM регистры)</strong></td>
+ <td>256 бит</td>
+ <td>8 элементов</td>
+ <td>2 &times; 8 = 16 оп/такт</td>
+ <td><input type="text" class="table-input" id="v4_flops_avx2" placeholder=""></td>
+ </tr>
+ <tr>
+ <td><strong>AVX-512 (ZMM регистры)</strong></td>
+ <td>512 бит</td>
+ <td>16 элементов</td>
+ <td>2 &times; 16 = 32 оп/такт</td>
+ <td><input type="text" class="table-input" id="v4_flops_avx512" placeholder=""></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
 
-    <label for="v4_analysis">Инженерный вывод по Варианту 4 (что такое AVX Frequency Offset / Throttle и почему он происходит?):</label>
-    <textarea id="v4_analysis" placeholder=""></textarea>
-  </div>
+ <label for="v4_analysis">Инженерный вывод по Варианту 4 (что такое AVX Frequency Offset / Throttle и почему он происходит?):</label>
+ <textarea id="v4_analysis" placeholder=""></textarea>
+ </div>
 
-  <!-- ОБЩАЯ ЧАСТЬ: АНАЛИЗ ПАРАДИГМЫ И ВЫВОДЫ САМОПРОВЕРКИ -->
-  <div class="task-card">
-    <div class="task-title">Итоговый сравнительный анализ и самопроверка</div>
-    <label for="general_summary">Сформулируйте комплексный вывод: как совместная работа конвейера, Out-of-Order и SIMD позволяет современным микроархитектурам достигать высокого IPC при умеренном энергопотреблении:</label>
-    <textarea id="general_summary" placeholder=""></textarea>
-  </div>
+ <!-- ОБЩАЯ ЧАСТЬ: АНАЛИЗ ПАРАДИГМЫ И ВЫВОДЫ САМОПРОВЕРКИ -->
+ <div class="task-card">
+ <div class="task-title">Итоговый сравнительный анализ и самопроверка</div>
+ <label for="general_summary">Сформулируйте комплексный вывод: как совместная работа конвейера, Out-of-Order и SIMD позволяет современным микроархитектурам достигать высокого IPC при умеренном энергопотреблении:</label>
+ <textarea id="general_summary" placeholder=""></textarea>
+ </div>
 
-  <!-- ПАНЕЛЬ ДЕЙСТВИЙ -->
-  <div class="actions-card">
-    <div class="btn-group">
-      <button type="button" class="btn btn-primary" onclick="saveToStorage()">Сохранить лист</button>
-      <button type="button" class="btn btn-secondary" onclick="window.print()">Печать в PDF / Отчет</button>
-      <button type="button" class="btn btn-danger" onclick="clearData()">Очистить форму</button>
-    </div>
-    <div class="save-status" id="save_status">Данные успешно сохранены в localStorage!</div>
-  </div>
+ <!-- ПАНЕЛЬ ДЕЙСТВИЙ -->
+ <div class="actions-card">
+ <div class="btn-group">
+ <button type="button" class="btn btn-primary" onclick="saveToStorage()">Сохранить лист</button>
+ <button type="button" class="btn btn-secondary" onclick="window.print()">Печать в PDF / Отчет</button>
+ <button type="button" class="btn btn-danger" onclick="clearData()">Очистить форму</button>
+ </div>
+ <div class="save-status" id="save_status">Данные успешно сохранены в localStorage!</div>
+ </div>
 
 </div>
 
 <script>
-  const STORAGE_KEY = 'top_hw08_worksheet_data';
+ const STORAGE_KEY = 'top_hw08_worksheet_data';
 
-  const fieldIds = [
-    'student_fio', 'student_group', 'student_date', 'variant_select',
-    'v1_raw_desc_1', 'v1_raw_desc_2', 'v1_stalls_1', 'v1_stalls_2', 'v1_total_1', 'v1_total_2', 'v1_fwd_path', 'v1_analysis',
-    'v2_p75_2', 'v2_p75_4', 'v2_p75_8', 'v2_p75_16', 'v2_p75_64', 'v2_p75_inf',
-    'v2_p90_2', 'v2_p90_4', 'v2_p90_8', 'v2_p90_16', 'v2_p90_64', 'v2_p90_inf',
-    'v2_p95_2', 'v2_p95_4', 'v2_p95_8', 'v2_p95_16', 'v2_p95_64', 'v2_p95_inf', 'v2_analysis',
-    'v3_pen_50', 'v3_cpi_50', 'v3_ipc_50',
-    'v3_pen_85', 'v3_cpi_85', 'v3_ipc_85',
-    'v3_pen_93', 'v3_cpi_93', 'v3_ipc_93',
-    'v3_pen_98', 'v3_cpi_98', 'v3_ipc_98', 'v3_analysis',
-    'v4_flops_scalar', 'v4_flops_sse', 'v4_flops_avx2', 'v4_flops_avx512', 'v4_analysis',
-    'general_summary'
-  ];
+ const fieldIds = [
+ 'student_fio', 'student_group', 'student_date', 'variant_select',
+ 'v1_raw_desc_1', 'v1_raw_desc_2', 'v1_stalls_1', 'v1_stalls_2', 'v1_total_1', 'v1_total_2', 'v1_fwd_path', 'v1_analysis',
+ 'v2_p75_2', 'v2_p75_4', 'v2_p75_8', 'v2_p75_16', 'v2_p75_64', 'v2_p75_inf',
+ 'v2_p90_2', 'v2_p90_4', 'v2_p90_8', 'v2_p90_16', 'v2_p90_64', 'v2_p90_inf',
+ 'v2_p95_2', 'v2_p95_4', 'v2_p95_8', 'v2_p95_16', 'v2_p95_64', 'v2_p95_inf', 'v2_analysis',
+ 'v3_pen_50', 'v3_cpi_50', 'v3_ipc_50',
+ 'v3_pen_85', 'v3_cpi_85', 'v3_ipc_85',
+ 'v3_pen_93', 'v3_cpi_93', 'v3_ipc_93',
+ 'v3_pen_98', 'v3_cpi_98', 'v3_ipc_98', 'v3_analysis',
+ 'v4_flops_scalar', 'v4_flops_sse', 'v4_flops_avx2', 'v4_flops_avx512', 'v4_analysis',
+ 'general_summary'
+ ];
 
-  function switchVariant(val) {
-    for (let i = 1; i <= 4; i++) {
-      const sec = document.getElementById('sec_var' + i);
-      if (sec) {
-        if (i.toString() === val.toString()) {
-          sec.classList.add('active');
-        } else {
-          sec.classList.remove('active');
-        }
-      }
-    }
-  }
+ function switchVariant(val) {
+ for (let i = 1; i <= 4; i++) {
+ const sec = document.getElementById('sec_var' + i);
+ if (sec) {
+ if (i.toString() === val.toString()) {
+ sec.classList.add('active');
+ } else {
+ sec.classList.remove('active');
+ }
+ }
+ }
+ }
 
-  function saveToStorage() {
-    const data = {};
-    fieldIds.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) data[id] = el.value;
-    });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    const status = document.getElementById('save_status');
-    status.classList.add('show');
-    setTimeout(() => status.classList.remove('show'), 2500);
-  }
+ function saveToStorage() {
+ const data = {};
+ fieldIds.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) data[id] = el.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ const status = document.getElementById('save_status');
+ status.classList.add('show');
+ setTimeout(() => status.classList.remove('show'), 2500);
+ }
 
-  function loadFromStorage() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        fieldIds.forEach(id => {
-          const el = document.getElementById(id);
-          if (el && data[id] !== undefined) el.value = data[id];
-        });
-        if (data.variant_select) {
-          switchVariant(data.variant_select);
-        }
-      } catch (e) {
-        console.error('Ошибка загрузки данных:', e);
-      }
-    }
-  }
+ function loadFromStorage() {
+ const saved = localStorage.getItem(STORAGE_KEY);
+ if (saved) {
+ try {
+ const data = JSON.parse(saved);
+ fieldIds.forEach(id => {
+ const el = document.getElementById(id);
+ if (el && data[id] !== undefined) el.value = data[id];
+ });
+ if (data.variant_select) {
+ switchVariant(data.variant_select);
+ }
+ } catch (e) {
+ console.error('Ошибка загрузки данных:', e);
+ }
+ }
+ }
 
-  function clearData() {
-    if (confirm('Вы уверены, что хотите полностью очистить форму? Все введенные данные будут безвозвратно удалены.')) {
-      localStorage.removeItem(STORAGE_KEY);
-      fieldIds.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-          if (id === 'variant_select') el.value = '1';
-          else el.value = '';
-        }
-      });
-      switchVariant('1');
-    }
-  }
+ function clearData() {
+ if (confirm('Вы уверены, что хотите полностью очистить форму? Все введенные данные будут безвозвратно удалены.')) {
+ localStorage.removeItem(STORAGE_KEY);
+ fieldIds.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) {
+ if (id === 'variant_select') el.value = '1';
+ else el.value = '';
+ }
+ });
+ switchVariant('1');
+ }
+ }
 
-  // Автосохранение при вводе
-  fieldIds.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('input', () => {
-        const data = {};
-        fieldIds.forEach(fid => {
-          const fel = document.getElementById(fid);
-          if (fel) data[fid] = fel.value;
-        });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      });
-    }
-  });
+ // Автосохранение при вводе
+ fieldIds.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) {
+ el.addEventListener('input', () => {
+ const data = {};
+ fieldIds.forEach(fid => {
+ const fel = document.getElementById(fid);
+ if (fel) data[fid] = fel.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ });
+ }
+ });
 
-  window.addEventListener('DOMContentLoaded', loadFromStorage);
+ window.addEventListener('DOMContentLoaded', loadFromStorage);
 </script>
 </body>
 </html>

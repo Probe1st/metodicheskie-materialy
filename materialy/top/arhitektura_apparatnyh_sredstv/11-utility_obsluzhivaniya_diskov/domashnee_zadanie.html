@@ -1,394 +1,371 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Домашнее задание - Утилиты обслуживания жестких магнитных дисков и оптических дисков</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #1e40af;
-      --accent-soft: #eff6ff;
-      --ok: #059669;
-      --warn: #d97706;
-      --danger: #dc2626;
-      --radius: 14px;
-      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.6;
-      font-size: 15px;
-      padding: 20px 14px;
-    }
-    .page {
-      max-width: 920px;
-      margin: 0 auto;
-    }
-    .header-card, .student-card, .card, .actions-card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow);
-    }
-    h1 {
-      font-size: clamp(20px, 3.2vw, 26px);
-      color: var(--accent);
-      margin-bottom: 8px;
-    }
-    .notice {
-      background: #fef3c7;
-      border-left: 4px solid #f59e0b;
-      padding: 12px 16px;
-      border-radius: 0 8px 8px 0;
-      font-size: 14.5px;
-      color: #92400e;
-      margin-top: 12px;
-      font-weight: 500;
-    }
-    .student-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-    }
-    label {
-      display: block;
-      font-weight: 600;
-      font-size: 13.5px;
-      margin-bottom: 6px;
-      color: #1e293b;
-    }
-    input[type="text"], input[type="date"], select, textarea {
-      width: 100%;
-      border: 1.5px solid var(--line);
-      border-radius: 8px;
-      padding: 9px 12px;
-      font: inherit;
-      font-size: 14px;
-      background: #fff;
-      color: var(--text);
-      outline: none;
-      transition: border-color .15s, box-shadow .15s;
-    }
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
-    }
-    textarea {
-      resize: vertical;
-      min-height: 90px;
-    }
-    .section-title {
-      font-size: 18px;
-      color: var(--accent);
-      margin-bottom: 12px;
-      font-weight: 700;
-      border-bottom: 1.5px solid var(--accent-soft);
-      padding-bottom: 6px;
-    }
-    .example-box {
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 18px;
-      margin: 14px 0;
-    }
-    .example-box h4 {
-      color: #1e293b;
-      margin-bottom: 8px;
-      font-size: 16px;
-    }
-    .smart-dump {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      background: #0f172a;
-      color: #38bdf8;
-      padding: 14px 18px;
-      border-radius: 8px;
-      font-size: 13px;
-      line-height: 1.45;
-      overflow-x: auto;
-      margin: 12px 0;
-      white-space: pre;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 14px 0;
-      font-size: 13.5px;
-    }
-    th, td {
-      border: 1px solid var(--line);
-      padding: 8px 10px;
-      text-align: left;
-      vertical-align: top;
-    }
-    th {
-      background: var(--accent-soft);
-      font-weight: 700;
-      color: var(--accent);
-    }
-    .btn {
-      padding: 9px 18px;
-      border-radius: 8px;
-      border: none;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background .15s;
-    }
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-primary:hover { background: #1d4ed8; }
-    .btn-secondary { background: #e2e8f0; color: #1e293b; }
-    .btn-secondary:hover { background: #cbd5e1; }
-    .btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
-    .btn-danger:hover { background: #fecaca; }
-    .actions-flex {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: center;
-    }
-    .status-msg {
-      font-size: 13.5px;
-      color: var(--ok);
-      font-weight: 600;
-    }
-    .print-mirror {
-      display: none;
-      white-space: pre-wrap;
-      word-break: break-word;
-      font-size: 13.5px;
-      padding: 8px 10px;
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      background: #fafafa;
-      min-height: 40px;
-    }
-    @media print {
-      body { background: #fff; padding: 0; font-size: 11pt; }
-      .header-card, .student-card, .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 12pt; }
-      .actions-card, .btn { display: none !important; }
-      .notice { background: #fdfdfd; border-left: 3px solid #999; color: #333; }
-      textarea { display: none !important; }
-      .print-mirror { display: block !important; }
-      input::placeholder, textarea::placeholder { color: transparent !important; }
-    }
-    @media (max-width: 480px) {
-      body { padding: 12px 8px; }
-      .header-card, .student-card, .card, .actions-card { padding: 16px; }
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <title>Домашнее задание - Утилиты обслуживания жестких магнитных дисков и оптических дисков</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #1e40af;
+ --accent-soft: #eff6ff;
+ --ok: #059669;
+ --warn: #d97706;
+ --danger: #dc2626;
+ --radius: 14px;
+ --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+ body {
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+ line-height: 1.6;
+ font-size: 15px;
+ padding: 20px 14px;
+ }.page {
+ max-width: 920px;
+ margin: 0 auto;
+ }.header-card,.student-card,.card,.actions-card {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 24px;
+ margin-bottom: 20px;
+ box-shadow: var(--shadow);
+ }
+ h1 {
+ font-size: clamp(20px, 3.2vw, 26px);
+ color: var(--accent);
+ margin-bottom: 8px;
+ }.notice {
+ background: #fef3c7;
+ border-left: 4px solid #f59e0b;
+ padding: 12px 16px;
+ border-radius: 0 8px 8px 0;
+ font-size: 14.5px;
+ color: #92400e;
+ margin-top: 12px;
+ font-weight: 500;
+ }.student-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+ gap: 16px;
+ }
+ label {
+ display: block;
+ font-weight: 600;
+ font-size: 13.5px;
+ margin-bottom: 6px;
+ color: #1e293b;
+ }
+ input[type="text"], input[type="date"], select, textarea {
+ width: 100%;
+ border: 1.5px solid var(--line);
+ border-radius: 8px;
+ padding: 9px 12px;
+ font: inherit;
+ font-size: 14px;
+ background: #fff;
+ color: var(--text);
+ outline: none;
+ transition: border-color.15s, box-shadow.15s;
+ }
+ input:focus, select:focus, textarea:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+ }
+ textarea {
+ resize: vertical;
+ min-height: 90px;
+ }.section-title {
+ font-size: 18px;
+ color: var(--accent);
+ margin-bottom: 12px;
+ font-weight: 700;
+ border-bottom: 1.5px solid var(--accent-soft);
+ padding-bottom: 6px;
+ }.example-box {
+ background: #f8fafc;
+ border: 1px solid var(--line);
+ border-radius: 10px;
+ padding: 18px;
+ margin: 14px 0;
+ }.example-box h4 {
+ color: #1e293b;
+ margin-bottom: 8px;
+ font-size: 16px;
+ }.smart-dump {
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+ background: #0f172a;
+ color: #38bdf8;
+ padding: 14px 18px;
+ border-radius: 8px;
+ font-size: 13px;
+ line-height: 1.45;
+ overflow-x: auto;
+ margin: 12px 0;
+ white-space: pre;
+ }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ margin: 14px 0;
+ font-size: 13.5px;
+ }
+ th, td {
+ border: 1px solid var(--line);
+ padding: 8px 10px;
+ text-align: left;
+ vertical-align: top;
+ }
+ th {
+ background: var(--accent-soft);
+ font-weight: 700;
+ color: var(--accent);
+ }.btn {
+ padding: 9px 18px;
+ border-radius: 8px;
+ border: none;
+ font-weight: 600;
+ cursor: pointer;
+ font-size: 14px;
+ transition: background.15s;
+ }.btn-primary { background: var(--accent); color: #fff; }.btn-primary:hover { background: #1d4ed8; }.btn-secondary { background: #e2e8f0; color: #1e293b; }.btn-secondary:hover { background: #cbd5e1; }.btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }.btn-danger:hover { background: #fecaca; }.actions-flex {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 12px;
+ align-items: center;
+ }.status-msg {
+ font-size: 13.5px;
+ color: var(--ok);
+ font-weight: 600;
+ }.print-mirror {
+ display: none;
+ white-space: pre-wrap;
+ word-break: break-word;
+ font-size: 13.5px;
+ padding: 8px 10px;
+ border: 1px solid #cbd5e1;
+ border-radius: 6px;
+ background: #fafafa;
+ min-height: 40px;
+ }
+ @media print {
+ body { background: #fff; padding: 0; font-size: 11pt; }.header-card,.student-card,.card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 12pt; }.actions-card,.btn { display: none !important; }.notice { background: #fdfdfd; border-left: 3px solid #999; color: #333; }
+ textarea { display: none !important; }.print-mirror { display: block !important; }
+ input::placeholder, textarea::placeholder { color: transparent !important; }
+ }
+ @media (max-width: 480px) {
+ body { padding: 12px 8px; }.header-card,.student-card,.card,.actions-card { padding: 16px; }
+ }
+ </style>
 </head>
 <body>
 <div class="page">
 
-  <!-- ШАПКА СТРОГО ПО ТРЕБОВАНИЮ ТЗ -->
-  <div class="header-card">
-    <h1>Домашнее задание - Утилиты обслуживания жестких магнитных дисков и оптических дисков</h1>
-    <div class="notice">
-      Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
-    </div>
-  </div>
+ <!-- ШАПКА СТРОГО ПО ТРЕБОВАНИЮ ТЗ -->
+ <div class="header-card">
+ <h1>Домашнее задание - Утилиты обслуживания жестких магнитных дисков и оптических дисков</h1>
+ <div class="notice">
+ Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+ </div>
+ </div>
 
-  <div class="student-card">
-    <div class="student-grid">
-      <div>
-        <label for="hw_fio">Фамилия, Имя обучающегося:</label>
-        <input type="text" id="hw_fio">
-      </div>
-      <div>
-        <label for="hw_group">Учебная группа:</label>
-        <input type="text" id="hw_group">
-      </div>
-      <div>
-        <label for="hw_date">Дата выполнения:</label>
-        <input type="date" id="hw_date">
-      </div>
-    </div>
-  </div>
+ <div class="student-card">
+ <div class="student-grid">
+ <div>
+ <label for="hw_fio">Фамилия, Имя обучающегося:</label>
+ <input type="text" id="hw_fio">
+ </div>
+ <div>
+ <label for="hw_group">Учебная группа:</label>
+ <input type="text" id="hw_group">
+ </div>
+ <div>
+ <label for="hw_date">Дата выполнения:</label>
+ <input type="date" id="hw_date">
+ </div>
+ </div>
+ </div>
 
-  <!-- ЭТАЛОННЫЙ ПРИМЕР -->
-  <div class="card">
-    <div class="section-title">1. Разобранный эталонный пример расшифровки S.M.A.R.T. и плана спасения данных</div>
-    <div class="example-box">
-      <h4>Исходная ситуация: Файловый сервер филиала (HDD Seagate Enterprise 2TB SATA)</h4>
-      <div class="smart-dump">
+ <!-- ЭТАЛОННЫЙ ПРИМЕР -->
+ <div class="card">
+ <div class="section-title">1. Разобранный эталонный пример расшифровки S.M.A.R.T. и плана спасения данных</div>
+ <div class="example-box">
+ <h4>Исходная ситуация: Файловый сервер филиала (HDD Seagate Enterprise 2TB SATA)</h4>
+ <div class="smart-dump">
 === START OF READ SMART DATA SECTION ===
 SMART Attributes Data Structure revision number: 10
-ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  RAW_VALUE
-  1 Raw_Read_Error_Rate     0x000f   078   064   044    Pre-fail  Always   1827419
-  5 Reallocated_Sector_Ct   0x0033   092   092   036    Pre-fail  Always   128
-  9 Power_On_Hours          0x0032   061   061   000    Old_age   Always   34180
- 10 Spin_Retry_Count        0x0013   100   100   097    Pre-fail  Always   0
-187 Reported_Uncorrect      0x0032   001   001   000    Old_age   Always   42
-194 Temperature_Celsius     0x0022   038   045   000    Old_age   Always   38 (0 22 0 0 0)
-197 Current_Pending_Sector  0x0012   085   085   000    Old_age   Always   315
-198 Offline_Uncorrectable   0x0010   085   085   000    Old_age   Always   315
-199 UDMA_CRC_Error_Count    0x003e   200   200   000    Old_age   Always   0</div>
-      <p><strong>Экспертный инженерный анализ:</strong></p>
-      <ul>
-        <li><strong>Атрибут 05 (Reallocated_Sector_Ct):</strong> RAW = 128 секторов уже переназначено в резервную область.</li>
-        <li><strong>Атрибут 197 (Current_Pending_Sector) и 198:</strong> RAW = 315 нестабильных секторов, ожидающих ремапа. При попытке чтения ОС гарантированно получает I/O Timeout.</li>
-        <li><strong>Атрибут 187 (Reported_Uncorrect):</strong> 42 неустранимые ошибки кода ECC. Часть файлов уже повреждена.</li>
-        <li><strong>Оценка механики и кабеля:</strong> Spin_Retry_Count = 0 (шпиндель в норме), UDMA_CRC_Error_Count = 0 (кабель SATA исправен). Причина кроется исключительно в физической деградации магнитных пластин и блока головок.</li>
-        <li><strong>План спасения данных:</strong>
-          <br>1. Категорически запретить запуск <code>chkdsk</code> и запись на диск. Смонтировать раздел строго в режиме <code>read-only</code>.
-          <br>2. Подключить диск к автономной станции и запустить двухпроходное клонирование через <code>GNU ddrescue</code>:
-          <br><code>ddrescue -d -b 4096 -n -v /dev/sdb /dev/sdc rescue_srv.log</code>
-          <br>3. После вычитывания 98% живой поверхности запустить проход по сбойным блокам с ограничением повторов:
-          <br><code>ddrescue -d -b 4096 -r 1 /dev/sdb /dev/sdc rescue_srv.log</code>
-          <br>4. Оригинальный диск вывести из эксплуатации и утилизировать. Анализ файловой структуры проводить исключительно с целевого накопителя <code>/dev/sdc</code>.
-        </li>
-      </ul>
-    </div>
-  </div>
+ID# ATTRIBUTE_NAME FLAG VALUE WORST THRESH TYPE UPDATED RAW_VALUE
+ 1 Raw_Read_Error_Rate 0x000f 078 064 044 Pre-fail Always 1827419
+ 5 Reallocated_Sector_Ct 0x0033 092 092 036 Pre-fail Always 128
+ 9 Power_On_Hours 0x0032 061 061 000 Old_age Always 34180
+ 10 Spin_Retry_Count 0x0013 100 100 097 Pre-fail Always 0
+187 Reported_Uncorrect 0x0032 001 001 000 Old_age Always 42
+194 Temperature_Celsius 0x0022 038 045 000 Old_age Always 38 (0 22 0 0 0)
+197 Current_Pending_Sector 0x0012 085 085 000 Old_age Always 315
+198 Offline_Uncorrectable 0x0010 085 085 000 Old_age Always 315
+199 UDMA_CRC_Error_Count 0x003e 200 200 000 Old_age Always 0</div>
+ <p><strong>Экспертный инженерный анализ:</strong></p>
+ <ul>
+ <li><strong>Атрибут 05 (Reallocated_Sector_Ct):</strong> RAW = 128 секторов уже переназначено в резервную область.</li>
+ <li><strong>Атрибут 197 (Current_Pending_Sector) и 198:</strong> RAW = 315 нестабильных секторов, ожидающих ремапа. При попытке чтения ОС гарантированно получает I/O Timeout.</li>
+ <li><strong>Атрибут 187 (Reported_Uncorrect):</strong> 42 неустранимые ошибки кода ECC. Часть файлов уже повреждена.</li>
+ <li><strong>Оценка механики и кабеля:</strong> Spin_Retry_Count = 0 (шпиндель в норме), UDMA_CRC_Error_Count = 0 (кабель SATA исправен). Причина кроется исключительно в физической деградации магнитных пластин и блока головок.</li>
+ <li><strong>План спасения данных:</strong>
+ <br>1. Категорически запретить запуск <code>chkdsk</code> и запись на диск. Смонтировать раздел строго в режиме <code>read-only</code>.
+ <br>2. Подключить диск к автономной станции и запустить двухпроходное клонирование через <code>GNU ddrescue</code>:
+ <br><code>ddrescue -d -b 4096 -n -v /dev/sdb /dev/sdc rescue_srv.log</code>
+ <br>3. После вычитывания 98% живой поверхности запустить проход по сбойным блокам с ограничением повторов:
+ <br><code>ddrescue -d -b 4096 -r 1 /dev/sdb /dev/sdc rescue_srv.log</code>
+ <br>4. Оригинальный диск вывести из эксплуатации и утилизировать. Анализ файловой структуры проводить исключительно с целевого накопителя <code>/dev/sdc</code>.
+ </li>
+ </ul>
+ </div>
+ </div>
 
-  <!-- ИНДИВИДУАЛЬНОЕ ЗАДАНИЕ -->
-  <div class="card">
-    <div class="section-title">2. Индивидуальное практическое задание: Расшифровка журнала S.M.A.R.T. и регламент эвакуации</div>
-    <p>На рабочей станции отдела проектирования зафиксированы регулярные микрозависания при открытии чертежей в САПР. Утилита <code>smartctl</code> выдала следующий журнал состояния накопителя:</p>
+ <!-- ИНДИВИДУАЛЬНОЕ ЗАДАНИЕ -->
+ <div class="card">
+ <div class="section-title">2. Индивидуальное практическое задание: Расшифровка журнала S.M.A.R.T. и регламент эвакуации</div>
+ <p>На рабочей станции отдела проектирования зафиксированы регулярные микрозависания при открытии чертежей в САПР. Утилита <code>smartctl</code> выдала следующий журнал состояния накопителя:</p>
 
-    <div class="smart-dump">
+ <div class="smart-dump">
 === START OF SMART DATA SECTION ===
-Device Model:     WDC WD10EZEX-08WN4A0
+Device Model: WDC WD10EZEX-08WN4A0
 Firmware Version: 02.01A02
-User Capacity:    1,000,204,886,016 bytes [1.00 TB]
-Sector Sizes:     512 bytes logical, 4096 bytes physical
+User Capacity: 1,000,204,886,016 bytes [1.00 TB]
+Sector Sizes: 512 bytes logical, 4096 bytes physical
 
-ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  RAW_VALUE
-  1 Raw_Read_Error_Rate     0x002f   180   175   051    Pre-fail  Always   1428
-  3 Spin_Up_Time            0x0027   165   160   021    Pre-fail  Always   4210
-  4 Start_Stop_Count        0x0032   095   095   000    Old_age   Always   4812
-  5 Reallocated_Sector_Ct   0x0033   140   140   140    Pre-fail  Always   0x00000000004A
-  7 Seek_Error_Rate         0x002e   200   200   051    Old_age   Always   0
-  9 Power_On_Hours          0x0032   072   072   000    Old_age   Always   21940
- 10 Spin_Retry_Count        0x0013   100   100   051    Pre-fail  Always   0x000000000000
-196 Reallocated_Event_Count 0x0032   140   140   000    Old_age   Always   74
-197 Current_Pending_Sector  0x0032   188   188   000    Old_age   Always   0x00000000005C
-198 Offline_Uncorrectable   0x0030   188   188   000    Old_age   Always   0x00000000005C
-199 UDMA_CRC_Error_Count    0x003e   200   200   000    Old_age   Always   0x000000000018</div>
+ID# ATTRIBUTE_NAME FLAG VALUE WORST THRESH TYPE UPDATED RAW_VALUE
+ 1 Raw_Read_Error_Rate 0x002f 180 175 051 Pre-fail Always 1428
+ 3 Spin_Up_Time 0x0027 165 160 021 Pre-fail Always 4210
+ 4 Start_Stop_Count 0x0032 095 095 000 Old_age Always 4812
+ 5 Reallocated_Sector_Ct 0x0033 140 140 140 Pre-fail Always 0x00000000004A
+ 7 Seek_Error_Rate 0x002e 200 200 051 Old_age Always 0
+ 9 Power_On_Hours 0x0032 072 072 000 Old_age Always 21940
+ 10 Spin_Retry_Count 0x0013 100 100 051 Pre-fail Always 0x000000000000
+196 Reallocated_Event_Count 0x0032 140 140 000 Old_age Always 74
+197 Current_Pending_Sector 0x0032 188 188 000 Old_age Always 0x00000000005C
+198 Offline_Uncorrectable 0x0030 188 188 000 Old_age Always 0x00000000005C
+199 UDMA_CRC_Error_Count 0x003e 200 200 000 Old_age Always 0x000000000018</div>
 
-    <div style="margin-top: 16px;">
-      <label for="hw_task1"><strong>Задание 1. Перевод значений RAW и таблица интерпретации:</strong></label>
-      <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Переведите шестнадцатеричные значения RAW (0x4A, 0x5C, 0x18) в десятичные и укажите физический смысл каждого атрибута.</p>
-      <textarea id="hw_task1"></textarea>
-      <div class="print-mirror" id="hw_task1_mirror"></div>
-    </div>
+ <div style="margin-top: 16px;">
+ <label for="hw_task1"><strong>Задание 1. Перевод значений RAW и таблица интерпретации:</strong></label>
+ <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Переведите шестнадцатеричные значения RAW (0x4A, 0x5C, 0x18) в десятичные и укажите физический смысл каждого атрибута.</p>
+ <textarea id="hw_task1"></textarea>
+ <div class="print-mirror" id="hw_task1_mirror"></div>
+ </div>
 
-    <div style="margin-top: 16px;">
-      <label for="hw_task2"><strong>Задание 2. Инженерная оценка состояния накопителя:</strong></label>
-      <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Оцените физическое состояние пластин, блока головок, шпинделя и кабельного интерфейса SATA. Достигнут ли порог Threshold по атрибуту 05?</p>
-      <textarea id="hw_task2"></textarea>
-      <div class="print-mirror" id="hw_task2_mirror"></div>
-    </div>
+ <div style="margin-top: 16px;">
+ <label for="hw_task2"><strong>Задание 2. Инженерная оценка состояния накопителя:</strong></label>
+ <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Оцените физическое состояние пластин, блока головок, шпинделя и кабельного интерфейса SATA. Достигнут ли порог Threshold по атрибуту 05?</p>
+ <textarea id="hw_task2"></textarea>
+ <div class="print-mirror" id="hw_task2_mirror"></div>
+ </div>
 
-    <div style="margin-top: 16px;">
-      <label for="hw_task3"><strong>Задание 3. Пошаговый план неразрушающего спасения данных:</strong></label>
-      <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Составьте регламент действий: режим монтирования, точная команда для утилиты GNU ddrescue с указанием флагов и аргументов, дальнейшая судьба диска.</p>
-      <textarea id="hw_task3"></textarea>
-      <div class="print-mirror" id="hw_task3_mirror"></div>
-    </div>
+ <div style="margin-top: 16px;">
+ <label for="hw_task3"><strong>Задание 3. Пошаговый план неразрушающего спасения данных:</strong></label>
+ <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Составьте регламент действий: режим монтирования, точная команда для утилиты GNU ddrescue с указанием флагов и аргументов, дальнейшая судьба диска.</p>
+ <textarea id="hw_task3"></textarea>
+ <div class="print-mirror" id="hw_task3_mirror"></div>
+ </div>
 
-    <div style="margin-top: 16px;">
-      <label for="hw_task4"><strong>Задание 4. Анализ недопустимых операций:</strong></label>
-      <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Перечислите три операции обслуживания, которые категорически запрещено выполнять на этом диске, и физические последствия их выполнения.</p>
-      <textarea id="hw_task4"></textarea>
-      <div class="print-mirror" id="hw_task4_mirror"></div>
-    </div>
-  </div>
+ <div style="margin-top: 16px;">
+ <label for="hw_task4"><strong>Задание 4. Анализ недопустимых операций:</strong></label>
+ <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Перечислите три операции обслуживания, которые категорически запрещено выполнять на этом диске, и физические последствия их выполнения.</p>
+ <textarea id="hw_task4"></textarea>
+ <div class="print-mirror" id="hw_task4_mirror"></div>
+ </div>
+ </div>
 
-  <div class="actions-card">
-    <div class="actions-flex">
-      <button type="button" class="btn btn-primary" onclick="saveData()">Сохранить работу</button>
-      <button type="button" class="btn btn-secondary" onclick="printDoc()">Печать / Экспорт в PDF</button>
-      <button type="button" class="btn btn-danger" onclick="clearData()">Очистить форму</button>
-      <span class="status-msg" id="status_msg"></span>
-    </div>
-  </div>
+ <div class="actions-card">
+ <div class="actions-flex">
+ <button type="button" class="btn btn-primary" onclick="saveData()">Сохранить работу</button>
+ <button type="button" class="btn btn-secondary" onclick="printDoc()">Печать / Экспорт в PDF</button>
+ <button type="button" class="btn btn-danger" onclick="clearData()">Очистить форму</button>
+ <span class="status-msg" id="status_msg"></span>
+ </div>
+ </div>
 
 </div>
 
 <script>
-  const STORAGE_KEY = 'top_hw_11_homework_data';
-  const textFields = ['hw_fio', 'hw_group', 'hw_date', 'hw_task1', 'hw_task2', 'hw_task3', 'hw_task4'];
+ const STORAGE_KEY = 'top_hw_11_homework_data';
+ const textFields = ['hw_fio', 'hw_group', 'hw_date', 'hw_task1', 'hw_task2', 'hw_task3', 'hw_task4'];
 
-  function updateMirrors() {
-    ['hw_task1', 'hw_task2', 'hw_task3', 'hw_task4'].forEach(id => {
-      const ta = document.getElementById(id);
-      const mirror = document.getElementById(id + '_mirror');
-      if (ta && mirror) {
-        mirror.textContent = ta.value;
-      }
-    });
-  }
+ function updateMirrors() {
+ ['hw_task1', 'hw_task2', 'hw_task3', 'hw_task4'].forEach(id => {
+ const ta = document.getElementById(id);
+ const mirror = document.getElementById(id + '_mirror');
+ if (ta && mirror) {
+ mirror.textContent = ta.value;
+ }
+ });
+ }
 
-  function saveData() {
-    updateMirrors();
-    const data = {};
-    textFields.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) data[id] = el.value;
-    });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    const status = document.getElementById('status_msg');
-    status.textContent = 'Сохранено: ' + new Date().toLocaleTimeString();
-    setTimeout(() => { status.textContent = ''; }, 3500);
-  }
+ function saveData() {
+ updateMirrors();
+ const data = {};
+ textFields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) data[id] = el.value;
+ });
+ localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+ const status = document.getElementById('status_msg');
+ status.textContent = 'Сохранено: ' + new Date().toLocaleTimeString();
+ setTimeout(() => { status.textContent = ''; }, 3500);
+ }
 
-  function loadData() {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    try {
-      const data = JSON.parse(raw);
-      textFields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el && data[id] !== undefined) {
-          el.value = data[id];
-        }
-      });
-      updateMirrors();
-    } catch (e) {
-      console.error(e);
-    }
-  }
+ function loadData() {
+ const raw = localStorage.getItem(STORAGE_KEY);
+ if (!raw) return;
+ try {
+ const data = JSON.parse(raw);
+ textFields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el && data[id] !== undefined) {
+ el.value = data[id];
+ }
+ });
+ updateMirrors();
+ } catch (e) {
+ console.error(e);
+ }
+ }
 
-  function clearData() {
-    if (confirm('Вы действительно хотите полностью очистить форму? Все несохраненные данные будут удалены.')) {
-      localStorage.removeItem(STORAGE_KEY);
-      textFields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-      });
-      updateMirrors();
-      const status = document.getElementById('status_msg');
-      status.textContent = 'Форма очищена';
-      setTimeout(() => { status.textContent = ''; }, 2500);
-    }
-  }
+ function clearData() {
+ if (confirm('Вы действительно хотите полностью очистить форму? Все несохраненные данные будут удалены.')) {
+ localStorage.removeItem(STORAGE_KEY);
+ textFields.forEach(id => {
+ const el = document.getElementById(id);
+ if (el) el.value = '';
+ });
+ updateMirrors();
+ const status = document.getElementById('status_msg');
+ status.textContent = 'Форма очищена';
+ setTimeout(() => { status.textContent = ''; }, 2500);
+ }
+ }
 
-  function printDoc() {
-    updateMirrors();
-    window.print();
-  }
+ function printDoc() {
+ updateMirrors();
+ window.print();
+ }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    loadData();
-    ['hw_task1', 'hw_task2', 'hw_task3', 'hw_task4'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener('input', updateMirrors);
-      }
-    });
-  });
+ document.addEventListener('DOMContentLoaded', () => {
+ loadData();
+ ['hw_task1', 'hw_task2', 'hw_task3', 'hw_task4'].forEach(id => {
+ const el = document.getElementById(id);
+ if (el) {
+ el.addEventListener('input', updateMirrors);
+ }
+ });
+ });
 </script>
 </body>
 </html>

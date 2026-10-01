@@ -1,483 +1,460 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="color-scheme" content="light">
-  <title>Теоретический конспект — Средства проектирования структур БД: ограничения</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #0284c7;
-      --accent-soft: #f0f9ff;
-      --accent-dark: #0369a1;
-      --success: #15803d;
-      --success-soft: #f0fdf4;
-      --warn: #b45309;
-      --warn-soft: #fffbeb;
-      --danger: #b91c1c;
-      --danger-soft: #fef2f2;
-      --code-bg: #0f172a;
-      --code-text: #f8fafc;
-      --radius: 12px;
-      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-    }
-    * { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      line-height: 1.65;
-      font-size: 16px;
-    }
-    .page {
-      width: min(100% - 32px, 980px);
-      margin: 32px auto 80px;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 32px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow);
-    }
-    h1 {
-      margin: 0 0 12px;
-      font-size: clamp(24px, 4vw, 32px);
-      color: var(--text);
-      line-height: 1.25;
-    }
-    .lead {
-      color: var(--muted);
-      margin: 0;
-      font-size: 16px;
-    }
-    h2 {
-      margin: 0 0 16px;
-      font-size: 21px;
-      color: var(--accent-dark);
-      border-bottom: 2px solid var(--accent-soft);
-      padding-bottom: 8px;
-    }
-    h3 {
-      font-size: 18px;
-      margin: 22px 0 12px;
-      color: var(--text);
-    }
-    h4 {
-      font-size: 16px;
-      margin: 16px 0 8px;
-      color: var(--accent-dark);
-    }
-    p, ul, ol {
-      margin-top: 0;
-      margin-bottom: 12px;
-    }
-    ul, ol {
-      padding-left: 24px;
-    }
-    li {
-      margin-bottom: 6px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 16px 0 20px;
-      font-size: 15px;
-    }
-    th, td {
-      border: 1px solid var(--line);
-      padding: 10px 14px;
-      text-align: left;
-      vertical-align: top;
-    }
-    th {
-      background: #f1f5f9;
-      color: var(--text);
-      font-weight: 600;
-    }
-    .badge {
-      display: inline-block;
-      padding: 3px 10px;
-      font-size: 12px;
-      font-weight: 700;
-      border-radius: 999px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .badge-blue { background: var(--accent-soft); color: var(--accent-dark); border: 1px solid #bae6fd; }
-    .badge-amber { background: var(--warn-soft); color: var(--warn); border: 1px solid #fde68a; }
-    .badge-green { background: var(--success-soft); color: var(--success); border: 1px solid #bbf7d0; }
-    .badge-red { background: var(--danger-soft); color: var(--danger); border: 1px solid #fecaca; }
-    .callout {
-      border-left: 4px solid var(--accent);
-      background: var(--accent-soft);
-      padding: 16px 20px;
-      border-radius: 0 var(--radius) var(--radius) 0;
-      margin: 16px 0;
-    }
-    .callout-warn {
-      border-left-color: var(--warn);
-      background: var(--warn-soft);
-    }
-    .callout-success {
-      border-left-color: var(--success);
-      background: var(--success-soft);
-    }
-    pre, code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size: 14px;
-    }
-    code {
-      background: #e2e8f0;
-      padding: 2px 6px;
-      border-radius: 4px;
-      color: #0f172a;
-    }
-    pre {
-      background: var(--code-bg);
-      color: var(--code-text);
-      padding: 16px;
-      border-radius: 8px;
-      overflow-x: auto;
-      margin: 16px 0;
-      line-height: 1.45;
-    }
-    pre code {
-      background: transparent;
-      padding: 0;
-      color: inherit;
-    }
-    .timeline {
-      border-left: 3px solid var(--accent);
-      padding-left: 20px;
-      margin: 20px 0;
-    }
-    .timeline-step {
-      margin-bottom: 16px;
-      position: relative;
-    }
-    .timeline-step::before {
-      content: '';
-      position: absolute;
-      left: -26px;
-      top: 4px;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--accent);
-    }
-    @media (max-width: 768px) {
-      .page { width: calc(100% - 24px); margin: 16px auto; }
-      .card { padding: 20px; }
-      table { display: block; overflow-x: auto; }
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <meta name="color-scheme" content="light">
+ <title>Теоретический конспект — Средства проектирования структур БД: ограничения</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #0284c7;
+ --accent-soft: #f0f9ff;
+ --accent-dark: #0369a1;
+ --success: #15803d;
+ --success-soft: #f0fdf4;
+ --warn: #b45309;
+ --warn-soft: #fffbeb;
+ --danger: #b91c1c;
+ --danger-soft: #fef2f2;
+ --code-bg: #0f172a;
+ --code-text: #f8fafc;
+ --radius: 12px;
+ --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+ }
+ * { box-sizing: border-box; }
+ html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+ body {
+ margin: 0;
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+ line-height: 1.65;
+ font-size: 16px;
+ }.page {
+ width: min(100% - 32px, 980px);
+ margin: 32px auto 80px;
+ }.card {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 32px;
+ margin-bottom: 24px;
+ box-shadow: var(--shadow);
+ }
+ h1 {
+ margin: 0 0 12px;
+ font-size: clamp(24px, 4vw, 32px);
+ color: var(--text);
+ line-height: 1.25;
+ }.lead {
+ color: var(--muted);
+ margin: 0;
+ font-size: 16px;
+ }
+ h2 {
+ margin: 0 0 16px;
+ font-size: 21px;
+ color: var(--accent-dark);
+ border-bottom: 2px solid var(--accent-soft);
+ padding-bottom: 8px;
+ }
+ h3 {
+ font-size: 18px;
+ margin: 22px 0 12px;
+ color: var(--text);
+ }
+ h4 {
+ font-size: 16px;
+ margin: 16px 0 8px;
+ color: var(--accent-dark);
+ }
+ p, ul, ol {
+ margin-top: 0;
+ margin-bottom: 12px;
+ }
+ ul, ol {
+ padding-left: 24px;
+ }
+ li {
+ margin-bottom: 6px;
+ }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ margin: 16px 0 20px;
+ font-size: 15px;
+ }
+ th, td {
+ border: 1px solid var(--line);
+ padding: 10px 14px;
+ text-align: left;
+ vertical-align: top;
+ }
+ th {
+ background: #f1f5f9;
+ color: var(--text);
+ font-weight: 600;
+ }.badge {
+ display: inline-block;
+ padding: 3px 10px;
+ font-size: 12px;
+ font-weight: 700;
+ border-radius: 999px;
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+ }.badge-blue { background: var(--accent-soft); color: var(--accent-dark); border: 1px solid #bae6fd; }.badge-amber { background: var(--warn-soft); color: var(--warn); border: 1px solid #fde68a; }.badge-green { background: var(--success-soft); color: var(--success); border: 1px solid #bbf7d0; }.badge-red { background: var(--danger-soft); color: var(--danger); border: 1px solid #fecaca; }.callout {
+ border-left: 4px solid var(--accent);
+ background: var(--accent-soft);
+ padding: 16px 20px;
+ border-radius: 0 var(--radius) var(--radius) 0;
+ margin: 16px 0;
+ }.callout-warn {
+ border-left-color: var(--warn);
+ background: var(--warn-soft);
+ }.callout-success {
+ border-left-color: var(--success);
+ background: var(--success-soft);
+ }
+ pre, code {
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+ font-size: 14px;
+ }
+ code {
+ background: #e2e8f0;
+ padding: 2px 6px;
+ border-radius: 4px;
+ color: #0f172a;
+ }
+ pre {
+ background: var(--code-bg);
+ color: var(--code-text);
+ padding: 16px;
+ border-radius: 8px;
+ overflow-x: auto;
+ margin: 16px 0;
+ line-height: 1.45;
+ }
+ pre code {
+ background: transparent;
+ padding: 0;
+ color: inherit;
+ }.timeline {
+ border-left: 3px solid var(--accent);
+ padding-left: 20px;
+ margin: 20px 0;
+ }.timeline-step {
+ margin-bottom: 16px;
+ position: relative;
+ }.timeline-step::before {
+ content: '';
+ position: absolute;
+ left: -26px;
+ top: 4px;
+ width: 10px;
+ height: 10px;
+ border-radius: 50%;
+ background: var(--accent);
+ }
+ @media (max-width: 768px) {.page { width: calc(100% - 24px); margin: 16px auto; }.card { padding: 20px; }
+ table { display: block; overflow-x: auto; }
+ }
+ </style>
 </head>
 <body>
-  <div class="page">
-    <div class="card">
-      <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
-        <span class="badge badge-blue">ОП.08 Основы проектирования баз данных</span>
-        <span class="badge badge-blue">Тема 4. Проектирование структур баз данных</span>
-        <span class="badge badge-amber">Занятие №22</span>
-      </div>
-      <h1>Теоретический конспект: Средства проектирования структур БД — ограничения</h1>
-      <p class="lead">Фундаментальные механизмы декларативной целостности: ограничения доменов, сложные CHECK-предикаты с регулярными выражениями POSIX regex, ограничения исключения EXCLUDE USING gist и транзакционная отложенность внешних ключей DEFERRABLE.</p>
-    </div>
+ <div class="page">
+ <div class="card">
+ <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+ <span class="badge badge-blue">ОП.08 Основы проектирования баз данных</span>
+ <span class="badge badge-blue">Тема 4. Проектирование структур баз данных</span>
+ <span class="badge badge-amber">Занятие №22</span>
+ </div>
+ <h1>Теоретический конспект: Средства проектирования структур БД — ограничения</h1>
+ <p class="lead">Фундаментальные механизмы декларативной целостности: ограничения доменов, сложные CHECK-предикаты с регулярными выражениями POSIX regex, ограничения исключения EXCLUDE USING gist и транзакционная отложенность внешних ключей DEFERRABLE.</p>
+ </div>
 
-    <div class="card">
-      <h2>Введение: Почему декларативные ограничения незаменимы?</h2>
-      <p>В современной промышленной разработке программных комплексов существует опасное заблуждение: <em>«База данных — это просто пассивное хранилище (dumb storage), а вся валидация и бизнес-логика должны находиться в коде бэкенд-приложения»</em>.</p>
-      
-      <p>Архитектурная практика показывает, что такой подход неизбежно приводит к компрометации данных (Data Corruption). Причины просты:</p>
-      <ol>
-        <li><strong>Параллельные транзакции (Race Conditions):</strong> если два пользователя одновременно пытаются забронировать один и тот же зал на одно и то же время, обе сессии выполнят запрос <code>SELECT COUNT(*) WHERE ...</code>, получат <code>0</code> (свободно) и обе успешно выполнят <code>INSERT</code>. В результате в базе образуется овербукинг (двойное бронирование). Защитить от этого без блокировок уровня СУБД или ограничений целостности невозможно.</li>
-        <li><strong>Множественность клиентов:</strong> к одной базе данных обращаются веб-сервисы, мобильные API, фоновые воркеры, аналитические ETL-скрипты и утилиты прямого доступа администратора. Проверка в одном коде не гарантирует отсутствие ошибок в другом.</li>
-        <li><strong>Декларативность против императивности:</strong> декларативное ограничение формулирует <strong>инвариант состояния</strong> данных, за выполнением которого следит ядро СУБД с оптимизированными структурами индексов и механизмом многоверсионности (MVCC).</li>
-      </ol>
-    </div>
+ <div class="card">
+ <h2>Введение: Почему декларативные ограничения незаменимы?</h2>
+ <p>В современной промышленной разработке программных комплексов существует опасное заблуждение: <em>«База данных — это просто пассивное хранилище (dumb storage), а вся валидация и бизнес-логика должны находиться в коде бэкенд-приложения»</em>.</p>
+ 
+ <p>Архитектурная практика показывает, что такой подход неизбежно приводит к компрометации данных (Data Corruption). Причины просты:</p>
+ <ol>
+ <li><strong>Параллельные транзакции (Race Conditions):</strong> если два пользователя одновременно пытаются забронировать один и тот же зал на одно и то же время, обе сессии выполнят запрос <code>SELECT COUNT(*) WHERE...</code>, получат <code>0</code> (свободно) и обе успешно выполнят <code>INSERT</code>. В результате в базе образуется овербукинг (двойное бронирование). Защитить от этого без блокировок уровня СУБД или ограничений целостности невозможно.</li>
+ <li><strong>Множественность клиентов:</strong> к одной базе данных обращаются веб-сервисы, мобильные API, фоновые воркеры, аналитические ETL-скрипты и утилиты прямого доступа администратора. Проверка в одном коде не гарантирует отсутствие ошибок в другом.</li>
+ <li><strong>Декларативность против императивности:</strong> декларативное ограничение формулирует <strong>инвариант состояния</strong> данных, за выполнением которого следит ядро СУБД с оптимизированными структурами индексов и механизмом многоверсионности (MVCC).</li>
+ </ol>
+ </div>
 
-    <div class="card">
-      <h2>1. Доменные ограничения и предикаты CHECK со сложной логикой</h2>
-      
-      <h3>1.1. Пользовательские домены (CREATE DOMAIN)</h3>
-      <p>Домен в реляционной СУБД — это семантический тип данных. Вместо многократного повторения проверки формата в каждой таблице проектировщик создает единый именованный домен:</p>
-      <pre><code>-- Определение домена для корректного адреса электронной почты
+ <div class="card">
+ <h2>1. Доменные ограничения и предикаты CHECK со сложной логикой</h2>
+ 
+ <h3>1.1. Пользовательские домены (CREATE DOMAIN)</h3>
+ <p>Домен в реляционной СУБД — это семантический тип данных. Вместо многократного повторения проверки формата в каждой таблице проектировщик создает единый именованный домен:</p>
+ <pre><code>-- Определение домена для корректного адреса электронной почты
 CREATE DOMAIN email_address AS VARCHAR(255)
 CHECK (
-    VALUE ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'
-);
+ VALUE ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$');
 
 -- Определение домена для СНИЛС (11 цифр в формате ХХХ-ХХХ-ХХХ ХХ)
 CREATE DOMAIN snils_code AS CHAR(14)
 CHECK (
-    VALUE ~ '^\d{3}-\d{3}-\d{3} \d{2}$'
-);</code></pre>
+ VALUE ~ '^\d{3}-\d{3}-\d{3} \d{2}$');</code></pre>
 
-      <h3>1.2. Регулярные выражения POSIX в предикатах CHECK</h3>
-      <p>Стандарт SQL:1999 и СУБД PostgreSQL предоставляют мощный аппарат сопоставления строковых атрибутов с регулярными выражениями:</p>
-      <table>
-        <thead>
-          <tr>
-            <th style="width: 15%;">Оператор</th>
-            <th style="width: 35%;">Значение</th>
-            <th style="width: 50%;">Пример использования</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code>~</code></td>
-            <td>Соответствие шаблону с учетом регистра</td>
-            <td><code>passport_series ~ '^\d{4}$'</code> — строго 4 цифры</td>
-          </tr>
-          <tr>
-            <td><code>~*</code></td>
-            <td>Соответствие шаблону БЕЗ учета регистра</td>
-            <td><code>sku_code ~* '^[A-Z]{3}-\d{6}$'</code> — три латинские буквы и 6 цифр</td>
-          </tr>
-          <tr>
-            <td><code>!~</code></td>
-            <td>НЕ соответствует с учетом регистра</td>
-            <td><code>user_login !~ '[^a-zA-Z0-9_]'</code> — нет спецсимволов</td>
-          </tr>
-          <tr>
-            <td><code>!~*</code></td>
-            <td>НЕ соответствует БЕЗ учета регистра</td>
-            <td><code>forbidden_words !~* '(admin|root|superuser)'</code></td>
-          </tr>
-        </tbody>
-      </table>
+ <h3>1.2. Регулярные выражения POSIX в предикатах CHECK</h3>
+ <p>Стандарт SQL:1999 и СУБД PostgreSQL предоставляют мощный аппарат сопоставления строковых атрибутов с регулярными выражениями:</p>
+ <table>
+ <thead>
+ <tr>
+ <th style="width: 15%;">Оператор</th>
+ <th style="width: 35%;">Значение</th>
+ <th style="width: 50%;">Пример использования</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><code>~</code></td>
+ <td>Соответствие шаблону с учетом регистра</td>
+ <td><code>passport_series ~ '^\d{4}$'</code> — строго 4 цифры</td>
+ </tr>
+ <tr>
+ <td><code>~*</code></td>
+ <td>Соответствие шаблону БЕЗ учета регистра</td>
+ <td><code>sku_code ~* '^[A-Z]{3}-\d{6}$'</code> — три латинские буквы и 6 цифр</td>
+ </tr>
+ <tr>
+ <td><code>!~</code></td>
+ <td>НЕ соответствует с учетом регистра</td>
+ <td><code>user_login !~ '[^a-zA-Z0-9_]'</code> — нет спецсимволов</td>
+ </tr>
+ <tr>
+ <td><code>!~*</code></td>
+ <td>НЕ соответствует БЕЗ учета регистра</td>
+ <td><code>forbidden_words !~* '(admin|root|superuser)'</code></td>
+ </tr>
+ </tbody>
+ </table>
 
-      <div class="callout callout-warn">
-        <strong>Обязательность символов привязки (якорей):</strong><br>
-        Символ <code>^</code> означает начало строки, а символ <code></code> — конец строки. Если написать условие <code>CHECK (passport<sub>number</sub> ~ 'd{6}')</code>, то значение <code>'№987654321-паспорт'</code> будет признано валидным, поскольку содержит в себе 6 цифр подряд! Строгое ограничение обязано экранировать границы: <code>CHECK (passport<sub>number</sub> ~ '^d{6}')</code>.
-      </div>
+ <div class="callout callout-warn">
+ <strong>Обязательность символов привязки (якорей):</strong><br>
+ Символ <code>^</code> означает начало строки, а символ <code></code> — конец строки. Если написать условие <code>CHECK (passport<sub>number</sub> ~ 'd{6}')</code>, то значение <code>'№987654321-паспорт'</code> будет признано валидным, поскольку содержит в себе 6 цифр подряд! Строгое ограничение обязано экранировать границы: <code>CHECK (passport<sub>number</sub> ~ '^d{6}')</code>.
+ </div>
 
-      <h3>1.3. Составные предикаты CHECK и трехзначная логика SQL</h3>
-      <p>Ограничение CHECK может связывать значения нескольких столбцов одного кортежа:</p>
-      <pre><code>CREATE TABLE marketplace_products (
-    product_id BIGSERIAL PRIMARY KEY,
-    title VARCHAR(200) NOT NULL,
-    base_price NUMERIC(12, 2) NOT NULL,
-    discount_price NUMERIC(12, 2),
-    discount_percent NUMERIC(5, 2),
-    is_active BOOLEAN NOT NULL DEFAULT TRUE,
-    
-    -- 1. Базовая цена строго положительна
-    CONSTRAINT chk_base_price_positive 
-        CHECK (base_price > 0),
-        
-    -- 2. Процент скидки в диапазоне от 0 до 90%
-    CONSTRAINT chk_discount_percent_range 
-        CHECK (discount_percent IS NULL OR (discount_percent >= 0 AND discount_percent &lt;= 90)),
-        
-    -- 3. Цена со скидкой строго меньше базовой цены
-    CONSTRAINT chk_discount_less_than_base 
-        CHECK (discount_price IS NULL OR discount_price &lt; base_price),
-        
-    -- 4. Взаимная непротиворечивость: если указана скидочная цена, должен быть указан процент
-    CONSTRAINT chk_discount_pair_consistency
-        CHECK ((discount_price IS NULL AND discount_percent IS NULL) OR 
-               (discount_price IS NOT NULL AND discount_percent IS NOT NULL))
-);</code></pre>
-      
-      <p><strong>Важнейшее свойство трехзначной логики SQL (TRUE, FALSE, UNKNOWN):</strong></p>
-      <p>В отличие от предложения <code>WHERE</code> (которое оставляет только кортежи, где условие строго <code>TRUE</code>), ограничение <code>CHECK</code> <strong>пропускает кортеж, если результат выражения равен TRUE или UNKNOWN</strong>. Ограничение отвергает вставку только тогда, когда условие явно возвращает <code>FALSE</code>.</p>
-      <p>Если поле <code>discount_price</code> содержит <code>NULL</code>, то выражение <code>discount_price &lt; base_price</code> вернет <code>UNKNOWN</code>. Запись успешно попадет в таблицу. Если бизнес-правило требует обязательного наличия значения, столбец должен быть помечен ограничением <code>NOT NULL</code>.</p>
-    </div>
+ <h3>1.3. Составные предикаты CHECK и трехзначная логика SQL</h3>
+ <p>Ограничение CHECK может связывать значения нескольких столбцов одного кортежа:</p>
+ <pre><code>CREATE TABLE marketplace_products (
+ product_id BIGSERIAL PRIMARY KEY,
+ title VARCHAR(200) NOT NULL,
+ base_price NUMERIC(12, 2) NOT NULL,
+ discount_price NUMERIC(12, 2),
+ discount_percent NUMERIC(5, 2),
+ is_active BOOLEAN NOT NULL DEFAULT TRUE,
+ 
+ -- 1. Базовая цена строго положительна
+ CONSTRAINT chk_base_price_positive 
+ CHECK (base_price > 0),
+ 
+ -- 2. Процент скидки в диапазоне от 0 до 90%
+ CONSTRAINT chk_discount_percent_range 
+ CHECK (discount_percent IS NULL OR (discount_percent >= 0 AND discount_percent &lt;= 90)),
+ 
+ -- 3. Цена со скидкой строго меньше базовой цены
+ CONSTRAINT chk_discount_less_than_base 
+ CHECK (discount_price IS NULL OR discount_price &lt; base_price),
+ 
+ -- 4. Взаимная непротиворечивость: если указана скидочная цена, должен быть указан процент
+ CONSTRAINT chk_discount_pair_consistency
+ CHECK ((discount_price IS NULL AND discount_percent IS NULL) OR 
+ (discount_price IS NOT NULL AND discount_percent IS NOT NULL)));</code></pre>
+ 
+ <p><strong>Важнейшее свойство трехзначной логики SQL (TRUE, FALSE, UNKNOWN):</strong></p>
+ <p>В отличие от предложения <code>WHERE</code> (которое оставляет только кортежи, где условие строго <code>TRUE</code>), ограничение <code>CHECK</code> <strong>пропускает кортеж, если результат выражения равен TRUE или UNKNOWN</strong>. Ограничение отвергает вставку только тогда, когда условие явно возвращает <code>FALSE</code>.</p>
+ <p>Если поле <code>discount_price</code> содержит <code>NULL</code>, то выражение <code>discount_price &lt; base_price</code> вернет <code>UNKNOWN</code>. Запись успешно попадет в таблицу. Если бизнес-правило требует обязательного наличия значения, столбец должен быть помечен ограничением <code>NOT NULL</code>.</p>
+ </div>
 
-    <div class="card">
-      <h2>2. Предотвращение аномалий бронирования: EXCLUDE USING gist</h2>
-      
-      <h3>2.1. Анатомия проблемы овербукинга</h3>
-      <p>Представим систему резервирования ресурсов (конференц-залы, гостиничные номера, аренда оборудования, слоты врачебного приема). Каждый заказ задается интервалом времени <code>[ts_start, ts_end)</code>.</p>
-      <p>Два заказа для одного ресурса конфликтуют, если их временные отрезки перекрываются хотя бы на одну секунду:</p>
-      <div style="background: #0f172a; color: #38bdf8; padding: 14px; border-radius: 8px; font-family: monospace;">
-        Заказ А: [10:00 --------------------- 12:00)<br>
-        Заказ Б:          [11:30 ------------------- 13:00)  <span style="color: #ef4444;">-- КОНФЛИКТ ПЕРЕСЕЧЕНИЯ!</span><br>
-        Заказ В:                                    [13:00 ---------- 14:00) <span style="color: #4ade80;">-- КОРРЕКТНО (стык в стык)</span>
-      </div>
+ <div class="card">
+ <h2>2. Предотвращение аномалий бронирования: EXCLUDE USING gist</h2>
+ 
+ <h3>2.1. Анатомия проблемы овербукинга</h3>
+ <p>Представим систему резервирования ресурсов (конференц-залы, гостиничные номера, аренда оборудования, слоты врачебного приема). Каждый заказ задается интервалом времени <code>[ts_start, ts_end)</code>.</p>
+ <p>Два заказа для одного ресурса конфликтуют, если их временные отрезки перекрываются хотя бы на одну секунду:</p>
+ <div style="background: #0f172a; color: #38bdf8; padding: 14px; border-radius: 8px; font-family: monospace;">
+ Заказ А: [10:00 --------------------- 12:00)<br>
+ Заказ Б: [11:30 ------------------- 13:00) <span style="color: #ef4444;">-- КОНФЛИКТ ПЕРЕСЕЧЕНИЯ!</span><br>
+ Заказ В: [13:00 ---------- 14:00) <span style="color: #4ade80;">-- КОРРЕКТНО (стык в стык)</span>
+ </div>
 
-      <h3>2.2. Интервальные типы данных PostgreSQL</h3>
-      <p>PostgreSQL содержит встроенную поддержку диапазонов:</p>
-      <ul>
-        <li><code>tsrange</code> — диапазон отметок времени без часового пояса (<code>timestamp without time zone</code>);</li>
-        <li><code>tstzrange</code> — диапазон отметок времени с часовым поясом (<code>timestamp with time zone</code>);</li>
-        <li><code>daterange</code> — диапазон календарных дат;</li>
-        <li><code>numrange</code>, <code>int4range</code>, <code>int8range</code> — числовые интервалы.</li>
-      </ul>
-      <p>Диапазоны задаются скобками: квадратная скобка <code>[</code> означает включение границы (inclusive), круглая <code>(</code> или <code>)</code> — невключение границы (exclusive). Например, <code>'[2026-10-01 10:00, 2026-10-01 12:00)'::tsrange</code> включает точку 10:00 и исключает 12:00, что позволяет идеально стыковать брони без зазора.</p>
+ <h3>2.2. Интервальные типы данных PostgreSQL</h3>
+ <p>PostgreSQL содержит встроенную поддержку диапазонов:</p>
+ <ul>
+ <li><code>tsrange</code> — диапазон отметок времени без часового пояса (<code>timestamp without time zone</code>);</li>
+ <li><code>tstzrange</code> — диапазон отметок времени с часовым поясом (<code>timestamp with time zone</code>);</li>
+ <li><code>daterange</code> — диапазон календарных дат;</li>
+ <li><code>numrange</code>, <code>int4range</code>, <code>int8range</code> — числовые интервалы.</li>
+ </ul>
+ <p>Диапазоны задаются скобками: квадратная скобка <code>[</code> означает включение границы (inclusive), круглая <code>(</code> или <code>)</code> — невключение границы (exclusive). Например, <code>'[2026-10-01 10:00, 2026-10-01 12:00)'::tsrange</code> включает точку 10:00 и исключает 12:00, что позволяет идеально стыковать брони без зазора.</p>
 
-      <h3>2.3. Синтаксис и механика EXCLUDE USING gist</h3>
-      <p>Для индексации многомерных объектов и интервалов традиционное B-Tree дерево непригодно, так как оно поддерживает только линейный порядок (меньше, равно, больше). Для интервалов применяется <strong>обобщенное поисковое дерево GiST (Generalized Search Tree)</strong>.</p>
-      
-      <p>Для объединения скалярных полей (например, идентификатора зала <code>room_id</code>) и интервалов в одном GiST-индексе подключается модуль ядра <code>btree_gist</code>:</p>
+ <h3>2.3. Синтаксис и механика EXCLUDE USING gist</h3>
+ <p>Для индексации многомерных объектов и интервалов традиционное B-Tree дерево непригодно, так как оно поддерживает только линейный порядок (меньше, равно, больше). Для интервалов применяется <strong>обобщенное поисковое дерево GiST (Generalized Search Tree)</strong>.</p>
+ 
+ <p>Для объединения скалярных полей (например, идентификатора зала <code>room_id</code>) и интервалов в одном GiST-индексе подключается модуль ядра <code>btree_gist</code>:</p>
 
-      <pre><code>-- Шаг 1. Активация расширения btree_gist
+ <pre><code>-- Шаг 1. Активация расширения btree_gist
 CREATE EXTENSION IF NOT EXISTS btree_gist;
 
 -- Шаг 2. Создание таблицы конференц-залов с гарантией непересечения
 CREATE TABLE room_reservations (
-    reservation_id BIGSERIAL PRIMARY KEY,
-    room_id INTEGER NOT NULL,
-    reserved_slot TSRANGE NOT NULL,
-    organizer_fio VARCHAR(120) NOT NULL,
-    
-    -- Защита от пустых или вырожденных интервалов (начало &lt; конец)
-    CONSTRAINT chk_valid_interval 
-        CHECK (NOT isempty(reserved_slot) AND lower(reserved_slot) &lt; upper(reserved_slot)),
-        
-    -- Ограничение взаимного исключения:
-    -- Для одного room_id (оператор =) интервалы reserved_slot НЕ должны перекрываться (оператор &amp;&amp;)
-    CONSTRAINT exc_room_no_double_booking 
-        EXCLUDE USING gist (
-            room_id WITH =,
-            reserved_slot WITH &amp;&amp;
-        )
-);</code></pre>
+ reservation_id BIGSERIAL PRIMARY KEY,
+ room_id INTEGER NOT NULL,
+ reserved_slot TSRANGE NOT NULL,
+ organizer_fio VARCHAR(120) NOT NULL,
+ 
+ -- Защита от пустых или вырожденных интервалов (начало &lt; конец)
+ CONSTRAINT chk_valid_interval 
+ CHECK (NOT isempty(reserved_slot) AND lower(reserved_slot) &lt; upper(reserved_slot)),
+ 
+ -- Ограничение взаимного исключения:
+ -- Для одного room_id (оператор =) интервалы reserved_slot НЕ должны перекрываться (оператор &amp;&amp;)
+ CONSTRAINT exc_room_no_double_booking 
+ EXCLUDE USING gist (
+ room_id WITH =,
+ reserved_slot WITH &amp;&amp;));</code></pre>
 
-      <div class="callout callout-success">
-        <strong>Что происходит внутри СУБД при попытке вставки?</strong><br>
-        Когда транзакция выполняет <code>INSERT</code>, СУБД обращается к GiST-индексу и проверяет предикат исключения. Если найдена существующая запись с тем же <code>room_id</code>, для которой <code>reserved_slot &amp;&amp; NEW.reserved_slot = TRUE</code>, транзакция немедленно прерывается аппаратным исключением ядра СУБД:<br>
-        <code>ERROR: conflicting key value violates exclusion constraint "exc_room_no_double_booking"</code>.<br>
-        Никаких фантомных записей, никаких потерь броней при миллионе параллельных запросов в секунду!
-      </div>
-    </div>
+ <div class="callout callout-success">
+ <strong>Что происходит внутри СУБД при попытке вставки?</strong><br>
+ Когда транзакция выполняет <code>INSERT</code>, СУБД обращается к GiST-индексу и проверяет предикат исключения. Если найдена существующая запись с тем же <code>room_id</code>, для которой <code>reserved_slot &amp;&amp; NEW.reserved_slot = TRUE</code>, транзакция немедленно прерывается аппаратным исключением ядра СУБД:<br>
+ <code>ERROR: conflicting key value violates exclusion constraint "exc_room_no_double_booking"</code>.<br>
+ Никаких фантомных записей, никаких потерь броней при миллионе параллельных запросов в секунду!
+ </div>
+ </div>
 
-    <div class="card">
-      <h2>3. Механика работы отложенных внешних ключей (DEFERRABLE)</h2>
-      
-      <h3>3.1. Циклические графы зависимостей: проблема «курицы и яйца»</h3>
-      <p>Рассмотрим реальную бизнес-модель отельного бизнеса:</p>
-      <ul>
-        <li>Сущность <strong>Отель</strong> (таблица <code>hotels</code>): каждый отель имеет свой представительский номер (президентский люкс) — атрибут <code>presidential_suite_id</code>.</li>
-        <li>Сущность <strong>Номер отеля</strong> (таблица <code>rooms</code>): каждый номер физически принадлежит конкретному отелю — атрибут <code>hotel_id</code>.</li>
-      </ul>
+ <div class="card">
+ <h2>3. Механика работы отложенных внешних ключей (DEFERRABLE)</h2>
+ 
+ <h3>3.1. Циклические графы зависимостей: проблема «курицы и яйца»</h3>
+ <p>Рассмотрим реальную бизнес-модель отельного бизнеса:</p>
+ <ul>
+ <li>Сущность <strong>Отель</strong> (таблица <code>hotels</code>): каждый отель имеет свой представительский номер (президентский люкс) — атрибут <code>presidential_suite_id</code>.</li>
+ <li>Сущность <strong>Номер отеля</strong> (таблица <code>rooms</code>): каждый номер физически принадлежит конкретному отелю — атрибут <code>hotel_id</code>.</li>
+ </ul>
 
-      <div class="timeline">
-        <div class="timeline-step">
-          <strong>Попытка 1: Вставка Отеля</strong><br>
-          <code>INSERT INTO hotels (id, name, presidential_suite_id) VALUES (1, 'Hilton', 501);</code><br>
-          <span style="color: var(--danger); font-weight: 700;">ОШИБКА:</span> Номер 501 еще не существует в таблице <code>rooms</code>! Нарушение Foreign Key.
-        </div>
-        <div class="timeline-step">
-          <strong>Попытка 2: Вставка Номера</strong><br>
-          <code>INSERT INTO rooms (id, hotel_id, room_number) VALUES (501, 1, 'Suite 501');</code><br>
-          <span style="color: var(--danger); font-weight: 700;">ОШИБКА:</span> Отель 1 еще не существует в таблице <code>hotels</code>! Нарушение Foreign Key.
-        </div>
-      </div>
+ <div class="timeline">
+ <div class="timeline-step">
+ <strong>Попытка 1: Вставка Отеля</strong><br>
+ <code>INSERT INTO hotels (id, name, presidential_suite_id) VALUES (1, 'Hilton', 501);</code><br>
+ <span style="color: var(--danger); font-weight: 700;">ОШИБКА:</span> Номер 501 еще не существует в таблице <code>rooms</code>! Нарушение Foreign Key.
+ </div>
+ <div class="timeline-step">
+ <strong>Попытка 2: Вставка Номера</strong><br>
+ <code>INSERT INTO rooms (id, hotel_id, room_number) VALUES (501, 1, 'Suite 501');</code><br>
+ <span style="color: var(--danger); font-weight: 700;">ОШИБКА:</span> Отель 1 еще не существует в таблице <code>hotels</code>! Нарушение Foreign Key.
+ </div>
+ </div>
 
-      <p>Если оба поля объявлены как <code>NOT NULL</code>, система попадает в неразрешимый дедлок вставки. Единственное архитектурно строгое решение без ослабления ограничений до <code>NULL</code> — <strong>отложенная проверка внешнего ключа (Deferred Constraints)</strong>.</p>
+ <p>Если оба поля объявлены как <code>NOT NULL</code>, система попадает в неразрешимый дедлок вставки. Единственное архитектурно строгое решение без ослабления ограничений до <code>NULL</code> — <strong>отложенная проверка внешнего ключа (Deferred Constraints)</strong>.</p>
 
-      <h3>3.2. Режимы работы DEFERRABLE</h3>
-      <table>
-        <thead>
-          <tr>
-            <th style="width: 30%;">Режим ограничения</th>
-            <th style="width: 25%;">Момент валидации</th>
-            <th style="width: 45%;">Характеристика поведения</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code>NOT DEFERRABLE</code><br><em>(по умолчанию)</em></td>
-            <td>После каждого DML-оператора</td>
-            <td>Немедленный сбой транзакции при малейшем несоответствии. Режим нельзя изменить динамически внутри сессии.</td>
-          </tr>
-          <tr>
-            <td><code>DEFERRABLE INITIALLY IMMEDIATE</code></td>
-            <td>После каждого DML-оператора (по умолч.)</td>
-            <td>По умолчанию проверяется сразу, но позволяет программисту внутри транзакции выполнить команду <code>SET CONSTRAINTS fk_name DEFERRED;</code> и отложить проверку до <code>COMMIT</code>.</td>
-          </tr>
-          <tr>
-            <td><code>DEFERRABLE INITIALLY DEFERRED</code></td>
-            <td>Строго в момент <code>COMMIT</code></td>
-            <td>Автоматически откладывает проверку на конец транзакции. Внутри транзакции данные могут временно находиться в рассогласованном состоянии, но к моменту фиксации целостность обязана сойтись.</td>
-          </tr>
-        </tbody>
-      </table>
+ <h3>3.2. Режимы работы DEFERRABLE</h3>
+ <table>
+ <thead>
+ <tr>
+ <th style="width: 30%;">Режим ограничения</th>
+ <th style="width: 25%;">Момент валидации</th>
+ <th style="width: 45%;">Характеристика поведения</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><code>NOT DEFERRABLE</code><br><em>(по умолчанию)</em></td>
+ <td>После каждого DML-оператора</td>
+ <td>Немедленный сбой транзакции при малейшем несоответствии. Режим нельзя изменить динамически внутри сессии.</td>
+ </tr>
+ <tr>
+ <td><code>DEFERRABLE INITIALLY IMMEDIATE</code></td>
+ <td>После каждого DML-оператора (по умолч.)</td>
+ <td>По умолчанию проверяется сразу, но позволяет программисту внутри транзакции выполнить команду <code>SET CONSTRAINTS fk_name DEFERRED;</code> и отложить проверку до <code>COMMIT</code>.</td>
+ </tr>
+ <tr>
+ <td><code>DEFERRABLE INITIALLY DEFERRED</code></td>
+ <td>Строго в момент <code>COMMIT</code></td>
+ <td>Автоматически откладывает проверку на конец транзакции. Внутри транзакции данные могут временно находиться в рассогласованном состоянии, но к моменту фиксации целостность обязана сойтись.</td>
+ </tr>
+ </tbody>
+ </table>
 
-      <h3>3.3. Эталонная реализация циклической схемы</h3>
-      <pre><code>-- 1. Таблица отелей (ссылается на номер, проверка отложена)
+ <h3>3.3. Эталонная реализация циклической схемы</h3>
+ <pre><code>-- 1. Таблица отелей (ссылается на номер, проверка отложена)
 CREATE TABLE hotels (
-    hotel_id INT PRIMARY KEY,
-    hotel_name VARCHAR(100) NOT NULL,
-    presidential_suite_id INT NOT NULL
-);
+ hotel_id INT PRIMARY KEY,
+ hotel_name VARCHAR(100) NOT NULL,
+ presidential_suite_id INT NOT NULL);
 
 -- 2. Таблица номеров (ссылается на отель)
 CREATE TABLE rooms (
-    room_id INT PRIMARY KEY,
-    hotel_id INT NOT NULL REFERENCES hotels(hotel_id) ON DELETE CASCADE,
-    room_number VARCHAR(20) NOT NULL,
-    category VARCHAR(50) NOT NULL
-);
+ room_id INT PRIMARY KEY,
+ hotel_id INT NOT NULL REFERENCES hotels(hotel_id) ON DELETE CASCADE,
+ room_number VARCHAR(20) NOT NULL,
+ category VARCHAR(50) NOT NULL);
 
 -- 3. Добавление отложенного внешнего ключа к отелям
 ALTER TABLE hotels
-    ADD CONSTRAINT fk_hotel_presidential_suite
-    FOREIGN KEY (presidential_suite_id) 
-    REFERENCES rooms(room_id)
-    DEFERRABLE INITIALLY DEFERRED;
+ ADD CONSTRAINT fk_hotel_presidential_suite
+ FOREIGN KEY (presidential_suite_id) 
+ REFERENCES rooms(room_id)
+ DEFERRABLE INITIALLY DEFERRED;
 
 -- 4. Атомарная бесконфликтная вставка в транзакции:
 BEGIN;
-    -- Шаг 1: Вставляем отель (ссылка на номер 501 пока висит в воздухе, ошибки нет!)
-    INSERT INTO hotels (hotel_id, hotel_name, presidential_suite_id)
-    VALUES (10, 'Grand Royal Resort', 501);
+ -- Шаг 1: Вставляем отель (ссылка на номер 501 пока висит в воздухе, ошибки нет!)
+ INSERT INTO hotels (hotel_id, hotel_name, presidential_suite_id)
+ VALUES (10, 'Grand Royal Resort', 501);
 
-    -- Шаг 2: Вставляем номер (ссылается на уже созданный отель 10)
-    INSERT INTO rooms (room_id, hotel_id, room_number, category)
-    VALUES (501, 10, 'Penthouse 501', 'Presidential Suite');
+ -- Шаг 2: Вставляем номер (ссылается на уже созданный отель 10)
+ INSERT INTO rooms (room_id, hotel_id, room_number, category)
+ VALUES (501, 10, 'Penthouse 501', 'Presidential Suite');
 
-    -- Шаг 3: Фиксация транзакции. 
-    -- СУБД проверяет fk_hotel_presidential_suite: номер 501 найден!
+ -- Шаг 3: Фиксация транзакции. 
+ -- СУБД проверяет fk_hotel_presidential_suite: номер 501 найден!
 COMMIT;</code></pre>
-    </div>
+ </div>
 
-    <div class="card">
-      <h2>4. Выявление скрытых конфликтов и логических противоречий</h2>
-      <p>При проектировании системы ограничений инженер обязан проверять предикаты на <strong>логическую совместность (Satisfiability)</strong>. Ниже приведены частые скрытые дефекты:</p>
+ <div class="card">
+ <h2>4. Выявление скрытых конфликтов и логических противоречий</h2>
+ <p>При проектировании системы ограничений инженер обязан проверять предикаты на <strong>логическую совместность (Satisfiability)</strong>. Ниже приведены частые скрытые дефекты:</p>
 
-      <div class="callout callout-danger">
-        <strong>1. Недостижимое условие (Логический тупик):</strong><br>
-        <code>CHECK (min_age >= 18 AND max_age &lt;= 16)</code><br>
-        Ни одно число не может быть одновременно больше 18 и меньше 16. Таблица станет «мертвой» для вставок.
-      </div>
+ <div class="callout callout-danger">
+ <strong>1. Недостижимое условие (Логический тупик):</strong><br>
+ <code>CHECK (min_age >= 18 AND max_age &lt;= 16)</code><br>
+ Ни одно число не может быть одновременно больше 18 и меньше 16. Таблица станет «мертвой» для вставок.
+ </div>
 
-      <div class="callout callout-warn">
-        <strong>2. Конфликт внешнего ключа и условия CHECK:</strong><br>
-        Таблица сотрудников содержит <code>department_id INT REFERENCES departments(id)</code>.<br>
-        При этом наложено ограничение: <code>CHECK (department_id BETWEEN 100 AND 200)</code>.<br>
-        Если в справочнике <code>departments</code> существуют отделы с номерами <code>10</code>, <code>20</code>, то при попытке привязать сотрудника к существующему отделу <code>10</code> СУБД выдаст ошибку CHECK-ограничения. Возникает семантический разрыв между связанными сущностями.
-      </div>
+ <div class="callout callout-warn">
+ <strong>2. Конфликт внешнего ключа и условия CHECK:</strong><br>
+ Таблица сотрудников содержит <code>department_id INT REFERENCES departments(id)</code>.<br>
+ При этом наложено ограничение: <code>CHECK (department_id BETWEEN 100 AND 200)</code>.<br>
+ Если в справочнике <code>departments</code> существуют отделы с номерами <code>10</code>, <code>20</code>, то при попытке привязать сотрудника к существующему отделу <code>10</code> СУБД выдаст ошибку CHECK-ограничения. Возникает семантический разрыв между связанными сущностями.
+ </div>
 
-      <div class="callout callout-warn">
-        <strong>3. Конфликт каскадного удаления ON DELETE SET NULL и NOT NULL:</strong><br>
-        Столбец внешнего ключа объявлен как <code>NOT NULL REFERENCES parent(id) ON DELETE SET NULL</code>.<br>
-        При удалении записи в родительской таблице СУБД попытается записать <code>NULL</code> в дочернее поле, но наткнется на ограничение <code>NOT NULL</code>, вызвав откат всей операции.
-      </div>
-    </div>
+ <div class="callout callout-warn">
+ <strong>3. Конфликт каскадного удаления ON DELETE SET NULL и NOT NULL:</strong><br>
+ Столбец внешнего ключа объявлен как <code>NOT NULL REFERENCES parent(id) ON DELETE SET NULL</code>.<br>
+ При удалении записи в родительской таблице СУБД попытается записать <code>NULL</code> в дочернее поле, но наткнется на ограничение <code>NOT NULL</code>, вызвав откат всей операции.
+ </div>
+ </div>
 
-    <div class="card">
-      <h2>5. Вопросы для самопроверки</h2>
-      <ol>
-        <li>В чем состоит принципиальное отличие ограничения <code>UNIQUE</code> от ограничения <code>EXCLUDE USING gist</code>? Какие типы данных и операторы можно использовать в EXCLUDE?</li>
-        <li>Почему обычный запрос <code>SELECT COUNT(*)</code> перед <code>INSERT</code> не спасает от овербукинга в высоконагруженных многопользовательских веб-приложениях?</li>
-        <li>Как вычисляется булево выражение в предикате <code>CHECK</code> при наличии значений <code>NULL</code>? В каких случаях кортеж отвергается СУБД?</li>
-        <li>Зачем в регулярных выражениях ограничений CHECK обязательно использовать символы <code>^</code> и <code>$</code>? Что произойдет, если их опустить?</li>
-        <li>Опишите пошагово сценарий возникновения циклической ссылки между таблицами. Почему режим <code>DEFERRABLE INITIALLY DEFERRED</code> решает проблему «курицы и яйца»?</li>
-        <li>Можно ли объявить ограничение <code>CHECK</code> как <code>DEFERRABLE</code> в стандартной реляционной СУБД? Поясните причину.</li>
-      </ol>
-    </div>
-  </div>
+ <div class="card">
+ <h2>5. Вопросы для самопроверки</h2>
+ <ol>
+ <li>В чем состоит принципиальное отличие ограничения <code>UNIQUE</code> от ограничения <code>EXCLUDE USING gist</code>? Какие типы данных и операторы можно использовать в EXCLUDE?</li>
+ <li>Почему обычный запрос <code>SELECT COUNT(*)</code> перед <code>INSERT</code> не спасает от овербукинга в высоконагруженных многопользовательских веб-приложениях?</li>
+ <li>Как вычисляется булево выражение в предикате <code>CHECK</code> при наличии значений <code>NULL</code>? В каких случаях кортеж отвергается СУБД?</li>
+ <li>Зачем в регулярных выражениях ограничений CHECK обязательно использовать символы <code>^</code> и <code>$</code>? Что произойдет, если их опустить?</li>
+ <li>Опишите пошагово сценарий возникновения циклической ссылки между таблицами. Почему режим <code>DEFERRABLE INITIALLY DEFERRED</code> решает проблему «курицы и яйца»?</li>
+ <li>Можно ли объявить ограничение <code>CHECK</code> как <code>DEFERRABLE</code> в стандартной реляционной СУБД? Поясните причину.</li>
+ </ol>
+ </div>
+ </div>
 </body>
 </html>
