@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Практическое занятие №5: записи и логические условия — Рабочий лист студента</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #e2e8f0;
+      --accent: #0284c7;
+      --accent-dark: #0369a1;
+      --accent-soft: #f0f9ff;
+      --success: #16a34a;
+      --success-soft: #f0fdf4;
+      --warn: #d97706;
+      --warn-soft: #fffbeb;
+      --danger: #dc2626;
+      --danger-soft: #fef2f2;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 20px 12px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    header.sheet-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.25;
+    }
+
+    .discipline-title {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      font-weight: 500;
+    }
+
+    .student-block {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      letter-spacing: 0.03em;
+    }
+
+    .input-group input, .input-group select {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.92rem;
+      background-color: #ffffff;
+      color: var(--text);
+    }
+
+    .variant-card {
+      display: none;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      animation: fadeIn 0.25s ease-in-out;
+    }
+
+    .variant-card.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-var {
+      background-color: var(--accent-soft);
+      color: var(--accent-dark);
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .instruction-box {
+      background-color: #f8fafc;
+      border-left: 4px solid var(--accent);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.92rem;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      margin: 14px 0;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      min-width: 600px;
+    }
+
+    table.data-table th, table.data-table td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      text-align: left;
+    }
+
+    table.data-table th {
+      background-color: #f1f5f9;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    table.data-table tr:nth-child(even) {
+      background-color: #fafbfc;
+    }
+
+    .section-task {
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .section-task h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 80px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      resize: vertical;
+      margin-top: 6px;
+      line-height: 1.45;
+    }
+
+    textarea.sql-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background-color: #fdfdfd;
+      min-height: 95px;
+    }
+
+    .controls-panel {
+      position: sticky;
+      bottom: 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 20px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      z-index: 100;
+    }
+
+    .status-msg {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background 0.15s, opacity 0.15s;
+    }
+
+    .btn-primary {
+      background-color: var(--accent);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--accent-dark);
+    }
+
+    .btn-secondary {
+      background-color: #f1f5f9;
+      border-color: var(--border);
+      color: var(--text);
+    }
+
+    .btn-secondary:hover {
+      background-color: #e2e8f0;
+    }
+
+    .btn-danger {
+      background-color: var(--danger-soft);
+      border-color: #fecaca;
+      color: var(--danger);
+    }
+
+    .btn-danger:hover {
+      background-color: #fee2e2;
+    }
+
+    /* Print & Responsive */
+    @media (max-width: 640px) {
+      .student-block {
+        grid-template-columns: 1fr;
+      }
+      .controls-panel {
+        position: static;
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .btn-group {
+        flex-direction: column;
+      }
+      body {
+        padding: 12px 8px;
+      }
+    }
+
+    @media print {
+      body {
+        background-color: #ffffff;
+        color: #000000;
+        padding: 0;
+      }
+      .container {
+        max-width: 100%;
+      }
+      header.sheet-header, .variant-card {
+        border: 1px solid #999999;
+        box-shadow: none;
+        page-break-inside: avoid;
+        margin-bottom: 16px;
+        padding: 14px 16px;
+      }
+      .controls-panel {
+        display: none;
+      }
+      .variant-card {
+        display: block !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+      }
+      textarea {
+        border: 1px solid #666666;
+        min-height: 100px;
+        color: #000000;
+      }
+      table.data-table th, table.data-table td {
+        border: 1px solid #444444;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="sheet-header">
+      <h1>Практическое занятие №5: записи и логические условия</h1>
+      <div class="discipline-title">ОП.08 Основы проектирования баз данных • Сургутский институт экономики, управления и права (СИЭУиП)</div>
+      
+      <div class="student-block">
+        <div class="input-group">
+          <label for="studentFio">ФИО студента</label>
+          <input type="text" id="studentFio">
+        </div>
+        <div class="input-group">
+          <label for="studentGroup">Группа</label>
+          <input type="text" id="studentGroup">
+        </div>
+        <div class="input-group">
+          <label for="variantSelect">Вариант</label>
+          <select id="variantSelect" onchange="switchVariant()">
+            <option value="1">Вариант 1 (Аптека)</option>
+            <option value="2">Вариант 2 (Автосалон)</option>
+            <option value="3">Вариант 3 (Кадры)</option>
+            <option value="4">Вариант 4 (Склад)</option>
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <!-- ВАРИАНТ 1: Интернет-аптека -->
+    <div class="variant-card active" id="var-1">
+      <h2><span class="badge-var">Вариант 1</span> База данных «Интернет-аптека»</h2>
+      <div class="instruction-box">
+        <strong>Задание:</strong> В связи с сезонной инфляцией требуется повысить отпускную розничную цену на <strong>10%</strong> (<code>price = ROUND(price * 1.10, 2)</code>) для лекарственных препаратов категории <code>'Витамины'</code>, текущий складской остаток которых находится в диапазоне <code>BETWEEN 5 AND 50</code>, и срок годности превышает <code>'2026-12-31'</code>.
+      </div>
+
+      <div class="section-task">
+        <h3>Исходное состояние отношения pharmacy_products:</h3>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID (product_id)</th>
+                <th>Наименование товара</th>
+                <th>Категория (category)</th>
+                <th>Остаток (stock_quantity)</th>
+                <th>Цена, руб. (price)</th>
+                <th>Срок годности (expiration_date)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>Аскорбинка с глюкозой 50г</td><td>Витамины</td><td>25</td><td>120.00</td><td>2027-05-01</td></tr>
+              <tr><td>2</td><td>Витамин D3 2000 ME капс.</td><td>Витамины</td><td>4</td><td>450.00</td><td>2027-10-15</td></tr>
+              <tr><td>3</td><td>Омега-3 Форте комплекс</td><td>Витамины</td><td>15</td><td>800.00</td><td>2026-11-20</td></tr>
+              <tr><td>4</td><td>Поливитамины Актив 60 таб.</td><td>Витамины</td><td>50</td><td>600.00</td><td>2028-01-10</td></tr>
+              <tr><td>5</td><td>Ибупрофен 400мг обезбол.</td><td>Обезболивающие</td><td>30</td><td>150.00</td><td>2027-12-31</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section-task">
+        <h3>Шаг 1. Проверочный SELECT-запрос (предпросмотр выборки)</h3>
+        <label>Сформулируйте проверочный SQL-запрос для предварительной верификации отбираемых строк:</label>
+        <textarea id="v1_q1" class="sql-code"></textarea>
+      </div>
+
+      <div class="section-task">
+        <h3>Шаг 2. Запрос модификации данных (DML с транзакцией)</h3>
+        <label>Напишите безопасный блок обновления данных (BEGIN TRANSACTION ... UPDATE ... COMMIT):</label>
+        <textarea id="v1_q2" class="sql-code"></textarea>
+      </div>
+
+      <div class="section-task">
+        <h3>Шаг 3. Протокол аудита изменений (Состояние строк ДО и ПОСЛЕ)</h3>
+        <label>Заполните таблицу изменений: укажите для каждого ID статус («Модифицирована» или «Без изменений»), старую и новую цену, а также причину решения:</label>
+        <textarea id="v1_q3" placeholder="Пример:&#10;ID 1: Цена 120.00 -> 132.00. Модифицирована (Витамины, 25 в [5;50], дата > 2026-12-31).&#10;ID 2: ..."></textarea>
+      </div>
+
+      <div class="section-task">
+        <h3>Шаг 4. Анализ трехзначной логики SQL (3VL)</h3>
+        <label>Что вернет предикат <code>WHERE expiration_date > '2026-12-31'</code>, если у товара срок годности не указан (содержит <code>NULL</code>)? Будет ли обновлена цена такого товара? Объясните математику 3VL:</label>
+        <textarea id="v1_q4"></textarea>
+      </div>
+    </div>
+
+    <!-- ВАРИАНТ 2: Автосалон -->
+    <div class="variant-card" id="var-2">
+      <h2><span class="badge-var">Вариант 2</span> База данных «Автосалон»</h2>
+      <div class="instruction-box">
+        <strong>Задание:</strong> В связи с корпоративным заказом перевести в статус <code>'Забронирован'</code> автомобили марки <code>'Toyota'</code> ИЛИ <code>'Lexus'</code>, год выпуска которых <code>&gt;= 2023</code>, а пробег строго менее <code>15000</code> км. Внимание к приоритету логических связок <code>OR</code> и <code>AND</code>!
+      </div>
+
+      <div class="section-task">
+        <h3>Исходное состояние отношения dealership_cars:</h3>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID (car_id)</th>
+                <th>Модель автомобиля</th>
+                <th>Марка (brand)</th>
+                <th>Год выпуска (year_manufactured)</th>
+                <th>Пробег, км (mileage)</th>
+                <th>Текущий статус (status)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>101</td><td>Camry 2.5 Prestige</td><td>Toyota</td><td>2023</td><td>12000</td><td>В наличии</td></tr>
+              <tr><td>102</td><td>RX 350 Luxury AWD</td><td>Lexus</td><td>2024</td><td>8500</td><td>В наличии</td></tr>
+              <tr><td>103</td><td>Corolla 1.6 Comfort</td><td>Toyota</td><td>2021</td><td>14000</td><td>В наличии</td></tr>
+              <tr><td>104</td><td>ES 250 Premium</td><td>Lexus</td><td>2023</td><td>18500</td><td>В наличии</td></tr>
+              <tr><td>105</td><td>Solaris 1.6 Active</td><td>Hyundai</td><td>2023</td><td>9000</td><td>В наличии</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section-task">
+        <h3>Шаг 1. Проверочный SELECT-запрос (с круглыми скобками)</h3>
+        <label>Сформулируйте проверочный SQL-запрос выборки с соблюдением приоритета связок:</label>
+        <textarea id="v2_q1" class="sql-code"></textarea>
+      </div>
+
+      <div class="section-task">
+        <h3>Шаг 2. Транзакционный запрос UPDATE</h3>
+        <label>Составьте команду обновления статуса с транзакционной защитой:</label>
+        <textarea id="v2_q2" class="sql-code"></textarea>
+      </div>
+
+      <div class="section-task">
+        <h3>Шаг 3. Протокол аудита изменений (ДО / ПОСЛЕ)</h3>
+        <label>Заполните протокол по всем 5 кортежам с обоснованием статуса:</label>
+        <textarea id="v2_q3"></textarea>
+      </div>
+
+      <div class="section-task">
+        <h3>Шаг 4. Анализ риска логической ошибки</h3>
+        <label>Что произойдет, если разработчик опустит скобки и напишет <code>WHERE brand = 'Toyota' OR brand = 'Lexus' AND year_manufactured >= 2023 AND mileage &lt; 15000</code>? Какие строки ошибочно изменятся?</label>
+        <textarea id="v2_q4"></textarea>
+      </div>
+    </div>
+
+    <!-- ВАРИАНТ 3: Кадровое агентство -->
+    <div class="variant-card" id="var-3">
+      <h2><span class="badge-var">Вариант 3</span> База данных «Кадровое агентство»</h2>
+      <div class="instruction-box">
+        <strong>Задание:</strong> Обновить статус доступности соискателей на <code>'Готов к офферу'</code> для кандидатов с грейдом <code>IN ('Senior', 'Lead')</code>, владеющих компетенцией 'PostgreSQL' (проверка через шаблон <code>LIKE '%PostgreSQL%'</code>) и у которых отсутствует факт текущего найма (<code>hire_date IS NULL</code>).
+      </div>
+
+      <div class="section-task">
+        <h3>Исходное состояние отношения job_candidates:</h3>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID (candidate_id)</th>
+                <th>ФИО соискателя</th>
+                <th>Грейд (experience_level)</th>
+                <th>Стек технологий (skills)</th>
+                <th>Дата найма (hire_date)</th>
+                <th>Текущий статус (status)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>201</td><td>Смирнов А.В.</td><td>Senior</td><td>PostgreSQL, Go, Docker, Linux</td><td>NULL</td><td>В поиске</td></tr>
+              <tr><td>202</td><td>Ковалева Е.И.</td><td>Lead</td><td>Java, Spring, PostgreSQL, K8s</td><td>NULL</td><td>В поиске</td></tr>
+              <tr><td>203</td><td>Васильев П.С.</td><td>Senior</td><td>PostgreSQL, Python, Redis</td><td>2026-02-15</td><td>Трудоустроен</td></tr>
+              <tr><td>204</td><td>Морозов Д.А.</td><td>Middle</td><td>PostgreSQL, C++, Git</td><td>NULL</td><td>В поиске</td></tr>
+              <tr><td>205</td><td>Кузнецова О.Н.</td><td>Lead</td><td>JavaScript, React, Node.js</td><td>NULL</td><td>В поиске</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section-task">
+        <h3>Шаг 1. Проверочный SELECT-запрос</h3>
+        <label>Сформулируйте проверочный SQL-запрос с предикатами IN, LIKE и IS NULL:</label>
+        <textarea id="v3_q1" class="sql-code"></textarea>
+      </div>
+
+      <div class="section-task">
+        <h3>Шаг 2. Транзакционный запрос UPDATE</h3>
+        <label>Напишите безопасную транзакцию модификации статуса:</label>
+        <textarea id="v3_q2" class="sql-code"></textarea>
+      </div>
+
+      <div class="section-task">
+        <h3>Шаг 3. Протокол аудита изменений (ДО / ПОСЛЕ)</h3>
+        <label>Укажите для каждого из 5 соискателей результат проверки условий и итоговый статус:</label>
+        <textarea id="v3_q3"></textarea>
+      </div>
+
+      <div class="section-task">
+        <h3>Шаг 4. Анализ трехзначной логики при проверке NULL</h3>
+        <label>Почему условие <code>hire_date = NULL</code> является грубейшей ошибкой в SQL? Объясните поведение СУБД с точки зрения трехзначной логики 3VL и почему ни один кандидат не обновится при такой записи:</label>
+        <textarea id="v3_q4"></textarea>
+      </div>
+    </div>
+
+    <!-- ВАРИАНТ 4: Складской терминал -->
+    <div class="variant-card" id="var-4">
+      <h2><span class="badge-var">Вариант 4</span> База данных «Складской терминал»</h2>
+      <div class="instruction-box">
+        <strong>Задание:</strong> Провести рекламацию и переместить в статус <code>'Утилизация'</code> партии стройматериалов поставщика <code>'Логистик-Групп'</code>, если у них зафиксирован производственный брак (<code>defect_count &gt; 0</code>) ИЛИ срок нахождения на складе превышает норматив (<code>storage_days &gt; 180</code> дней).
+      </div>
+
+      <div class="section-task">
+        <h3>Исходное состояние отношения warehouse_stock:</h3>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID (item_id)</th>
+                <th>Номенклатура</th>
+                <th>Поставщик (supplier)</th>
+                <th>Кол-во дефектов (defect_count)</th>
+                <th>Дней на складе (storage_days)</th>
+                <th>Статус партии (status)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>301</td><td>Профиль стальной L-20</td><td>Логистик-Групп</td><td>2</td><td>45</td><td>На складе</td></tr>
+              <tr><td>302</td><td>Утеплитель Минвата 50</td><td>Логистик-Групп</td><td>0</td><td>210</td><td>На складе</td></tr>
+              <tr><td>303</td><td>Арматура 12мм А500</td><td>Логистик-Групп</td><td>0</td><td>90</td><td>На складе</td></tr>
+              <tr><td>304</td><td>Кабель ВВГнг 3х2.5</td><td>Север-Снаб</td><td>5</td><td>250</td><td>На складе</td></tr>
+              <tr><td>305</td><td>Крепеж анкерный 10х100</td><td>Логистик-Групп</td><td>1</td><td>195</td><td>На складе</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section-task">
+        <h3>Шаг 1. Проверочный SELECT-запрос</h3>
+        <label>Сформулируйте проверочный SQL-запрос для выявления партий под утилизацию:</label>
+        <textarea id="v4_q1" class="sql-code"></textarea>
+      </div>
+
+      <div class="section-task">
+        <h3>Шаг 2. Транзакционный запрос UPDATE</h3>
+        <label>Напишите команду перевода в статус 'Утилизация' в рамках транзакции:</label>
+        <textarea id="v4_q2" class="sql-code"></textarea>
+      </div>
+
+      <div class="section-task">
+        <h3>Шаг 3. Протокол аудита изменений (ДО / ПОСЛЕ)</h3>
+        <label>Сформируйте таблицу изменений по всем 5 позициям номенклатуры:</label>
+        <textarea id="v4_q3"></textarea>
+      </div>
+
+      <div class="section-task">
+        <h3>Шаг 4. Анализ дизъюнкции и приоритета AND/OR</h3>
+        <label>Что произойдет с партией №304 (поставщик 'Север-Снаб'), если пропустить скобки вокруг дизъюнкции условий списания? Объясните логику вычисления SQL-сервером:</label>
+        <textarea id="v4_q4"></textarea>
+      </div>
+    </div>
+
+    <!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
+    <div class="controls-panel">
+      <div class="status-msg" id="statusMessage">Все изменения сохраняются автоматически</div>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="saveToStorage(true)">Сохранить работу</button>
+        <button class="btn btn-secondary" onclick="window.print()">Печать / PDF</button>
+        <button class="btn btn-danger" onclick="resetForm()">Очистить форму</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'sielom_db_lab17_work';
+
+    function switchVariant() {
+      const select = document.getElementById('variantSelect');
+      const val = select.value;
+      document.querySelectorAll('.variant-card').forEach(c => c.classList.remove('active'));
+      const activeCard = document.getElementById('var-' + val);
+      if (activeCard) {
+        activeCard.classList.add('active');
+      }
+      saveToStorage(false);
+    }
+
+    function collectData() {
+      const fields = [
+        'studentFio', 'studentGroup', 'variantSelect',
+        'v1_q1', 'v1_q2', 'v1_q3', 'v1_q4',
+        'v2_q1', 'v2_q2', 'v2_q3', 'v2_q4',
+        'v3_q1', 'v3_q2', 'v3_q3', 'v3_q4',
+        'v4_q1', 'v4_q2', 'v4_q3', 'v4_q4'
+      ];
+      const data = {};
+      fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) data[id] = el.value;
+      });
+      data.lastUpdated = new Date().toISOString();
+      return data;
+    }
+
+    function saveToStorage(notify = false) {
+      const data = collectData();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      const msg = document.getElementById('statusMessage');
+      if (msg) {
+        const time = new Date().toLocaleTimeString();
+        msg.textContent = 'Сохранено в ' + time;
+      }
+      if (notify) {
+        alert('Данные успешно сохранены в локальное хранилище браузера.');
+      }
+    }
+
+    function loadFromStorage() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      try {
+        const data = JSON.parse(raw);
+        Object.keys(data).forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.value = data[id];
+        });
+        if (data.variantSelect) {
+          switchVariant();
+        }
+      } catch (e) {
+        console.error('Ошибка загрузки данных', e);
+      }
+    }
+
+    function resetForm() {
+      if (confirm('Вы действительно хотите очистить все введенные данные? Это действие необратимо.')) {
+        localStorage.removeItem(STORAGE_KEY);
+        const inputs = document.querySelectorAll('input[type="text"], textarea');
+        inputs.forEach(el => el.value = '');
+        document.getElementById('statusMessage').textContent = 'Форма очищена';
+      }
+    }
+
+    // Auto-save on input
+    document.addEventListener('input', () => {
+      saveToStorage(false);
+    });
+
+    window.addEventListener('DOMContentLoaded', loadFromStorage);
+  </script>
+</body>
+</html>

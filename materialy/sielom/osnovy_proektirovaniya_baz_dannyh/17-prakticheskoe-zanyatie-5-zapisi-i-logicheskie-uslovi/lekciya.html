@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Теоретический конспект: Практическое занятие №5: записи и логические условия</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #e2e8f0;
+      --accent: #0284c7;
+      --accent-dark: #0369a1;
+      --accent-soft: #f0f9ff;
+      --warn: #d97706;
+      --warn-soft: #fffbeb;
+      --danger: #dc2626;
+      --danger-soft: #fef2f2;
+      --success: #16a34a;
+      --success-soft: #f0fdf4;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    header.doc-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+      line-height: 1.25;
+    }
+
+    .meta-line {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    article {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 24px;
+      margin-bottom: 14px;
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 8px;
+    }
+
+    h2:first-of-type {
+      margin-top: 0;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin-top: 18px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin-bottom: 14px;
+      font-size: 0.96rem;
+      color: #334155;
+    }
+
+    ul, ol {
+      margin-left: 20px;
+      margin-bottom: 14px;
+      font-size: 0.96rem;
+      color: #334155;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    pre, code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    pre {
+      background: #0f172a;
+      color: #38bdf8;
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 0.9rem;
+      overflow-x: auto;
+      margin: 14px 0;
+      line-height: 1.5;
+    }
+
+    code.inline {
+      background: #f1f5f9;
+      color: #0284c7;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.9em;
+      border: 1px solid #e2e8f0;
+    }
+
+    .alert {
+      padding: 14px 18px;
+      border-radius: 8px;
+      margin: 16px 0;
+      font-size: 0.95rem;
+    }
+
+    .alert-danger {
+      background-color: var(--danger-soft);
+      border-left: 4px solid var(--danger);
+      color: #991b1b;
+    }
+
+    .alert-warn {
+      background-color: var(--warn-soft);
+      border-left: 4px solid var(--warn);
+      color: #92400e;
+    }
+
+    .alert-info {
+      background-color: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      color: var(--accent-dark);
+    }
+
+    .truth-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.92rem;
+    }
+
+    .truth-table th, .truth-table td {
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      text-align: center;
+    }
+
+    .truth-table th {
+      background-color: #f1f5f9;
+      color: #1e293b;
+      font-weight: 700;
+    }
+
+    .truth-table tr:nth-child(even) {
+      background-color: #fafbfc;
+    }
+
+    .val-true {
+      color: #16a34a;
+      font-weight: 700;
+    }
+
+    .val-false {
+      color: #dc2626;
+      font-weight: 700;
+    }
+
+    .val-unknown {
+      color: #d97706;
+      font-weight: 700;
+    }
+
+    .qa-box {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+    }
+
+    .qa-q {
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    .qa-a {
+      color: #475569;
+      font-size: 0.92rem;
+    }
+
+    @media print {
+      body {
+        background-color: #ffffff;
+        padding: 0;
+      }
+      header.doc-header, article {
+        box-shadow: none;
+        border: 1px solid #cccccc;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="doc-header">
+      <h1>Теоретический конспект: записи и логические условия в реляционных СУБД</h1>
+      <div class="meta-line">
+        <strong>Дисциплина:</strong> ОП.08 Основы проектирования баз данных • <strong>Раздел:</strong> Тема 3. Этапы проектирования баз данных • <strong>Занятие:</strong> №17 (Практическое занятие №5)
+      </div>
+      <p style="margin: 0; color: var(--text-muted); font-size: 0.92rem;">
+        Настоящий конспект содержит глубокий теоретический базис для выполнения практических работ по манипулированию записями (DML), конструированию составных булевых выражений фильтрации и строгому учету математической модели трехзначной логики SQL (3VL).
+      </p>
+    </header>
+
+    <article>
+      <h2>1. Операторы модификации данных (DML) и реляционная парадигма</h2>
+      <p>
+        В реляционной модели данных отношения представляют собой неупорядоченные множества кортежей. В отличие от процедурного программирования, где обработка структур данных производится пошагово в циклах, в языке SQL все операции манипулирования данными (<strong>Data Manipulation Language, DML</strong>) носят <em>декларативный теоретико-множественный характер</em>. Команда модификации применяется не к одной ячейке или указателю в памяти, а ко всему подмножеству кортежей, удовлетворяющих заданному предикату.
+      </p>
+      
+      <h3>1.1. Синтаксис и фазы выполнения команды UPDATE</h3>
+      <p>Команда <code class="inline">UPDATE</code> предназначена для изменения значений одного или нескольких атрибутов в существующих кортежах отношения:</p>
+      <pre>UPDATE &lt;имя_таблицы&gt;
+SET &lt;столбец_1&gt; = &lt;выражение_1&gt; [, &lt;столбец_2&gt; = &lt;выражение_2&gt; ...]
+[WHERE &lt;логический_предикат&gt;];</pre>
+
+      <p>Процесс исполнения команды ядром СУБД включает четыре обязательных фазы:</p>
+      <ol>
+        <li><strong>Фаза фильтрации (WHERE-scan):</strong> процессор запросов оценивает логический предикат для каждого кортежа таблицы. Если предикат вычисляется в значение <code class="inline">TRUE</code>, кортеж включается в рабочий набор изменений. Кортежи, для которых предикат равен <code class="inline">FALSE</code> или <code class="inline">UNKNOWN</code>, игнорируются.</li>
+        <li><strong>Фаза вычисления новых значений (SET-evaluation):</strong> для отобранных кортежей вычисляются выражения правой части присваиваний. При этом выражения могут оперировать как константами, так и текущими значениями любых столбцов того же кортежа или подзапросов (например: <code class="inline">SET price = price * 1.10</code>).</li>
+        <li><strong>Фаза проверки ограничений целостности (Integrity Enforcement):</strong> СУБД выполняет валидацию сформированных кортежей на соответствие ограничениям схемы: ограничения домена (<code class="inline">NOT NULL</code>, <code class="inline">CHECK</code>), уникальности (<code class="inline">UNIQUE</code>, <code class="inline">PRIMARY KEY</code>) и ссылочной целостности (<code class="inline">FOREIGN KEY</code>). При нарушении хотя бы одного ограничения операция прерывается с ошибкой.</li>
+        <li><strong>Фаза фиксации и журналирования (WAL / Undo-Redo):</strong> изменения записываются в журнал предзаписи (Write-Ahead Log) для обеспечения свойств транзакционности (ACID).</li>
+      </ol>
+
+      <div class="alert alert-danger">
+        <strong>Критическое правило безопасности:</strong> Секция <code class="inline">WHERE</code> в синтаксисе SQL является необязательной. При ее пропуске условие неявно принимается равным тождественному <code class="inline">TRUE</code>, в результате чего СУБД модифицирует абсолютно <strong>ВСЕ кортежи таблицы</strong>!
+      </div>
+    </article>
+
+    <article>
+      <h2>2. Булева логика и порядок вычисления составных предикатов</h2>
+      <p>
+        Фильтрация данных строится на булевых выражениях, связывающих элементарные предикаты с помощью логических операторов <code class="inline">AND</code> (конъюнкция), <code class="inline">OR</code> (дизъюнкция) и <code class="inline">NOT</code> (отрицание).
+      </p>
+
+      <h3>2.1. Иерархия приоритетов операторов</h3>
+      <p>В соответствии со стандартом ANSI/ISO SQL порядок вычисления операторов строго регламентирован:</p>
+      <ol>
+        <li>Выражения в круглых скобках <code class="inline">( ... )</code> — высший приоритет, переопределяющий стандартный порядок.</li>
+        <li>Унарный логический оператор отрицания <code class="inline">NOT</code>.</li>
+        <li>Бинарный логический оператор умножения <code class="inline">AND</code> (конъюнкция).</li>
+        <li>Бинарный логический оператор сложения <code class="inline">OR</code> (дизъюнкция) — наименьший приоритет.</li>
+      </ol>
+
+      <div class="alert alert-warn">
+        <strong>Классическая ловушка приоритета:</strong> Рассмотрим условие:<br>
+        <code class="inline">WHERE brand = 'Toyota' OR brand = 'Lexus' AND year >= 2023 AND mileage &lt; 15000</code><br>
+        Поскольку <code class="inline">AND</code> имеет более высокий приоритет, СУБД группирует условие следующим образом:<br>
+        <code class="inline">WHERE (brand = 'Toyota') OR (brand = 'Lexus' AND year >= 2023 AND mileage &lt; 15000)</code><br>
+        Это приведет к тому, что под действие запроса попадут абсолютно <strong>все автомобили Toyota любого года выпуска и с любым пробегом</strong>! Корректная форма обязана содержать явные круглые скобки:<br>
+        <code class="inline">WHERE (brand = 'Toyota' OR brand = 'Lexus') AND year >= 2023 AND mileage &lt; 15000</code>
+      </div>
+
+      <h3>2.2. Специализированные предикаты SQL</h3>
+      <ul>
+        <li><strong>Предикат диапазона BETWEEN:</strong> выражение <code class="inline">x BETWEEN a AND b</code> семантически эквивалентно составному предикату <code class="inline">x &gt;= a AND x &lt;= b</code>. Обе границы обязательно входят в интервал. Важно помнить: аргумент <code class="inline">a</code> должен быть строго меньше либо равен <code class="inline">b</code>. При записи <code class="inline">BETWEEN 50 AND 5</code> предикат вернет тождественный <code class="inline">FALSE</code>.</li>
+        <li><strong>Предикат принадлежности множеству IN:</strong> условие <code class="inline">x IN (v1, v2, v3)</code> является лаконичной заменой дизъюнкции <code class="inline">(x = v1 OR x = v2 OR x = v3)</code>. Однако применение отрицания <code class="inline">x NOT IN (...)</code> требует осторожности: если список содержит хотя бы один элемент <code class="inline">NULL</code>, результат всего выражения для несовпадающего значения станет <code class="inline">UNKNOWN</code>, и ни одна строка не будет возвращена.</li>
+        <li><strong>Предикаты поиска по шаблону LIKE и ILIKE:</strong> оператор <code class="inline">LIKE</code> сопоставляет текстовую строку с маской. Символ <code class="inline">%</code> обозначает любую последовательность из нуля и более символов; символ <code class="inline">_</code> обозначает ровно один произвольный символ. В стандарте SQL и PostgreSQL оператор <code class="inline">LIKE</code> регистрозависим. Регистронезависимое сопоставление в PostgreSQL выполняется через оператор <code class="inline">ILIKE</code>.</li>
+      </ul>
+    </article>
+
+    <article>
+      <h2>3. Математический аппарат трехзначной логики SQL (3VL)</h2>
+      <p>
+        В классической логике высказываний Аристотеля любое утверждение либо истинно (<code class="inline">TRUE</code>), либо ложно (<code class="inline">FALSE</code>) — действует закон исключенного третьего. Создатель реляционной модели данных Эдгар Кодд ввел в теорию концепцию специального маркера <code class="inline">NULL</code>, символизирующего <em>неизвестное, неприменимое или отсутствующее значение</em>.
+      </p>
+      <p>
+        Присутствие маркера <code class="inline">NULL</code> сделало невозможным использование двузначной булевой логики и потребовало перехода к <strong>трехзначной логике (Three-Valued Logic, 3VL)</strong>, содержащей три значения истинности:
+      </p>
+      <ul>
+        <li><strong class="val-true">TRUE (Истина)</strong> — условие достоверно выполняется;</li>
+        <li><strong class="val-false">FALSE (Ложь)</strong> — условие достоверно нарушено;</li>
+        <li><strong class="val-unknown">UNKNOWN (Неизвестно)</strong> — невозможно определить истинность из-за недостатка данных.</li>
+      </ul>
+
+      <h3>3.1. Таблицы истинности операторов 3VL</h3>
+      <p>Правила взаимодействия значений в трехзначной логике подчиняются алгебре Клини / Кодда:</p>
+
+      <table class="truth-table">
+        <thead>
+          <tr>
+            <th>Операнд A</th>
+            <th>Операнд B</th>
+            <th>A AND B (Конъюнкция)</th>
+            <th>A OR B (Дизъюнкция)</th>
+            <th>NOT A (Отрицание)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="val-true">TRUE</td>
+            <td class="val-true">TRUE</td>
+            <td class="val-true">TRUE</td>
+            <td class="val-true">TRUE</td>
+            <td class="val-false">FALSE</td>
+          </tr>
+          <tr>
+            <td class="val-true">TRUE</td>
+            <td class="val-false">FALSE</td>
+            <td class="val-false">FALSE</td>
+            <td class="val-true">TRUE</td>
+            <td class="val-false">FALSE</td>
+          </tr>
+          <tr>
+            <td class="val-true">TRUE</td>
+            <td class="val-unknown">UNKNOWN</td>
+            <td class="val-unknown">UNKNOWN</td>
+            <td class="val-true">TRUE</td>
+            <td class="val-false">FALSE</td>
+          </tr>
+          <tr>
+            <td class="val-false">FALSE</td>
+            <td class="val-false">FALSE</td>
+            <td class="val-false">FALSE</td>
+            <td class="val-false">FALSE</td>
+            <td class="val-true">TRUE</td>
+          </tr>
+          <tr>
+            <td class="val-false">FALSE</td>
+            <td class="val-unknown">UNKNOWN</td>
+            <td class="val-false">FALSE</td>
+            <td class="val-unknown">UNKNOWN</td>
+            <td class="val-true">TRUE</td>
+          </tr>
+          <tr>
+            <td class="val-unknown">UNKNOWN</td>
+            <td class="val-unknown">UNKNOWN</td>
+            <td class="val-unknown">UNKNOWN</td>
+            <td class="val-unknown">UNKNOWN</td>
+            <td class="val-unknown">UNKNOWN</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>3.2. Фундаментальные парадоксы NULL в предикатах</h3>
+      <p>Главное следствие модели 3VL — результат любого скалярного сравнения с <code class="inline">NULL</code> равен <code class="inline">UNKNOWN</code>:</p>
+      <pre>NULL = NULL      -- Результат: UNKNOWN (не TRUE!)
+NULL &lt;&gt; NULL     -- Результат: UNKNOWN (не FALSE!)
+NULL &gt; 100       -- Результат: UNKNOWN
+NULL = 0         -- Результат: UNKNOWN
+NULL = ''        -- Результат: UNKNOWN</pre>
+
+      <p>
+        <strong>Правило фильтрации WHERE:</strong> кортеж включается в результирующую выборку или подлежит модификации оператором <code class="inline">UPDATE</code> <em>только и исключительно в том случае, когда предикат вычисляется в <code class="inline">TRUE</code></em>. Значение <code class="inline">UNKNOWN</code> трактуется фильтром как отклонение кортежа (точно так же, как <code class="inline">FALSE</code>).
+      </p>
+
+      <div class="alert alert-info">
+        <strong>Специальные предикаты IS NULL и IS NOT NULL:</strong><br>
+        Поскольку выражение <code class="inline">pole = NULL</code> всегда возвращает <code class="inline">UNKNOWN</code>, проверка наличия или отсутствия факта данных в SQL выполняется исключительно через предикаты <code class="inline">IS NULL</code> и <code class="inline">IS NOT NULL</code>. Эти предикаты всегда возвращают строго двузначный булев результат (<code class="inline">TRUE</code> или <code class="inline">FALSE</code>).
+      </div>
+    </article>
+
+    <article>
+      <h2>4. Транзакционная дисциплина и регламент безопасной модификации</h2>
+      <p>
+        В промышленной эксплуатации СУБД любая ручная или скриптовая модификация данных должна выполняться в строгом соответствии с инженерным протоколом безопасности:
+      </p>
+      <ol>
+        <li><strong>Этап 1: Предварительная верификация (SELECT).</strong> Перед выполнением команды <code class="inline">UPDATE</code> или <code class="inline">DELETE</code> инженер формулирует запрос <code class="inline">SELECT</code> с идентичным предикатом <code class="inline">WHERE</code>. Выполняется визуальный контроль отбираемых кортежей и точный подсчет количества строк.</li>
+        <li><strong>Этап 2: Инициализация явной транзакции.</strong> Запуск блока транзакции: <code class="inline">BEGIN TRANSACTION;</code>. В этом состоянии все выполняемые изменения изолированы и могут быть гарантированно отменены без ущерба для пользователей БД.</li>
+        <li><strong>Этап 3: Применение DML-команды.</strong> Выполнение команды <code class="inline">UPDATE</code> или <code class="inline">DELETE</code>.</li>
+        <li><strong>Этап 4: Верификация счетчика изменений.</strong> Анализ возвращенного СУБД системного ответа (например: <code class="inline">UPDATE 2</code>). Если количество затронутых строк не совпадает с расчетным на этапе 1 — немедленный откат!</li>
+        <li><strong>Этап 5: Фиксация или откат.</strong> При подтверждении корректности выполняется фиксация <code class="inline">COMMIT;</code>. При малейшей аномалии — <code class="inline">ROLLBACK;</code>.</li>
+      </ol>
+    </article>
+
+    <article>
+      <h2>5. Вопросы для самопроверки студентов</h2>
+      <div class="qa-box">
+        <div class="qa-q">1. Чему равно логическое выражение: (TRUE OR UNKNOWN) AND (FALSE OR NOT UNKNOWN)?</div>
+        <div class="qa-a"><strong>Ответ:</strong> Вычисляем по шагам: 1) TRUE OR UNKNOWN = TRUE; 2) NOT UNKNOWN = UNKNOWN; 3) FALSE OR UNKNOWN = UNKNOWN; 4) TRUE AND UNKNOWN = <strong>UNKNOWN</strong>. В секции WHERE такая строка будет отфильтрована.</div>
+      </div>
+
+      <div class="qa-box">
+        <div class="qa-q">2. Почему предикат WHERE price BETWEEN 1000 AND 500 никогда не выберет ни одной строки?</div>
+        <div class="qa-a"><strong>Ответ:</strong> Предикат BETWEEN строго инклюзивен и разворачивается в конъюнкцию (price &gt;= 1000 AND price &lt;= 500). Так как число не может быть одновременно &gt;= 1000 и &lt;= 500, условие тождественно ложно (FALSE).</div>
+      </div>
+
+      <div class="qa-box">
+        <div class="qa-q">3. Чем грозит случайный пропуск скобок в выражении WHERE status = 'Active' OR status = 'Pending' AND balance > 0?</div>
+        <div class="qa-a"><strong>Ответ:</strong> Из-за старшинства AND запрос вернет всех клиентов со статусом 'Active' с любым балансом (даже отрицательным или нулевым) плюс клиентов 'Pending' с положительным балансом.</div>
+      </div>
+
+      <div class="qa-box">
+        <div class="qa-q">4. Что вернет запрос SELECT * FROM staff WHERE dismissal_date = NULL?</div>
+        <div class="qa-a"><strong>Ответ:</strong> Пустой результат (0 строк). Выражение dismissal_date = NULL для каждой строки вернет UNKNOWN, а секция WHERE отбирает только строки со значением TRUE. Корректная запись: WHERE dismissal_date IS NULL.</div>
+      </div>
+    </article>
+  </div>
+</body>
+</html>

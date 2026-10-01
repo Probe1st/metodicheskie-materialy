@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Теоретический конспект — Практическое занятие №6: ключевые поля, индексы, связи</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #0284c7;
+      --accent-soft: #f0f9ff;
+      --accent-dark: #0369a1;
+      --success: #15803d;
+      --success-soft: #f0fdf4;
+      --warn: #b45309;
+      --warn-soft: #fffbeb;
+      --danger: #b91c1c;
+      --danger-soft: #fef2f2;
+      --code-bg: #0f172a;
+      --code-text: #f8fafc;
+      --radius: 12px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      line-height: 1.65;
+      font-size: 16px;
+    }
+    .page {
+      width: min(100% - 32px, 960px);
+      margin: 32px auto 80px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(24px, 4vw, 32px);
+      color: var(--text);
+      line-height: 1.25;
+    }
+    .lead {
+      color: var(--muted);
+      margin: 0;
+      font-size: 16px;
+    }
+    h2 {
+      margin: 0 0 16px;
+      font-size: 21px;
+      color: var(--accent-dark);
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 8px;
+    }
+    h3 {
+      font-size: 18px;
+      margin: 22px 0 12px;
+      color: var(--text);
+    }
+    p, ul, ol {
+      margin: 0 0 16px;
+    }
+    ul, ol {
+      padding-left: 24px;
+    }
+    li {
+      margin-bottom: 8px;
+    }
+    .box {
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 16px 0;
+      border-left: 4px solid;
+    }
+    .box-info {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: #0c4a6e;
+    }
+    .box-warn {
+      background: var(--warn-soft);
+      border-color: var(--warn);
+      color: #78350f;
+    }
+    .box-danger {
+      background: var(--danger-soft);
+      border-color: var(--danger);
+      color: #7f1d1d;
+    }
+    .box-success {
+      background: var(--success-soft);
+      border-color: var(--success);
+      color: #14532d;
+    }
+    pre, code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 14px;
+    }
+    code {
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 16px 0;
+      line-height: 1.5;
+    }
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 20px;
+      font-size: 15px;
+    }
+    table.data-table th, table.data-table td {
+      border: 1px solid var(--line);
+      padding: 10px 14px;
+      text-align: left;
+    }
+    table.data-table th {
+      background: #f1f5f9;
+      color: var(--text);
+      font-weight: 700;
+    }
+    .tree-diagram {
+      background: #0f172a;
+      color: #38bdf8;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: ui-monospace, monospace;
+      font-size: 13.5px;
+      line-height: 1.5;
+      overflow-x: auto;
+      margin: 16px 0;
+    }
+    .question-card {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .question-title {
+      font-weight: 700;
+      color: var(--accent-dark);
+      margin-bottom: 6px;
+    }
+    @media (max-width: 640px) {
+      .card { padding: 20px; }
+      body { font-size: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    
+    <header class="card">
+      <h1>Теоретический конспект: Физическое индексирование, связи и планы запросов</h1>
+      <p class="lead">ОП.08 Основы проектирования баз данных — Тема 3. Этапы проектирования баз данных — Практическое занятие №6 (Занятие №18)</p>
+    </header>
+
+    <section class="card">
+      <h2>1. Роль индексов в архитектуре реляционных СУБД</h2>
+      <p>В реляционной теории отношения математически не имеют определенного порядка строк (множество кортежей неупорядочено). На физическом уровне данные таблицы хранятся на диске в виде страниц (блоков размером от 8 КБ до 64 КБ) в так называемой куче (<strong>Heap</strong>), куда новые строки записываются в свободные пространства без какой-либо сортировки.</p>
+      
+      <p>Если таблица содержит 10 000 000 строк и не имеет индексов, то выполнение простейшего запроса:</p>
+      <pre><code>SELECT * FROM clients WHERE passport_number = '4510 123456';</code></pre>
+      <p>вынуждает СУБД выполнить <strong>последовательное сканирование (Sequential Scan, Seq Scan)</strong> — прочитать с накопителя абсолютно все страницы таблицы от первой до последней, проверить каждую запись в памяти процессора и отбросить неподходящие. При размере таблицы в десятки гигабайт это занимает десятки секунд и блокирует дисковую подсистему ввода-вывода.</p>
+
+      <div class="box box-info">
+        <strong>Индекс (Index)</strong> — это вспомогательная структура данных на диске, физически отделенная от таблицы, которая хранит отсортированные значения определенных столбцов (ключей) и прямые физические указатели (TID / RowID) на местоположение соответствующих строк в куче.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2. Пошаговые схемы поиска по индексу B-Tree</h2>
+      <p>Наиболее распространенным и универсальным типом индекса в мире реляционных баз данных является <strong>B-Tree (сбалансированное дерево)</strong>. Его листовые страницы содержат отсортированные ключи и указатели на данные, а внутренние узлы направляют поиск от корня к нужному листу.</p>
+
+      <div class="tree-diagram">
+                                  [ КОРЕНЬ: 50 | 100 ]
+                                 /          |                                         /           |                           [ ВНУТРЕННИЙ: 20 | 35 ]   [ 70 | 85 ]   [ 120 | 150 ]
+                  /        |                         /         |          [ЛИСТ: 10, 15, 18] &lt;--&gt; [ЛИСТ: 20, 25, 30] &lt;--&gt; [ЛИСТ: 35, 40, 45] ...
+      |                         |                         |
+ (TID: блок 4, поз 1)      (TID: блок 7, поз 3)      (TID: блок 2, поз 9)
+      </div>
+
+      <h3>Пошаговый алгоритм поиска значения (на примере поиска ключа 25):</h3>
+      <ol>
+        <li><strong>Шаг 1. Обращение к корневому узлу (Root Node):</strong> СУБД считывает корень дерева. Корневой узел содержит границы диапазонов: <code>&lt; 50</code>, <code>50..100</code>, <code>&gt; 100</code>. Значение 25 меньше 50, поэтому СУБД переходит по первому левому указателю.</li>
+        <li><strong>Шаг 2. Обращение к промежуточному узлу (Internal Node):</strong> Узел содержит ключи <code>[20 | 35]</code>. Значение 25 попадает в диапазон между 20 и 35 (0 \le 25 &lt; 35$). СУБД переходит по среднему указателю на листовую страницу.</li>
+        <li><strong>Шаг 3. Чтение листового узла (Leaf Node):</strong> Листовой узел содержит ключи <code>[20, 25, 30]</code>. Методом бинарного поиска внутри блока процессор мгновенно находит точное совпадение ключа 25 и извлекает физический указатель строки: <code>TID = (блок 7, позиция 3)</code>.</li>
+        <li><strong>Шаг 4. Точечное чтение строки из кучи (Table Fetch):</strong> СУБД запрашивает у операционной системы ровно один блок данных с диска (блок №7) и считывает всю строку таблицы.</li>
+      </ol>
+
+      <div class="box box-success">
+        <strong>Сложность операции:</strong> Для таблицы из 10 000 000 записей глубина сбалансированного B-Tree составляет всего <strong>3 или 4 уровня</strong>. Вместо чтения 500 000 блоков кучи при Seq Scan, СУБД считывает 3 блока индекса + 1 блок таблицы = <strong>4 операции ввода-вывода (I/O)</strong>. Запрос выполняется за 0.2 миллисекунды!
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>3. Сравнение стоимости: Seq Scan vs Index Scan</h2>
+      <p>Оптимизатор запросов СУБД (Query Optimizer) при получении любого SQL-запроса выполняет стоимостную оценку (Cost-based Optimization). Стоимость измеряется в условных единицах дискового ввода-вывода (где 1.0 — чтение одного блока данных последовательно, а 4.0 — случайное чтение блока).</p>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Параметр сравнения</th>
+            <th>Seq Scan (Последовательное сканирование)</th>
+            <th>Index Scan (Поиск по индексу B-Tree)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Характер чтения диска</strong></td>
+            <td>Последовательный (Sequential I/O). Диск читает блоки подряд на максимальной скорости.</td>
+            <td>Случайный (Random I/O). Чтение разрозненных страниц индекса и кучи.</td>
+          </tr>
+          <tr>
+            <td><strong>Эффективен при выборке</strong></td>
+            <td>Более 10–20% от общего числа строк таблицы (высокая доля возвращаемых строк).</td>
+            <td>Менее 1–5% от общего объема таблицы (точечный или узкодиапазонный поиск).</td>
+          </tr>
+          <tr>
+            <td><strong>Зависимость времени от размера</strong></td>
+            <td>Линейная (N)$. С ростом таблицы время растет прямо пропорционально.</td>
+            <td>Логарифмическая (\log N)$. При росте таблицы в 100 раз время поиска почти не меняется.</td>
+          </tr>
+          <tr>
+            <td><strong>Сортировка данных</strong></td>
+            <td>Требует дополнительной фазы тяжелой сортировки в оперативной памяти (Sort).</td>
+            <td>Данные возвращаются уже упорядоченными по ключу индекса без затрат CPU.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="box box-warn">
+        <strong>Парадокс селективности:</strong> Если запрос запрашивает 60% строк таблицы (например, <code>WHERE пол = 'M'</code>), использование индекса приведет к чудовищной деградации, так как миллион случайных обращений к диску (Random I/O) медленнее, чем чтение всей таблицы одним сплошным потоком. В таких случаях СУБД осознанно выбирает <strong>Seq Scan</strong>!
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>4. Правила проектирования составных индексов и селективность</h2>
+      <p>Составной индекс (Composite Index) строится по двум или более колонкам: <code>CREATE INDEX idx_name ON table (col1, col2, col3);</code>.</p>
+
+      <h3>Селективность столбца (Column Selectivity)</h3>
+      <p>Селективность определяется долей уникальных значений в столбце по отношению к общему числу строк:</p>
+      1105862\text{Селективность} = \frac{\text{Количество уникальных значений (Cardinality)}}{\text{Общее число строк таблицы}}1105862
+      <ul>
+        <li><strong>Высокая селективность ($\approx 1$):</strong> Первичные ключи, email, номер паспорта, UUID, трек-номера. Идеальные кандидаты для индексирования.</li>
+        <li><strong>Низкая селективность ($\ll 0.01$):</strong> Булевы поля (is_active), пол, статусы (новый / в обработке / завершен). Индексировать стандартным B-Tree бессмысленно, требуется <strong>частичный индекс (Partial Index)</strong>.</li>
+      </ul>
+
+      <h3>Правило левого префикса и порядок колонок</h3>
+      <p>Порядок полей в составном индексе определяет, сможет ли запрос использовать его эффективно:</p>
+      <div class="box box-info">
+        <strong>Архитектурная формула:</strong><br>
+        1. На первое место ставятся столбцы с условием точного равенства (<code>=</code>) с наибольшей селективностью.<br>
+        2. Затем ставятся столбцы дополнительных условий равенства.<br>
+        3. Строго после них ставятся столбцы с диапазонами (<code>&gt;</code>, <code>&lt;</code>, <code>BETWEEN</code>, <code>LIKE 'abc%'</code>).<br>
+        4. В конце добавляются столбцы для устранения сортировки (<code>ORDER BY</code>).
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>5. Внешние ключи (Foreign Keys) и проблема блокировок</h2>
+      <p>Внешний ключ связывает дочернюю таблицу с родительской. Однако многие разработчики забывают, что <strong>СУБД НЕ создает индекс на FK автоматически</strong>.</p>
+      
+      <h3>Две катастрофы отсутствия индекса на FK:</h3>
+      <ol>
+        <li><strong>Медленные JOIN:</strong> При формировании отчетов со связкой таблиц СУБД вынуждена многократно сканировать дочернюю таблицу методом Seq Scan, что приводит к зависанию запросов.</li>
+        <li><strong>Каскадные блокировки (Table Locks):</strong> Когда транзакция удаляет или обновляет строку в родительской таблице (например, <code>DELETE FROM clients WHERE id = 100</code>), СУБД обязана проверить, нет ли дочерних заказов этого клиента. Без индекса на <code>orders.client_id</code> СУБД накладывает разделяемую блокировку <strong>на всю таблицу orders</strong> и запускает Seq Scan по миллионам строк. В этот момент все кассиры и клиенты не могут оформить ни одного нового заказа!</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>6. Вопросы для самопроверки</h2>
+      
+      <div class="question-card">
+        <div class="question-title">1. Почему все листовые узлы B-Tree дерева находятся на одной глубине?</div>
+        <p>B-Tree является самобалансирующимся деревом. При добавлении данных переполненный узел расщепляется ровно пополам, выталкивая медианный ключ на уровень выше. Рост дерева происходит строго снизу вверх от корня, что обеспечивает постоянную глубину всех листьев и гарантию поиска за (\log N)$.</p>
+      </div>
+
+      <div class="question-card">
+        <div class="question-title">2. Чем отличается уникальный индекс от неуникального на физическом уровне?</div>
+        <p>Функционально уникальный индекс запрещает дублирование значений, выполняя обязательную проверку уникальности (Unique Check) при каждой операции вставки. Неуникальный индекс допускает хранение множества одинаковых ключей, связывая их с разными идентификаторами строк (TID).</p>
+      </div>
+
+      <div class="question-card">
+        <div class="question-title">3. Создан индекс на (A, B, C). Будет ли он использоваться для запроса WHERE B = 5 AND C = 10?</div>
+        <p>Нет, не будет (либо будет использоваться неэффективно через полное сканирование индекса). Согласно правилу левого префикса, поиск по B-Tree требует обязательного наличия ведущей колонки индекса (A). Без колонки A дерево не может локализовать ветку поиска.</p>
+      </div>
+
+      <div class="question-card">
+        <div class="question-title">4. В чем заключается компромисс между скоростью чтения и накладными расходами при записи?</div>
+        <p>Каждый созданный индекс ускоряет операции чтения (SELECT), но напрямую замедляет операции модификации данных (INSERT, UPDATE, DELETE), так как любая вставка строки в таблицу требует синхронного добавления ключей во все существующие индексы таблицы, что порождает дисковый ввод-вывод и риск расщепления страниц.</p>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>

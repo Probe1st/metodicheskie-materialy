@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Рабочий лист: Практическое занятие №6: ключевые поля, индексы, связи</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #cbd5e1;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --accent-soft: #f0f9ff;
+      --danger: #ef4444;
+      --danger-soft: #fee2e2;
+      --success: #10b981;
+      --success-soft: #dcfce7;
+      --warn: #f59e0b;
+      --warn-soft: #fef3c7;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px;
+      min-width: 320px;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    header.task-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+      word-break: break-word;
+    }
+
+    .meta-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .student-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .info-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .info-group label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .info-group input {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      color: var(--text);
+      outline: none;
+      background: #ffffff;
+    }
+
+    .info-group input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    /* Variant Selector */
+    .variant-selector-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .variant-tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .v-tab-btn {
+      padding: 10px 16px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .v-tab-btn:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .v-tab-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    /* Cards */
+    .variant-container {
+      display: none;
+    }
+
+    .variant-container.active {
+      display: block;
+    }
+
+    section.task-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 18px 0 8px;
+    }
+
+    p, ul, ol {
+      margin-bottom: 14px;
+      font-size: 0.98rem;
+    }
+
+    ul, ol {
+      padding-left: 24px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    .badge-variant {
+      display: inline-block;
+      padding: 4px 10px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    .schema-box {
+      background: #f1f5f9;
+      border-left: 4px solid var(--accent);
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 14px 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    pre, code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+    }
+
+    code {
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 14px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 12px 0 16px;
+      line-height: 1.45;
+    }
+
+    pre code { background: transparent; color: inherit; padding: 0; }
+
+    textarea.answer-area {
+      width: 100%;
+      min-height: 90px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: var(--text);
+      resize: vertical;
+      background: #ffffff;
+      outline: none;
+      margin-top: 8px;
+    }
+
+    textarea.answer-area:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    .action-panel {
+      position: sticky;
+      bottom: 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      z-index: 50;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary { background-color: var(--accent); color: #ffffff; }
+    .btn-primary:hover { background-color: var(--accent-hover); }
+    .btn-secondary { background-color: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background-color: #e2e8f0; }
+    .btn-danger { background-color: #fef2f2; color: var(--danger); border: 1px solid #fca5a5; }
+    .btn-danger:hover { background-color: #fee2e2; }
+
+    .status-msg {
+      font-size: 0.9rem;
+      color: var(--success);
+      font-weight: 600;
+      display: none;
+    }
+
+    /* Адаптивность для узких экранов (включая 375px) */
+    @media (max-width: 640px) {
+      body {
+        padding: 12px 8px;
+      }
+      header.task-header, section.task-card, .variant-selector-box {
+        padding: 16px 14px;
+      }
+      .student-info {
+        grid-template-columns: 1fr;
+      }
+      .variant-tabs {
+        flex-direction: column;
+      }
+      .v-tab-btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .action-panel {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      h1 {
+        font-size: 1.35rem;
+      }
+      h2 {
+        font-size: 1.15rem;
+      }
+    }
+
+    /* Стили для печати (@media print) */
+    @media print {
+      body {
+        background: #ffffff;
+        color: #000000;
+        padding: 0;
+      }
+      .container {
+        max-width: 100%;
+        margin: 0;
+      }
+      .variant-selector-box, .action-panel, .v-tab-btn {
+        display: none !important;
+      }
+      header.task-header, section.task-card {
+        border: 1px solid #000000;
+        box-shadow: none;
+        page-break-inside: avoid;
+        margin-bottom: 14px;
+        padding: 14px;
+      }
+      .variant-container {
+        display: none !important;
+      }
+      .variant-container.active {
+        display: block !important;
+      }
+      textarea.answer-area {
+        border: 1px solid #000000;
+        background: transparent;
+        color: #000000;
+        min-height: 80px;
+        resize: none;
+        overflow: visible;
+      }
+      input {
+        border: 1px solid #000000 !important;
+        background: transparent !important;
+        color: #000000 !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="task-header">
+      <h1>Рабочий лист: Практическое занятие №6: ключевые поля, индексы, связи</h1>
+      <div class="meta-subtitle">Дисциплина «ОП.08 Основы проектирования баз данных» — Занятие №18 (СИЭУиП)</div>
+
+      <div class="student-info">
+        <div class="info-group">
+          <label for="student_name">Фамилия, Имя студента</label>
+          <input type="text" id="student_name" autocomplete="off">
+        </div>
+        <div class="info-group">
+          <label for="student_group">Учебная группа</label>
+          <input type="text" id="student_group" autocomplete="off">
+        </div>
+      </div>
+    </header>
+
+    <!-- Переключатель вариантов -->
+    <div class="variant-selector-box">
+      <div style="font-size: 0.88rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">
+        Выберите вариант практического задания:
+      </div>
+      <div class="variant-tabs">
+        <button class="v-tab-btn active" data-target="variant-1" type="button">Вариант 1. Интернет-банкинг</button>
+        <button class="v-tab-btn" data-target="variant-2" type="button">Вариант 2. Биллинг связи</button>
+        <button class="v-tab-btn" data-target="variant-3" type="button">Вариант 3. Каталог недвижимости</button>
+        <button class="v-tab-btn" data-target="variant-4" type="button">Вариант 4. Служба логистики</button>
+      </div>
+    </div>
+
+    <!-- ВАРИАНТ 1 -->
+    <div class="variant-container active" id="variant-1">
+      <section class="task-card">
+        <span class="badge-variant">Вариант 1: Высоконагруженная СУБД интернет-банкинга</span>
+        <h2>Часть 1. Анализ предметной области, связей и индексация внешнего ключа</h2>
+        <p>Рассматривается ядро транзакционной банковской системы (OLTP), состоящее из двух ключевых сущностей:</p>
+        <div class="schema-box">
+          <strong>Accounts (Счета):</strong> id_счета [PK], id_клиента, номер_счета (UNIQUE), валюта, баланс, дата_открытия.<br>
+          <strong>Transactions (Транзакции):</strong> id_транзакции [PK], id_счета [FK], дата_транзакции, сумма, тип_операции, назначение.
+        </div>
+        <p><strong>Задание 1.1:</strong> Напишите SQL-скрипт объявления внешнего ключа между таблицами и команду индексации внешнего ключа. Объясните, почему индексация FK <code>id_счета</code> критически необходима для устранения каскадных блокировок и ускорения JOIN.</p>
+        <textarea class="answer-area" id="v1_ans_1"></textarea>
+      </section>
+
+      <section class="task-card">
+        <h2>Часть 2. Синтез составного B-Tree индекса для банковской выписки</h2>
+        <p>Самый частотный запрос мобильного приложения банка — получение истории операций клиента за указанный период времени с хронологической сортировкой:</p>
+        <pre><code>SELECT * FROM Transactions 
+WHERE id_счета = ? AND дата_транзакции BETWEEN ? AND ? 
+ORDER BY дата_транзакции DESC;</code></pre>
+        <p><strong>Задание 1.2:</strong> Спроектируйте оптимальный составной B-Tree индекс. Обоснуйте порядок колонок с точки зрения правила левого префикса (Left-Prefix Rule), селективности предикатов (равенство vs диапазон) и устранения фазы сортировки в оперативной памяти.</p>
+        <textarea class="answer-area" id="v1_ans_2"></textarea>
+      </section>
+
+      <section class="task-card">
+        <h2>Часть 3. Анализ ускорения по EXPLAIN, накладные расходы DML и самопроверка</h2>
+        <p>В таблице транзакций накоплено 10 000 000 строк. Средний клиент совершает 40 операций в месяц.</p>
+        <p><strong>Задание 1.3:</strong></p>
+        <ol>
+          <li>Сравните планы выполнения <code>Seq Scan</code> и <code>Index Scan</code>: сколько страниц считывается в каждом случае и как меняется метрика cost?</li>
+          <li>Оцените накладные расходы (DML Overhead): что происходит при вставке новой транзакции (расщепление страниц Page Split, рост WAL)? Почему нельзя индексировать все поля подряд?</li>
+          <li><strong>Самопроверка:</strong> Если запрос ищет транзакции только по <code>WHERE дата_транзакции BETWEEN ...</code>, будет ли использоваться составной индекс <code>(id_счета, дата_транзакции)</code>? Обоснуйте ответ.</li>
+        </ol>
+        <textarea class="answer-area" id="v1_ans_3"></textarea>
+      </section>
+    </div>
+
+    <!-- ВАРИАНТ 2 -->
+    <div class="variant-container" id="variant-2">
+      <section class="task-card">
+        <span class="badge-variant">Вариант 2: Биллинговая система оператора связи</span>
+        <h2>Часть 1. Анализ предметной области и схемы таблиц</h2>
+        <div class="schema-box">
+          <strong>Subscribers (Абоненты):</strong> id_абонента [PK], номер_телефона [UNIQUE], фио, баланс.<br>
+          <strong>Tariffs (Тарифы):</strong> id_тарифа [PK], название, цена_минуты.<br>
+          <strong>Calls (Звонки):</strong> id_звонка [PK], номер_телефона, id_тарифа [FK], время_начала, длительность, статус ('ACTIVE', 'COMPLETED', 'FAILED').
+        </div>
+        <p><strong>Задание 2.1:</strong> Напишите DDL-команды создания связей и индексов для таблицы звонков (включая индекс внешнего ключа тарифа и поиск абонента по номеру телефона). Объясните, чем чревато отсутствие индекса на FK при удалении тарифа.</p>
+        <textarea class="answer-area" id="v2_ans_1"></textarea>
+      </section>
+
+      <section class="task-card">
+        <h2>Часть 2. Проектирование частичного индекса (Partial Index)</h2>
+        <p>В таблице <code>Calls</code> хранится 100 000 000 архивных вызовов. В любой момент времени статус <code>'ACTIVE'</code> имеют не более 50 000 звонков (0.05% строк). Биллинговому сервису необходимо ежесекундно проверять активные звонки абонента для тарификации:</p>
+        <pre><code>SELECT * FROM Calls WHERE статус = 'ACTIVE' AND номер_телефона = ?;</code></pre>
+        <p><strong>Задание 2.2:</strong> Спроектируйте частичный индекс (Partial Index). Обоснуйте колоссальную экономию оперативной памяти (RAM) и кэша Buffer Pool по сравнению со стандартным B-Tree индексом на 100 млн записей.</p>
+        <textarea class="answer-area" id="v2_ans_2"></textarea>
+      </section>
+
+      <section class="task-card">
+        <h2>Часть 3. Анализ EXPLAIN, накладные расходы и самопроверка</h2>
+        <p><strong>Задание 2.3:</strong></p>
+        <ol>
+          <li>Как изменится план выполнения EXPLAIN при использовании частичного индекса?</li>
+          <li>Что происходит с частичным индексом, когда звонок завершается и статус меняется на <code>'COMPLETED'</code>?</li>
+          <li><strong>Самопроверка:</strong> Почему создание B-Tree индекса на обычное поле со статусом (без условия WHERE) является ошибкой при низкой селективности статуса?</li>
+        </ol>
+        <textarea class="answer-area" id="v2_ans_3"></textarea>
+      </section>
+    </div>
+
+    <!-- ВАРИАНТ 3 -->
+    <div class="variant-container" id="variant-3">
+      <section class="task-card">
+        <span class="badge-variant">Вариант 3: Каталог недвижимости</span>
+        <h2>Часть 1. Анализ предметной области и схемы таблиц</h2>
+        <div class="schema-box">
+          <strong>Cities (Города):</strong> город_id [PK], название.<br>
+          <strong>Realtors (Риелторы):</strong> риелтор_id [PK], фио, телефон.<br>
+          <strong>Properties (Объекты):</strong> объект_id [PK], город_id [FK], риелтор_id [FK], цена, комнат, площадь, статус.
+        </div>
+        <p><strong>Задание 3.1:</strong> Напишите DDL-скрипт создания связей по внешним ключам и их обязательной физической индексации. Обоснуйте необходимость индексов на FK при генерации отчетов по агентствам недвижимости.</p>
+        <textarea class="answer-area" id="v3_ans_1"></textarea>
+      </section>
+
+      <section class="task-card">
+        <h2>Часть 2. Составной индекс по диапазону и селективность колонок</h2>
+        <p>Пользователи каталога непрерывно ищут квартиры по сложному фильтру с диапазоном цен:</p>
+        <pre><code>SELECT * FROM Properties 
+WHERE город_id = 42 AND комнат = 2 AND цена BETWEEN 5000000 AND 9000000;</code></pre>
+        <p><strong>Задание 3.2:</strong> Спроектируйте оптимальный составной B-Tree индекс <code>(город_id, комнат, цена)</code>. Обоснуйте, почему диапазонное поле цены обязано стоять <strong>строго последним</strong>. Что произойдет, если создать индекс как <code>(цена, город_id, комнат)</code>?</p>
+        <textarea class="answer-area" id="v3_ans_2"></textarea>
+      </section>
+
+      <section class="task-card">
+        <h2>Часть 3. Анализ плана EXPLAIN, DML Overhead и самопроверка</h2>
+        <p><strong>Задание 3.3:</strong></p>
+        <ol>
+          <li>Опишите разницу в планах EXPLAIN между правильным индексом <code>(город_id, комнат, цена)</code> и ошибочным <code>(цена, город_id, комнат)</code>.</li>
+          <li>Оцените накладные расходы при регулярном обновлении стоимости объектов риелторами (UPDATE цены).</li>
+          <li><strong>Самопроверка:</strong> Сможет ли СУБД использовать составной индекс <code>(город_id, комнат, цена)</code> для запроса <code>WHERE комнат = 2 AND цена &lt; 6000000</code> без указания <code>город_id</code>? Обоснуйте ответ правилом левого префикса.</li>
+        </ol>
+        <textarea class="answer-area" id="v3_ans_3"></textarea>
+      </section>
+    </div>
+
+    <!-- ВАРИАНТ 4 -->
+    <div class="variant-container" id="variant-4">
+      <section class="task-card">
+        <span class="badge-variant">Вариант 4: Служба логистики и доставки</span>
+        <h2>Часть 1. Анализ предметной области и схемы таблиц</h2>
+        <div class="schema-box">
+          <strong>Couriers (Курьеры):</strong> id_курьера [PK], фио, транспорт.<br>
+          <strong>Routes (Маршруты):</strong> id_маршрута [PK], название_зоны.<br>
+          <strong>Shipments (Заказы):</strong> id_заказа [PK], трек_номер, id_курьера [FK], id_маршрута [FK], дата_доставки, статус.
+        </div>
+        <p><strong>Задание 4.1:</strong> Напишите DDL-команды создания уникального индекса на <code>трек_номер</code> и индексов на внешние ключи. Объясните двойную роль уникального индекса (бизнес-ограничение целостности + быстрый поиск).</p>
+        <textarea class="answer-area" id="v4_ans_1"></textarea>
+      </section>
+
+      <section class="task-card">
+        <h2>Часть 2. Индекс по внешнему ключу курьера для оперативных отчетов</h2>
+        <p>Каждое утро диспетчер логистического центра формирует путевой лист для сотен курьеров:</p>
+        <pre><code>SELECT * FROM Shipments 
+WHERE id_курьера = ? AND дата_доставки = CURRENT_DATE 
+ORDER BY id_заказа;</code></pre>
+        <p><strong>Задание 4.2:</strong> Спроектируйте составной индекс для ускорения ежедневных отчетов диспетчера. Обоснуйте порядок колонок и влияние индекса на устранение операций Seq Scan.</p>
+        <textarea class="answer-area" id="v4_ans_2"></textarea>
+      </section>
+
+      <section class="task-card">
+        <h2>Часть 3. Анализ EXPLAIN, накладные расходы DML и самопроверка</h2>
+        <p><strong>Задание 4.3:</strong></p>
+        <ol>
+          <li>Как выглядит план выполнения EXPLAIN при поиске по трек-номеру через уникальный индекс по сравнению с полным сканированием?</li>
+          <li>В логистической системе регистрируется 500 000 новых отправлений в сутки. Каковы накладные расходы проверки уникальности (Unique Check Overhead) при массовом INSERT?</li>
+          <li><strong>Самопроверка:</strong> В чем отличие кластеризованного индекса от некластеризованного при поиске посылок курьера?</li>
+        </ol>
+        <textarea class="answer-area" id="v4_ans_3"></textarea>
+      </section>
+    </div>
+
+    <!-- Панель управления -->
+    <div class="action-panel">
+      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <button class="btn btn-primary" id="saveBtn" type="button">Сохранить решение</button>
+        <button class="btn btn-secondary" id="printBtn" type="button">Экспорт в PDF / Печать</button>
+        <button class="btn btn-danger" id="clearBtn" type="button">Очистить форму</button>
+      </div>
+      <span class="status-msg" id="statusMsg">Ответы сохранены в браузере!</span>
+    </div>
+
+  </div>
+
+  <script>
+    (function() {
+      const STORAGE_KEY = 'zanyatie_db_lesson_18_data';
+      
+      const fields = [
+        'student_name',
+        'student_group',
+        'v1_ans_1', 'v1_ans_2', 'v1_ans_3',
+        'v2_ans_1', 'v2_ans_2', 'v2_ans_3',
+        'v3_ans_1', 'v3_ans_2', 'v3_ans_3',
+        'v4_ans_1', 'v4_ans_2', 'v4_ans_3'
+      ];
+
+      // Переключение вкладок вариантов
+      const tabBtns = document.querySelectorAll('.v-tab-btn');
+      const containers = document.querySelectorAll('.variant-container');
+
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const targetId = btn.getAttribute('data-target');
+          tabBtns.forEach(b => b.classList.remove('active'));
+          containers.forEach(c => c.classList.remove('active'));
+
+          btn.classList.add('active');
+          const targetContainer = document.getElementById(targetId);
+          if (targetContainer) targetContainer.classList.add('active');
+
+          saveActiveTab(targetId);
+        });
+      });
+
+      function saveActiveTab(tabId) {
+        localStorage.setItem(STORAGE_KEY + '_active_tab', tabId);
+      }
+
+      function loadActiveTab() {
+        const activeTab = localStorage.getItem(STORAGE_KEY + '_active_tab');
+        if (activeTab) {
+          const btn = document.querySelector(`.v-tab-btn[data-target="${activeTab}"]`);
+          if (btn) btn.click();
+        }
+      }
+
+      function saveData() {
+        const data = {};
+        fields.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) data[id] = el.value;
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        showStatus('Ответы успешно сохранены в локальном хранилище!');
+      }
+
+      function loadData() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        try {
+          const data = JSON.parse(raw);
+          fields.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && data[id] !== undefined) el.value = data[id];
+          });
+        } catch (e) {
+          console.error('Error loading data', e);
+        }
+      }
+
+      function clearData() {
+        if (confirm('Вы уверены, что хотите полностью стереть все заполненные ответы?')) {
+          localStorage.removeItem(STORAGE_KEY);
+          fields.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+          });
+          showStatus('Все поля очищены.');
+        }
+      }
+
+      function showStatus(text) {
+        const statusEl = document.getElementById('statusMsg');
+        statusEl.textContent = text;
+        statusEl.style.display = 'inline-block';
+        setTimeout(() => {
+          statusEl.style.display = 'none';
+        }, 3000);
+      }
+
+      // Слушатели событий
+      document.getElementById('saveBtn').addEventListener('click', saveData);
+      document.getElementById('clearBtn').addEventListener('click', clearData);
+      document.getElementById('printBtn').addEventListener('click', () => {
+        window.print();
+      });
+
+      // Автосохранение при вводе
+      fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', () => {
+            const data = {};
+            fields.forEach(fid => {
+              const fel = document.getElementById(fid);
+              if (fel) data[fid] = fel.value;
+            });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+          });
+        }
+      });
+
+      loadData();
+      loadActiveTab();
+    })();
+  </script>
+</body>
+</html>
