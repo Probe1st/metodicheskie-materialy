@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Теоретический конспект: Выборка, сортировка и группировка в SQL</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #0284c7;
+      --accent-soft: #f0f9ff;
+      --accent-dark: #0369a1;
+      --warn: #b45309;
+      --warn-soft: #fffbeb;
+      --danger: #b91c1c;
+      --danger-soft: #fef2f2;
+      --success: #15803d;
+      --success-soft: #f0fdf4;
+      --code-bg: #0f172a;
+      --code-text: #f8fafc;
+      --radius: 12px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      padding: 24px 16px;
+    }
+    .wrapper {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    header.lecture-header {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font-weight: 700;
+      font-size: 0.85rem;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(2, 132, 199, 0.2);
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: 1.85rem;
+      color: var(--accent-dark);
+      line-height: 1.3;
+    }
+    p.lead {
+      color: var(--muted);
+      margin: 0;
+      font-size: 1.05rem;
+    }
+    section.card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 1.45rem;
+      color: var(--accent-dark);
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 8px;
+      margin-bottom: 18px;
+    }
+    h3 {
+      font-size: 1.2rem;
+      color: var(--text);
+      margin: 24px 0 12px;
+    }
+    p, li {
+      font-size: 0.98rem;
+      color: var(--text);
+    }
+    ul, ol {
+      padding-left: 24px;
+      margin: 12px 0 18px;
+    }
+    li {
+      margin-bottom: 6px;
+    }
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.9rem;
+      line-height: 1.45;
+      margin: 14px 0 20px;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.9em;
+      background: #e2e8f0;
+      color: #0f172a;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+    .box {
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin: 18px 0;
+      border-left: 4px solid;
+    }
+    .box-info {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: #0c4a6e;
+    }
+    .box-warn {
+      background: var(--warn-soft);
+      border-color: var(--warn);
+      color: #78350f;
+    }
+    .box-danger {
+      background: var(--danger-soft);
+      border-color: var(--danger);
+      color: #7f1d1d;
+    }
+    .pipeline-diagram {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 20px 0;
+    }
+    .pipeline-row {
+      display: flex;
+      align-items: center;
+      background: #f1f5f9;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 16px;
+      gap: 16px;
+    }
+    .pipeline-badge {
+      background: var(--accent-dark);
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 0.85rem;
+      padding: 6px 12px;
+      border-radius: 6px;
+      min-width: 110px;
+      text-align: center;
+    }
+    .pipeline-desc {
+      font-size: 0.92rem;
+      color: var(--text);
+      flex: 1;
+    }
+    .table-visual {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.92rem;
+    }
+    .table-visual th, .table-visual td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+    }
+    .table-visual th {
+      background: #f1f5f9;
+      color: var(--accent-dark);
+      font-weight: 700;
+    }
+    .table-visual tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+    .quiz-card {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .quiz-q {
+      font-weight: 700;
+      color: var(--accent-dark);
+      margin-bottom: 8px;
+    }
+    details {
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-top: 8px;
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    summary:hover {
+      color: var(--accent-dark);
+    }
+    @media (max-width: 768px) {
+      body { padding: 14px 8px; }
+      header.lecture-header, section.card { padding: 18px 14px; }
+      h1 { font-size: 1.45rem; }
+      .pipeline-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <header class="lecture-header">
+      <span class="badge">Теоретический конспект • Занятие №32</span>
+      <h1>Тема 5. Организация запросов SQL — Выборка, сортировка и группировка в SQL</h1>
+      <p class="lead">Фундаментальные основы аналитической обработки данных: логический конвейер выполнения SELECT, агрегация данных, операторы GROUP BY и HAVING, расширенная аналитика и базовые оконные функции.</p>
+    </header>
+
+    <section class="card">
+      <h2>1. Логический конвейер выполнения оператора SELECT</h2>
+      <p>В отличие от языков императивного программирования (C++, C#, Python), где инструкции исполняются строго сверху вниз в порядке написания, язык <strong>SQL является декларативным</strong>. Программист описывает <em>какой результат</em> он желает получить, а реляционный оптимизатор СУБД самостоятельно определяет оптимальный физический план выполнения.</p>
+      <p>Однако с логической точки зрения оператор <code>SELECT</code> всегда обрабатывается по строго фиксированному конвейеру фаз. Нарушение понимания этой последовательности приводит к 90% распространенных ошибок новичков.</p>
+
+      <div class="pipeline-diagram">
+        <div class="pipeline-row">
+          <div class="pipeline-badge">1. FROM &amp; JOIN</div>
+          <div class="pipeline-desc">Определяется источник данных: базовые таблицы, представления, подзапросы. Выполняются операции соединений (INNER, LEFT, RIGHT, FULL) с проверкой предикатов <code>ON</code>. Формируется виртуальная рабочая таблица.</div>
+        </div>
+        <div class="pipeline-row">
+          <div class="pipeline-badge">2. WHERE</div>
+          <div class="pipeline-desc">Построчная фильтрация исходных кортежей. Каждая строка проверяется на соответствие предикату. Строки, вернувшие <code>FALSE</code> или <code>NULL</code>, исключаются. <strong>Агрегатные функции здесь запрещены!</strong></div>
+        </div>
+        <div class="pipeline-row">
+          <div class="pipeline-badge">3. GROUP BY</div>
+          <div class="pipeline-desc">Формирование групп строк на основе идентичности значений в указанных колонках группировки. Множество строк с одинаковым ключом сворачивается в одну агрегированную строку.</div>
+        </div>
+        <div class="pipeline-row">
+          <div class="pipeline-badge">4. HAVING</div>
+          <div class="pipeline-desc">Фильтрация сформированных групп. Проверяются предикаты, оперирующие агрегатными функциями над группами. Группы, не удовлетворяющие условию, удаляются из набора.</div>
+        </div>
+        <div class="pipeline-row">
+          <div class="pipeline-badge">5. SELECT</div>
+          <div class="pipeline-desc">Вычисление выражений выходной проекции: расчет математических выражений, вычисление оконных функций (OVER), назначение пользовательских псевдонимов (алиасов).</div>
+        </div>
+        <div class="pipeline-row">
+          <div class="pipeline-badge">6. DISTINCT</div>
+          <div class="pipeline-desc">Устранение дублирующихся строк из сформированного набора данных (если модификатор указан явно).</div>
+        </div>
+        <div class="pipeline-row">
+          <div class="pipeline-badge">7. ORDER BY</div>
+          <div class="pipeline-desc">Сортировка результирующего набора строк (ASC / DESC). <em>Здесь разрешено использовать алиасы, объявленные в SELECT!</em></div>
+        </div>
+        <div class="pipeline-row">
+          <div class="pipeline-badge">8. LIMIT / OFFSET</div>
+          <div class="pipeline-desc">Ограничение физического количества возвращаемых строк клиенту и пропуск первых N записей.</div>
+        </div>
+      </div>
+
+      <div class="box box-info">
+        <strong>Закон видимости алиасов:</strong> Почему в секции <code>WHERE</code> нельзя написать <code>WHERE total_amount > 500</code>, если в SELECT объявлено <code>SELECT price * qty AS total_amount</code>? Потому что на момент работы фазы <code>WHERE</code> (фаза №2) секция <code>SELECT</code> (фаза №5) еще даже не начинала выполняться, и СУБД ничего не знает о псевдониме <code>total_amount</code>.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2. Агрегатные функции SQL и работа со значениями NULL</h2>
+      <p>Агрегатная функция вычисляет скалярное значение на основе набора значений столбца. В реляционном стандарте SQL определены 5 базовых агрегатных функций:</p>
+
+      <table class="table-visual">
+        <thead>
+          <tr>
+            <th>Функция</th>
+            <th>Назначение</th>
+            <th>Поведение при наличии NULL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>COUNT(*)</code></td>
+            <td>Подсчет общего числа физических строк в группе</td>
+            <td>Включает абсолютно все строки, даже если все поля равны NULL</td>
+          </tr>
+          <tr>
+            <td><code>COUNT(колонка)</code></td>
+            <td>Подсчет количества заполненных значений в колонке</td>
+            <td><strong>Игнорирует NULL!</strong> Строки с NULL в данной колонке не учитываются</td>
+          </tr>
+          <tr>
+            <td><code>SUM(колонка)</code></td>
+            <td>Суммирование числовых значений</td>
+            <td>Игнорирует NULL. Если все значения в группе NULL — возвращает NULL</td>
+          </tr>
+          <tr>
+            <td><code>AVG(колонка)</code></td>
+            <td>Вычисление среднего арифметического значения</td>
+            <td>Игнорирует NULL: сумма делится только на количество не-NULL строк!</td>
+          </tr>
+          <tr>
+            <td><code>MIN(колонка)</code> / <code>MAX(колонка)</code></td>
+            <td>Поиск минимального / максимального значения</td>
+            <td>Игнорирует NULL. Работает с числами, датами и текстовыми строками</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="box box-warn">
+        <strong>Внимание к семантике NULL:</strong> если в предметной области NULL означает отсутствие сведений о стипендии, AVG(stipend) усредняет известные значения, но не включает пропуски в знаменатель. Только если NULL по принятому правилу означает нулевую стипендию, выражение <code>AVG(COALESCE(stipend, 0))</code> добавляет такие значения как нули (в примере результат 7 500.00 вместо 10 000.00).
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>3. Группировка строк: оператор GROUP BY</h2>
+      <p>Предложение <code>GROUP BY</code> объединяет кортежи таблицы, имеющие одинаковые значения в указанных столбцах, в единую логическую запись-группу. После этого к каждой группе применяются агрегатные функции.</p>
+      <figure style="margin:18px 0;padding:16px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc">
+        <figcaption style="font-weight:700;color:#0369a1;margin-bottom:12px">Диаграмма: строки → группы → фильтр HAVING</figcaption>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;align-items:stretch">
+          <div style="padding:12px;border:1px solid #cbd5e1;border-radius:8px;background:white"><strong>1. Исходные строки</strong><table class="table-visual"><tr><th>category</th><th>amount</th></tr><tr><td>A</td><td>120</td></tr><tr><td>A</td><td>80</td></tr><tr><td>B</td><td>50</td></tr><tr><td>B</td><td>40</td></tr><tr><td>C</td><td>150</td></tr></table><small>Каждая запись — отдельная строка.</small></div>
+          <div style="padding:12px;border:1px solid #7dd3fc;border-radius:8px;background:#f0f9ff"><strong>2. GROUP BY category</strong><table class="table-visual"><tr><th>Ключ группы</th><th>Строки</th><th>SUM</th></tr><tr><td>A</td><td>2</td><td>200</td></tr><tr><td>B</td><td>2</td><td>90</td></tr><tr><td>C</td><td>1</td><td>150</td></tr></table><small>Равные ключи сворачиваются в одну строку.</small></div>
+          <div style="padding:12px;border:1px solid #86efac;border-radius:8px;background:#f0fdf4"><strong>3. HAVING SUM(amount) &gt; 100</strong><table class="table-visual"><tr><th>category</th><th>revenue</th><th>Решение</th></tr><tr><td>A</td><td>200</td><td>Оставить</td></tr><tr><td>B</td><td>90</td><td>Исключить</td></tr><tr><td>C</td><td>150</td><td>Оставить</td></tr></table><small>Проверяется агрегат каждой готовой группы.</small></div>
+        </div>
+      </figure>
+      <p><strong>Важно:</strong> диаграмма показывает логическое преобразование набора. Реальная СУБД может выбрать другой физический алгоритм, но обязана сохранить семантику запроса.</p>
+
+      <h3>Фундаментальное правило колонок:</h3>
+      <p>Любая колонка, указанная в списке выборки <code>SELECT</code>, <strong>обязана</strong> либо входить в предложение <code>GROUP BY</code>, либо находиться внутри аргумента агрегатной функции (<code>SUM</code>, <code>COUNT</code> и др.).</p>
+
+      <pre><code>-- Демонстрационная схема: заказы интернет-магазина
+-- orders (id, customer_id, category, amount, order_date)
+
+-- Расчет суммарного оборота и среднего чека по категориям товаров
+SELECT 
+  category,
+  COUNT(*) AS total_orders,
+  SUM(amount) AS total_revenue,
+  ROUND(AVG(amount), 2) AS avg_ticket,
+  MIN(amount) AS min_order,
+  MAX(amount) AS max_order
+FROM orders
+GROUP BY category
+ORDER BY total_revenue DESC;</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>4. Фильтрация агрегированных данных: HAVING против WHERE</h2>
+      <p>Критически важно различать область ответственности предикатов <code>WHERE</code> и <code>HAVING</code>:</p>
+      <ul>
+        <li><strong>WHERE:</strong> фильтрует <em>исходные физические строки</em> таблицы ДО момента группировки. В секции WHERE невозможно использовать агрегатные функции.</li>
+        <li><strong>HAVING:</strong> фильтрует <em>готовые группы</em> ПОСЛЕ того, как группировка и расчет агрегатов завершены. В секции HAVING используются агрегатные функции и поля группировки.</li>
+      </ul>
+
+      <pre><code>-- Комплексный аналитический запрос:
+-- Найти категории товаров, у которых суммарная выручка по ОПЛАЧЕННЫМ заказам превысила 1 000 000 руб.
+SELECT 
+  category,
+  COUNT(*) AS paid_orders_count,
+  SUM(amount) AS category_revenue
+FROM orders
+WHERE status = 'PAID'              -- 1. Фильтруем строки ДО группировки (только оплаченные)
+GROUP BY category                  -- 2. Сворачиваем строки в группы по категориям
+HAVING SUM(amount) > 1000000       -- 3. Фильтруем группы ПОСЛЕ агрегации (оборот > 1 млн)
+ORDER BY category_revenue DESC;    -- 4. Сортируем итоговый отчет</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>5. Расширенные средства группировки: ROLLUP, CUBE, GROUPING SETS</h2>
+      <p>При построении многомерных отчетов (OLAP) часто требуется получить агрегаты разного уровня детализации в одном результирующем наборе:</p>
+      <ul>
+        <li><code>ROLLUP(a, b)</code> — вычисляет иерархические подытоги: <code>(a, b)</code> &rarr; <code>(a)</code> &rarr; <code>()</code> (общий итог).</li>
+        <li><code>CUBE(a, b)</code> — строит многомерный куб: вычисляет все возможные комбинации: <code>(a, b)</code>, <code>(a)</code>, <code>(b)</code>, <code>()</code>.</li>
+        <li><code>GROUPING SETS ((a), (b))</code> — вычисляет только явно перечисленные группировки.</li>
+      </ul>
+
+      <pre><code>-- Иерархический отчет по продажам с промежуточными и общими итогами
+SELECT 
+  branch_city,
+  product_type,
+  SUM(sales_volume) AS total_sales
+FROM company_sales
+GROUP BY ROLLUP (branch_city, product_type);</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>6. Введение в аналитические оконные функции</h2>
+      <p>Оконная функция производит расчет по набору строк (называемому <em>окном</em>), связанному с текущей строкой. Главное отличие от <code>GROUP BY</code>: <strong>строки не схлопываются</strong>, количество строк на выходе строго равно количеству строк на входе.</p>
+
+      <div class="box box-info">
+        <strong>Общая структура окна:</strong><br>
+        <code>FUNCTION() OVER ( PARTITION BY [поле_деления] ORDER BY [поле_сортировки] )</code><br>
+        • <code>PARTITION BY</code> — делит таблицу на независимые логические группы (окна).<br>
+        • <code>ORDER BY</code> — упорядочивает строки внутри каждого окна.
+      </div>
+
+      <h3>Функции нумерации и ранжирования</h3>
+      <ul>
+        <li><code>ROW_NUMBER()</code> — генерирует строгий непрерывный порядковый номер записи внутри окна (1, 2, 3, 4...).</li>
+        <li><code>RANK()</code> — присваивает ранг. Одинаковые значения получают одинаковый ранг, при этом следующий ранг перескакивает через пропущенные позиции (1, 2, 2, 4...).</li>
+        <li><code>DENSE_RANK()</code> — «плотный» ранг. Одинаковые значения получают один номер, но следующий ранг не перескакивает (1, 2, 2, 3...).</li>
+      </ul>
+
+      <table class="table-visual">
+        <thead>
+          <tr>
+            <th>Студент</th>
+            <th>Балл</th>
+            <th>ROW_NUMBER()</th>
+            <th>RANK()</th>
+            <th>DENSE_RANK()</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Иванов</td>
+            <td>95</td>
+            <td>1</td>
+            <td>1</td>
+            <td>1</td>
+          </tr>
+          <tr>
+            <td>Петров</td>
+            <td>90</td>
+            <td>2</td>
+            <td>2</td>
+            <td>2</td>
+          </tr>
+          <tr>
+            <td>Сидоров</td>
+            <td>90</td>
+            <td>3</td>
+            <td>2</td>
+            <td>2</td>
+          </tr>
+          <tr>
+            <td>Кузнецов</td>
+            <td>82</td>
+            <td>4</td>
+            <td><strong>4</strong> (номер 3 пропущен)</td>
+            <td><strong>3</strong> (без пропуска)</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>7. Вопросы и тестовые задания для самопроверки</h2>
+
+      <div class="quiz-card">
+        <div class="quiz-q">Вопрос 1: В каком логическом порядке СУБД исполняет секции SQL-запроса?</div>
+        <p>Варианты: А) SELECT &rarr; FROM &rarr; WHERE &rarr; GROUP BY; Б) FROM &rarr; WHERE &rarr; GROUP BY &rarr; HAVING &rarr; SELECT; В) FROM &rarr; SELECT &rarr; WHERE &rarr; ORDER BY.</p>
+        <details>
+          <summary>Показать правильный ответ и пояснение</summary>
+          <p><strong>Ответ: Б.</strong> Логический порядок: <code>FROM</code> (выбор таблиц) &rarr; <code>WHERE</code> (построчный фильтр) &rarr; <code>GROUP BY</code> (группировка) &rarr; <code>HAVING</code> (фильтр групп) &rarr; <code>SELECT</code> (вычисление проекции) &rarr; <code>DISTINCT</code> &rarr; <code>ORDER BY</code> &rarr; <code>LIMIT</code>.</p>
+        </details>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-q">Вопрос 2: В чем ключевая разница между COUNT(*) и COUNT(column_name)?</div>
+        <p>Как поведет себя каждая функция, если в таблице из 10 строк у 3 записей в поле column_name содержится значение NULL?</p>
+        <details>
+          <summary>Показать правильный ответ и пояснение</summary>
+          <p><strong>Ответ:</strong> <code>COUNT(*)</code> вернет 10 (считает все кортежи физически), а <code>COUNT(column_name)</code> вернет 7, так как игнорирует строки, где проверяемое поле равно NULL.</p>
+        </details>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-q">Вопрос 3: Почему запрос <code>SELECT dept, AVG(salary) FROM emp WHERE AVG(salary) > 50000 GROUP BY dept;</code> вызовет синтаксическую ошибку?</div>
+        <details>
+          <summary>Показать правильный ответ и пояснение</summary>
+          <p><strong>Ответ:</strong> Потому что секция <code>WHERE</code> выполняется до того, как строки сгруппированы по отделам. Агрегатную функцию <code>AVG(salary)</code> можно использовать для фильтрации групп только в секции <code>HAVING</code>.</p>
+        </details>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-q">Вопрос 4: Чем отличается результат RANK() от DENSE_RANK() при наличии двух вторых мест?</div>
+        <details>
+          <summary>Показать правильный ответ и пояснение</summary>
+          <p><strong>Ответ:</strong> <code>RANK()</code> после двух вторых мест присвоит следующему участнику 4-е место (пропустив 3). <code>DENSE_RANK()</code> присвоит следующему участнику 3-е место без образования пропусков в ранжировании.</p>
+        </details>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

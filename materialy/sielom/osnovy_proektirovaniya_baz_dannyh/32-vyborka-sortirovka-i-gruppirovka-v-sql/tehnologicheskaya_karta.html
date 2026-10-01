@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Технологическая карта занятия: Выборка, сортировка и группировка в SQL</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #e2e8f0;
+      --accent: #0284c7;
+      --accent-dark: #0369a1;
+      --accent-soft: #f0f9ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      padding: 24px 16px;
+    }
+
+    .container {
+      max-width: 1060px;
+      margin: 0 auto;
+    }
+
+    header.card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: var(--accent-dark);
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+      font-size: 0.92rem;
+    }
+
+    .meta-item {
+      background: var(--bg);
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .meta-label {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    section.card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      color: var(--accent-dark);
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+    }
+
+    p, li {
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    ul {
+      padding-left: 20px;
+      margin-bottom: 14px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin: 16px 0;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    th {
+      background-color: #f1f5f9;
+      color: var(--accent-dark);
+      font-weight: 700;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:nth-child(even) td {
+      background-color: #f8fafc;
+    }
+
+    .stage-timing {
+      display: inline-block;
+      padding: 2px 8px;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      white-space: nowrap;
+      margin-top: 4px;
+    }
+
+    .badge-comp {
+      display: inline-block;
+      padding: 2px 6px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-right: 4px;
+    }
+
+    @media (max-width: 768px) {
+      body { padding: 12px 8px; }
+      header.card, section.card { padding: 18px 14px; }
+      h1 { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="card">
+      <h1>Технологическая карта учебного занятия</h1>
+      <p style="color: var(--text-muted); margin-bottom: 0;">ОП.08 Основы проектирования баз данных — Тема 5. Организация запросов SQL — Выборка, сортировка и группировка в SQL</p>
+
+      <div class="meta-grid">
+        <div class="meta-item">
+          <span class="meta-label">Дисциплина</span>
+          <strong>ОП.08 Основы проектирования баз данных</strong>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Тематический раздел</span>
+          <strong>Тема 5. Организация запросов SQL</strong>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Порядковый номер</span>
+          <strong>Занятие №32</strong>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Регламент времени</span>
+          <strong>80 минут (основной) / 60 минут (сокращенный)</strong>
+        </div>
+      </div>
+      <p>Разработал: ______________________________, преподаватель кафедры «____________________».</p>
+    </header>
+
+    <section class="card">
+      <h2>1. Цели и задачи занятия</h2>
+      <p><strong>Цель учебного занятия:</strong> Сформировать у обучающихся целостное понимание построения аналитических SQL-запросов: порядка логической обработки SELECT (FROM → WHERE → GROUP BY → HAVING → SELECT → DISTINCT → ORDER BY → LIMIT), применения агрегатных функций COUNT, SUM, AVG, MIN, MAX, группировки строк и фильтрации агрегированных групп; познакомить с оконной спецификацией OVER (PARTITION BY ... ORDER BY ...) и функциями ROW_NUMBER(), RANK(), DENSE_RANK().</p>
+      
+      <p><strong>Комплекс образовательных задач:</strong></p>
+      <ul>
+        <li><strong>Обучающие:</strong> раскрыть логический порядок обработки предложений оператора SELECT реляционным оптимизатором; изучить правила применения агрегатных функций и их поведение со значениями NULL; усвоить синтаксические ограничения секций GROUP BY и HAVING; освоить вычисление рангов и номеров строк через оконные функции.</li>
+        <li><strong>Развивающие:</strong> развивать аналитическое мышление при построении многомерных аналитических срезов данных, способность прогнозировать вычислительную сложность запросов и потребление памяти СУБД (Hash Aggregate vs Stream Aggregate).</li>
+        <li><strong>Воспитательные:</strong> формировать культуру чистоты SQL-кода, строгость соблюдения стандартов реляционной алгебры и ответственность за достоверность формируемой бизнес-отчетности.</li>
+      </ul>
+
+      <p><strong>Осваиваемые компетенции (ФГОС СПО 09.02.07):</strong></p>
+      <ul>
+        <li><span class="badge-comp">ОК 01</span> Выбирать способы решения задач профессиональной деятельности применительно к различным контекстам.</li>
+        <li><span class="badge-comp">ОК 02</span> Использовать современные средства поиска, анализа и интерпретации информации.</li>
+        <li><span class="badge-comp">ПК 1.3</span> Осуществлять разработку кода программного модуля на основе готовых спецификаций и схем баз данных.</li>
+        <li><span class="badge-comp">ПК 2.4</span> Реализовывать запросы к базам данных на языке SQL для выборки, вставки, обновления и удаления записей.</li>
+      </ul>
+
+      <p><strong>Оснащение занятия и дидактические материалы:</strong></p>
+      <ul>
+        <li>Персональные компьютеры обучающихся с современным браузером (HTML5, LocalStorage).</li>
+        <li>Автономный интерактивный веб-комплект учебных материалов: интерактивный рабочий лист (<code>zanyatie.html</code>), теоретический конспект (<code>lekciya.html</code>), слайдовая презентация (<code>prezentaciya.html</code>), методическое руководство (<code>metodicheskiy_material.html</code>), критериальная рубрика (<code>.rubrika.md</code>), резервное домашнее задание (<code>domashnee_zadanie.html</code>).</li>
+        <li>Мультимедийный проектор, демонстрационный экран, интерактивная доска/терминал СУБД.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>2. Поминутный план и технологическая структура занятия</h2>
+      <p>В таблице представлена поминутная технологическая карта с распределением времени для основного 80-минутного регламента и сокращенного 60-минутного регламента занятия.</p>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 18%;">Этап занятия и хронометраж</th>
+              <th style="width: 22%;">Дидактические цели этапа</th>
+              <th style="width: 30%;">Деятельность преподавателя</th>
+              <th style="width: 30%;">Деятельность обучающихся</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <strong>1. Организационный момент и мотивация</strong><br>
+                <span class="stage-timing">80 мин: 0–5 (5 мин)</span><br>
+                <span class="stage-timing">60 мин: 0–3 (3 мин)</span>
+              </td>
+              <td>Организация учебного внимания группы, фиксация явки, создание проблемной ситуации.</td>
+              <td>Приветствует студентов, фиксирует присутствующих. Демонстрирует проблемный слайд: запрос с ошибкой <code>aggregate functions are not allowed in WHERE</code>. Формулирует тему и прикладное значение аналитических запросов в разработке ПО.</td>
+              <td>Приветствуют преподавателя, проверяют готовность рабочих мест. Анализируют текст ошибки в проекторе, высказывают догадки о причинах сбоя ядра СУБД. Записывают тему в тетради.</td>
+            </tr>
+            <tr>
+              <td>
+                <strong>2. Актуализация опорных знаний</strong><br>
+                <span class="stage-timing">80 мин: 5–12 (7 мин)</span><br>
+                <span class="stage-timing">60 мин: 3–8 (5 мин)</span>
+              </td>
+              <td>Повторение синтаксиса базового SELECT, фильтрации WHERE и сортировки ORDER BY, выявление пробелов.</td>
+              <td>Проводит фронтальный экспресс-опрос: назначение ключевых слов SELECT, FROM, WHERE; работа логических операторов AND/OR/NOT; влияние пропущенных значений NULL на предикаты сравнения.</td>
+              <td>Отвечают на вопросы преподавателя, вспоминают трехзначную логику SQL (TRUE, FALSE, UNKNOWN), приводят примеры фильтрации строк.</td>
+            </tr>
+            <tr>
+              <td>
+                <strong>3. Изложение нового теоретического материала</strong><br>
+                <span class="stage-timing">80 мин: 12–48 (36 мин)</span><br>
+                <span class="stage-timing">60 мин: 8–34 (26 мин)</span>
+              </td>
+              <td>Формирование фундаментальных понятий: логический конвейер SELECT, агрегатные функции, GROUP BY, HAVING, ROLLUP/CUBE, базовые оконные функции OVER(PARTITION BY).</td>
+              <td>Демонстрирует презентацию <code>prezentaciya.html</code> (слайды 2–14). Подробно разбирает цепочку выполнения: <code>FROM &rarr; WHERE &rarr; GROUP BY &rarr; HAVING &rarr; SELECT &rarr; DISTINCT &rarr; ORDER BY &rarr; LIMIT</code>. Объясняет семантику <code>COUNT(*)</code> против <code>COUNT(col)</code>, поведение <code>AVG</code> при NULL. Показывает разницу между WHERE и HAVING. Вводит оконные функции <code>ROW_NUMBER()</code>, <code>RANK()</code>, <code>DENSE_RANK()</code>.</td>
+              <td>Воспринимают учебный материал, зарисовывают в конспекты блок-схему логического конвейера, фиксируют «золотое правило» GROUP BY и сравнительную таблицу функций ранжирования. Задают уточняющие вопросы.</td>
+            </tr>
+            <tr>
+              <td>
+                <strong>4. Практическая демонстрация сквозного кейса</strong><br>
+                <span class="stage-timing">80 мин: 48–58 (10 мин)</span><br>
+                <span class="stage-timing">60 мин: 34–42 (8 мин)</span>
+              </td>
+              <td>Наглядная иллюстрация работы агрегатных запросов в реальной СУБД, демонстрация плана выполнения.</td>
+              <td>В терминале СУБД/pgAdmin исполняет демонстрационный запрос с группировкой, фильтрацией HAVING и оконным ранжированием. Показывает план запроса (EXPLAIN) и появление узла <code>HashAggregate</code>.</td>
+              <td>Следят за выполнением демонстрации на проекторе, сопоставляют полученный результирующий набор с теоретическими ожиданиями.</td>
+            </tr>
+            <tr>
+              <td>
+                <strong>5. Закрепление: практикум в zanyatie.html</strong><br>
+                <span class="stage-timing">80 мин: 58–74 (16 мин)</span><br>
+                <span class="stage-timing">60 мин: 42–56 (14 мин)</span>
+              </td>
+              <td>Отработка навыков составления аналитических SQL-запросов по индивидуальным дифференцированным вариантам.</td>
+              <td>Организует работу с интерактивным рабочим листом <code>zanyatie.html</code>. Распределяет студентов по 4 прикладным вариантам (ритейл, медицина, колледж, автопарк). Консультирует, контролирует самостоятельность, проверяет применение HAVING и оконных функций.</td>
+              <td>Открывают в браузере <code>zanyatie.html</code>, заполняют ФИО и группу, решают задачи своего варианта, пишут SQL-запросы с GROUP BY, HAVING, агрегацией и оконным ранжированием, сохраняют ответы в LocalStorage.</td>
+            </tr>
+            <tr>
+              <td>
+                <strong>6. Подведение итогов, рефлексия, ДЗ</strong><br>
+                <span class="stage-timing">80 мин: 74–80 (6 мин)</span><br>
+                <span class="stage-timing">60 мин: 56–60 (4 мин)</span>
+              </td>
+              <td>Обобщение темы, экспертный разбор типовых ошибок, оценивание по критериальной рубрике, выдача резервного ДЗ.</td>
+              <td>Демонстрирует слайд 15 с веб-комиксом xkcd Bobby Tables, связывает культуру безопасности с чистотой запросов. Разбирает ключевые ошибки, выставляет предварительные баллы по критериальной рубрике <code>.rubrika.md</code>. Разъясняет назначение резервного задания <code>domashnee_zadanie.html</code>.</td>
+              <td>Анализируют свои решения в сопоставлении с разобранными ошибками, участвуют в рефлексии, знакомятся с содержанием резервного домашнего задания.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
