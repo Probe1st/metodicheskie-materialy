@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Практическая работа — Анализ предметной области: связи и правила</title>
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #2563eb;
+      --accent-soft: #eff6ff;
+      --accent-dark: #1d4ed8;
+      --warn: #d97706;
+      --warn-soft: #fef3c7;
+      --success: #16a34a;
+      --radius: 12px;
+      --shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      line-height: 1.6;
+      font-size: 16px;
+    }
+    .page {
+      width: min(100% - 32px, 880px);
+      margin: 28px auto 90px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(24px, 4vw, 32px);
+      line-height: 1.25;
+      color: var(--text);
+    }
+    .lead {
+      color: var(--muted);
+      margin: 0;
+      font-size: 16px;
+    }
+    h2 {
+      margin: 0 0 16px;
+      font-size: 20px;
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 8px;
+    }
+    h3 {
+      font-size: 17px;
+      margin: 20px 0 10px;
+      color: var(--text);
+    }
+    p, ul, ol {
+      margin-top: 0;
+      margin-bottom: 12px;
+    }
+    ul, ol {
+      padding-left: 22px;
+    }
+    li {
+      margin-bottom: 6px;
+    }
+    .notice {
+      background: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      padding: 12px 16px;
+      border-radius: 4px 8px 8px 4px;
+      margin-bottom: 18px;
+      font-size: 15px;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+    .form-group {
+      margin-bottom: 18px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 14.5px;
+    }
+    input[type="text"], select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      font: inherit;
+      font-size: 14.5px;
+      box-sizing: border-box;
+      background: #ffffff;
+      color: var(--text);
+      transition: border-color 0.2s;
+    }
+    input[type="text"]:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+    .criteria-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    .criteria-table th, .criteria-table td {
+      border: 1px solid var(--line);
+      padding: 8px 12px;
+      text-align: left;
+    }
+    .criteria-table th {
+      background: #f8fafc;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .variant-content {
+      display: none;
+    }
+    .variant-content.active {
+      display: block;
+    }
+    .case-box {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-left: 4px solid #0284c7;
+      padding: 16px;
+      border-radius: 4px 8px 8px 4px;
+      margin-bottom: 18px;
+    }
+    .case-box h4 {
+      margin: 0 0 8px 0;
+      font-size: 16px;
+      color: #0369a1;
+    }
+    .actions-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-top: 24px;
+    }
+    button {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font: inherit;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s, opacity 0.2s;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: var(--accent-dark);
+    }
+    .btn-secondary {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+    .btn-danger {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .btn-danger:hover {
+      background: #fecaca;
+    }
+    .status-msg {
+      font-size: 14px;
+      color: var(--success);
+      margin-left: auto;
+      display: none;
+    }
+    @media (max-width: 640px) {
+      .page { width: calc(100% - 20px); margin: 14px auto 60px; }
+      .card { padding: 18px 14px; }
+      .student-grid { grid-template-columns: 1fr; gap: 12px; }
+      .actions-bar { flex-direction: column; align-items: stretch; }
+      .actions-bar button { width: 100%; justify-content: center; }
+      .status-msg { margin-left: 0; text-align: center; }
+    }
+    @media print {
+      body { background: white; color: black; font-size: 12pt; }
+      .page { width: 100%; margin: 0; }
+      .card { border: none; box-shadow: none; padding: 10px 0; margin-bottom: 14px; break-inside: avoid; }
+      .actions-bar, .notice, .criteria-table { display: none; }
+      .variant-selector select { border: none; font-size: 13pt; font-weight: bold; -webkit-appearance: none; appearance: none; }
+      input[type="text"], textarea, select {
+        border: 1px solid #475569 !important;
+        background: white !important;
+        color: black !important;
+        -webkit-text-fill-color: black !important;
+        box-shadow: none !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+      }
+      textarea {
+        height: auto !important;
+        min-height: 100px;
+        overflow: visible;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="card">
+      <h1>Практическая работа: Анализ предметной области — связи и правила</h1>
+      <p class="lead">Индивидуальный рабочий лист обучающегося по дисциплине «ОП.08 Основы проектирования баз данных». Анализ связей, определение кардинальности (1:1, 1:M, M:N), обязательности участия и формулирование семантических правил предметной области.</p>
+    </header>
+
+    <section class="card">
+      <h2>Данные обучающегося</h2>
+      <div class="student-grid">
+        <div class="form-group">
+          <label for="studentFio">Фамилия, Имя</label>
+          <input type="text" id="studentFio">
+        </div>
+        <div class="form-group">
+          <label for="studentGroup">Учебная группа</label>
+          <input type="text" id="studentGroup">
+        </div>
+        <div class="form-group variant-selector">
+          <label for="studentVariant">Вариант задания</label>
+          <select id="studentVariant" onchange="switchVariant(this.value)">
+            <option value="1">Вариант 1 (Медицинский центр)</option>
+            <option value="2">Вариант 2 (Университет)</option>
+            <option value="3">Вариант 3 (Банковская система)</option>
+            <option value="4">Вариант 4 (Авиаперевозки)</option>
+          </select>
+        </div>
+      </div>
+      <div class="notice">
+        <strong>Автосохранение:</strong> Ваши ответы автоматически сохраняются в браузере при вводе. Для сдачи работы воспользуйтесь кнопкой «Печать / Сохранить в PDF» внизу страницы.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Критерии оценивания (Всего: 4 балла)</h2>
+      <table class="criteria-table">
+        <thead>
+          <tr>
+            <th>Показатель</th>
+            <th>Балл</th>
+            <th>Критерий выставления оценки</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Определение связей и кардинальности</strong></td>
+            <td>0–2 балла</td>
+            <td>Точное выявление сущностей, определение типов кардинальности (1:1, 1:M, M:N), декомпозиция отношений и фиксация степени обязательности участия сущностей.</td>
+          </tr>
+          <tr>
+            <td><strong>2. Формулирование бизнес-правил</strong></td>
+            <td>0–1 балл</td>
+            <td>Формулирование не менее трех четких, непротиворечивых правил предметной области, регламентирующих реальные процессы.</td>
+          </tr>
+          <tr>
+            <td><strong>3. Выявление ограничений целостности</strong></td>
+            <td>0–1 балл</td>
+            <td>Определение не менее двух семантических ограничений (темпоральных, ресурсных или балансовых) и способа их контроля.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ВАРИАНТ 1 -->
+    <div id="vblock-1" class="variant-content active">
+      <section class="card">
+        <h2>Вариант 1: Медицинский центр (Врач — Прием — Пациент)</h2>
+        <div class="case-box">
+          <h4>Описание предметной области:</h4>
+          <p>В частном медицинском центре прием ведут врачи различных специальностей. Пациенты обращаются в регистратуру или записываются онлайн. Требуется спроектировать структуру взаимосвязей с учетом следующих условий:</p>
+          <ul>
+            <li>В штате центра числятся врачи. Новый врач при оформлении на работу может еще не иметь запланированных или проведенных приемов.</li>
+            <li>Каждый прием проводится строго одним врачом и оформляется строго на одного пациента. Прием не может существовать без назначенного врача и пациента.</li>
+            <li>Пациент регистрируется в базе данных медцентра. Пациент может многократно посещать различных врачей клиники, а может только завести карту и не иметь записей.</li>
+            <li><strong>Критическое бизнес-правило:</strong> Пациент не может быть записан к двум разным врачам на одно и то же или пересекающееся время приема. Врач не может вести одновременно два приема.</li>
+          </ul>
+        </div>
+
+        <div class="form-group">
+          <label for="v1_relationships">1. Анализ сущностей, кардинальности и обязательности участия (2 б.)</label>
+          <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Укажите ключевые сущности, кардинальность связей между ними (1:1, 1:M, M:N), класс принадлежности (обязательное/факультативное) с обеих сторон и способ декомпозиции связи между Врачом и Пациентом.</p>
+          <textarea id="v1_relationships"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="v1_rules">2. Формулирование бизнес-правил (Business Rules) (1 б.)</label>
+          <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Сформулируйте не менее трех строгих бизнес-правил клиники (правила отмены записи, режим работы врачей, порядок оплаты приемов).</p>
+          <textarea id="v1_rules"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="v1_constraints">3. Семантические ограничения целостности (1 б.)</label>
+          <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Опишите темпоральное ограничение на непересечение интервалов времени приема для пациента и врача, а также способ его контроля в базе данных.</p>
+          <textarea id="v1_constraints"></textarea>
+        </div>
+      </section>
+    </div>
+
+    <!-- ВАРИАНТ 2 -->
+    <div id="vblock-2" class="variant-content">
+      <section class="card">
+        <h2>Вариант 2: Университетский учебный процесс (Студент — Группа — Дисциплина — Преподаватель)</h2>
+        <div class="case-box">
+          <h4>Описание предметной области:</h4>
+          <p>В учебном управлении университета автоматизируется учет контингента студентов, академических групп и учебных дисциплин:</p>
+          <ul>
+            <li>Каждый студент очного отделения зачислен ровно в одну академическую учебную группу. В одной группе обучается от 15 до 30 студентов. Вновь сформированная группа на этапе приема может временно не иметь зачисленных студентов.</li>
+            <li>Студенты осваивают утвержденный учебный план, состоящий из множества дисциплин. Каждая дисциплина изучается множеством студентов различных групп.</li>
+            <li>Преподаватели кафедры ведут занятия по дисциплинам. Один преподаватель может вести несколько дисциплин, а одну дисциплину (например, высшую математику) могут читать несколько преподавателей.</li>
+            <li><strong>Критическое бизнес-правило:</strong> Студент не может быть аттестован по дисциплине, которая не включена в утвержденный учебный план его группы в текущем учебном семестре.</li>
+          </ul>
+        </div>
+
+        <div class="form-group">
+          <label for="v2_relationships">1. Анализ сущностей, кардинальности и обязательности участия (2 б.)</label>
+          <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Опишите связи «Группа — Студент», «Студент — Дисциплина» и «Преподаватель — Дисциплина». Укажите кардинальность (1:M, M:N), обязательность участия и промежуточную таблицу декомпозиции.</p>
+          <textarea id="v2_relationships"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="v2_rules">2. Формулирование бизнес-правил (Business Rules) (1 б.)</label>
+          <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Сформулируйте не менее трех бизнес-правил (правила перевода из группы в группу, лимит численности группы, условия допуска к сессии).</p>
+          <textarea id="v2_rules"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="v2_constraints">3. Семантические ограничения целостности (1 б.)</label>
+          <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Опишите семантическое ограничение соответствия учебному плану и преподавательскому составу при внесении оценки в ведомость.</p>
+          <textarea id="v2_constraints"></textarea>
+        </div>
+      </section>
+    </div>
+
+    <!-- ВАРИАНТ 3 -->
+    <div id="vblock-3" class="variant-content">
+      <section class="card">
+        <h2>Вариант 3: Банковская система кредитования (Клиент — Кредитный_договор — Платеж)</h2>
+        <div class="case-box">
+          <h4>Описание предметной области:</h4>
+          <p>В автоматизированной банковской системе (АБС) ведется учет розничных кредитов физических лиц:</p>
+          <ul>
+            <li>Клиент банка проходит идентификацию. Клиент может иметь открытый счет, но не иметь ни одного кредитного договора. При этом один благонадежный клиент может заключить несколько кредитных договоров (на разные цели).</li>
+            <li>Каждый кредитный договор заключается строго с одним клиентом (заемщиком) и не может существовать без указания клиента.</li>
+            <li>В рамках кредитного договора клиент совершает регулярные платежи для погашения ссудной задолженности. По вновь подписанному договору платежей еще может не быть. Каждый поступивший платеж жестко привязан к конкретному договору.</li>
+            <li><strong>Критическое бизнес-правило:</strong> Суммарный объем платежей, направленных на погашение основного долга, не может превышать сумму выданного кредита. Дата любого платежа не может быть раньше даты подписания договора.</li>
+          </ul>
+        </div>
+
+        <div class="form-group">
+          <label for="v3_relationships">1. Анализ сущностей, кардинальности и обязательности участия (2 б.)</label>
+          <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Определите сущности и кардинальность связей «Клиент — Кредитный договор» и «Кредитный договор — Платеж». Опишите класс принадлежности с обеих сторон связи.</p>
+          <textarea id="v3_relationships"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="v3_rules">2. Формулирование бизнес-правил (Business Rules) (1 б.)</label>
+          <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Сформулируйте не менее трех бизнес-правил банковского кредитования (очередность списания штрафов и процентов, закрытие договора, лимиты выдачи).</p>
+          <textarea id="v3_rules"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="v3_constraints">3. Семантические ограничения целостности (1 б.)</label>
+          <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Опишите балансовое ограничение непревышения суммы платежей над остатком долга и темпоральное ограничение дат в терминах ограничений БД.</p>
+          <textarea id="v3_constraints"></textarea>
+        </div>
+      </section>
+    </div>
+
+    <!-- ВАРИАНТ 4 -->
+    <div id="vblock-4" class="variant-content">
+      <section class="card">
+        <h2>Вариант 4: Авиаперевозки (Рейс — Самолет — Билет — Пассажир)</h2>
+        <div class="case-box">
+          <h4>Описание предметной области:</h4>
+          <p>Авиакомпания осуществляет регулярные пассажирские перевозки между городами:</p>
+          <ul>
+            <li>Рейсы соединяют аэропорты маршрутной сети. Рейс связывает аэропорт вылета и аэропорт прилета. Аэропорты обслуживают сотни рейсов ежедневно.</li>
+            <li>На каждый рейс назначается конкретный самолет (борт). Один самолет в течение месяца выполняет множество рейсов.</li>
+            <li>На рейс открывается продажа билетов. На один рейс продается множество билетов в пределах пассажировместимости салона.</li>
+            <li>При онлайн-регистрации на рейс пассажир выбирает посадочное место. <strong>Критическое правило:</strong> В рамках конкретного рейса связь между Пассажиром и Местом является строго 1:1. Одному пассажиру выдается одно место, и на одно кресло не может быть зарегистрировано два пассажира.</li>
+          </ul>
+        </div>
+
+        <div class="form-group">
+          <label for="v4_relationships">1. Анализ сущностей, кардинальности и обязательности участия (2 б.)</label>
+          <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Опишите связь «Рейсы и Аэропорты» (дуальное отношение M:N), «Самолет — Рейс» (1:M), «Рейс — Билет» (1:M) и «Пассажир — Место на рейсе» (1:1). Укажите обязательность участия.</p>
+          <textarea id="v4_relationships"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="v4_rules">2. Формулирование бизнес-правил (Business Rules) (1 б.)</label>
+          <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Сформулируйте не менее трех бизнес-правил авиакомпании (запрет совпадения аэропорта вылета и прилета, время окончания регистрации, правила овербукинга).</p>
+          <textarea id="v4_rules"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="v4_constraints">3. Семантические ограничения целостности (1 б.)</label>
+          <p style="font-size: 13.5px; color: var(--muted); margin-bottom: 6px;">Опишите семантическое ограничение уникальности посадочного места (пара «Рейс + Место») и ограничение максимальной вместимости борта.</p>
+          <textarea id="v4_constraints"></textarea>
+        </div>
+      </section>
+    </div>
+
+    <!-- КНОПКИ ДЕЙСТВИЯ -->
+    <div class="card actions-bar">
+      <button type="button" class="btn-primary" onclick="window.print()">Печать / Сохранить в PDF</button>
+      <button type="button" class="btn-secondary" onclick="saveData()">Сохранить черновик</button>
+      <button type="button" class="btn-danger" onclick="resetForm()">Очистить форму</button>
+      <span class="status-msg" id="statusMsg">Данные сохранены локально!</span>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'sielom_db_03_worksheet_data';
+    const allInputIds = [
+      'studentFio', 'studentGroup', 'studentVariant',
+      'v1_relationships', 'v1_rules', 'v1_constraints',
+      'v2_relationships', 'v2_rules', 'v2_constraints',
+      'v3_relationships', 'v3_rules', 'v3_constraints',
+      'v4_relationships', 'v4_rules', 'v4_constraints'
+    ];
+
+    function switchVariant(v) {
+      for (let i = 1; i <= 4; i++) {
+        const b = document.getElementById('vblock-' + i);
+        if (b) {
+          b.classList.toggle('active', i.toString() === v.toString());
+        }
+      }
+      saveData();
+    }
+
+    function loadData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const data = JSON.parse(raw);
+          allInputIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && data[id] !== undefined) {
+              el.value = data[id];
+            }
+          });
+        }
+      } catch (e) {
+        console.error('Ошибка загрузки локальных данных', e);
+      }
+      const sel = document.getElementById('studentVariant');
+      if (sel) {
+        switchVariant(sel.value);
+      }
+    }
+
+    function saveData() {
+      const data = {};
+      allInputIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) data[id] = el.value;
+      });
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        const s = document.getElementById('statusMsg');
+        if (s) {
+          s.style.display = 'inline';
+          setTimeout(() => { s.style.display = 'none'; }, 2500);
+        }
+      } catch (e) {
+        console.error('Ошибка сохранения данных', e);
+      }
+    }
+
+    function resetForm() {
+      if (confirm('Вы действительно хотите полностью очистить все заполненные поля работы?')) {
+        allInputIds.forEach(id => {
+          const el = document.getElementById(id);
+          if (el && id !== 'studentVariant') {
+            el.value = '';
+          }
+        });
+        localStorage.removeItem(STORAGE_KEY);
+        saveData();
+      }
+    }
+
+    allInputIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && id !== 'studentVariant') {
+        el.addEventListener('input', saveData);
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', loadData);
+  </script>
+</body>
+</html>

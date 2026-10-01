@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Рабочий лист: Основные понятия теории БД</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #cbd5e1;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --accent-soft: #f0f9ff;
+      --danger: #ef4444;
+      --success: #10b981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px;
+      min-width: 320px;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    header.task-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+      word-break: break-word;
+    }
+
+    .subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+    }
+
+    .student-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .meta-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .meta-field label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .meta-field input {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      color: var(--text);
+      outline: none;
+      width: 100%;
+    }
+
+    .meta-field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    .variant-selector-box {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .variant-tabs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .v-tab-btn {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #f8fafc;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+      color: #334155;
+    }
+
+    .v-tab-btn:hover {
+      background: #f1f5f9;
+      border-color: var(--accent);
+    }
+
+    .v-tab-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+      box-shadow: 0 2px 4px rgba(2, 132, 199, 0.3);
+    }
+
+    section.task-section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--accent-hover);
+      margin-bottom: 16px;
+      border-left: 4px solid var(--accent);
+      padding-left: 12px;
+      word-break: break-word;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-top: 18px;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .case-description {
+      background-color: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      border-radius: 6px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+      line-height: 1.55;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .form-group .hint {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 90px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      resize: vertical;
+      line-height: 1.5;
+      outline: none;
+      color: var(--text);
+      background-color: #ffffff;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    .variant-content {
+      display: none;
+    }
+
+    .variant-content.active {
+      display: block;
+    }
+
+    .self-assessment {
+      background: #faf5ff;
+      border: 1px solid #e9d5ff;
+      border-radius: 8px;
+      padding: 18px 22px;
+      margin-top: 24px;
+    }
+
+    .self-assessment h3 {
+      color: #7e22ce;
+      margin-top: 0;
+    }
+
+    .score-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .score-option {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .actions-bar {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background-color: var(--accent);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background-color: #e2e8f0;
+      color: #334155;
+    }
+
+    .btn-secondary:hover {
+      background-color: #cbd5e1;
+    }
+
+    .btn-danger {
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .btn-danger:hover {
+      background-color: #fecaca;
+    }
+
+    .status-msg {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 12px 8px;
+      }
+      header.task-header, section.task-section {
+        padding: 16px 14px;
+      }
+      .student-meta {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .variant-tabs {
+        grid-template-columns: 1fr;
+      }
+      .actions-bar {
+        flex-direction: column;
+      }
+      .btn {
+        width: 100%;
+        text-align: center;
+      }
+    }
+
+    @media print {
+      body {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+      }
+      .container {
+        max-width: 100% !important;
+        margin: 0 !important;
+      }
+      header.task-header, section.task-section {
+        box-shadow: none !important;
+        border: 1px solid #64748b !important;
+        page-break-inside: avoid;
+        margin-bottom: 16px !important;
+        padding: 14px 18px !important;
+      }
+      .variant-selector-box, .actions-bar, .status-msg {
+        display: none !important;
+      }
+      .variant-content {
+        display: none !important;
+      }
+      .variant-content.active {
+        display: block !important;
+      }
+      textarea {
+        border: 1px solid #475569 !important;
+        min-height: 80px !important;
+        height: auto !important;
+        color: #000000 !important;
+        resize: none;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+      }
+      input {
+        border: 1px solid #475569 !important;
+        color: #000000 !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+      }
+      .case-description {
+        background-color: #f8fafc !important;
+        border-left: 3px solid #000000 !important;
+        color: #000000 !important;
+      }
+      .self-assessment {
+        background: #ffffff !important;
+        border: 1px solid #64748b !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <header class="task-header">
+    <h1>Рабочий лист: Архитектура и основные понятия баз данных</h1>
+    <div class="subtitle">ОП.08 Основы проектирования баз данных | Тема 1 (§2.2 с.7 программы)</div>
+
+    <div class="student-meta">
+      <div class="meta-field">
+        <label for="studentName">ФИО обучающегося:</label>
+        <input type="text" id="studentName">
+      </div>
+      <div class="meta-field">
+        <label for="studentGroup">Учебная группа:</label>
+        <input type="text" id="studentGroup">
+      </div>
+    </div>
+
+    <div class="variant-selector-box">
+      <div style="font-weight: 700; font-size: 0.95rem; color: var(--text);">Выберите назначенный вариант анализа:</div>
+      <div class="variant-tabs">
+        <button type="button" class="v-tab-btn active" data-v="1">Вариант 1: Складской учет</button>
+        <button type="button" class="v-tab-btn" data-v="2">Вариант 2: Регистратура</button>
+        <button type="button" class="v-tab-btn" data-v="3">Вариант 3: Интернет-магазин</button>
+        <button type="button" class="v-tab-btn" data-v="4">Вариант 4: Деканат вуза</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== ВАРИАНТ 1 ==================== -->
+  <div class="variant-content active" id="vBlock1">
+    <section class="task-section">
+      <h2>Вариант 1: Складской учет оптовой базы</h2>
+      <div class="case-description">
+        <strong>Предметная область:</strong> Оптовая база строительных материалов обслуживает 300 заказов в день. 12 менеджеров по продажам и 4 кладовщика одновременно обращаются к остаткам товаров на складах. Руководство рассматривает переход с ведения учета в таблицах Excel на локальной сетевой папке на реляционную СУБД PostgreSQL.
+      </div>
+
+      <div class="form-group">
+        <label for="v1_terms">1. Понятийный аппарат (2 балла):</label>
+        <div class="hint">Определите для данного кейса: что является сырыми «данными», что становится полезной «информацией», как формулируется состав «базы данных» и какие функции возьмет на себя сервер PostgreSQL.</div>
+        <textarea id="v1_terms" rows="4"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="v1_compare">2. Сравнительный анализ архитектуры (1 балл):</label>
+        <div class="hint">Сопоставьте хранение в файле Excel и в реляционной СУБД PostgreSQL. Почему файловый подход приведет к краху при работе 16 сотрудников? Какую роль играют первичные и внешние ключи?</div>
+        <textarea id="v1_compare" rows="4"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="v1_anomaly">3. Разбор контрпримера и аномалий параллелизма (1 балл):</label>
+        <div class="hint">Смоделируйте аномалию потерянного обновления (Lost Update) при одновременной отгрузке одного и того же товара двумя менеджерами. Как транзакционные механизмы СУБД предотвращают эту аномалию?</div>
+        <textarea id="v1_anomaly" rows="4"></textarea>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==================== ВАРИАНТ 2 ==================== -->
+  <div class="variant-content" id="vBlock2">
+    <section class="task-section">
+      <h2>Вариант 2: Электронная регистратура поликлиники</h2>
+      <div class="case-description">
+        <strong>Предметная область:</strong> Городская поликлиника ведет прием 1500 пациентов ежедневно. В системе работают врачи, регистраторы, сотрудники страховых столов и лабораторий, а также пациенты через мобильное приложение. Система обязана строго соответствовать 152-ФЗ «О персональных данных» и обеспечивать ссылочную целостность медицинской истории.
+      </div>
+
+      <div class="form-group">
+        <label for="v2_terms">1. Понятийный аппарат (2 балла):</label>
+        <div class="hint">Раскройте сущность понятий данных и информации на примере медицинской карты. Перечислите не менее четырех критически важных функций СУБД для медицинской системы.</div>
+        <textarea id="v2_terms" rows="4"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="v2_ansisparc">2. Архитектура ANSI/SPARC и независимость (1 балл):</label>
+        <div class="hint">Разложите медицинскую систему по 3 уровням: внешний (представления для врача, регистратора, пациента), концептуальный (логические сущности) и внутренний (дисковые страницы, индексы). Как обеспечивается физическая и логическая независимость?</div>
+        <textarea id="v2_ansisparc" rows="4"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="v2_integrity">3. Разбор контрпримера и целостность данных (1 балл):</label>
+        <div class="hint">Что произойдет, если оператор по ошибке попытается удалить запись о пациенте, у которого есть выписанные рецепты и история операций? Какое ограничение целостности СУБД предотвращает появление «сиротских» записей?</div>
+        <textarea id="v2_integrity" rows="4"></textarea>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==================== ВАРИАНТ 3 ==================== -->
+  <div class="variant-content" id="vBlock3">
+    <section class="task-section">
+      <h2>Вариант 3: Каталог интернет-магазина электроники</h2>
+      <div class="case-description">
+        <strong>Предметная область:</strong> Крупный маркетплейс реализует 500 000 товаров: смартфоны (характеристики: экран, процессор, ОЗУ, камера), холодильники (объем, компрессор, энергопотребление), одежду (размер, состав ткани) и книги. Архитекторы выбирают между реляционной СУБД PostgreSQL и документной NoSQL СУБД MongoDB для хранения каталога.
+      </div>
+
+      <div class="form-group">
+        <label for="v3_terms">1. Понятийный аппарат (2 балла):</label>
+        <div class="hint">В чем различие данных о товаре и коммерческой информации о продажах? Какие базовые функции СУБД необходимы для каталога с миллионом запросов в сутки?</div>
+        <textarea id="v3_terms" rows="4"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="v3_sql_nosql">2. Сравнение моделей данных: SQL vs NoSQL (1 балл):</label>
+        <div class="hint">Сопоставьте жесткую табличную схему (Schema-on-write) и гибкую документную модель (Schema-on-read в JSON/BSON). Почему реляционная модель каталога с разнородными свойствами порождает проблему тысяч пустых колонок (NULL) или антипаттерн EAV?</div>
+        <textarea id="v3_sql_nosql" rows="4"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="v3_tradeoff">3. Контрпример и архитектурный компромисс (1 балл):</label>
+        <div class="hint">Почему каталог товаров удобно хранить в MongoDB, а модуль списания денег и оформления заказов безопаснее реализовать в реляционной СУБД с поддержкой строгих ACID-транзакций? Какой риск несет NoSQL при финансовых транзакциях?</div>
+        <textarea id="v3_tradeoff" rows="4"></textarea>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==================== ВАРИАНТ 4 ==================== -->
+  <div class="variant-content" id="vBlock4">
+    <section class="task-section">
+      <h2>Вариант 4: Информационная система деканата университета</h2>
+      <div class="case-description">
+        <strong>Предметная область:</strong> Информационная система вуза обслуживает 6000 студентов, 400 преподавателей и сотрудников учебной части. Система ведет учет успеваемости, формирует приказы об отчислении и стипендиях, составляет расписание. Критически важна защита от несанкционированного изменения оценок и разграничение прав доступа.
+      </div>
+
+      <div class="form-group">
+        <label for="v4_terms">1. Понятийный аппарат (2 балла):</label>
+        <div class="hint">Определите понятия данных (баллы в ведомости) и информации (академический рейтинг и приказ на отчисление). Опишите задачи СУБД по разграничению доступа и журналированию действий.</div>
+        <textarea id="v4_terms" rows="4"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="v4_roles">2. Ролевая модель и трехуровневая архитектура (1 балл):</label>
+        <div class="hint">Опишите внешние представления для 4 ролей: Студент, Преподаватель, Диспетчер расписания, Администратор. Какую роль выполняет администратор базы данных (DBA) в обеспечении безопасности и отказоустойчивости?</div>
+        <textarea id="v4_roles" rows="4"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="v4_security">3. Разбор контрпримера: Риски файлового доступа (1 балл):</label>
+        <div class="hint">Что произойдет, если файл базы данных поместить в общедоступную сетевую папку Windows (как в ранних версиях MS Access)? Смоделируйте сценарий подделки оценок студентом в обход интерфейса программы.</div>
+        <textarea id="v4_security" rows="4"></textarea>
+      </div>
+    </section>
+  </div>
+
+  <!-- Самооценка -->
+  <section class="task-section">
+    <div class="self-assessment">
+      <h3>Самооценка обучающегося по установленной рубрике:</h3>
+      <p style="font-size: 0.9rem; color: #6b21a8;">
+        Оцените полноту и аргументированность ваших ответов по 4-балльной шкале (критерии: понятийный аппарат — до 2 б., архитектурный анализ — 1 б., контрпример и выводы — 1 б.):
+      </p>
+      <div class="score-group">
+        <label class="score-option"><input type="radio" name="selfScore" value="1"> 1 балл (фрагментарно)</label>
+        <label class="score-option"><input type="radio" name="selfScore" value="2"> 2 балла (удовлетворительно)</label>
+        <label class="score-option"><input type="radio" name="selfScore" value="3"> 3 балла (хорошо, мелкие неточности)</label>
+        <label class="score-option"><input type="radio" name="selfScore" value="4"> 4 балла (отлично, исчерпывающе)</label>
+      </div>
+    </div>
+  </section>
+
+  <div class="actions-bar">
+    <button class="btn btn-primary" id="saveBtn" type="button">Сохранить в хранилище</button>
+    <button class="btn btn-secondary" id="printBtn" type="button">Печать / Экспорт в PDF</button>
+    <button class="btn btn-danger" id="clearBtn" type="button">Очистить ответы</button>
+  </div>
+  <div class="status-msg" id="statusMsg"></div>
+
+</div>
+
+<script>
+  (function() {
+    const STORAGE_PREFIX = 'sie_db_01_work_';
+    const fields = [
+      'studentName', 'studentGroup',
+      'v1_terms', 'v1_compare', 'v1_anomaly',
+      'v2_terms', 'v2_ansisparc', 'v2_integrity',
+      'v3_terms', 'v3_sql_nosql', 'v3_tradeoff',
+      'v4_terms', 'v4_roles', 'v4_security'
+    ];
+
+    let currentVariant = '1';
+
+    const tabBtns = document.querySelectorAll('.v-tab-btn');
+    const vBlocks = {
+      '1': document.getElementById('vBlock1'),
+      '2': document.getElementById('vBlock2'),
+      '3': document.getElementById('vBlock3'),
+      '4': document.getElementById('vBlock4')
+    };
+    const statusMsg = document.getElementById('statusMsg');
+
+    function setVariant(v) {
+      currentVariant = v;
+      tabBtns.forEach(btn => {
+        if (btn.getAttribute('data-v') === v) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+      Object.keys(vBlocks).forEach(key => {
+        if (key === v) {
+          vBlocks[key].classList.add('active');
+        } else {
+          vBlocks[key].classList.remove('active');
+        }
+      });
+      localStorage.setItem(STORAGE_PREFIX + 'variant', v);
+    }
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        setVariant(btn.getAttribute('data-v'));
+      });
+    });
+
+    function loadData() {
+      try {
+        fields.forEach(id => {
+          const el = document.getElementById(id);
+          const val = localStorage.getItem(STORAGE_PREFIX + id);
+          if (el && val !== null) {
+            el.value = val;
+          }
+        });
+
+        const savedV = localStorage.getItem(STORAGE_PREFIX + 'variant');
+        if (savedV && vBlocks[savedV]) {
+          setVariant(savedV);
+        }
+
+        const savedScore = localStorage.getItem(STORAGE_PREFIX + 'selfScore');
+        if (savedScore) {
+          const radio = document.querySelector(`input[name="selfScore"][value="${savedScore}"]`);
+          if (radio) radio.checked = true;
+        }
+      } catch (e) {
+        console.error('Ошибка загрузки данных:', e);
+      }
+    }
+
+    function saveData() {
+      try {
+        fields.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) localStorage.setItem(STORAGE_PREFIX + id, el.value);
+        });
+        localStorage.setItem(STORAGE_PREFIX + 'variant', currentVariant);
+        const checkedRadio = document.querySelector('input[name="selfScore"]:checked');
+        if (checkedRadio) {
+          localStorage.setItem(STORAGE_PREFIX + 'selfScore', checkedRadio.value);
+        }
+        statusMsg.textContent = 'Ответы успешно зафиксированы в localStorage!';
+        statusMsg.style.color = '#15803d';
+        setTimeout(() => { statusMsg.textContent = ''; }, 4000);
+      } catch (e) {
+        statusMsg.textContent = 'Ошибка сохранения в localStorage';
+        statusMsg.style.color = '#b91c1c';
+      }
+    }
+
+    function clearData() {
+      if (confirm('Вы действительно хотите удалить все введенные ответы в рабочем листе?')) {
+        fields.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.value = '';
+          localStorage.removeItem(STORAGE_PREFIX + id);
+        });
+        localStorage.removeItem(STORAGE_PREFIX + 'selfScore');
+        const radios = document.querySelectorAll('input[name="selfScore"]');
+        radios.forEach(r => r.checked = false);
+        statusMsg.textContent = 'Все поля рабочего листа очищены.';
+        statusMsg.style.color = '#475569';
+        setTimeout(() => { statusMsg.textContent = ''; }, 3000);
+      }
+    }
+
+    document.getElementById('saveBtn').addEventListener('click', saveData);
+    document.getElementById('printBtn').addEventListener('click', () => {
+      window.print();
+    });
+    document.getElementById('clearBtn').addEventListener('click', clearData);
+
+    // Автосохранение при вводе
+    fields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => {
+          localStorage.setItem(STORAGE_PREFIX + id, el.value);
+        });
+      }
+    });
+
+    const scoreRadios = document.querySelectorAll('input[name="selfScore"]');
+    scoreRadios.forEach(r => {
+      r.addEventListener('change', () => {
+        if (r.checked) {
+          localStorage.setItem(STORAGE_PREFIX + 'selfScore', r.value);
+        }
+      });
+    });
+
+    loadData();
+  })();
+</script>
+
+</body>
+</html>
