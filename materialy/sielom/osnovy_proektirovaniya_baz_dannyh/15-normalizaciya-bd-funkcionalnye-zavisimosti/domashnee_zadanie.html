@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Домашнее задание - Нормализация БД: функциональные зависимости</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #cbd5e1;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --accent-soft: #f0f9ff;
+      --warn: #f59e0b;
+      --warn-soft: #fef3c7;
+      --warn-text: #92400e;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px;
+      min-width: 320px;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    header.hw-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 12px;
+      word-break: break-word;
+    }
+
+    .reserve-notice {
+      display: inline-block;
+      background-color: var(--warn-soft);
+      color: var(--warn-text);
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+      border-left: 4px solid var(--warn);
+      line-height: 1.45;
+    }
+
+    .instruction {
+      font-size: 0.98rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      margin-bottom: 12px;
+    }
+
+    .student-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .meta-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .meta-field label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .meta-field input {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      color: var(--text);
+      outline: none;
+    }
+
+    .meta-field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    section.task-section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--accent-hover);
+      margin-bottom: 12px;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 16px 0 8px;
+    }
+
+    .model-card {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      font-size: 0.95rem;
+    }
+
+    .model-card h3 {
+      margin-top: 0;
+      color: var(--accent-hover);
+    }
+
+    .formula-box {
+      background: #0f172a;
+      color: #38bdf8;
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.95rem;
+      margin: 8px 0 12px;
+      line-height: 1.4;
+    }
+
+    textarea.input-area {
+      width: 100%;
+      min-height: 100px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      color: var(--text);
+      resize: vertical;
+      outline: none;
+      margin-top: 6px;
+      margin-bottom: 14px;
+    }
+
+    textarea.input-area:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    .actions-bar {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    button.btn {
+      padding: 10px 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    button.btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    button.btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    button.btn-secondary {
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    button.btn-secondary:hover {
+      background: #cbd5e1;
+    }
+
+    .save-status {
+      font-size: 0.9rem;
+      color: #16a34a;
+      align-self: center;
+      display: none;
+      font-weight: 600;
+    }
+
+    /* Print styles */
+    @media print {
+      body {
+        background: #ffffff;
+        color: #000000;
+        padding: 0;
+      }
+      .actions-bar {
+        display: none !important;
+      }
+      section.task-section, header.hw-header {
+        border: 1px solid #94a3b8;
+        box-shadow: none;
+        page-break-inside: avoid;
+        margin-bottom: 16px;
+        padding: 16px;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+      }
+      textarea.input-area {
+        border: 1px solid #64748b;
+        color: #000000;
+        min-height: 80px;
+        height: auto;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 12px 8px; }
+      header.hw-header, section.task-section { padding: 16px 14px; }
+      h1 { font-size: 1.45rem; }
+      .student-meta { grid-template-columns: 1fr; }
+      .actions-bar { flex-direction: column; }
+      button.btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="hw-header">
+      <h1>Домашнее задание - Нормализация БД: функциональные зависимости</h1>
+      
+      <div class="reserve-notice">
+        Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+      </div>
+
+      <p class="instruction">
+        Данная работа предназначена для самостоятельного углубленного закрепления теоретических положений темы «Нормализация БД: функциональные зависимости» либо выполнения дистанционной отработки занятия №15 по дисциплине «ОП.08 Основы проектирования баз данных».
+      </p>
+
+      <div class="student-meta">
+        <div class="meta-field">
+          <label for="studentName">ФИО обучающегося:</label>
+          <input type="text" id="studentName">
+        </div>
+        <div class="meta-field">
+          <label for="groupName">Учебная группа:</label>
+          <input type="text" id="groupName">
+        </div>
+      </div>
+    </header>
+
+    <!-- ОПИСАНИЕ МОДЕЛИ -->
+    <section class="task-section">
+      <h2>Исходные данные практической модели</h2>
+      <div class="model-card">
+        <h3>Отношение R(A, B, C, D, E, F)</h3>
+        <p>Задана схема отношения <code>R</code> с универсальным множеством атрибутов <code>U = {A, B, C, D, E, F}</code> и следующим базовым множеством функциональных зависимостей <code>F</code>:</p>
+        <div class="formula-box">
+          F = {<br>
+          &nbsp;&nbsp;A → BC,<br>
+          &nbsp;&nbsp;B → D,<br>
+          &nbsp;&nbsp;CD → E,<br>
+          &nbsp;&nbsp;E → F<br>
+          }
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.92rem;">
+          Все зависимости отражают объективные семантические ограничения предметной области. Требуется провести строгий математический анализ схемы на основе аксиом Армстронга, алгоритма замыкания атрибутов и критериев канонического покрытия.
+        </p>
+      </div>
+    </section>
+
+    <!-- ЗАДАНИЕ 1 -->
+    <section class="task-section">
+      <h2>Задание 1. Вычисление замыкания множеств атрибутов X+</h2>
+      <p class="instruction">
+        Используя алгоритм вычисления замыкания множества атрибутов относительно <code>F</code>, выполните пошаговую трассировку для указанных наборов. Обязательно указывайте применяемую функциональную зависимость на каждом шаге цикла расширения:
+      </p>
+
+      <h3>1.1. Вычисление замыкания {A}+</h3>
+      <label for="ansClosureA" style="font-weight: 600; font-size: 0.9rem;">Пошаговая трассировка вычисления {A}+ и итоговый результат:</label>
+      <textarea id="ansClosureA" class="input-area"></textarea>
+
+      <h3>1.2. Вычисление замыкания {B}+</h3>
+      <label for="ansClosureB" style="font-weight: 600; font-size: 0.9rem;">Пошаговая трассировка вычисления {B}+ и итоговый результат:</label>
+      <textarea id="ansClosureB" class="input-area"></textarea>
+
+      <h3>1.3. Вычисление замыкания {C, D}+</h3>
+      <label for="ansClosureCD" style="font-weight: 600; font-size: 0.9rem;">Пошаговая трассировка вычисления {C, D}+ и итоговый результат:</label>
+      <textarea id="ansClosureCD" class="input-area"></textarea>
+
+      <h3>1.4. Вычисление замыкания {B, C}+</h3>
+      <label for="ansClosureBC" style="font-weight: 600; font-size: 0.9rem;">Пошаговая трассировка вычисления {B, C}+ и итоговый результат:</label>
+      <textarea id="ansClosureBC" class="input-area"></textarea>
+    </section>
+
+    <!-- ЗАДАНИЕ 2 -->
+    <section class="task-section">
+      <h2>Задание 2. Определение потенциальных ключей отношения</h2>
+      <p class="instruction">
+        Проведите классификацию атрибутов схемы по позициям в детерминантах и зависимых частях множества <code>F</code> (метод L-R-B-N). Докажите, какие атрибуты обязаны войти в состав ключа, и найдите ВСЕ потенциальные (кандидатные) ключи отношения <code>R</code>:
+      </p>
+
+      <h3>2.1. Классификация атрибутов (L, R, B, N)</h3>
+      <label for="ansLBN" style="font-weight: 600; font-size: 0.9rem;">Распределение атрибутов по классам L, R, B, N и определение обязательного ядра ключа:</label>
+      <textarea id="ansLBN" class="input-area"></textarea>
+
+      <h3>2.2. Определение и доказательство потенциальных ключей</h3>
+      <label for="ansKeys" style="font-weight: 600; font-size: 0.9rem;">Перечень всех потенциальных ключей отношения R с доказательством их минимальности (отсутствия избыточных полей):</label>
+      <textarea id="ansKeys" class="input-area"></textarea>
+    </section>
+
+    <!-- ЗАДАНИЕ 3 -->
+    <section class="task-section">
+      <h2>Задание 3. Минимальное покрытие ФЗ (Minimal Cover)</h2>
+      <p class="instruction">
+        Примените трехшаговый алгоритм построения минимального (канонического) покрытия для исходного множества <code>F</code>:
+        1) расщепление правых частей (Singleton RHS); 2) устранение посторонних полей слева в составных детерминантах; 3) удаление избыточных зависимостей.
+      </p>
+
+      <label for="ansMinimalCover" style="font-weight: 600; font-size: 0.9rem;">Пошаговый расчет минимального покрытия и итоговый канонический базис F_min:</label>
+      <textarea id="ansMinimalCover" class="input-area"></textarea>
+    </section>
+
+    <!-- ЗАДАНИЕ 4 -->
+    <section class="task-section">
+      <h2>Задание 4. Анализ нормализации и проектные рекомендации</h2>
+      <p class="instruction">
+        Ответьте на теоретические вопросы по нормализации отношения <code>R</code>:
+      </p>
+
+      <h3>4.1. Анализ транзитивных зависимостей</h3>
+      <label for="ansTransitive" style="font-weight: 600; font-size: 0.9rem;">Какие транзитивные функциональные зависимости присутствуют в отношении относительно первичного ключа {A}? Какую нормальную форму нарушает их наличие?</label>
+      <textarea id="ansTransitive" class="input-area"></textarea>
+
+      <h3>4.2. Схема декомпозиции отношения</h3>
+      <label for="ansDecomp" style="font-weight: 600; font-size: 0.9rem;">Предложите декомпозицию отношения R на набор нормализованных отношений без потерь информации и без потерь функциональных зависимостей:</label>
+      <textarea id="ansDecomp" class="input-area"></textarea>
+
+      <div class="actions-bar">
+        <button type="button" class="btn btn-primary" id="saveBtn">Сохранить ответы</button>
+        <button type="button" class="btn btn-secondary" id="clearBtn">Очистить форму</button>
+        <button type="button" class="btn btn-secondary" id="printBtn">Версия для печати / PDF</button>
+        <span class="save-status" id="saveStatus">Данные успешно сохранены!</span>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function() {
+      const STORAGE_KEY = 'sieup_db_lesson15_hw';
+
+      function getAllInputs() {
+        return document.querySelectorAll('input, textarea');
+      }
+
+      function saveData() {
+        const data = {};
+        getAllInputs().forEach(el => {
+          if (el.id) data[el.id] = el.value;
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        const status = document.getElementById('saveStatus');
+        status.style.display = 'inline';
+        setTimeout(() => { status.style.display = 'none'; }, 2500);
+      }
+
+      function loadData() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return;
+        try {
+          const data = JSON.parse(saved);
+          Object.keys(data).forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = data[id];
+          });
+        } catch (e) {
+          console.error('Ошибка загрузки локальных данных', e);
+        }
+      }
+
+      function clearData() {
+        if (confirm('Вы уверены, что хотите полностью очистить все поля домашнего задания?')) {
+          localStorage.removeItem(STORAGE_KEY);
+          getAllInputs().forEach(el => { el.value = ''; });
+        }
+      }
+
+      document.getElementById('saveBtn').addEventListener('click', saveData);
+      document.getElementById('clearBtn').addEventListener('click', clearData);
+      document.getElementById('printBtn').addEventListener('click', () => {
+        saveData();
+        window.print();
+      });
+
+      // Автосохранение при вводе
+      document.addEventListener('input', (e) => {
+        if (e.target.matches('input, textarea')) {
+          const data = {};
+          getAllInputs().forEach(el => {
+            if (el.id) data[el.id] = el.value;
+          });
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+      });
+
+      window.addEventListener('DOMContentLoaded', loadData);
+    })();
+  </script>
+</body>
+</html>
