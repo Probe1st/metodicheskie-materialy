@@ -1,874 +1,994 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
- <meta name="color-scheme" content="light">
- <title>Домашнее задание - Понятия аппаратных средств ЭВМ и архитектура аппаратных средств</title>
- <style>
- :root {
- --bg: #f4f6fa;
- --card-bg: #ffffff;
- --text: #1d2530;
- --text-muted: #536279;
- --line: #dbe2ea;
- --primary: #1d4ed8;
- --primary-hover: #1e40af;
- --primary-soft: #eff6ff;
- --accent: #0f766e;
- --accent-soft: #f0fdfa;
- --warn-bg: #fffbeb;
- --warn-border: #fef3c7;
- --warn-text: #92400e;
- --danger: #b91c1c;
- --danger-soft: #fef2f2;
- --success: #15803d;
- --success-soft: #f0fdf4;
- --radius: 12px;
- --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
- --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
- --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
- }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Домашнее задание - Понятия аппаратных средств ЭВМ и архитектура аппаратных средств</title>
+  <style>
+    :root {
+      --bg: #f4f6fa;
+      --card-bg: #ffffff;
+      --text: #1d2530;
+      --text-muted: #536279;
+      --line: #dbe2ea;
+      --primary: #1d4ed8;
+      --primary-hover: #1e40af;
+      --primary-soft: #eff6ff;
+      --accent: #0f766e;
+      --accent-soft: #f0fdfa;
+      --warn-bg: #fffbeb;
+      --warn-border: #fef3c7;
+      --warn-text: #92400e;
+      --danger: #b91c1c;
+      --danger-soft: #fef2f2;
+      --success: #15803d;
+      --success-soft: #f0fdf4;
+      --radius: 12px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
 
- * {
- box-sizing: border-box;
- }
+    * {
+      box-sizing: border-box;
+    }
 
- html {
- scroll-behavior: smooth;
- -webkit-text-size-adjust: 100%;
- }
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
 
- body {
- margin: 0;
- padding: 0;
- background: var(--bg);
- color: var(--text);
- font-family: var(--font);
- font-size: 16px;
- line-height: 1.6;
- }.container {
- width: min(100% - 32px, 920px);
- margin: 32px auto 80px;
- }
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 16px;
+      line-height: 1.6;
+    }
 
- header.header {
- background: var(--card-bg);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 32px;
- box-shadow: var(--shadow);
- margin-bottom: 24px;
- }
+    .container {
+      width: min(100% - 32px, 920px);
+      margin: 32px auto 80px;
+    }
 
- h1 {
- margin: 0 0 16px;
- font-size: clamp(24px, 4vw, 32px);
- line-height: 1.25;
- color: #0f172a;
- letter-spacing: -0.02em;
- }.notice {
- background: var(--warn-bg);
- border-left: 4px solid #f59e0b;
- padding: 12px 16px;
- border-radius: 0 var(--radius) var(--radius) 0;
- font-size: 15px;
- color: var(--warn-text);
- margin-bottom: 16px;
- }.instructions {
- font-size: 15px;
- color: var(--text-muted);
- margin: 0;
- }.student-block {
- background: var(--card-bg);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 24px;
- box-shadow: var(--shadow);
- margin-bottom: 24px;
- }.student-grid {
- display: grid;
- grid-template-columns: 2fr 1fr;
- gap: 16px;
- }
+    header.header {
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 32px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
 
- @media (max-width: 640px) {.student-grid {
- grid-template-columns: 1fr;
- }
- }.field-group {
- display: flex;
- flex-direction: column;
- gap: 6px;
- }
+    h1 {
+      margin: 0 0 16px;
+      font-size: clamp(24px, 4vw, 32px);
+      line-height: 1.25;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+    }
 
- label {
- font-size: 14px;
- font-weight: 600;
- color: #334155;
- }
+    .notice {
+      background: var(--warn-bg);
+      border-left: 4px solid #f59e0b;
+      padding: 12px 16px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-size: 15px;
+      color: var(--warn-text);
+      margin-bottom: 16px;
+    }
 
- input[type="text"],
- textarea,
- select {
- width: 100%;
- padding: 10px 14px;
- font-family: inherit;
- font-size: 15px;
- border: 1px solid var(--line);
- border-radius: 8px;
- background: #ffffff;
- color: var(--text);
- transition: border-color 0.2s, box-shadow 0.2s;
- }
+    .instructions {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin: 0;
+    }
 
- input[type="text"]:focus,
- textarea:focus,
- select:focus {
- outline: none;
- border-color: var(--primary);
- box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
- }
+    .student-block {
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
 
- textarea {
- resize: vertical;
- min-height: calc(3 * 1.5em + 22px);
- line-height: 1.5;
- }.section {
- background: var(--card-bg);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 28px;
- box-shadow: var(--shadow);
- margin-bottom: 24px;
- }.section h2 {
- margin: 0 0 16px;
- font-size: 20px;
- color: #0f172a;
- border-bottom: 2px solid var(--primary-soft);
- padding-bottom: 8px;
- display: flex;
- align-items: center;
- gap: 10px;
- }.section h3 {
- margin: 20px 0 10px;
- font-size: 17px;
- color: #1e293b;
- }
+    .student-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+    }
 
- p {
- margin: 0 0 14px;
- }
+    @media (max-width: 640px) {
+      .student-grid {
+        grid-template-columns: 1fr;
+      }
+    }
 
- p:last-child {
- margin-bottom: 0;
- }.schema-card {
- background: #fafbfc;
- border: 1px solid var(--line);
- border-radius: 10px;
- padding: 20px;
- margin: 18px 0;
- }.flow-diagram {
- display: grid;
- grid-template-columns: repeat(4, 1fr);
- gap: 12px;
- position: relative;
- margin: 20px 0 14px;
- }
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
 
- @media (max-width: 768px) {.flow-diagram {
- grid-template-columns: 1fr;
- }
- }.flow-node {
- background: #ffffff;
- border: 2px solid var(--primary);
- border-radius: 8px;
- padding: 14px;
- text-align: center;
- display: flex;
- flex-direction: column;
- justify-content: center;
- box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
- position: relative;
- }.flow-node strong {
- display: block;
- color: var(--primary);
- font-size: 15px;
- margin-bottom: 4px;
- }.flow-node span {
- font-size: 13px;
- color: var(--text-muted);
- line-height: 1.4;
- }.flow-arrow {
- display: flex;
- align-items: center;
- justify-content: center;
- font-weight: 700;
- color: var(--primary);
- font-size: 18px;
- }
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #334155;
+    }
 
- @media (min-width: 769px) {.flow-node:not(:last-child)::after {
- content: "→";
- position: absolute;
- right: -14px;
- top: 50%;
- transform: translateY(-50%);
- font-size: 20px;
- color: var(--primary);
- font-weight: bold;
- z-index: 2;
- }
- }
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px 14px;
+      font-family: inherit;
+      font-size: 15px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      color: var(--text);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
 
- @media (max-width: 768px) {.flow-node:not(:last-child)::after {
- content: "↓";
- display: block;
- margin-top: 8px;
- font-size: 18px;
- color: var(--primary);
- font-weight: bold;
- }
- }.storage-branch {
- margin-top: 20px;
- padding: 14px 18px;
- background: var(--accent-soft);
- border: 1px dashed var(--accent);
- border-radius: 8px;
- font-size: 14px;
- color: #134e4a;
- }.storage-branch strong {
- color: var(--accent);
- }.table-wrapper {
- width: 100%;
- overflow-x: auto;
- -webkit-overflow-scrolling: touch;
- margin: 16px 0;
- }.comparison-table {
- width: 100%;
- min-width: 580px;
- border-collapse: collapse;
- font-size: 14px;
- }.comparison-table th,.comparison-table td {
- border: 1px solid var(--line);
- padding: 10px 14px;
- text-align: left;
- vertical-align: top;
- }.comparison-table th {
- background: #f1f5f9;
- color: #334155;
- font-weight: 600;
- }.comparison-table tr:nth-child(even) {
- background: #fafbfc;
- }.badge {
- display: inline-block;
- padding: 3px 8px;
- border-radius: 6px;
- font-size: 12px;
- font-weight: 600;
- }.badge-primary {
- background: var(--primary-soft);
- color: var(--primary);
- }.badge-accent {
- background: var(--accent-soft);
- color: var(--accent);
- }.example-box {
- background: #f8fafc;
- border-left: 4px solid var(--accent);
- padding: 16px;
- border-radius: 0 8px 8px 0;
- margin: 16px 0;
- }.example-title {
- font-weight: 700;
- color: #0f172a;
- margin-bottom: 8px;
- }.task-card {
- background: #ffffff;
- border: 1px solid #cbd5e1;
- border-radius: 10px;
- padding: 20px;
- margin-bottom: 20px;
- }.task-card.active-task {
- border-color: #93c5fd;
- background: #fcfdff;
- }.task-title {
- font-size: 16px;
- font-weight: 700;
- color: #1e3a8a;
- margin: 0 0 8px;
- display: flex;
- justify-content: space-between;
- align-items: center;
- flex-wrap: wrap;
- gap: 8px;
- }.task-points {
- background: #dbeafe;
- color: #1e40af;
- font-size: 13px;
- padding: 2px 8px;
- border-radius: 12px;
- font-weight: 600;
- }.subtask {
- margin-top: 16px;
- padding-top: 14px;
- border-top: 1px solid #f1f5f9;
- }.subtask-title {
- font-size: 14px;
- font-weight: 600;
- color: #334155;
- margin-bottom: 8px;
- }.rubric-table {
- width: 100%;
- min-width: 540px;
- border-collapse: collapse;
- font-size: 14px;
- }.rubric-table th,.rubric-table td {
- border: 1px solid var(--line);
- padding: 8px 12px;
- text-align: left;
- }.rubric-table th {
- background: #f8fafc;
- color: #334155;
- font-weight: 600;
- }.print-mirror {
- display: none;
- white-space: pre-wrap;
- word-break: break-word;
- overflow-wrap: anywhere;
- font-family: inherit;
- font-size: 13px;
- line-height: 1.5;
- padding: 10px 12px;
- border: 1px solid #999;
- border-radius: 6px;
- background: #ffffff;
- color: #000000;
- min-height: 48px;
- }.action-bar {
- display: flex;
- flex-wrap: wrap;
- gap: 12px;
- align-items: center;
- justify-content: space-between;
- background: var(--card-bg);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 20px 24px;
- box-shadow: var(--shadow);
- margin-top: 32px;
- }.btn-group {
- display: flex;
- flex-wrap: wrap;
- gap: 12px;
- }
+    input[type="text"]:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
+    }
 
- button {
- cursor: pointer;
- display: inline-flex;
- align-items: center;
- justify-content: center;
- gap: 8px;
- padding: 10px 18px;
- font-size: 15px;
- font-weight: 600;
- font-family: inherit;
- border-radius: 8px;
- border: 1px solid transparent;
- transition: background-color 0.2s, color 0.2s, border-color 0.2s;
- }.btn-primary {
- background: var(--primary);
- color: #ffffff;
- }.btn-primary:hover {
- background: var(--primary-hover);
- }.btn-secondary {
- background: #ffffff;
- color: #334155;
- border-color: #cbd5e1;
- }.btn-secondary:hover {
- background: #f8fafc;
- border-color: #94a3b8;
- }.btn-danger {
- background: #ffffff;
- color: var(--danger);
- border-color: #fecaca;
- }.btn-danger:hover {
- background: var(--danger-soft);
- border-color: #f87171;
- }.save-indicator {
- font-size: 13px;
- color: var(--text-muted);
- display: flex;
- align-items: center;
- gap: 6px;
- }.save-indicator.saved {
- color: var(--success);
- }.helper-text {
- font-size: 13px;
- color: var(--text-muted);
- margin-top: 4px;
- }
+    textarea {
+      resize: vertical;
+      min-height: calc(3 * 1.5em + 22px);
+      line-height: 1.5;
+    }
 
- @media print {
- body {
- background: #ffffff;
- color: #000000;
- font-size: 13px;
- line-height: 1.4;
- }.container {
- width: 100%;
- margin: 0;
- padding: 0;
- }
+    .section {
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
 
- header.header,.student-block,.section,.task-card {
- box-shadow: none;
- border: 1px solid #ccc;
- margin-bottom: 14px;
- padding: 14px;
- page-break-inside: avoid;
- }.action-bar,.notice,.helper-text {
- display: none !important;
- }
+    .section h2 {
+      margin: 0 0 16px;
+      font-size: 20px;
+      color: #0f172a;
+      border-bottom: 2px solid var(--primary-soft);
+      padding-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
- textarea {
- display: none !important;
- }.print-mirror {
- display: block !important;
- }.table-wrapper {
- overflow-x: visible !important;
- }.comparison-table,.rubric-table {
- min-width: 100% !important;
- width: 100% !important;
- font-size: 12px;
- }
- input[type="text"] {
- border: 1px solid #999;
- font-size: 13px;
- }.flow-diagram {
- grid-template-columns: repeat(4, 1fr) !important;
- }.flow-node:not(:last-child)::after {
- content: "→" !important;
- position: absolute !important;
- right: -10px !important;
- top: 50% !important;
- transform: translateY(-50%) !important;
- font-size: 16px !important;
- display: block !important;
- margin-top: 0 !important;
- }
- }
- </style>
+    .section h3 {
+      margin: 20px 0 10px;
+      font-size: 17px;
+      color: #1e293b;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    p:last-child {
+      margin-bottom: 0;
+    }
+
+    .schema-card {
+      background: #fafbfc;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 20px;
+      margin: 18px 0;
+    }
+
+    .flow-diagram {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      position: relative;
+      margin: 20px 0 14px;
+    }
+
+    @media (max-width: 768px) {
+      .flow-diagram {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .flow-node {
+      background: #ffffff;
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      padding: 14px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+      position: relative;
+    }
+
+    .flow-node strong {
+      display: block;
+      color: var(--primary);
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+
+    .flow-node span {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .flow-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 18px;
+    }
+
+    @media (min-width: 769px) {
+      .flow-node:not(:last-child)::after {
+        content: "→";
+        position: absolute;
+        right: -14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 20px;
+        color: var(--primary);
+        font-weight: bold;
+        z-index: 2;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .flow-node:not(:last-child)::after {
+        content: "↓";
+        display: block;
+        margin-top: 8px;
+        font-size: 18px;
+        color: var(--primary);
+        font-weight: bold;
+      }
+    }
+
+    .storage-branch {
+      margin-top: 20px;
+      padding: 14px 18px;
+      background: var(--accent-soft);
+      border: 1px dashed var(--accent);
+      border-radius: 8px;
+      font-size: 14px;
+      color: #134e4a;
+    }
+
+    .storage-branch strong {
+      color: var(--accent);
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 16px 0;
+    }
+
+    .comparison-table {
+      width: 100%;
+      min-width: 580px;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .comparison-table th,
+    .comparison-table td {
+      border: 1px solid var(--line);
+      padding: 10px 14px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .comparison-table th {
+      background: #f1f5f9;
+      color: #334155;
+      font-weight: 600;
+    }
+
+    .comparison-table tr:nth-child(even) {
+      background: #fafbfc;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-primary {
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .badge-accent {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .example-box {
+      background: #f8fafc;
+      border-left: 4px solid var(--accent);
+      padding: 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+    }
+
+    .example-title {
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+
+    .task-card {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .task-card.active-task {
+      border-color: #93c5fd;
+      background: #fcfdff;
+    }
+
+    .task-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1e3a8a;
+      margin: 0 0 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .task-points {
+      background: #dbeafe;
+      color: #1e40af;
+      font-size: 13px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+
+    .subtask {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid #f1f5f9;
+    }
+
+    .subtask-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 8px;
+    }
+
+    .rubric-table {
+      width: 100%;
+      min-width: 540px;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .rubric-table th,
+    .rubric-table td {
+      border: 1px solid var(--line);
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    .rubric-table th {
+      background: #f8fafc;
+      color: #334155;
+      font-weight: 600;
+    }
+
+    .print-mirror {
+      display: none;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      font-family: inherit;
+      font-size: 13px;
+      line-height: 1.5;
+      padding: 10px 12px;
+      border: 1px solid #999;
+      border-radius: 6px;
+      background: #ffffff;
+      color: #000000;
+      min-height: 48px;
+    }
+    .action-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      box-shadow: var(--shadow);
+      margin-top: 32px;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    button {
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background: #ffffff;
+      color: #334155;
+      border-color: #cbd5e1;
+    }
+
+    .btn-secondary:hover {
+      background: #f8fafc;
+      border-color: #94a3b8;
+    }
+
+    .btn-danger {
+      background: #ffffff;
+      color: var(--danger);
+      border-color: #fecaca;
+    }
+
+    .btn-danger:hover {
+      background: var(--danger-soft);
+      border-color: #f87171;
+    }
+
+    .save-indicator {
+      font-size: 13px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .save-indicator.saved {
+      color: var(--success);
+    }
+
+    .helper-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+        color: #000000;
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .container {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      header.header,
+      .student-block,
+      .section,
+      .task-card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+        margin-bottom: 14px;
+        padding: 14px;
+        page-break-inside: avoid;
+      }
+
+      .action-bar,
+      .notice,
+      .helper-text {
+        display: none !important;
+      }
+
+      textarea {
+        display: none !important;
+      }
+
+      .print-mirror {
+        display: block !important;
+      }
+
+      .table-wrapper {
+        overflow-x: visible !important;
+      }
+
+      .comparison-table,
+      .rubric-table {
+        min-width: 100% !important;
+        width: 100% !important;
+        font-size: 12px;
+      }
+      input[type="text"] {
+        border: 1px solid #999;
+        font-size: 13px;
+      }
+
+      .flow-diagram {
+        grid-template-columns: repeat(4, 1fr) !important;
+      }
+
+      .flow-node:not(:last-child)::after {
+        content: "→" !important;
+        position: absolute !important;
+        right: -10px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        font-size: 16px !important;
+        display: block !important;
+        margin-top: 0 !important;
+      }
+    }
+  </style>
 </head>
 <body>
 
 <div class="container">
- <header class="header">
- <h1>Домашнее задание - Понятия аппаратных средств ЭВМ и архитектура аппаратных средств</h1>
- <div class="notice">
- Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
- </div>
- <p class="instructions">
- Самостоятельная работа рассчитана на 60 минут. Ознакомьтесь с теоретическим базисом и разобранным сценарием, после чего решите аналитические задачи и составьте цепочки прохождения информации для предложенных системных ситуаций. Заполненные ответы сохраняются в браузере автоматически. По завершении подготовьте работу к проверке или распечатайте бланк.
- </p>
- </header>
+  <header class="header">
+    <h1>Домашнее задание - Понятия аппаратных средств ЭВМ и архитектура аппаратных средств</h1>
+    <div class="notice">
+      Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+    </div>
+    <p class="instructions">
+      Самостоятельная работа рассчитана на 60 минут. Ознакомьтесь с теоретическим базисом и разобранным сценарием, после чего решите аналитические задачи и составьте цепочки прохождения информации для предложенных системных ситуаций. Заполненные ответы сохраняются в браузере автоматически. По завершении подготовьте работу к проверке или распечатайте бланк.
+    </p>
+  </header>
 
- <section class="student-block" aria-label="Сведения об учащемся">
- <div class="student-grid">
- <div class="field-group">
- <label for="studentName">Фамилия и имя обучающегося:</label>
- <input type="text" id="studentName" placeholder="" autocomplete="name">
- </div>
- <div class="field-group">
- <label for="studentGroup">Учебная группа:</label>
- <input type="text" id="studentGroup" placeholder="ИС-21">
- </div>
- </div>
- </section>
+  <section class="student-block" aria-label="Сведения об учащемся">
+    <div class="student-grid">
+      <div class="field-group">
+        <label for="studentName">Фамилия и имя обучающегося:</label>
+        <input type="text" id="studentName" placeholder="" autocomplete="name">
+      </div>
+      <div class="field-group">
+        <label for="studentGroup">Учебная группа:</label>
+        <input type="text" id="studentGroup" placeholder="ИС-21">
+      </div>
+    </div>
+  </section>
 
- <section class="section" aria-label="Теоретический фундамент">
- <h2>1. Теоретический фундамент: терминология и базовые различия</h2>
- <p>
- Для успешного выполнения заданий разграничьте три ключевых понятия дисциплины:
- </p>
- <ul>
- <li><strong>Аппаратные средства (Hardware)</strong> — физическая компонентная база: интегральные микросхемы, электронные платы, проводники, электромеханические и оптические узлы вычислительной машины. Примеры: кристалл микропроцессора, модуль DIMM, контроллер накопителя, клавиатурная матрица.</li>
- <li><strong>Архитектура аппаратных средств</strong> — логическая организация вычислительной системы, определяющая состав функциональных узлов, принципы их взаимодействия, систему команд, форматы адресации и логические пути передачи данных. Архитектура определяет <em>как функционально устроена и управляется система</em>, абстрагируясь от конкретной реализации микросхем.</li>
- <li><strong>Компонент вычислительной системы</strong> — конструктивно обособленный функциональный блок, решающий строго определенную задачу (ввод, обработка, временная буферизация, долговременное хранение, вывод).</li>
- </ul>
+  <section class="section" aria-label="Теоретический фундамент">
+    <h2>1. Теоретический фундамент: терминология и базовые различия</h2>
+    <p>
+      Для успешного выполнения заданий разграничьте три ключевых понятия дисциплины:
+    </p>
+    <ul>
+      <li><strong>Аппаратные средства (Hardware)</strong> — физическая компонентная база: интегральные микросхемы, электронные платы, проводники, электромеханические и оптические узлы вычислительной машины. Примеры: кристалл микропроцессора, модуль DIMM, контроллер накопителя, клавиатурная матрица.</li>
+      <li><strong>Архитектура аппаратных средств</strong> — логическая организация вычислительной системы, определяющая состав функциональных узлов, принципы их взаимодействия, систему команд, форматы адресации и логические пути передачи данных. Архитектура определяет <em>как функционально устроена и управляется система</em>, абстрагируясь от конкретной реализации микросхем.</li>
+      <li><strong>Компонент вычислительной системы</strong> — конструктивно обособленный функциональный блок, решающий строго определенную задачу (ввод, обработка, временная буферизация, долговременное хранение, вывод).</li>
+    </ul>
 
- <h3>Принципиальное разграничение: ОЗУ (RAM) и Долговременный накопитель (SSD/HDD)</h3>
- <p>
- Частая ошибка начинающих специалистов — отождествление оперативной памяти и постоянного хранилища. Данные узлы решают противоположные дидактические и схемотехнические задачи:
- </p>
- <div class="table-wrapper">
- <table class="comparison-table">
- <thead>
- <tr>
- <th>Параметр</th>
- <th>Оперативная память (ОЗУ / RAM)</th>
- <th>Долговременный накопитель (SSD / NVMe / HDD)</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>Энергозависимость</strong></td>
- <td>Энергозависима (Volatile). При исчезновении напряжения питания все ячейки памяти мгновенно теряют заряд и содержимое обнуляется.</td>
- <td>Энергонезависим (Non-volatile). Данные фиксируются во флеш-ячейках (NAND) или намагниченных доменах и сохраняются без подачи питания в течение регламентного срока службы до физического износа или отказа носителя.</td>
- </tr>
- <tr>
- <td><strong>Назначение в архитектуре</strong></td>
- <td>Временный рабочий буфер процессора. Содержит машинный код выполняемых прямо сейчас программ и рабочие переменные/буферы ввода.</td>
- <td>Архивное хранение файловых систем, исполняемых файлов ОС, библиотек и пользовательских документов между сеансами работы.</td>
- </tr>
- <tr>
- <td><strong>Прямой доступ процессора</strong></td>
- <td>Да. Процессор напрямую адресует байты памяти по шине адреса и выполняет команды прямо из ОЗУ (гарвардская / принстонская модели).</td>
- <td>Нет. Процессор не исполняет код прямо с накопителя. Данные блочно считываются через контроллер ввода-вывода сначала в ОЗУ.</td>
- </tr>
- <tr>
- <td><strong>Скорость доступа и задержки</strong></td>
- <td>Сверхбыстрая: наносекунды (10–60 нс), пропускная способность десятки гигабайт в секунду.</td>
- <td>Медленнее оперативной памяти: микросекунды для NVMe SSD (20–100 мкс), миллисекунды для HDD.</td>
- </tr>
- <tr>
- <td><strong>Когда попадают данные?</strong></td>
- <td>Непрерывно в процессе работы: при каждом нажатии клавиши скан-код и отображаемый символ сразу попадают в буфер ОЗУ.</td>
- <td>Только при инициации операции записи: по команде сохранения пользователем, системному вызову записи ОС или срабатыванию таймера фонового автосохранения приложения со сбросом кэша на накопитель.</td>
- </tr>
- </tbody>
- </table>
- </div>
- </section>
+    <h3>Принципиальное разграничение: ОЗУ (RAM) и Долговременный накопитель (SSD/HDD)</h3>
+    <p>
+      Частая ошибка начинающих специалистов — отождествление оперативной памяти и постоянного хранилища. Данные узлы решают противоположные дидактические и схемотехнические задачи:
+    </p>
+    <div class="table-wrapper">
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Параметр</th>
+          <th>Оперативная память (ОЗУ / RAM)</th>
+          <th>Долговременный накопитель (SSD / NVMe / HDD)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Энергозависимость</strong></td>
+          <td>Энергозависима (Volatile). При исчезновении напряжения питания все ячейки памяти мгновенно теряют заряд и содержимое обнуляется.</td>
+          <td>Энергонезависим (Non-volatile). Данные фиксируются во флеш-ячейках (NAND) или намагниченных доменах и сохраняются без подачи питания в течение регламентного срока службы до физического износа или отказа носителя.</td>
+        </tr>
+        <tr>
+          <td><strong>Назначение в архитектуре</strong></td>
+          <td>Временный рабочий буфер процессора. Содержит машинный код выполняемых прямо сейчас программ и рабочие переменные/буферы ввода.</td>
+          <td>Архивное хранение файловых систем, исполняемых файлов ОС, библиотек и пользовательских документов между сеансами работы.</td>
+        </tr>
+        <tr>
+          <td><strong>Прямой доступ процессора</strong></td>
+          <td>Да. Процессор напрямую адресует байты памяти по шине адреса и выполняет команды прямо из ОЗУ (гарвардская / принстонская модели).</td>
+          <td>Нет. Процессор не исполняет код прямо с накопителя. Данные блочно считываются через контроллер ввода-вывода сначала в ОЗУ.</td>
+        </tr>
+        <tr>
+          <td><strong>Скорость доступа и задержки</strong></td>
+          <td>Сверхбыстрая: наносекунды (10–60 нс), пропускная способность десятки гигабайт в секунду.</td>
+          <td>Медленнее оперативной памяти: микросекунды для NVMe SSD (20–100 мкс), миллисекунды для HDD.</td>
+        </tr>
+        <tr>
+          <td><strong>Когда попадают данные?</strong></td>
+          <td>Непрерывно в процессе работы: при каждом нажатии клавиши скан-код и отображаемый символ сразу попадают в буфер ОЗУ.</td>
+          <td>Только при инициации операции записи: по команде сохранения пользователем, системному вызову записи ОС или срабатыванию таймера фонового автосохранения приложения со сбросом кэша на накопитель.</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
 
- <section class="section" aria-label="Сквозной пример и эталонный разбор">
- <h2>2. Сквозной эталонный сценарий: путь данных при вводе и сохранении текста</h2>
- <p>
- Рассмотрим классический путь данных в текстовом редакторе: пользователь нажимает клавишу на клавиатуре, видит букву на экране, а затем нажимает кнопку «Сохранить».
- </p>
+  <section class="section" aria-label="Сквозной пример и эталонный разбор">
+    <h2>2. Сквозной эталонный сценарий: путь данных при вводе и сохранении текста</h2>
+    <p>
+      Рассмотрим классический путь данных в текстовом редакторе: пользователь нажимает клавишу на клавиатуре, видит букву на экране, а затем нажимает кнопку «Сохранить».
+    </p>
 
- <div class="schema-card">
- <div style="font-weight: 600; margin-bottom: 8px; color: #1e293b;">Схема прямого тракта обработки (без сохранения на диск):</div>
- <div class="flow-diagram">
- <div class="flow-node">
- <strong>1. Клавиатура</strong>
- <span>(Устройство ввода)<br>Генерация скан-кода замыкания контакта</span>
- </div>
- <div class="flow-node">
- <strong>2. ОЗУ</strong>
- <span>(Буфер ввода)<br>Размещение кода в буфере ОС и приложения</span>
- </div>
- <div class="flow-node">
- <strong>3. Процессор (ЦП)</strong>
- <span>(Обработка данных)<br>Интерпретация кода, обновление строки текста</span>
- </div>
- <div class="flow-node">
- <strong>4. Видеосистема / Экран</strong>
- <span>(Устройство вывода)<br>Отрисовка глифа из видеопамяти на дисплее</span>
- </div>
- </div>
+    <div class="schema-card">
+      <div style="font-weight: 600; margin-bottom: 8px; color: #1e293b;">Схема прямого тракта обработки (без сохранения на диск):</div>
+      <div class="flow-diagram">
+        <div class="flow-node">
+          <strong>1. Клавиатура</strong>
+          <span>(Устройство ввода)<br>Генерация скан-кода замыкания контакта</span>
+        </div>
+        <div class="flow-node">
+          <strong>2. ОЗУ</strong>
+          <span>(Буфер ввода)<br>Размещение кода в буфере ОС и приложения</span>
+        </div>
+        <div class="flow-node">
+          <strong>3. Процессор (ЦП)</strong>
+          <span>(Обработка данных)<br>Интерпретация кода, обновление строки текста</span>
+        </div>
+        <div class="flow-node">
+          <strong>4. Видеосистема / Экран</strong>
+          <span>(Устройство вывода)<br>Отрисовка глифа из видеопамяти на дисплее</span>
+        </div>
+      </div>
 
- <div class="storage-branch">
- <strong>Особое ответвление: Долговременный накопитель (SSD/HDD)</strong><br>
- Накопитель <em>не участвует</em> в цепочке немедленного отображения символа. Обращение к накопителю происходит только тогда, когда пользователь или фоновый демон инициируют сохранение файла: ЦП формирует системный запрос файловой системе ОС, данные из буфера ОЗУ передаются контроллеру накопителя, и контроллер записывает блоки в энергонезависимые ячейки flash-памяти.
- </div>
- </div>
+      <div class="storage-branch">
+        <strong>Особое ответвление: Долговременный накопитель (SSD/HDD)</strong><br>
+        Накопитель <em>не участвует</em> в цепочке немедленного отображения символа. Обращение к накопителю происходит только тогда, когда пользователь или фоновый демон инициируют сохранение файла: ЦП формирует системный запрос файловой системе ОС, данные из буфера ОЗУ передаются контроллеру накопителя, и контроллер записывает блоки в энергонезависимые ячейки flash-памяти.
+      </div>
+    </div>
 
- <div class="example-box">
- <div class="example-title">Анализ контрольной ситуации: аварийное отключение питания</div>
- <p>
- <strong>Ситуация:</strong> Студент набрал три страницы реферата в редакторе, но ни разу не нажимал кнопку «Сохранить» (автосохранение выключено). Внезапно в аудитории отключилось электричество, и ПК выключился.
- </p>
- <p>
- <strong>Архитектурный разбор:</strong> Все набранные страницы физически находились в микросхемах динамической оперативной памяти (DRAM). В конденсаторах ячеек DRAM заряд поддерживался за счет циклов регенерации. При исчезновении питающего напряжения регенерация остановилась, конденсаторы разрядились, и несохраненные данные в ОЗУ исчезли. Если документ создавался с нуля, на накопителе файла не окажется вовсе; если же редактировался ранее существовавший файл, на диске останется лишь его прежняя сохраненная версия. Вся вновь набранная работа утрачена.
- </p>
- </div>
- </section>
+    <div class="example-box">
+      <div class="example-title">Анализ контрольной ситуации: аварийное отключение питания</div>
+      <p>
+        <strong>Ситуация:</strong> Студент набрал три страницы реферата в редакторе, но ни разу не нажимал кнопку «Сохранить» (автосохранение выключено). Внезапно в аудитории отключилось электричество, и ПК выключился.
+      </p>
+      <p>
+        <strong>Архитектурный разбор:</strong> Все набранные страницы физически находились в микросхемах динамической оперативной памяти (DRAM). В конденсаторах ячеек DRAM заряд поддерживался за счет циклов регенерации. При исчезновении питающего напряжения регенерация остановилась, конденсаторы разрядились, и несохраненные данные в ОЗУ исчезли. Если документ создавался с нуля, на накопителе файла не окажется вовсе; если же редактировался ранее существовавший файл, на диске останется лишь его прежняя сохраненная версия. Вся вновь набранная работа утрачена.
+      </p>
+    </div>
+  </section>
 
- <section class="section" aria-label="Практические задания">
- <h2>3. Индивидуальные задания для самостоятельного выполнения (60 минут)</h2>
+  <section class="section" aria-label="Практические задания">
+    <h2>3. Индивидуальные задания для самостоятельного выполнения (60 минут)</h2>
 
- <!-- Задание 1 -->
- <div class="task-card active-task">
- <div class="task-title">
- <span>Задание 1. Разграничение понятий «Аппаратное средство» и «Архитектура»</span>
- <span class="task-points">Максимум: 1 балл</span>
- </div>
- <p>
- Проанализируйте утверждение: <em>«Инженер заменил процессор с тактовой частотой 2.5 ГГц на кристалл той же серии с частотой 3.8 ГГц, увеличив производительность в играх. Изменилась ли при этом базовая архитектура вычислительной машины?»</em>
- </p>
- <div class="subtask">
- <label for="ansTask1">Дайте аргументированный ответ с позиций определений архитектуры и компонентной базы:</label>
- <textarea id="ansTask1" placeholder="Сформулируйте вывод: изменились ли аппаратные средства и изменилась ли архитектура. Обоснуйте решение на основе понятийного аппарата..."></textarea>
- <div class="print-mirror" id="ansTask1_mirror" aria-hidden="true"></div>
- <div class="helper-text">Критерий оценки: полнота анализа физического и логического уровней системы.</div>
- </div>
- </div>
- <!-- Задание 2 -->
- <div class="task-card active-task">
- <div class="task-title">
- <span>Задание 2. Анализ реального сценария: редактирование звуковой дорожки</span>
- <span class="task-points">Максимум: 1 балл</span>
- </div>
- <p>
- <strong>Сценарий:</strong> Звукорежиссер записывает голосовой подкаст через USB-микрофон. Он говорит в микрофон, в наушниках через программный мониторинг аудиоредактора (DAW) слышит обработанный голос, а на экране видит бегущую диаграмму уровня громкости. Проект открыт в памяти, непрерывная запись идет 40 минут.
- </p>
- <div class="subtask">
- <label for="ansTask2_path">А) Постройте последовательную функциональную цепочку прохождения аудиосигнала в реальном времени при программном мониторинге (от голоса до наушников и экрана):</label>
- <textarea id="ansTask2_path" placeholder="Укажите последовательность функциональных узлов системы от захвата сигнала до вывода звука и визуализации..."></textarea>
- <div class="print-mirror" id="ansTask2_path_mirror" aria-hidden="true"></div>
- </div>
- <div class="subtask">
- <label for="ansTask2_storage">Б) В какой именно момент и при каких системных условиях аудиоданные фиксируются на долговременном накопителе (SSD)? Что произойдет с записанным звуком, если ноутбук выключится из-за севшего аккумулятора за секунду до сохранения проекта?</label>
- <textarea id="ansTask2_storage" placeholder="Опишите состояние информации в оперативной памяти и на постоянном накопителе при аварийном завершении работы..."></textarea>
- <div class="print-mirror" id="ansTask2_storage_mirror" aria-hidden="true"></div>
- </div>
- </div>
- <!-- Задание 3 -->
- <div class="task-card active-task">
- <div class="task-title">
- <span>Задание 3. Контрастный сценарий: скачивание файла из локальной сети на диск</span>
- <span class="task-points">Максимум: 1 балл</span>
- </div>
- <p>
- <strong>Сценарий:</strong> Пользователь скачивает видеоархив размером 8 ГБ по сетевому кабелю (Ethernet). При этом оперативной памяти в компьютере установлено всего 4 ГБ.
- </p>
- <div class="subtask">
- <label for="ansTask3">Объясните, каким образом файл размером 8 ГБ успешно загружается на компьютер с ОЗУ 4 ГБ. Какую роль здесь выполняет оперативная память и какую — долговременный накопитель? Опишите движение пакетов данных от сетевой карты до SSD:</label>
- <textarea id="ansTask3" placeholder="Опишите механизм передачи и согласования объемов памяти между компонентами вычислительной машины..."></textarea>
- <div class="print-mirror" id="ansTask3_mirror" aria-hidden="true"></div>
- </div>
- </div>
- <!-- Задание 4 -->
- <div class="task-card active-task">
- <div class="task-title">
- <span>Задание 4. Синтез архитектурной схемы и причинно-следственный вывод</span>
- <span class="task-points">Максимум: 1 балл</span>
- </div>
- <p>
- Представьте, что разработчики решили убрать из классической архитектуры ЭВМ оперативную память и подключить процессор напрямую к современному сверхбыстрому NVMe SSD через шину PCI-Express.
- </p>
- <div class="subtask">
- <label for="ansTask4">С какими физическими, архитектурными и эксплуатационными проблемами столкнется такая система при попытке исполнения программ? (Укажите не менее двух фундаментальных причин, почему SSD не может полностью заменить ОЗУ):</label>
- <textarea id="ansTask4" placeholder="Приведите и обоснуйте не менее двух принципиальных различий в характеристиках и организации работы данных типов памяти..."></textarea>
- <div class="print-mirror" id="ansTask4_mirror" aria-hidden="true"></div>
- </div>
- </div>
- </section>
+    <!-- Задание 1 -->
+    <div class="task-card active-task">
+      <div class="task-title">
+        <span>Задание 1. Разграничение понятий «Аппаратное средство» и «Архитектура»</span>
+        <span class="task-points">Максимум: 1 балл</span>
+      </div>
+      <p>
+        Проанализируйте утверждение: <em>«Инженер заменил процессор с тактовой частотой 2.5 ГГц на кристалл той же серии с частотой 3.8 ГГц, увеличив производительность в играх. Изменилась ли при этом базовая архитектура вычислительной машины?»</em>
+      </p>
+      <div class="subtask">
+        <label for="ansTask1">Дайте аргументированный ответ с позиций определений архитектуры и компонентной базы:</label>
+        <textarea id="ansTask1" placeholder="Сформулируйте вывод: изменились ли аппаратные средства и изменилась ли архитектура. Обоснуйте решение на основе понятийного аппарата..."></textarea>
+        <div class="print-mirror" id="ansTask1_mirror" aria-hidden="true"></div>
+        <div class="helper-text">Критерий оценки: полнота анализа физического и логического уровней системы.</div>
+      </div>
+    </div>
+    <!-- Задание 2 -->
+    <div class="task-card active-task">
+      <div class="task-title">
+        <span>Задание 2. Анализ реального сценария: редактирование звуковой дорожки</span>
+        <span class="task-points">Максимум: 1 балл</span>
+      </div>
+      <p>
+        <strong>Сценарий:</strong> Звукорежиссер записывает голосовой подкаст через USB-микрофон. Он говорит в микрофон, в наушниках через программный мониторинг аудиоредактора (DAW) слышит обработанный голос, а на экране видит бегущую диаграмму уровня громкости. Проект открыт в памяти, непрерывная запись идет 40 минут.
+      </p>
+      <div class="subtask">
+        <label for="ansTask2_path">А) Постройте последовательную функциональную цепочку прохождения аудиосигнала в реальном времени при программном мониторинге (от голоса до наушников и экрана):</label>
+        <textarea id="ansTask2_path" placeholder="Укажите последовательность функциональных узлов системы от захвата сигнала до вывода звука и визуализации..."></textarea>
+        <div class="print-mirror" id="ansTask2_path_mirror" aria-hidden="true"></div>
+      </div>
+      <div class="subtask">
+        <label for="ansTask2_storage">Б) В какой именно момент и при каких системных условиях аудиоданные фиксируются на долговременном накопителе (SSD)? Что произойдет с записанным звуком, если ноутбук выключится из-за севшего аккумулятора за секунду до сохранения проекта?</label>
+        <textarea id="ansTask2_storage" placeholder="Опишите состояние информации в оперативной памяти и на постоянном накопителе при аварийном завершении работы..."></textarea>
+        <div class="print-mirror" id="ansTask2_storage_mirror" aria-hidden="true"></div>
+      </div>
+    </div>
+    <!-- Задание 3 -->
+    <div class="task-card active-task">
+      <div class="task-title">
+        <span>Задание 3. Контрастный сценарий: скачивание файла из локальной сети на диск</span>
+        <span class="task-points">Максимум: 1 балл</span>
+      </div>
+      <p>
+        <strong>Сценарий:</strong> Пользователь скачивает видеоархив размером 8 ГБ по сетевому кабелю (Ethernet). При этом оперативной памяти в компьютере установлено всего 4 ГБ.
+      </p>
+      <div class="subtask">
+        <label for="ansTask3">Объясните, каким образом файл размером 8 ГБ успешно загружается на компьютер с ОЗУ 4 ГБ. Какую роль здесь выполняет оперативная память и какую — долговременный накопитель? Опишите движение пакетов данных от сетевой карты до SSD:</label>
+        <textarea id="ansTask3" placeholder="Опишите механизм передачи и согласования объемов памяти между компонентами вычислительной машины..."></textarea>
+        <div class="print-mirror" id="ansTask3_mirror" aria-hidden="true"></div>
+      </div>
+    </div>
+    <!-- Задание 4 -->
+    <div class="task-card active-task">
+      <div class="task-title">
+        <span>Задание 4. Синтез архитектурной схемы и причинно-следственный вывод</span>
+        <span class="task-points">Максимум: 1 балл</span>
+      </div>
+      <p>
+        Представьте, что разработчики решили убрать из классической архитектуры ЭВМ оперативную память и подключить процессор напрямую к современному сверхбыстрому NVMe SSD через шину PCI-Express.
+      </p>
+      <div class="subtask">
+        <label for="ansTask4">С какими физическими, архитектурными и эксплуатационными проблемами столкнется такая система при попытке исполнения программ? (Укажите не менее двух фундаментальных причин, почему SSD не может полностью заменить ОЗУ):</label>
+        <textarea id="ansTask4" placeholder="Приведите и обоснуйте не менее двух принципиальных различий в характеристиках и организации работы данных типов памяти..."></textarea>
+        <div class="print-mirror" id="ansTask4_mirror" aria-hidden="true"></div>
+      </div>
+    </div>
+  </section>
 
- <section class="section" aria-label="Критерии оценивания">
- <h2>4. Открытые критерии оценивания (максимум — 4 балла)</h2>
- <p>
- Оценивание домашней работы производится преподавателем по прозрачной четырехбалльной шкале (1 балл за каждое полностью решенное задание):
- </p>
+  <section class="section" aria-label="Критерии оценивания">
+    <h2>4. Открытые критерии оценивания (максимум — 4 балла)</h2>
+    <p>
+      Оценивание домашней работы производится преподавателем по прозрачной четырехбалльной шкале (1 балл за каждое полностью решенное задание):
+    </p>
 
- <div class="table-wrapper">
- <table class="rubric-table">
- <thead>
- <tr>
- <th style="width: 25%;">Задание</th>
- <th style="width: 15%;">Макс. балл</th>
- <th>Критерии выставления полного балла</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>Задание 1</strong><br>(Понятия и разграничение)</td>
- <td>1 балл</td>
- <td>Дан однозначный ответ по обоим аспектам (аппаратные средства и архитектура); аргументация опирается на разграничение физических параметров компонента и логической организации вычислительной машины.</td>
- </tr>
- <tr>
- <td><strong>Задание 2</strong><br>(Сценарий звукозаписи)</td>
- <td>1 балл</td>
- <td>Полно и без пропусков представлена цепочка прохождения сигнала в реальном времени от ввода до устройств вывода; дано верное физическое и системное объяснение сохранности данных при внезапном обесточивании с учетом наличия/отсутствия ранее сохраненных данных.</td>
- </tr>
- <tr>
- <td><strong>Задание 3</strong><br>(Контрастный сетевой сценарий)</td>
- <td>1 балл</td>
- <td>Объяснен функциональный принцип передачи данных между устройствами с разным объемом памяти; четко разграничены задачи оперативного буфера и долговременного хранилища.</td>
- </tr>
- <tr>
- <td><strong>Задание 4</strong><br>(Синтез и замена ОЗУ на SSD)</td>
- <td>1 балл</td>
- <td>Сформулированы и технически аргументированы не менее двух самостоятельных физических, схемотехнических или системных причин невозможности прямого замещения.</td>
- </tr>
- </tbody>
- </table>
- </div>
- </section>
+    <div class="table-wrapper">
+    <table class="rubric-table">
+      <thead>
+        <tr>
+          <th style="width: 25%;">Задание</th>
+          <th style="width: 15%;">Макс. балл</th>
+          <th>Критерии выставления полного балла</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Задание 1</strong><br>(Понятия и разграничение)</td>
+          <td>1 балл</td>
+          <td>Дан однозначный ответ по обоим аспектам (аппаратные средства и архитектура); аргументация опирается на разграничение физических параметров компонента и логической организации вычислительной машины.</td>
+        </tr>
+        <tr>
+          <td><strong>Задание 2</strong><br>(Сценарий звукозаписи)</td>
+          <td>1 балл</td>
+          <td>Полно и без пропусков представлена цепочка прохождения сигнала в реальном времени от ввода до устройств вывода; дано верное физическое и системное объяснение сохранности данных при внезапном обесточивании с учетом наличия/отсутствия ранее сохраненных данных.</td>
+        </tr>
+        <tr>
+          <td><strong>Задание 3</strong><br>(Контрастный сетевой сценарий)</td>
+          <td>1 балл</td>
+          <td>Объяснен функциональный принцип передачи данных между устройствами с разным объемом памяти; четко разграничены задачи оперативного буфера и долговременного хранилища.</td>
+        </tr>
+        <tr>
+          <td><strong>Задание 4</strong><br>(Синтез и замена ОЗУ на SSD)</td>
+          <td>1 балл</td>
+          <td>Сформулированы и технически аргументированы не менее двух самостоятельных физических, схемотехнических или системных причин невозможности прямого замещения.</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
 
- <footer class="action-bar" role="toolbar" aria-label="Панель действий">
- <div class="save-indicator" id="saveIndicator">
- <span>●</span> Все изменения сохранены локально в браузере
- </div>
- <div class="btn-group">
- <button type="button" class="btn-secondary" id="btnPrint">
- Печать / Сохранить в PDF
- </button>
- <button type="button" class="btn-danger" id="btnClear">
- Очистить форму
- </button>
- </div>
- </footer>
+  <footer class="action-bar" role="toolbar" aria-label="Панель действий">
+    <div class="save-indicator" id="saveIndicator">
+      <span>●</span> Все изменения сохранены локально в браузере
+    </div>
+    <div class="btn-group">
+      <button type="button" class="btn-secondary" id="btnPrint">
+        Печать / Сохранить в PDF
+      </button>
+      <button type="button" class="btn-danger" id="btnClear">
+        Очистить форму
+      </button>
+    </div>
+  </footer>
 </div>
 
 <script>
- (function() {
- const STORAGE_KEY = 'hw_arch_01_answers_v1';
+  (function() {
+    const STORAGE_KEY = 'hw_arch_01_answers_v1';
 
- const fields = [
- 'studentName',
- 'studentGroup',
- 'ansTask1',
- 'ansTask2_path',
- 'ansTask2_storage',
- 'ansTask3',
- 'ansTask4'
- ];
+    const fields = [
+      'studentName',
+      'studentGroup',
+      'ansTask1',
+      'ansTask2_path',
+      'ansTask2_storage',
+      'ansTask3',
+      'ansTask4'
+    ];
 
- const textareaIds = [
- 'ansTask1',
- 'ansTask2_path',
- 'ansTask2_storage',
- 'ansTask3',
- 'ansTask4'
- ];
+    const textareaIds = [
+      'ansTask1',
+      'ansTask2_path',
+      'ansTask2_storage',
+      'ansTask3',
+      'ansTask4'
+    ];
 
- function syncMirrors() {
- textareaIds.forEach(function(id) {
- const ta = document.getElementById(id);
- const mirror = document.getElementById(id + '_mirror');
- if (ta && mirror) {
- mirror.textContent = ta.value | '(Ответ не заполнен)';
- }
- });
- }
+    function syncMirrors() {
+      textareaIds.forEach(function(id) {
+        const ta = document.getElementById(id);
+        const mirror = document.getElementById(id + '_mirror');
+        if (ta && mirror) {
+          mirror.textContent = ta.value || '(Ответ не заполнен)';
+        }
+      });
+    }
 
- function autoResizeTextarea(ta) {
- if (!ta) return;
- if (!ta.value.trim()) {
- ta.style.height = '';
- return;
- }
- ta.style.height = 'auto';
- const border = ta.offsetHeight - ta.clientHeight;
- ta.style.height = (ta.scrollHeight + border) + 'px';
- }
+    function autoResizeTextarea(ta) {
+      if (!ta) return;
+      if (!ta.value.trim()) {
+        ta.style.height = '';
+        return;
+      }
+      ta.style.height = 'auto';
+      const border = ta.offsetHeight - ta.clientHeight;
+      ta.style.height = (ta.scrollHeight + border) + 'px';
+    }
 
- const saveIndicator = document.getElementById('saveIndicator');
- let saveTimeout = null;
+    const saveIndicator = document.getElementById('saveIndicator');
+    let saveTimeout = null;
 
- function showStatus(text, isSaved) {
- if (!saveIndicator) return;
- saveIndicator.innerHTML = `<span>●</span> ${text}`;
- if (isSaved) {
- saveIndicator.classList.add('saved');
- } else {
- saveIndicator.classList.remove('saved');
- }
- }
+    function showStatus(text, isSaved) {
+      if (!saveIndicator) return;
+      saveIndicator.innerHTML = `<span>●</span> ${text}`;
+      if (isSaved) {
+        saveIndicator.classList.add('saved');
+      } else {
+        saveIndicator.classList.remove('saved');
+      }
+    }
 
- function saveToStorage() {
- const data = {};
- fields.forEach(function(id) {
- const el = document.getElementById(id);
- if (el) {
- data[id] = el.value;
- }
- });
- try {
- localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
- syncMirrors();
- showStatus('Все изменения сохранены локально в браузере', true);
- } catch (e) {
- showStatus('Не удалось сохранить в локальное хранилище (квота превышена или приватный режим)', false);
- }
- }
+    function saveToStorage() {
+      const data = {};
+      fields.forEach(function(id) {
+        const el = document.getElementById(id);
+        if (el) {
+          data[id] = el.value;
+        }
+      });
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        syncMirrors();
+        showStatus('Все изменения сохранены локально в браузере', true);
+      } catch (e) {
+        showStatus('Не удалось сохранить в локальное хранилище (квота превышена или приватный режим)', false);
+      }
+    }
 
- function loadFromStorage() {
- try {
- const raw = localStorage.getItem(STORAGE_KEY);
- if (!raw) return;
- const data = JSON.parse(raw);
- fields.forEach(function(id) {
- const el = document.getElementById(id);
- if (el && typeof data[id] === 'string') {
- el.value = data[id];
- if (el.tagName === 'TEXTAREA') {
- autoResizeTextarea(el);
- }
- }
- });
- syncMirrors();
- showStatus('Сохраненные ответы успешно загружены', true);
- } catch (e) {
- }
- }
+    function loadFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        fields.forEach(function(id) {
+          const el = document.getElementById(id);
+          if (el && typeof data[id] === 'string') {
+            el.value = data[id];
+            if (el.tagName === 'TEXTAREA') {
+              autoResizeTextarea(el);
+            }
+          }
+        });
+        syncMirrors();
+        showStatus('Сохраненные ответы успешно загружены', true);
+      } catch (e) {
+      }
+    }
 
- function setupAutoSave() {
- fields.forEach(function(id) {
- const el = document.getElementById(id);
- if (el) {
- el.addEventListener('input', function() {
- if (el.tagName === 'TEXTAREA') {
- autoResizeTextarea(el);
- }
- syncMirrors();
- showStatus('Сохранение...', false);
- clearTimeout(saveTimeout);
- saveTimeout = setTimeout(saveToStorage, 400);
- });
- }
- });
- }
+    function setupAutoSave() {
+      fields.forEach(function(id) {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', function() {
+            if (el.tagName === 'TEXTAREA') {
+              autoResizeTextarea(el);
+            }
+            syncMirrors();
+            showStatus('Сохранение...', false);
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(saveToStorage, 400);
+          });
+        }
+      });
+    }
 
- document.getElementById('btnPrint').addEventListener('click', function() {
- syncMirrors();
- window.print();
- });
+    document.getElementById('btnPrint').addEventListener('click', function() {
+      syncMirrors();
+      window.print();
+    });
 
- window.addEventListener('beforeprint', syncMirrors);
+    window.addEventListener('beforeprint', syncMirrors);
 
- document.getElementById('btnClear').addEventListener('click', function() {
- const confirmed = window.confirm('Вы уверены, что хотите полностью стереть все заполненные ответы? Это действие нельзя отменить.');
- if (confirmed) {
- fields.forEach(function(id) {
- const el = document.getElementById(id);
- if (el) {
- el.value = '';
- if (el.tagName === 'TEXTAREA') {
- el.style.height = '';
- autoResizeTextarea(el);
- }
- }
- });
- syncMirrors();
- try {
- localStorage.removeItem(STORAGE_KEY);
- } catch (e) {}
- showStatus('Форма очищена', false);
- }
- });
+    document.getElementById('btnClear').addEventListener('click', function() {
+      const confirmed = window.confirm('Вы уверены, что хотите полностью стереть все заполненные ответы? Это действие нельзя отменить.');
+      if (confirmed) {
+        fields.forEach(function(id) {
+          const el = document.getElementById(id);
+          if (el) {
+            el.value = '';
+            if (el.tagName === 'TEXTAREA') {
+              el.style.height = '';
+              autoResizeTextarea(el);
+            }
+          }
+        });
+        syncMirrors();
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch (e) {}
+        showStatus('Форма очищена', false);
+      }
+    });
 
- window.addEventListener('DOMContentLoaded', function() {
- loadFromStorage();
- setupAutoSave();
- textareaIds.forEach(function(id) {
- const el = document.getElementById(id);
- if (el) {
- autoResizeTextarea(el);
- }
- });
- syncMirrors();
- });
+    window.addEventListener('DOMContentLoaded', function() {
+      loadFromStorage();
+      setupAutoSave();
+      textareaIds.forEach(function(id) {
+        const el = document.getElementById(id);
+        if (el) {
+          autoResizeTextarea(el);
+        }
+      });
+      syncMirrors();
+    });
 
- window.addEventListener('resize', function() {
- textareaIds.forEach(function(id) {
- const el = document.getElementById(id);
- if (el && el.value.trim()) {
- autoResizeTextarea(el);
- }
- });
- });
- })();
+    window.addEventListener('resize', function() {
+      textareaIds.forEach(function(id) {
+        const el = document.getElementById(id);
+        if (el && el.value.trim()) {
+          autoResizeTextarea(el);
+        }
+      });
+    });
+  })();
 </script>
 </body>
 </html>

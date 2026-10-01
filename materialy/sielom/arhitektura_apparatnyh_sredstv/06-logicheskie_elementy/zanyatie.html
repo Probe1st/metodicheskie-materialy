@@ -1,848 +1,914 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
- <meta name="color-scheme" content="light">
- <title>Кодирование звуковой и видео информации. Логические элементы. Базовые схемы. Триггеры. Регистры. Счетчики. Сумматоры. Шифраторы и дешифраторы. Мультиплексоры. Компараторы кодов</title>
- <style>
- :root {
- --bg: #f8fafc;
- --card: #ffffff;
- --text: #0f172a;
- --muted: #475569;
- --border: #cbd5e1;
- --accent: #2563eb;
- --accent-soft: #eff6ff;
- --accent-dark: #1d4ed8;
- --warn-bg: #fffbeb;
- --warn-border: #fde68a;
- --warn-text: #92400e;
- --input-bg: #f8fafc;
- --input-focus: #ffffff;
- --radius: 10px;
- --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
- --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
- }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Кодирование звуковой и видео информации. Логические элементы. Базовые схемы. Триггеры. Регистры. Счетчики. Сумматоры. Шифраторы и дешифраторы. Мультиплексоры. Компараторы кодов</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #cbd5e1;
+      --accent: #2563eb;
+      --accent-soft: #eff6ff;
+      --accent-dark: #1d4ed8;
+      --warn-bg: #fffbeb;
+      --warn-border: #fde68a;
+      --warn-text: #92400e;
+      --input-bg: #f8fafc;
+      --input-focus: #ffffff;
+      --radius: 10px;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
 
- *, *::before, *::after {
- box-sizing: border-box;
- margin: 0;
- padding: 0;
- }
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
- body {
- font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
- background-color: var(--bg);
- color: var(--text);
- line-height: 1.6;
- padding: 24px 16px;
- }.container {
- max-width: 920px;
- margin: 0 auto;
- }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px;
+    }
 
- header {
- background: var(--card);
- padding: 28px 32px;
- border-radius: var(--radius);
- box-shadow: var(--shadow);
- border: 1px solid var(--border);
- margin-bottom: 24px;
- }
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+    }
 
- h1 {
- font-size: 1.6rem;
- font-weight: 800;
- color: var(--text);
- line-height: 1.35;
- margin-bottom: 12px;
- }.notice {
- background: var(--warn-bg);
- border: 1px solid var(--warn-border);
- color: var(--warn-text);
- padding: 12px 16px;
- border-radius: 8px;
- font-size: 0.95rem;
- line-height: 1.5;
- }.card {
- background: var(--card);
- padding: 26px 30px;
- border-radius: var(--radius);
- box-shadow: var(--shadow);
- border: 1px solid var(--border);
- margin-bottom: 24px;
- }
+    header {
+      background: var(--card);
+      padding: 28px 32px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
 
- h2 {
- font-size: 1.25rem;
- font-weight: 700;
- color: var(--accent-dark);
- margin-bottom: 14px;
- padding-bottom: 6px;
- border-bottom: 2px solid var(--accent-soft);
- }
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.35;
+      margin-bottom: 12px;
+    }
 
- h3 {
- font-size: 1.05rem;
- font-weight: 600;
- color: var(--text);
- margin: 16px 0 8px;
- }
+    .notice {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      color: var(--warn-text);
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
 
- p {
- margin-bottom: 12px;
- font-size: 0.96rem;
- }
+    .card {
+      background: var(--card);
+      padding: 26px 30px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
 
- ul, ol {
- margin-left: 24px;
- margin-bottom: 14px;
- font-size: 0.95rem;
- }
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent-dark);
+      margin-bottom: 14px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid var(--accent-soft);
+    }
 
- li {
- margin-bottom: 4px;
- }.form-group {
- margin-top: 14px;
- margin-bottom: 14px;
- }
+    h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 16px 0 8px;
+    }
 
- label {
- display: block;
- font-weight: 600;
- margin-bottom: 6px;
- font-size: 0.92rem;
- color: var(--text);
- }.student-grid {
- display: grid;
- grid-template-columns: 2fr 1fr 1fr;
- gap: 16px;
- }.form-control-input {
- width: 100%;
- height: 40px;
- padding: 8px 12px;
- border: 1px solid var(--border);
- border-radius: 6px;
- background: var(--input-bg);
- font-family: inherit;
- font-size: 0.95rem;
- transition: border-color 0.2s;
- }.form-control-input:focus {
- outline: none;
- border-color: var(--accent);
- background: var(--input-focus);
- box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
- }
+    p {
+      margin-bottom: 12px;
+      font-size: 0.96rem;
+    }
 
- textarea.form-control {
- width: 100%;
- min-height: 84px;
- max-height: 500px;
- padding: 10px 12px;
- border: 1px solid var(--border);
- border-radius: 6px;
- background: var(--input-bg);
- font-family: inherit;
- font-size: 0.95rem;
- line-height: 1.5;
- resize: vertical;
- transition: border-color 0.2s;
- }
+    ul, ol {
+      margin-left: 24px;
+      margin-bottom: 14px;
+      font-size: 0.95rem;
+    }
 
- textarea.form-control:focus {
- outline: none;
- border-color: var(--accent);
- background: var(--input-focus);
- box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
- }
+    li {
+      margin-bottom: 4px;
+    }
 
- table.data-table {
- width: 100%;
- border-collapse: collapse;
- font-size: 0.92rem;
- margin: 14px 0;
- }
+    .form-group {
+      margin-top: 14px;
+      margin-bottom: 14px;
+    }
 
- table.data-table th, table.data-table td {
- border: 1px solid var(--border);
- padding: 8px 10px;
- vertical-align: middle;
- }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 0.92rem;
+      color: var(--text);
+    }
 
- table.data-table th {
- background: var(--accent-soft);
- font-weight: 600;
- color: var(--accent-dark);
- text-align: left;
- }.table-input {
- width: 100%;
- padding: 6px 8px;
- border: 1px solid var(--border);
- border-radius: 4px;
- font-family: inherit;
- font-size: 0.9rem;
- background: #ffffff;
- }.table-input:focus {
- outline: none;
- border-color: var(--accent);
- background: #ffffff;
- }.table-select {
- width: 100%;
- padding: 6px 8px;
- border: 1px solid var(--border);
- border-radius: 4px;
- font-family: inherit;
- font-size: 0.9rem;
- background: #ffffff;
- }.variant-selector {
- margin-bottom: 16px;
- padding: 12px;
- background: var(--accent-soft);
- border-radius: 8px;
- display: flex;
- align-items: center;
- gap: 12px;
- flex-wrap: wrap;
- }.variant-box {
- border: 1px solid var(--border);
- border-radius: 8px;
- padding: 16px 20px;
- background: #ffffff;
- margin-bottom: 16px;
- }.variant-title {
- font-weight: 700;
- color: var(--accent-dark);
- font-size: 1.05rem;
- margin-bottom: 8px;
- }.circuit-spec {
- background: #f1f5f9;
- border-left: 4px solid var(--accent);
- padding: 10px 14px;
- margin: 10px 0;
- font-size: 0.92rem;
- }.actions-bar {
- display: flex;
- flex-wrap: wrap;
- gap: 12px;
- margin: 20px 0;
- padding: 16px 20px;
- background: var(--card);
- border-radius: var(--radius);
- border: 1px solid var(--border);
- align-items: center;
- justify-content: space-between;
- }.btn {
- display: inline-flex;
- align-items: center;
- justify-content: center;
- padding: 10px 18px;
- font-size: 0.95rem;
- font-weight: 600;
- border-radius: 6px;
- cursor: pointer;
- border: none;
- transition: background 0.2s, transform 0.1s;
- }.btn:active {
- transform: translateY(1px);
- }.btn-primary {
- background: var(--accent);
- color: #ffffff;
- }.btn-primary:hover {
- background: var(--accent-dark);
- }.btn-outline {
- background: transparent;
- border: 1px solid var(--border);
- color: var(--text);
- }.btn-outline:hover {
- background: #f1f5f9;
- }.status-badge {
- font-size: 0.9rem;
- color: #166534;
- font-weight: 600;
- }.rubric-box {
- background: #f8fafc;
- border: 1px dashed var(--border);
- border-radius: 8px;
- padding: 16px;
- margin-top: 16px;
- }.rubric-table {
- width: 100%;
- border-collapse: collapse;
- margin-top: 10px;
- font-size: 0.9rem;
- }.rubric-table th,.rubric-table td {
- border: 1px solid var(--border);
- padding: 8px 10px;
- text-align: left;
- }.rubric-table th {
- background: var(--accent-soft);
- color: var(--accent-dark);
- }
+    .student-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 16px;
+    }
 
- /* Блок для печатной реплики ответов */.print-text-replica {
- display: none;
- }
+    .form-control-input {
+      width: 100%;
+      height: 40px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--input-bg);
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: border-color 0.2s;
+    }
 
- @media (max-width: 680px) {.student-grid {
- grid-template-columns: 1fr;
- }.actions-bar {
- flex-direction: column;
- align-items: stretch;
- }.btn {
- width: 100%;
- }
- }
+    .form-control-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: var(--input-focus);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
 
- /* Печатное представление */
- @media print {
- body {
- background: #ffffff !important;
- padding: 0 !important;
- color: #000000 !important;
- }.container {
- max-width: 100% !important;
- }
+    textarea.form-control {
+      width: 100%;
+      min-height: 84px;
+      max-height: 500px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--input-bg);
+      font-family: inherit;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      resize: vertical;
+      transition: border-color 0.2s;
+    }
 
- header,.card {
- box-shadow: none !important;
- border: 1px solid #94a3b8 !important;
- padding: 16px !important;
- margin-bottom: 16px !important;
- break-inside: avoid;
- page-break-inside: avoid;
- }.actions-bar,.notice {
- display: none !important;
- }
+    textarea.form-control:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: var(--input-focus);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
 
- /* Скрытие плейсхолдеров */
- input::placeholder, textarea::placeholder {
- color: transparent !important;
- opacity: 0 !important;
- }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+      margin: 14px 0;
+    }
 
- /* Скрытие интерактивных textarea и input при печати, отображение чистых рамок или реплики */
- textarea.form-control,.table-input,.table-select,.form-control-input {
- display: none !important;
- }.print-text-replica {
- display: block !important;
- border: 1px solid #64748b !important;
- background: #ffffff !important;
- min-height: 80px !important;
- padding: 8px 10px !important;
- white-space: pre-wrap !important;
- word-break: break-word !important;
- font-size: 10pt !important;
- line-height: 1.45 !important;
- margin-top: 4px !important;
- break-inside: auto !important;
- page-break-inside: auto !important;
- }.form-group:has(#studentName).print-text-replica,.form-group:has(#studentGroup).print-text-replica,.form-group:has(#workDate).print-text-replica {
- min-height: 32px !important;
- }
+    table.data-table th, table.data-table td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: middle;
+    }
 
- td.print-text-replica {
- min-height: 28px !important;
- padding: 4px 6px !important;
- }
+    table.data-table th {
+      background: var(--accent-soft);
+      font-weight: 600;
+      color: var(--accent-dark);
+      text-align: left;
+    }
 
- table.data-table, table.rubric-table {
- page-break-inside: auto !important;
- break-inside: auto !important;
- }
+    .table-input {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      background: #ffffff;
+    }
 
- table.data-table tr, table.rubric-table tr {
- page-break-inside: avoid !important;
- break-inside: avoid !important;
- }
+    .table-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: #ffffff;
+    }
 
- th {
- background: #f1f5f9 !important;
- color: #000000 !important;
- }
- }
- </style>
+    .table-select {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      background: #ffffff;
+    }
+
+    .variant-selector {
+      margin-bottom: 16px;
+      padding: 12px;
+      background: var(--accent-soft);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .variant-box {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      background: #ffffff;
+      margin-bottom: 16px;
+    }
+
+    .variant-title {
+      font-weight: 700;
+      color: var(--accent-dark);
+      font-size: 1.05rem;
+      margin-bottom: 8px;
+    }
+
+    .circuit-spec {
+      background: #f1f5f9;
+      border-left: 4px solid var(--accent);
+      padding: 10px 14px;
+      margin: 10px 0;
+      font-size: 0.92rem;
+    }
+
+    .actions-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 20px 0;
+      padding: 16px 20px;
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-dark);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-outline:hover {
+      background: #f1f5f9;
+    }
+
+    .status-badge {
+      font-size: 0.9rem;
+      color: #166534;
+      font-weight: 600;
+    }
+
+    .rubric-box {
+      background: #f8fafc;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    .rubric-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+
+    .rubric-table th, .rubric-table td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      text-align: left;
+    }
+
+    .rubric-table th {
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+    }
+
+    /* Блок для печатной реплики ответов */
+    .print-text-replica {
+      display: none;
+    }
+
+    @media (max-width: 680px) {
+      .student-grid {
+        grid-template-columns: 1fr;
+      }
+      .actions-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .btn {
+        width: 100%;
+      }
+    }
+
+    /* Печатное представление */
+    @media print {
+      body {
+        background: #ffffff !important;
+        padding: 0 !important;
+        color: #000000 !important;
+      }
+
+      .container {
+        max-width: 100% !important;
+      }
+
+      header, .card {
+        box-shadow: none !important;
+        border: 1px solid #94a3b8 !important;
+        padding: 16px !important;
+        margin-bottom: 16px !important;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .actions-bar, .notice {
+        display: none !important;
+      }
+
+      /* Скрытие плейсхолдеров */
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+        opacity: 0 !important;
+      }
+
+      /* Скрытие интерактивных textarea и input при печати, отображение чистых рамок или реплики */
+      textarea.form-control, .table-input, .table-select, .form-control-input {
+        display: none !important;
+      }
+
+      .print-text-replica {
+        display: block !important;
+        border: 1px solid #64748b !important;
+        background: #ffffff !important;
+        min-height: 80px !important;
+        padding: 8px 10px !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        font-size: 10pt !important;
+        line-height: 1.45 !important;
+        margin-top: 4px !important;
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+      }
+
+      .form-group:has(#studentName) .print-text-replica,
+      .form-group:has(#studentGroup) .print-text-replica,
+      .form-group:has(#workDate) .print-text-replica {
+        min-height: 32px !important;
+      }
+
+      td .print-text-replica {
+        min-height: 28px !important;
+        padding: 4px 6px !important;
+      }
+
+      table.data-table, table.rubric-table {
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+      }
+
+      table.data-table tr, table.rubric-table tr {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+
+      th {
+        background: #f1f5f9 !important;
+        color: #000000 !important;
+      }
+    }
+  </style>
 </head>
 <body>
 
 <div class="container">
- <header>
- <h1>Кодирование звуковой и видео информации. Логические элементы. Базовые схемы. Триггеры. Регистры. Счетчики. Сумматоры. Шифраторы и дешифраторы. Мультиплексоры. Компараторы кодов</h1>
- <p class="notice">⚠️ Внимание: данные сохраняются локально в вашем браузере. Вы можете заполнить форму, распечатать её на принтере или сохранить в PDF для сдачи преподавателю.</p>
- </header>
+  <header>
+    <h1>Кодирование звуковой и видео информации. Логические элементы. Базовые схемы. Триггеры. Регистры. Счетчики. Сумматоры. Шифраторы и дешифраторы. Мультиплексоры. Компараторы кодов</h1>
+    <p class="notice">⚠️ Внимание: данные сохраняются локально в вашем браузере. Вы можете заполнить форму, распечатать её на принтере или сохранить в PDF для сдачи преподавателю.</p>
+  </header>
 
- <form id="worksheetForm">
- <!-- Персональные данные обучающегося -->
- <section class="card">
- <h2>Сведения об обучающемся</h2>
- <div class="student-grid">
- <div class="form-group">
- <label for="studentName">ФИО обучающегося:</label>
- <input type="text" id="studentName" class="form-control-input" placeholder="Фамилия Имя Отчество" data-key="studentName">
- <div class="print-text-replica" id="p_studentName">&nbsp;</div>
- </div>
- <div class="form-group">
- <label for="studentGroup">Учебная группа:</label>
- <input type="text" id="studentGroup" class="form-control-input" placeholder="Номер группы" data-key="studentGroup">
- <div class="print-text-replica" id="p_studentGroup">&nbsp;</div>
- </div>
- <div class="form-group">
- <label for="workDate">Дата выполнения:</label>
- <input type="text" id="workDate" class="form-control-input" placeholder="ДД.ММ.ГГГГ" data-key="workDate">
- <div class="print-text-replica" id="p_workDate">&nbsp;</div>
- </div>
- </div>
- </section>
+  <form id="worksheetForm">
+    <!-- Персональные данные обучающегося -->
+    <section class="card">
+      <h2>Сведения об обучающемся</h2>
+      <div class="student-grid">
+        <div class="form-group">
+          <label for="studentName">ФИО обучающегося:</label>
+          <input type="text" id="studentName" class="form-control-input" placeholder="Фамилия Имя Отчество" data-key="studentName">
+          <div class="print-text-replica" id="p_studentName">&nbsp;</div>
+        </div>
+        <div class="form-group">
+          <label for="studentGroup">Учебная группа:</label>
+          <input type="text" id="studentGroup" class="form-control-input" placeholder="Номер группы" data-key="studentGroup">
+          <div class="print-text-replica" id="p_studentGroup">&nbsp;</div>
+        </div>
+        <div class="form-group">
+          <label for="workDate">Дата выполнения:</label>
+          <input type="text" id="workDate" class="form-control-input" placeholder="ДД.ММ.ГГГГ" data-key="workDate">
+          <div class="print-text-replica" id="p_workDate">&nbsp;</div>
+        </div>
+      </div>
+    </section>
 
- <!-- Задание 1: Расчет цифрового звука и видео -->
- <section class="card">
- <h2>Задание 1. Расчет характеристик оцифровки непрерывных сигналов</h2>
- <p>Ознакомьтесь с условиями и запишите аналитические расчеты с указанием формул, размерностей и обоснований.</p>
+    <!-- Задание 1: Расчет цифрового звука и видео -->
+    <section class="card">
+      <h2>Задание 1. Расчет характеристик оцифровки непрерывных сигналов</h2>
+      <p>Ознакомьтесь с условиями и запишите аналитические расчеты с указанием формул, размерностей и обоснований.</p>
 
- <div class="form-group">
- <label for="task1_1">1.1. Теорема Котельникова (Найквиста — Шеннона):</label>
- <p style="font-size:0.92rem; color:var(--muted);">Максимальная звуковая частота человеческого голоса в телефонной связи составляет 3.4 кГц. Для исключения эффекта алиасинга в стандарте цифровой телефонии частота дискретизации выбрана равной 8 кГц. Докажите выполнимость теоремы Котельникова и укажите, к чему приведёт снижение частоты дискретизации до 6 кГц.</p>
- <textarea id="task1_1" class="form-control" placeholder="Приведите формулу теоремы Котельникова, выполните неравенство и опишите последствия алиасинга..." data-key="task1_1"></textarea>
- <div class="print-text-replica" id="p_task1_1">&nbsp;</div>
- </div>
+      <div class="form-group">
+        <label for="task1_1">1.1. Теорема Котельникова (Найквиста — Шеннона):</label>
+        <p style="font-size:0.92rem; color:var(--muted);">Максимальная звуковая частота человеческого голоса в телефонной связи составляет 3.4 кГц. Для исключения эффекта алиасинга в стандарте цифровой телефонии частота дискретизации выбрана равной 8 кГц. Докажите выполнимость теоремы Котельникова и укажите, к чему приведёт снижение частоты дискретизации до 6 кГц.</p>
+        <textarea id="task1_1" class="form-control" placeholder="Приведите формулу теоремы Котельникова, выполните неравенство и опишите последствия алиасинга..." data-key="task1_1"></textarea>
+        <div class="print-text-replica" id="p_task1_1">&nbsp;</div>
+      </div>
 
- <div class="form-group">
- <label for="task1_2">1.2. Расчет битрейта и объема несжатого PCM-звука:</label>
- <p style="font-size:0.92rem; color:var(--muted);">Студийная фонограмма записана в стереорежиме (k = 2) с частотой дискретизации 48 кГц и разрядностью квантования 24 бита. Рассчитайте поток данных (бит/с, кбит/с и КБ/с), а также полный объем файла за 4 минуты звучания (в байтах и мегабайтах).</p>
- <textarea id="task1_2" class="form-control" placeholder="Покажите пошаговый расчет битрейта и общего объема..." data-key="task1_2"></textarea>
- <div class="print-text-replica" id="p_task1_2">&nbsp;</div>
- </div>
+      <div class="form-group">
+        <label for="task1_2">1.2. Расчет битрейта и объема несжатого PCM-звука:</label>
+        <p style="font-size:0.92rem; color:var(--muted);">Студийная фонограмма записана в стереорежиме (k = 2) с частотой дискретизации 48 кГц и разрядностью квантования 24 бита. Рассчитайте поток данных (бит/с, кбит/с и КБ/с), а также полный объем файла за 4 минуты звучания (в байтах и мегабайтах).</p>
+        <textarea id="task1_2" class="form-control" placeholder="Покажите пошаговый расчет битрейта и общего объема..." data-key="task1_2"></textarea>
+        <div class="print-text-replica" id="p_task1_2">&nbsp;</div>
+      </div>
 
- <div class="form-group">
- <label for="task1_3">1.3. Расчет видеопотока и обоснование видеокодеков:</label>
- <p style="font-size:0.92rem; color:var(--muted);">Камера формирует несжатый видеопоток Full HD (1920x1080 пикселей, цвет RGB 24 бит/пиксель, частота 30 кадров/с). Вычислите скорость передачи данных (в Мбит/с и МБ/с). Объясните, почему несжатое видео невозможно транслировать по каналу Интернет 100 Мбит/с без применения алгоритмов компрессии.</p>
- <textarea id="task1_3" class="form-control" placeholder="Запишите формулу видеопотока, вычисления и обоснование необходимости видеокодеков..." data-key="task1_3"></textarea>
- <div class="print-text-replica" id="p_task1_3">&nbsp;</div>
- </div>
- </section>
+      <div class="form-group">
+        <label for="task1_3">1.3. Расчет видеопотока и обоснование видеокодеков:</label>
+        <p style="font-size:0.92rem; color:var(--muted);">Камера формирует несжатый видеопоток Full HD (1920x1080 пикселей, цвет RGB 24 бит/пиксель, частота 30 кадров/с). Вычислите скорость передачи данных (в Мбит/с и МБ/с). Объясните, почему несжатое видео невозможно транслировать по каналу Интернет 100 Мбит/с без применения алгоритмов компрессии.</p>
+        <textarea id="task1_3" class="form-control" placeholder="Запишите формулу видеопотока, вычисления и обоснование необходимости видеокодеков..." data-key="task1_3"></textarea>
+        <div class="print-text-replica" id="p_task1_3">&nbsp;</div>
+      </div>
+    </section>
 
- <!-- Задание 2: Сравнительная таблица узлов ЭВМ -->
- <section class="card">
- <h2>Задание 2. Сравнительная таблица функциональных узлов ЭВМ</h2>
- <p>Заполните классификационную таблицу, указав класс узла (комбинационный или последовательностный), наличие внутренней памяти (Да/Нет), обязательность тактового сигнала Clock (Да/Нет) и главную архитектурную функцию узла в компьютере.</p>
+    <!-- Задание 2: Сравнительная таблица узлов ЭВМ -->
+    <section class="card">
+      <h2>Задание 2. Сравнительная таблица функциональных узлов ЭВМ</h2>
+      <p>Заполните классификационную таблицу, указав класс узла (комбинационный или последовательностный), наличие внутренней памяти (Да/Нет), обязательность тактового сигнала Clock (Да/Нет) и главную архитектурную функцию узла в компьютере.</p>
 
- <table class="data-table">
- <thead>
- <tr>
- <th style="width: 22%;">Наименование узла</th>
- <th style="width: 20%;">Класс схемы</th>
- <th style="width: 14%;">Память</th>
- <th style="width: 14%;">Тактирование</th>
- <th style="width: 30%;">Основная функция в архитектуре</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>Полный сумматор</strong></td>
- <td>
- <select class="table-select" id="t_node1_class" data-key="t_node1_class">
- <option value="">Выберите класс...</option>
- <option value="Комбинационный">Комбинационный</option>
- <option value="Последовательностный">Последовательностный</option>
- </select>
- <div class="print-text-replica" id="p_t_node1_class">&nbsp;</div>
- </td>
- <td>
- <input type="text" class="table-input" id="t_node1_mem" placeholder="Да / Нет" data-key="t_node1_mem">
- <div class="print-text-replica" id="p_t_node1_mem">&nbsp;</div>
- </td>
- <td>
- <input type="text" class="table-input" id="t_node1_clk" placeholder="Да / Нет" data-key="t_node1_clk">
- <div class="print-text-replica" id="p_t_node1_clk">&nbsp;</div>
- </td>
- <td>
- <input type="text" class="table-input" id="t_node1_fn" placeholder="Назначение узла..." data-key="t_node1_fn">
- <div class="print-text-replica" id="p_t_node1_fn">&nbsp;</div>
- </td>
- </tr>
- <tr>
- <td><strong>Дешифратор адреса</strong></td>
- <td>
- <select class="table-select" id="t_node2_class" data-key="t_node2_class">
- <option value="">Выберите класс...</option>
- <option value="Комбинационный">Комбинационный</option>
- <option value="Последовательностный">Последовательностный</option>
- </select>
- <div class="print-text-replica" id="p_t_node2_class">&nbsp;</div>
- </td>
- <td>
- <input type="text" class="table-input" id="t_node2_mem" placeholder="Да / Нет" data-key="t_node2_mem">
- <div class="print-text-replica" id="p_t_node2_mem">&nbsp;</div>
- </td>
- <td>
- <input type="text" class="table-input" id="t_node2_clk" placeholder="Да / Нет" data-key="t_node2_clk">
- <div class="print-text-replica" id="p_t_node2_clk">&nbsp;</div>
- </td>
- <td>
- <input type="text" class="table-input" id="t_node2_fn" placeholder="Назначение узла..." data-key="t_node2_fn">
- <div class="print-text-replica" id="p_t_node2_fn">&nbsp;</div>
- </td>
- </tr>
- <tr>
- <td><strong>Мультиплексор (MUX)</strong></td>
- <td>
- <select class="table-select" id="t_node3_class" data-key="t_node3_class">
- <option value="">Выберите класс...</option>
- <option value="Комбинационный">Комбинационный</option>
- <option value="Последовательностный">Последовательностный</option>
- </select>
- <div class="print-text-replica" id="p_t_node3_class">&nbsp;</div>
- </td>
- <td>
- <input type="text" class="table-input" id="t_node3_mem" placeholder="Да / Нет" data-key="t_node3_mem">
- <div class="print-text-replica" id="p_t_node3_mem">&nbsp;</div>
- </td>
- <td>
- <input type="text" class="table-input" id="t_node3_clk" placeholder="Да / Нет" data-key="t_node3_clk">
- <div class="print-text-replica" id="p_t_node3_clk">&nbsp;</div>
- </td>
- <td>
- <input type="text" class="table-input" id="t_node3_fn" placeholder="Назначение узла..." data-key="t_node3_fn">
- <div class="print-text-replica" id="p_t_node3_fn">&nbsp;</div>
- </td>
- </tr>
- <tr>
- <td><strong>Компаратор кодов</strong></td>
- <td>
- <select class="table-select" id="t_node4_class" data-key="t_node4_class">
- <option value="">Выберите класс...</option>
- <option value="Комбинационный">Комбинационный</option>
- <option value="Последовательностный">Последовательностный</option>
- </select>
- <div class="print-text-replica" id="p_t_node4_class">&nbsp;</div>
- </td>
- <td>
- <input type="text" class="table-input" id="t_node4_mem" placeholder="Да / Нет" data-key="t_node4_mem">
- <div class="print-text-replica" id="p_t_node4_mem">&nbsp;</div>
- </td>
- <td>
- <input type="text" class="table-input" id="t_node4_clk" placeholder="Да / Нет" data-key="t_node4_clk">
- <div class="print-text-replica" id="p_t_node4_clk">&nbsp;</div>
- </td>
- <td>
- <input type="text" class="table-input" id="t_node4_fn" placeholder="Назначение узла..." data-key="t_node4_fn">
- <div class="print-text-replica" id="p_t_node4_fn">&nbsp;</div>
- </td>
- </tr>
- <tr>
- <td><strong>D-триггер</strong></td>
- <td>
- <select class="table-select" id="t_node5_class" data-key="t_node5_class">
- <option value="">Выберите класс...</option>
- <option value="Комбинационный">Комбинационный</option>
- <option value="Последовательностный">Последовательностный</option>
- </select>
- <div class="print-text-replica" id="p_t_node5_class">&nbsp;</div>
- </td>
- <td>
- <input type="text" class="table-input" id="t_node5_mem" placeholder="Да / Нет" data-key="t_node5_mem">
- <div class="print-text-replica" id="p_t_node5_mem">&nbsp;</div>
- </td>
- <td>
- <input type="text" class="table-input" id="t_node5_clk" placeholder="Да / Нет" data-key="t_node5_clk">
- <div class="print-text-replica" id="p_t_node5_clk">&nbsp;</div>
- </td>
- <td>
- <input type="text" class="table-input" id="t_node5_fn" placeholder="Назначение узла..." data-key="t_node5_fn">
- <div class="print-text-replica" id="p_t_node5_fn">&nbsp;</div>
- </td>
- </tr>
- <tr>
- <td><strong>Регистр общего назначения</strong></td>
- <td>
- <select class="table-select" id="t_node6_class" data-key="t_node6_class">
- <option value="">Выберите класс...</option>
- <option value="Комбинационный">Комбинационный</option>
- <option value="Последовательностный">Последовательностный</option>
- </select>
- <div class="print-text-replica" id="p_t_node6_class">&nbsp;</div>
- </td>
- <td>
- <input type="text" class="table-input" id="t_node6_mem" placeholder="Да / Нет" data-key="t_node6_mem">
- <div class="print-text-replica" id="p_t_node6_mem">&nbsp;</div>
- </td>
- <td>
- <input type="text" class="table-input" id="t_node6_clk" placeholder="Да / Нет" data-key="t_node6_clk">
- <div class="print-text-replica" id="p_t_node6_clk">&nbsp;</div>
- </td>
- <td>
- <input type="text" class="table-input" id="t_node6_fn" placeholder="Назначение узла..." data-key="t_node6_fn">
- <div class="print-text-replica" id="p_t_node6_fn">&nbsp;</div>
- </td>
- </tr>
- <tr>
- <td><strong>Программный счетчик (PC)</strong></td>
- <td>
- <select class="table-select" id="t_node7_class" data-key="t_node7_class">
- <option value="">Выберите класс...</option>
- <option value="Комбинационный">Комбинационный</option>
- <option value="Последовательностный">Последовательностный</option>
- </select>
- <div class="print-text-replica" id="p_t_node7_class">&nbsp;</div>
- </td>
- <td>
- <input type="text" class="table-input" id="t_node7_mem" placeholder="Да / Нет" data-key="t_node7_mem">
- <div class="print-text-replica" id="p_t_node7_mem">&nbsp;</div>
- </td>
- <td>
- <input type="text" class="table-input" id="t_node7_clk" placeholder="Да / Нет" data-key="t_node7_clk">
- <div class="print-text-replica" id="p_t_node7_clk">&nbsp;</div>
- </td>
- <td>
- <input type="text" class="table-input" id="t_node7_fn" placeholder="Назначение узла..." data-key="t_node7_fn">
- <div class="print-text-replica" id="p_t_node7_fn">&nbsp;</div>
- </td>
- </tr>
- </tbody>
- </table>
- </section>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width: 22%;">Наименование узла</th>
+            <th style="width: 20%;">Класс схемы</th>
+            <th style="width: 14%;">Память</th>
+            <th style="width: 14%;">Тактирование</th>
+            <th style="width: 30%;">Основная функция в архитектуре</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Полный сумматор</strong></td>
+            <td>
+              <select class="table-select" id="t_node1_class" data-key="t_node1_class">
+                <option value="">Выберите класс...</option>
+                <option value="Комбинационный">Комбинационный</option>
+                <option value="Последовательностный">Последовательностный</option>
+              </select>
+              <div class="print-text-replica" id="p_t_node1_class">&nbsp;</div>
+            </td>
+            <td>
+              <input type="text" class="table-input" id="t_node1_mem" placeholder="Да / Нет" data-key="t_node1_mem">
+              <div class="print-text-replica" id="p_t_node1_mem">&nbsp;</div>
+            </td>
+            <td>
+              <input type="text" class="table-input" id="t_node1_clk" placeholder="Да / Нет" data-key="t_node1_clk">
+              <div class="print-text-replica" id="p_t_node1_clk">&nbsp;</div>
+            </td>
+            <td>
+              <input type="text" class="table-input" id="t_node1_fn" placeholder="Назначение узла..." data-key="t_node1_fn">
+              <div class="print-text-replica" id="p_t_node1_fn">&nbsp;</div>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Дешифратор адреса</strong></td>
+            <td>
+              <select class="table-select" id="t_node2_class" data-key="t_node2_class">
+                <option value="">Выберите класс...</option>
+                <option value="Комбинационный">Комбинационный</option>
+                <option value="Последовательностный">Последовательностный</option>
+              </select>
+              <div class="print-text-replica" id="p_t_node2_class">&nbsp;</div>
+            </td>
+            <td>
+              <input type="text" class="table-input" id="t_node2_mem" placeholder="Да / Нет" data-key="t_node2_mem">
+              <div class="print-text-replica" id="p_t_node2_mem">&nbsp;</div>
+            </td>
+            <td>
+              <input type="text" class="table-input" id="t_node2_clk" placeholder="Да / Нет" data-key="t_node2_clk">
+              <div class="print-text-replica" id="p_t_node2_clk">&nbsp;</div>
+            </td>
+            <td>
+              <input type="text" class="table-input" id="t_node2_fn" placeholder="Назначение узла..." data-key="t_node2_fn">
+              <div class="print-text-replica" id="p_t_node2_fn">&nbsp;</div>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Мультиплексор (MUX)</strong></td>
+            <td>
+              <select class="table-select" id="t_node3_class" data-key="t_node3_class">
+                <option value="">Выберите класс...</option>
+                <option value="Комбинационный">Комбинационный</option>
+                <option value="Последовательностный">Последовательностный</option>
+              </select>
+              <div class="print-text-replica" id="p_t_node3_class">&nbsp;</div>
+            </td>
+            <td>
+              <input type="text" class="table-input" id="t_node3_mem" placeholder="Да / Нет" data-key="t_node3_mem">
+              <div class="print-text-replica" id="p_t_node3_mem">&nbsp;</div>
+            </td>
+            <td>
+              <input type="text" class="table-input" id="t_node3_clk" placeholder="Да / Нет" data-key="t_node3_clk">
+              <div class="print-text-replica" id="p_t_node3_clk">&nbsp;</div>
+            </td>
+            <td>
+              <input type="text" class="table-input" id="t_node3_fn" placeholder="Назначение узла..." data-key="t_node3_fn">
+              <div class="print-text-replica" id="p_t_node3_fn">&nbsp;</div>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Компаратор кодов</strong></td>
+            <td>
+              <select class="table-select" id="t_node4_class" data-key="t_node4_class">
+                <option value="">Выберите класс...</option>
+                <option value="Комбинационный">Комбинационный</option>
+                <option value="Последовательностный">Последовательностный</option>
+              </select>
+              <div class="print-text-replica" id="p_t_node4_class">&nbsp;</div>
+            </td>
+            <td>
+              <input type="text" class="table-input" id="t_node4_mem" placeholder="Да / Нет" data-key="t_node4_mem">
+              <div class="print-text-replica" id="p_t_node4_mem">&nbsp;</div>
+            </td>
+            <td>
+              <input type="text" class="table-input" id="t_node4_clk" placeholder="Да / Нет" data-key="t_node4_clk">
+              <div class="print-text-replica" id="p_t_node4_clk">&nbsp;</div>
+            </td>
+            <td>
+              <input type="text" class="table-input" id="t_node4_fn" placeholder="Назначение узла..." data-key="t_node4_fn">
+              <div class="print-text-replica" id="p_t_node4_fn">&nbsp;</div>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>D-триггер</strong></td>
+            <td>
+              <select class="table-select" id="t_node5_class" data-key="t_node5_class">
+                <option value="">Выберите класс...</option>
+                <option value="Комбинационный">Комбинационный</option>
+                <option value="Последовательностный">Последовательностный</option>
+              </select>
+              <div class="print-text-replica" id="p_t_node5_class">&nbsp;</div>
+            </td>
+            <td>
+              <input type="text" class="table-input" id="t_node5_mem" placeholder="Да / Нет" data-key="t_node5_mem">
+              <div class="print-text-replica" id="p_t_node5_mem">&nbsp;</div>
+            </td>
+            <td>
+              <input type="text" class="table-input" id="t_node5_clk" placeholder="Да / Нет" data-key="t_node5_clk">
+              <div class="print-text-replica" id="p_t_node5_clk">&nbsp;</div>
+            </td>
+            <td>
+              <input type="text" class="table-input" id="t_node5_fn" placeholder="Назначение узла..." data-key="t_node5_fn">
+              <div class="print-text-replica" id="p_t_node5_fn">&nbsp;</div>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Регистр общего назначения</strong></td>
+            <td>
+              <select class="table-select" id="t_node6_class" data-key="t_node6_class">
+                <option value="">Выберите класс...</option>
+                <option value="Комбинационный">Комбинационный</option>
+                <option value="Последовательностный">Последовательностный</option>
+              </select>
+              <div class="print-text-replica" id="p_t_node6_class">&nbsp;</div>
+            </td>
+            <td>
+              <input type="text" class="table-input" id="t_node6_mem" placeholder="Да / Нет" data-key="t_node6_mem">
+              <div class="print-text-replica" id="p_t_node6_mem">&nbsp;</div>
+            </td>
+            <td>
+              <input type="text" class="table-input" id="t_node6_clk" placeholder="Да / Нет" data-key="t_node6_clk">
+              <div class="print-text-replica" id="p_t_node6_clk">&nbsp;</div>
+            </td>
+            <td>
+              <input type="text" class="table-input" id="t_node6_fn" placeholder="Назначение узла..." data-key="t_node6_fn">
+              <div class="print-text-replica" id="p_t_node6_fn">&nbsp;</div>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Программный счетчик (PC)</strong></td>
+            <td>
+              <select class="table-select" id="t_node7_class" data-key="t_node7_class">
+                <option value="">Выберите класс...</option>
+                <option value="Комбинационный">Комбинационный</option>
+                <option value="Последовательностный">Последовательностный</option>
+              </select>
+              <div class="print-text-replica" id="p_t_node7_class">&nbsp;</div>
+            </td>
+            <td>
+              <input type="text" class="table-input" id="t_node7_mem" placeholder="Да / Нет" data-key="t_node7_mem">
+              <div class="print-text-replica" id="p_t_node7_mem">&nbsp;</div>
+            </td>
+            <td>
+              <input type="text" class="table-input" id="t_node7_clk" placeholder="Да / Нет" data-key="t_node7_clk">
+              <div class="print-text-replica" id="p_t_node7_clk">&nbsp;</div>
+            </td>
+            <td>
+              <input type="text" class="table-input" id="t_node7_fn" placeholder="Назначение узла..." data-key="t_node7_fn">
+              <div class="print-text-replica" id="p_t_node7_fn">&nbsp;</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
 
- <!-- Задание 3: Трассировка сигналов -->
- <section class="card">
- <h2>Задание 3. Трассировка пути сигналов в логической схеме</h2>
- <p>Рассмотрите двухступенчатую схему: на входы A и B подаются логические уровни. Первая ступень: инвертор X<sub>1</sub> = overline{A} и конъюнктор X<sub>2</sub> = A land B. Вторая ступень: дизъюнктор F = X<sub>1</sub> lor X<sub>2</sub>.</p>
- <div class="form-group">
- <label for="task3_trace">Результаты трассировки и логическое упрощение:</label>
- <p style="font-size:0.92rem; color:var(--muted);">1) Вычислите значения промежуточных узлов X<sub>1</sub>, X<sub>2</sub> и выхода F для всех четырех комбинаций (A,B) ∈ \{(0,0), (0,1), (1,0), (1,1)\}.<br>
- 2) Постройте эквивалентное упрощенное логическое выражение для выхода F и объясните физический путь распространения сигнала.</p>
- <textarea id="task3_trace" class="form-control" placeholder="Запишите пошаговую трассировку для 4 комбинаций и выводы..." data-key="task3_trace"></textarea>
- <div class="print-text-replica" id="p_task3_trace">&nbsp;</div>
- </div>
- </section>
+    <!-- Задание 3: Трассировка сигналов -->
+    <section class="card">
+      <h2>Задание 3. Трассировка пути сигналов в логической схеме</h2>
+      <p>Рассмотрите двухступенчатую схему: на входы A и B подаются логические уровни. Первая ступень: инвертор X<sub>1</sub> = overline{A} и конъюнктор X<sub>2</sub> = A land B. Вторая ступень: дизъюнктор F = X<sub>1</sub> lor X<sub>2</sub>.</p>
+      <div class="form-group">
+        <label for="task3_trace">Результаты трассировки и логическое упрощение:</label>
+        <p style="font-size:0.92rem; color:var(--muted);">1) Вычислите значения промежуточных узлов X<sub>1</sub>, X<sub>2</sub> и выхода F для всех четырех комбинаций (A,B) ∈ \{(0,0), (0,1), (1,0), (1,1)\}.<br>
+        2) Постройте эквивалентное упрощенное логическое выражение для выхода F и объясните физический путь распространения сигнала.</p>
+        <textarea id="task3_trace" class="form-control" placeholder="Запишите пошаговую трассировку для 4 комбинаций и выводы..." data-key="task3_trace"></textarea>
+        <div class="print-text-replica" id="p_task3_trace">&nbsp;</div>
+      </div>
+    </section>
 
- <!-- Задание 4: Индивидуальный продукт по 4 вариантам -->
- <section class="card">
- <h2>Задание 4. Индивидуальный продукт по вариантам (Оценочная работа на 4 балла)</h2>
- <p>Выберите ваш вариант задания согласно указаниям преподавателя (или номеру в журнале: 1, 2, 3 или 4). Выполните проектирование схемы, трассировку сигнала, расчет мультимедиа и проверку.</p>
+    <!-- Задание 4: Индивидуальный продукт по 4 вариантам -->
+    <section class="card">
+      <h2>Задание 4. Индивидуальный продукт по вариантам (Оценочная работа на 4 балла)</h2>
+      <p>Выберите ваш вариант задания согласно указаниям преподавателя (или номеру в журнале: 1, 2, 3 или 4). Выполните проектирование схемы, трассировку сигнала, расчет мультимедиа и проверку.</p>
 
- <div class="variant-selector">
- <label for="chosenVariant" style="margin-bottom:0;"><strong>Ваш вариант:</strong></label>
- <select id="chosenVariant" class="table-select" style="max-width:260px;" data-key="chosenVariant">
- <option value="1">Вариант 1: Полусумматор + Речевой поток</option>
- <option value="2">Вариант 2: Мультиплексор 2-в-1 + Audio CD</option>
- <option value="3">Вариант 3: Синхронный D-триггер + Видео HD 720p</option>
- <option value="4">Вариант 4: Компаратор равенства 2 бит + Hi-Res Audio</option>
- </select>
- </div>
+      <div class="variant-selector">
+        <label for="chosenVariant" style="margin-bottom:0;"><strong>Ваш вариант:</strong></label>
+        <select id="chosenVariant" class="table-select" style="max-width:260px;" data-key="chosenVariant">
+          <option value="1">Вариант 1: Полусумматор + Речевой поток</option>
+          <option value="2">Вариант 2: Мультиплексор 2-в-1 + Audio CD</option>
+          <option value="3">Вариант 3: Синхронный D-триггер + Видео HD 720p</option>
+          <option value="4">Вариант 4: Компаратор равенства 2 бит + Hi-Res Audio</option>
+        </select>
+      </div>
 
- <!-- Вариант 1 -->
- <div class="variant-box" id="box_v1">
- <div class="variant-title">Вариант 1: Схема 1-битного полусумматора (Half Adder) и расчет аудиопотока речи</div>
- <div class="circuit-spec">
- <strong>Спецификация схемы:</strong> Входы: A, B. Выходы: S (младший разряд суммы), C (перенос в старший разряд).<br>
- Элементная база: 1 вентиль XOR (Исключающее ИЛИ) для выхода S = A ⊕ B, 1 вентиль AND (И) для выхода C = A land B.<br>
- <strong>Мультимедиа-задача:</strong> Речевой сигнал оцифрован с f<sub>s</sub> = 8 кГц, b = 8 бит, моно (k = 1). Длительность аудиозаписи 150 секунд.
- </div>
- </div>
+      <!-- Вариант 1 -->
+      <div class="variant-box" id="box_v1">
+        <div class="variant-title">Вариант 1: Схема 1-битного полусумматора (Half Adder) и расчет аудиопотока речи</div>
+        <div class="circuit-spec">
+          <strong>Спецификация схемы:</strong> Входы: A, B. Выходы: S (младший разряд суммы), C (перенос в старший разряд).<br>
+          Элементная база: 1 вентиль XOR (Исключающее ИЛИ) для выхода S = A ⊕ B, 1 вентиль AND (И) для выхода C = A land B.<br>
+          <strong>Мультимедиа-задача:</strong> Речевой сигнал оцифрован с f<sub>s</sub> = 8 кГц, b = 8 бит, моно (k = 1). Длительность аудиозаписи 150 секунд.
+        </div>
+      </div>
 
- <!-- Вариант 2 -->
- <div class="variant-box" id="box_v2">
- <div class="variant-title">Вариант 2: Схема мультиплексора «2 в 1» (MUX 2:1) и расчет качества Audio CD</div>
- <div class="circuit-spec">
- <strong>Спецификация схемы:</strong> Информационные входы: D<sub>0</sub>, D<sub>1</sub>. Адресный вход выбора: A. Выход данных: Y.<br>
- Элементная база: 1 инвертор NOT для сигнала overline{A}, 2 элемента 2И для конъюнкций D<sub>0</sub> land overline{A} и D<sub>1</sub> land A, 1 элемент 2ИЛИ для объединения Y = (D<sub>0</sub> land overline{A}) lor (D<sub>1</sub> land A).<br>
- <strong>Мультимедиа-задача:</strong> Аудиодорожка CD-DA: f<sub>s</sub> = 44.1 кГц, b = 16 бит, стерео (k = 2). Длительность звучания 3 минуты (180 секунд).
- </div>
- </div>
+      <!-- Вариант 2 -->
+      <div class="variant-box" id="box_v2">
+        <div class="variant-title">Вариант 2: Схема мультиплексора «2 в 1» (MUX 2:1) и расчет качества Audio CD</div>
+        <div class="circuit-spec">
+          <strong>Спецификация схемы:</strong> Информационные входы: D<sub>0</sub>, D<sub>1</sub>. Адресный вход выбора: A. Выход данных: Y.<br>
+          Элементная база: 1 инвертор NOT для сигнала overline{A}, 2 элемента 2И для конъюнкций D<sub>0</sub> land overline{A} и D<sub>1</sub> land A, 1 элемент 2ИЛИ для объединения Y = (D<sub>0</sub> land overline{A}) lor (D<sub>1</sub> land A).<br>
+          <strong>Мультимедиа-задача:</strong> Аудиодорожка CD-DA: f<sub>s</sub> = 44.1 кГц, b = 16 бит, стерео (k = 2). Длительность звучания 3 минуты (180 секунд).
+        </div>
+      </div>
 
- <!-- Вариант 3 -->
- <div class="variant-box" id="box_v3">
- <div class="variant-title">Вариант 3: Схема ячейки памяти на D-триггере и расчет видеопотока HD 720p</div>
- <div class="circuit-spec">
- <strong>Спецификация схемы:</strong> Информационный вход D, тактовый вход C (Clock), инвертор для формирования overline{D}, стробирующие элементы 2И-НЕ и бистабильная ячейка на перекрестных 2И-НЕ. Выход: Q и инверсный выход overline{Q}.<br>
- <strong>Мультимедиа-задача:</strong> Видеопоток стандарта HD 720p: разрешение 1280 × 720 пикселей, цвет TrueColor 24 бита/пиксель, частота 30 кадров/с. Длительность видеоролика 60 секунд.
- </div>
- </div>
+      <!-- Вариант 3 -->
+      <div class="variant-box" id="box_v3">
+        <div class="variant-title">Вариант 3: Схема ячейки памяти на D-триггере и расчет видеопотока HD 720p</div>
+        <div class="circuit-spec">
+          <strong>Спецификация схемы:</strong> Информационный вход D, тактовый вход C (Clock), инвертор для формирования overline{D}, стробирующие элементы 2И-НЕ и бистабильная ячейка на перекрестных 2И-НЕ. Выход: Q и инверсный выход overline{Q}.<br>
+          <strong>Мультимедиа-задача:</strong> Видеопоток стандарта HD 720p: разрешение 1280 × 720 пикселей, цвет TrueColor 24 бита/пиксель, частота 30 кадров/с. Длительность видеоролика 60 секунд.
+        </div>
+      </div>
 
- <!-- Вариант 4 -->
- <div class="variant-box" id="box_v4">
- <div class="variant-title">Вариант 4: Схема 2-битного компаратора равенства кодов и расчет Hi-Res Audio</div>
- <div class="circuit-spec">
- <strong>Спецификация схемы:</strong> Входные слова: A = (A<sub>1</sub>, A<sub>0</sub>) и B = (B<sub>1</sub>, B<sub>0</sub>). Выходной сигнал: EQ (логическая «1» при A = B).<br>
- Элементная база: два 2-входовых вентиля эквивалентности (XNOR) e<sub>0</sub> = overline{A<sub>0</sub> ⊕ B<sub>0</sub>} и e<sub>1</sub> = overline{A<sub>1</sub> ⊕ B<sub>1</sub>}, один вентиль 2И для формирования EQ = e<sub>1</sub> land e<sub>0</sub>.<br>
- <strong>Мультимедиа-задача:</strong> Студийный мастер-файл Hi-Res Audio: f<sub>s</sub> = 96 кГц, разрядность b = 24 бит, стерео (k = 2). Длительность звучания 2 минуты (120 секунд).
- </div>
- </div>
+      <!-- Вариант 4 -->
+      <div class="variant-box" id="box_v4">
+        <div class="variant-title">Вариант 4: Схема 2-битного компаратора равенства кодов и расчет Hi-Res Audio</div>
+        <div class="circuit-spec">
+          <strong>Спецификация схемы:</strong> Входные слова: A = (A<sub>1</sub>, A<sub>0</sub>) и B = (B<sub>1</sub>, B<sub>0</sub>). Выходной сигнал: EQ (логическая «1» при A = B).<br>
+          Элементная база: два 2-входовых вентиля эквивалентности (XNOR) e<sub>0</sub> = overline{A<sub>0</sub> ⊕ B<sub>0</sub>} и e<sub>1</sub> = overline{A<sub>1</sub> ⊕ B<sub>1</sub>}, один вентиль 2И для формирования EQ = e<sub>1</sub> land e<sub>0</sub>.<br>
+          <strong>Мультимедиа-задача:</strong> Студийный мастер-файл Hi-Res Audio: f<sub>s</sub> = 96 кГц, разрядность b = 24 бит, стерео (k = 2). Длительность звучания 2 минуты (120 секунд).
+        </div>
+      </div>
 
- <div class="form-group">
- <label for="task4_circuit">1. Построение схемы и путь сигнала (Таблица состояний):</label>
- <p style="font-size:0.92rem; color:var(--muted);">Опишите архитектурную схему выбранного варианта, составьте полную таблицу состояний/истинности для всех возможных входных наборов и детально поясните тракт прохождения сигнала от входов к выходу.</p>
- <textarea id="task4_circuit" class="form-control" style="min-height:110px;" placeholder="Приведите таблицу состояний, перечислите логические вентили и опишите путь распространения сигнала..." data-key="task4_circuit"></textarea>
- <div class="print-text-replica" id="p_task4_circuit">&nbsp;</div>
- </div>
+      <div class="form-group">
+        <label for="task4_circuit">1. Построение схемы и путь сигнала (Таблица состояний):</label>
+        <p style="font-size:0.92rem; color:var(--muted);">Опишите архитектурную схему выбранного варианта, составьте полную таблицу состояний/истинности для всех возможных входных наборов и детально поясните тракт прохождения сигнала от входов к выходу.</p>
+        <textarea id="task4_circuit" class="form-control" style="min-height:110px;" placeholder="Приведите таблицу состояний, перечислите логические вентили и опишите путь распространения сигнала..." data-key="task4_circuit"></textarea>
+        <div class="print-text-replica" id="p_task4_circuit">&nbsp;</div>
+      </div>
 
- <div class="form-group">
- <label for="task4_media">2. Решение мультимедиа-задачи варианта:</label>
- <p style="font-size:0.92rem; color:var(--muted);">Выполните детальный расчет битрейта (бит/с, кбит/с или Мбит/с) и суммарного объема несжатого потока данных за указанное время звучания/видеозаписи (в байтах и килобайтах/мегабайтах).</p>
- <textarea id="task4_media" class="form-control" style="min-height:100px;" placeholder="Покажите формулы, расчет битрейта и итогового объема потока..." data-key="task4_media"></textarea>
- <div class="print-text-replica" id="p_task4_media">&nbsp;</div>
- </div>
+      <div class="form-group">
+        <label for="task4_media">2. Решение мультимедиа-задачи варианта:</label>
+        <p style="font-size:0.92rem; color:var(--muted);">Выполните детальный расчет битрейта (бит/с, кбит/с или Мбит/с) и суммарного объема несжатого потока данных за указанное время звучания/видеозаписи (в байтах и килобайтах/мегабайтах).</p>
+        <textarea id="task4_media" class="form-control" style="min-height:100px;" placeholder="Покажите формулы, расчет битрейта и итогового объема потока..." data-key="task4_media"></textarea>
+        <div class="print-text-replica" id="p_task4_media">&nbsp;</div>
+      </div>
 
- <div class="form-group">
- <label for="task4_verify">3. Проверка и доказательство корректности решения:</label>
- <p style="font-size:0.92rem; color:var(--muted);">Проведите контрольную проверку схемы на тестовом наборе сигналов (или докажите отсутствие запрещенных состояний/ошибок), а для мультимедиа — выполните обратный проверочный расчет (например, восстановите длительность по вычисленному объему).</p>
- <textarea id="task4_verify" class="form-control" style="min-height:90px;" placeholder="Запишите тестовую проверку схемы и обратное арифметическое доказательство объема..." data-key="task4_verify"></textarea>
- <div class="print-text-replica" id="p_task4_verify">&nbsp;</div>
- </div>
+      <div class="form-group">
+        <label for="task4_verify">3. Проверка и доказательство корректности решения:</label>
+        <p style="font-size:0.92rem; color:var(--muted);">Проведите контрольную проверку схемы на тестовом наборе сигналов (или докажите отсутствие запрещенных состояний/ошибок), а для мультимедиа — выполните обратный проверочный расчет (например, восстановите длительность по вычисленному объему).</p>
+        <textarea id="task4_verify" class="form-control" style="min-height:90px;" placeholder="Запишите тестовую проверку схемы и обратное арифметическое доказательство объема..." data-key="task4_verify"></textarea>
+        <div class="print-text-replica" id="p_task4_verify">&nbsp;</div>
+      </div>
 
- <div class="rubric-box">
- <strong>Критерии оценивания индивидуального продукта (4-балльная шкала):</strong>
- <table class="rubric-table">
- <thead>
- <tr>
- <th style="width:25%;">Критерий</th>
- <th style="width:15%;">Баллы</th>
- <th style="width:60%;">Показатели выполнения</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>1. Корректность</strong></td>
- <td>0–2 балла</td>
- <td><strong>2 балла:</strong> Схема синтезирована верно, таблица состояний полная и безошибочная, математический расчет мультимедиа точен.<br><strong>1 балл:</strong> Допущена 1 неточность в вычислении объема или таблице при верной общей логике.<br><strong>0 баллов:</strong> 2 и более грубых ошибки.</td>
- </tr>
- <tr>
- <td><strong>2. Объяснение</strong></td>
- <td>0–1 балл</td>
- <td><strong>1 балл:</strong> Дано ясное, предметное описание пути сигнала через логические вентили/триггеры с указанием назначения каждого элемента.<br><strong>0 баллов:</strong> Пояснения отсутствуют или носят формальный характер.</td>
- </tr>
- <tr>
- <td><strong>3. Проверка</strong></td>
- <td>0–1 балл</td>
- <td><strong>1 балл:</strong> Проведено обратное арифметическое доказательство объема и проверка работы схемы на контрольном наборе сигналов.<br><strong>0 баллов:</strong> Проверка не выполнена.</td>
- </tr>
- </tbody>
- </table>
- <p style="margin-top:8px; font-size:0.88rem; color:var(--muted);">Срок сдачи индивидуальной оценочной работы: до следующего занятия.</p>
- </div>
- </section>
+      <div class="rubric-box">
+        <strong>Критерии оценивания индивидуального продукта (4-балльная шкала):</strong>
+        <table class="rubric-table">
+          <thead>
+            <tr>
+              <th style="width:25%;">Критерий</th>
+              <th style="width:15%;">Баллы</th>
+              <th style="width:60%;">Показатели выполнения</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1. Корректность</strong></td>
+              <td>0–2 балла</td>
+              <td><strong>2 балла:</strong> Схема синтезирована верно, таблица состояний полная и безошибочная, математический расчет мультимедиа точен.<br><strong>1 балл:</strong> Допущена 1 неточность в вычислении объема или таблице при верной общей логике.<br><strong>0 баллов:</strong> 2 и более грубых ошибки.</td>
+            </tr>
+            <tr>
+              <td><strong>2. Объяснение</strong></td>
+              <td>0–1 балл</td>
+              <td><strong>1 балл:</strong> Дано ясное, предметное описание пути сигнала через логические вентили/триггеры с указанием назначения каждого элемента.<br><strong>0 баллов:</strong> Пояснения отсутствуют или носят формальный характер.</td>
+            </tr>
+            <tr>
+              <td><strong>3. Проверка</strong></td>
+              <td>0–1 балл</td>
+              <td><strong>1 балл:</strong> Проведено обратное арифметическое доказательство объема и проверка работы схемы на контрольном наборе сигналов.<br><strong>0 баллов:</strong> Проверка не выполнена.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="margin-top:8px; font-size:0.88rem; color:var(--muted);">Срок сдачи индивидуальной оценочной работы: до следующего занятия.</p>
+      </div>
+    </section>
 
- <!-- Панель действий -->
- <div class="actions-bar">
- <div>
- <span class="status-badge" id="saveStatus">✓ Изменения сохраняются автоматически</span>
- </div>
- <div style="display:flex; gap:10px;">
- <button type="button" class="btn btn-outline" id="clearBtn">Очистить форму</button>
- <button type="button" class="btn btn-primary" id="printBtn">Сохранить в PDF / Печать</button>
- </div>
- </div>
- </form>
+    <!-- Панель действий -->
+    <div class="actions-bar">
+      <div>
+        <span class="status-badge" id="saveStatus">✓ Изменения сохраняются автоматически</span>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button type="button" class="btn btn-outline" id="clearBtn">Очистить форму</button>
+        <button type="button" class="btn btn-primary" id="printBtn">Сохранить в PDF / Печать</button>
+      </div>
+    </div>
+  </form>
 </div>
 
 <script>
- const STORAGE_KEY = 'sie_hw06_worksheet_data';
- const form = document.getElementById('worksheetForm');
- const saveStatus = document.getElementById('saveStatus');
- const fields = document.querySelectorAll('[data-key]');
+  const STORAGE_KEY = 'sie_hw06_worksheet_data';
+  const form = document.getElementById('worksheetForm');
+  const saveStatus = document.getElementById('saveStatus');
+  const fields = document.querySelectorAll('[data-key]');
 
- // Автоувеличение textarea
- function autoResize(el) {
- el.style.height = 'auto';
- el.style.height = Math.max(el.scrollHeight, 84) + 'px';
- }
+  // Автоувеличение textarea
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.max(el.scrollHeight, 84) + 'px';
+  }
 
- // Синхронизация данных в печатные реплики
- function syncPrintReplicas() {
- fields.forEach(el => {
- const key = el.getAttribute('data-key');
- const replica = document.getElementById('p_' + key);
- if (replica) {
- if (el.tagName === 'SELECT') {
- const selectedText = el.options[el.selectedIndex] ? el.options[el.selectedIndex].text : '';
- replica.textContent = el.value ? selectedText : '';
- } else {
- replica.textContent = el.value | '';
- }
- if (!replica.textContent.trim()) {
- replica.innerHTML = '&nbsp;';
- }
- }
- });
- }
+  // Синхронизация данных в печатные реплики
+  function syncPrintReplicas() {
+    fields.forEach(el => {
+      const key = el.getAttribute('data-key');
+      const replica = document.getElementById('p_' + key);
+      if (replica) {
+        if (el.tagName === 'SELECT') {
+          const selectedText = el.options[el.selectedIndex] ? el.options[el.selectedIndex].text : '';
+          replica.textContent = el.value ? selectedText : '';
+        } else {
+          replica.textContent = el.value || '';
+        }
+        if (!replica.textContent.trim()) {
+          replica.innerHTML = '&nbsp;';
+        }
+      }
+    });
+  }
 
- // Сохранение в LocalStorage
- function saveFormData() {
- const data = {};
- fields.forEach(el => {
- const key = el.getAttribute('data-key');
- data[key] = el.value;
- });
- try {
- localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
- saveStatus.textContent = '✓ Сохранено в ' + new Date().toLocaleTimeString();
- } catch (e) {
- console.error('Ошибка сохранения в localStorage', e);
- }
- }
+  // Сохранение в LocalStorage
+  function saveFormData() {
+    const data = {};
+    fields.forEach(el => {
+      const key = el.getAttribute('data-key');
+      data[key] = el.value;
+    });
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      saveStatus.textContent = '✓ Сохранено в ' + new Date().toLocaleTimeString();
+    } catch (e) {
+      console.error('Ошибка сохранения в localStorage', e);
+    }
+  }
 
- // Загрузка из LocalStorage
- function loadFormData() {
- try {
- const raw = localStorage.getItem(STORAGE_KEY);
- if (raw) {
- const data = JSON.parse(raw);
- fields.forEach(el => {
- const key = el.getAttribute('data-key');
- if (data[key] !== undefined) {
- el.value = data[key];
- }
- if (el.tagName === 'TEXTAREA') {
- autoResize(el);
- }
- });
- }
- } catch (e) {
- console.error('Ошибка загрузки данных', e);
- }
- syncPrintReplicas();
- }
+  // Загрузка из LocalStorage
+  function loadFormData() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const data = JSON.parse(raw);
+        fields.forEach(el => {
+          const key = el.getAttribute('data-key');
+          if (data[key] !== undefined) {
+            el.value = data[key];
+          }
+          if (el.tagName === 'TEXTAREA') {
+            autoResize(el);
+          }
+        });
+      }
+    } catch (e) {
+      console.error('Ошибка загрузки данных', e);
+    }
+    syncPrintReplicas();
+  }
 
- // Подтвержденная очистка формы
- document.getElementById('clearBtn').addEventListener('click', () => {
- if (confirm('Вы действительно хотите полностью очистить все введенные данные? Несохраненные записи будут удалены.')) {
- localStorage.removeItem(STORAGE_KEY);
- fields.forEach(el => {
- el.value = '';
- if (el.tagName === 'TEXTAREA') {
- el.style.height = '84px';
- }
- });
- syncPrintReplicas();
- saveStatus.textContent = 'Форма очищена';
- }
- });
+  // Подтвержденная очистка формы
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    if (confirm('Вы действительно хотите полностью очистить все введенные данные? Несохраненные записи будут удалены.')) {
+      localStorage.removeItem(STORAGE_KEY);
+      fields.forEach(el => {
+        el.value = '';
+        if (el.tagName === 'TEXTAREA') {
+          el.style.height = '84px';
+        }
+      });
+      syncPrintReplicas();
+      saveStatus.textContent = 'Форма очищена';
+    }
+  });
 
- // Печать
- document.getElementById('printBtn').addEventListener('click', () => {
- syncPrintReplicas();
- window.print();
- });
+  // Печать
+  document.getElementById('printBtn').addEventListener('click', () => {
+    syncPrintReplicas();
+    window.print();
+  });
 
- // Слушатели ввода
- fields.forEach(el => {
- el.addEventListener('input', () => {
- if (el.tagName === 'TEXTAREA') {
- autoResize(el);
- }
- syncPrintReplicas();
- saveFormData();
- });
- if (el.tagName === 'SELECT') {
- el.addEventListener('change', () => {
- syncPrintReplicas();
- saveFormData();
- });
- }
- });
+  // Слушатели ввода
+  fields.forEach(el => {
+    el.addEventListener('input', () => {
+      if (el.tagName === 'TEXTAREA') {
+        autoResize(el);
+      }
+      syncPrintReplicas();
+      saveFormData();
+    });
+    if (el.tagName === 'SELECT') {
+      el.addEventListener('change', () => {
+        syncPrintReplicas();
+        saveFormData();
+      });
+    }
+  });
 
- window.addEventListener('beforeprint', syncPrintReplicas);
- window.addEventListener('DOMContentLoaded', loadFormData);
+  window.addEventListener('beforeprint', syncPrintReplicas);
+  window.addEventListener('DOMContentLoaded', loadFormData);
 </script>
 
 </body>

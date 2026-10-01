@@ -1,459 +1,482 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
- <title>Практикум: Обзор структурной схемы. Центральная и периферийная части компьютера</title>
- <style>
- :root {
- --bg: #f1f5f9;
- --card: #ffffff;
- --text: #0f172a;
- --muted: #475569;
- --line: #cbd5e1;
- --accent: #1e40af;
- --accent-soft: #eff6ff;
- --task-bg: #f8fafc;
- --border-task: #94a3b8;
- --ok: #059669;
- --radius: 14px;
- --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
- }
- * { box-sizing: border-box; margin: 0; padding: 0; }
- body {
- background: var(--bg);
- color: var(--text);
- font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
- line-height: 1.6;
- font-size: 16px;
- padding: 20px 14px;
- }.page {
- max-width: 900px;
- margin: 0 auto;
- }.header-card,.student-card,.task-card,.actions-card {
- background: var(--card);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 24px;
- margin-bottom: 20px;
- box-shadow: var(--shadow);
- }
- h1 {
- font-size: clamp(22px, 3.5vw, 28px);
- color: var(--accent);
- margin-bottom: 8px;
- }.desc {
- color: var(--muted);
- font-size: 15px;
- }.student-grid {
- display: grid;
- grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
- gap: 14px;
- }
- label {
- display: block;
- font-weight: 600;
- font-size: 14px;
- margin-bottom: 6px;
- color: #1e293b;
- }
- input[type="text"], input[type="date"], select, textarea {
- width: 100%;
- border: 1.5px solid var(--line);
- border-radius: 8px;
- padding: 10px 12px;
- font: inherit;
- font-size: 15px;
- background: #fff;
- color: var(--text);
- outline: none;
- transition: border-color.15s, box-shadow.15s;
- }
- input:focus, select:focus, textarea:focus {
- border-color: var(--accent);
- box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
- }
- textarea {
- min-height: 90px;
- resize: vertical;
- line-height: 1.5;
- }.criteria-box {
- background: #f0fdf4;
- border: 1px solid #bbf7d0;
- border-radius: 10px;
- padding: 14px 18px;
- margin-bottom: 18px;
- font-size: 14px;
- }.criteria-box strong { color: var(--ok); }.task-title {
- font-size: 18px;
- font-weight: 700;
- color: var(--accent);
- margin-bottom: 10px;
- display: flex;
- align-items: center;
- gap: 8px;
- }.task-help {
- background: var(--accent-soft);
- border-left: 3px solid var(--accent);
- padding: 10px 14px;
- border-radius: 0 6px 6px 0;
- margin-bottom: 14px;
- font-size: 14px;
- color: #1e3a8a;
- }.table-wrap {
- overflow-x: auto;
- margin: 12px 0;
- }
- table {
- width: 100%;
- border-collapse: collapse;
- font-size: 14px;
- }
- th, td {
- border: 1px solid var(--line);
- padding: 8px 10px;
- text-align: left;
- }
- th {
- background: #f8fafc;
- font-weight: 600;
- }.btn-row {
- display: flex;
- flex-wrap: wrap;
- gap: 12px;
- align-items: center;
- }.btn {
- padding: 11px 20px;
- border-radius: 8px;
- font-weight: 600;
- font-size: 15px;
- cursor: pointer;
- border: none;
- transition: background.15s, transform.05s;
- }.btn-primary {
- background: var(--accent);
- color: #fff;
- }.btn-primary:hover { background: #1d4ed8; }.btn-secondary {
- background: #e2e8f0;
- color: #334155;
- }.btn-secondary:hover { background: #cbd5e1; }.btn-danger {
- background: #fee2e2;
- color: #991b1b;
- border: 1px solid #fecaca;
- }.btn-danger:hover { background: #fecaca; }.status-msg {
- font-size: 14px;
- font-weight: 600;
- margin-left: auto;
- }.status-saved { color: var(--ok); }
- @media print {
- body { background: #fff; padding: 0; font-size: 12pt; }.header-card,.student-card,.task-card,.actions-card,.card {
- box-shadow: none; border: 1px solid #ccc; break-inside: avoid; page-break-inside: avoid; margin-bottom: 12pt;
- }.actions-card { display: none; }
- input::placeholder, textarea::placeholder {
- color: transparent !important;
- -webkit-text-fill-color: transparent !important;
- opacity: 0 !important;
- }.print-select-text { display: none; }
- select {
- display: none !important;
- }.print-select-text {
- display: block !important;
- min-height: 20px;
- border: 1px solid #777 !important;
- border-radius: 4px;
- padding: 6px 8px;
- background: #fff !important;
- }
- textarea {
- height: auto !important;
- min-height: 80px;
- overflow: visible !important;
- white-space: pre-wrap !important;
- word-break: break-word !important;
- border: 1px solid #777 !important;
- }
- input[type="text"], input[type="date"] {
- border: 1px solid #777 !important;
- background: #fff !important;
- }
- }
- </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Практикум: Обзор структурной схемы. Центральная и периферийная части компьютера</title>
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --task-bg: #f8fafc;
+      --border-task: #94a3b8;
+      --ok: #059669;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 16px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .task-card, .actions-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(22px, 3.5vw, 28px);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .desc {
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    input[type="text"], input[type="date"], select, textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font: inherit;
+      font-size: 15px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+    }
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    .criteria-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      font-size: 14px;
+    }
+    .criteria-box strong { color: var(--ok); }
+    .task-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .task-help {
+      background: var(--accent-soft);
+      border-left: 3px solid var(--accent);
+      padding: 10px 14px;
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 14px;
+      font-size: 14px;
+      color: #1e3a8a;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+    }
+    th {
+      background: #f8fafc;
+      font-weight: 600;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    .btn {
+      padding: 11px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      border: none;
+      transition: background .15s, transform .05s;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #334155;
+    }
+    .btn-secondary:hover { background: #cbd5e1; }
+    .btn-danger {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+    .btn-danger:hover { background: #fecaca; }
+    .status-msg {
+      font-size: 14px;
+      font-weight: 600;
+      margin-left: auto;
+    }
+    .status-saved { color: var(--ok); }
+    @media print {
+      body { background: #fff; padding: 0; font-size: 12pt; }
+      .header-card, .student-card, .task-card, .actions-card, .card {
+        box-shadow: none; border: 1px solid #ccc; break-inside: avoid; page-break-inside: avoid; margin-bottom: 12pt;
+      }
+      .actions-card { display: none; }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        opacity: 0 !important;
+      }
+      .print-select-text { display: none; }
+      select {
+        display: none !important;
+      }
+      .print-select-text {
+        display: block !important;
+        min-height: 20px;
+        border: 1px solid #777 !important;
+        border-radius: 4px;
+        padding: 6px 8px;
+        background: #fff !important;
+      }
+      textarea {
+        height: auto !important;
+        min-height: 80px;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        border: 1px solid #777 !important;
+      }
+      input[type="text"], input[type="date"] {
+        border: 1px solid #777 !important;
+        background: #fff !important;
+      }
+    }
+  </style>
 </head>
 <body>
 <div class="page">
- <div class="header-card">
- <h1>Практикум: Обзор структурной схемы. Центральная и периферийная части компьютера</h1>
- <p class="desc">Индивидуальная практическая работа: анализ классификации узлов, трассировка шинных потоков данных и преодоление узкого горлышка фон Неймана.</p>
- </div>
+  <div class="header-card">
+    <h1>Практикум: Обзор структурной схемы. Центральная и периферийная части компьютера</h1>
+    <p class="desc">Индивидуальная практическая работа: анализ классификации узлов, трассировка шинных потоков данных и преодоление узкого горлышка фон Неймана.</p>
+  </div>
 
- <div class="student-card">
- <div class="student-grid">
- <div>
- <label for="studentName">Фамилия и имя обучающегося:</label>
- <input type="text" id="studentName" autocomplete="name">
- </div>
- <div>
- <label for="studentGroup">Группа:</label>
- <input type="text" id="studentGroup">
- </div>
- <div>
- <label for="workDate">Дата выполнения:</label>
- <input type="date" id="workDate">
- </div>
- </div>
- </div>
+  <div class="student-card">
+    <div class="student-grid">
+      <div>
+        <label for="studentName">Фамилия и имя обучающегося:</label>
+        <input type="text" id="studentName" autocomplete="name">
+      </div>
+      <div>
+        <label for="studentGroup">Группа:</label>
+        <input type="text" id="studentGroup">
+      </div>
+      <div>
+        <label for="workDate">Дата выполнения:</label>
+        <input type="date" id="workDate">
+      </div>
+    </div>
+  </div>
 
- <div class="criteria-box">
- <strong>Критерии оценивания индивидуальной работы (максимум 4 балла):</strong>
- <ul style="margin-top: 6px; padding-left: 20px;">
- <li><strong>Задание 1 (2 балла):</strong> Корректность отнесения всех 6 компонентов к центральной/периферийной части и точное указание шинного интерфейса подключения.</li>
- <li><strong>Задание 2 (1 балл):</strong> Полная и логически верная пошаговая трассировка машинного цикла с фиксацией сигналов ША, ШД и ШУ.</li>
- <li><strong>Задание 3 (1 балл):</strong> Точный анализ узкого горлышка фон Неймана и обоснование двух технически реализуемых способов оптимизации.</li>
- </ul>
- </div>
+  <div class="criteria-box">
+    <strong>Критерии оценивания индивидуальной работы (максимум 4 балла):</strong>
+    <ul style="margin-top: 6px; padding-left: 20px;">
+      <li><strong>Задание 1 (2 балла):</strong> Корректность отнесения всех 6 компонентов к центральной/периферийной части и точное указание шинного интерфейса подключения.</li>
+      <li><strong>Задание 2 (1 балл):</strong> Полная и логически верная пошаговая трассировка машинного цикла с фиксацией сигналов ША, ШД и ШУ.</li>
+      <li><strong>Задание 3 (1 балл):</strong> Точный анализ узкого горлышка фон Неймана и обоснование двух технически реализуемых способов оптимизации.</li>
+    </ul>
+  </div>
 
- <!-- Задание 1 -->
- <div class="task-card">
- <div class="task-title">Задание 1. Структурная классификация компонентов (2 балла)</div>
- <div class="task-help">
- Распределите аппаратные узлы по подсистемам (Центральная / Периферийная) и опишите, через какую магистраль/интерфейс они подключаются к системной шине.
- </div>
- 
- <div class="table-wrap">
- <table>
- <thead>
- <tr>
- <th style="width: 25%;">Компонент</th>
- <th style="width: 25%;">Часть компьютера</th>
- <th style="width: 50%;">Интерфейс / магистраль подключения</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>Регистр аккумулятора (ACC)</strong></td>
- <td>
- <select id="part_acc">
- <option value="">-- выберите --</option>
- <option value="central">Центральная часть</option>
- <option value="peripheral">Периферийная часть</option>
- </select>
- </td>
- <td><input type="text" id="bus_acc" placeholder="Укажите интерфейс/шину..."></td>
- </tr>
- <tr>
- <td><strong>Модуль ОЗУ (DDR4/DDR5)</strong></td>
- <td>
- <select id="part_ram">
- <option value="">-- выберите --</option>
- <option value="central">Центральная часть</option>
- <option value="peripheral">Периферийная часть</option>
- </select>
- </td>
- <td><input type="text" id="bus_ram" placeholder="Укажите интерфейс/шину..."></td>
- </tr>
- <tr>
- <td><strong>Контроллер прямого доступа к памяти (DMA)</strong></td>
- <td>
- <select id="part_dma">
- <option value="">-- выберите --</option>
- <option value="central">Центральная часть</option>
- <option value="peripheral">Периферийная часть</option>
- </select>
- </td>
- <td><input type="text" id="bus_dma" placeholder="Укажите интерфейс/шину..."></td>
- </tr>
- <tr>
- <td><strong>Твердотельный накопитель NVMe SSD</strong></td>
- <td>
- <select id="part_ssd">
- <option value="">-- выберите --</option>
- <option value="central">Центральная часть</option>
- <option value="peripheral">Периферийная часть</option>
- </select>
- </td>
- <td><input type="text" id="bus_ssd" placeholder="Укажите интерфейс/шину..."></td>
- </tr>
- <tr>
- <td><strong>Клавиатура USB</strong></td>
- <td>
- <select id="part_kbd">
- <option value="">-- выберите --</option>
- <option value="central">Центральная часть</option>
- <option value="peripheral">Периферийная часть</option>
- </select>
- </td>
- <td><input type="text" id="bus_kbd" placeholder="Укажите интерфейс/шину..."></td>
- </tr>
- <tr>
- <td><strong>Арифметико-логическое устройство (АЛУ)</strong></td>
- <td>
- <select id="part_alu">
- <option value="">-- выберите --</option>
- <option value="central">Центральная часть</option>
- <option value="peripheral">Периферийная часть</option>
- </select>
- </td>
- <td><input type="text" id="bus_alu" placeholder="Укажите интерфейс/шину..."></td>
- </tr>
- </tbody>
- </table>
- </div>
- </div>
+  <!-- Задание 1 -->
+  <div class="task-card">
+    <div class="task-title">Задание 1. Структурная классификация компонентов (2 балла)</div>
+    <div class="task-help">
+      Распределите аппаратные узлы по подсистемам (Центральная / Периферийная) и опишите, через какую магистраль/интерфейс они подключаются к системной шине.
+    </div>
+    
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25%;">Компонент</th>
+            <th style="width: 25%;">Часть компьютера</th>
+            <th style="width: 50%;">Интерфейс / магистраль подключения</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Регистр аккумулятора (ACC)</strong></td>
+            <td>
+              <select id="part_acc">
+                <option value="">-- выберите --</option>
+                <option value="central">Центральная часть</option>
+                <option value="peripheral">Периферийная часть</option>
+              </select>
+            </td>
+            <td><input type="text" id="bus_acc" placeholder="Укажите интерфейс/шину..."></td>
+          </tr>
+          <tr>
+            <td><strong>Модуль ОЗУ (DDR4/DDR5)</strong></td>
+            <td>
+              <select id="part_ram">
+                <option value="">-- выберите --</option>
+                <option value="central">Центральная часть</option>
+                <option value="peripheral">Периферийная часть</option>
+              </select>
+            </td>
+            <td><input type="text" id="bus_ram" placeholder="Укажите интерфейс/шину..."></td>
+          </tr>
+          <tr>
+            <td><strong>Контроллер прямого доступа к памяти (DMA)</strong></td>
+            <td>
+              <select id="part_dma">
+                <option value="">-- выберите --</option>
+                <option value="central">Центральная часть</option>
+                <option value="peripheral">Периферийная часть</option>
+              </select>
+            </td>
+            <td><input type="text" id="bus_dma" placeholder="Укажите интерфейс/шину..."></td>
+          </tr>
+          <tr>
+            <td><strong>Твердотельный накопитель NVMe SSD</strong></td>
+            <td>
+              <select id="part_ssd">
+                <option value="">-- выберите --</option>
+                <option value="central">Центральная часть</option>
+                <option value="peripheral">Периферийная часть</option>
+              </select>
+            </td>
+            <td><input type="text" id="bus_ssd" placeholder="Укажите интерфейс/шину..."></td>
+          </tr>
+          <tr>
+            <td><strong>Клавиатура USB</strong></td>
+            <td>
+              <select id="part_kbd">
+                <option value="">-- выберите --</option>
+                <option value="central">Центральная часть</option>
+                <option value="peripheral">Периферийная часть</option>
+              </select>
+            </td>
+            <td><input type="text" id="bus_kbd" placeholder="Укажите интерфейс/шину..."></td>
+          </tr>
+          <tr>
+            <td><strong>Арифметико-логическое устройство (АЛУ)</strong></td>
+            <td>
+              <select id="part_alu">
+                <option value="">-- выберите --</option>
+                <option value="central">Центральная часть</option>
+                <option value="peripheral">Периферийная часть</option>
+              </select>
+            </td>
+            <td><input type="text" id="bus_alu" placeholder="Укажите интерфейс/шину..."></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
- <!-- Задание 2 -->
- <div class="task-card">
- <div class="task-title">Задание 2. Трассировка машинного цикла команды (1 балл)</div>
- <div class="task-help">
- Опишите пошаговый маршрут движения сигналов и данных при выполнении ассемблерной команды <code>ADD R1, [0x04F0]</code> (сложение регистра R1 с содержимым ячейки ОЗУ по адресу 0x04F0). Обязательно укажите, какие значения выставляются на шину адреса (ША), шину данных (ШД) и шину управления (ШУ) на этапах Fetch, Decode, Execute, Writeback.
- </div>
- <label for="task2_trace">Ваш пошаговый протокол выполнения команды:</label>
- <textarea id="task2_trace" placeholder="Шаг 1 (Выборка команды):...
-Шаг 2 (Декодирование):...
-Шаг 3 (Выборка операнда из памяти):...
-Шаг 4 (Исполнение в АЛУ):...
-Шаг 5 (Запись результата):..."></textarea>
- </div>
+  <!-- Задание 2 -->
+  <div class="task-card">
+    <div class="task-title">Задание 2. Трассировка машинного цикла команды (1 балл)</div>
+    <div class="task-help">
+      Опишите пошаговый маршрут движения сигналов и данных при выполнении ассемблерной команды <code>ADD R1, [0x04F0]</code> (сложение регистра R1 с содержимым ячейки ОЗУ по адресу 0x04F0). Обязательно укажите, какие значения выставляются на шину адреса (ША), шину данных (ШД) и шину управления (ШУ) на этапах Fetch, Decode, Execute, Writeback.
+    </div>
+    <label for="task2_trace">Ваш пошаговый протокол выполнения команды:</label>
+    <textarea id="task2_trace" placeholder="Шаг 1 (Выборка команды): ...
+Шаг 2 (Декодирование): ...
+Шаг 3 (Выборка операнда из памяти): ...
+Шаг 4 (Исполнение в АЛУ): ...
+Шаг 5 (Запись результата): ..."></textarea>
+  </div>
 
- <!-- Задание 3 -->
- <div class="task-card">
- <div class="task-title">Задание 3. Анализ «узкого горлышка фон Неймана» (1 балл)</div>
- <div class="task-help">
- Объясните, почему при росте тактовой частоты процессоров общая шина памяти стала критическим барьером быстродействия, и подробно аргументируйте два технических способа, с помощью которых архитекторы современных ЭВМ преодолевают это ограничение.
- </div>
- <label for="task3_analysis">Ваш развёрнутый аналитический ответ:</label>
- <textarea id="task3_analysis" placeholder="1. В чём выражается ограничение общей шины памяти:
+  <!-- Задание 3 -->
+  <div class="task-card">
+    <div class="task-title">Задание 3. Анализ «узкого горлышка фон Неймана» (1 балл)</div>
+    <div class="task-help">
+      Объясните, почему при росте тактовой частоты процессоров общая шина памяти стала критическим барьером быстродействия, и подробно аргументируйте два технических способа, с помощью которых архитекторы современных ЭВМ преодолевают это ограничение.
+    </div>
+    <label for="task3_analysis">Ваш развёрнутый аналитический ответ:</label>
+    <textarea id="task3_analysis" placeholder="1. В чём выражается ограничение общей шины памяти:
 2. Способ решения №1 (внутренняя гарвардская структура кэша):
 3. Способ решения №2 (иерархия кэшей / конвейеризация / многоканальность / DMA):"></textarea>
- </div>
+  </div>
 
- <!-- Панель действий -->
- <div class="actions-card">
- <div class="btn-row">
- <button type="button" class="btn btn-primary" onclick="window.print()">Распечатать / Сохранить в PDF</button>
- <button type="button" class="btn btn-secondary" onclick="manualSave()">Сохранить локально</button>
- <button type="button" class="btn btn-danger" onclick="confirmReset()">Очистить форму</button>
- <div id="saveStatus" class="status-msg"></div>
- </div>
- </div>
+  <!-- Панель действий -->
+  <div class="actions-card">
+    <div class="btn-row">
+      <button type="button" class="btn btn-primary" onclick="window.print()">Распечатать / Сохранить в PDF</button>
+      <button type="button" class="btn btn-secondary" onclick="manualSave()">Сохранить локально</button>
+      <button type="button" class="btn btn-danger" onclick="confirmReset()">Очистить форму</button>
+      <div id="saveStatus" class="status-msg"></div>
+    </div>
+  </div>
 </div>
 
 <script>
- const STORAGE_KEY = 'sie_hw08_zanyatie_data';
- const fields = [
- 'studentName', 'studentGroup', 'workDate',
- 'part_acc', 'bus_acc', 'part_ram', 'bus_ram',
- 'part_dma', 'bus_dma', 'part_ssd', 'bus_ssd',
- 'part_kbd', 'bus_kbd', 'part_alu', 'bus_alu',
- 'task2_trace', 'task3_analysis'
- ];
+  const STORAGE_KEY = 'sie_hw08_zanyatie_data';
+  const fields = [
+    'studentName', 'studentGroup', 'workDate',
+    'part_acc', 'bus_acc', 'part_ram', 'bus_ram',
+    'part_dma', 'bus_dma', 'part_ssd', 'bus_ssd',
+    'part_kbd', 'bus_kbd', 'part_alu', 'bus_alu',
+    'task2_trace', 'task3_analysis'
+  ];
 
- function autoResize(el) {
- el.style.height = 'auto';
- el.style.height = (el.scrollHeight + 4) + 'px';
- }
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = (el.scrollHeight + 4) + 'px';
+  }
 
- function loadFormData() {
- try {
- const raw = localStorage.getItem(STORAGE_KEY);
- if (!raw) return;
- const data = JSON.parse(raw);
- fields.forEach(id => {
- const el = document.getElementById(id);
- if (el && data[id] !== undefined) {
- el.value = data[id];
- if (el.tagName.toLowerCase() === 'textarea') {
- autoResize(el);
- }
- }
- });
- showStatus('Данные восстановлены из памяти браузера', false);
- } catch (e) {
- console.error(e);
- }
- }
+  function loadFormData() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && data[id] !== undefined) {
+          el.value = data[id];
+          if (el.tagName.toLowerCase() === 'textarea') {
+            autoResize(el);
+          }
+        }
+      });
+      showStatus('Данные восстановлены из памяти браузера', false);
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
- function saveFormData() {
- try {
- const data = {};
- fields.forEach(id => {
- const el = document.getElementById(id);
- if (el) data[id] = el.value;
- });
- localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
- showStatus('Сохранено автоматически', true);
- } catch (e) {
- console.error(e);
- }
- }
+  function saveFormData() {
+    try {
+      const data = {};
+      fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) data[id] = el.value;
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      showStatus('Сохранено автоматически', true);
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
- function manualSave() {
- saveFormData();
- alert('Ваши ответы сохранены в локальном хранилище браузера.');
- }
+  function manualSave() {
+    saveFormData();
+    alert('Ваши ответы сохранены в локальном хранилище браузера.');
+  }
 
- function showStatus(text, ok) {
- const el = document.getElementById('saveStatus');
- if (!el) return;
- el.textContent = text;
- el.className = 'status-msg ' + (ok ? 'status-saved' : '');
- setTimeout(() => {
- if (el.textContent === text) el.textContent = '';
- }, 3500);
- }
+  function showStatus(text, ok) {
+    const el = document.getElementById('saveStatus');
+    if (!el) return;
+    el.textContent = text;
+    el.className = 'status-msg ' + (ok ? 'status-saved' : '');
+    setTimeout(() => {
+      if (el.textContent === text) el.textContent = '';
+    }, 3500);
+  }
 
- function confirmReset() {
- if (confirm('Вы действительно хотите очистить все введённые ответы? Восстановить их будет невозможно.')) {
- localStorage.removeItem(STORAGE_KEY);
- fields.forEach(id => {
- const el = document.getElementById(id);
- if (el) {
- el.value = '';
- if (el.tagName.toLowerCase() === 'textarea') {
- el.style.height = '';
- }
- }
- });
- showStatus('Форма очищена', false);
- }
- }
+  function confirmReset() {
+    if (confirm('Вы действительно хотите очистить все введённые ответы? Восстановить их будет невозможно.')) {
+      localStorage.removeItem(STORAGE_KEY);
+      fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.value = '';
+          if (el.tagName.toLowerCase() === 'textarea') {
+            el.style.height = '';
+          }
+        }
+      });
+      showStatus('Форма очищена', false);
+    }
+  }
 
- document.addEventListener('DOMContentLoaded', () => {
- loadFormData();
- 
- // Слушатели ввода
- fields.forEach(id => {
- const el = document.getElementById(id);
- if (el) {
- el.addEventListener('input', () => {
- if (el.tagName.toLowerCase() === 'textarea') {
- autoResize(el);
- }
- saveFormData();
- });
- el.addEventListener('change', saveFormData);
- }
- });
+  document.addEventListener('DOMContentLoaded', () => {
+    loadFormData();
+    
+    // Слушатели ввода
+    fields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => {
+          if (el.tagName.toLowerCase() === 'textarea') {
+            autoResize(el);
+          }
+          saveFormData();
+        });
+        el.addEventListener('change', saveFormData);
+      }
+    });
 
- // Ресайз текстовых полей при первой загрузке
- document.querySelectorAll('textarea').forEach(autoResize);
+    // Ресайз текстовых полей при первой загрузке
+    document.querySelectorAll('textarea').forEach(autoResize);
 
- // Подготовка селектов к печати без плейсхолдера
- function syncPrintSelects() {
- document.querySelectorAll('select').forEach(sel => {
- let p = sel.nextElementSibling;
- if (!p | !p.classList.contains('print-select-text')) {
- p = document.createElement('div');
- p.className = 'print-select-text';
- sel.parentNode.insertBefore(p, sel.nextSibling);
- }
- const opt = sel.options[sel.selectedIndex];
- p.textContent = (sel.value && opt) ? opt.text : '';
- });
- }
- syncPrintSelects();
- window.addEventListener('beforeprint', syncPrintSelects);
- document.querySelectorAll('select').forEach(s => s.addEventListener('change', syncPrintSelects));
- });
+    // Подготовка селектов к печати без плейсхолдера
+    function syncPrintSelects() {
+      document.querySelectorAll('select').forEach(sel => {
+        let p = sel.nextElementSibling;
+        if (!p || !p.classList.contains('print-select-text')) {
+          p = document.createElement('div');
+          p.className = 'print-select-text';
+          sel.parentNode.insertBefore(p, sel.nextSibling);
+        }
+        const opt = sel.options[sel.selectedIndex];
+        p.textContent = (sel.value && opt) ? opt.text : '';
+      });
+    }
+    syncPrintSelects();
+    window.addEventListener('beforeprint', syncPrintSelects);
+    document.querySelectorAll('select').forEach(s => s.addEventListener('change', syncPrintSelects));
+  });
 </script>
 </body>
 </html>

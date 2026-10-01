@@ -1,413 +1,450 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
- <title>Конспект лекции: Утилиты обслуживания дисков — ОП.02 Архитектура аппаратных средств</title>
- <style>
- :root {
- --bg: #f8fafc;
- --card: #ffffff;
- --text: #0f172a;
- --muted: #475569;
- --line: #cbd5e1;
- --accent: #1e40af;
- --accent-soft: #eff6ff;
- --code-bg: #0f172a;
- --code-text: #f1f5f9;
- --success: #059669;
- --warn: #d97706;
- --danger: #dc2626;
- --radius: 14px;
- --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
- }
- * { box-sizing: border-box; margin: 0; padding: 0; }
- body {
- background: var(--bg);
- color: var(--text);
- font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
- line-height: 1.65;
- font-size: 16px;
- padding: 24px 16px;
- }.container {
- max-width: 960px;
- margin: 0 auto;
- }
- header {
- background: var(--card);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 28px 24px;
- margin-bottom: 20px;
- box-shadow: var(--shadow);
- }
- h1 {
- font-size: clamp(22px, 3.8vw, 30px);
- line-height: 1.3;
- color: var(--accent);
- margin-bottom: 12px;
- }.lead {
- color: var(--muted);
- font-size: 16px;
- }.card {
- background: var(--card);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 24px;
- margin-bottom: 20px;
- box-shadow: var(--shadow);
- }
- h2 {
- font-size: 20px;
- color: var(--accent);
- margin: 20px 0 12px;
- border-bottom: 2px solid var(--accent-soft);
- padding-bottom: 6px;
- }
- h3 {
- font-size: 17px;
- margin: 16px 0 8px;
- color: #1e293b;
- }
- p, ul, ol { margin-bottom: 12px; }
- ul, ol { padding-left: 22px; }
- li { margin-bottom: 6px; }.diagram-code {
- font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
- background: var(--code-bg);
- color: var(--code-text);
- padding: 16px;
- border-radius: 10px;
- overflow-x: auto;
- font-size: 13.5px;
- line-height: 1.45;
- margin: 16px 0;
- white-space: pre;
- }
- table {
- width: 100%;
- border-collapse: collapse;
- margin: 16px 0;
- font-size: 14px;
- }
- th, td {
- border: 1px solid var(--line);
- padding: 10px 12px;
- text-align: left;
- vertical-align: top;
- }
- th {
- background: var(--accent-soft);
- color: var(--accent);
- font-weight: 700;
- }.note {
- background: var(--accent-soft);
- border-left: 4px solid var(--accent);
- padding: 12px 16px;
- border-radius: 0 8px 8px 0;
- margin: 14px 0;
- font-size: 15px;
- }.note-danger {
- background: #fee2e2;
- border-left: 4px solid var(--danger);
- padding: 12px 16px;
- border-radius: 0 8px 8px 0;
- margin: 14px 0;
- font-size: 15px;
- color: #991b1b;
- }.formula-box {
- background: #f1f5f9;
- border: 1px solid #cbd5e1;
- border-radius: 8px;
- padding: 12px 16px;
- font-family: ui-monospace, monospace;
- font-size: 14.5px;
- margin: 12px 0;
- color: #0f172a;
- }.quiz-box {
- background: #f8fafc;
- border: 1.5px solid #cbd5e1;
- border-radius: 10px;
- padding: 16px;
- margin-top: 20px;
- }.quiz-q {
- font-weight: 600;
- margin-bottom: 6px;
- color: #1e293b;
- }
- @media print {
- body { background: #fff; padding: 0; font-size: 11pt; }.card, header { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 12pt; }.diagram-code { background: #eee; color: #000; border: 1px solid #ccc; }
- }
- </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Конспект лекции: Утилиты обслуживания дисков — ОП.02 Архитектура аппаратных средств</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --code-bg: #0f172a;
+      --code-text: #f1f5f9;
+      --success: #059669;
+      --warn: #d97706;
+      --danger: #dc2626;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.65;
+      font-size: 16px;
+      padding: 24px 16px;
+    }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    header {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(22px, 3.8vw, 30px);
+      line-height: 1.3;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .lead {
+      color: var(--muted);
+      font-size: 16px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h2 {
+      font-size: 20px;
+      color: var(--accent);
+      margin: 20px 0 12px;
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 6px;
+    }
+    h3 {
+      font-size: 17px;
+      margin: 16px 0 8px;
+      color: #1e293b;
+    }
+    p, ul, ol { margin-bottom: 12px; }
+    ul, ol { padding-left: 22px; }
+    li { margin-bottom: 6px; }
+    .diagram-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 16px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 13.5px;
+      line-height: 1.45;
+      margin: 16px 0;
+      white-space: pre;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .note {
+      background: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 14px 0;
+      font-size: 15px;
+    }
+    .note-danger {
+      background: #fee2e2;
+      border-left: 4px solid var(--danger);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 14px 0;
+      font-size: 15px;
+      color: #991b1b;
+    }
+    .formula-box {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-family: ui-monospace, monospace;
+      font-size: 14.5px;
+      margin: 12px 0;
+      color: #0f172a;
+    }
+    .quiz-box {
+      background: #f8fafc;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 20px;
+    }
+    .quiz-q {
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    @media print {
+      body { background: #fff; padding: 0; font-size: 11pt; }
+      .card, header { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 12pt; }
+      .diagram-code { background: #eee; color: #000; border: 1px solid #ccc; }
+    }
+  </style>
 </head>
 <body>
 <div class="container">
 
- <header>
- <h1>Раздел 3. Практическая работа №3. Утилиты обслуживания жестких магнитных дисков и оптических дисков</h1>
- <div class="lead">Фундаментальный теоретический конспект: аппаратная механика HDD, твердотельная архитектура NVMe SSD, физика оптических лазеров, телеметрия S.M.A.R.T. и неразрушающая диагностика.</div>
- </header>
+  <header>
+    <h1>Раздел 3. Практическая работа №3. Утилиты обслуживания жестких магнитных дисков и оптических дисков</h1>
+    <div class="lead">Фундаментальный теоретический конспект: аппаратная механика HDD, твердотельная архитектура NVMe SSD, физика оптических лазеров, телеметрия S.M.A.R.T. и неразрушающая диагностика.</div>
+  </header>
 
- <!-- БЛОК 1: HDD МЕХАНИКА И АДРЕСАЦИЯ -->
- <div class="card">
- <h2>1. Архитектура и физическое устройство жестких магнитных дисков (HDD)</h2>
- <p>Жесткий магнитный диск (Hard Disk Drive, HDD) представляет собой сложнейшее мехатронное устройство, совмещающее в себе прецизионную механику, аэродинамику ультрамалых зазоров и сверхчувствительную аналого-цифровую электронику чтения слабого магнитного потока.</p>
+  <!-- БЛОК 1: HDD МЕХАНИКА И АДРЕСАЦИЯ -->
+  <div class="card">
+    <h2>1. Архитектура и физическое устройство жестких магнитных дисков (HDD)</h2>
+    <p>Жесткий магнитный диск (Hard Disk Drive, HDD) представляет собой сложнейшее мехатронное устройство, совмещающее в себе прецизионную механику, аэродинамику ультрамалых зазоров и сверхчувствительную аналого-цифровую электронику чтения слабого магнитного потока.</p>
 
- <h3>1.1. Адаптивная схема устройства гермоблока HDD</h3>
- <div class="diagram-code">
+    <h3>1.1. Адаптивная схема устройства гермоблока HDD</h3>
+    <div class="diagram-code">
 +========================================================================+
-| ГЕРМОЗОНА (ГЕРМОБЛОК / HDA) | [Шпиндельный двигатель FDB] [Позиционер VCM] | (5400-7200 RPM) | v v | /=================\ +-------------------+ | / Магнитный диск \ | Постоянные магниты| (Пластина) | катушки привода | +---------------+ | +---------+---------+ | Дорожка (Track) | Рычаг | (Коромысло) | [LBA Секторы] | <===================+ | +---------------+ | Блок магнитных головок | \ / (MR / GMR / TMR слайдер) | \=================/ | ^ v | Аэродинамический зазор | Зазор: 3-10 нм | +==================================+ (Воздушная подушка) | [Барометрический фильтр выравнивания] [Рециркуляционный фильтр пыли]|
+|                       ГЕРМОЗОНА (ГЕРМОБЛОК / HDA)                      |
+|                                                                        |
+|    [Шпиндельный двигатель FDB]           [Позиционер VCM]              |
+|              | (5400-7200 RPM)                 |                       |
+|              v                                 v                       |
+|      /=================\             +-------------------+             |
+|     /  Магнитный диск   \            | Постоянные магниты|             |
+|    |   (Пластина)        |           | катушки привода   |             |
+|    |   +---------------+ |           +---------+---------+             |
+|    |   | Дорожка (Track) |             Рычаг   | (Коромысло)           |
+|    |   | [LBA Секторы] | | <===================+                       |
+|    |   +---------------+ |            Блок магнитных головок           |
+|     \                   /             (MR / GMR / TMR слайдер)         |
+|      \=================/                         |                     |
+|               ^                                  v                     |
+|               | Аэродинамический зазор           | Зазор: 3-10 нм      |
+|               +==================================+ (Воздушная подушка) |
+|                                                                        |
+|  [Барометрический фильтр выравнивания]   [Рециркуляционный фильтр пыли]|
 +========================================================================+
- |
- v Внутренний интерфейс шлейфа
+                                   |
+                                   v Внутренний интерфейс шлейфа
 +========================================================================+
-| ПЛАТА ЭЛЕКТРОНИКИ (PCB КОНТРОЛЛЕРА) | [SoC Контроллер диска] <---> [DRAM Кэш 64-512 МБ] <---> [SATA PHY] | (DSP + Read Channel) | [Драйвер шпинделя/VCM] <---> [Микросхема BIOS Flash] v Интерфейс |
+|                  ПЛАТА ЭЛЕКТРОНИКИ (PCB КОНТРОЛЛЕРА)                   |
+|                                                                        |
+|  [SoC Контроллер диска] <---> [DRAM Кэш 64-512 МБ] <---> [SATA PHY]    |
+|   (DSP + Read Channel)                                     |           |
+|  [Драйвер шпинделя/VCM] <---> [Микросхема BIOS Flash]     v Интерфейс  |
 +========================================================================+
- SATA III / SAS</div>
+                                                          SATA III / SAS</div>
 
- <h3>1.2. Элементная база и физические явления:</h3>
- <ul>
- <li><strong>Магнитные пластины (Platters):</strong> полированные диски из сплавов алюминия или стеклокерамики, покрытые магнитным слоем толщиной ~10–20 нм. На современных дисках применяется перпендикулярная магнитная запись (<strong>PMR / CMR</strong> — Conventional Magnetic Recording) либо черепичная магнитная запись (<strong>SMR</strong> — Shingled Magnetic Recording, где дорожки частично перекрывают друг друга ради плотности, резко снижая скорость случайной записи).</li>
- <li><strong>Аэродинамический полет головки (Air Bearing):</strong> Магнитная головка не касается поверхности пластины! При вращении диска со скоростью 5400–7200 об/мин воздух увлекается поверхностью, создавая аэродинамическую подъемную силу. Слайдер головки «парит» над диском на высоте всего <strong>3–10 нанометров</strong> (толщина человеческого волоса — 80 000 нм, частица табачного дыма — 500 нм). Любая пылинка или микроудар вызывают контакт головки с пластиной — <em>Head Crash</em> (физический запил поверхности).</li>
- <li><strong>Головки TMR (Tunneling Magnetoresistive):</strong> датчики с квантово-механическим туннельным сопротивлением, меняющие электропроводность в зависимости от направления локальной остаточной намагниченности домена.</li>
- <li><strong>Адресация CHS и LBA:</strong> Исторический метод CHS (Cylinder-Head-Sector) был жестко привязан к физической топологии. Современные ОС работают исключительно в <strong>LBA (Logical Block Addressing)</strong> — линейном адресном пространстве секторов от <code>LBA 0</code> до <code>LBA (N-1)</code>. Преобразование логического LBA в физический сектор выполняет контроллер диска по внутренней таблице транслятора.</li>
- <li><strong>Advanced Format (AF):</strong> переход от исторического сектора 512 байт к физическому сектору <strong>4096 байт (4Kn)</strong>. При работе со старыми ОС контроллер использует режим эмуляции <strong>512e</strong> (512-byte Emulation). Невыровненные разделы диска (Partitions) при 512e вызывают эффект <em>Read-Modify-Write</em>, приводя к двойному падению производительности.</li>
- </ul>
- </div>
+    <h3>1.2. Элементная база и физические явления:</h3>
+    <ul>
+      <li><strong>Магнитные пластины (Platters):</strong> полированные диски из сплавов алюминия или стеклокерамики, покрытые магнитным слоем толщиной ~10–20 нм. На современных дисках применяется перпендикулярная магнитная запись (<strong>PMR / CMR</strong> — Conventional Magnetic Recording) либо черепичная магнитная запись (<strong>SMR</strong> — Shingled Magnetic Recording, где дорожки частично перекрывают друг друга ради плотности, резко снижая скорость случайной записи).</li>
+      <li><strong>Аэродинамический полет головки (Air Bearing):</strong> Магнитная головка не касается поверхности пластины! При вращении диска со скоростью 5400–7200 об/мин воздух увлекается поверхностью, создавая аэродинамическую подъемную силу. Слайдер головки «парит» над диском на высоте всего <strong>3–10 нанометров</strong> (толщина человеческого волоса — 80 000 нм, частица табачного дыма — 500 нм). Любая пылинка или микроудар вызывают контакт головки с пластиной — <em>Head Crash</em> (физический запил поверхности).</li>
+      <li><strong>Головки TMR (Tunneling Magnetoresistive):</strong> датчики с квантово-механическим туннельным сопротивлением, меняющие электропроводность в зависимости от направления локальной остаточной намагниченности домена.</li>
+      <li><strong>Адресация CHS и LBA:</strong> Исторический метод CHS (Cylinder-Head-Sector) был жестко привязан к физической топологии. Современные ОС работают исключительно в <strong>LBA (Logical Block Addressing)</strong> — линейном адресном пространстве секторов от <code>LBA 0</code> до <code>LBA (N-1)</code>. Преобразование логического LBA в физический сектор выполняет контроллер диска по внутренней таблице транслятора.</li>
+      <li><strong>Advanced Format (AF):</strong> переход от исторического сектора 512 байт к физическому сектору <strong>4096 байт (4Kn)</strong>. При работе со старыми ОС контроллер использует режим эмуляции <strong>512e</strong> (512-byte Emulation). Невыровненные разделы диска (Partitions) при 512e вызывают эффект <em>Read-Modify-Write</em>, приводя к двойному падению производительности.</li>
+    </ul>
+  </div>
 
- <!-- БЛОК 2: SSD И NVMe -->
- <div class="card">
- <h2>2. Твердотельные накопители (SSD) и архитектура NVMe over PCIe</h2>
- <p>В отличие от электромеханических HDD, твердотельный накопитель (Solid-State Drive) представляет собой высокопараллельную вычислительную систему на полупроводниковых кристаллах флеш-памяти NAND Flash.</p>
+  <!-- БЛОК 2: SSD И NVMe -->
+  <div class="card">
+    <h2>2. Твердотельные накопители (SSD) и архитектура NVMe over PCIe</h2>
+    <p>В отличие от электромеханических HDD, твердотельный накопитель (Solid-State Drive) представляет собой высокопараллельную вычислительную систему на полупроводниковых кристаллах флеш-памяти NAND Flash.</p>
 
- <h3>2.1. Схема многоканальной архитектуры NVMe SSD</h3>
- <div class="diagram-code">
+    <h3>2.1. Схема многоканальной архитектуры NVMe SSD</h3>
+    <div class="diagram-code">
 +--------------------------------------------------------------------------+
-| СИСТЕМНАЯ ШИНА ХОСТ-ПК (PCIe 4.0 x4) |
+|                       СИСТЕМНАЯ ШИНА ХОСТ-ПК (PCIe 4.0 x4)               |
 +------------------------------------+-------------------------------------+
- | Прямой доступ DMA (NVMe Протокол)
- v
+                                     | Прямой доступ DMA (NVMe Протокол)
+                                     v
 +--------------------------------------------------------------------------+
-| КОНТРОЛЛЕР ТВЕРДОТЕЛЬНОГО НАКОПИТЕЛЯ | [PCIe PHY / NVMe Engine] [Многоядерный процессор (FTL + Wear Lev)]| [Аппаратный движок LDPC ECC] [DRAM-контроллер буфера] / [HMB Клиент] |
+|                     КОНТРОЛЛЕР ТВЕРДОТЕЛЬНОГО НАКОПИТЕЛЯ                 |
+|                                                                          |
+|  [PCIe PHY / NVMe Engine]      [Многоядерный процессор (FTL + Wear Lev)]|
+|  [Аппаратный движок LDPC ECC]  [DRAM-контроллер буфера] / [HMB Клиент]   |
 +----+-------------+-------------+-------------+-------------+-------------+
- | | Канал 0 | Канал 1 | Канал 2 | Канал 3 | (до 8-16 к.)
- v v v v v
-+---------+ +---------+ +---------+ +---------+ +---------+
-| Chip 0 | Chip 1 | Chip 2 | Chip 3 | Chip 4 | Массив
-| 3D NAND | 3D NAND | 3D NAND | 3D NAND | 3D NAND | кристаллов
-| TLC/QLC | TLC/QLC | TLC/QLC | TLC/QLC | TLC/QLC | Flash
-+---------+ +---------+ +---------+ +---------+ +---------+</div>
+     |             |             |             |             |
+     | Канал 0     | Канал 1     | Канал 2     | Канал 3     | (до 8-16 к.)
+     v             v             v             v             v
++---------+   +---------+   +---------+   +---------+   +---------+
+| Chip 0  |   | Chip 1  |   | Chip 2  |   | Chip 3  |   | Chip 4  |  Массив
+| 3D NAND |   | 3D NAND |   | 3D NAND |   | 3D NAND |   | 3D NAND |  кристаллов
+| TLC/QLC |   | TLC/QLC |   | TLC/QLC |   | TLC/QLC |   | TLC/QLC |  Flash
++---------+   +---------+   +---------+   +---------+   +---------+</div>
 
- <h3>2.2. Физика износа ячеек NAND и логика контроллера:</h3>
- <ul>
- <li><strong>Плавающий затвор (Floating Gate) и ловушка заряда (Charge Trap Flash):</strong> Запись бита информации заключается в туннелировании электронов через тончайший слой диэлектрика (оксида кремния) под действием высокого напряжения (~20 В). Со временем диэлектрик физически деградирует (появляются микротрещины, накапливается паразитный заряд). Ячейка теряет способность удерживать стабильное пороговое напряжение.</li>
- <li><strong>Специфика перезаписи:</strong> В NAND Flash чтение и запись производятся <em>страницами</em> (Page, обычно 16 КБ), а стирание возможно только целыми <em>блоками</em> (Block, состоящими из 128–512 страниц, 4–8 МБ). Нельзя перезаписать одну страницу «на месте» — её можно записать только в предварительно стертый чистый блок.</li>
- <li><strong>Flash Translation Layer (FTL):</strong> программно-аппаратный транслятор, преобразующий хостовые запросы LBA в динамические физические координаты (чип/канал/диэлектрический блок/страница). FTL реализует:
- <ul>
- <li><strong>Wear Leveling (Выравнивание износа):</strong> динамическое и статическое перераспределение блоков, чтобы все ячейки памяти изнашивались строго равномерно;</li>
- <li><strong>Garbage Collection (Сборка мусора):</strong> фоновый сбор актуальных страниц из частично заполненных блоков в новый блок со стиранием освободившихся;</li>
- <li><strong>Команда TRIM (Deallocate в NVMe):</strong> уведомление контроллера со стороны ОС о том, что файлы удалены и соответствующие LBA больше не содержат полезных данных.</li>
- </ul>
- </li>
- <li><strong>Параметр TBW и формула износа:</strong>
- <p><strong>TBW (Total Bytes Written)</strong> — гарантированный производителем суммарный объем данных, который можно записать на накопитель до исчерпания ресурса ячеек.</p>
- <div class="formula-box">
+    <h3>2.2. Физика износа ячеек NAND и логика контроллера:</h3>
+    <ul>
+      <li><strong>Плавающий затвор (Floating Gate) и ловушка заряда (Charge Trap Flash):</strong> Запись бита информации заключается в туннелировании электронов через тончайший слой диэлектрика (оксида кремния) под действием высокого напряжения (~20 В). Со временем диэлектрик физически деградирует (появляются микротрещины, накапливается паразитный заряд). Ячейка теряет способность удерживать стабильное пороговое напряжение.</li>
+      <li><strong>Специфика перезаписи:</strong> В NAND Flash чтение и запись производятся <em>страницами</em> (Page, обычно 16 КБ), а стирание возможно только целыми <em>блоками</em> (Block, состоящими из 128–512 страниц, 4–8 МБ). Нельзя перезаписать одну страницу «на месте» — её можно записать только в предварительно стертый чистый блок.</li>
+      <li><strong>Flash Translation Layer (FTL):</strong> программно-аппаратный транслятор, преобразующий хостовые запросы LBA в динамические физические координаты (чип/канал/диэлектрический блок/страница). FTL реализует:
+        <ul>
+          <li><strong>Wear Leveling (Выравнивание износа):</strong> динамическое и статическое перераспределение блоков, чтобы все ячейки памяти изнашивались строго равномерно;</li>
+          <li><strong>Garbage Collection (Сборка мусора):</strong> фоновый сбор актуальных страниц из частично заполненных блоков в новый блок со стиранием освободившихся;</li>
+          <li><strong>Команда TRIM (Deallocate в NVMe):</strong> уведомление контроллера со стороны ОС о том, что файлы удалены и соответствующие LBA больше не содержат полезных данных.</li>
+        </ul>
+      </li>
+      <li><strong>Параметр TBW и формула износа:</strong>
+        <p><strong>TBW (Total Bytes Written)</strong> — гарантированный производителем суммарный объем данных, который можно записать на накопитель до исчерпания ресурса ячеек.</p>
+        <div class="formula-box">
 WA (Write Amplification) = Записано во Flash ячейки (Байт) / Записано хост-системой (Байт)
 Остаток ресурса (%) = 100% - Percentage Used
- </div>
- </li>
- </ul>
- </div>
+        </div>
+      </li>
+    </ul>
+  </div>
 
- <!-- БЛОК 3: КРИТИЧЕСКИЕ АТРИБУТЫ SMART -->
- <div class="card">
- <h2>3. Полная таблица критических диагностических атрибутов S.M.A.R.T.</h2>
- <p>Телеметрия S.M.A.R.T. является первичным источником объективных данных о физическом здоровье накопителя. При анализе необходимо руководствоваться столбцом <strong>RAW Values</strong>.</p>
+  <!-- БЛОК 3: КРИТИЧЕСКИЕ АТРИБУТЫ SMART -->
+  <div class="card">
+    <h2>3. Полная таблица критических диагностических атрибутов S.M.A.R.T.</h2>
+    <p>Телеметрия S.M.A.R.T. является первичным источником объективных данных о физическом здоровье накопителя. При анализе необходимо руководствоваться столбцом <strong>RAW Values</strong>.</p>
 
- <table>
- <thead>
- <tr>
- <th style="width: 10%;">ID (Hex)</th>
- <th style="width: 25%;">Атрибут S.M.A.R.T.</th>
- <th style="width: 45%;">Физический смысл и диагностическая интерпретация</th>
- <th style="width: 20%;">Норма и порог отказа</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><code>05 (0x05)</code></td>
- <td><strong>Reallocated Sectors Count</strong></td>
- <td>Количество переназначенных сбойных секторов. Контроллер перенес дефектные сектора в скрытую резервную область диска (Spare Area).</td>
- <td><strong>RAW = 0</strong>.<br><span style="color:var(--danger);font-weight:700;">RAW &gt; 0:</span> начался физический износ пластины.</td>
- </tr>
- <tr>
- <td><code>0A (0x0A)</code></td>
- <td><strong>Spin Retry Count</strong></td>
- <td>Число повторных попыток раскрутки пластин до номинальной скорости. Свидетельствует о механическом трении в подшипнике шпинделя или падении напряжения +12В в кабеле питания SATA.</td>
- <td><strong>RAW = 0</strong>.<br><span style="color:var(--danger);font-weight:700;">RAW &gt; 0:</span> угроза внезапной механической остановки.</td>
- </tr>
- <tr>
- <td><code>B8 (0xB8)</code></td>
- <td><strong>End-to-End Error</strong></td>
- <td>Ошибки четности данных при передаче по внутреннему тракту между кэш-памятью DRAM контроллера и хост-интерфейсом.</td>
- <td><strong>RAW = 0</strong>.<br><span style="color:var(--danger);font-weight:700;">RAW &gt; 0:</span> аппаратная неисправность кэша.</td>
- </tr>
- <tr>
- <td><code>BB (0xBB)</code></td>
- <td><strong>Reported Uncorrectable Errors</strong></td>
- <td>Количество секторов, которые не удалось восстановить кодами коррекции ошибок (Hardware ECC) при чтении.</td>
- <td><strong>RAW = 0</strong>.<br><span style="color:var(--danger);font-weight:700;">RAW &gt; 0:</span> потеря пользовательских данных.</td>
- </tr>
- <tr>
- <td><code>BC (0xBC)</code></td>
- <td><strong>Command Timeout</strong></td>
- <td>Прерывание операций контроллера по тайм-ауту (более 5–7 секунд без ответа). Признак окисления контактов, проседания питания или микрозависаний прошивки.</td>
- <td><strong>RAW = 0</strong>.<br>RAW &gt; 10: сбои коммуникации.</td>
- </tr>
- <tr>
- <td><code>C5 (0xC5)</code></td>
- <td><strong>Current Pending Sector Count</strong></td>
- <td>Количество нестабильных (кандидатов в бэд-блоки) секторов. Контроллер не смог прочесть их с первой попытки и ожидает операцию перезаписи для окончательного ремапа или снятия флага.</td>
- <td><strong>RAW = 0</strong>.<br><span style="color:var(--danger);font-weight:700;">RAW &gt; 0:</span> аварийное состояние, зависание ОС при чтении.</td>
- </tr>
- <tr>
- <td><code>C6 (0xC6)</code></td>
- <td><strong>Offline Uncorrectable Sector Count</strong></td>
- <td>Неустранимые секторы, выявленные автономным фоновым тестированием диска.</td>
- <td><strong>RAW = 0</strong>.<br><span style="color:var(--danger);font-weight:700;">RAW &gt; 0:</span> аварийное состояние.</td>
- </tr>
- <tr>
- <td><code>C7 (0xC7)</code></td>
- <td><strong>UltraDMA CRC Error Count</strong></td>
- <td>Ошибки контрольной суммы пакетов передачи по интерфейсу SATA. Вызваны повреждением, заломом кабеля SATA или плохим контактом в колодке.</td>
- <td>RAW не должен расти. Замена сигнального кабеля SATA устраняет рост.</td>
- </tr>
- <tr>
- <td><code>NVMe 0x02</code></td>
- <td><strong>Available Spare (NVMe)</strong></td>
- <td>Оставшийся процент резервных блоков flash-памяти для замены деградировавших ячеек NAND.</td>
- <td>Норма: 100%.<br><span style="color:var(--danger);font-weight:700;">&lt; 10%:</span> предаварийное исчерпание резерва.</td>
- </tr>
- <tr>
- <td><code>NVMe 0x03</code></td>
- <td><strong>Percentage Used (NVMe)</strong></td>
- <td>Процент расчетного износа накопителя относительно заявленного TBW.</td>
- <td>0–100%. При &gt;100% гарантия аннулирована, риск отказа возрастает.</td>
- </tr>
- <tr>
- <td><code>NVMe 0x05</code></td>
- <td><strong>Media and Data Integrity Errors</strong></td>
- <td>Количество физических ошибок чтения NAND, не скомпенсированных LDPC-кодеком.</td>
- <td><strong>RAW = 0</strong>.<br><span style="color:var(--danger);font-weight:700;">RAW &gt; 0:</span> физическая гибель ячеек.</td>
- </tr>
- </tbody>
- </table>
- </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 10%;">ID (Hex)</th>
+          <th style="width: 25%;">Атрибут S.M.A.R.T.</th>
+          <th style="width: 45%;">Физический смысл и диагностическая интерпретация</th>
+          <th style="width: 20%;">Норма и порог отказа</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>05 (0x05)</code></td>
+          <td><strong>Reallocated Sectors Count</strong></td>
+          <td>Количество переназначенных сбойных секторов. Контроллер перенес дефектные сектора в скрытую резервную область диска (Spare Area).</td>
+          <td><strong>RAW = 0</strong>.<br><span style="color:var(--danger);font-weight:700;">RAW &gt; 0:</span> начался физический износ пластины.</td>
+        </tr>
+        <tr>
+          <td><code>0A (0x0A)</code></td>
+          <td><strong>Spin Retry Count</strong></td>
+          <td>Число повторных попыток раскрутки пластин до номинальной скорости. Свидетельствует о механическом трении в подшипнике шпинделя или падении напряжения +12В в кабеле питания SATA.</td>
+          <td><strong>RAW = 0</strong>.<br><span style="color:var(--danger);font-weight:700;">RAW &gt; 0:</span> угроза внезапной механической остановки.</td>
+        </tr>
+        <tr>
+          <td><code>B8 (0xB8)</code></td>
+          <td><strong>End-to-End Error</strong></td>
+          <td>Ошибки четности данных при передаче по внутреннему тракту между кэш-памятью DRAM контроллера и хост-интерфейсом.</td>
+          <td><strong>RAW = 0</strong>.<br><span style="color:var(--danger);font-weight:700;">RAW &gt; 0:</span> аппаратная неисправность кэша.</td>
+        </tr>
+        <tr>
+          <td><code>BB (0xBB)</code></td>
+          <td><strong>Reported Uncorrectable Errors</strong></td>
+          <td>Количество секторов, которые не удалось восстановить кодами коррекции ошибок (Hardware ECC) при чтении.</td>
+          <td><strong>RAW = 0</strong>.<br><span style="color:var(--danger);font-weight:700;">RAW &gt; 0:</span> потеря пользовательских данных.</td>
+        </tr>
+        <tr>
+          <td><code>BC (0xBC)</code></td>
+          <td><strong>Command Timeout</strong></td>
+          <td>Прерывание операций контроллера по тайм-ауту (более 5–7 секунд без ответа). Признак окисления контактов, проседания питания или микрозависаний прошивки.</td>
+          <td><strong>RAW = 0</strong>.<br>RAW &gt; 10: сбои коммуникации.</td>
+        </tr>
+        <tr>
+          <td><code>C5 (0xC5)</code></td>
+          <td><strong>Current Pending Sector Count</strong></td>
+          <td>Количество нестабильных (кандидатов в бэд-блоки) секторов. Контроллер не смог прочесть их с первой попытки и ожидает операцию перезаписи для окончательного ремапа или снятия флага.</td>
+          <td><strong>RAW = 0</strong>.<br><span style="color:var(--danger);font-weight:700;">RAW &gt; 0:</span> аварийное состояние, зависание ОС при чтении.</td>
+        </tr>
+        <tr>
+          <td><code>C6 (0xC6)</code></td>
+          <td><strong>Offline Uncorrectable Sector Count</strong></td>
+          <td>Неустранимые секторы, выявленные автономным фоновым тестированием диска.</td>
+          <td><strong>RAW = 0</strong>.<br><span style="color:var(--danger);font-weight:700;">RAW &gt; 0:</span> аварийное состояние.</td>
+        </tr>
+        <tr>
+          <td><code>C7 (0xC7)</code></td>
+          <td><strong>UltraDMA CRC Error Count</strong></td>
+          <td>Ошибки контрольной суммы пакетов передачи по интерфейсу SATA. Вызваны повреждением, заломом кабеля SATA или плохим контактом в колодке.</td>
+          <td>RAW не должен расти. Замена сигнального кабеля SATA устраняет рост.</td>
+        </tr>
+        <tr>
+          <td><code>NVMe 0x02</code></td>
+          <td><strong>Available Spare (NVMe)</strong></td>
+          <td>Оставшийся процент резервных блоков flash-памяти для замены деградировавших ячеек NAND.</td>
+          <td>Норма: 100%.<br><span style="color:var(--danger);font-weight:700;">&lt; 10%:</span> предаварийное исчерпание резерва.</td>
+        </tr>
+        <tr>
+          <td><code>NVMe 0x03</code></td>
+          <td><strong>Percentage Used (NVMe)</strong></td>
+          <td>Процент расчетного износа накопителя относительно заявленного TBW.</td>
+          <td>0–100%. При &gt;100% гарантия аннулирована, риск отказа возрастает.</td>
+        </tr>
+        <tr>
+          <td><code>NVMe 0x05</code></td>
+          <td><strong>Media and Data Integrity Errors</strong></td>
+          <td>Количество физических ошибок чтения NAND, не скомпенсированных LDPC-кодеком.</td>
+          <td><strong>RAW = 0</strong>.<br><span style="color:var(--danger);font-weight:700;">RAW &gt; 0:</span> физическая гибель ячеек.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
- <!-- БЛОК 4: ОПТИЧЕСКИЕ НАКОПИТЕЛИ -->
- <div class="card">
- <h2>4. Оптические диски (CD, DVD, BD): оптика, кодирование и деградация</h2>
- <p>Оптические диски используют лазерный луч оптической головки OPU (Optical Pickup Unit) для считывания модуляции отраженного светового потока со спиральной дорожки.</p>
+  <!-- БЛОК 4: ОПТИЧЕСКИЕ НАКОПИТЕЛИ -->
+  <div class="card">
+    <h2>4. Оптические диски (CD, DVD, BD): оптика, кодирование и деградация</h2>
+    <p>Оптические диски используют лазерный луч оптической головки OPU (Optical Pickup Unit) для считывания модуляции отраженного светового потока со спиральной дорожки.</p>
 
- <h3>4.1. Сравнительные параметры лазерных стандартов</h3>
- <table>
- <thead>
- <tr>
- <th>Стандарт диска</th>
- <th>Длина волны лазера λ</th>
- <th>Числовая апертура NA</th>
- <th>Диаметр пятна фокуса (1.22 λ / NA)</th>
- <th>Шаг дорожки (Track Pitch)</th>
- <th>Емкость (1 слой)</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>CD (Compact Disc)</strong></td>
- <td>780 нм (Инфракрасный)</td>
- <td>0.45</td>
- <td>~2.1 мкм</td>
- <td>1.60 мкм</td>
- <td>700 МБ</td>
- </tr>
- <tr>
- <td><strong>DVD (Digital Versatile)</strong></td>
- <td>650 нм (Красный)</td>
- <td>0.60</td>
- <td>~1.3 мкм</td>
- <td>0.74 мкм</td>
- <td>4.7 ГБ</td>
- </tr>
- <tr>
- <td><strong>BD (Blu-ray Disc)</strong></td>
- <td>405 нм (Сине-фиолетовый)</td>
- <td>0.85</td>
- <td>~0.58 мкм</td>
- <td>0.32 мкм</td>
- <td>25.0 ГБ</td>
- </tr>
- </tbody>
- </table>
+    <h3>4.1. Сравнительные параметры лазерных стандартов</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Стандарт диска</th>
+          <th>Длина волны лазера λ</th>
+          <th>Числовая апертура NA</th>
+          <th>Диаметр пятна фокуса (1.22 λ / NA)</th>
+          <th>Шаг дорожки (Track Pitch)</th>
+          <th>Емкость (1 слой)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>CD (Compact Disc)</strong></td>
+          <td>780 нм (Инфракрасный)</td>
+          <td>0.45</td>
+          <td>~2.1 мкм</td>
+          <td>1.60 мкм</td>
+          <td>700 МБ</td>
+        </tr>
+        <tr>
+          <td><strong>DVD (Digital Versatile)</strong></td>
+          <td>650 нм (Красный)</td>
+          <td>0.60</td>
+          <td>~1.3 мкм</td>
+          <td>0.74 мкм</td>
+          <td>4.7 ГБ</td>
+        </tr>
+        <tr>
+          <td><strong>BD (Blu-ray Disc)</strong></td>
+          <td>405 нм (Сине-фиолетовый)</td>
+          <td>0.85</td>
+          <td>~0.58 мкм</td>
+          <td>0.32 мкм</td>
+          <td>25.0 ГБ</td>
+        </tr>
+      </tbody>
+    </table>
 
- <h3>4.2. Диагностика качества оптических дисков (утилиты Opti Drive Control / Nero DiscSpeed):</h3>
- <ul>
- <li><strong>Ошибки PIE (Parity Inner Error):</strong> первичные ошибки байтов в блоке данных, исправляемые кодом Рида-Соломона первого уровня (ECC Circle C1/PI). В норме не должны превышать 280 ошибок на 8 последовательных блоков (ECC Block).</li>
- <li><strong>Ошибки PIF (Parity Inner Failure):</strong> ошибки, которые алгоритм первого уровня исправить не смог, передав блок на второй уровень PO. Норма для качественного диска: не более 4 PIF на блок. Всплески более 16 означают серьезные проблемы с чтением.</li>
- <li><strong>Ошибки POF (Parity Outer Failure):</strong> полный отказ декодера второго уровня. Сектор не может быть прочитан, данные утеряны.</li>
- <li><strong>Проблема «Laser Rot» и деградация органики:</strong> В записываемых дисках CD-R/DVD-R светочувствительный слой состоит из органического цианина или фталоцианина. Под воздействием солнечного ультрафиолета, перепадов температуры и влажности органические молекулы распадаются, теряя оптическую контрастность. Для вечного архивного хранения (до 1000 лет) разработана технология <strong>M-DISC</strong>, где лазер прожигает физические отверстия в неорганическом каменном слое (карбиды металлов), не подверженном окислению и УФ-деградации.</li>
- </ul>
- </div>
+    <h3>4.2. Диагностика качества оптических дисков (утилиты Opti Drive Control / Nero DiscSpeed):</h3>
+    <ul>
+      <li><strong>Ошибки PIE (Parity Inner Error):</strong> первичные ошибки байтов в блоке данных, исправляемые кодом Рида-Соломона первого уровня (ECC Circle C1/PI). В норме не должны превышать 280 ошибок на 8 последовательных блоков (ECC Block).</li>
+      <li><strong>Ошибки PIF (Parity Inner Failure):</strong> ошибки, которые алгоритм первого уровня исправить не смог, передав блок на второй уровень PO. Норма для качественного диска: не более 4 PIF на блок. Всплески более 16 означают серьезные проблемы с чтением.</li>
+      <li><strong>Ошибки POF (Parity Outer Failure):</strong> полный отказ декодера второго уровня. Сектор не может быть прочитан, данные утеряны.</li>
+      <li><strong>Проблема «Laser Rot» и деградация органики:</strong> В записываемых дисках CD-R/DVD-R светочувствительный слой состоит из органического цианина или фталоцианина. Под воздействием солнечного ультрафиолета, перепадов температуры и влажности органические молекулы распадаются, теряя оптическую контрастность. Для вечного архивного хранения (до 1000 лет) разработана технология <strong>M-DISC</strong>, где лазер прожигает физические отверстия в неорганическом каменном слое (карбиды металлов), не подверженном окислению и УФ-деградации.</li>
+    </ul>
+  </div>
 
- <!-- БЛОК 5: НЕРАЗРУШАЮЩАЯ ДИАГНОСТИКА И DDRESCUE -->
- <div class="card">
- <h2>5. Практический регламент неразрушающей диагностики</h2>
- <div class="note-danger">
- <strong>КАТЕГОРИЧЕСКИЙ ЗАПРЕТ:</strong> При обнаружении нестабильных секторов (Current Pending &gt; 0) запрещается:
- <ol>
- <li>Запускать утилиты исправления файловых систем (<code>chkdsk /f /r</code>, <code>fsck -y</code>);</li>
- <li>Запускать сканирование в режимах записи/стирания (Erase, Remap, Refresh в Victoria);</li>
- <li>Запускать дефрагментацию или стресс-тесты скорости.</li>
- </ol>
- </div>
+  <!-- БЛОК 5: НЕРАЗРУШАЮЩАЯ ДИАГНОСТИКА И DDRESCUE -->
+  <div class="card">
+    <h2>5. Практический регламент неразрушающей диагностики</h2>
+    <div class="note-danger">
+      <strong>КАТЕГОРИЧЕСКИЙ ЗАПРЕТ:</strong> При обнаружении нестабильных секторов (Current Pending &gt; 0) запрещается:
+      <ol>
+        <li>Запускать утилиты исправления файловых систем (<code>chkdsk /f /r</code>, <code>fsck -y</code>);</li>
+        <li>Запускать сканирование в режимах записи/стирания (Erase, Remap, Refresh в Victoria);</li>
+        <li>Запускать дефрагментацию или стресс-тесты скорости.</li>
+      </ol>
+    </div>
 
- <h3>5.1. Алгоритм действий инженера при сбое накопителя:</h3>
- <ol>
- <li><strong>Снятие телеметрии S.M.A.R.T.:</strong> консольной утилитой <code>smartctl -a /dev/sdX</code> фиксируется RAW-состояние критических атрибутов 05, 0A, C5, C6. Накопитель монтируется с параметром ядра <code>read-only</code> (ro).</li>
- <li><strong>Создание посекторного образа:</strong> сбойный диск подключается к выделенному аппаратному стенду. Создается точная посекторная копия (Raw Image) на заведомо исправный целевой накопитель равного или большего объема через утилиту <strong>GNU ddrescue</strong>.</li>
- <li><strong>Анализ логической структуры:</strong> Все дальнейшие манипуляции (поиск удаленных файлов, восстановление файловой системы NTFS/ext4, запуск TestDisk / R-Studio) производятся <em>ИСКЛЮЧИТЕЛЬНО</em> с созданного образа диска или его клона.</li>
- </ol>
+    <h3>5.1. Алгоритм действий инженера при сбое накопителя:</h3>
+    <ol>
+      <li><strong>Снятие телеметрии S.M.A.R.T.:</strong> консольной утилитой <code>smartctl -a /dev/sdX</code> фиксируется RAW-состояние критических атрибутов 05, 0A, C5, C6. Накопитель монтируется с параметром ядра <code>read-only</code> (ro).</li>
+      <li><strong>Создание посекторного образа:</strong> сбойный диск подключается к выделенному аппаратному стенду. Создается точная посекторная копия (Raw Image) на заведомо исправный целевой накопитель равного или большего объема через утилиту <strong>GNU ddrescue</strong>.</li>
+      <li><strong>Анализ логической структуры:</strong> Все дальнейшие манипуляции (поиск удаленных файлов, восстановление файловой системы NTFS/ext4, запуск TestDisk / R-Studio) производятся <em>ИСКЛЮЧИТЕЛЬНО</em> с созданного образа диска или его клона.</li>
+    </ol>
 
- <div class="diagram-code">
+    <div class="diagram-code">
 # Команда безопасного клонирования диска без глубоких повторов на битых зонах:
 ddrescue -d -b 4096 -n -v /dev/sdb /dev/sdc /root/disk_recovery.map
 
 # Флаги ddrescue:
-# -d: Прямой доступ Direct I/O (обход кэша ОС);
-# -b 4096: Размер физического сектора Advanced Format;
-# -n: Пропуск медленных и сбойных участков на первой фазе (спасение 95-99% живых данных);
-# -v: Подробный вывод прогресса;
-# /root/disk_recovery.map: Журнал сессии (позволяет возобновлять клонирование после зависания).</div>
- </div>
+#  -d: Прямой доступ Direct I/O (обход кэша ОС);
+#  -b 4096: Размер физического сектора Advanced Format;
+#  -n: Пропуск медленных и сбойных участков на первой фазе (спасение 95-99% живых данных);
+#  -v: Подробный вывод прогресса;
+#  /root/disk_recovery.map: Журнал сессии (позволяет возобновлять клонирование после зависания).</div>
+  </div>
 
- <!-- БЛОК 6: САМОПРОВЕРКА -->
- <div class="card">
- <h2>6. Вопросы для глубокой самопроверки</h2>
- <div class="quiz-box">
- <div class="quiz-q">1. В отчете CrystalDiskInfo атрибут 05 Reallocated Sectors Count равен 0x000000000028. Сколько реальных физических секторов было переназначено?</div>
- <p><em>Ответ:</em> Шестнадцатеричное число 28<sub>16</sub> = 2 × 16 + 8 = 40 секторов. Контроллер перенес 40 сбойных секторов в резервную область.</p>
- </div>
- <div class="quiz-box">
- <div class="quiz-q">2. Почему атрибут C5 Current Pending Sector Count представляет большую непосредственную опасность для ОС, чем атрибут 05?</div>
- <p><em>Ответ:</em> Атрибут 05 содержит секторы, которые уже успешно изолированы и переназначены в резервную зону. Атрибут C5 содержит «подвешенные» нестабильные секторы, с которых контроллер не может считать актуальные данные прямо сейчас. Попытка ОС прочесть файл в этом секторе приводит к долгому тайм-ауту (зависанию драйвера I/O) или синему экрану смерти (BSOD).</p>
- </div>
- <div class="quiz-box">
- <div class="quiz-q">3. Твердотельный накопитель NVMe имеет TBW = 300 ТБ. В журнале SMART зафиксировано: Percentage Used = 90%, Available Spare = 10%. Каков инженерный прогноз остаточной надежности?</div>
- <p><em>Ответ:</em> Накопитель находится в критическом состоянии. Он израсходовал 90% ресурса ячеек памяти, а объем резервных блоков упал до аварийного порога 10%. Любой дальнейший выход ячеек из строя приведет к блокировке записи (Read-Only Mode) контроллером для сохранения существующих данных. Накопитель подлежит немедленной замене.</p>
- </div>
- <div class="quiz-box">
- <div class="quiz-q">4. Почему длина волны лазера Blu-ray (405 нм) позволяет записать 25 ГБ, в то время как DVD с тем же диаметром диска 120 мм вмещает только 4.7 ГБ?</div>
- <p><em>Ответ:</em> Предел дифракционной фокусировки светового пятна прямо пропорционален длине волны (λ) и обратно пропорционален числовой апертуре (NA). Сине-фиолетовый лазер с λ=405 нм и линзой NA=0.85 формирует световое пятно диаметром ~0.58 мкм (против ~1.3 мкм у DVD). Это позволило уменьшить шаг дорожки с 0.74 мкм до 0.32 мкм и повысить плотность записи более чем в 5 раз.</p>
- </div>
- </div>
+  <!-- БЛОК 6: САМОПРОВЕРКА -->
+  <div class="card">
+    <h2>6. Вопросы для глубокой самопроверки</h2>
+    <div class="quiz-box">
+      <div class="quiz-q">1. В отчете CrystalDiskInfo атрибут 05 Reallocated Sectors Count равен 0x000000000028. Сколько реальных физических секторов было переназначено?</div>
+      <p><em>Ответ:</em> Шестнадцатеричное число 28<sub>16</sub> = 2 × 16 + 8 = 40 секторов. Контроллер перенес 40 сбойных секторов в резервную область.</p>
+    </div>
+    <div class="quiz-box">
+      <div class="quiz-q">2. Почему атрибут C5 Current Pending Sector Count представляет большую непосредственную опасность для ОС, чем атрибут 05?</div>
+      <p><em>Ответ:</em> Атрибут 05 содержит секторы, которые уже успешно изолированы и переназначены в резервную зону. Атрибут C5 содержит «подвешенные» нестабильные секторы, с которых контроллер не может считать актуальные данные прямо сейчас. Попытка ОС прочесть файл в этом секторе приводит к долгому тайм-ауту (зависанию драйвера I/O) или синему экрану смерти (BSOD).</p>
+    </div>
+    <div class="quiz-box">
+      <div class="quiz-q">3. Твердотельный накопитель NVMe имеет TBW = 300 ТБ. В журнале SMART зафиксировано: Percentage Used = 90%, Available Spare = 10%. Каков инженерный прогноз остаточной надежности?</div>
+      <p><em>Ответ:</em> Накопитель находится в критическом состоянии. Он израсходовал 90% ресурса ячеек памяти, а объем резервных блоков упал до аварийного порога 10%. Любой дальнейший выход ячеек из строя приведет к блокировке записи (Read-Only Mode) контроллером для сохранения существующих данных. Накопитель подлежит немедленной замене.</p>
+    </div>
+    <div class="quiz-box">
+      <div class="quiz-q">4. Почему длина волны лазера Blu-ray (405 нм) позволяет записать 25 ГБ, в то время как DVD с тем же диаметром диска 120 мм вмещает только 4.7 ГБ?</div>
+      <p><em>Ответ:</em> Предел дифракционной фокусировки светового пятна прямо пропорционален длине волны (λ) и обратно пропорционален числовой апертуре (NA). Сине-фиолетовый лазер с λ=405 нм и линзой NA=0.85 формирует световое пятно диаметром ~0.58 мкм (против ~1.3 мкм у DVD). Это позволило уменьшить шаг дорожки с 0.74 мкм до 0.32 мкм и повысить плотность записи более чем в 5 раз.</p>
+    </div>
+  </div>
 
 </div>
 </body>

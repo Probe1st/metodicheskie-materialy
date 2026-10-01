@@ -1,407 +1,414 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>Технологическая карта занятия: Практическое занятие №6: ключевые поля, индексы, связи</title>
- <style>
- :root {
- --bg: #f8fafc;
- --card-bg: #ffffff;
- --text: #0f172a;
- --text-muted: #475569;
- --border: #e2e8f0;
- --accent: #0284c7;
- --accent-dark: #0369a1;
- --accent-soft: #f0f9ff;
- }
- * {
- box-sizing: border-box;
- margin: 0;
- padding: 0;
- }
- body {
- font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
- background-color: var(--bg);
- color: var(--text);
- line-height: 1.55;
- padding: 24px 16px;
- }.container {
- max-width: 1040px;
- margin: 0 auto;
- }
- header.tk-header {
- background: var(--card-bg);
- border: 1px solid var(--border);
- border-radius: 12px;
- padding: 24px 28px;
- margin-bottom: 24px;
- box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
- }
- h1 {
- font-size: 1.85rem;
- font-weight: 800;
- color: var(--text);
- margin-bottom: 8px;
- }.subtitle {
- font-size: 1.05rem;
- color: var(--text-muted);
- }
- section {
- background: var(--card-bg);
- border: 1px solid var(--border);
- border-radius: 12px;
- padding: 24px 28px;
- margin-bottom: 24px;
- box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
- }
- h2 {
- font-size: 1.35rem;
- font-weight: 700;
- color: var(--accent-dark);
- margin-bottom: 16px;
- border-bottom: 2px solid var(--accent-soft);
- padding-bottom: 8px;
- }.meta-grid {
- display: grid;
- grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
- gap: 16px;
- margin-bottom: 12px;
- }.meta-item {
- display: flex;
- flex-direction: column;
- gap: 4px;
- }.meta-label {
- font-size: 0.8rem;
- font-weight: 700;
- text-transform: uppercase;
- letter-spacing: 0.05em;
- color: var(--text-muted);
- }.meta-val {
- font-size: 0.95rem;
- font-weight: 600;
- color: var(--text);
- }
- table.tk-table {
- width: 100%;
- border-collapse: collapse;
- margin-top: 12px;
- font-size: 0.95rem;
- }
- table.tk-table th, table.tk-table td {
- border: 1px solid var(--border);
- padding: 12px 14px;
- vertical-align: top;
- text-align: left;
- }
- table.tk-table th {
- background-color: #f1f5f9;
- color: var(--text);
- font-weight: 700;
- }
- table.tk-table ul {
- margin-left: 18px;
- }
- table.tk-table li {
- margin-bottom: 6px;
- }.badge-stage {
- display: inline-block;
- padding: 3px 8px;
- background: var(--accent-soft);
- color: var(--accent-dark);
- border-radius: 6px;
- font-size: 0.8rem;
- font-weight: 700;
- margin-bottom: 4px;
- }
- @media (max-width: 640px) {
- header.tk-header, section { padding: 16px; }
- h1 { font-size: 1.4rem; }
- table.tk-table { font-size: 0.85rem; }
- table.tk-table th, table.tk-table td { padding: 8px; }
- }
- </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Технологическая карта занятия: Практическое занятие №6: ключевые поля, индексы, связи</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #e2e8f0;
+      --accent: #0284c7;
+      --accent-dark: #0369a1;
+      --accent-soft: #f0f9ff;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      padding: 24px 16px;
+    }
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+    header.tk-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+    }
+    section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--accent-dark);
+      margin-bottom: 16px;
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 8px;
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .meta-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+    .meta-val {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    table.tk-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 0.95rem;
+    }
+    table.tk-table th, table.tk-table td {
+      border: 1px solid var(--border);
+      padding: 12px 14px;
+      vertical-align: top;
+      text-align: left;
+    }
+    table.tk-table th {
+      background-color: #f1f5f9;
+      color: var(--text);
+      font-weight: 700;
+    }
+    table.tk-table ul {
+      margin-left: 18px;
+    }
+    table.tk-table li {
+      margin-bottom: 6px;
+    }
+    .badge-stage {
+      display: inline-block;
+      padding: 3px 8px;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    @media (max-width: 640px) {
+      header.tk-header, section { padding: 16px; }
+      h1 { font-size: 1.4rem; }
+      table.tk-table { font-size: 0.85rem; }
+      table.tk-table th, table.tk-table td { padding: 8px; }
+    }
+  </style>
 </head>
 <body>
- <div class="container">
- <header class="tk-header">
- <h1>Технологическая карта учебного занятия</h1>
- <div class="subtitle">Тема 3. Этапы проектирования баз данных — Практическое занятие №6: ключевые поля, индексы, связи (Занятие №18)</div>
- </header>
+  <div class="container">
+    <header class="tk-header">
+      <h1>Технологическая карта учебного занятия</h1>
+      <div class="subtitle">Тема 3. Этапы проектирования баз данных — Практическое занятие №6: ключевые поля, индексы, связи (Занятие №18)</div>
+    </header>
 
- <section>
- <h2>Паспорт учебного занятия</h2>
- <div class="meta-grid">
- <div class="meta-item">
- <span class="meta-label">Дисциплина</span>
- <span class="meta-val">ОП.08 Основы проектирования баз данных</span>
- </div>
- <div class="meta-item">
- <span class="meta-label">Специальность</span>
- <span class="meta-val">09.02.06 Сетевое и системное администрирование</span>
- </div>
- <div class="meta-item">
- <span class="meta-label">Тематический раздел</span>
- <span class="meta-val">Тема 3. Этапы проектирования баз данных</span>
- </div>
- <div class="meta-item">
- <span class="meta-label">Тема занятия</span>
- <span class="meta-val">Практическое занятие №6: ключевые поля, индексы, связи (Занятие №18)</span>
- </div>
- <div class="meta-item">
- <span class="meta-label">Регламент времени</span>
- <span class="meta-val">2 академических часа (80 минут основной / 60 минут сокращенный)</span>
- </div>
- <div class="meta-item">
- <span class="meta-label">Используемые педагогические технологии</span>
- <span class="meta-val">Информационно-коммуникационные технологии, технология проблемного обучения, кейс-метод, развивающее обучение</span>
- </div>
- <div class="meta-item" style="grid-column: 1 / -1;">
- <span class="meta-label">Цель занятия</span>
- <span class="meta-val">Сформировать у обучающихся практические навыки проектирования ключевых полей, ограничений ссылочной целостности и физических индексов для реляционных баз данных: освоение алгоритмов поиска по сбалансированному дереву B-Tree, проектирование уникальных и неуникальных индексов, построение составных индексов с учетом правила левого префикса и селективности колонок, обязательная индексация внешних ключей (Foreign Keys) для устранения Seq Scan при JOIN и предотвращения каскадных блокировок, анализ накладных расходов при записи (DML Overhead) и интерпретация планов выполнения запросов EXPLAIN.</span>
- </div>
- <div class="meta-item" style="grid-column: 1 / -1;">
- <span class="meta-label">Дидактические средства</span>
- <span class="meta-val">Интерактивная презентация prezentaciya.html (15 слайдов, мем Little Bobby Tables), интерактивный рабочий лист студента zanyatie.html (4 дифференцированных практических кейса), теоретический конспект lekciya.html, критериальная рубрика.rubrika.md, мультимедийный проектор.</span>
- </div>
- <div class="meta-item" style="grid-column: 1 / -1;">
- <span class="meta-label">Формируемые компетенции</span>
- <span class="meta-val">ОК 01, ОК 02, ОК 04, ПК 1.1, ПК 1.2, ПК 1.5</span>
- </div>
- </div>
- </section>
+    <section>
+      <h2>Паспорт учебного занятия</h2>
+      <div class="meta-grid">
+        <div class="meta-item">
+          <span class="meta-label">Дисциплина</span>
+          <span class="meta-val">ОП.08 Основы проектирования баз данных</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Специальность</span>
+          <span class="meta-val">09.02.06 Сетевое и системное администрирование</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Тематический раздел</span>
+          <span class="meta-val">Тема 3. Этапы проектирования баз данных (§2.2 с.7 программы)</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Тема занятия</span>
+          <span class="meta-val">Практическое занятие №6: ключевые поля, индексы, связи (Занятие №18)</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Регламент времени</span>
+          <span class="meta-val">2 академических часа (80 минут основной / 60 минут сокращенный)</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Используемые педагогические технологии</span>
+          <span class="meta-val">Информационно-коммуникационные технологии, технология проблемного обучения, кейс-метод, развивающее обучение</span>
+        </div>
+        <div class="meta-item" style="grid-column: 1 / -1;">
+          <span class="meta-label">Цель занятия</span>
+          <span class="meta-val">Сформировать у обучающихся практические навыки проектирования ключевых полей, ограничений ссылочной целостности и физических индексов для реляционных баз данных: освоение алгоритмов поиска по сбалансированному дереву B-Tree, проектирование уникальных и неуникальных индексов, построение составных индексов с учетом правила левого префикса и селективности колонок, обязательная индексация внешних ключей (Foreign Keys) для устранения Seq Scan при JOIN и предотвращения каскадных блокировок, анализ накладных расходов при записи (DML Overhead) и интерпретация планов выполнения запросов EXPLAIN.</span>
+        </div>
+        <div class="meta-item" style="grid-column: 1 / -1;">
+          <span class="meta-label">Дидактические средства</span>
+          <span class="meta-val">Интерактивная презентация prezentaciya.html (15 слайдов, мем Little Bobby Tables), интерактивный рабочий лист студента zanyatie.html (4 дифференцированных практических кейса), теоретический конспект lekciya.html, критериальная рубрика .rubrika.md, мультимедийный проектор.</span>
+        </div>
+        <div class="meta-item" style="grid-column: 1 / -1;">
+          <span class="meta-label">Формируемые компетенции</span>
+          <span class="meta-val">ОК 01, ОК 02, ОК 04, ПК 1.1, ПК 1.2, ПК 1.5</span>
+        </div>
+      </div>
+    </section>
 
- <section>
- <h2>Структура занятия — Основной регламент (80 минут)</h2>
- <table class="tk-table">
- <thead>
- <tr>
- <th style="width: 20%;">Этап и хронометраж</th>
- <th style="width: 40%;">Деятельность преподавателя</th>
- <th style="width: 40%;">Деятельность студентов</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td>
- <span class="badge-stage">Этап 1</span><br>
- <strong>Организационный момент и проблемная мотивация</strong><br>
- <em>5 минут</em>
- </td>
- <td>
- <ul>
- <li>Приветствует обучающихся, проверяет готовность рабочих мест и явку.</li>
- <li>Формулирует проблемный производственный кейс: «После обновления мобильного приложения интернет-банка сервер упал при попытке 50 000 клиентов получить выписку за месяц. База данных зависла на 100% утилизации диска. Почему добавление одного индекса вернуло систему к жизни за 5 миллисекунд?»</li>
- <li>Озвучивает тему практического занятия и ключевые этапы пары.</li>
- </ul>
- </td>
- <td>
- <ul>
- <li>Приветствуют преподавателя, организуют рабочее пространство, запускают браузеры.</li>
- <li>Включаются в анализ проблемной ситуации, выдвигают гипотезы о причинах деградации дискового ввода-вывода (I/O).</li>
- <li>Фиксируют тему практического занятия №6.</li>
- </ul>
- </td>
- </tr>
- <tr>
- <td>
- <span class="badge-stage">Этап 2</span><br>
- <strong>Актуализация опорных знаний</strong><br>
- <em>8 минут</em>
- </td>
- <td>
- <ul>
- <li>Проводит фронтальный экспресс-опрос по ранее изученным темам:
- <ul>
- <li>В чем различие между логическим внешним ключом (FOREIGN KEY) и физическим индексом?</li>
- <li>Создает ли СУБД автоматический индекс на внешний ключ?</li>
- <li>Какова алгоритмическая сложность последовательного сканирования таблицы (Seq Scan) по сравнению с поиском по дереву?</li>
- </ul>
- </li>
- <li>Обобщает ответы и демонстрирует схему хранения строк в неупорядоченной куче (Heap).</li>
- </ul>
- </td>
- <td>
- <ul>
- <li>Отвечают на вопросы преподавателя, сопоставляют понятия ссылочной целостности и структур быстрого доступа.</li>
- <li>Осознают критический факт: внешний ключ по умолчанию не индексируется большинством СУБД.</li>
- </ul>
- </td>
- </tr>
- <tr>
- <td>
- <span class="badge-stage">Этап 3</span><br>
- <strong>Инструктаж и теоретический базис</strong><br>
- <em>18 минут</em>
- </td>
- <td>
- <ul>
- <li>Демонстрирует интерактивную презентацию (слайды 2–12):
- <ul>
- <li>Физическая архитектура сбалансированного дерева B-Tree (корень, внутренние узлы, двусвязный список листьев, указатели TID).</li>
- <li>Уникальные (UNIQUE) vs Неуникальные индексы.</li>
- <li>Составные индексы (Composite Index) и строгое правило левого префикса (Left-Prefix Rule).</li>
- <li>Селективность колонок (кардинальность) и золотое правило порядка: <code>[Равенства =] -> [Диапазоны &lt;, &gt;, BETWEEN] -> [ORDER BY]</code>.</li>
- <li>Кластеризованные vs Некластеризованные индексы.</li>
- <li>Накладные расходы при записи (DML Overhead: замедление INSERT/UPDATE/DELETE, расщепление страниц Page Split).</li>
- <li>Частичные индексы (Partial Index) для очередей и асимметричных статусов.</li>
- </ul>
- </li>
- </ul>
- </td>
- <td>
- <ul>
- <li>Внимательно слушают объяснение преподавателя, конспектируют физические свойства B-Tree и правила формирования составных индексов.</li>
- <li>Задают уточняющие вопросы по механике работы левого префикса и накладным расходам при операциях вставки.</li>
- </ul>
- </td>
- </tr>
- <tr>
- <td>
- <span class="badge-stage">Этап 4</span><br>
- <strong>Разбор сквозного эталона и EXPLAIN</strong><br>
- <em>12 минут</em>
- </td>
- <td>
- <ul>
- <li>Демонстрирует на экране разбор сквозного кейса и чтение планов выполнения запросов (EXPLAIN ANALYZE):
- <ul>
- <li>Сравнение плана <code>Seq Scan (cost=0.00..45210.00, rows removed=1999980)</code> и <code>Index Scan (cost=0.43..12.50)</code>.</li>
- <li>Демонстрация каскадной блокировки дочерней таблицы при отсутствии индекса на внешнем ключе во время удаления строки родителя.</li>
- <li>Синтез корректного DDL-скрипта создания составного индекса.</li>
- </ul>
- </li>
- <li>Инструктирует студентов по выполнению индивидуальных заданий в интерактивном листе <code>zanyatie.html</code>.</li>
- </ul>
- </td>
- <td>
- <ul>
- <li>Анализируют различия планов выполнения запросов, фиксируют маркеры неэффективности (высокий cost, строки, отброшенные фильтром).</li>
- <li>Изучают эталонную структуру DDL-команд <code>CREATE INDEX</code> и <code>CREATE UNIQUE INDEX</code>.</li>
- </ul>
- </td>
- </tr>
- <tr>
- <td>
- <span class="badge-stage">Этап 5</span><br>
- <strong>Практическая работа студентов</strong><br>
- <em>28 минут</em>
- </td>
- <td>
- <ul>
- <li>Координирует самостоятельную работу студентов в интерактивном листе <code>zanyatie.html</code> по 4 дифференцированным вариантам:
- <ul>
- <li><em>Вариант 1:</em> Интернет-банкинг (Счета и Транзакции, индекс FK, составной B-Tree (id_клиента, дата)).</li>
- <li><em>Вариант 2:</em> Биллинг связи (Абоненты, Звонки, Тарифы, частичный индекс WHERE статус = 'ACTIVE').</li>
- <li><em>Вариант 3:</em> Каталог недвижимости (Объекты, Города, Риелторы, составной диапазонный индекс (город_id, цена, комнат)).</li>
- <li><em>Вариант 4:</em> Логистика и доставка (Заказы, Курьеры, Маршруты, UNIQUE на трек-номер, индекс FK курьера + дата).</li>
- </ul>
- </li>
- <li>Оказывает индивидуальные консультации, контролирует автосохранение ответов в localStorage.</li>
- </ul>
- </td>
- <td>
- <ul>
- <li>Заполняют регистрационные поля (ФИО, группа) в <code>zanyatie.html</code>.</li>
- <li>Выполняют индивидуальные инженерные расчеты, формируют DDL-скрипты, обосновывают селективность колонок и порядок левого префикса.</li>
- <li>Оценивают накладные расходы DML, заполняют аналитические поля и блок самопроверки.</li>
- </ul>
- </td>
- </tr>
- <tr>
- <td>
- <span class="badge-stage">Этап 6</span><br>
- <strong>Подведение итогов, рефлексия и оценка</strong><br>
- <em>9 минут</em>
- </td>
- <td>
- <ul>
- <li>Организует фронтальный разбор типичных ошибок (создание индексов на все поля, постановка диапазона раньше равенства, пропуск индексов на FK).</li>
- <li>Демонстрирует слайд 15 с интернет-мемом Little Bobby Tables (xkcd #327), подчеркивая важность архитектурной дисциплины.</li>
- <li>Выставляет оценки по 4-балльной критериальной шкале рубрики (<code>.rubrika.md</code>), озвучивает порядок сдачи резервного ДЗ (<code>domashnee_zadanie.html</code>).</li>
- </ul>
- </td>
- <td>
- <ul>
- <li>Участвуют в рефлексивном обсуждении, сопоставляют свои проектные решения с эталонами рубрики.</li>
- <li>Экспортируют заполненный рабочий лист в PDF / сохраняют протокол работы.</li>
- <li>Записывают домашнее задание при необходимости сдачи.</li>
- </ul>
- </td>
- </tr>
- </tbody>
- </table>
- </section>
+    <section>
+      <h2>Структура занятия — Основной регламент (80 минут)</h2>
+      <table class="tk-table">
+        <thead>
+          <tr>
+            <th style="width: 20%;">Этап и хронометраж</th>
+            <th style="width: 40%;">Деятельность преподавателя</th>
+            <th style="width: 40%;">Деятельность студентов</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <span class="badge-stage">Этап 1</span><br>
+              <strong>Организационный момент и проблемная мотивация</strong><br>
+              <em>5 минут</em>
+            </td>
+            <td>
+              <ul>
+                <li>Приветствует обучающихся, проверяет готовность рабочих мест и явку.</li>
+                <li>Формулирует проблемный производственный кейс: «После обновления мобильного приложения интернет-банка сервер упал при попытке 50 000 клиентов получить выписку за месяц. База данных зависла на 100% утилизации диска. Почему добавление одного индекса вернуло систему к жизни за 5 миллисекунд?»</li>
+                <li>Озвучивает тему практического занятия и ключевые этапы пары.</li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>Приветствуют преподавателя, организуют рабочее пространство, запускают браузеры.</li>
+                <li>Включаются в анализ проблемной ситуации, выдвигают гипотезы о причинах деградации дискового ввода-вывода (I/O).</li>
+                <li>Фиксируют тему практического занятия №6.</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="badge-stage">Этап 2</span><br>
+              <strong>Актуализация опорных знаний</strong><br>
+              <em>8 минут</em>
+            </td>
+            <td>
+              <ul>
+                <li>Проводит фронтальный экспресс-опрос по ранее изученным темам:
+                  <ul>
+                    <li>В чем различие между логическим внешним ключом (FOREIGN KEY) и физическим индексом?</li>
+                    <li>Создает ли СУБД автоматический индекс на внешний ключ?</li>
+                    <li>Какова алгоритмическая сложность последовательного сканирования таблицы (Seq Scan) по сравнению с поиском по дереву?</li>
+                  </ul>
+                </li>
+                <li>Обобщает ответы и демонстрирует схему хранения строк в неупорядоченной куче (Heap).</li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>Отвечают на вопросы преподавателя, сопоставляют понятия ссылочной целостности и структур быстрого доступа.</li>
+                <li>Осознают критический факт: внешний ключ по умолчанию не индексируется большинством СУБД.</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="badge-stage">Этап 3</span><br>
+              <strong>Инструктаж и теоретический базис</strong><br>
+              <em>18 минут</em>
+            </td>
+            <td>
+              <ul>
+                <li>Демонстрирует интерактивную презентацию (слайды 2–12):
+                  <ul>
+                    <li>Физическая архитектура сбалансированного дерева B-Tree (корень, внутренние узлы, двусвязный список листьев, указатели TID).</li>
+                    <li>Уникальные (UNIQUE) vs Неуникальные индексы.</li>
+                    <li>Составные индексы (Composite Index) и строгое правило левого префикса (Left-Prefix Rule).</li>
+                    <li>Селективность колонок (кардинальность) и золотое правило порядка: <code>[Равенства =] -> [Диапазоны &lt;, &gt;, BETWEEN] -> [ORDER BY]</code>.</li>
+                    <li>Кластеризованные vs Некластеризованные индексы.</li>
+                    <li>Накладные расходы при записи (DML Overhead: замедление INSERT/UPDATE/DELETE, расщепление страниц Page Split).</li>
+                    <li>Частичные индексы (Partial Index) для очередей и асимметричных статусов.</li>
+                  </ul>
+                </li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>Внимательно слушают объяснение преподавателя, конспектируют физические свойства B-Tree и правила формирования составных индексов.</li>
+                <li>Задают уточняющие вопросы по механике работы левого префикса и накладным расходам при операциях вставки.</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="badge-stage">Этап 4</span><br>
+              <strong>Разбор сквозного эталона и EXPLAIN</strong><br>
+              <em>12 минут</em>
+            </td>
+            <td>
+              <ul>
+                <li>Демонстрирует на экране разбор сквозного кейса и чтение планов выполнения запросов (EXPLAIN ANALYZE):
+                  <ul>
+                    <li>Сравнение плана <code>Seq Scan (cost=0.00..45210.00, rows removed=1999980)</code> и <code>Index Scan (cost=0.43..12.50)</code>.</li>
+                    <li>Демонстрация каскадной блокировки дочерней таблицы при отсутствии индекса на внешнем ключе во время удаления строки родителя.</li>
+                    <li>Синтез корректного DDL-скрипта создания составного индекса.</li>
+                  </ul>
+                </li>
+                <li>Инструктирует студентов по выполнению индивидуальных заданий в интерактивном листе <code>zanyatie.html</code>.</li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>Анализируют различия планов выполнения запросов, фиксируют маркеры неэффективности (высокий cost, строки, отброшенные фильтром).</li>
+                <li>Изучают эталонную структуру DDL-команд <code>CREATE INDEX</code> и <code>CREATE UNIQUE INDEX</code>.</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="badge-stage">Этап 5</span><br>
+              <strong>Практическая работа студентов</strong><br>
+              <em>28 минут</em>
+            </td>
+            <td>
+              <ul>
+                <li>Координирует самостоятельную работу студентов в интерактивном листе <code>zanyatie.html</code> по 4 дифференцированным вариантам:
+                  <ul>
+                    <li><em>Вариант 1:</em> Интернет-банкинг (Счета и Транзакции, индекс FK, составной B-Tree (id_клиента, дата)).</li>
+                    <li><em>Вариант 2:</em> Биллинг связи (Абоненты, Звонки, Тарифы, частичный индекс WHERE статус = 'ACTIVE').</li>
+                    <li><em>Вариант 3:</em> Каталог недвижимости (Объекты, Города, Риелторы, составной диапазонный индекс (город_id, цена, комнат)).</li>
+                    <li><em>Вариант 4:</em> Логистика и доставка (Заказы, Курьеры, Маршруты, UNIQUE на трек-номер, индекс FK курьера + дата).</li>
+                  </ul>
+                </li>
+                <li>Оказывает индивидуальные консультации, контролирует автосохранение ответов в localStorage.</li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>Заполняют регистрационные поля (ФИО, группа) в <code>zanyatie.html</code>.</li>
+                <li>Выполняют индивидуальные инженерные расчеты, формируют DDL-скрипты, обосновывают селективность колонок и порядок левого префикса.</li>
+                <li>Оценивают накладные расходы DML, заполняют аналитические поля и блок самопроверки.</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="badge-stage">Этап 6</span><br>
+              <strong>Подведение итогов, рефлексия и оценка</strong><br>
+              <em>9 минут</em>
+            </td>
+            <td>
+              <ul>
+                <li>Организует фронтальный разбор типичных ошибок (создание индексов на все поля, постановка диапазона раньше равенства, пропуск индексов на FK).</li>
+                <li>Демонстрирует слайд 15 с интернет-мемом Little Bobby Tables (xkcd #327), подчеркивая важность архитектурной дисциплины.</li>
+                <li>Выставляет оценки по 4-балльной критериальной шкале рубрики (<code>.rubrika.md</code>), озвучивает порядок сдачи резервного ДЗ (<code>domashnee_zadanie.html</code>).</li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>Участвуют в рефлексивном обсуждении, сопоставляют свои проектные решения с эталонами рубрики.</li>
+                <li>Экспортируют заполненный рабочий лист в PDF / сохраняют протокол работы.</li>
+                <li>Записывают домашнее задание при необходимости сдачи.</li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
 
- <section>
- <h2>Структура занятия — Сокращенный регламент (60 минут)</h2>
- <table class="tk-table">
- <thead>
- <tr>
- <th style="width: 20%;">Этап и хронометраж</th>
- <th style="width: 40%;">Деятельность преподавателя</th>
- <th style="width: 40%;">Деятельность студентов</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td>
- <span class="badge-stage">Этап 1</span><br>
- <strong>Организационный момент и мотивация</strong><br>
- <em>3 минуты</em>
- </td>
- <td>Краткое приветствие, экспресс-фиксация явки, постановка проблемного вопроса о падении базы данных без индексов при массовом чтении.</td>
- <td>Приветствуют преподавателя, настраивают рабочую среду, включаются в тему.</td>
- </tr>
- <tr>
- <td>
- <span class="badge-stage">Этап 2</span><br>
- <strong>Актуализация опорных знаний</strong><br>
- <em>5 минут</em>
- </td>
- <td>Блиц-опрос: почему FOREIGN KEY не ускоряет JOIN автоматически, сложность Seq Scan O(N) vs B-Tree O(log N).</td>
- <td>Отвечают на вопросы, вспоминают концепцию физического хранения в куче (Heap).</td>
- </tr>
- <tr>
- <td>
- <span class="badge-stage">Этап 3</span><br>
- <strong>Теоретический базис и инструктаж</strong><br>
- <em>12 минут</em>
- </td>
- <td>Сжатое изложение ключевых концепций по слайдам презентации: B-Tree, составные индексы, правило левого префикса, накладные расходы при записи, частичные индексы.</td>
- <td>Слушают ключевые тезисы, фиксируют правила расстановки колонок в составном индексе.</td>
- </tr>
- <tr>
- <td>
- <span class="badge-stage">Этап 4</span><br>
- <strong>Разбор эталона EXPLAIN</strong><br>
- <em>10 минут</em>
- </td>
- <td>Демонстрация сравнения планов Seq Scan и Index Scan, разбор скрипта индексации FK для устранения блокировок дочерней таблицы.</td>
- <td>Анализируют эталонный план, готовятся к самостоятельному решению кейсов.</td>
- </tr>
- <tr>
- <td>
- <span class="badge-stage">Этап 5</span><br>
- <strong>Практическая работа в zanyatie.html</strong><br>
- <em>24 минуты</em>
- </td>
- <td>Курирование выполнения студентами 4 кейсов в интерактивном листе, точечные консультации по синтаксису и расчету селективности.</td>
- <td>Решают индивидуальные практические кейсы, генерируют DDL, обосновывают архитектурные решения.</td>
- </tr>
- <tr>
- <td>
- <span class="badge-stage">Этап 6</span><br>
- <strong>Итоги, рефлексия, оценка</strong><br>
- <em>6 минут</em>
- </td>
- <td>Экспресс-разбор ошибок, демонстрация мема Little Bobby Tables, оглашение баллов по критериальной рубрике.</td>
- <td>Проводят самопроверку, сохраняют результаты работы, задают итоговые вопросы.</td>
- </tr>
- </tbody>
- </table>
- </section>
+    <section>
+      <h2>Структура занятия — Сокращенный регламент (60 минут)</h2>
+      <table class="tk-table">
+        <thead>
+          <tr>
+            <th style="width: 20%;">Этап и хронометраж</th>
+            <th style="width: 40%;">Деятельность преподавателя</th>
+            <th style="width: 40%;">Деятельность студентов</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <span class="badge-stage">Этап 1</span><br>
+              <strong>Организационный момент и мотивация</strong><br>
+              <em>3 минуты</em>
+            </td>
+            <td>Краткое приветствие, экспресс-фиксация явки, постановка проблемного вопроса о падении базы данных без индексов при массовом чтении.</td>
+            <td>Приветствуют преподавателя, настраивают рабочую среду, включаются в тему.</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="badge-stage">Этап 2</span><br>
+              <strong>Актуализация опорных знаний</strong><br>
+              <em>5 минут</em>
+            </td>
+            <td>Блиц-опрос: почему FOREIGN KEY не ускоряет JOIN автоматически, сложность Seq Scan O(N) vs B-Tree O(log N).</td>
+            <td>Отвечают на вопросы, вспоминают концепцию физического хранения в куче (Heap).</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="badge-stage">Этап 3</span><br>
+              <strong>Теоретический базис и инструктаж</strong><br>
+              <em>12 минут</em>
+            </td>
+            <td>Сжатое изложение ключевых концепций по слайдам презентации: B-Tree, составные индексы, правило левого префикса, накладные расходы при записи, частичные индексы.</td>
+            <td>Слушают ключевые тезисы, фиксируют правила расстановки колонок в составном индексе.</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="badge-stage">Этап 4</span><br>
+              <strong>Разбор эталона EXPLAIN</strong><br>
+              <em>10 минут</em>
+            </td>
+            <td>Демонстрация сравнения планов Seq Scan и Index Scan, разбор скрипта индексации FK для устранения блокировок дочерней таблицы.</td>
+            <td>Анализируют эталонный план, готовятся к самостоятельному решению кейсов.</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="badge-stage">Этап 5</span><br>
+              <strong>Практическая работа в zanyatie.html</strong><br>
+              <em>24 минуты</em>
+            </td>
+            <td>Курирование выполнения студентами 4 кейсов в интерактивном листе, точечные консультации по синтаксису и расчету селективности.</td>
+            <td>Решают индивидуальные практические кейсы, генерируют DDL, обосновывают архитектурные решения.</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="badge-stage">Этап 6</span><br>
+              <strong>Итоги, рефлексия, оценка</strong><br>
+              <em>6 минут</em>
+            </td>
+            <td>Экспресс-разбор ошибок, демонстрация мема Little Bobby Tables, оглашение баллов по критериальной рубрике.</td>
+            <td>Проводят самопроверку, сохраняют результаты работы, задают итоговые вопросы.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
 
- </div>
+  </div>
 </body>
 </html>

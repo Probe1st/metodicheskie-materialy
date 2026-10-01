@@ -1,414 +1,431 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
- <meta name="color-scheme" content="light">
- <title>Конспект лекции — Анализ предметной области: связи и правила</title>
- <style>
- :root {
- --bg: #f8fafc;
- --card: #ffffff;
- --text: #0f172a;
- --muted: #475569;
- --line: #cbd5e1;
- --accent: #0284c7;
- --accent-soft: #f0f9ff;
- --accent-dark: #0369a1;
- --radius: 12px;
- --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
- }
- * { box-sizing: border-box; }
- html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
- body {
- margin: 0;
- background: var(--bg);
- color: var(--text);
- font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
- line-height: 1.65;
- font-size: 16px;
- }.page {
- width: min(100% - 32px, 940px);
- margin: 32px auto 80px;
- }.card {
- background: var(--card);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 32px;
- margin-bottom: 24px;
- box-shadow: var(--shadow);
- }
- h1 {
- margin: 0 0 12px;
- font-size: clamp(24px, 4vw, 32px);
- color: var(--text);
- line-height: 1.25;
- }.lead {
- color: var(--muted);
- margin: 0;
- font-size: 16px;
- }
- h2 {
- margin: 0 0 16px;
- font-size: 21px;
- color: var(--accent);
- border-bottom: 2px solid var(--accent-soft);
- padding-bottom: 8px;
- }
- h3 {
- font-size: 18px;
- margin: 22px 0 12px;
- color: var(--text);
- }
- p, ul, ol {
- margin-top: 0;
- margin-bottom: 12px;
- }
- ul, ol {
- padding-left: 24px;
- }
- li {
- margin-bottom: 6px;
- }.callout {
- background: var(--accent-soft);
- border-left: 4px solid var(--accent);
- padding: 14px 18px;
- border-radius: 4px 8px 8px 4px;
- margin-bottom: 18px;
- }.table-responsive {
- width: 100%;
- overflow-x: auto;
- margin: 16px 0 20px;
- -webkit-overflow-scrolling: touch;
- }
- table {
- width: 100%;
- border-collapse: collapse;
- font-size: 14.5px;
- }
- th, td {
- border: 1px solid var(--line);
- padding: 10px 14px;
- text-align: left;
- vertical-align: top;
- }
- th {
- background: var(--accent-soft);
- color: var(--accent-dark);
- font-weight: 600;
- }
- code {
- font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
- background: #f1f5f9;
- padding: 2px 6px;
- border-radius: 4px;
- font-size: 14px;
- }
- /* Стили адаптивных ER-диаграмм на чистом SVG */.diagram-container {
- background: #ffffff;
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 20px;
- margin: 20px 0;
- text-align: center;
- }.diagram-title {
- font-size: 14px;
- font-weight: 600;
- color: var(--muted);
- margin-bottom: 12px;
- text-transform: uppercase;
- letter-spacing: 0.5px;
- }.diagram-svg {
- max-width: 100%;
- height: auto;
- display: block;
- margin: 0 auto;
- }.qa-card {
- background: #f8fafc;
- border: 1px solid var(--line);
- border-radius: 8px;
- padding: 16px;
- margin-bottom: 12px;
- }.qa-q {
- font-weight: 600;
- color: var(--accent-dark);
- margin-bottom: 6px;
- }.qa-a {
- color: var(--text);
- font-size: 15px;
- }
- @media (max-width: 640px) {.page { width: calc(100% - 20px); margin: 16px auto 60px; }.card { padding: 20px 16px; }.diagram-container { padding: 12px; }
- }
- @media print {
- body { background: #fff; color: #000; font-size: 12pt; }.page { width: 100%; margin: 0; }.card { border: none; box-shadow: none; padding: 12px 0; margin-bottom: 16px; break-inside: avoid; }.diagram-container { border: 1px solid #ccc; break-inside: avoid; }
- }
- </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Конспект лекции — Анализ предметной области: связи и правила</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #0284c7;
+      --accent-soft: #f0f9ff;
+      --accent-dark: #0369a1;
+      --radius: 12px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      line-height: 1.65;
+      font-size: 16px;
+    }
+    .page {
+      width: min(100% - 32px, 940px);
+      margin: 32px auto 80px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(24px, 4vw, 32px);
+      color: var(--text);
+      line-height: 1.25;
+    }
+    .lead {
+      color: var(--muted);
+      margin: 0;
+      font-size: 16px;
+    }
+    h2 {
+      margin: 0 0 16px;
+      font-size: 21px;
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 8px;
+    }
+    h3 {
+      font-size: 18px;
+      margin: 22px 0 12px;
+      color: var(--text);
+    }
+    p, ul, ol {
+      margin-top: 0;
+      margin-bottom: 12px;
+    }
+    ul, ol {
+      padding-left: 24px;
+    }
+    li {
+      margin-bottom: 6px;
+    }
+    .callout {
+      background: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      padding: 14px 18px;
+      border-radius: 4px 8px 8px 4px;
+      margin-bottom: 18px;
+    }
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      margin: 16px 0 20px;
+      -webkit-overflow-scrolling: touch;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14.5px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 14px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font-weight: 600;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    /* Стили адаптивных ER-диаграмм на чистом SVG */
+    .diagram-container {
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    .diagram-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .diagram-svg {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+    .qa-card {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .qa-q {
+      font-weight: 600;
+      color: var(--accent-dark);
+      margin-bottom: 6px;
+    }
+    .qa-a {
+      color: var(--text);
+      font-size: 15px;
+    }
+    @media (max-width: 640px) {
+      .page { width: calc(100% - 20px); margin: 16px auto 60px; }
+      .card { padding: 20px 16px; }
+      .diagram-container { padding: 12px; }
+    }
+    @media print {
+      body { background: #fff; color: #000; font-size: 12pt; }
+      .page { width: 100%; margin: 0; }
+      .card { border: none; box-shadow: none; padding: 12px 0; margin-bottom: 16px; break-inside: avoid; }
+      .diagram-container { border: 1px solid #ccc; break-inside: avoid; }
+    }
+  </style>
 </head>
 <body>
- <div class="page">
- <header class="card">
- <h1>Конспект лекции: Анализ предметной области: связи и правила</h1>
- <p class="lead"><strong>Учебная дисциплина:</strong> ОП.08 Основы проектирования баз данных<br>
- <strong>Раздел программы:</strong> Тема 1. Основные понятия баз данных<br>
- <strong>Тематический фокус:</strong> Концептуальное проектирование связей, нотации Chen и Crow's Foot, типы кардинальности, классы принадлежности, бизнес-правила и семантические ограничения.</p>
- </header>
+  <div class="page">
+    <header class="card">
+      <h1>Конспект лекции: Анализ предметной области: связи и правила</h1>
+      <p class="lead"><strong>Учебная дисциплина:</strong> ОП.08 Основы проектирования баз данных<br>
+      <strong>Раздел программы (§2.2 с.7):</strong> Тема 1. Основные понятия баз данных<br>
+      <strong>Тематический фокус:</strong> Концептуальное проектирование связей, нотации Chen и Crow's Foot, типы кардинальности, классы принадлежности, бизнес-правила и семантические ограничения.</p>
+    </header>
 
- <section class="card">
- <h2>1. Понятие связи между сущностями (Relationship)</h2>
- <p>В реальном мире объекты не существуют изолированно. Студенты обучаются в учебных группах, врачи принимают пациентов, покупатели оформляют заказы на товары. Если сущности представляют собой существительные предметной области (<em>«Кто?»</em> или <em>«Что?»</em>), то <strong>связи (отношения, Relationships)</strong> представляют собой глаголы, связывающие эти сущности (<em>«Обучается в»</em>, <em>«Принимает»</em>, <em>«Оформляет»</em>).</p>
- 
- <div class="callout">
- <strong>Определение:</strong> Связь (Relationship) — это содержательная ассоциация между сущностями предметной области, которая отражает объективные бизнес-процессы и зависимости между их реальными экземплярами.
- </div>
+    <section class="card">
+      <h2>1. Понятие связи между сущностями (Relationship)</h2>
+      <p>В реальном мире объекты не существуют изолированно. Студенты обучаются в учебных группах, врачи принимают пациентов, покупатели оформляют заказы на товары. Если сущности представляют собой существительные предметной области (<em>«Кто?»</em> или <em>«Что?»</em>), то <strong>связи (отношения, Relationships)</strong> представляют собой глаголы, связывающие эти сущности (<em>«Обучается в»</em>, <em>«Принимает»</em>, <em>«Оформляет»</em>).</p>
+      
+      <div class="callout">
+        <strong>Определение:</strong> Связь (Relationship) — это содержательная ассоциация между сущностями предметной области, которая отражает объективные бизнес-процессы и зависимости между их реальными экземплярами.
+      </div>
 
- <p>Связи обладают следующими фундаментальными характеристиками:</p>
- <ul>
- <li><strong>Степень связи (Degree):</strong> количество сущностей, участвующих в связи (унарная/рекурсивная, бинарная, тернарная).</li>
- <li><strong>Кардинальность (Cardinality, мощность отображения):</strong> максимальное количество экземпляров одной сущности, которое может ассоциироваться с одним экземпляром другой сущности.</li>
- <li><strong>Класс принадлежности (Модальность / Степень участия):</strong> минимальное количество экземпляров сущности в связи (0 — факультативное участие, 1 — обязательное участие).</li>
- </ul>
- </section>
+      <p>Связи обладают следующими фундаментальными характеристиками:</p>
+      <ul>
+        <li><strong>Степень связи (Degree):</strong> количество сущностей, участвующих в связи (унарная/рекурсивная, бинарная, тернарная).</li>
+        <li><strong>Кардинальность (Cardinality, мощность отображения):</strong> максимальное количество экземпляров одной сущности, которое может ассоциироваться с одним экземпляром другой сущности.</li>
+        <li><strong>Класс принадлежности (Модальность / Степень участия):</strong> минимальное количество экземпляров сущности в связи (0 — факультативное участие, 1 — обязательное участие).</li>
+      </ul>
+    </section>
 
- <section class="card">
- <h2>2. Нотации моделирования связей: Chen и Crow's Foot</h2>
- <p>В теории и практике баз данных исторически закрепились две ведущие графические нотации моделирования данных (ERD — Entity-Relationship Diagrams):</p>
- 
- <div class="table-responsive">
- <table>
- <thead>
- <tr>
- <th style="width: 25%;">Характеристика</th>
- <th style="width: 37%;">Нотация Питера Чена (Chen Notation)</th>
- <th style="width: 38%;">Нотация «Воронья лапка» (Crow's Foot / Barker)</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>Автор и появление</strong></td>
- <td>Питер Чен, 1976 г. (классическая академическая модель).</td>
- <td>Гордон Эверест и Ричард Баркер, 1980-е гг. (индустриальный стандарт).</td>
- </tr>
- <tr>
- <td><strong>Отображение сущности</strong></td>
- <td>Прямоугольник с именем сущности.</td>
- <td>Прямоугольник, разделенный на секции (имя, первичный ключ, атрибуты).</td>
- </tr>
- <tr>
- <td><strong>Отображение связи</strong></td>
- <td>Ромб (ромбический блок с глаголом связи), соединенный линиями.</td>
- <td>Прямая соединительная линия между блоками без ромба.</td>
- </tr>
- <tr>
- <td><strong>Отображение кардинальности</strong></td>
- <td>Символьные метки над линиями: <code>1</code>, <code>M</code>, <code>N</code>.</td>
- <td>Графические символы на концах линий: кольцо (0), черточка (1), вилка-«лапка» (M).</td>
- </tr>
- <tr>
- <td><strong>Область применения</strong></td>
- <td>Концептуальный анализ предметной области на ранних этапах.</td>
- <td>Логическое и физическое проектирование реляционных баз данных (IDEF1X, CASE-средства).</td>
- </tr>
- </tbody>
- </table>
- </div>
+    <section class="card">
+      <h2>2. Нотации моделирования связей: Chen и Crow's Foot</h2>
+      <p>В теории и практике баз данных исторически закрепились две ведущие графические нотации моделирования данных (ERD — Entity-Relationship Diagrams):</p>
+      
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 25%;">Характеристика</th>
+              <th style="width: 37%;">Нотация Питера Чена (Chen Notation)</th>
+              <th style="width: 38%;">Нотация «Воронья лапка» (Crow's Foot / Barker)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Автор и появление</strong></td>
+              <td>Питер Чен, 1976 г. (классическая академическая модель).</td>
+              <td>Гордон Эверест и Ричард Баркер, 1980-е гг. (индустриальный стандарт).</td>
+            </tr>
+            <tr>
+              <td><strong>Отображение сущности</strong></td>
+              <td>Прямоугольник с именем сущности.</td>
+              <td>Прямоугольник, разделенный на секции (имя, первичный ключ, атрибуты).</td>
+            </tr>
+            <tr>
+              <td><strong>Отображение связи</strong></td>
+              <td>Ромб (ромбический блок с глаголом связи), соединенный линиями.</td>
+              <td>Прямая соединительная линия между блоками без ромба.</td>
+            </tr>
+            <tr>
+              <td><strong>Отображение кардинальности</strong></td>
+              <td>Символьные метки над линиями: <code>1</code>, <code>M</code>, <code>N</code>.</td>
+              <td>Графические символы на концах линий: кольцо (0), черточка (1), вилка-«лапка» (M).</td>
+            </tr>
+            <tr>
+              <td><strong>Область применения</strong></td>
+              <td>Концептуальный анализ предметной области на ранних этапах.</td>
+              <td>Логическое и физическое проектирование реляционных баз данных (IDEF1X, CASE-средства).</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
- <div class="diagram-container">
- <div class="diagram-title">Рис. 1. Адаптивная схема: Связь 1:M в нотации Chen (академическая) и Crow's Foot (индустриальная)</div>
- <svg class="diagram-svg" viewBox="0 0 760 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Сравнение нотаций Chen и Crow's Foot">
- <!-- Фон -->
- <rect width="760" height="260" fill="#f8fafc" rx="8"/>
- 
- <!-- Левая часть: Нотация Чена -->
- <text x="180" y="30" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#0369a1" text-anchor="middle">Нотация Питера Чена (Chen)</text>
- 
- <!-- Сущность ГРУППА -->
- <rect x="30" y="70" width="110" height="50" rx="4" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
- <text x="85" y="100" font-family="system-ui, sans-serif" font-size="13" font-weight="bold" fill="#0f172a" text-anchor="middle">ГРУППА</text>
- 
- <!-- Ромб связи -->
- <polygon points="200,65 245,95 200,125 155,95" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
- <text x="200" y="99" font-family="system-ui, sans-serif" font-size="11" font-weight="bold" fill="#0369a1" text-anchor="middle">СОДЕРЖИТ</text>
- 
- <!-- Линии связи -->
- <line x1="140" y1="95" x2="155" y2="95" stroke="#0284c7" stroke-width="2"/>
- <text x="148" y="85" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#0f172a">1</text>
- 
- <line x1="245" y1="95" x2="260" y2="95" stroke="#0284c7" stroke-width="2"/>
- <text x="250" y="85" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#0f172a">M</text>
- 
- <!-- Сущность СТУДЕНТ -->
- <rect x="260" y="70" width="110" height="50" rx="4" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
- <text x="315" y="100" font-family="system-ui, sans-serif" font-size="13" font-weight="bold" fill="#0f172a" text-anchor="middle">СТУДЕНТ</text>
- 
- <text x="180" y="160" font-family="system-ui, sans-serif" font-size="12" fill="#64748b" text-anchor="middle">Связь через ромб отношений</text>
- 
- <!-- Разделитель -->
- <line x1="380" y1="20" x2="380" y2="240" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4"/>
- 
- <!-- Правая часть: Нотация Crow's Foot -->
- <text x="570" y="30" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#0369a1" text-anchor="middle">Нотация Crow's Foot («Воронья лапка»)</text>
- 
- <!-- Таблица ГРУППА -->
- <rect x="410" y="60" width="120" height="80" rx="4" fill="#ffffff" stroke="#334155" stroke-width="2"/>
- <rect x="410" y="60" width="120" height="25" fill="#f1f5f9" stroke="#334155" stroke-width="2"/>
- <text x="470" y="77" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#0f172a" text-anchor="middle">ГРУППА</text>
- <text x="420" y="105" font-family="system-ui, sans-serif" font-size="11" fill="#475569">PK id_group</text>
- <text x="420" y="125" font-family="system-ui, sans-serif" font-size="11" fill="#475569"> nazvanie</text>
- 
- <!-- Линия Crow's Foot -->
- <line x1="530" y1="100" x2="610" y2="100" stroke="#0f172a" stroke-width="2"/>
- 
- <!-- Символ 1 со стороны Группы (две перпендикулярные черточки) -->
- <line x1="540" y1="92" x2="540" y2="108" stroke="#0f172a" stroke-width="2"/>
- <line x1="546" y1="92" x2="546" y2="108" stroke="#0f172a" stroke-width="2"/>
- 
- <!-- Символ M со стороны Студента (воронья лапка + кружок факультативности/обязательности) -->
- <circle cx="595" cy="100" r="4" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
- <line x1="600" y1="100" x2="610" y2="92" stroke="#0f172a" stroke-width="2"/>
- <line x1="600" y1="100" x2="610" y2="100" stroke="#0f172a" stroke-width="2"/>
- <line x1="600" y1="100" x2="610" y2="108" stroke="#0f172a" stroke-width="2"/>
- 
- <!-- Таблица СТУДЕНТ -->
- <rect x="610" y="60" width="120" height="80" rx="4" fill="#ffffff" stroke="#334155" stroke-width="2"/>
- <rect x="610" y="60" width="120" height="25" fill="#f1f5f9" stroke="#334155" stroke-width="2"/>
- <text x="670" y="77" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#0f172a" text-anchor="middle">СТУДЕНТ</text>
- <text x="620" y="105" font-family="system-ui, sans-serif" font-size="11" fill="#475569">PK id_student</text>
- <text x="620" y="125" font-family="system-ui, sans-serif" font-size="11" fill="#475569">FK group_id</text>
- 
- <text x="570" y="160" font-family="system-ui, sans-serif" font-size="12" fill="#64748b" text-anchor="middle">Прямая связь с графическими маркерами мощности</text>
- 
- <!-- Нижняя подпись расшифровки лапки -->
- <text x="380" y="215" font-family="system-ui, sans-serif" font-size="12" fill="#334155" text-anchor="middle">В нотации Crow's Foot: | = строго один; |o = ноль или один; }o = ноль или много; }| = один или много.</text>
- </svg>
- </div>
- </section>
+      <div class="diagram-container">
+        <div class="diagram-title">Рис. 1. Адаптивная схема: Связь 1:M в нотации Chen (академическая) и Crow's Foot (индустриальная)</div>
+        <svg class="diagram-svg" viewBox="0 0 760 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Сравнение нотаций Chen и Crow's Foot">
+          <!-- Фон -->
+          <rect width="760" height="260" fill="#f8fafc" rx="8"/>
+          
+          <!-- Левая часть: Нотация Чена -->
+          <text x="180" y="30" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#0369a1" text-anchor="middle">Нотация Питера Чена (Chen)</text>
+          
+          <!-- Сущность ГРУППА -->
+          <rect x="30" y="70" width="110" height="50" rx="4" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+          <text x="85" y="100" font-family="system-ui, sans-serif" font-size="13" font-weight="bold" fill="#0f172a" text-anchor="middle">ГРУППА</text>
+          
+          <!-- Ромб связи -->
+          <polygon points="200,65 245,95 200,125 155,95" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+          <text x="200" y="99" font-family="system-ui, sans-serif" font-size="11" font-weight="bold" fill="#0369a1" text-anchor="middle">СОДЕРЖИТ</text>
+          
+          <!-- Линии связи -->
+          <line x1="140" y1="95" x2="155" y2="95" stroke="#0284c7" stroke-width="2"/>
+          <text x="148" y="85" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#0f172a">1</text>
+          
+          <line x1="245" y1="95" x2="260" y2="95" stroke="#0284c7" stroke-width="2"/>
+          <text x="250" y="85" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#0f172a">M</text>
+          
+          <!-- Сущность СТУДЕНТ -->
+          <rect x="260" y="70" width="110" height="50" rx="4" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+          <text x="315" y="100" font-family="system-ui, sans-serif" font-size="13" font-weight="bold" fill="#0f172a" text-anchor="middle">СТУДЕНТ</text>
+          
+          <text x="180" y="160" font-family="system-ui, sans-serif" font-size="12" fill="#64748b" text-anchor="middle">Связь через ромб отношений</text>
+          
+          <!-- Разделитель -->
+          <line x1="380" y1="20" x2="380" y2="240" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4"/>
+          
+          <!-- Правая часть: Нотация Crow's Foot -->
+          <text x="570" y="30" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#0369a1" text-anchor="middle">Нотация Crow's Foot («Воронья лапка»)</text>
+          
+          <!-- Таблица ГРУППА -->
+          <rect x="410" y="60" width="120" height="80" rx="4" fill="#ffffff" stroke="#334155" stroke-width="2"/>
+          <rect x="410" y="60" width="120" height="25" fill="#f1f5f9" stroke="#334155" stroke-width="2"/>
+          <text x="470" y="77" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#0f172a" text-anchor="middle">ГРУППА</text>
+          <text x="420" y="105" font-family="system-ui, sans-serif" font-size="11" fill="#475569">PK  id_group</text>
+          <text x="420" y="125" font-family="system-ui, sans-serif" font-size="11" fill="#475569">    nazvanie</text>
+          
+          <!-- Линия Crow's Foot -->
+          <line x1="530" y1="100" x2="610" y2="100" stroke="#0f172a" stroke-width="2"/>
+          
+          <!-- Символ 1 со стороны Группы (две перпендикулярные черточки) -->
+          <line x1="540" y1="92" x2="540" y2="108" stroke="#0f172a" stroke-width="2"/>
+          <line x1="546" y1="92" x2="546" y2="108" stroke="#0f172a" stroke-width="2"/>
+          
+          <!-- Символ M со стороны Студента (воронья лапка + кружок факультативности/обязательности) -->
+          <circle cx="595" cy="100" r="4" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+          <line x1="600" y1="100" x2="610" y2="92" stroke="#0f172a" stroke-width="2"/>
+          <line x1="600" y1="100" x2="610" y2="100" stroke="#0f172a" stroke-width="2"/>
+          <line x1="600" y1="100" x2="610" y2="108" stroke="#0f172a" stroke-width="2"/>
+          
+          <!-- Таблица СТУДЕНТ -->
+          <rect x="610" y="60" width="120" height="80" rx="4" fill="#ffffff" stroke="#334155" stroke-width="2"/>
+          <rect x="610" y="60" width="120" height="25" fill="#f1f5f9" stroke="#334155" stroke-width="2"/>
+          <text x="670" y="77" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#0f172a" text-anchor="middle">СТУДЕНТ</text>
+          <text x="620" y="105" font-family="system-ui, sans-serif" font-size="11" fill="#475569">PK  id_student</text>
+          <text x="620" y="125" font-family="system-ui, sans-serif" font-size="11" fill="#475569">FK  group_id</text>
+          
+          <text x="570" y="160" font-family="system-ui, sans-serif" font-size="12" fill="#64748b" text-anchor="middle">Прямая связь с графическими маркерами мощности</text>
+          
+          <!-- Нижняя подпись расшифровки лапки -->
+          <text x="380" y="215" font-family="system-ui, sans-serif" font-size="12" fill="#334155" text-anchor="middle">В нотации Crow's Foot: || = строго один; |o = ноль или один; }o = ноль или много; }| = один или много.</text>
+        </svg>
+      </div>
+    </section>
 
- <section class="card">
- <h2>3. Типы кардинальности связей и примеры</h2>
+    <section class="card">
+      <h2>3. Типы кардинальности связей и примеры</h2>
 
- <h3>3.1. Связь «Один к одному» (1:1 / One-to-One)</h3>
- <p>Одному экземпляру сущности A соответствует максимум один экземпляр сущности B, и наоборот.</p>
- <ul>
- <li><strong>Пример:</strong> <code>ВОДИТЕЛЬ</code> и <code>ВОДИТЕЛЬСКОЕ_УДОСТОВЕРЕНИЕ</code>. В правовом поле РФ гражданин имеет строго одно действующее удостоверение, и удостоверение закреплено ровно за одним человеком.</li>
- <li><strong>Реализация в БД:</strong> Поле внешнего ключа в зависимой таблице объявляется со свойством <code>UNIQUE NOT NULL</code>.</li>
- </ul>
+      <h3>3.1. Связь «Один к одному» (1:1 / One-to-One)</h3>
+      <p>Одному экземпляру сущности A соответствует максимум один экземпляр сущности B, и наоборот.</p>
+      <ul>
+        <li><strong>Пример:</strong> <code>ВОДИТЕЛЬ</code> и <code>ВОДИТЕЛЬСКОЕ_УДОСТОВЕРЕНИЕ</code>. В правовом поле РФ гражданин имеет строго одно действующее удостоверение, и удостоверение закреплено ровно за одним человеком.</li>
+        <li><strong>Реализация в БД:</strong> Поле внешнего ключа в зависимой таблице объявляется со свойством <code>UNIQUE NOT NULL</code>.</li>
+      </ul>
 
- <h3>3.2. Связь «Один ко многим» (1:M / One-to-Many)</h3>
- <p>Одному экземпляру сущности A соответствует множество (от 0 до M) экземпляров сущности B, но каждому экземпляру сущности B соответствует строго один экземпляр сущности A.</p>
- <ul>
- <li><strong>Пример:</strong> <code>УЧЕБНАЯ_ГРУППА</code> и <code>СТУДЕНТ</code>. В одной группе учатся 25 студентов. Каждый студент приписан строго к одной учебной группе.</li>
- <li><strong>Реализация в БД:</strong> Это базовая связь реляционных БД. В таблице «Многие» создается внешний ключ (<code>Foreign Key</code>), указывающий на первичный ключ (<code>Primary Key</code>) таблицы «Один».</li>
- </ul>
+      <h3>3.2. Связь «Один ко многим» (1:M / One-to-Many)</h3>
+      <p>Одному экземпляру сущности A соответствует множество (от 0 до M) экземпляров сущности B, но каждому экземпляру сущности B соответствует строго один экземпляр сущности A.</p>
+      <ul>
+        <li><strong>Пример:</strong> <code>УЧЕБНАЯ_ГРУППА</code> и <code>СТУДЕНТ</code>. В одной группе учатся 25 студентов. Каждый студент приписан строго к одной учебной группе.</li>
+        <li><strong>Реализация в БД:</strong> Это базовая связь реляционных БД. В таблице «Многие» создается внешний ключ (<code>Foreign Key</code>), указывающий на первичный ключ (<code>Primary Key</code>) таблицы «Один».</li>
+      </ul>
 
- <h3>3.3. Связь «Многие ко многим» (M:N / Many-to-Many)</h3>
- <p>Одному экземпляру сущности A может соответствовать множество экземпляров сущности B, и одновременно одному экземпляру сущности B может соответствовать множество экземпляров сущности A.</p>
- <ul>
- <li><strong>Пример:</strong> <code>СТУДЕНТ</code> и <code>ДИСЦИПЛИНА</code>. Студент изучает множество дисциплин (БД, ОС, Алгоритмы). Каждую дисциплину изучает множество студентов потока.</li>
- <li><strong>Критическое реляционное правило:</strong> Реляционные СУБД <strong>не поддерживают</strong> прямое физическое соединение таблиц со связью M:N. Такая связь обязательно декомпозируется на две связи 1:M через третью ассоциированную таблицу (Junction Table, связующую таблицу). В нашем примере — таблица <code>УСПЕВАЕМОСТЬ (id_student, id_subject, ocenka)</code>.</li>
- </ul>
+      <h3>3.3. Связь «Многие ко многим» (M:N / Many-to-Many)</h3>
+      <p>Одному экземпляру сущности A может соответствовать множество экземпляров сущности B, и одновременно одному экземпляру сущности B может соответствовать множество экземпляров сущности A.</p>
+      <ul>
+        <li><strong>Пример:</strong> <code>СТУДЕНТ</code> и <code>ДИСЦИПЛИНА</code>. Студент изучает множество дисциплин (БД, ОС, Алгоритмы). Каждую дисциплину изучает множество студентов потока.</li>
+        <li><strong>Критическое реляционное правило:</strong> Реляционные СУБД <strong>не поддерживают</strong> прямое физическое соединение таблиц со связью M:N. Такая связь обязательно декомпозируется на две связи 1:M через третью ассоциированную таблицу (Junction Table, связующую таблицу). В нашем примере — таблица <code>УСПЕВАЕМОСТЬ (id_student, id_subject, ocenka)</code>.</li>
+      </ul>
 
- <div class="diagram-container">
- <div class="diagram-title">Рис. 2. Декомпозиция связи M:N в две связи 1:M через связующую сущность</div>
- <svg class="diagram-svg" viewBox="0 0 720 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Декомпозиция связи M:N">
- <rect width="720" height="180" fill="#f8fafc" rx="8"/>
- 
- <!-- Студент -->
- <rect x="30" y="50" width="160" height="70" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
- <text x="110" y="75" font-family="system-ui, sans-serif" font-size="13" font-weight="bold" fill="#0f172a" text-anchor="middle">СТУДЕНТ</text>
- <text x="110" y="95" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">PK: id_student</text>
- <text x="110" y="110" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">fio, nomer_zachetki</text>
- 
- <!-- Стрелка 1:M к Успеваемости -->
- <line x1="190" y1="85" x2="270" y2="85" stroke="#0f172a" stroke-width="2"/>
- <line x1="200" y1="78" x2="200" y2="92" stroke="#0f172a" stroke-width="2"/>
- <line x1="260" y1="85" x2="270" y2="78" stroke="#0f172a" stroke-width="2"/>
- <line x1="260" y1="85" x2="270" y2="92" stroke="#0f172a" stroke-width="2"/>
- <text x="230" y="75" font-family="system-ui, sans-serif" font-size="11" font-weight="bold" fill="#0369a1" text-anchor="middle">1 : M</text>
- 
- <!-- Промежуточная таблица Успеваемость -->
- <rect x="270" y="40" width="180" height="90" rx="6" fill="#f0f9ff" stroke="#0369a1" stroke-width="2"/>
- <text x="360" y="65" font-family="system-ui, sans-serif" font-size="13" font-weight="bold" fill="#0369a1" text-anchor="middle">УСПЕВАЕМОСТЬ</text>
- <text x="360" y="85" font-family="system-ui, sans-serif" font-size="11" fill="#0f172a" text-anchor="middle">PK, FK1: id_student</text>
- <text x="360" y="102" font-family="system-ui, sans-serif" font-size="11" fill="#0f172a" text-anchor="middle">PK, FK2: id_discipline</text>
- <text x="360" y="118" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">ocenka, data_sdachi</text>
- 
- <!-- Стрелка M:1 от Дисциплины -->
- <line x1="450" y1="85" x2="530" y2="85" stroke="#0f172a" stroke-width="2"/>
- <line x1="520" y1="78" x2="520" y2="92" stroke="#0f172a" stroke-width="2"/>
- <line x1="460" y1="85" x2="450" y2="78" stroke="#0f172a" stroke-width="2"/>
- <line x1="460" y1="85" x2="450" y2="92" stroke="#0f172a" stroke-width="2"/>
- <text x="490" y="75" font-family="system-ui, sans-serif" font-size="11" font-weight="bold" fill="#0369a1" text-anchor="middle">M : 1</text>
- 
- <!-- Дисциплина -->
- <rect x="530" y="50" width="160" height="70" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
- <text x="610" y="75" font-family="system-ui, sans-serif" font-size="13" font-weight="bold" fill="#0f172a" text-anchor="middle">ДИСЦИПЛИНА</text>
- <text x="610" y="95" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">PK: id_discipline</text>
- <text x="610" y="110" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">nazvanie, chasy</text>
- 
- <text x="360" y="155" font-family="system-ui, sans-serif" font-size="12" fill="#475569" text-anchor="middle">Составной первичный ключ (id_student, id_discipline) гарантирует уникальность сдачи дисциплины студентом</text>
- </svg>
- </div>
- </section>
+      <div class="diagram-container">
+        <div class="diagram-title">Рис. 2. Декомпозиция связи M:N в две связи 1:M через связующую сущность</div>
+        <svg class="diagram-svg" viewBox="0 0 720 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Декомпозиция связи M:N">
+          <rect width="720" height="180" fill="#f8fafc" rx="8"/>
+          
+          <!-- Студент -->
+          <rect x="30" y="50" width="160" height="70" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+          <text x="110" y="75" font-family="system-ui, sans-serif" font-size="13" font-weight="bold" fill="#0f172a" text-anchor="middle">СТУДЕНТ</text>
+          <text x="110" y="95" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">PK: id_student</text>
+          <text x="110" y="110" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">fio, nomer_zachetki</text>
+          
+          <!-- Стрелка 1:M к Успеваемости -->
+          <line x1="190" y1="85" x2="270" y2="85" stroke="#0f172a" stroke-width="2"/>
+          <line x1="200" y1="78" x2="200" y2="92" stroke="#0f172a" stroke-width="2"/>
+          <line x1="260" y1="85" x2="270" y2="78" stroke="#0f172a" stroke-width="2"/>
+          <line x1="260" y1="85" x2="270" y2="92" stroke="#0f172a" stroke-width="2"/>
+          <text x="230" y="75" font-family="system-ui, sans-serif" font-size="11" font-weight="bold" fill="#0369a1" text-anchor="middle">1 : M</text>
+          
+          <!-- Промежуточная таблица Успеваемость -->
+          <rect x="270" y="40" width="180" height="90" rx="6" fill="#f0f9ff" stroke="#0369a1" stroke-width="2"/>
+          <text x="360" y="65" font-family="system-ui, sans-serif" font-size="13" font-weight="bold" fill="#0369a1" text-anchor="middle">УСПЕВАЕМОСТЬ</text>
+          <text x="360" y="85" font-family="system-ui, sans-serif" font-size="11" fill="#0f172a" text-anchor="middle">PK, FK1: id_student</text>
+          <text x="360" y="102" font-family="system-ui, sans-serif" font-size="11" fill="#0f172a" text-anchor="middle">PK, FK2: id_discipline</text>
+          <text x="360" y="118" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">ocenka, data_sdachi</text>
+          
+          <!-- Стрелка M:1 от Дисциплины -->
+          <line x1="450" y1="85" x2="530" y2="85" stroke="#0f172a" stroke-width="2"/>
+          <line x1="520" y1="78" x2="520" y2="92" stroke="#0f172a" stroke-width="2"/>
+          <line x1="460" y1="85" x2="450" y2="78" stroke="#0f172a" stroke-width="2"/>
+          <line x1="460" y1="85" x2="450" y2="92" stroke="#0f172a" stroke-width="2"/>
+          <text x="490" y="75" font-family="system-ui, sans-serif" font-size="11" font-weight="bold" fill="#0369a1" text-anchor="middle">M : 1</text>
+          
+          <!-- Дисциплина -->
+          <rect x="530" y="50" width="160" height="70" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+          <text x="610" y="75" font-family="system-ui, sans-serif" font-size="13" font-weight="bold" fill="#0f172a" text-anchor="middle">ДИСЦИПЛИНА</text>
+          <text x="610" y="95" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">PK: id_discipline</text>
+          <text x="610" y="110" font-family="system-ui, sans-serif" font-size="11" fill="#475569" text-anchor="middle">nazvanie, chasy</text>
+          
+          <text x="360" y="155" font-family="system-ui, sans-serif" font-size="12" fill="#475569" text-anchor="middle">Составной первичный ключ (id_student, id_discipline) гарантирует уникальность сдачи дисциплины студентом</text>
+        </svg>
+      </div>
+    </section>
 
- <section class="card">
- <h2>4. Класс принадлежности сущности (Mandatory vs Optional)</h2>
- <p>Кардинальность указывает верхний предел мощности связи (1 или M). <strong>Класс принадлежности (модальность)</strong> указывает нижний предел (0 или 1) — может ли сущность существовать независимо.</p>
- 
- <ul>
- <li><strong>Обязательное участие (Класс принадлежности 1):</strong> каждый экземпляр сущности непременно связан хотя бы с одним экземпляром другой сущности. Пример: <code>ЗАКАЗ</code> не может существовать без указания <code>КЛИЕНТА</code>.</li>
- <li><strong>Факультативное участие (Класс принадлежности 0):</strong> экземпляр сущности может временно или постоянно не участвовать в связи. Пример: новый <code>ВРАЧ</code> в поликлинике принят на работу, но еще не провел ни одного <code>ПРИЕМА</code>.</li>
- </ul>
+    <section class="card">
+      <h2>4. Класс принадлежности сущности (Mandatory vs Optional)</h2>
+      <p>Кардинальность указывает верхний предел мощности связи (1 или M). <strong>Класс принадлежности (модальность)</strong> указывает нижний предел (0 или 1) — может ли сущность существовать независимо.</p>
+      
+      <ul>
+        <li><strong>Обязательное участие (Класс принадлежности 1):</strong> каждый экземпляр сущности непременно связан хотя бы с одним экземпляром другой сущности. Пример: <code>ЗАКАЗ</code> не может существовать без указания <code>КЛИЕНТА</code>.</li>
+        <li><strong>Факультативное участие (Класс принадлежности 0):</strong> экземпляр сущности может временно или постоянно не участвовать в связи. Пример: новый <code>ВРАЧ</code> в поликлинике принят на работу, но еще не провел ни одного <code>ПРИЕМА</code>.</li>
+      </ul>
 
- <div class="callout">
- <strong>Золотое правило проектирования целостности:</strong> Если со стороны дочерней таблицы участие обязательно, соответствующее поле внешнего ключа обязано быть помечено <code>NOT NULL</code>. Если участие факультативно, во внешнем ключе разрешается значение <code>NULL</code> (например, у сотрудника может не быть назначенного руководителя при рекурсивной связи).
- </div>
- </section>
+      <div class="callout">
+        <strong>Золотое правило проектирования целостности:</strong> Если со стороны дочерней таблицы участие обязательно, соответствующее поле внешнего ключа обязано быть помечено <code>NOT NULL</code>. Если участие факультативно, во внешнем ключе разрешается значение <code>NULL</code> (например, у сотрудника может не быть назначенного руководителя при рекурсивной связи).
+      </div>
+    </section>
 
- <section class="card">
- <h2>5. Рекурсивные (самоссылающиеся) связи</h2>
- <p><strong>Рекурсивная связь (Recursive Relationship)</strong> возникает, когда сущность ассоциируется с самой собой. Экземпляры одной и той же сущности выступают в разных ролях.</p>
- <ul>
- <li><strong>Организационная иерархия:</strong> Таблица <code>СОТРУДНИК</code>. Поле <code>id_rukovoditelya</code> ссылается на <code>id_sotrudnika</code> той же самой таблицы. Кардинальность 1:M (один руководитель возглавляет многих подчиненных, подчиненный подчиняется одному руководителю; у генерального директора поле <code>id_rukovoditelya IS NULL</code> — факультативное участие).</li>
- <li><strong>Спецификация изделия (BOM — Bill of Materials):</strong> Таблица <code>ДЕТАЛЬ</code>. Сложная деталь состоит из простых деталей, а простая деталь может входить в состав разных узлов. Кардинальность M:N (разрешается через связующую таблицу <code>СОСТАВ_ИЗДЕЛИЯ</code>).</li>
- </ul>
- </section>
+    <section class="card">
+      <h2>5. Рекурсивные (самоссылающиеся) связи</h2>
+      <p><strong>Рекурсивная связь (Recursive Relationship)</strong> возникает, когда сущность ассоциируется с самой собой. Экземпляры одной и той же сущности выступают в разных ролях.</p>
+      <ul>
+        <li><strong>Организационная иерархия:</strong> Таблица <code>СОТРУДНИК</code>. Поле <code>id_rukovoditelya</code> ссылается на <code>id_sotrudnika</code> той же самой таблицы. Кардинальность 1:M (один руководитель возглавляет многих подчиненных, подчиненный подчиняется одному руководителю; у генерального директора поле <code>id_rukovoditelya IS NULL</code> — факультативное участие).</li>
+        <li><strong>Спецификация изделия (BOM — Bill of Materials):</strong> Таблица <code>ДЕТАЛЬ</code>. Сложная деталь состоит из простых деталей, а простая деталь может входить в состав разных узлов. Кардинальность M:N (разрешается через связующую таблицу <code>СОСТАВ_ИЗДЕЛИЯ</code>).</li>
+      </ul>
+    </section>
 
- <section class="card">
- <h2>6. Бизнес-правила (Business Rules) и семантические ограничения</h2>
- <p>Реляционная модель сама по себе обеспечивает первичную структурную целостность (первичные ключи, внешние ключи, уникальность). Однако реальный бизнес содержит множество предметных ограничений, которые невозможно выразить только типами данных.</p>
+    <section class="card">
+      <h2>6. Бизнес-правила (Business Rules) и семантические ограничения</h2>
+      <p>Реляционная модель сама по себе обеспечивает первичную структурную целостность (первичные ключи, внешние ключи, уникальность). Однако реальный бизнес содержит множество предметных ограничений, которые невозможно выразить только типами данных.</p>
 
- <div class="callout">
- <strong>Бизнес-правило (Business Rule)</strong> — это утверждение в терминах предметной области, определяющее политику предприятия, порядок бизнес-процессов или накладывающее строгие условия на значения и взаимосвязи данных.
- </div>
+      <div class="callout">
+        <strong>Бизнес-правило (Business Rule)</strong> — это утверждение в терминах предметной области, определяющее политику предприятия, порядок бизнес-процессов или накладывающее строгие условия на значения и взаимосвязи данных.
+      </div>
 
- <h3>Примеры семантических ограничений целостности:</h3>
- <ol>
- <li><strong>Темпоральные (временные) ограничения:</strong> «Пациент не может быть записан на прием к двум разным врачам на одно и то же время». СУБД должна контролировать непересечение интервалов времени приема.</li>
- <li><strong>Балансовые и финансовые ограничения:</strong> «Сумма платежей по кредитному договору не может превышать сумму выданного кредита с учетом начисленных процентов».</li>
- <li><strong>Ограничения емкости и физических ресурсов:</strong> «Количество зарегистрированных пассажиров на рейс не может превышать количество мест в салоне назначенного самолета».</li>
- <li><strong>Статусные ограничения жизненного цикла:</strong> «Заказ нельзя перевести в статус "Выдан клиенту", минуя статус "Собран на складе"».</li>
- </ol>
- </section>
+      <h3>Примеры семантических ограничений целостности:</h3>
+      <ol>
+        <li><strong>Темпоральные (временные) ограничения:</strong> «Пациент не может быть записан на прием к двум разным врачам на одно и то же время». СУБД должна контролировать непересечение интервалов времени приема.</li>
+        <li><strong>Балансовые и финансовые ограничения:</strong> «Сумма платежей по кредитному договору не может превышать сумму выданного кредита с учетом начисленных процентов».</li>
+        <li><strong>Ограничения емкости и физических ресурсов:</strong> «Количество зарегистрированных пассажиров на рейс не может превышать количество мест в салоне назначенного самолета».</li>
+        <li><strong>Статусные ограничения жизненного цикла:</strong> «Заказ нельзя перевести в статус "Выдан клиенту", минуя статус "Собран на складе"».</li>
+      </ol>
+    </section>
 
- <section class="card">
- <h2>7. Вопросы для самопроверки</h2>
- <div class="qa-card">
- <div class="qa-q">1. В чем главное концептуальное отличие нотации Chen от нотации Crow's Foot?</div>
- <div class="qa-a">В нотации Чена связь всегда выделяется в самостоятельный ромбический блок с глаголом связи, а в Crow's Foot связь изображается соединительной линией с маркерами мощности на концах (вилка, черточки, кружок).</div>
- </div>
- <div class="qa-card">
- <div class="qa-q">2. Почему связь M:N нельзя напрямую реализовать в реляционной СУБД?</div>
- <div class="qa-a">В реляционной таблице поле должно быть атомарным (1-я нормальная форма). Нельзя в одну строку записать список внешних ключей. Поэтому связь M:N разбивается на две связи 1:M через промежуточную ассоциированную таблицу.</div>
- </div>
- <div class="qa-card">
- <div class="qa-q">3. Что произойдет, если связь между Родителем и Ребенком сделать обязательной с обеих сторон?</div>
- <div class="qa-a">Возникнет циклическая взаимная блокировка при вставке данных: запись родителя нельзя вставить без ID ребенка, а запись ребенка нельзя вставить без ID родителя. Поэтому со стороны родителя связь почти всегда факультативна.</div>
- </div>
- <div class="qa-card">
- <div class="qa-q">4. Приведите пример рекурсивной связи в предметной области торгового предприятия.</div>
- <div class="qa-a">Категории товаров в каталоге: категория «Ноутбуки» ссылается на родительскую категорию «Компьютерная техника» внутри той же таблицы категорий.</div>
- </div>
- </section>
- </div>
+    <section class="card">
+      <h2>7. Вопросы для самопроверки</h2>
+      <div class="qa-card">
+        <div class="qa-q">1. В чем главное концептуальное отличие нотации Chen от нотации Crow's Foot?</div>
+        <div class="qa-a">В нотации Чена связь всегда выделяется в самостоятельный ромбический блок с глаголом связи, а в Crow's Foot связь изображается соединительной линией с маркерами мощности на концах (вилка, черточки, кружок).</div>
+      </div>
+      <div class="qa-card">
+        <div class="qa-q">2. Почему связь M:N нельзя напрямую реализовать в реляционной СУБД?</div>
+        <div class="qa-a">В реляционной таблице поле должно быть атомарным (1-я нормальная форма). Нельзя в одну строку записать список внешних ключей. Поэтому связь M:N разбивается на две связи 1:M через промежуточную ассоциированную таблицу.</div>
+      </div>
+      <div class="qa-card">
+        <div class="qa-q">3. Что произойдет, если связь между Родителем и Ребенком сделать обязательной с обеих сторон?</div>
+        <div class="qa-a">Возникнет циклическая взаимная блокировка при вставке данных: запись родителя нельзя вставить без ID ребенка, а запись ребенка нельзя вставить без ID родителя. Поэтому со стороны родителя связь почти всегда факультативна.</div>
+      </div>
+      <div class="qa-card">
+        <div class="qa-q">4. Приведите пример рекурсивной связи в предметной области торгового предприятия.</div>
+        <div class="qa-a">Категории товаров в каталоге: категория «Ноутбуки» ссылается на родительскую категорию «Компьютерная техника» внутри той же таблицы категорий.</div>
+      </div>
+    </section>
+  </div>
 </body>
 </html>

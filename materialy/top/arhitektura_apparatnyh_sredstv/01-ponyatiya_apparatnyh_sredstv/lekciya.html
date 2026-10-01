@@ -1,1283 +1,1540 @@
 <!doctype html>
 <html lang="ru">
 <head>
- <meta charset="utf-8">
- <meta name="viewport" content="width=device-width, initial-scale=1">
- <title>Понятия аппаратных средств ЭВМ и архитектура аппаратных средств</title>
- <style>
- :root {
- --bg-page: #f8fafc;
- --surface: #ffffff;
- --surface-alt: #f1f5f9;
- --surface-accent: #e2e8f0;
- --text-main: #0f172a;
- --text-muted: #334155;
- --text-soft: #64748b;
- --primary: #1d4ed8;
- --primary-dark: #1e40af;
- --primary-light: #eff6ff;
- --primary-border: #bfdbfe;
- --secondary: #0f766e;
- --secondary-light: #f0fdfa;
- --secondary-border: #99f6e4;
- --accent: #b45309;
- --accent-light: #fffbeb;
- --accent-border: #fde68a;
- --danger: #b91c1c;
- --danger-light: #fef2f2;
- --danger-border: #fecaca;
- --border-color: #cbd5e1;
- --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
- --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
- --radius-sm: 6px;
- --radius-md: 10px;
- --radius-lg: 14px;
- }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Понятия аппаратных средств ЭВМ и архитектура аппаратных средств</title>
+  <style>
+    :root {
+      --bg-page: #f8fafc;
+      --surface: #ffffff;
+      --surface-alt: #f1f5f9;
+      --surface-accent: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #334155;
+      --text-soft: #64748b;
+      --primary: #1d4ed8;
+      --primary-dark: #1e40af;
+      --primary-light: #eff6ff;
+      --primary-border: #bfdbfe;
+      --secondary: #0f766e;
+      --secondary-light: #f0fdfa;
+      --secondary-border: #99f6e4;
+      --accent: #b45309;
+      --accent-light: #fffbeb;
+      --accent-border: #fde68a;
+      --danger: #b91c1c;
+      --danger-light: #fef2f2;
+      --danger-border: #fecaca;
+      --border-color: #cbd5e1;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+    }
 
- *, *::before, *::after {
- box-sizing: border-box;
- margin: 0;
- padding: 0;
- }
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
- body {
- font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
- font-size: 16px;
- line-height: 1.65;
- color: var(--text-main);
- background-color: var(--bg-page);
- padding: 0;
- margin: 0;
- -webkit-font-smoothing: antialiased;
- }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+      color: var(--text-main);
+      background-color: var(--bg-page);
+      padding: 0;
+      margin: 0;
+      -webkit-font-smoothing: antialiased;
+    }
 
- header.lecture-header {
- background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
- color: #ffffff;
- padding: 3.5rem 1.5rem 3rem;
- border-bottom: 4px solid var(--primary);
- }.header-content {
- max-width: 900px;
- margin: 0 auto;
- }.header-content h1 {
- font-size: clamp(1.8rem, 4vw, 2.5rem);
- line-height: 1.2;
- font-weight: 800;
- letter-spacing: -0.02em;
- margin-bottom: 1rem;
- }.header-content p.subtitle {
- font-size: 1.15rem;
- color: #94a3b8;
- max-width: 760px;
- line-height: 1.5;
- }
+    header.lecture-header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #ffffff;
+      padding: 3.5rem 1.5rem 3rem;
+      border-bottom: 4px solid var(--primary);
+    }
 
- main.lecture-main {
- max-width: 900px;
- margin: 2.5rem auto 4rem;
- padding: 0 1.5rem;
- }
+    .header-content {
+      max-width: 900px;
+      margin: 0 auto;
+    }
 
- section.content-section {
- background: var(--surface);
- border: 1px solid var(--border-color);
- border-radius: var(--radius-lg);
- padding: 2.25rem 2rem;
- margin-bottom: 2.5rem;
- box-shadow: var(--shadow-sm);
- }
+    .header-content h1 {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      line-height: 1.2;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
 
- section.content-section:last-of-type {
- margin-bottom: 0;
- }
+    .header-content p.subtitle {
+      font-size: 1.15rem;
+      color: #94a3b8;
+      max-width: 760px;
+      line-height: 1.5;
+    }
 
- h2 {
- font-size: 1.5rem;
- font-weight: 700;
- color: var(--text-main);
- border-left: 5px solid var(--primary);
- padding-left: 0.85rem;
- margin-bottom: 1.5rem;
- line-height: 1.3;
- }
+    main.lecture-main {
+      max-width: 900px;
+      margin: 2.5rem auto 4rem;
+      padding: 0 1.5rem;
+    }
 
- h3 {
- font-size: 1.2rem;
- font-weight: 600;
- color: var(--text-muted);
- margin: 1.75rem 0 0.85rem;
- line-height: 1.4;
- }
+    section.content-section {
+      background: var(--surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 2.25rem 2rem;
+      margin-bottom: 2.5rem;
+      box-shadow: var(--shadow-sm);
+    }
 
- p {
- margin-bottom: 1.15rem;
- color: var(--text-main);
- }
+    section.content-section:last-of-type {
+      margin-bottom: 0;
+    }
 
- p:last-child {
- margin-bottom: 0;
- }
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-main);
+      border-left: 5px solid var(--primary);
+      padding-left: 0.85rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.3;
+    }
 
- strong {
- font-weight: 600;
- color: var(--text-main);
- }
+    h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin: 1.75rem 0 0.85rem;
+      line-height: 1.4;
+    }
 
- ul, ol {
- margin: 1rem 0 1.25rem 1.6rem;
- color: var(--text-main);
- }
+    p {
+      margin-bottom: 1.15rem;
+      color: var(--text-main);
+    }
 
- li {
- margin-bottom: 0.55rem;
- }
+    p:last-child {
+      margin-bottom: 0;
+    }
 
- li:last-child {
- margin-bottom: 0;
- }.callout {
- border-radius: var(--radius-md);
- padding: 1.25rem 1.5rem;
- margin: 1.5rem 0;
- border-left: 4px solid;
- }.callout-info {
- background-color: var(--primary-light);
- border-color: var(--primary);
- color: #1e3a8a;
- }.callout-info p {
- color: #1e3a8a;
- }.callout-danger {
- background-color: var(--danger-light);
- border-color: var(--danger);
- color: #7f1d1d;
- }.callout-danger p {
- color: #7f1d1d;
- }.callout-warning {
- background-color: var(--accent-light);
- border-color: var(--accent);
- color: #78350f;
- }.callout-warning p {
- color: #78350f;
- }.callout-title {
- font-weight: 700;
- display: flex;
- align-items: center;
- gap: 0.5rem;
- margin-bottom: 0.5rem;
- text-transform: uppercase;
- font-size: 0.85rem;
- letter-spacing: 0.04em;
- }
+    strong {
+      font-weight: 600;
+      color: var(--text-main);
+    }
 
- /* Grid & Cards */.grid-2 {
- display: grid;
- grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
- gap: 1.25rem;
- margin: 1.5rem 0;
- }.grid-3 {
- display: grid;
- grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
- gap: 1.25rem;
- margin: 1.5rem 0;
- }.card {
- background: var(--surface-alt);
- border: 1px solid var(--border-color);
- border-radius: var(--radius-md);
- padding: 1.25rem;
- }.card-header {
- font-weight: 700;
- font-size: 1.05rem;
- margin-bottom: 0.5rem;
- color: var(--text-main);
- }.card-accent {
- border-top: 3px solid var(--primary);
- }
+    ul, ol {
+      margin: 1rem 0 1.25rem 1.6rem;
+      color: var(--text-main);
+    }
 
- /* Table Styles */.table-container {
- width: 100%;
- overflow-x: auto;
- margin: 1.5rem 0;
- border: 1px solid var(--border-color);
- border-radius: var(--radius-md);
- background: var(--surface);
- }
+    li {
+      margin-bottom: 0.55rem;
+    }
 
- table.content-table {
- width: 100%;
- border-collapse: collapse;
- font-size: 0.95rem;
- text-align: left;
- }
+    li:last-child {
+      margin-bottom: 0;
+    }
 
- table.content-table th, 
- table.content-table td {
- padding: 0.85rem 1rem;
- border-bottom: 1px solid var(--border-color);
- vertical-align: top;
- }
+    .callout {
+      border-radius: var(--radius-md);
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+      border-left: 4px solid;
+    }
 
- table.content-table th {
- background-color: var(--surface-alt);
- font-weight: 700;
- color: var(--text-main);
- border-bottom: 2px solid var(--border-color);
- }
+    .callout-info {
+      background-color: var(--primary-light);
+      border-color: var(--primary);
+      color: #1e3a8a;
+    }
 
- table.content-table tr:last-child td {
- border-bottom: none;
- }
+    .callout-info p {
+      color: #1e3a8a;
+    }
 
- table.content-table tr:hover td {
- background-color: #f8fafc;
- }
+    .callout-danger {
+      background-color: var(--danger-light);
+      border-color: var(--danger);
+      color: #7f1d1d;
+    }
 
- /* SVG and Adaptive Diagrams */.diagram-wrapper {
- margin: 2rem 0;
- background: #ffffff;
- border: 1px solid var(--border-color);
- border-radius: var(--radius-md);
- padding: 1.5rem;
- box-shadow: var(--shadow-sm);
- }.diagram-caption {
- margin-top: 1rem;
- font-size: 0.9rem;
- color: var(--text-soft);
- text-align: center;
- }
+    .callout-danger p {
+      color: #7f1d1d;
+    }
 
- /* Data Flow Pipeline Styles */.dataflow-diagram {
- display: flex;
- flex-direction: column;
- gap: 1.25rem;
- width: 100%;
- }.dataflow-section-title {
- font-size: 0.85rem;
- font-weight: 700;
- text-transform: uppercase;
- letter-spacing: 0.05em;
- color: var(--text-soft);
- margin-bottom: 0.5rem;
- }.dataflow-main-track {
- display: flex;
- align-items: stretch;
- gap: 0.5rem;
- }.dataflow-node {
- flex: 1 1 0;
- background: #ffffff;
- border: 1.5px solid var(--border-color);
- border-radius: var(--radius-sm);
- padding: 0.75rem 0.6rem;
- display: flex;
- flex-direction: column;
- gap: 0.3rem;
- min-width: 0;
- }.dataflow-node--input {
- border-color: #94a3b8;
- background: #f8fafc;
- }.dataflow-node--ram {
- border-color: var(--secondary);
- background: var(--secondary-light);
- }.dataflow-node--cpu {
- border-color: var(--primary);
- background: var(--primary-light);
- }.dataflow-node--gpu {
- border-color: #94a3b8;
- background: #f8fafc;
- }.dataflow-node--display {
- border-color: #10b981;
- background: #ecfdf5;
- }.dataflow-node-step {
- font-size: 0.72rem;
- font-weight: 700;
- color: var(--text-soft);
- text-transform: uppercase;
- }.dataflow-node-name {
- font-size: 0.9rem;
- font-weight: 700;
- color: var(--text-main);
- line-height: 1.25;
- }.dataflow-node-role {
- font-size: 0.78rem;
- color: var(--text-muted);
- line-height: 1.3;
- margin-top: 0.15rem;
- }.dataflow-arrow {
- display: flex;
- align-items: center;
- justify-content: center;
- color: var(--primary);
- font-size: 1.1rem;
- font-weight: 700;
- user-select: none;
- flex-shrink: 0;
- }.dataflow-arrow--v {
- display: none;
- }
+    .callout-warning {
+      background-color: var(--accent-light);
+      border-color: var(--accent);
+      color: #78350f;
+    }
 
- /* Branch to SSD */.dataflow-branch {
- border: 2px dashed #f87171;
- background: #fff5f5;
- border-radius: var(--radius-md);
- padding: 1rem 1.15rem;
- display: flex;
- flex-direction: column;
- gap: 0.6rem;
- }.dataflow-branch-header {
- display: flex;
- align-items: center;
- justify-content: space-between;
- flex-wrap: wrap;
- gap: 0.5rem;
- }.dataflow-branch-badge {
- font-size: 0.75rem;
- font-weight: 800;
- background: var(--danger);
- color: #ffffff;
- padding: 3px 8px;
- border-radius: 4px;
- text-transform: uppercase;
- letter-spacing: 0.05em;
- }.dataflow-branch-condition {
- font-size: 0.8rem;
- font-weight: 600;
- color: var(--danger);
- background: #fee2e2;
- padding: 2px 8px;
- border-radius: 4px;
- }.dataflow-branch-body {
- display: flex;
- align-items: center;
- gap: 1rem;
- flex-wrap: wrap;
- }.dataflow-branch-card {
- flex: 1 1 260px;
- background: #ffffff;
- border: 1.5px solid #fca5a5;
- border-radius: var(--radius-sm);
- padding: 0.75rem 0.85rem;
- }.dataflow-branch-card h4 {
- font-size: 0.95rem;
- color: #991b1b;
- margin-bottom: 0.25rem;
- }.dataflow-branch-card p {
- font-size: 0.82rem;
- color: var(--text-muted);
- margin: 0;
- line-height: 1.35;
- }.dataflow-branch-notice {
- flex: 1 1 280px;
- font-size: 0.82rem;
- color: #7f1d1d;
- background: #ffffff;
- border-left: 4px solid var(--danger);
- padding: 0.65rem 0.85rem;
- border-radius: var(--radius-sm);
- line-height: 1.35;
- }
+    .callout-warning p {
+      color: #78350f;
+    }
 
- /* Architectural Diagram Styles */.arch-diagram {
- display: flex;
- flex-direction: column;
- gap: 1.25rem;
- width: 100%;
- }.arch-modules {
- display: grid;
- grid-template-columns: repeat(3, 1fr);
- gap: 1rem;
- }.arch-module {
- border-radius: var(--radius-md);
- padding: 1rem;
- display: flex;
- flex-direction: column;
- gap: 0.75rem;
- background: #ffffff;
- }.arch-module--cpu {
- border: 2px solid var(--primary);
- background: var(--primary-light);
- }.arch-module--ram {
- border: 2px solid var(--secondary);
- background: var(--secondary-light);
- }.arch-module--io {
- border: 2px solid var(--accent);
- background: var(--accent-light);
- }.arch-module-header {
- display: flex;
- align-items: center;
- gap: 0.5rem;
- flex-wrap: wrap;
- }.arch-module-badge {
- font-size: 0.75rem;
- font-weight: 800;
- padding: 2px 8px;
- border-radius: 4px;
- text-transform: uppercase;
- letter-spacing: 0.05em;
- }.arch-module--cpu.arch-module-badge {
- background: var(--primary);
- color: #ffffff;
- }.arch-module--ram.arch-module-badge {
- background: var(--secondary);
- color: #ffffff;
- }.arch-module--io.arch-module-badge {
- background: var(--accent);
- color: #ffffff;
- }.arch-module-title {
- font-size: 0.95rem;
- font-weight: 700;
- color: var(--text-main);
- }.arch-subunits {
- display: flex;
- flex-direction: column;
- gap: 0.4rem;
- }.arch-subunit {
- background: #ffffff;
- border: 1px solid var(--border-color);
- border-radius: var(--radius-sm);
- padding: 0.45rem 0.65rem;
- font-size: 0.85rem;
- color: var(--text-main);
- line-height: 1.35;
- }.arch-subunit strong {
- color: var(--text-main);
- }.arch-subunit--sub {
- color: var(--text-muted);
- font-size: 0.8rem;
- }.arch-module-bus-links {
- display: flex;
- flex-wrap: wrap;
- gap: 0.35rem;
- margin-top: auto;
- padding-top: 0.5rem;
- border-top: 1px dashed rgba(0, 0, 0, 0.12);
- }.bus-tag {
- font-size: 0.72rem;
- font-weight: 600;
- padding: 2px 6px;
- border-radius: 4px;
- white-space: normal;
- display: inline-block;
- }.bus-tag--ctrl {
- background: #fee2e2;
- color: #991b1b;
- border: 1px solid #fca5a5;
- }.bus-tag--addr {
- background: #dbeafe;
- color: #1e40af;
- border: 1px solid #93c5fd;
- }.bus-tag--data {
- background: #d1fae5;
- color: #065f46;
- border: 1px solid #6ee7b7;
- }
+    .callout-title {
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.04em;
+    }
 
- /* Trunk / Buses */.arch-trunk {
- background: #0f172a;
- border-radius: var(--radius-md);
- padding: 1rem 1.25rem;
- color: #ffffff;
- }.arch-trunk-title {
- font-size: 0.85rem;
- font-weight: 700;
- text-transform: uppercase;
- letter-spacing: 0.08em;
- color: #94a3b8;
- margin-bottom: 0.75rem;
- text-align: center;
- }.arch-bus-lines {
- display: flex;
- flex-direction: column;
- gap: 0.6rem;
- }.arch-bus-lane {
- border-radius: var(--radius-sm);
- padding: 0.65rem 0.85rem;
- display: grid;
- grid-template-columns: auto 1fr auto;
- gap: 0.75rem;
- align-items: center;
- }.arch-bus-lane--ctrl {
- background: #b91c1c;
- border-left: 5px solid #f87171;
- }.arch-bus-lane--addr {
- background: #1d4ed8;
- border-left: 5px solid #60a5fa;
- }.arch-bus-lane--data {
- background: #047857;
- border-left: 5px solid #34d399;
- }.arch-bus-meta {
- display: flex;
- flex-direction: column;
- gap: 2px;
- }.arch-bus-badge {
- font-size: 0.85rem;
- font-weight: 800;
- color: #ffffff;
- }.arch-bus-sub {
- font-size: 0.72rem;
- opacity: 0.9;
- color: #f1f5f9;
- }.arch-bus-desc {
- font-size: 0.82rem;
- color: #f8fafc;
- line-height: 1.35;
- }.arch-bus-dir {
- font-size: 0.75rem;
- font-weight: 700;
- background: rgba(0, 0, 0, 0.28);
- padding: 4px 8px;
- border-radius: 4px;
- white-space: normal;
- word-break: break-word;
- text-align: center;
- color: #ffffff;
- }
+    /* Grid & Cards */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin: 1.5rem 0;
+    }
 
- /* Peripherals */.arch-peripherals-section {
- display: flex;
- flex-direction: column;
- gap: 0.6rem;
- }.arch-peripherals-header {
- font-size: 0.82rem;
- font-weight: 700;
- color: var(--text-soft);
- text-transform: uppercase;
- letter-spacing: 0.05em;
- }.arch-peripherals {
- display: grid;
- grid-template-columns: repeat(4, 1fr);
- gap: 0.75rem;
- }.arch-peri-card {
- background: #ffffff;
- border: 1px solid var(--border-color);
- border-radius: var(--radius-sm);
- padding: 0.65rem 0.75rem;
- display: flex;
- flex-direction: column;
- gap: 0.25rem;
- }.arch-peri-card--storage {
- border-color: #fca5a5;
- background: #fff5f5;
- }.arch-peri-name {
- font-size: 0.88rem;
- font-weight: 700;
- color: var(--text-main);
- }.arch-peri-card--storage.arch-peri-name {
- color: #991b1b;
- }.arch-peri-role {
- font-size: 0.75rem;
- color: var(--text-soft);
- }.arch-peri-flow {
- font-size: 0.72rem;
- font-weight: 600;
- color: var(--primary-dark);
- margin-top: 0.2rem;
- }.arch-peri-card--storage.arch-peri-flow {
- color: #b91c1c;
- }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin: 1.5rem 0;
+    }
 
- /* Step flow representation */.pipeline-step {
- display: flex;
- align-items: flex-start;
- gap: 1.25rem;
- margin-bottom: 1.25rem;
- padding-bottom: 1.25rem;
- border-bottom: 1px dashed var(--border-color);
- }.pipeline-step:last-child {
- margin-bottom: 0;
- padding-bottom: 0;
- border-bottom: none;
- }.step-badge {
- flex-shrink: 0;
- width: 38px;
- height: 38px;
- border-radius: 50%;
- background: var(--primary);
- color: #ffffff;
- font-weight: 700;
- display: flex;
- align-items: center;
- justify-content: center;
- font-size: 1rem;
- }.step-badge.optional {
- background: var(--secondary);
- }.step-body h4 {
- font-size: 1.05rem;
- font-weight: 700;
- margin-bottom: 0.35rem;
- color: var(--text-main);
- }.step-body p {
- font-size: 0.95rem;
- color: var(--text-muted);
- }
+    .card {
+      background: var(--surface-alt);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+    }
 
- /* Print styles */
- @media print {
- body {
- background: #ffffff;
- color: #000000;
- }
+    .card-header {
+      font-weight: 700;
+      font-size: 1.05rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-main);
+    }
 
- header.lecture-header {
- background: #ffffff;
- color: #000000;
- border-bottom: 2px solid #000000;
- padding: 1rem 0;
- }.header-content p.subtitle {
- color: #333333;
- }
+    .card-accent {
+      border-top: 3px solid var(--primary);
+    }
 
- main.lecture-main {
- max-width: 100%;
- margin: 1rem 0;
- padding: 0;
- }
+    /* Table Styles */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background: var(--surface);
+    }
 
- section.content-section {
- border: 1px solid #cccccc;
- box-shadow: none;
- break-inside: auto;
- page-break-inside: auto;
- margin-bottom: 1.5rem;
- padding: 1.25rem;
- }
+    table.content-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+      text-align: left;
+    }
 
- h2, h3, h4 {
- break-after: avoid !important;
- page-break-after: avoid !important;
- }.diagram-wrapper {
- break-inside: avoid !important;
- page-break-inside: avoid !important;
- padding: 1rem !important;
- margin: 1rem 0 !important;
- }.diagram-caption {
- break-before: avoid !important;
- page-break-before: avoid !important;
- margin-top: 0.6rem !important;
- }
+    table.content-table th, 
+    table.content-table td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: top;
+    }
 
- /* Diagram 1: Modular Architecture Print Layout */.arch-diagram {
- break-inside: avoid !important;
- page-break-inside: avoid !important;
- gap: 0.85rem !important;
- }.arch-modules {
- grid-template-columns: repeat(3, 1fr) !important;
- gap: 0.6rem !important;
- break-inside: avoid !important;
- page-break-inside: avoid !important;
- }.arch-module {
- break-inside: avoid !important;
- page-break-inside: avoid !important;
- padding: 0.65rem !important;
- gap: 0.5rem !important;
- background: #ffffff !important;
- border: 1px solid #333333 !important;
- }.arch-module--cpu,.arch-module--ram,.arch-module--io {
- background: #ffffff !important;
- border: 1px solid #333333 !important;
- }.arch-subunit {
- padding: 0.35rem 0.5rem !important;
- font-size: 0.8rem !important;
- }.arch-trunk {
- background: #ffffff !important;
- color: #000000 !important;
- border: 2px solid #000000 !important;
- break-inside: avoid !important;
- page-break-inside: avoid !important;
- padding: 0.65rem 0.85rem !important;
- }.arch-trunk-title {
- color: #000000 !important;
- margin-bottom: 0.5rem !important;
- }.arch-bus-lines {
- gap: 0.45rem !important;
- }.arch-bus-lane {
- grid-template-columns: auto 1fr auto !important;
- gap: 0.5rem !important;
- padding: 0.45rem 0.65rem !important;
- border: 1px solid #444444 !important;
- color: #000000 !important;
- background: #f8fafc !important;
- break-inside: avoid !important;
- page-break-inside: avoid !important;
- }.arch-bus-badge,.arch-bus-desc,.arch-bus-sub {
- color: #000000 !important;
- }.arch-bus-dir {
- color: #000000 !important;
- background: #e2e8f0 !important;
- justify-self: auto !important;
- white-space: nowrap !important;
- }.arch-peripherals-section {
- break-inside: avoid !important;
- page-break-inside: avoid !important;
- gap: 0.45rem !important;
- }.arch-peripherals {
- grid-template-columns: repeat(4, 1fr) !important;
- gap: 0.5rem !important;
- break-inside: avoid !important;
- page-break-inside: avoid !important;
- }.arch-peri-card {
- border: 1px solid #666666 !important;
- break-inside: avoid !important;
- page-break-inside: avoid !important;
- padding: 0.45rem 0.55rem !important;
- }
+    table.content-table th {
+      background-color: var(--surface-alt);
+      font-weight: 700;
+      color: var(--text-main);
+      border-bottom: 2px solid var(--border-color);
+    }
 
- /* Diagram 2: Dataflow Print Layout */.dataflow-diagram {
- break-inside: avoid !important;
- page-break-inside: avoid !important;
- gap: 0.85rem !important;
- }.dataflow-main-track {
- flex-direction: row !important;
- gap: 0.35rem !important;
- break-inside: avoid !important;
- page-break-inside: avoid !important;
- }.dataflow-arrow--h {
- display: flex !important;
- }.dataflow-arrow--v {
- display: none !important;
- }.dataflow-node {
- background: #ffffff !important;
- border: 1px solid #333333 !important;
- break-inside: avoid !important;
- page-break-inside: avoid !important;
- padding: 0.5rem 0.45rem !important;
- }.dataflow-branch {
- border: 2px solid #000000 !important;
- background: #ffffff !important;
- break-inside: avoid !important;
- page-break-inside: avoid !important;
- padding: 0.65rem 0.85rem !important;
- }.dataflow-branch-badge {
- background: #000000 !important;
- color: #ffffff !important;
- }.dataflow-branch-condition {
- background: #e2e8f0 !important;
- color: #000000 !important;
- }.dataflow-branch-card,.dataflow-branch-notice {
- background: #ffffff !important;
- border: 1px solid #666666 !important;
- color: #000000 !important;
- break-inside: avoid !important;
- page-break-inside: avoid !important;
- }.dataflow-branch-card h4,.dataflow-branch-notice {
- color: #000000 !important;
- }
- }
+    table.content-table tr:last-child td {
+      border-bottom: none;
+    }
 
- @media (max-width: 768px) {.arch-modules {
- grid-template-columns: 1fr;
- }.arch-bus-lane {
- grid-template-columns: 1fr;
- gap: 0.4rem;
- }.arch-bus-dir {
- justify-self: start;
- }.arch-peripherals {
- grid-template-columns: repeat(2, 1fr);
- }.dataflow-main-track {
- flex-direction: column;
- gap: 0.4rem;
- }.dataflow-arrow--h {
- display: none;
- }.dataflow-arrow--v {
- display: flex;
- justify-content: center;
- padding: 0.2rem 0;
- }
- }
- @media (max-width: 640px) {
- header.lecture-header {
- padding: 2rem 1rem;
- }
+    table.content-table tr:hover td {
+      background-color: #f8fafc;
+    }
 
- main.lecture-main {
- padding: 0 1rem;
- margin-top: 1.5rem;
- }
+    /* SVG and Adaptive Diagrams */
+    .diagram-wrapper {
+      margin: 2rem 0;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+    }
 
- section.content-section {
- padding: 1.5rem 1.15rem;
- }.pipeline-step {
- gap: 0.85rem;
- }.step-badge {
- width: 32px;
- height: 32px;
- font-size: 0.9rem;
- }
- }
+    .diagram-caption {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+      text-align: center;
+    }
 
- @media (max-width: 480px) {.arch-peripherals {
- grid-template-columns: 1fr;
- }.diagram-wrapper {
- padding: 0.75rem 0.5rem;
- }.arch-trunk {
- padding: 0.75rem 0.6rem;
- }.arch-bus-lane {
- padding: 0.5rem 0.6rem;
- }.dataflow-branch {
- padding: 0.75rem 0.6rem;
- }
- }
- </style>
+    /* Data Flow Pipeline Styles */
+    .dataflow-diagram {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      width: 100%;
+    }
+
+    .dataflow-section-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-soft);
+      margin-bottom: 0.5rem;
+    }
+
+    .dataflow-main-track {
+      display: flex;
+      align-items: stretch;
+      gap: 0.5rem;
+    }
+
+    .dataflow-node {
+      flex: 1 1 0;
+      background: #ffffff;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 0.6rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      min-width: 0;
+    }
+
+    .dataflow-node--input {
+      border-color: #94a3b8;
+      background: #f8fafc;
+    }
+
+    .dataflow-node--ram {
+      border-color: var(--secondary);
+      background: var(--secondary-light);
+    }
+
+    .dataflow-node--cpu {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .dataflow-node--gpu {
+      border-color: #94a3b8;
+      background: #f8fafc;
+    }
+
+    .dataflow-node--display {
+      border-color: #10b981;
+      background: #ecfdf5;
+    }
+
+    .dataflow-node-step {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-soft);
+      text-transform: uppercase;
+    }
+
+    .dataflow-node-name {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.25;
+    }
+
+    .dataflow-node-role {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.3;
+      margin-top: 0.15rem;
+    }
+
+    .dataflow-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      font-size: 1.1rem;
+      font-weight: 700;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .dataflow-arrow--v {
+      display: none;
+    }
+
+    /* Branch to SSD */
+    .dataflow-branch {
+      border: 2px dashed #f87171;
+      background: #fff5f5;
+      border-radius: var(--radius-md);
+      padding: 1rem 1.15rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .dataflow-branch-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .dataflow-branch-badge {
+      font-size: 0.75rem;
+      font-weight: 800;
+      background: var(--danger);
+      color: #ffffff;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .dataflow-branch-condition {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--danger);
+      background: #fee2e2;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .dataflow-branch-body {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .dataflow-branch-card {
+      flex: 1 1 260px;
+      background: #ffffff;
+      border: 1.5px solid #fca5a5;
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 0.85rem;
+    }
+
+    .dataflow-branch-card h4 {
+      font-size: 0.95rem;
+      color: #991b1b;
+      margin-bottom: 0.25rem;
+    }
+
+    .dataflow-branch-card p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin: 0;
+      line-height: 1.35;
+    }
+
+    .dataflow-branch-notice {
+      flex: 1 1 280px;
+      font-size: 0.82rem;
+      color: #7f1d1d;
+      background: #ffffff;
+      border-left: 4px solid var(--danger);
+      padding: 0.65rem 0.85rem;
+      border-radius: var(--radius-sm);
+      line-height: 1.35;
+    }
+
+    /* Architectural Diagram Styles */
+    .arch-diagram {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      width: 100%;
+    }
+
+    .arch-modules {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .arch-module {
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      background: #ffffff;
+    }
+
+    .arch-module--cpu {
+      border: 2px solid var(--primary);
+      background: var(--primary-light);
+    }
+
+    .arch-module--ram {
+      border: 2px solid var(--secondary);
+      background: var(--secondary-light);
+    }
+
+    .arch-module--io {
+      border: 2px solid var(--accent);
+      background: var(--accent-light);
+    }
+
+    .arch-module-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .arch-module-badge {
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .arch-module--cpu .arch-module-badge {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .arch-module--ram .arch-module-badge {
+      background: var(--secondary);
+      color: #ffffff;
+    }
+
+    .arch-module--io .arch-module-badge {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .arch-module-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .arch-subunits {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .arch-subunit {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.45rem 0.65rem;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      line-height: 1.35;
+    }
+
+    .arch-subunit strong {
+      color: var(--text-main);
+    }
+
+    .arch-subunit--sub {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    .arch-module-bus-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: auto;
+      padding-top: 0.5rem;
+      border-top: 1px dashed rgba(0, 0, 0, 0.12);
+    }
+
+    .bus-tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: normal;
+      display: inline-block;
+    }
+
+    .bus-tag--ctrl {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+
+    .bus-tag--addr {
+      background: #dbeafe;
+      color: #1e40af;
+      border: 1px solid #93c5fd;
+    }
+
+    .bus-tag--data {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #6ee7b7;
+    }
+
+    /* Trunk / Buses */
+    .arch-trunk {
+      background: #0f172a;
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+      color: #ffffff;
+    }
+
+    .arch-trunk-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+      margin-bottom: 0.75rem;
+      text-align: center;
+    }
+
+    .arch-bus-lines {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .arch-bus-lane {
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.85rem;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .arch-bus-lane--ctrl {
+      background: #b91c1c;
+      border-left: 5px solid #f87171;
+    }
+
+    .arch-bus-lane--addr {
+      background: #1d4ed8;
+      border-left: 5px solid #60a5fa;
+    }
+
+    .arch-bus-lane--data {
+      background: #047857;
+      border-left: 5px solid #34d399;
+    }
+
+    .arch-bus-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .arch-bus-badge {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .arch-bus-sub {
+      font-size: 0.72rem;
+      opacity: 0.9;
+      color: #f1f5f9;
+    }
+
+    .arch-bus-desc {
+      font-size: 0.82rem;
+      color: #f8fafc;
+      line-height: 1.35;
+    }
+
+    .arch-bus-dir {
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(0, 0, 0, 0.28);
+      padding: 4px 8px;
+      border-radius: 4px;
+      white-space: normal;
+      word-break: break-word;
+      text-align: center;
+      color: #ffffff;
+    }
+
+    /* Peripherals */
+    .arch-peripherals-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .arch-peripherals-header {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .arch-peripherals {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+    }
+
+    .arch-peri-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .arch-peri-card--storage {
+      border-color: #fca5a5;
+      background: #fff5f5;
+    }
+
+    .arch-peri-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .arch-peri-card--storage .arch-peri-name {
+      color: #991b1b;
+    }
+
+    .arch-peri-role {
+      font-size: 0.75rem;
+      color: var(--text-soft);
+    }
+
+    .arch-peri-flow {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+      margin-top: 0.2rem;
+    }
+
+    .arch-peri-card--storage .arch-peri-flow {
+      color: #b91c1c;
+    }
+
+    /* Step flow representation */
+    .pipeline-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px dashed var(--border-color);
+    }
+
+    .pipeline-step:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .step-badge {
+      flex-shrink: 0;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #ffffff;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .step-badge.optional {
+      background: var(--secondary);
+    }
+
+    .step-body h4 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+      color: var(--text-main);
+    }
+
+    .step-body p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    /* Print styles */
+    @media print {
+      body {
+        background: #ffffff;
+        color: #000000;
+      }
+
+      header.lecture-header {
+        background: #ffffff;
+        color: #000000;
+        border-bottom: 2px solid #000000;
+        padding: 1rem 0;
+      }
+
+      .header-content p.subtitle {
+        color: #333333;
+      }
+
+      main.lecture-main {
+        max-width: 100%;
+        margin: 1rem 0;
+        padding: 0;
+      }
+
+      section.content-section {
+        border: 1px solid #cccccc;
+        box-shadow: none;
+        break-inside: auto;
+        page-break-inside: auto;
+        margin-bottom: 1.5rem;
+        padding: 1.25rem;
+      }
+
+      h2, h3, h4 {
+        break-after: avoid !important;
+        page-break-after: avoid !important;
+      }
+
+      .diagram-wrapper {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        padding: 1rem !important;
+        margin: 1rem 0 !important;
+      }
+
+      .diagram-caption {
+        break-before: avoid !important;
+        page-break-before: avoid !important;
+        margin-top: 0.6rem !important;
+      }
+
+      /* Diagram 1: Modular Architecture Print Layout */
+      .arch-diagram {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        gap: 0.85rem !important;
+      }
+
+      .arch-modules {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 0.6rem !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+
+      .arch-module {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        padding: 0.65rem !important;
+        gap: 0.5rem !important;
+        background: #ffffff !important;
+        border: 1px solid #333333 !important;
+      }
+
+      .arch-module--cpu,
+      .arch-module--ram,
+      .arch-module--io {
+        background: #ffffff !important;
+        border: 1px solid #333333 !important;
+      }
+
+      .arch-subunit {
+        padding: 0.35rem 0.5rem !important;
+        font-size: 0.8rem !important;
+      }
+
+      .arch-trunk {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 2px solid #000000 !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        padding: 0.65rem 0.85rem !important;
+      }
+
+      .arch-trunk-title {
+        color: #000000 !important;
+        margin-bottom: 0.5rem !important;
+      }
+
+      .arch-bus-lines {
+        gap: 0.45rem !important;
+      }
+
+      .arch-bus-lane {
+        grid-template-columns: auto 1fr auto !important;
+        gap: 0.5rem !important;
+        padding: 0.45rem 0.65rem !important;
+        border: 1px solid #444444 !important;
+        color: #000000 !important;
+        background: #f8fafc !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+
+      .arch-bus-badge,
+      .arch-bus-desc,
+      .arch-bus-sub {
+        color: #000000 !important;
+      }
+
+      .arch-bus-dir {
+        color: #000000 !important;
+        background: #e2e8f0 !important;
+        justify-self: auto !important;
+        white-space: nowrap !important;
+      }
+
+      .arch-peripherals-section {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        gap: 0.45rem !important;
+      }
+
+      .arch-peripherals {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 0.5rem !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+
+      .arch-peri-card {
+        border: 1px solid #666666 !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        padding: 0.45rem 0.55rem !important;
+      }
+
+      /* Diagram 2: Dataflow Print Layout */
+      .dataflow-diagram {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        gap: 0.85rem !important;
+      }
+
+      .dataflow-main-track {
+        flex-direction: row !important;
+        gap: 0.35rem !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+
+      .dataflow-arrow--h {
+        display: flex !important;
+      }
+
+      .dataflow-arrow--v {
+        display: none !important;
+      }
+
+      .dataflow-node {
+        background: #ffffff !important;
+        border: 1px solid #333333 !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        padding: 0.5rem 0.45rem !important;
+      }
+
+      .dataflow-branch {
+        border: 2px solid #000000 !important;
+        background: #ffffff !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        padding: 0.65rem 0.85rem !important;
+      }
+
+      .dataflow-branch-badge {
+        background: #000000 !important;
+        color: #ffffff !important;
+      }
+
+      .dataflow-branch-condition {
+        background: #e2e8f0 !important;
+        color: #000000 !important;
+      }
+
+      .dataflow-branch-card,
+      .dataflow-branch-notice {
+        background: #ffffff !important;
+        border: 1px solid #666666 !important;
+        color: #000000 !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+
+      .dataflow-branch-card h4,
+      .dataflow-branch-notice {
+        color: #000000 !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .arch-modules {
+        grid-template-columns: 1fr;
+      }
+
+      .arch-bus-lane {
+        grid-template-columns: 1fr;
+        gap: 0.4rem;
+      }
+
+      .arch-bus-dir {
+        justify-self: start;
+      }
+
+      .arch-peripherals {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .dataflow-main-track {
+        flex-direction: column;
+        gap: 0.4rem;
+      }
+
+      .dataflow-arrow--h {
+        display: none;
+      }
+
+      .dataflow-arrow--v {
+        display: flex;
+        justify-content: center;
+        padding: 0.2rem 0;
+      }
+    }
+    @media (max-width: 640px) {
+      header.lecture-header {
+        padding: 2rem 1rem;
+      }
+
+      main.lecture-main {
+        padding: 0 1rem;
+        margin-top: 1.5rem;
+      }
+
+      section.content-section {
+        padding: 1.5rem 1.15rem;
+      }
+
+      .pipeline-step {
+        gap: 0.85rem;
+      }
+
+      .step-badge {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .arch-peripherals {
+        grid-template-columns: 1fr;
+      }
+
+      .diagram-wrapper {
+        padding: 0.75rem 0.5rem;
+      }
+
+      .arch-trunk {
+        padding: 0.75rem 0.6rem;
+      }
+
+      .arch-bus-lane {
+        padding: 0.5rem 0.6rem;
+      }
+
+      .dataflow-branch {
+        padding: 0.75rem 0.6rem;
+      }
+    }
+  </style>
 </head>
 <body>
 
- <header class="lecture-header">
- <div class="header-content">
- <h1>Понятия аппаратных средств ЭВМ и архитектура аппаратных средств</h1>
- <p class="subtitle">Учебный материал: принципы организации вычислительных систем, логические уровни архитектуры, магистрально-модульное построение и функциональный путь данных от ввода до долговременного хранения.</p>
- </div>
- </header>
+  <header class="lecture-header">
+    <div class="header-content">
+      <h1>Понятия аппаратных средств ЭВМ и архитектура аппаратных средств</h1>
+      <p class="subtitle">Учебный материал: принципы организации вычислительных систем, логические уровни архитектуры, магистрально-модульное построение и функциональный путь данных от ввода до долговременного хранения.</p>
+    </div>
+  </header>
 
- <main class="lecture-main">
+  <main class="lecture-main">
 
- <!-- 1. Аппаратные средства и архитектура -->
- <section class="content-section" id="section-concepts">
- <h2>1. Аппаратные средства и архитектура: разграничение понятий</h2>
- <p>В компьютерной инженерии понятия «аппаратные средства» и «архитектура» описывают компьютерную систему с двух принципиально разных точек зрения. Смешение этих терминов приводит к концептуальным ошибкам при анализе производительности, совместимости и принципов работы ЭВМ.</p>
+    <!-- 1. Аппаратные средства и архитектура -->
+    <section class="content-section" id="section-concepts">
+      <h2>1. Аппаратные средства и архитектура: разграничение понятий</h2>
+      <p>В компьютерной инженерии понятия «аппаратные средства» и «архитектура» описывают компьютерную систему с двух принципиально разных точек зрения. Смешение этих терминов приводит к концептуальным ошибкам при анализе производительности, совместимости и принципов работы ЭВМ.</p>
 
- <div class="grid-2">
- <div class="card card-accent">
- <div class="card-header">Аппаратные средства (Hardware)</div>
- <p>Совокупность всех <strong>физических, электронных, электромеханических и оптических компонентов</strong>, составляющих материальную часть вычислительной машины.</p>
- <p>Аппаратные средства можно непосредственно наблюдать и измерять физически: полупроводниковые кристаллы микросхем, печатные платы, конденсаторы, транзисторы, проводники, разъемы интерфейсов, приводы вентиляторов охлаждения, магнитные пластины и ячейки флеш-памяти.</p>
- </div>
+      <div class="grid-2">
+        <div class="card card-accent">
+          <div class="card-header">Аппаратные средства (Hardware)</div>
+          <p>Совокупность всех <strong>физических, электронных, электромеханических и оптических компонентов</strong>, составляющих материальную часть вычислительной машины.</p>
+          <p>Аппаратные средства можно непосредственно наблюдать и измерять физически: полупроводниковые кристаллы микросхем, печатные платы, конденсаторы, транзисторы, проводники, разъемы интерфейсов, приводы вентиляторов охлаждения, магнитные пластины и ячейки флеш-памяти.</p>
+        </div>
 
- <div class="card card-accent">
- <div class="card-header">Архитектура ЭВМ (Computer Architecture)</div>
- <p>Абстрактная <strong>концептуальная структура и логическая организация</strong> вычислительной машины, определяющая взаимосвязь компонентов, распределение функций между ними и модель программирования.</p>
- <p>Архитектура определяет, <em>как</em> система спроектирована с логической стороны: поддерживаемый набор машинных команд (ISA), доступные регистры процессора, форматы представления чисел и команд, способы адресации памяти и организация шин передачи данных.</p>
- </div>
- </div>
+        <div class="card card-accent">
+          <div class="card-header">Архитектура ЭВМ (Computer Architecture)</div>
+          <p>Абстрактная <strong>концептуальная структура и логическая организация</strong> вычислительной машины, определяющая взаимосвязь компонентов, распределение функций между ними и модель программирования.</p>
+          <p>Архитектура определяет, <em>как</em> система спроектирована с логической стороны: поддерживаемый набор машинных команд (ISA), доступные регистры процессора, форматы представления чисел и команд, способы адресации памяти и организация шин передачи данных.</p>
+        </div>
+      </div>
 
- <div class="callout callout-info">
- <div class="callout-title">Фундаментальный контрпример и граница аналогии</div>
- <p><strong>Конкретный микропроцессор</strong> (например, кристалл кремния на текстолитовой подложке, установленный в сокет материнской платы) — это <em>аппаратное средство</em>.</p>
- <p><strong>Порядок взаимодействия функциональных блоков</strong> внутри процессора, система его внутренних регистров и набор инструкций, который этот кристалл исполняет — это <em>архитектура</em>.</p>
- <p>Разные процессоры разных производителей (например, процессоры AMD Ryzen и Intel Core) имеют различную физическую топологию полупроводниковых кристаллов и схемотехнику, но могут реализовывать одну и ту же архитектуру команд (x86-64), благодаря чему на них без модификации запускаются одни и те же машинные программы.</p>
- </div>
+      <div class="callout callout-info">
+        <div class="callout-title">Фундаментальный контрпример и граница аналогии</div>
+        <p><strong>Конкретный микропроцессор</strong> (например, кристалл кремния на текстолитовой подложке, установленный в сокет материнской платы) — это <em>аппаратное средство</em>.</p>
+        <p><strong>Порядок взаимодействия функциональных блоков</strong> внутри процессора, система его внутренних регистров и набор инструкций, который этот кристалл исполняет — это <em>архитектура</em>.</p>
+        <p>Разные процессоры разных производителей (например, процессоры AMD Ryzen и Intel Core) имеют различную физическую топологию полупроводниковых кристаллов и схемотехнику, но могут реализовывать одну и ту же архитектуру команд (x86-64), благодаря чему на них без модификации запускаются одни и те же машинные программы.</p>
+      </div>
 
- <p>Связь между архитектурой и физическим воплощением называют <strong>микроархитектурой</strong> (организацией ЭВМ). Архитектура задает контракт: «какие операции умеет выполнять система», а микроархитектура и аппаратные средства определяют: «какой схемотехникой, на какой частоте и с каким числом стадий конвейера это реализовано в кремнии».</p>
- </section>
+      <p>Связь между архитектурой и физическим воплощением называют <strong>микроархитектурой</strong> (организацией ЭВМ). Архитектура задает контракт: «какие операции умеет выполнять система», а микроархитектура и аппаратные средства определяют: «какой схемотехникой, на какой частоте и с каким числом стадий конвейера это реализовано в кремнии».</p>
+    </section>
 
- <!-- 2. Базовые принципы фон Неймана и магистрально-модульный принцип -->
- <section class="content-section" id="section-principles">
- <h2>2. Логические основы: принципы фон Неймана и системная магистраль</h2>
- <p>Подавляющее большинство современных компьютеров общего назначения опираются на классические принципы построения вычислительных систем, сформулированные в середине XX века Джоном фон Нейманом, дополненные магистрально-модульным принципом сопряжения узлов.</p>
+    <!-- 2. Базовые принципы фон Неймана и магистрально-модульный принцип -->
+    <section class="content-section" id="section-principles">
+      <h2>2. Логические основы: принципы фон Неймана и системная магистраль</h2>
+      <p>Подавляющее большинство современных компьютеров общего назначения опираются на классические принципы построения вычислительных систем, сформулированные в середине XX века Джоном фон Нейманом, дополненные магистрально-модульным принципом сопряжения узлов.</p>
 
- <h3>Ключевые принципы классической архитектуры</h3>
- <ul>
- <li><strong>Принцип однородности памяти:</strong> команды программ и обрабатываемые данные хранятся в одной и той же памяти и кодируются в едином двоичном формате. Процессор отличает команду от данных только по контексту исполнения (по регистру счетчика команд — Program Counter).</li>
- <li><strong>Принцип адресности памяти:</strong> оперативная память состоит из пронумерованных ячеек, к каждой из которых процессор имеет возможность прямого доступа по её числовому адресу.</li>
- <li><strong>Принцип программного управления:</strong> вычисления осуществляются автоматически путем последовательного извлечения и выполнения команд из памяти, пока команда перехода явно не изменит этот порядок.</li>
- <li><strong>Принцип двоичного кодирования:</strong> вся информация (текст, числа, адреса ячеек, машинные инструкции) представляется и обрабатывается исключительно в двоичной системе счисления (битами 0 и 1).</li>
- </ul>
+      <h3>Ключевые принципы классической архитектуры</h3>
+      <ul>
+        <li><strong>Принцип однородности памяти:</strong> команды программ и обрабатываемые данные хранятся в одной и той же памяти и кодируются в едином двоичном формате. Процессор отличает команду от данных только по контексту исполнения (по регистру счетчика команд — Program Counter).</li>
+        <li><strong>Принцип адресности памяти:</strong> оперативная память состоит из пронумерованных ячеек, к каждой из которых процессор имеет возможность прямого доступа по её числовому адресу.</li>
+        <li><strong>Принцип программного управления:</strong> вычисления осуществляются автоматически путем последовательного извлечения и выполнения команд из памяти, пока команда перехода явно не изменит этот порядок.</li>
+        <li><strong>Принцип двоичного кодирования:</strong> вся информация (текст, числа, адреса ячеек, машинные инструкции) представляется и обрабатывается исключительно в двоичной системе счисления (битами 0 и 1).</li>
+      </ul>
 
- <h3>Магистрально-модульный принцип (Шинная архитектура)</h3>
- <p>Чтобы избежать соединения каждого устройства с каждым отдельными проводниками (что привело бы к колоссальной сложности и невозможности модернизации ПК), вычислительные узлы объединяются через общий информационный тракт — <strong>системную шину (магистраль)</strong>.</p>
- <p>Системная магистраль логически разделяется на три функциональные шины:</p>
- 
- <div class="grid-3">
- <div class="card">
- <div class="card-header">Шина данных (Data Bus)</div>
- <p>Двунаправленная шина. Служит для непосредственной передачи операндов, промежуточных результатов и машинных кодов между процессором, оперативной памятью и внешними контроллерами.</p>
- </div>
- <div class="card">
- <div class="card-header">Шина адреса (Address Bus)</div>
- <p>Однонаправленная шина (от процессора/DMA к памяти и устройствам). По ней передается номер физической ячейки памяти или номер порта ввода-вывода, к которому происходит обращение.</p>
- </div>
- <div class="card">
- <div class="card-header">Шина управления (Control Bus)</div>
- <p>Передает служебные сигналы: признак операции (чтение или запись), сигналы синхронизации (тактовые импульсы), запросы на прерывание (IRQ) и подтверждения готовности устройств.</p>
- </div>
- </div>
+      <h3>Магистрально-модульный принцип (Шинная архитектура)</h3>
+      <p>Чтобы избежать соединения каждого устройства с каждым отдельными проводниками (что привело бы к колоссальной сложности и невозможности модернизации ПК), вычислительные узлы объединяются через общий информационный тракт — <strong>системную шину (магистраль)</strong>.</p>
+      <p>Системная магистраль логически разделяется на три функциональные шины:</p>
+      
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-header">Шина данных (Data Bus)</div>
+          <p>Двунаправленная шина. Служит для непосредственной передачи операндов, промежуточных результатов и машинных кодов между процессором, оперативной памятью и внешними контроллерами.</p>
+        </div>
+        <div class="card">
+          <div class="card-header">Шина адреса (Address Bus)</div>
+          <p>Однонаправленная шина (от процессора/DMA к памяти и устройствам). По ней передается номер физической ячейки памяти или номер порта ввода-вывода, к которому происходит обращение.</p>
+        </div>
+        <div class="card">
+          <div class="card-header">Шина управления (Control Bus)</div>
+          <p>Передает служебные сигналы: признак операции (чтение или запись), сигналы синхронизации (тактовые импульсы), запросы на прерывание (IRQ) и подтверждения готовности устройств.</p>
+        </div>
+      </div>
 
- <div class="diagram-wrapper">
- <div class="arch-diagram" role="region" aria-label="Функциональная схема магистрально-модульной архитектуры ЭВМ">
- <!-- Функциональные модули ЭВМ -->
- <div class="arch-modules">
- <div class="arch-module arch-module--cpu">
- <div class="arch-module-header">
- <span class="arch-module-badge">CPU</span>
- <span class="arch-module-title">Центральный процессор</span>
- </div>
- <div class="arch-subunits">
- <div class="arch-subunit"><strong>АЛУ (ALU)</strong> — арифметико-логическое устройство</div>
- <div class="arch-subunit"><strong>УУ (CU)</strong> — устройство управления</div>
- <div class="arch-subunit"><strong>Регистры и кэш-память</strong></div>
- </div>
- <div class="arch-module-bus-links" aria-label="Связи процессора с системными шинами">
- <span class="bus-tag bus-tag--data">↔ Шина данных</span>
- <span class="bus-tag bus-tag--addr">→ Шина адреса</span>
- <span class="bus-tag bus-tag--ctrl">↔ Шина управления</span>
- </div>
- </div>
+      <div class="diagram-wrapper">
+        <div class="arch-diagram" role="region" aria-label="Функциональная схема магистрально-модульной архитектуры ЭВМ">
+          <!-- Функциональные модули ЭВМ -->
+          <div class="arch-modules">
+            <div class="arch-module arch-module--cpu">
+              <div class="arch-module-header">
+                <span class="arch-module-badge">CPU</span>
+                <span class="arch-module-title">Центральный процессор</span>
+              </div>
+              <div class="arch-subunits">
+                <div class="arch-subunit"><strong>АЛУ (ALU)</strong> — арифметико-логическое устройство</div>
+                <div class="arch-subunit"><strong>УУ (CU)</strong> — устройство управления</div>
+                <div class="arch-subunit"><strong>Регистры и кэш-память</strong></div>
+              </div>
+              <div class="arch-module-bus-links" aria-label="Связи процессора с системными шинами">
+                <span class="bus-tag bus-tag--data">↔ Шина данных</span>
+                <span class="bus-tag bus-tag--addr">→ Шина адреса</span>
+                <span class="bus-tag bus-tag--ctrl">↔ Шина управления</span>
+              </div>
+            </div>
 
- <div class="arch-module arch-module--ram">
- <div class="arch-module-header">
- <span class="arch-module-badge">RAM</span>
- <span class="arch-module-title">Оперативная память (ОЗУ)</span>
- </div>
- <div class="arch-subunits">
- <div class="arch-subunit"><strong>Ячейки временного хранения</strong></div>
- <div class="arch-subunit arch-subunit--sub">Энергозависимая структура (DRAM)</div>
- </div>
- <div class="arch-module-bus-links" aria-label="Связи памяти с системными шинами">
- <span class="bus-tag bus-tag--data">↔ Шина данных</span>
- <span class="bus-tag bus-tag--addr">← Шина адреса</span>
- <span class="bus-tag bus-tag--ctrl">← Шина управления</span>
- </div>
- </div>
+            <div class="arch-module arch-module--ram">
+              <div class="arch-module-header">
+                <span class="arch-module-badge">RAM</span>
+                <span class="arch-module-title">Оперативная память (ОЗУ)</span>
+              </div>
+              <div class="arch-subunits">
+                <div class="arch-subunit"><strong>Ячейки временного хранения</strong></div>
+                <div class="arch-subunit arch-subunit--sub">Энергозависимая структура (DRAM)</div>
+              </div>
+              <div class="arch-module-bus-links" aria-label="Связи памяти с системными шинами">
+                <span class="bus-tag bus-tag--data">↔ Шина данных</span>
+                <span class="bus-tag bus-tag--addr">← Шина адреса</span>
+                <span class="bus-tag bus-tag--ctrl">← Шина управления</span>
+              </div>
+            </div>
 
- <div class="arch-module arch-module--io">
- <div class="arch-module-header">
- <span class="arch-module-badge">I/O</span>
- <span class="arch-module-title">Контроллеры ввода-вывода</span>
- </div>
- <div class="arch-subunits">
- <div class="arch-subunit"><strong>Интерфейсы ввода/вывода</strong> (USB, PCIe)</div>
- <div class="arch-subunit"><strong>Контроллер накопителей</strong> (NVMe / SATA)</div>
- </div>
- <div class="arch-module-bus-links" aria-label="Связи контроллеров с системными шинами">
- <span class="bus-tag bus-tag--data">↔ Шина данных</span>
- <span class="bus-tag bus-tag--addr">← Шина адреса</span>
- <span class="bus-tag bus-tag--ctrl">↔ Шина управления</span>
- </div>
- </div>
- </div>
+            <div class="arch-module arch-module--io">
+              <div class="arch-module-header">
+                <span class="arch-module-badge">I/O</span>
+                <span class="arch-module-title">Контроллеры ввода-вывода</span>
+              </div>
+              <div class="arch-subunits">
+                <div class="arch-subunit"><strong>Интерфейсы ввода/вывода</strong> (USB, PCIe)</div>
+                <div class="arch-subunit"><strong>Контроллер накопителей</strong> (NVMe / SATA)</div>
+              </div>
+              <div class="arch-module-bus-links" aria-label="Связи контроллеров с системными шинами">
+                <span class="bus-tag bus-tag--data">↔ Шина данных</span>
+                <span class="bus-tag bus-tag--addr">← Шина адреса</span>
+                <span class="bus-tag bus-tag--ctrl">↔ Шина управления</span>
+              </div>
+            </div>
+          </div>
 
- <!-- Системная магистраль -->
- <div class="arch-trunk" aria-label="Системная магистраль">
- <div class="arch-trunk-title">Системная магистраль (Системные шины ЭВМ)</div>
- <div class="arch-bus-lines">
- <div class="arch-bus-lane arch-bus-lane--ctrl">
- <div class="arch-bus-meta">
- <span class="arch-bus-badge">Шина управления (Control Bus)</span>
- <span class="arch-bus-sub">Управляющие сигналы, тактовые импульсы (CLK), прерывания (IRQ)</span>
- </div>
- <div class="arch-bus-desc">Координирует работу узлов: сигналы чтения/записи (RD/WR), подтверждение готовности устройств</div>
- <div class="arch-bus-dir">↔ Двунаправленная</div>
- </div>
+          <!-- Системная магистраль -->
+          <div class="arch-trunk" aria-label="Системная магистраль">
+            <div class="arch-trunk-title">Системная магистраль (Системные шины ЭВМ)</div>
+            <div class="arch-bus-lines">
+              <div class="arch-bus-lane arch-bus-lane--ctrl">
+                <div class="arch-bus-meta">
+                  <span class="arch-bus-badge">Шина управления (Control Bus)</span>
+                  <span class="arch-bus-sub">Управляющие сигналы, тактовые импульсы (CLK), прерывания (IRQ)</span>
+                </div>
+                <div class="arch-bus-desc">Координирует работу узлов: сигналы чтения/записи (RD/WR), подтверждение готовности устройств</div>
+                <div class="arch-bus-dir">↔ Двунаправленная</div>
+              </div>
 
- <div class="arch-bus-lane arch-bus-lane--addr">
- <div class="arch-bus-meta">
- <span class="arch-bus-badge">Шина адреса (Address Bus)</span>
- <span class="arch-bus-sub">Физические адреса ячеек ОЗУ и регистров устройств ввода-вывода</span>
- </div>
- <div class="arch-bus-desc">Задает адрес ячейки или порта при обращениях процессора или прямого доступа к памяти (DMA)</div>
- <div class="arch-bus-dir">→ Однонаправленная (от CPU/DMA)</div>
- </div>
+              <div class="arch-bus-lane arch-bus-lane--addr">
+                <div class="arch-bus-meta">
+                  <span class="arch-bus-badge">Шина адреса (Address Bus)</span>
+                  <span class="arch-bus-sub">Физические адреса ячеек ОЗУ и регистров устройств ввода-вывода</span>
+                </div>
+                <div class="arch-bus-desc">Задает адрес ячейки или порта при обращениях процессора или прямого доступа к памяти (DMA)</div>
+                <div class="arch-bus-dir">→ Однонаправленная (от CPU/DMA)</div>
+              </div>
 
- <div class="arch-bus-lane arch-bus-lane--data">
- <div class="arch-bus-meta">
- <span class="arch-bus-badge">Шина данных (Data Bus)</span>
- <span class="arch-bus-sub">Бинарные коды инструкций, операнды, обрабатываемые данные</span>
- </div>
- <div class="arch-bus-desc">Обеспечивает скоростной двунаправленный перенос данных между процессором, памятью и контроллерами</div>
- <div class="arch-bus-dir">↔ Двунаправленная</div>
- </div>
- </div>
- </div>
+              <div class="arch-bus-lane arch-bus-lane--data">
+                <div class="arch-bus-meta">
+                  <span class="arch-bus-badge">Шина данных (Data Bus)</span>
+                  <span class="arch-bus-sub">Бинарные коды инструкций, операнды, обрабатываемые данные</span>
+                </div>
+                <div class="arch-bus-desc">Обеспечивает скоростной двунаправленный перенос данных между процессором, памятью и контроллерами</div>
+                <div class="arch-bus-dir">↔ Двунаправленная</div>
+              </div>
+            </div>
+          </div>
 
- <!-- Внешние устройства -->
- <div class="arch-peripherals-section">
- <div class="arch-peripherals-header">Внешние устройства и накопители (подключаются через контроллеры ввода-вывода)</div>
- <div class="arch-peripherals">
- <div class="arch-peri-card">
- <div class="arch-peri-name">Клавиатура</div>
- <div class="arch-peri-role">Устройство ввода</div>
- <div class="arch-peri-flow">→ Скан-код в буфер</div>
- </div>
- <div class="arch-peri-card">
- <div class="arch-peri-name">Монитор</div>
- <div class="arch-peri-role">Устройство вывода</div>
- <div class="arch-peri-flow">← Видеосигнал экрана</div>
- </div>
- <div class="arch-peri-card arch-peri-card--storage">
- <div class="arch-peri-name">SSD-накопитель</div>
- <div class="arch-peri-role">Долговременная память</div>
- <div class="arch-peri-flow">↔ Блочный обмен файлами</div>
- </div>
- <div class="arch-peri-card">
- <div class="arch-peri-name">Сетевая карта</div>
- <div class="arch-peri-role">Ввод-вывод</div>
- <div class="arch-peri-flow">↔ Приём и передача пакетов</div>
- </div>
- </div>
- </div>
- </div>
- <p class="diagram-caption">Рис. 1. Логическая схема взаимодействия процессора, оперативной памяти и периферии через системную магистраль (шины управления, адреса и данных).</p>
- </div>
- </section>
+          <!-- Внешние устройства -->
+          <div class="arch-peripherals-section">
+            <div class="arch-peripherals-header">Внешние устройства и накопители (подключаются через контроллеры ввода-вывода)</div>
+            <div class="arch-peripherals">
+              <div class="arch-peri-card">
+                <div class="arch-peri-name">Клавиатура</div>
+                <div class="arch-peri-role">Устройство ввода</div>
+                <div class="arch-peri-flow">→ Скан-код в буфер</div>
+              </div>
+              <div class="arch-peri-card">
+                <div class="arch-peri-name">Монитор</div>
+                <div class="arch-peri-role">Устройство вывода</div>
+                <div class="arch-peri-flow">← Видеосигнал экрана</div>
+              </div>
+              <div class="arch-peri-card arch-peri-card--storage">
+                <div class="arch-peri-name">SSD-накопитель</div>
+                <div class="arch-peri-role">Долговременная память</div>
+                <div class="arch-peri-flow">↔ Блочный обмен файлами</div>
+              </div>
+              <div class="arch-peri-card">
+                <div class="arch-peri-name">Сетевая карта</div>
+                <div class="arch-peri-role">Ввод-вывод</div>
+                <div class="arch-peri-flow">↔ Приём и передача пакетов</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="diagram-caption">Рис. 1. Логическая схема взаимодействия процессора, оперативной памяти и периферии через системную магистраль (шины управления, адреса и данных).</p>
+      </div>
+    </section>
 
- <!-- 3. Оперативная память против долговременных накопителей -->
- <section class="content-section" id="section-memory-vs-storage">
- <h2>3. Физическая природа памяти: ОЗУ против долговременных накопителей</h2>
- <p>Одной из наиболее грубых ошибок при изучении архитектуры ЭВМ является отождествление оперативной памяти (RAM) и постоянных накопителей (SSD, HDD). Хотя обе подсистемы хранят байты данных, их физические принципы, скорость, способ адресации процессором и назначение диаметрально противоположны.</p>
+    <!-- 3. Оперативная память против долговременных накопителей -->
+    <section class="content-section" id="section-memory-vs-storage">
+      <h2>3. Физическая природа памяти: ОЗУ против долговременных накопителей</h2>
+      <p>Одной из наиболее грубых ошибок при изучении архитектуры ЭВМ является отождествление оперативной памяти (RAM) и постоянных накопителей (SSD, HDD). Хотя обе подсистемы хранят байты данных, их физические принципы, скорость, способ адресации процессором и назначение диаметрально противоположны.</p>
 
- <div class="callout callout-danger">
- <div class="callout-title">Критическое архитектурное правило</div>
- <p><strong>Оперативная память является энергозависимой (volatile).</strong> При прекращении подачи электропитания (выключение ПК, сбой питания, перезагрузка) все электрические заряды в конденсаторах динамических ячеек DRAM рассеиваются за доли секунды. В ОЗУ ничего не сохраняется после отключения питания!</p>
- <p>Никакой текстовый файл, таблица или документ не находятся на диске автоматически в момент набора текста: они существуют исключительно в виде электрических сигналов в буфере ОЗУ до тех пор, пока программа явно не инициирует системный вызов записи на накопитель.</p>
- </div>
+      <div class="callout callout-danger">
+        <div class="callout-title">Критическое архитектурное правило</div>
+        <p><strong>Оперативная память является энергозависимой (volatile).</strong> При прекращении подачи электропитания (выключение ПК, сбой питания, перезагрузка) все электрические заряды в конденсаторах динамических ячеек DRAM рассеиваются за доли секунды. В ОЗУ ничего не сохраняется после отключения питания!</p>
+        <p>Никакой текстовый файл, таблица или документ не находятся на диске автоматически в момент набора текста: они существуют исключительно в виде электрических сигналов в буфере ОЗУ до тех пор, пока программа явно не инициирует системный вызов записи на накопитель.</p>
+      </div>
 
- <div class="table-container">
- <table class="content-table">
- <thead>
- <tr>
- <th>Параметр сравнения</th>
- <th>Оперативная память (ОЗУ / RAM)</th>
- <th>Долговременный накопитель (SSD / NVMe / HDD)</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>Физический принцип</strong></td>
- <td>Микросхемы динамической памяти (DRAM). Бит хранится в виде микроскопического заряда на конденсаторе с ключом на одном транзисторе (1T-1C). Требует постоянной регенерации заряда (Refresh).</td>
- <td>Флеш-память NAND с плавающим затвором (Floating Gate / Charge Trap) либо намагниченность ферромагнитного слоя пластин (HDD).</td>
- </tr>
- <tr>
- <td><strong>Энергозависимость</strong></td>
- <td><strong>Энергозависима.</strong> При снятии питания данные гарантированно теряются.</td>
- <td><strong>Энергонезависима.</strong> Физическое состояние сохраняется годами без подачи внешнего тока.</td>
- </tr>
- <tr>
- <td><strong>Прямой доступ процессора</strong></td>
- <td><strong>Да.</strong> Процессор адресует память побайтово напрямую через шину адреса и встроенный контроллер памяти (Memory Controller). Команды выполняются прямо из ОЗУ.</td>
- <td><strong>Нет.</strong> Процессор не может напрямую выполнять код из SSD. Данные читаются блоками через контроллер шины (PCIe/SATA) и сначала копируются в ОЗУ.</td>
- </tr>
- <tr>
- <td><strong>Время задержки (Latency)</strong></td>
- <td>Сверхнизкое: <strong>от 40 до 80 наносекунд (нс)</strong>. Процессор получает слово данных практически мгновенно.</td>
- <td>Для быстрых NVMe SSD: <strong>от 20 до 100 микросекунд (мкс)</strong> — в 1&nbsp;000 раз медленнее ОЗУ! Для HDD — 5–15 миллисекунд (в 100&nbsp;000 раз медленнее).</td>
- </tr>
- <tr>
- <td><strong>Пропускная способность</strong></td>
- <td>Сверхвысокая: <strong>от 40 до 100+ ГБ/с</strong> (для двухканальной памяти DDR4/DDR5).</td>
- <td>Ограниченная: от 500 МБ/с (SATA SSD) до 3,5–7 ГБ/с (PCIe 4.0 NVMe).</td>
- </tr>
- <tr>
- <td><strong>Функциональная роль</strong></td>
- <td>Рабочее поле процессора: хранение машинного кода запущенных программ, стека вызовов, переменных и рабочих структур данных операционной системы.</td>
- <td>Надежное долговременное хранение операционной системы, файлов программ, пользовательских документов, медиа и баз данных между сеансами работы.</td>
- </tr>
- </tbody>
- </table>
- </div>
- </section>
+      <div class="table-container">
+        <table class="content-table">
+          <thead>
+            <tr>
+              <th>Параметр сравнения</th>
+              <th>Оперативная память (ОЗУ / RAM)</th>
+              <th>Долговременный накопитель (SSD / NVMe / HDD)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Физический принцип</strong></td>
+              <td>Микросхемы динамической памяти (DRAM). Бит хранится в виде микроскопического заряда на конденсаторе с ключом на одном транзисторе (1T-1C). Требует постоянной регенерации заряда (Refresh).</td>
+              <td>Флеш-память NAND с плавающим затвором (Floating Gate / Charge Trap) либо намагниченность ферромагнитного слоя пластин (HDD).</td>
+            </tr>
+            <tr>
+              <td><strong>Энергозависимость</strong></td>
+              <td><strong>Энергозависима.</strong> При снятии питания данные гарантированно теряются.</td>
+              <td><strong>Энергонезависима.</strong> Физическое состояние сохраняется годами без подачи внешнего тока.</td>
+            </tr>
+            <tr>
+              <td><strong>Прямой доступ процессора</strong></td>
+              <td><strong>Да.</strong> Процессор адресует память побайтово напрямую через шину адреса и встроенный контроллер памяти (Memory Controller). Команды выполняются прямо из ОЗУ.</td>
+              <td><strong>Нет.</strong> Процессор не может напрямую выполнять код из SSD. Данные читаются блоками через контроллер шины (PCIe/SATA) и сначала копируются в ОЗУ.</td>
+            </tr>
+            <tr>
+              <td><strong>Время задержки (Latency)</strong></td>
+              <td>Сверхнизкое: <strong>от 40 до 80 наносекунд (нс)</strong>. Процессор получает слово данных практически мгновенно.</td>
+              <td>Для быстрых NVMe SSD: <strong>от 20 до 100 микросекунд (мкс)</strong> — в 1&nbsp;000 раз медленнее ОЗУ! Для HDD — 5–15 миллисекунд (в 100&nbsp;000 раз медленнее).</td>
+            </tr>
+            <tr>
+              <td><strong>Пропускная способность</strong></td>
+              <td>Сверхвысокая: <strong>от 40 до 100+ ГБ/с</strong> (для двухканальной памяти DDR4/DDR5).</td>
+              <td>Ограниченная: от 500 МБ/с (SATA SSD) до 3,5–7 ГБ/с (PCIe 4.0 NVMe).</td>
+            </tr>
+            <tr>
+              <td><strong>Функциональная роль</strong></td>
+              <td>Рабочее поле процессора: хранение машинного кода запущенных программ, стека вызовов, переменных и рабочих структур данных операционной системы.</td>
+              <td>Надежное долговременное хранение операционной системы, файлов программ, пользовательских документов, медиа и баз данных между сеансами работы.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
- <!-- 4. Сквозной пример: функциональный маршрут данных -->
- <section class="content-section" id="section-pipeline">
- <h2>4. Сквозной пример: функциональный маршрут данных</h2>
- <p>Рассмотрим, что физически происходит в компьютере при выполнении стандартной пользовательской операции: студент набирает символ в текстовом редакторе и впоследствии решает сохранить файл на накопитель.</p>
- 
- <p>Этот сквозной пример наглядно иллюстрирует взаимодействие ввода/вывода, оперативной памяти, центрального процессора и накопителя.</p>
+    <!-- 4. Сквозной пример: функциональный маршрут данных -->
+    <section class="content-section" id="section-pipeline">
+      <h2>4. Сквозной пример: функциональный маршрут данных</h2>
+      <p>Рассмотрим, что физически происходит в компьютере при выполнении стандартной пользовательской операции: студент набирает символ в текстовом редакторе и впоследствии решает сохранить файл на накопитель.</p>
+      
+      <p>Этот сквозной пример наглядно иллюстрирует взаимодействие ввода/вывода, оперативной памяти, центрального процессора и накопителя.</p>
 
- <div class="pipeline-step">
- <div class="step-badge">1</div>
- <div class="step-body">
- <h4>Ввод данных: механическое воздействие и сигнал прерывания</h4>
- <p>Пользователь нажимает клавишу на клавиатуре. Контроллер клавиатуры замыкает цепь матричной сетки, определяет скан-код клавиши и передает его в виде пакета данных по шине USB.</p>
- <p>Хост-контроллер USB материнской платы принимает пакет и формирует аппаратное <strong>прерывание (IRQ)</strong> для центрального процессора.</p>
- </div>
- </div>
+      <div class="pipeline-step">
+        <div class="step-badge">1</div>
+        <div class="step-body">
+          <h4>Ввод данных: механическое воздействие и сигнал прерывания</h4>
+          <p>Пользователь нажимает клавишу на клавиатуре. Контроллер клавиатуры замыкает цепь матричной сетки, определяет скан-код клавиши и передает его в виде пакета данных по шине USB.</p>
+          <p>Хост-контроллер USB материнской платы принимает пакет и формирует аппаратное <strong>прерывание (IRQ)</strong> для центрального процессора.</p>
+        </div>
+      </div>
 
- <div class="pipeline-step">
- <div class="step-badge">2</div>
- <div class="step-body">
- <h4>Реакция процессора и размещение в оперативной памяти (ОЗУ)</h4>
- <p>Процессор временно приостанавливает текущую фоновую задачу, переключается на обработчик прерывания драйвера клавиатуры в операционной системе. Скан-код преобразуется в символ кодировки (например, UTF-8).</p>
- <p>Операционная система передает событие активному приложению (текстовому редактору). Процессор записывает полученный код символа в <strong>буфер оперативной памяти</strong>, выделенный под редактируемый текст. В этот момент символ существует <em>только в ОЗУ</em>.</p>
- </div>
- </div>
+      <div class="pipeline-step">
+        <div class="step-badge">2</div>
+        <div class="step-body">
+          <h4>Реакция процессора и размещение в оперативной памяти (ОЗУ)</h4>
+          <p>Процессор временно приостанавливает текущую фоновую задачу, переключается на обработчик прерывания драйвера клавиатуры в операционной системе. Скан-код преобразуется в символ кодировки (например, UTF-8).</p>
+          <p>Операционная система передает событие активному приложению (текстовому редактору). Процессор записывает полученный код символа в <strong>буфер оперативной памяти</strong>, выделенный под редактируемый текст. В этот момент символ существует <em>только в ОЗУ</em>.</p>
+        </div>
+      </div>
 
- <div class="pipeline-step">
- <div class="step-badge">3</div>
- <div class="step-body">
- <h4>Обработка процессором: логика и растеризация</h4>
- <p>Центральный процессор (CPU) обновляет внутренние структуры документа в ОЗУ: сдвигает указатель курсора, пересчитывает координаты символов и формирует команду отрисовки глифа шрифта.</p>
- <p>Графический драйвер готовит кадр для видеосистемы и отправляет обновленный фрагмент кадрового буфера (Frame Buffer) в память видеокарты.</p>
- </div>
- </div>
+      <div class="pipeline-step">
+        <div class="step-badge">3</div>
+        <div class="step-body">
+          <h4>Обработка процессором: логика и растеризация</h4>
+          <p>Центральный процессор (CPU) обновляет внутренние структуры документа в ОЗУ: сдвигает указатель курсора, пересчитывает координаты символов и формирует команду отрисовки глифа шрифта.</p>
+          <p>Графический драйвер готовит кадр для видеосистемы и отправляет обновленный фрагмент кадрового буфера (Frame Buffer) в память видеокарты.</p>
+        </div>
+      </div>
 
- <div class="pipeline-step">
- <div class="step-badge">4</div>
- <div class="step-body">
- <h4>Вывод результата на экран</h4>
- <p>Видеоконтроллер (GPU) циклически считывает данные из кадрового буфера видеопамяти и формирует цифровой видеосигнал (по интерфейсам DisplayPort или HDMI). Монитор отображает обновленный пиксельный массив: студент мгновенно видит напечатанную букву на экране.</p>
- <p><em>Внимание:</em> на этом этапе символ уже виден человеческому глазу, но на долговременном накопителе файла с этим изменением еще нет. В нашем учебном сценарии (при отключенном автосохранении и отсутствии фоновых резервных копий) внезапное обесточивание ПК приведет к потере набранного текста, так как он находился исключительно в оперативной памяти.</p>
- </div>
- </div>
+      <div class="pipeline-step">
+        <div class="step-badge">4</div>
+        <div class="step-body">
+          <h4>Вывод результата на экран</h4>
+          <p>Видеоконтроллер (GPU) циклически считывает данные из кадрового буфера видеопамяти и формирует цифровой видеосигнал (по интерфейсам DisplayPort или HDMI). Монитор отображает обновленный пиксельный массив: студент мгновенно видит напечатанную букву на экране.</p>
+          <p><em>Внимание:</em> на этом этапе символ уже виден человеческому глазу, но на долговременном накопителе файла с этим изменением еще нет. В нашем учебном сценарии (при отключенном автосохранении и отсутствии фоновых резервных копий) внезапное обесточивание ПК приведет к потере набранного текста, так как он находился исключительно в оперативной памяти.</p>
+        </div>
+      </div>
 
- <div class="pipeline-step">
- <div class="step-badge optional">5</div>
- <div class="step-body">
- <h4>Долговременная фиксация: сохранение на накопитель</h4>
- <p>Типичный сценарий ручной фиксации — нажатие пользователем кнопки «Сохранить» (или сочетания клавиш Ctrl+S). Это лишь один из возможных вариантов наряду с таймерами автосохранения приложений или фоновыми службами синхронизации. По этой команде инициируется системный вызов файловой системы (например, <code>write()</code> / <code>fsync()</code>).</p>
- <p>Процессор передает команду контроллеру NVMe/SATA переместить массив байтов из буфера оперативной памяти в контроллер накопителя. Данные сначала попадают во внутренние аппаратные буферы контроллера, а затем программируются в энергонезависимые ячейки флеш-памяти NAND. Стабильной и защищенной от отключения питания копия на носителе считается только тогда, когда контроллер накопителя завершил сброс буферов и подтвердил успешную физическую запись, хотя даже для SSD абсолютную неуязвимость к аппаратным сбоям и аварийным скачкам напряжения гарантировать нельзя.</p>
- </div>
- </div>
+      <div class="pipeline-step">
+        <div class="step-badge optional">5</div>
+        <div class="step-body">
+          <h4>Долговременная фиксация: сохранение на накопитель</h4>
+          <p>Типичный сценарий ручной фиксации — нажатие пользователем кнопки «Сохранить» (или сочетания клавиш Ctrl+S). Это лишь один из возможных вариантов наряду с таймерами автосохранения приложений или фоновыми службами синхронизации. По этой команде инициируется системный вызов файловой системы (например, <code>write()</code> / <code>fsync()</code>).</p>
+          <p>Процессор передает команду контроллеру NVMe/SATA переместить массив байтов из буфера оперативной памяти в контроллер накопителя. Данные сначала попадают во внутренние аппаратные буферы контроллера, а затем программируются в энергонезависимые ячейки флеш-памяти NAND. Стабильной и защищенной от отключения питания копия на носителе считается только тогда, когда контроллер накопителя завершил сброс буферов и подтвердил успешную физическую запись, хотя даже для SSD абсолютную неуязвимость к аппаратным сбоям и аварийным скачкам напряжения гарантировать нельзя.</p>
+        </div>
+      </div>
 
- <div class="diagram-wrapper">
- <div class="dataflow-diagram" role="region" aria-label="Сквозная цепочка пути данных от клавиатуры до накопителя">
- <div>
- <div class="dataflow-section-title">Основной оперативный контур (отображение в реальном времени, память энергозависима)</div>
- <div class="dataflow-main-track">
- <!-- Step 1 -->
- <div class="dataflow-node dataflow-node--input">
- <span class="dataflow-node-step">Шаг 1</span>
- <span class="dataflow-node-name">Клавиатура</span>
- <span class="dataflow-node-role">Генерация скан-кода нажатия и сигнал прерывания (IRQ)</span>
- </div>
+      <div class="diagram-wrapper">
+        <div class="dataflow-diagram" role="region" aria-label="Сквозная цепочка пути данных от клавиатуры до накопителя">
+          <div>
+            <div class="dataflow-section-title">Основной оперативный контур (отображение в реальном времени, память энергозависима)</div>
+            <div class="dataflow-main-track">
+              <!-- Step 1 -->
+              <div class="dataflow-node dataflow-node--input">
+                <span class="dataflow-node-step">Шаг 1</span>
+                <span class="dataflow-node-name">Клавиатура</span>
+                <span class="dataflow-node-role">Генерация скан-кода нажатия и сигнал прерывания (IRQ)</span>
+              </div>
 
- <div class="dataflow-arrow dataflow-arrow--h" aria-hidden="true">→</div>
- <div class="dataflow-arrow dataflow-arrow--v" aria-hidden="true">↓ Передача скан-кода в буфер ОЗУ</div>
+              <div class="dataflow-arrow dataflow-arrow--h" aria-hidden="true">→</div>
+              <div class="dataflow-arrow dataflow-arrow--v" aria-hidden="true">↓ Передача скан-кода в буфер ОЗУ</div>
 
- <!-- Step 2 -->
- <div class="dataflow-node dataflow-node--ram">
- <span class="dataflow-node-step">Шаг 2</span>
- <span class="dataflow-node-name">ОЗУ (RAM)</span>
- <span class="dataflow-node-role">Входной буфер ОС и структура документа в памяти (DRAM)</span>
- </div>
+              <!-- Step 2 -->
+              <div class="dataflow-node dataflow-node--ram">
+                <span class="dataflow-node-step">Шаг 2</span>
+                <span class="dataflow-node-name">ОЗУ (RAM)</span>
+                <span class="dataflow-node-role">Входной буфер ОС и структура документа в памяти (DRAM)</span>
+              </div>
 
- <div class="dataflow-arrow dataflow-arrow--h" aria-hidden="true">↔</div>
- <div class="dataflow-arrow dataflow-arrow--v" aria-hidden="true">↕ Двунаправленный обмен с процессором</div>
+              <div class="dataflow-arrow dataflow-arrow--h" aria-hidden="true">↔</div>
+              <div class="dataflow-arrow dataflow-arrow--v" aria-hidden="true">↕ Двунаправленный обмен с процессором</div>
 
- <!-- Step 3 -->
- <div class="dataflow-node dataflow-node--cpu">
- <span class="dataflow-node-step">Шаг 3</span>
- <span class="dataflow-node-name">Процессор (CPU)</span>
- <span class="dataflow-node-role">Декодирование символа Unicode и логика приложения</span>
- </div>
+              <!-- Step 3 -->
+              <div class="dataflow-node dataflow-node--cpu">
+                <span class="dataflow-node-step">Шаг 3</span>
+                <span class="dataflow-node-name">Процессор (CPU)</span>
+                <span class="dataflow-node-role">Декодирование символа Unicode и логика приложения</span>
+              </div>
 
- <div class="dataflow-arrow dataflow-arrow--h" aria-hidden="true">→</div>
- <div class="dataflow-arrow dataflow-arrow--v" aria-hidden="true">↓ Команда перерисовки в видеопамять</div>
+              <div class="dataflow-arrow dataflow-arrow--h" aria-hidden="true">→</div>
+              <div class="dataflow-arrow dataflow-arrow--v" aria-hidden="true">↓ Команда перерисовки в видеопамять</div>
 
- <!-- Step 4a -->
- <div class="dataflow-node dataflow-node--gpu">
- <span class="dataflow-node-step">Шаг 4</span>
- <span class="dataflow-node-name">Видеокарта</span>
- <span class="dataflow-node-role">Кадровый буфер видеопамяти и растеризация символа</span>
- </div>
+              <!-- Step 4a -->
+              <div class="dataflow-node dataflow-node--gpu">
+                <span class="dataflow-node-step">Шаг 4</span>
+                <span class="dataflow-node-name">Видеокарта</span>
+                <span class="dataflow-node-role">Кадровый буфер видеопамяти и растеризация символа</span>
+              </div>
 
- <div class="dataflow-arrow dataflow-arrow--h" aria-hidden="true">→</div>
- <div class="dataflow-arrow dataflow-arrow--v" aria-hidden="true">↓ Видеосигнал DisplayPort / HDMI</div>
+              <div class="dataflow-arrow dataflow-arrow--h" aria-hidden="true">→</div>
+              <div class="dataflow-arrow dataflow-arrow--v" aria-hidden="true">↓ Видеосигнал DisplayPort / HDMI</div>
 
- <!-- Step 4b -->
- <div class="dataflow-node dataflow-node--display">
- <span class="dataflow-node-step">Вывод</span>
- <span class="dataflow-node-name">Монитор</span>
- <span class="dataflow-node-role">Отображение пикселей на экране (студент видит букву)</span>
- </div>
- </div>
- </div>
+              <!-- Step 4b -->
+              <div class="dataflow-node dataflow-node--display">
+                <span class="dataflow-node-step">Вывод</span>
+                <span class="dataflow-node-name">Монитор</span>
+                <span class="dataflow-node-role">Отображение пикселей на экране (студент видит букву)</span>
+              </div>
+            </div>
+          </div>
 
- <!-- Separate Storage Branch -->
- <div class="dataflow-branch" role="group" aria-label="Отдельная ветвь долговременной фиксации данных">
- <div class="dataflow-branch-header">
- <span class="dataflow-branch-badge">Отдельная ветвь: сохранение</span>
- <span class="dataflow-branch-condition">Команда пользователя (Ctrl+S) или фоновое автосохранение</span>
- </div>
- <div class="dataflow-branch-body">
- <div class="dataflow-branch-card">
- <h4>Шаг 5. Накопитель SSD / NVMe (Энергонезависимый)</h4>
- <p>Системный вызов ОС передаёт байты из буфера ОЗУ через контроллер накопителя во флеш-память NAND. Только после сброса буферов данные физически защищены от отключения питания.</p>
- </div>
- <div class="dataflow-branch-notice">
- <strong>Критическое правило архитектуры:</strong> факт отображения символа на мониторе технически не гарантирует его сохранность. До подтверждения записи последних изменений их сохранность при потере питания не гарантирована, так как информация может оставаться в энергозависимых буферах.
- </div>
- </div>
- </div>
- </div>
- <p class="diagram-caption">Рис. 2. Маршрут данных: непрерывный контур «Клавиатура &rarr; ОЗУ &harr; CPU &rarr; Монитор» и отдельная ветвь фиксации на постоянном носителе при сохранении.</p>
- </div>
- </section>
+          <!-- Separate Storage Branch -->
+          <div class="dataflow-branch" role="group" aria-label="Отдельная ветвь долговременной фиксации данных">
+            <div class="dataflow-branch-header">
+              <span class="dataflow-branch-badge">Отдельная ветвь: сохранение</span>
+              <span class="dataflow-branch-condition">Команда пользователя (Ctrl+S) или фоновое автосохранение</span>
+            </div>
+            <div class="dataflow-branch-body">
+              <div class="dataflow-branch-card">
+                <h4>Шаг 5. Накопитель SSD / NVMe (Энергонезависимый)</h4>
+                <p>Системный вызов ОС передаёт байты из буфера ОЗУ через контроллер накопителя во флеш-память NAND. Только после сброса буферов данные физически защищены от отключения питания.</p>
+              </div>
+              <div class="dataflow-branch-notice">
+                <strong>Критическое правило архитектуры:</strong> факт отображения символа на мониторе технически не гарантирует его сохранность. До подтверждения записи последних изменений их сохранность при потере питания не гарантирована, так как информация может оставаться в энергозависимых буферах.
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="diagram-caption">Рис. 2. Маршрут данных: непрерывный контур «Клавиатура &rarr; ОЗУ &harr; CPU &rarr; Монитор» и отдельная ветвь фиксации на постоянном носителе при сохранении.</p>
+      </div>
+    </section>
 
- <!-- 5. Уровни архитектуры вычислительных систем -->
- <section class="content-section" id="section-levels">
- <h2>5. Иерархические уровни архитектуры ЭВМ</h2>
- <p>Современная вычислительная система представляет собой многоуровневую иерархию абстракций (модель Э. Таненбаума). Каждый последующий уровень опирается на возможности нижележащего, скрывая от пользователя и программиста избыточную физическую сложность.</p>
+    <!-- 5. Уровни архитектуры вычислительных систем -->
+    <section class="content-section" id="section-levels">
+      <h2>5. Иерархические уровни архитектуры ЭВМ</h2>
+      <p>Современная вычислительная система представляет собой многоуровневую иерархию абстракций (модель Э. Таненбаума). Каждый последующий уровень опирается на возможности нижележащего, скрывая от пользователя и программиста избыточную физическую сложность.</p>
 
- <div class="grid-2">
- <div class="card">
- <div class="card-header">1. Физический и электронный уровень</div>
- <p>Полупроводниковые приборы, транзисторы, кремниевые кристаллы, проводники печатных плат и законы электродинамики. Оперирует электрическими потенциалами, токами и тактовыми генераторами.</p>
- </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">1. Физический и электронный уровень</div>
+          <p>Полупроводниковые приборы, транзисторы, кремниевые кристаллы, проводники печатных плат и законы электродинамики. Оперирует электрическими потенциалами, токами и тактовыми генераторами.</p>
+        </div>
 
- <div class="card">
- <div class="card-header">2. Логический (схемотехнический) уровень</div>
- <p>Базовые логические вентили (И, ИЛИ, НЕ, И-НЕ), триггеры, регистры, счетчики, мультиплексоры и сумматоры. Оперирует абстрактными логическими нулями и единицами булевой алгебры.</p>
- </div>
+        <div class="card">
+          <div class="card-header">2. Логический (схемотехнический) уровень</div>
+          <p>Базовые логические вентили (И, ИЛИ, НЕ, И-НЕ), триггеры, регистры, счетчики, мультиплексоры и сумматоры. Оперирует абстрактными логическими нулями и единицами булевой алгебры.</p>
+        </div>
 
- <div class="card">
- <div class="card-header">3. Микроархитектурный уровень</div>
- <p>Внутреннее строение процессора: арифметико-логическое устройство (АЛУ), устройство управления (УУ), внутренние шины, регистровые файлы и ступени процессорного конвейера.</p>
- </div>
+        <div class="card">
+          <div class="card-header">3. Микроархитектурный уровень</div>
+          <p>Внутреннее строение процессора: арифметико-логическое устройство (АЛУ), устройство управления (УУ), внутренние шины, регистровые файлы и ступени процессорного конвейера.</p>
+        </div>
 
- <div class="card">
- <div class="card-header">4. Уровень архитектуры команд (ISA)</div>
- <p>Граница между железом и программным обеспечением. Набор машинных инструкций, доступных программисту на ассемблере и компилятору (x86-64, ARM, RISC-V), форматы адресации и прерываний.</p>
- </div>
+        <div class="card">
+          <div class="card-header">4. Уровень архитектуры команд (ISA)</div>
+          <p>Граница между железом и программным обеспечением. Набор машинных инструкций, доступных программисту на ассемблере и компилятору (x86-64, ARM, RISC-V), форматы адресации и прерываний.</p>
+        </div>
 
- <div class="card">
- <div class="card-header">5. Уровень операционной системы</div>
- <p>Управление аппаратными ресурсами: виртуализация памяти, планировщик потоков, управление устройствами через системные драйверы, организация файловых систем.</p>
- </div>
+        <div class="card">
+          <div class="card-header">5. Уровень операционной системы</div>
+          <p>Управление аппаратными ресурсами: виртуализация памяти, планировщик потоков, управление устройствами через системные драйверы, организация файловых систем.</p>
+        </div>
 
- <div class="card">
- <div class="card-header">6. Прикладной уровень</div>
- <p>Языки программирования высокого уровня (C++, Python, Java), среды исполнения и прикладное программное обеспечение, решающее задачи конечного пользователя.</p>
- </div>
- </div>
- </section>
+        <div class="card">
+          <div class="card-header">6. Прикладной уровень</div>
+          <p>Языки программирования высокого уровня (C++, Python, Java), среды исполнения и прикладное программное обеспечение, решающее задачи конечного пользователя.</p>
+        </div>
+      </div>
+    </section>
 
- <!-- 6. Типичные инженерные заблуждения -->
- <section class="content-section" id="section-mistakes">
- <h2>6. Разбор типовых заблуждений и концептуальных ошибок</h2>
- 
- <div class="callout callout-warning">
- <div class="callout-title">Заблуждение 1: «Файл гарантированно сохранен на накопителе сразу, как только буква появилась на экране»</div>
- <p><strong>Опровержение:</strong> Редактируемый фрагмент в процессе ввода находится в оперативной памяти и видеобуфере. Нажатие Ctrl+S — частый, но не единственный способ записи: современные среды могут задействовать автосохранение, журналы транзакций и фоновые резервные копии. Однако пока запись не передана через системный вызов, не прошла кэши операционной системы и аппаратные буферы накопителя и не подтверждена контроллером, несохраненные в постоянной памяти изменения остаются под угрозой потери при сбое питания.</p>
- </div>
- <div class="callout callout-warning">
- <div class="callout-title">Заблуждение 2: «Процессор напрямую читает файлы с SSD-накопителя»</div>
- <p><strong>Опровержение:</strong> Архитектура современных ЭВМ не позволяет процессору адресовать флеш-память накопителя как оперативную память. Скорость SSD в сотни раз ниже скорости шины процессора. Любой файл перед обработкой обязан быть прочитан контроллером диска и помещен операционной системой в оперативную память. Только оттуда команды и данные попадают в регистры процессора.</p>
- </div>
+    <!-- 6. Типичные инженерные заблуждения -->
+    <section class="content-section" id="section-mistakes">
+      <h2>6. Разбор типовых заблуждений и концептуальных ошибок</h2>
+      
+      <div class="callout callout-warning">
+        <div class="callout-title">Заблуждение 1: «Файл гарантированно сохранен на накопителе сразу, как только буква появилась на экране»</div>
+        <p><strong>Опровержение:</strong> Редактируемый фрагмент в процессе ввода находится в оперативной памяти и видеобуфере. Нажатие Ctrl+S — частый, но не единственный способ записи: современные среды могут задействовать автосохранение, журналы транзакций и фоновые резервные копии. Однако пока запись не передана через системный вызов, не прошла кэши операционной системы и аппаратные буферы накопителя и не подтверждена контроллером, несохраненные в постоянной памяти изменения остаются под угрозой потери при сбое питания.</p>
+      </div>
+      <div class="callout callout-warning">
+        <div class="callout-title">Заблуждение 2: «Процессор напрямую читает файлы с SSD-накопителя»</div>
+        <p><strong>Опровержение:</strong> Архитектура современных ЭВМ не позволяет процессору адресовать флеш-память накопителя как оперативную память. Скорость SSD в сотни раз ниже скорости шины процессора. Любой файл перед обработкой обязан быть прочитан контроллером диска и помещен операционной системой в оперативную память. Только оттуда команды и данные попадают в регистры процессора.</p>
+      </div>
 
- <div class="callout callout-warning">
- <div class="callout-title">Заблуждение 3: «Архитектура — это модель или марка процессора»</div>
- <p><strong>Опровержение:</strong> Модель процессора (например, конкретная ревизия чипа) — это коммерческое воплощение микроархитектуры. Архитектура — это стандарт логического взаимодействия. Например, 64-битная архитектура x86-64 поддерживается процессорами совершенно разных линеек и производителей, спроектированных с разницей в десятилетия.</p>
- </div>
- </section>
+      <div class="callout callout-warning">
+        <div class="callout-title">Заблуждение 3: «Архитектура — это модель или марка процессора»</div>
+        <p><strong>Опровержение:</strong> Модель процессора (например, конкретная ревизия чипа) — это коммерческое воплощение микроархитектуры. Архитектура — это стандарт логического взаимодействия. Например, 64-битная архитектура x86-64 поддерживается процессорами совершенно разных линеек и производителей, спроектированных с разницей в десятилетия.</p>
+      </div>
+    </section>
 
- <!-- 7. Вопросы для самопроверки -->
- <section class="content-section" id="section-check">
- <h2>7. Вопросы для самопроверки</h2>
- <p>Проверьте понимание ключевых тем занятия. Ответьте на вопросы самостоятельно, опираясь на материал соответствующих разделов лекции, и сопоставьте свои выводы с разобранными ранее понятиями (проверки буквального совпадения формулировок не требуется).</p>
+    <!-- 7. Вопросы для самопроверки -->
+    <section class="content-section" id="section-check">
+      <h2>7. Вопросы для самопроверки</h2>
+      <p>Проверьте понимание ключевых тем занятия. Ответьте на вопросы самостоятельно, опираясь на материал соответствующих разделов лекции, и сопоставьте свои выводы с разобранными ранее понятиями (проверки буквального совпадения формулировок не требуется).</p>
 
- <div class="card" style="margin-bottom: 1.25rem;">
- <div class="card-header">Вопрос 1. В чем принципиальная разница между терминами «аппаратные средства» и «архитектура ЭВМ»?</div>
- <p>Для самопроверки обратитесь к <strong>разделу 1 «Аппаратные средства и архитектура: разграничение понятий»</strong>.</p>
- </div>
+      <div class="card" style="margin-bottom: 1.25rem;">
+        <div class="card-header">Вопрос 1. В чем принципиальная разница между терминами «аппаратные средства» и «архитектура ЭВМ»?</div>
+        <p>Для самопроверки обратитесь к <strong>разделу 1 «Аппаратные средства и архитектура: разграничение понятий»</strong>.</p>
+      </div>
 
- <div class="card" style="margin-bottom: 1.25rem;">
- <div class="card-header">Вопрос 2. Почему процессор не может выполнять машинный код непосредственно из ячеек SSD-накопителя?</div>
- <p>Для самопроверки обратитесь к <strong>разделу 3 «Физическая природа памяти: ОЗУ против долговременных накопителей»</strong> и <strong>разделу 6 (заблуждение 2)</strong>.</p>
- </div>
+      <div class="card" style="margin-bottom: 1.25rem;">
+        <div class="card-header">Вопрос 2. Почему процессор не может выполнять машинный код непосредственно из ячеек SSD-накопителя?</div>
+        <p>Для самопроверки обратитесь к <strong>разделу 3 «Физическая природа памяти: ОЗУ против долговременных накопителей»</strong> и <strong>разделу 6 (заблуждение 2)</strong>.</p>
+      </div>
 
- <div class="card" style="margin-bottom: 1.25rem;">
- <div class="card-header">Вопрос 3. Что произойдет с набранным текстом при внезапном обесточивании ПК в учебном сценарии с отключенным автосохранением?</div>
- <p>Для самопроверки обратитесь к <strong>разделу 4 «Сквозной пример: функциональный маршрут данных»</strong> и сравнительной таблице в <strong>разделе 3</strong>.</p>
- </div>
+      <div class="card" style="margin-bottom: 1.25rem;">
+        <div class="card-header">Вопрос 3. Что произойдет с набранным текстом при внезапном обесточивании ПК в учебном сценарии с отключенным автосохранением?</div>
+        <p>Для самопроверки обратитесь к <strong>разделу 4 «Сквозной пример: функциональный маршрут данных»</strong> и сравнительной таблице в <strong>разделе 3</strong>.</p>
+      </div>
 
- <div class="card" style="margin-bottom: 1.25rem;">
- <div class="card-header">Вопрос 4. Какие три функциональные подсистемы входят в системную магистраль и какие роли они выполняют?</div>
- <p>Для самопроверки обратитесь к <strong>разделу 2 «Логические основы: принципы фон Неймана и системная магистраль»</strong>.</p>
- </div>
- </section>
- <!-- 8. Заключение по предмету -->
- <section class="content-section" id="section-summary">
- <h2>8. Предметный итог</h2>
- <p>Вычислительная машина представляет собой гармоничное единство аппаратных средств (материальной базы) и архитектуры (логического плана организации). Понимание границ между временной памятью процессора (ОЗУ) и долговременными накопителями, а также осознание реального пути движения информации внутри системы являются основой для грамотного анализа производительности, диагностики неисправностей и правильной эксплуатации вычислительной техники.</p>
- </section>
+      <div class="card" style="margin-bottom: 1.25rem;">
+        <div class="card-header">Вопрос 4. Какие три функциональные подсистемы входят в системную магистраль и какие роли они выполняют?</div>
+        <p>Для самопроверки обратитесь к <strong>разделу 2 «Логические основы: принципы фон Неймана и системная магистраль»</strong>.</p>
+      </div>
+    </section>
+    <!-- 8. Заключение по предмету -->
+    <section class="content-section" id="section-summary">
+      <h2>8. Предметный итог</h2>
+      <p>Вычислительная машина представляет собой гармоничное единство аппаратных средств (материальной базы) и архитектуры (логического плана организации). Понимание границ между временной памятью процессора (ОЗУ) и долговременными накопителями, а также осознание реального пути движения информации внутри системы являются основой для грамотного анализа производительности, диагностики неисправностей и правильной эксплуатации вычислительной техники.</p>
+    </section>
 
- </main>
+  </main>
 
 </body>
 </html>

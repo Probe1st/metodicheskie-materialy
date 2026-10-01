@@ -1,591 +1,618 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
- <title>Практикум: Архитектуры вычислительных систем и оценка производительности</title>
- <style>
- :root {
- --bg: #f1f5f9;
- --card: #ffffff;
- --text: #0f172a;
- --muted: #475569;
- --line: #cbd5e1;
- --accent: #1e40af;
- --accent-soft: #eff6ff;
- --task-bg: #f8fafc;
- --border-task: #94a3b8;
- --ok: #059669;
- --warn: #d97706;
- --radius: 14px;
- --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
- }
- * { box-sizing: border-box; margin: 0; padding: 0; }
- body {
- background: var(--bg);
- color: var(--text);
- font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
- line-height: 1.6;
- font-size: 15px;
- padding: 20px 14px;
- }.page {
- max-width: 960px;
- margin: 0 auto;
- }.header-card,.student-card,.task-card,.actions-card {
- background: var(--card);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 24px;
- margin-bottom: 20px;
- box-shadow: var(--shadow);
- }
- h1 {
- font-size: clamp(22px, 3.5vw, 28px);
- color: var(--accent);
- margin-bottom: 8px;
- }.desc {
- color: var(--muted);
- font-size: 15px;
- line-height: 1.55;
- }.student-grid {
- display: grid;
- grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
- gap: 16px;
- }
- label {
- display: block;
- font-weight: 600;
- font-size: 13.5px;
- margin-bottom: 6px;
- color: #1e293b;
- }
- input[type="text"], input[type="date"], select, textarea {
- width: 100%;
- border: 1.5px solid var(--line);
- border-radius: 8px;
- padding: 9px 12px;
- font: inherit;
- font-size: 14px;
- background: #fff;
- color: var(--text);
- outline: none;
- transition: border-color.15s, box-shadow.15s;
- }
- input:focus, select:focus, textarea:focus {
- border-color: var(--accent);
- box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
- }
- textarea {
- min-height: 90px;
- resize: vertical;
- }.print-select-text {
- display: none;
- }.task-title {
- font-size: 18px;
- font-weight: 700;
- color: var(--accent);
- margin-bottom: 8px;
- display: flex;
- align-items: center;
- gap: 8px;
- }.task-intro {
- font-size: 14.5px;
- color: var(--muted);
- margin-bottom: 16px;
- }.table-wrap {
- overflow-x: auto;
- margin-bottom: 16px;
- border: 1px solid var(--line);
- border-radius: 10px;
- }
- table {
- width: 100%;
- border-collapse: collapse;
- font-size: 13.5px;
- background: #fff;
- }
- th, td {
- border: 1px solid var(--line);
- padding: 10px 12px;
- text-align: left;
- vertical-align: top;
- }
- th {
- background: var(--accent-soft);
- color: var(--accent);
- font-weight: 700;
- }.table-input {
- width: 100%;
- border: 1px solid var(--line);
- border-radius: 6px;
- padding: 6px 8px;
- font: inherit;
- font-size: 13px;
- }.prompt-label {
- font-size: 13.5px;
- font-weight: 600;
- color: #334155;
- margin-top: 12px;
- margin-bottom: 6px;
- }.variant-card {
- background: var(--task-bg);
- border: 1.5px dashed var(--border-task);
- border-radius: 10px;
- padding: 18px;
- margin-bottom: 16px;
- }.variant-title {
- font-size: 16px;
- font-weight: 700;
- color: var(--accent);
- margin-bottom: 8px;
- }.variant-desc {
- font-size: 14px;
- color: #334155;
- line-height: 1.55;
- }.formula-badge {
- background: #e2e8f0;
- padding: 2px 6px;
- border-radius: 4px;
- font-family: monospace;
- font-size: 13px;
- }.btn-row {
- display: flex;
- flex-wrap: wrap;
- gap: 12px;
- align-items: center;
- }
- button {
- padding: 10px 20px;
- border-radius: 8px;
- border: none;
- font-weight: 600;
- font-size: 14px;
- cursor: pointer;
- display: inline-flex;
- align-items: center;
- gap: 8px;
- transition: background-color.15s, transform.1s;
- }
- button:active {
- transform: scale(0.98);
- }.btn-primary {
- background: var(--accent);
- color: #fff;
- }.btn-primary:hover {
- background: #1d4ed8;
- }.btn-secondary {
- background: #e2e8f0;
- color: var(--text);
- }.btn-secondary:hover {
- background: #cbd5e1;
- }.btn-danger {
- background: #fee2e2;
- color: #991b1b;
- }.btn-danger:hover {
- background: #fecaca;
- }.status-msg {
- font-size: 13.5px;
- font-weight: 500;
- }.status-saved {
- color: var(--ok);
- }
- @media print {
- body {
- background: #fff !important;
- color: #000 !important;
- padding: 0 !important;
- font-size: 11pt !important;
- }.page {
- max-width: 100% !important;
- margin: 0 !important;
- }.header-card,.student-card,.task-card {
- box-shadow: none !important;
- border: 1px solid #777 !important;
- margin-bottom: 14pt !important;
- padding: 12pt !important;
- break-inside: auto !important;
- page-break-inside: auto !important;
- }.actions-card,.btn-row {
- display: none !important;
- }
- input::placeholder, textarea::placeholder {
- color: transparent !important;
- -webkit-text-fill-color: transparent !important;
- opacity: 0 !important;
- }
- select {
- display: none !important;
- }.print-select-text {
- display: block !important;
- min-height: 22px;
- border: 1px solid #777 !important;
- border-radius: 4px;
- padding: 4px 6px;
- background: #fff !important;
- }
- textarea {
- height: auto !important;
- min-height: 85px;
- overflow: visible !important;
- white-space: pre-wrap !important;
- word-break: break-word !important;
- border: 1px solid #777 !important;
- background: #fff !important;
- color: #000 !important;
- }
- input[type="text"], input[type="date"],.table-input {
- border: 1px solid #777 !important;
- background: #fff !important;
- color: #000 !important;
- }
- table {
- page-break-inside: auto;
- }
- tr {
- page-break-inside: avoid;
- page-break-after: auto;
- }
- }
- </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Практикум: Архитектуры вычислительных систем и оценка производительности</title>
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --task-bg: #f8fafc;
+      --border-task: #94a3b8;
+      --ok: #059669;
+      --warn: #d97706;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .task-card, .actions-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(22px, 3.5vw, 28px);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .desc {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    input[type="text"], input[type="date"], select, textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+    }
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+    .print-select-text {
+      display: none;
+    }
+    .task-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .task-intro {
+      font-size: 14.5px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      margin-bottom: 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      background: #fff;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .table-input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 6px 8px;
+      font: inherit;
+      font-size: 13px;
+    }
+    .prompt-label {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #334155;
+      margin-top: 12px;
+      margin-bottom: 6px;
+    }
+    .variant-card {
+      background: var(--task-bg);
+      border: 1.5px dashed var(--border-task);
+      border-radius: 10px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .variant-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .variant-desc {
+      font-size: 14px;
+      color: #334155;
+      line-height: 1.55;
+    }
+    .formula-badge {
+      background: #e2e8f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 13px;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    button {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background-color .15s, transform .1s;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+    .btn-secondary {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+    .btn-danger {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .btn-danger:hover {
+      background: #fecaca;
+    }
+    .status-msg {
+      font-size: 13.5px;
+      font-weight: 500;
+    }
+    .status-saved {
+      color: var(--ok);
+    }
+    @media print {
+      body {
+        background: #fff !important;
+        color: #000 !important;
+        padding: 0 !important;
+        font-size: 11pt !important;
+      }
+      .page {
+        max-width: 100% !important;
+        margin: 0 !important;
+      }
+      .header-card, .student-card, .task-card {
+        box-shadow: none !important;
+        border: 1px solid #777 !important;
+        margin-bottom: 14pt !important;
+        padding: 12pt !important;
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+      }
+      .actions-card, .btn-row {
+        display: none !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        opacity: 0 !important;
+      }
+      select {
+        display: none !important;
+      }
+      .print-select-text {
+        display: block !important;
+        min-height: 22px;
+        border: 1px solid #777 !important;
+        border-radius: 4px;
+        padding: 4px 6px;
+        background: #fff !important;
+      }
+      textarea {
+        height: auto !important;
+        min-height: 85px;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      input[type="text"], input[type="date"], .table-input {
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      table {
+        page-break-inside: auto;
+      }
+      tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+      }
+    }
+  </style>
 </head>
 <body>
 <div class="page">
 
- <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
- <div class="header-card">
- <h1>Практикум: Архитектуры вычислительных систем и оценка производительности</h1>
- <p class="desc">Интерактивный рабочий лист студента по дисциплине «Архитектура аппаратных средств» (СИЭУиП, занятие 18). Классификация вычислительных систем по таксономии Флинна (SISD, SIMD, MISD, MIMD); анализ топологий организации оперативной памяти (SMP/UMA, NUMA, кластеры с распределенной памятью); метрики быстродействия (MIPS, MFLOPS/GFLOPS/TFLOPS, тест Linpack HPL); расчет масштабируемости многопроцессорных систем по закону Амдала и закону Густафсона-Барсиса по 4 вариантам кейсов.</p>
- </div>
+  <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
+  <div class="header-card">
+    <h1>Практикум: Архитектуры вычислительных систем и оценка производительности</h1>
+    <p class="desc">Интерактивный рабочий лист студента по дисциплине «Архитектура аппаратных средств» (СИЭУиП, занятие 18). Классификация вычислительных систем по таксономии Флинна (SISD, SIMD, MISD, MIMD); анализ топологий организации оперативной памяти (SMP/UMA, NUMA, кластеры с распределенной памятью); метрики быстродействия (MIPS, MFLOPS/GFLOPS/TFLOPS, тест Linpack HPL); расчет масштабируемости многопроцессорных систем по закону Амдала и закону Густафсона-Барсиса по 4 вариантам кейсов.</p>
+  </div>
 
- <!-- КАРТОЧКА СТУДЕНТА (ЧИСТЫЕ ПОЛЯ БЕЗ ВЫМЫШЛЕННЫХ ДАННЫХ) -->
- <div class="student-card">
- <div class="student-grid">
- <div>
- <label for="student_fio">ФИО обучающегося:</label>
- <input type="text" id="student_fio" placeholder="Фамилия Имя Отчество" autocomplete="off">
- </div>
- <div>
- <label for="student_group">Учебная группа:</label>
- <input type="text" id="student_group" placeholder="Введите группу" autocomplete="off">
- </div>
- <div>
- <label for="work_variant">Вариант задания:</label>
- <select id="work_variant" onchange="updateVariantSelection()">
- <option value="">-- Выберите вариант (1–4) --</option>
- <option value="1">Вариант 1: Симулятор аэродинамических процессов (CFD-кластер с высокой долей параллелизма)</option>
- <option value="2">Вариант 2: Транзакционная банковская СУБД с жесткими блокировками (SMP/NUMA сервер)</option>
- <option value="3">Вариант 3: Обучение глубоких нейросетей LLM / Компьютерное зрение (GPU/SIMD-ускорители)</option>
- <option value="4">Вариант 4: Встраиваемый бортовой комплекс космического аппарата (Fault-Tolerant MISD/MIMD)</option>
- </select>
- <div id="print_work_variant" class="print-select-text">Вариант не выбран</div>
- </div>
- <div>
- <label for="work_date">Дата выполнения:</label>
- <input type="date" id="work_date">
- </div>
- </div>
- </div>
+  <!-- КАРТОЧКА СТУДЕНТА (ЧИСТЫЕ ПОЛЯ БЕЗ ВЫМЫШЛЕННЫХ ДАННЫХ) -->
+  <div class="student-card">
+    <div class="student-grid">
+      <div>
+        <label for="student_fio">ФИО обучающегося:</label>
+        <input type="text" id="student_fio" placeholder="Фамилия Имя Отчество" autocomplete="off">
+      </div>
+      <div>
+        <label for="student_group">Учебная группа:</label>
+        <input type="text" id="student_group" placeholder="Введите группу" autocomplete="off">
+      </div>
+      <div>
+        <label for="work_variant">Вариант задания:</label>
+        <select id="work_variant" onchange="updateVariantSelection()">
+          <option value="">-- Выберите вариант (1–4) --</option>
+          <option value="1">Вариант 1: Симулятор аэродинамических процессов (CFD-кластер с высокой долей параллелизма)</option>
+          <option value="2">Вариант 2: Транзакционная банковская СУБД с жесткими блокировками (SMP/NUMA сервер)</option>
+          <option value="3">Вариант 3: Обучение глубоких нейросетей LLM / Компьютерное зрение (GPU/SIMD-ускорители)</option>
+          <option value="4">Вариант 4: Встраиваемый бортовой комплекс космического аппарата (Fault-Tolerant MISD/MIMD)</option>
+        </select>
+        <div id="print_work_variant" class="print-select-text">Вариант не выбран</div>
+      </div>
+      <div>
+        <label for="work_date">Дата выполнения:</label>
+        <input type="date" id="work_date">
+      </div>
+    </div>
+  </div>
 
- <!-- ЗАДАНИЕ 1. МАТРИЦА ТАКСОНОМИИ ФЛИННА -->
- <div class="task-card">
- <div class="task-title">Задание 1. Систематизация по таксономии Флинна и топологии памяти</div>
- <p class="task-intro">Заполните матрицу классификации вычислительных систем по потокам команд (Instruction Stream) и данных (Data Stream). Укажите архитектурные принципы, характерные аппаратные реализации и сопоставьте топологию памяти (SMP/UMA, NUMA, MPP/Cluster).</p>
- 
- <div class="table-wrap">
- <table>
- <thead>
- <tr>
- <th style="width: 12%;">Класс Флинна</th>
- <th style="width: 22%;">Потоки команд и данных</th>
- <th style="width: 28%;">Аппаратная реализация и примеры ЭВМ</th>
- <th style="width: 20%;">Организация памяти</th>
- <th style="width: 18%;">Узкое место архитектуры</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>SISD</strong></td>
- <td><input type="text" id="t1_sisd_stream" class="table-input" placeholder="Команд:... / Данных:..."></td>
- <td><input type="text" id="t1_sisd_impl" class="table-input" placeholder="Классические одноядерные ЦП..."></td>
- <td><input type="text" id="t1_sisd_mem" class="table-input" placeholder="Единая память..."></td>
- <td><input type="text" id="t1_sisd_bottleneck" class="table-input" placeholder="Ограничение тактовой частоты..."></td>
- </tr>
- <tr>
- <td><strong>SIMD</strong></td>
- <td><input type="text" id="t1_simd_stream" class="table-input" placeholder="Команд:... / Данных:..."></td>
- <td><input type="text" id="t1_simd_impl" class="table-input" placeholder="Векторные ядра GPU, AVX-512..."></td>
- <td><input type="text" id="t1_simd_mem" class="table-input" placeholder="Разделяемая / локальная..."></td>
- <td><input type="text" id="t1_simd_bottleneck" class="table-input" placeholder="Ветвления в потоках..."></td>
- </tr>
- <tr>
- <td><strong>MISD</strong></td>
- <td><input type="text" id="t1_misd_stream" class="table-input" placeholder="Команд:... / Данных:..."></td>
- <td><input type="text" id="t1_misd_impl" class="table-input" placeholder="Отказоустойчивые системы, Space Shuttle..."></td>
- <td><input type="text" id="t1_misd_mem" class="table-input" placeholder="Дублированная / общая..."></td>
- <td><input type="text" id="t1_misd_bottleneck" class="table-input" placeholder="Избыточность и сложность..."></td>
- </tr>
- <tr>
- <td><strong>MIMD</strong></td>
- <td><input type="text" id="t1_mimd_stream" class="table-input" placeholder="Команд:... / Данных:..."></td>
- <td><input type="text" id="t1_mimd_impl" class="table-input" placeholder="Многоядерные CPU, SMP, кластеры..."></td>
- <td><input type="text" id="t1_mimd_mem" class="table-input" placeholder="SMP (UMA), NUMA, Distributed..."></td>
- <td><input type="text" id="t1_mimd_bottleneck" class="table-input" placeholder="Когерентность кэшей, задержки связи..."></td>
- </tr>
- </tbody>
- </table>
- </div>
+  <!-- ЗАДАНИЕ 1. МАТРИЦА ТАКСОНОМИИ ФЛИННА -->
+  <div class="task-card">
+    <div class="task-title">Задание 1. Систематизация по таксономии Флинна и топологии памяти</div>
+    <p class="task-intro">Заполните матрицу классификации вычислительных систем по потокам команд (Instruction Stream) и данных (Data Stream). Укажите архитектурные принципы, характерные аппаратные реализации и сопоставьте топологию памяти (SMP/UMA, NUMA, MPP/Cluster).</p>
+    
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 12%;">Класс Флинна</th>
+            <th style="width: 22%;">Потоки команд и данных</th>
+            <th style="width: 28%;">Аппаратная реализация и примеры ЭВМ</th>
+            <th style="width: 20%;">Организация памяти</th>
+            <th style="width: 18%;">Узкое место архитектуры</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>SISD</strong></td>
+            <td><input type="text" id="t1_sisd_stream" class="table-input" placeholder="Команд: ... / Данных: ..."></td>
+            <td><input type="text" id="t1_sisd_impl" class="table-input" placeholder="Классические одноядерные ЦП..."></td>
+            <td><input type="text" id="t1_sisd_mem" class="table-input" placeholder="Единая память..."></td>
+            <td><input type="text" id="t1_sisd_bottleneck" class="table-input" placeholder="Ограничение тактовой частоты..."></td>
+          </tr>
+          <tr>
+            <td><strong>SIMD</strong></td>
+            <td><input type="text" id="t1_simd_stream" class="table-input" placeholder="Команд: ... / Данных: ..."></td>
+            <td><input type="text" id="t1_simd_impl" class="table-input" placeholder="Векторные ядра GPU, AVX-512..."></td>
+            <td><input type="text" id="t1_simd_mem" class="table-input" placeholder="Разделяемая / локальная..."></td>
+            <td><input type="text" id="t1_simd_bottleneck" class="table-input" placeholder="Ветвления в потоках..."></td>
+          </tr>
+          <tr>
+            <td><strong>MISD</strong></td>
+            <td><input type="text" id="t1_misd_stream" class="table-input" placeholder="Команд: ... / Данных: ..."></td>
+            <td><input type="text" id="t1_misd_impl" class="table-input" placeholder="Отказоустойчивые системы, Space Shuttle..."></td>
+            <td><input type="text" id="t1_misd_mem" class="table-input" placeholder="Дублированная / общая..."></td>
+            <td><input type="text" id="t1_misd_bottleneck" class="table-input" placeholder="Избыточность и сложность..."></td>
+          </tr>
+          <tr>
+            <td><strong>MIMD</strong></td>
+            <td><input type="text" id="t1_mimd_stream" class="table-input" placeholder="Команд: ... / Данных: ..."></td>
+            <td><input type="text" id="t1_mimd_impl" class="table-input" placeholder="Многоядерные CPU, SMP, кластеры..."></td>
+            <td><input type="text" id="t1_mimd_mem" class="table-input" placeholder="SMP (UMA), NUMA, Distributed..."></td>
+            <td><input type="text" id="t1_mimd_bottleneck" class="table-input" placeholder="Когерентность кэшей, задержки связи..."></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
- <div class="prompt-label">Аналитическое объяснение: В чем состоит архитектурное отличие UMA (Uniform Memory Access) от NUMA (Non-Uniform Memory Access)? Какую роль играет фактор NUMA ratio при выполнении высоконагруженных задач?</div>
- <textarea id="ans_uma_numa" placeholder="Объясните физическую природу неоднородного доступа к памяти, задержки межпроцессорных линков (UPI/Infinity Fabric) и деградацию производительности при межсокетовых обращениях..."></textarea>
- </div>
+    <div class="prompt-label">Аналитическое объяснение: В чем состоит архитектурное отличие UMA (Uniform Memory Access) от NUMA (Non-Uniform Memory Access)? Какую роль играет фактор NUMA ratio при выполнении высоконагруженных задач?</div>
+    <textarea id="ans_uma_numa" placeholder="Объясните физическую природу неоднородного доступа к памяти, задержки межпроцессорных линков (UPI/Infinity Fabric) и деградацию производительности при межсокетовых обращениях..."></textarea>
+  </div>
 
- <!-- ЗАДАНИЕ 2. РАСЧЕТ ПИКОВОЙ И РЕАЛЬНОЙ ПРОИЗВОДИТЕЛЬНОСТИ -->
- <div class="task-card">
- <div class="task-title">Задание 2. Расчет теоретической пиковой (Rpeak) и реальной (Rmax) производительности</div>
- <p class="task-intro">Рассчитайте теоретическую пиковую производительность вычислительного узла в GFLOPS/TFLOPS и сопоставьте с результатами синтетического теста Linpack (HPL). Формула пиковой производительности: <span class="formula-badge">Rpeak = N_cores × Freq (ГГц) × FLOP/цикл</span>.</p>
- 
- <div class="table-wrap">
- <table>
- <thead>
- <tr>
- <th style="width: 25%;">Вычислительная система</th>
- <th style="width: 25%;">Параметры узла</th>
- <th style="width: 25%;">Расчет Rpeak (GFLOPS / TFLOPS)</th>
- <th style="width: 25%;">Эффективность Linpack (Rmax / Rpeak)</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>Серверный CPU (x86-64)</strong><br>Два сокета, по 32 ядра на сокет (всего 64 ядра), базовая частота 2.5 ГГц, поддержка 2 блоков FMA AVX-512 (32 DP FLOP/цикл на ядро).</td>
- <td>N = 64 ядра<br>f = 2.5 ГГц<br>FLOP/цикл = 32 DP</td>
- <td><input type="text" id="t2_cpu_rpeak" class="table-input" placeholder="Введите формулу и Rpeak..."></td>
- <td><input type="text" id="t2_cpu_rmax" class="table-input" placeholder="При Rmax = 4.10 TFLOPS, найдите %..."></td>
- </tr>
- <tr>
- <td><strong>Вычислительный GPU-ускоритель</strong><br>108 SM, 64 FP32 CUDA-ядра на SM (6912 ядер FP32), тактовая частота 1.5 ГГц (2 FLOP/цикл на ядро FMA FP32).</td>
- <td>N = 6912 ядер<br>f = 1.5 ГГц<br>FLOP/цикл = 2 SP</td>
- <td><input type="text" id="t2_gpu_rpeak" class="table-input" placeholder="Введите формулу и Rpeak..."></td>
- <td><input type="text" id="t2_gpu_rmax" class="table-input" placeholder="При Rmax = 16.59 TFLOPS, найдите %..."></td>
- </tr>
- </tbody>
- </table>
- </div>
+  <!-- ЗАДАНИЕ 2. РАСЧЕТ ПИКОВОЙ И РЕАЛЬНОЙ ПРОИЗВОДИТЕЛЬНОСТИ -->
+  <div class="task-card">
+    <div class="task-title">Задание 2. Расчет теоретической пиковой (Rpeak) и реальной (Rmax) производительности</div>
+    <p class="task-intro">Рассчитайте теоретическую пиковую производительность вычислительного узла в GFLOPS/TFLOPS и сопоставьте с результатами синтетического теста Linpack (HPL). Формула пиковой производительности: <span class="formula-badge">Rpeak = N_cores × Freq (ГГц) × FLOP/цикл</span>.</p>
+    
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25%;">Вычислительная система</th>
+            <th style="width: 25%;">Параметры узла</th>
+            <th style="width: 25%;">Расчет Rpeak (GFLOPS / TFLOPS)</th>
+            <th style="width: 25%;">Эффективность Linpack (Rmax / Rpeak)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Серверный CPU (x86-64)</strong><br>Два сокета, по 32 ядра на сокет (всего 64 ядра), базовая частота 2.5 ГГц, поддержка 2 блоков FMA AVX-512 (32 DP FLOP/цикл на ядро).</td>
+            <td>N = 64 ядра<br>f = 2.5 ГГц<br>FLOP/цикл = 32 DP</td>
+            <td><input type="text" id="t2_cpu_rpeak" class="table-input" placeholder="Введите формулу и Rpeak..."></td>
+            <td><input type="text" id="t2_cpu_rmax" class="table-input" placeholder="При Rmax = 4.10 TFLOPS, найдите %..."></td>
+          </tr>
+          <tr>
+            <td><strong>Вычислительный GPU-ускоритель</strong><br>108 SM, 64 FP32 CUDA-ядра на SM (6912 ядер FP32), тактовая частота 1.5 ГГц (2 FLOP/цикл на ядро FMA FP32).</td>
+            <td>N = 6912 ядер<br>f = 1.5 ГГц<br>FLOP/цикл = 2 SP</td>
+            <td><input type="text" id="t2_gpu_rpeak" class="table-input" placeholder="Введите формулу и Rpeak..."></td>
+            <td><input type="text" id="t2_gpu_rmax" class="table-input" placeholder="При Rmax = 16.59 TFLOPS, найдите %..."></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
- <div class="prompt-label">Аналитическое сравнение: Почему синтетическая метрика MIPS (Millions of Instructions Per Second) исторически получила ироничное название «Meaningless Information on Processor Speed»? Чем объективнее пакет SPEC CPU и тест Linpack HPL?</div>
- <textarea id="ans_mips_linpack" placeholder="Обоснуйте зависимость MIPS от набора инструкций (CISC vs RISC), разнородность трудоемкости команд и репрезентативность решения плотных систем линейных уравнений в Linpack..."></textarea>
- </div>
+    <div class="prompt-label">Аналитическое сравнение: Почему синтетическая метрика MIPS (Millions of Instructions Per Second) исторически получила ироничное название «Meaningless Information on Processor Speed»? Чем объективнее пакет SPEC CPU и тест Linpack HPL?</div>
+    <textarea id="ans_mips_linpack" placeholder="Обоснуйте зависимость MIPS от набора инструкций (CISC vs RISC), разнородность трудоемкости команд и репрезентативность решения плотных систем линейных уравнений в Linpack..."></textarea>
+  </div>
 
- <!-- ЗАДАНИЕ 3. РАСЧЕТ МАСШТАБИРУЕМОСТИ: ЗАКОН АМДАЛА И ЗАКОН ГУСТАФСОНА-БАРСИСА -->
- <div class="task-card">
- <div class="task-title">Задание 3. Анализ масштабируемости: закон Амдала vs закон Густафсона-Барсиса</div>
- <p class="task-intro">Сравните предельное ускорение многопроцессорных систем при фиксированном объеме задачи (закон Амдала: <span class="formula-badge">S_Amdahl = 1 / (s + p / n)</span>) и при масштабировании объема задачи пропорционально числу процессоров (закон Густафсона-Барсиса: <span class="formula-badge">S_Gustafson = s + p × n = 1 + (n - 1) × p</span>), где <span class="formula-badge">s</span> — доля последовательного кода, <span class="formula-badge">p = 1 - s</span> — доля параллельного кода, <span class="formula-badge">n</span> — число узлов/ядер.</p>
+  <!-- ЗАДАНИЕ 3. РАСЧЕТ МАСШТАБИРУЕМОСТИ: ЗАКОН АМДАЛА И ЗАКОН ГУСТАФСОНА-БАРСИСА -->
+  <div class="task-card">
+    <div class="task-title">Задание 3. Анализ масштабируемости: закон Амдала vs закон Густафсона-Барсиса</div>
+    <p class="task-intro">Сравните предельное ускорение многопроцессорных систем при фиксированном объеме задачи (закон Амдала: <span class="formula-badge">S_Amdahl = 1 / (s + p / n)</span>) и при масштабировании объема задачи пропорционально числу процессоров (закон Густафсона-Барсиса: <span class="formula-badge">S_Gustafson = s + p × n = 1 + (n - 1) × p</span>), где <span class="formula-badge">s</span> — доля последовательного кода, <span class="formula-badge">p = 1 - s</span> — доля параллельного кода, <span class="formula-badge">n</span> — число узлов/ядер.</p>
 
- <div class="table-wrap">
- <table>
- <thead>
- <tr>
- <th style="width: 20%;">Число процессоров (n)</th>
- <th style="width: 20%;">Доля послед. кода (s)</th>
- <th style="width: 30%;">Ускорение по закону Амдала (S_A)</th>
- <th style="width: 30%;">Ускорение по закону Густафсона (S_G)</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>n = 8</strong></td>
- <td>s = 0.05 (p = 0.95)</td>
- <td><input type="text" id="t3_n8_amdahl" class="table-input" placeholder="S_Amdahl = 1 / (0.05 + 0.95/8) =..."></td>
- <td><input type="text" id="t3_n8_gustafson" class="table-input" placeholder="S_Gustafson = 0.05 + 0.95*8 =..."></td>
- </tr>
- <tr>
- <td><strong>n = 64</strong></td>
- <td>s = 0.05 (p = 0.95)</td>
- <td><input type="text" id="t3_n64_amdahl" class="table-input" placeholder="S_Amdahl = 1 / (0.05 + 0.95/64) =..."></td>
- <td><input type="text" id="t3_n64_gustafson" class="table-input" placeholder="S_Gustafson = 0.05 + 0.95*64 =..."></td>
- </tr>
- <tr>
- <td><strong>n = 512</strong></td>
- <td>s = 0.05 (p = 0.95)</td>
- <td><input type="text" id="t3_n512_amdahl" class="table-input" placeholder="S_Amdahl = 1 / (0.05 + 0.95/512) =..."></td>
- <td><input type="text" id="t3_n512_gustafson" class="table-input" placeholder="S_Gustafson = 0.05 + 0.95*512 =..."></td>
- </tr>
- <tr>
- <td><strong>Предел при n → ∞</strong></td>
- <td>s = 0.05 (p = 0.95)</td>
- <td><input type="text" id="t3_inf_amdahl" class="table-input" placeholder="Теоретический предел ускорения: 1/s =..."></td>
- <td><input type="text" id="t3_inf_gustafson" class="table-input" placeholder="Характер поведения ускорения:..."></td>
- </tr>
- </tbody>
- </table>
- </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 20%;">Число процессоров (n)</th>
+            <th style="width: 20%;">Доля послед. кода (s)</th>
+            <th style="width: 30%;">Ускорение по закону Амдала (S_A)</th>
+            <th style="width: 30%;">Ускорение по закону Густафсона (S_G)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>n = 8</strong></td>
+            <td>s = 0.05 (p = 0.95)</td>
+            <td><input type="text" id="t3_n8_amdahl" class="table-input" placeholder="S_Amdahl = 1 / (0.05 + 0.95/8) = ..."></td>
+            <td><input type="text" id="t3_n8_gustafson" class="table-input" placeholder="S_Gustafson = 0.05 + 0.95*8 = ..."></td>
+          </tr>
+          <tr>
+            <td><strong>n = 64</strong></td>
+            <td>s = 0.05 (p = 0.95)</td>
+            <td><input type="text" id="t3_n64_amdahl" class="table-input" placeholder="S_Amdahl = 1 / (0.05 + 0.95/64) = ..."></td>
+            <td><input type="text" id="t3_n64_gustafson" class="table-input" placeholder="S_Gustafson = 0.05 + 0.95*64 = ..."></td>
+          </tr>
+          <tr>
+            <td><strong>n = 512</strong></td>
+            <td>s = 0.05 (p = 0.95)</td>
+            <td><input type="text" id="t3_n512_amdahl" class="table-input" placeholder="S_Amdahl = 1 / (0.05 + 0.95/512) = ..."></td>
+            <td><input type="text" id="t3_n512_gustafson" class="table-input" placeholder="S_Gustafson = 0.05 + 0.95*512 = ..."></td>
+          </tr>
+          <tr>
+            <td><strong>Предел при n → ∞</strong></td>
+            <td>s = 0.05 (p = 0.95)</td>
+            <td><input type="text" id="t3_inf_amdahl" class="table-input" placeholder="Теоретический предел ускорения: 1/s = ..."></td>
+            <td><input type="text" id="t3_inf_gustafson" class="table-input" placeholder="Характер поведения ускорения: ..."></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
- <div class="prompt-label">Концептуальный вывод: Почему закон Амдала называют пессимистичной оценкой для суперкомпьютерных вычислений, а закон Густафсона-Барсиса — реалистичной моделью масштабирования задач большой размерности (Strong Scaling vs Weak Scaling)?</div>
- <textarea id="ans_amdahl_gustafson" placeholder="Сопоставьте концепцию Strong Scaling (фиксированный размер сетки/матрицы) и Weak Scaling (рост объема задачи вместе с добавлением узлов), обоснуйте влияние накладных расходов интерконнекта..."></textarea>
- </div>
+    <div class="prompt-label">Концептуальный вывод: Почему закон Амдала называют пессимистичной оценкой для суперкомпьютерных вычислений, а закон Густафсона-Барсиса — реалистичной моделью масштабирования задач большой размерности (Strong Scaling vs Weak Scaling)?</div>
+    <textarea id="ans_amdahl_gustafson" placeholder="Сопоставьте концепцию Strong Scaling (фиксированный размер сетки/матрицы) и Weak Scaling (рост объема задачи вместе с добавлением узлов), обоснуйте влияние накладных расходов интерконнекта..."></textarea>
+  </div>
 
- <!-- ЗАДАНИЕ 4. РАСЧЕТНО-АНАЛИТИЧЕСКИЙ КЕЙС ПО 4 ВАРИАНТАМ -->
- <div class="task-card">
- <div class="task-title">Задание 4. Индивидуальный расчетно-аналитический кейс масштабирования вычислительной системы</div>
- <p class="task-intro">Решите комплексную инженерную задачу в соответствии с выбранным вариантом. Проведите классификацию архитектуры, рассчитайте показатели ускорения и эффективности параллелизации, обоснуйте меры по преодолению аппаратных барьеров.</p>
+  <!-- ЗАДАНИЕ 4. РАСЧЕТНО-АНАЛИТИЧЕСКИЙ КЕЙС ПО 4 ВАРИАНТАМ -->
+  <div class="task-card">
+    <div class="task-title">Задание 4. Индивидуальный расчетно-аналитический кейс масштабирования вычислительной системы</div>
+    <p class="task-intro">Решите комплексную инженерную задачу в соответствии с выбранным вариантом. Проведите классификацию архитектуры, рассчитайте показатели ускорения и эффективности параллелизации, обоснуйте меры по преодолению аппаратных барьеров.</p>
 
- <!-- ДИНАМИЧЕСКИЙ БЛОК ОПИСАНИЯ ВАРИАНТА -->
- <div class="variant-card">
- <div id="display_variant_title" class="variant-title">Вариант не выбран</div>
- <div id="display_variant_desc" class="variant-desc">Выберите вариант задания в карточке обучающегося вверху страницы для отображения технического задания.</div>
- </div>
+    <!-- ДИНАМИЧЕСКИЙ БЛОК ОПИСАНИЯ ВАРИАНТА -->
+    <div class="variant-card">
+      <div id="display_variant_title" class="variant-title">Вариант не выбран</div>
+      <div id="display_variant_desc" class="variant-desc">Выберите вариант задания в карточке обучающегося вверху страницы для отображения технического задания.</div>
+    </div>
 
- <div class="prompt-label">1. Классификация архитектуры и топология памяти:</div>
- <textarea id="ans_case_classification" placeholder="Определите класс системы по таксономии Флинна (SISD/SIMD/MISD/MIMD). Опишите организацию памяти (SMP/UMA, NUMA, кластерная MPP с распределенной памятью) и протокол взаимодействия узлов..."></textarea>
+    <div class="prompt-label">1. Классификация архитектуры и топология памяти:</div>
+    <textarea id="ans_case_classification" placeholder="Определите класс системы по таксономии Флинна (SISD/SIMD/MISD/MIMD). Опишите организацию памяти (SMP/UMA, NUMA, кластерная MPP с распределенной памятью) и протокол взаимодействия узлов..."></textarea>
 
- <div class="prompt-label">2. Расчет масштабируемости (закон Амдала и закон Густафсона-Барсиса):</div>
- <textarea id="ans_case_math" placeholder="Приведите пошаговый расчет коэффициентов ускорения (Speedup S) и эффективности параллелизации (Efficiency E = S / n) для заданных параметров n, s и p..."></textarea>
+    <div class="prompt-label">2. Расчет масштабируемости (закон Амдала и закон Густафсона-Барсиса):</div>
+    <textarea id="ans_case_math" placeholder="Приведите пошаговый расчет коэффициентов ускорения (Speedup S) и эффективности параллелизации (Efficiency E = S / n) для заданных параметров n, s и p..."></textarea>
 
- <div class="prompt-label">3. Анализ узких мест производительности и аппаратные барьеры:</div>
- <textarea id="ans_case_bottlenecks" placeholder="Определите доминирующий фактор деградации масштабирования: задержки синхронизации барьеров, насыщение интерконнекта (MPI latency/bandwidth), накладные расходы когерентности кэшей (MESI/MOESI), блокировки транзакций или перегрев..."></textarea>
+    <div class="prompt-label">3. Анализ узких мест производительности и аппаратные барьеры:</div>
+    <textarea id="ans_case_bottlenecks" placeholder="Определите доминирующий фактор деградации масштабирования: задержки синхронизации барьеров, насыщение интерконнекта (MPI latency/bandwidth), накладные расходы когерентности кэшей (MESI/MOESI), блокировки транзакций или перегрев..."></textarea>
 
- <div class="prompt-label">4. Инженерные рекомендации по оптимизации и масштабированию:</div>
- <textarea id="ans_case_recommendations" placeholder="Предложите аппаратные и системные решения: топология сети (Fat-Tree, Dragonfly, InfiniBand), привязка потоков к ядрам (NUMA affinity, numactl), балансировка вычислений, оптимизация векторных расширений..."></textarea>
- </div>
+    <div class="prompt-label">4. Инженерные рекомендации по оптимизации и масштабированию:</div>
+    <textarea id="ans_case_recommendations" placeholder="Предложите аппаратные и системные решения: топология сети (Fat-Tree, Dragonfly, InfiniBand), привязка потоков к ядрам (NUMA affinity, numactl), балансировка вычислений, оптимизация векторных расширений..."></textarea>
+  </div>
 
- <!-- ПАНЕЛЬ ДЕЙСТВИЙ (СКРЫТА ПРИ ПЕЧАТИ) -->
- <div class="actions-card">
- <div class="btn-row">
- <button type="button" class="btn-primary" onclick="window.print()">Распечатать / Сохранить в PDF</button>
- <button type="button" class="btn-secondary" onclick="saveToLocalStorage(true)">Сохранить черновик</button>
- <button type="button" class="btn-danger" onclick="confirmReset()">Очистить форму</button>
- <span id="save_status" class="status-msg"></span>
- </div>
- </div>
+  <!-- ПАНЕЛЬ ДЕЙСТВИЙ (СКРЫТА ПРИ ПЕЧАТИ) -->
+  <div class="actions-card">
+    <div class="btn-row">
+      <button type="button" class="btn-primary" onclick="window.print()">Распечатать / Сохранить в PDF</button>
+      <button type="button" class="btn-secondary" onclick="saveToLocalStorage(true)">Сохранить черновик</button>
+      <button type="button" class="btn-danger" onclick="confirmReset()">Очистить форму</button>
+      <span id="save_status" class="status-msg"></span>
+    </div>
+  </div>
 
 </div>
 
 <script>
- const STORAGE_KEY = 'sie_hw18_zanyatie_state';
+  const STORAGE_KEY = 'sie_hw18_zanyatie_state';
 
- const FORM_FIELDS = [
- 'student_fio', 'student_group', 'work_variant', 'work_date',
- 't1_sisd_stream', 't1_sisd_impl', 't1_sisd_mem', 't1_sisd_bottleneck',
- 't1_simd_stream', 't1_simd_impl', 't1_simd_mem', 't1_simd_bottleneck',
- 't1_misd_stream', 't1_misd_impl', 't1_misd_mem', 't1_misd_bottleneck',
- 't1_mimd_stream', 't1_mimd_impl', 't1_mimd_mem', 't1_mimd_bottleneck',
- 'ans_uma_numa',
- 't2_cpu_rpeak', 't2_cpu_rmax',
- 't2_gpu_rpeak', 't2_gpu_rmax',
- 'ans_mips_linpack',
- 't3_n8_amdahl', 't3_n8_gustafson',
- 't3_n64_amdahl', 't3_n64_gustafson',
- 't3_n512_amdahl', 't3_n512_gustafson',
- 't3_inf_amdahl', 't3_inf_gustafson',
- 'ans_amdahl_gustafson',
- 'ans_case_classification', 'ans_case_math', 'ans_case_bottlenecks', 'ans_case_recommendations'
- ];
+  const FORM_FIELDS = [
+    'student_fio', 'student_group', 'work_variant', 'work_date',
+    't1_sisd_stream', 't1_sisd_impl', 't1_sisd_mem', 't1_sisd_bottleneck',
+    't1_simd_stream', 't1_simd_impl', 't1_simd_mem', 't1_simd_bottleneck',
+    't1_misd_stream', 't1_misd_impl', 't1_misd_mem', 't1_misd_bottleneck',
+    't1_mimd_stream', 't1_mimd_impl', 't1_mimd_mem', 't1_mimd_bottleneck',
+    'ans_uma_numa',
+    't2_cpu_rpeak', 't2_cpu_rmax',
+    't2_gpu_rpeak', 't2_gpu_rmax',
+    'ans_mips_linpack',
+    't3_n8_amdahl', 't3_n8_gustafson',
+    't3_n64_amdahl', 't3_n64_gustafson',
+    't3_n512_amdahl', 't3_n512_gustafson',
+    't3_inf_amdahl', 't3_inf_gustafson',
+    'ans_amdahl_gustafson',
+    'ans_case_classification', 'ans_case_math', 'ans_case_bottlenecks', 'ans_case_recommendations'
+  ];
 
- const VARIANT_DETAILS = {
- '1': {
- title: 'Вариант 1: Симулятор аэродинамических процессов (CFD-кластер с высокой долей параллелизма)',
- desc: 'Параметры кейса: Суперкомпьютерный кластер из 128 вычислительных узлов (n = 128) решает задачу аэродинамического обдува фюзеляжа самолета методом сеток Навье-Стокса. Доля строго последовательного кода составляет 2% (s = 0.02, p = 0.98). Требуется рассчитать теоретическое ускорение по закону Амдала (Strong Scaling) и по закону Густафсона-Барсиса (Weak Scaling), найти эффективность n=128, проанализировать накладные расходы передачи граничных ячеек сетки через интерконнект InfiniBand и дать рекомендации по топологии сети.'
- },
- '2': {
- title: 'Вариант 2: Транзакционная банковская СУБД с жесткими блокировками (SMP/NUMA сервер)',
- desc: 'Параметры кейса: 4-сокетный NUMA-сервер (n = 64 процессорных ядра) обрабатывает финансовые проводки в реляционной СУБД. В силу транзакционных блокировок таблиц и журналирования WAL доля строго последовательного кода составляет 10% (s = 0.10, p = 0.90). Рассчитайте ускорение по закону Амдала и Густафсона-Барсиса при n=64. Объясните эффект «стени масштабирования» из-за деградации кэш-когерентности межпроцессорной шины UPI/Infinity Fabric и предложите архитектурные меры устранения NUMA-штрафов.'
- },
- '3': {
- title: 'Вариант 3: Обучение глубоких нейросетей LLM / Компьютерное зрение (GPU/SIMD-ускорители)',
- desc: 'Параметры кейса: Вычислительный комплекс из 32 тензорных GPU-ускорителей (n = 32) выполняет распределенное обучение трансформерной языковой модели методом Data Parallelism. Синхронизация градиентов AllReduce и обновление весов занимают 4% времени (s = 0.04, p = 0.96). Рассчитайте показатели ускорения и эффективности для n=32 и n=256 по Амдалу и Густафсону. Оцените влияние интерконнекта NVLink/NVSwitch против классического PCIe 4.0/5.0 на латентность передачи градиентов.'
- },
- '4': {
- title: 'Вариант 4: Встраиваемый бортовой комплекс космического аппарата (Fault-Tolerant MISD/MIMD)',
- desc: 'Параметры кейса: Бортовой управляющий комплекс космической станции состоит из 4 независимых вычислительных каналов с мажоритарным голосованием (Triple/Quad Modular Redundancy, n = 4) и подсистемы научных вычислений. Доля синхронизации и арбитража датчиков составляет 8% (s = 0.08, p = 0.92). Проведите расчет масштабируемости по Амдалу и Густафсону. Обоснуйте выбор архитектуры MISD для отказоустойчивого контура управления и MIMD для научных расчетов, исключая возникновение единой точки отказа (SPOF).'
- }
- };
+  const VARIANT_DETAILS = {
+    '1': {
+      title: 'Вариант 1: Симулятор аэродинамических процессов (CFD-кластер с высокой долей параллелизма)',
+      desc: 'Параметры кейса: Суперкомпьютерный кластер из 128 вычислительных узлов (n = 128) решает задачу аэродинамического обдува фюзеляжа самолета методом сеток Навье-Стокса. Доля строго последовательного кода составляет 2% (s = 0.02, p = 0.98). Требуется рассчитать теоретическое ускорение по закону Амдала (Strong Scaling) и по закону Густафсона-Барсиса (Weak Scaling), найти эффективность n=128, проанализировать накладные расходы передачи граничных ячеек сетки через интерконнект InfiniBand и дать рекомендации по топологии сети.'
+    },
+    '2': {
+      title: 'Вариант 2: Транзакционная банковская СУБД с жесткими блокировками (SMP/NUMA сервер)',
+      desc: 'Параметры кейса: 4-сокетный NUMA-сервер (n = 64 процессорных ядра) обрабатывает финансовые проводки в реляционной СУБД. В силу транзакционных блокировок таблиц и журналирования WAL доля строго последовательного кода составляет 10% (s = 0.10, p = 0.90). Рассчитайте ускорение по закону Амдала и Густафсона-Барсиса при n=64. Объясните эффект «стени масштабирования» из-за деградации кэш-когерентности межпроцессорной шины UPI/Infinity Fabric и предложите архитектурные меры устранения NUMA-штрафов.'
+    },
+    '3': {
+      title: 'Вариант 3: Обучение глубоких нейросетей LLM / Компьютерное зрение (GPU/SIMD-ускорители)',
+      desc: 'Параметры кейса: Вычислительный комплекс из 32 тензорных GPU-ускорителей (n = 32) выполняет распределенное обучение трансформерной языковой модели методом Data Parallelism. Синхронизация градиентов AllReduce и обновление весов занимают 4% времени (s = 0.04, p = 0.96). Рассчитайте показатели ускорения и эффективности для n=32 и n=256 по Амдалу и Густафсону. Оцените влияние интерконнекта NVLink/NVSwitch против классического PCIe 4.0/5.0 на латентность передачи градиентов.'
+    },
+    '4': {
+      title: 'Вариант 4: Встраиваемый бортовой комплекс космического аппарата (Fault-Tolerant MISD/MIMD)',
+      desc: 'Параметры кейса: Бортовой управляющий комплекс космической станции состоит из 4 независимых вычислительных каналов с мажоритарным голосованием (Triple/Quad Modular Redundancy, n = 4) и подсистемы научных вычислений. Доля синхронизации и арбитража датчиков составляет 8% (s = 0.08, p = 0.92). Проведите расчет масштабируемости по Амдалу и Густафсону. Обоснуйте выбор архитектуры MISD для отказоустойчивого контура управления и MIMD для научных расчетов, исключая возникновение единой точки отказа (SPOF).'
+    }
+  };
 
- function updateVariantSelection() {
- const sel = document.getElementById('work_variant');
- const val = sel.value;
- const titleElem = document.getElementById('display_variant_title');
- const descElem = document.getElementById('display_variant_desc');
- const printElem = document.getElementById('print_work_variant');
+  function updateVariantSelection() {
+    const sel = document.getElementById('work_variant');
+    const val = sel.value;
+    const titleElem = document.getElementById('display_variant_title');
+    const descElem = document.getElementById('display_variant_desc');
+    const printElem = document.getElementById('print_work_variant');
 
- if (val && VARIANT_DETAILS[val]) {
- titleElem.textContent = VARIANT_DETAILS[val].title;
- descElem.textContent = VARIANT_DETAILS[val].desc;
- printElem.textContent = sel.options[sel.selectedIndex].text;
- } else {
- titleElem.textContent = 'Вариант не выбран';
- descElem.textContent = 'Выберите вариант задания в карточке обучающегося вверху страницы для отображения технического задания.';
- printElem.textContent = 'Вариант не выбран';
- }
- saveToLocalStorage(false);
- }
+    if (val && VARIANT_DETAILS[val]) {
+      titleElem.textContent = VARIANT_DETAILS[val].title;
+      descElem.textContent = VARIANT_DETAILS[val].desc;
+      printElem.textContent = sel.options[sel.selectedIndex].text;
+    } else {
+      titleElem.textContent = 'Вариант не выбран';
+      descElem.textContent = 'Выберите вариант задания в карточке обучающегося вверху страницы для отображения технического задания.';
+      printElem.textContent = 'Вариант не выбран';
+    }
+    saveToLocalStorage(false);
+  }
 
- function saveToLocalStorage(showFeedback) {
- const data = {};
- FORM_FIELDS.forEach(id => {
- const el = document.getElementById(id);
- if (el) data[id] = el.value;
- });
- try {
- localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
- if (showFeedback) {
- const status = document.getElementById('save_status');
- status.textContent = '✓ Сохранено в браузере';
- status.className = 'status-msg status-saved';
- setTimeout(() => { status.textContent = ''; }, 3000);
- }
- } catch (e) {
- console.warn('LocalStorage error:', e);
- }
- }
+  function saveToLocalStorage(showFeedback) {
+    const data = {};
+    FORM_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) data[id] = el.value;
+    });
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      if (showFeedback) {
+        const status = document.getElementById('save_status');
+        status.textContent = '✓ Сохранено в браузере';
+        status.className = 'status-msg status-saved';
+        setTimeout(() => { status.textContent = ''; }, 3000);
+      }
+    } catch (e) {
+      console.warn('LocalStorage error:', e);
+    }
+  }
 
- function loadFromLocalStorage() {
- try {
- const raw = localStorage.getItem(STORAGE_KEY);
- if (raw) {
- const data = JSON.parse(raw);
- FORM_FIELDS.forEach(id => {
- if (data[id] !== undefined) {
- const el = document.getElementById(id);
- if (el) el.value = data[id];
- }
- });
- }
- } catch (e) {
- console.warn('LocalStorage load error:', e);
- }
- updateVariantSelection();
- }
+  function loadFromLocalStorage() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const data = JSON.parse(raw);
+        FORM_FIELDS.forEach(id => {
+          if (data[id] !== undefined) {
+            const el = document.getElementById(id);
+            if (el) el.value = data[id];
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('LocalStorage load error:', e);
+    }
+    updateVariantSelection();
+  }
 
- function confirmReset() {
- if (confirm('Внимание! Все введенные данные в практическом бланке будут безвозвратно удалены. Продолжить очистку?')) {
- FORM_FIELDS.forEach(id => {
- const el = document.getElementById(id);
- if (el) el.value = '';
- });
- try {
- localStorage.removeItem(STORAGE_KEY);
- } catch (e) {}
- updateVariantSelection();
- const status = document.getElementById('save_status');
- status.textContent = 'Форма очищена';
- status.className = 'status-msg';
- setTimeout(() => { status.textContent = ''; }, 3000);
- }
- }
+  function confirmReset() {
+    if (confirm('Внимание! Все введенные данные в практическом бланке будут безвозвратно удалены. Продолжить очистку?')) {
+      FORM_FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (e) {}
+      updateVariantSelection();
+      const status = document.getElementById('save_status');
+      status.textContent = 'Форма очищена';
+      status.className = 'status-msg';
+      setTimeout(() => { status.textContent = ''; }, 3000);
+    }
+  }
 
- document.addEventListener('DOMContentLoaded', () => {
- loadFromLocalStorage();
- FORM_FIELDS.forEach(id => {
- const el = document.getElementById(id);
- if (el) {
- el.addEventListener('input', () => saveToLocalStorage(false));
- el.addEventListener('change', () => saveToLocalStorage(false));
- }
- });
- });
+  document.addEventListener('DOMContentLoaded', () => {
+    loadFromLocalStorage();
+    FORM_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => saveToLocalStorage(false));
+        el.addEventListener('change', () => saveToLocalStorage(false));
+      }
+    });
+  });
 
- window.addEventListener('beforeprint', () => {
- updateVariantSelection();
- });
+  window.addEventListener('beforeprint', () => {
+    updateVariantSelection();
+  });
 </script>
 </body>
 </html>

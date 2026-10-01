@@ -1,358 +1,401 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
- <meta name="color-scheme" content="light">
- <title>Теоретический конспект — Организация интерфейса с пользователем: ввод</title>
- <style>
- :root {
- --bg: #f8fafc;
- --card: #ffffff;
- --text: #0f172a;
- --muted: #475569;
- --line: #cbd5e1;
- --accent: #0284c7;
- --accent-soft: #f0f9ff;
- --accent-dark: #0369a1;
- --success: #15803d;
- --success-soft: #f0fdf4;
- --warn: #b45309;
- --warn-soft: #fffbeb;
- --danger: #b91c1c;
- --danger-soft: #fef2f2;
- --code-bg: #0f172a;
- --code-text: #f8fafc;
- --radius: 12px;
- --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
- }
- * { box-sizing: border-box; }
- html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
- body {
- margin: 0;
- background: var(--bg);
- color: var(--text);
- font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
- line-height: 1.65;
- font-size: 16px;
- }.page {
- width: min(100% - 32px, 980px);
- margin: 24px auto 48px;
- }.header-card {
- background: var(--card);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 32px 28px;
- margin-bottom: 24px;
- box-shadow: var(--shadow);
- }.badge {
- display: inline-block;
- background: var(--accent-soft);
- color: var(--accent-dark);
- font-weight: 700;
- font-size: 13px;
- padding: 4px 10px;
- border-radius: 6px;
- margin-bottom: 12px;
- letter-spacing: 0.04em;
- text-transform: uppercase;
- }
- h1 {
- font-size: clamp(24px, 4vw, 32px);
- line-height: 1.25;
- margin: 0 0 12px;
- color: var(--text);
- font-weight: 800;
- }.lead {
- font-size: 16px;
- color: var(--muted);
- margin: 0 0 20px;
- }.meta-grid {
- display: grid;
- grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
- gap: 12px;
- background: #f1f5f9;
- padding: 16px;
- border-radius: 8px;
- font-size: 14px;
- }.meta-item strong {
- color: var(--text);
- display: block;
- margin-bottom: 2px;
- }.card {
- background: var(--card);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 28px;
- margin-bottom: 24px;
- box-shadow: var(--shadow);
- }
- h2 {
- font-size: 20px;
- margin: 0 0 16px;
- color: var(--accent-dark);
- border-bottom: 2px solid var(--accent-soft);
- padding-bottom: 8px;
- }
- h3 {
- font-size: 17px;
- margin: 20px 0 10px;
- color: var(--text);
- }
- p { margin: 0 0 14px; }
- ul, ol { margin: 0 0 16px; padding-left: 24px; }
- li { margin-bottom: 6px; }
- table {
- width: 100%;
- border-collapse: collapse;
- margin: 16px 0;
- font-size: 14px;
- }
- th, td {
- border: 1px solid var(--line);
- padding: 10px 12px;
- text-align: left;
- vertical-align: top;
- }
- th {
- background: #f8fafc;
- font-weight: 700;
- color: var(--text);
- }
- tr:nth-child(even) { background: #fafafa; }.box {
- border-radius: 8px;
- padding: 16px 18px;
- margin: 16px 0;
- border-left: 4px solid;
- font-size: 15px;
- }.box-info {
- background: var(--accent-soft);
- border-color: var(--accent);
- color: #0c4a6e;
- }.box-warn {
- background: var(--warn-soft);
- border-color: var(--warn);
- color: #78350f;
- }.box-danger {
- background: var(--danger-soft);
- border-color: var(--danger);
- color: #7f1d1d;
- }.box-success {
- background: var(--success-soft);
- border-color: var(--success);
- color: #14532d;
- }
- pre, code {
- font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
- font-size: 13.5px;
- }
- code {
- background: #e2e8f0;
- padding: 2px 5px;
- border-radius: 4px;
- color: #0f172a;
- }
- pre {
- background: var(--code-bg);
- color: var(--code-text);
- padding: 16px;
- border-radius: 8px;
- overflow-x: auto;
- margin: 14px 0;
- line-height: 1.5;
- }
- pre code {
- background: transparent;
- padding: 0;
- color: inherit;
- }.diagram-container {
- background: #0f172a;
- border-radius: 8px;
- padding: 20px;
- margin: 18px 0;
- overflow-x: auto;
- }.diagram-text {
- color: #38bdf8;
- font-family: ui-monospace, monospace;
- font-size: 13px;
- line-height: 1.45;
- white-space: pre;
- margin: 0;
- }.qa-block {
- background: #f8fafc;
- border: 1px solid var(--line);
- border-radius: 8px;
- padding: 14px 18px;
- margin-bottom: 12px;
- }.qa-q {
- font-weight: 700;
- color: var(--accent-dark);
- margin-bottom: 6px;
- }.qa-a {
- color: var(--text);
- font-size: 14.5px;
- }
- @media (max-width: 640px) {.header-card,.card { padding: 20px 16px; }
- table { font-size: 13px; }
- th, td { padding: 8px; }
- }
- </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Теоретический конспект — Организация интерфейса с пользователем: ввод</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #0284c7;
+      --accent-soft: #f0f9ff;
+      --accent-dark: #0369a1;
+      --success: #15803d;
+      --success-soft: #f0fdf4;
+      --warn: #b45309;
+      --warn-soft: #fffbeb;
+      --danger: #b91c1c;
+      --danger-soft: #fef2f2;
+      --code-bg: #0f172a;
+      --code-text: #f8fafc;
+      --radius: 12px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      line-height: 1.65;
+      font-size: 16px;
+    }
+    .page {
+      width: min(100% - 32px, 980px);
+      margin: 24px auto 48px;
+    }
+    .header-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    .badge {
+      display: inline-block;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font-weight: 700;
+      font-size: 13px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    h1 {
+      font-size: clamp(24px, 4vw, 32px);
+      line-height: 1.25;
+      margin: 0 0 12px;
+      color: var(--text);
+      font-weight: 800;
+    }
+    .lead {
+      font-size: 16px;
+      color: var(--muted);
+      margin: 0 0 20px;
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      background: #f1f5f9;
+      padding: 16px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .meta-item strong {
+      color: var(--text);
+      display: block;
+      margin-bottom: 2px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    h2 {
+      font-size: 20px;
+      margin: 0 0 16px;
+      color: var(--accent-dark);
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 8px;
+    }
+    h3 {
+      font-size: 17px;
+      margin: 20px 0 10px;
+      color: var(--text);
+    }
+    p { margin: 0 0 14px; }
+    ul, ol { margin: 0 0 16px; padding-left: 24px; }
+    li { margin-bottom: 6px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #f8fafc;
+      font-weight: 700;
+      color: var(--text);
+    }
+    tr:nth-child(even) { background: #fafafa; }
+    .box {
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin: 16px 0;
+      border-left: 4px solid;
+      font-size: 15px;
+    }
+    .box-info {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: #0c4a6e;
+    }
+    .box-warn {
+      background: var(--warn-soft);
+      border-color: var(--warn);
+      color: #78350f;
+    }
+    .box-danger {
+      background: var(--danger-soft);
+      border-color: var(--danger);
+      color: #7f1d1d;
+    }
+    .box-success {
+      background: var(--success-soft);
+      border-color: var(--success);
+      color: #14532d;
+    }
+    pre, code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+    }
+    code {
+      background: #e2e8f0;
+      padding: 2px 5px;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 14px 0;
+      line-height: 1.5;
+    }
+    pre code {
+      background: transparent;
+      padding: 0;
+      color: inherit;
+    }
+    .diagram-container {
+      background: #0f172a;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 18px 0;
+      overflow-x: auto;
+    }
+    .diagram-text {
+      color: #38bdf8;
+      font-family: ui-monospace, monospace;
+      font-size: 13px;
+      line-height: 1.45;
+      white-space: pre;
+      margin: 0;
+    }
+    .qa-block {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 12px;
+    }
+    .qa-q {
+      font-weight: 700;
+      color: var(--accent-dark);
+      margin-bottom: 6px;
+    }
+    .qa-a {
+      color: var(--text);
+      font-size: 14.5px;
+    }
+    @media (max-width: 640px) {
+      .header-card, .card { padding: 20px 16px; }
+      table { font-size: 13px; }
+      th, td { padding: 8px; }
+    }
+  </style>
 </head>
 <body>
 <div class="page">
- <header class="header-card">
- <span class="badge">Теоретический конспект лекции</span>
- <h1>Тема 4. Проектирование структур баз данных &mdash; Организация интерфейса с пользователем: ввод</h1>
- <p class="lead">Фундаментальный теоретический материал по архитектуре сопряжения пользовательских интерфейсов (UI) с реляционными базами данных, компоновке форм ввода, эргономике взаимодействия и маппингу элементов управления на атрибуты таблиц.</p>
- <div class="meta-grid">
- <div class="meta-item"><strong>Дисциплина</strong> ОП.08 Основы проектирования баз данных</div>
- <div class="meta-item"><strong>Тематический раздел</strong> Тема 4 (&ndash;8 программы)</div>
- <div class="meta-item"><strong>Занятие</strong> №23 (2 академических часа)</div>
- <div class="meta-item"><strong>Ключевые концепции</strong> MVC, Data Binding, Master-Detail, Маппинг полей, UX-эргономика</div>
- </div>
- </header>
+  <header class="header-card">
+    <span class="badge">Теоретический конспект лекции</span>
+    <h1>Тема 4. Проектирование структур баз данных &mdash; Организация интерфейса с пользователем: ввод</h1>
+    <p class="lead">Фундаментальный теоретический материал по архитектуре сопряжения пользовательских интерфейсов (UI) с реляционными базами данных, компоновке форм ввода, эргономике взаимодействия и маппингу элементов управления на атрибуты таблиц.</p>
+    <div class="meta-grid">
+      <div class="meta-item"><strong>Дисциплина</strong> ОП.08 Основы проектирования баз данных</div>
+      <div class="meta-item"><strong>Тематический раздел</strong> Тема 4 (§2.2 с.7&ndash;8 программы)</div>
+      <div class="meta-item"><strong>Занятие</strong> №23 (2 академических часа)</div>
+      <div class="meta-item"><strong>Ключевые концепции</strong> MVC, Data Binding, Master-Detail, Маппинг полей, UX-эргономика</div>
+    </div>
+  </header>
 
- <section class="card">
- <h2>1. Введение: интерфейс пользователя как точка входа данных в БД</h2>
- <p>Реляционная база данных &mdash; это строгое математическое ядро информационной системы, оперирующее нормализованными таблицами, первичными и внешними ключами, ограничениями доменов и декларативными предикатами (<code>CHECK</code>, <code>UNIQUE</code>, <code>EXCLUDE</code>). Однако подавляющее большинство данных генерируется людьми &mdash; операторами, клиентами, менеджерами, врачами, диспетчерами.</p>
- 
- <p>Человек не мыслит в категориях SQL-команд <code>INSERT INTO orders (id, client_id,...) VALUES (...)</code>. Для человека естественной средой взаимодействия является <strong>графический пользовательский интерфейс (GUI / UI)</strong>, представленный экранными формами, диалоговыми окнами, текстовыми полями, переключателями и табличными сетками.</p>
+  <section class="card">
+    <h2>1. Введение: интерфейс пользователя как точка входа данных в БД</h2>
+    <p>Реляционная база данных &mdash; это строгое математическое ядро информационной системы, оперирующее нормализованными таблицами, первичными и внешними ключами, ограничениями доменов и декларативными предикатами (<code>CHECK</code>, <code>UNIQUE</code>, <code>EXCLUDE</code>). Однако подавляющее большинство данных генерируется людьми &mdash; операторами, клиентами, менеджерами, врачами, диспетчерами.</p>
+    
+    <p>Человек не мыслит в категориях SQL-команд <code>INSERT INTO orders (id, client_id, ...) VALUES (...)</code>. Для человека естественной средой взаимодействия является <strong>графический пользовательский интерфейс (GUI / UI)</strong>, представленный экранными формами, диалоговыми окнами, текстовыми полями, переключателями и табличными сетками.</p>
 
- <div class="box box-warn">
- <strong>Главный парадокс проектирования:</strong> Пользователь стремится к максимальной свободе и скорости ввода (хочет видеть все данные на одном экране, вводить неструктурированный текст), в то время как СУБД требует строгой типизации, нормализации (отсутствия избыточности) и ссылочной целостности. Задача инженера по базам данных &mdash; спроектировать интерфейс ввода так, чтобы объединить высокое удобство для человека (UX) с абсолютной целостностью данных в реляционном хранилище.
- </div>
- </section>
+    <div class="box box-warn">
+      <strong>Главный парадокс проектирования:</strong> Пользователь стремится к максимальной свободе и скорости ввода (хочет видеть все данные на одном экране, вводить неструктурированный текст), в то время как СУБД требует строгой типизации, нормализации (отсутствия избыточности) и ссылочной целостности. Задача инженера по базам данных &mdash; спроектировать интерфейс ввода так, чтобы объединить высокое удобство для человека (UX) с абсолютной целостностью данных в реляционном хранилище.
+    </div>
+  </section>
 
- <section class="card">
- <h2>2. Архитектура сопряжения слоев приложения: от клика до диска</h2>
- <p>В современной промышленной разработке прямое взаимодействие интерфейса (View) с сервером базы данных категорически исключено. Применяется <strong>многоуровневая (N-tier) архитектура</strong>, обеспечивающая изоляцию ответственности, безопасность учетных данных СУБД и независимое масштабирование.</p>
+  <section class="card">
+    <h2>2. Архитектура сопряжения слоев приложения: от клика до диска</h2>
+    <p>В современной промышленной разработке прямое взаимодействие интерфейса (View) с сервером базы данных категорически исключено. Применяется <strong>многоуровневая (N-tier) архитектура</strong>, обеспечивающая изоляцию ответственности, безопасность учетных данных СУБД и независимое масштабирование.</p>
 
- <div class="diagram-container">
- <div class="diagram-text">
+    <div class="diagram-container">
+      <div class="diagram-text">
 +========================================================================================================+
-| 1. УРОВЕНЬ ПРЕДСТАВЛЕНИЯ (VIEW / UI) | - Графические компоненты ввода: Input (Mask), Combobox/Select, RadioGroup, Checkbox, DatePicker | - Сетка спецификации (Master-Detail Grid), кнопки отправки (Submit) и сброса (Reset) | - Клиентская UX-валидация: подсветка незаполненных обязательных полей, проверка формата регулярками |
+|                                    1. УРОВЕНЬ ПРЕДСТАВЛЕНИЯ (VIEW / UI)                               |
+| - Графические компоненты ввода: Input (Mask), Combobox/Select, RadioGroup, Checkbox, DatePicker        |
+| - Сетка спецификации (Master-Detail Grid), кнопки отправки (Submit) и сброса (Reset)                   |
+| - Клиентская UX-валидация: подсветка незаполненных обязательных полей, проверка формата регулярками    |
 +========================================================================================================+
- | [1] Отправка DTO (Data Transfer Object)
- | через HTTP POST/PUT / WebSocket / IPC
- v
+                                                    |
+                                                    | [1] Отправка DTO (Data Transfer Object)
+                                                    |     через HTTP POST/PUT / WebSocket / IPC
+                                                    v
 +========================================================================================================+
-| 2. УРОВЕНЬ БИЗНЕС-ЛОГИКИ И КООРДИНАЦИИ (CONTROLLER / BACKEND) | - Маршрутизация запросов (REST API / GraphQL / RPC Endpoint) | - Десериализация DTO и серверная валидация бизнес-правил (проверка прав, правдоподобия данных) | - Определение границ транзакции (Transaction Boundary: BEGIN TRANSACTION / COMMIT / ROLLBACK) |
+|                             2. УРОВЕНЬ БИЗНЕС-ЛОГИКИ И КООРДИНАЦИИ (CONTROLLER / BACKEND)             |
+| - Маршрутизация запросов (REST API / GraphQL / RPC Endpoint)                                           |
+| - Десериализация DTO и серверная валидация бизнес-правил (проверка прав, правдоподобия данных)         |
+| - Определение границ транзакции (Transaction Boundary: BEGIN TRANSACTION / COMMIT / ROLLBACK)          |
 +========================================================================================================+
- | [2] Передача доменной модели
- | в репозиторий сущности
- v
+                                                    |
+                                                    | [2] Передача доменной модели
+                                                    |     в репозиторий сущности
+                                                    v
 +========================================================================================================+
-| 3. УРОВЕНЬ ДОСТУПА К ДАННЫМ (DATA ACCESS LAYER / DAO / ORM / REPOSITORY) | - Data Mapper / ORM (Entity Framework, Hibernate, SQLAlchemy, Prisma, Dapper) | - Формирование параметризованного SQL (Prepared Statements) с защитой от SQL-инъекций | - Преобразование объектного графа в реляционные строки (Object-to-Relational Mapping) |
+|                       3. УРОВЕНЬ ДОСТУПА К ДАННЫМ (DATA ACCESS LAYER / DAO / ORM / REPOSITORY)         |
+| - Data Mapper / ORM (Entity Framework, Hibernate, SQLAlchemy, Prisma, Dapper)                          |
+| - Формирование параметризованного SQL (Prepared Statements) с защитой от SQL-инъекций                  |
+| - Преобразование объектного графа в реляционные строки (Object-to-Relational Mapping)                  |
 +========================================================================================================+
- | [3] Выполнение команд SQL через низкоуровневый драйвер
- | (JDBC, Npgsql, libpq, asyncpg, mysql-connector)
- v
+                                                    |
+                                                    | [3] Выполнение команд SQL через низкоуровневый драйвер
+                                                    |     (JDBC, Npgsql, libpq, asyncpg, mysql-connector)
+                                                    v
 +========================================================================================================+
-| 4. РЕЛЯЦИОННАЯ СУБД (DATABASE ENGINE / POSTGRESQL / MYSQL) | - Декларативные ограничения целостности: PRIMARY KEY, FOREIGN KEY, NOT NULL, CHECK, UNIQUE, EXCLUDE | - Выполнение триггеров, журналирование WAL, модификация страниц данных на диске | - Гарантия ACID-свойств (Атомарность, Согласованность, Изоляция, Долговечность) |
+|                             4. РЕЛЯЦИОННАЯ СУБД (DATABASE ENGINE / POSTGRESQL / MYSQL)                 |
+| - Декларативные ограничения целостности: PRIMARY KEY, FOREIGN KEY, NOT NULL, CHECK, UNIQUE, EXCLUDE   |
+| - Выполнение триггеров, журналирование WAL, модификация страниц данных на диске                        |
+| - Гарантия ACID-свойств (Атомарность, Согласованность, Изоляция, Долговечность)                       |
 +========================================================================================================+
- </div>
- </div>
+      </div>
+    </div>
 
- <h3>2.1. Паттерны архитектуры UI: MVC, MVP, MVVM</h3>
- <ul>
- <li><strong>MVC (Model-View-Controller):</strong> <em>Model</em> представляет бизнес-данные и правила их изменения; <em>View</em> отображает пользовательский интерфейс; <em>Controller</em> перехватывает пользовательские действия (клик по кнопке «Оформить заказ»), преобразует входные параметры, обновляет Model и запрашивает обновление View.</li>
- <li><strong>MVP (Model-View-Presenter):</strong> Разновидность для классических настольных систем. <em>Presenter</em> полностью управляет представлением, манипулируя интерфейсом <code>IView</code>.</li>
- <li><strong>MVVM (Model-View-ViewModel):</strong> Ключевой паттерн современного фронтенда. <em>ViewModel</em> &mdash; это абстракция View, хранящая состояние полей формы. Благодаря <strong>Data Binding</strong> изменение значения в поле ввода автоматически изменяет свойство во ViewModel без ручного написания кода чтения DOM-дерева.</li>
- </ul>
+    <h3>2.1. Паттерны архитектуры UI: MVC, MVP, MVVM</h3>
+    <ul>
+      <li><strong>MVC (Model-View-Controller):</strong> <em>Model</em> представляет бизнес-данные и правила их изменения; <em>View</em> отображает пользовательский интерфейс; <em>Controller</em> перехватывает пользовательские действия (клик по кнопке «Оформить заказ»), преобразует входные параметры, обновляет Model и запрашивает обновление View.</li>
+      <li><strong>MVP (Model-View-Presenter):</strong> Разновидность для классических настольных систем. <em>Presenter</em> полностью управляет представлением, манипулируя интерфейсом <code>IView</code>.</li>
+      <li><strong>MVVM (Model-View-ViewModel):</strong> Ключевой паттерн современного фронтенда. <em>ViewModel</em> &mdash; это абстракция View, хранящая состояние полей формы. Благодаря <strong>Data Binding</strong> изменение значения в поле ввода автоматически изменяет свойство во ViewModel без ручного написания кода чтения DOM-дерева.</li>
+    </ul>
 
- <h3>2.2. Механизм Data Binding (привязка данных)</h3>
- <p><strong>Data Binding</strong> связывает визуальное свойство контрола (например, <code>input.value</code> или <code>select.selectedValue</code>) со свойством структуры данных. В контексте баз данных выделяют:</p>
- <ul>
- <li><strong>One-Way Binding (Однонаправленная привязка):</strong> Данные текут либо от источника к контролу (отображение строки БД в форме просмотра), либо от контрола к объекту (сборка DTO перед отправкой на сервер).</li>
- <li><strong>Two-Way Binding (Двунаправленная привязка):</strong> Изменение текста в поле ввода оператором немедленно обновляет свойство DTO в памяти, а если фоновый процесс меняет значение DTO (например, рассчитывает сумму со скидкой), интерфейс мгновенно перерисовывает расчетное значение.</li>
- </ul>
- </section>
+    <h3>2.2. Механизм Data Binding (привязка данных)</h3>
+    <p><strong>Data Binding</strong> связывает визуальное свойство контрола (например, <code>input.value</code> или <code>select.selectedValue</code>) со свойством структуры данных. В контексте баз данных выделяют:</p>
+    <ul>
+      <li><strong>One-Way Binding (Однонаправленная привязка):</strong> Данные текут либо от источника к контролу (отображение строки БД в форме просмотра), либо от контрола к объекту (сборка DTO перед отправкой на сервер).</li>
+      <li><strong>Two-Way Binding (Двунаправленная привязка):</strong> Изменение текста в поле ввода оператором немедленно обновляет свойство DTO в памяти, а если фоновый процесс меняет значение DTO (например, рассчитывает сумму со скидкой), интерфейс мгновенно перерисовывает расчетное значение.</li>
+    </ul>
+  </section>
 
- <section class="card">
- <h2>3. Типы элементов управления формы ввода и их реляционный маппинг</h2>
- <p>Каждому атрибуту реляционной таблицы соответствует определенный тип данных и семантическое назначение. Графический интерфейс должен предоставлять элемент ввода, физически препятствующий вводу невалидных данных еще до отправки в СУБД.</p>
+  <section class="card">
+    <h2>3. Типы элементов управления формы ввода и их реляционный маппинг</h2>
+    <p>Каждому атрибуту реляционной таблицы соответствует определенный тип данных и семантическое назначение. Графический интерфейс должен предоставлять элемент ввода, физически препятствующий вводу невалидных данных еще до отправки в СУБД.</p>
 
- <table>
- <thead>
- <tr>
- <th>Элемент UI</th>
- <th>Привязка к типам СУБД</th>
- <th>Связи и ограничения БД</th>
- <th>Инженерные особенности маппинга</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>Текстовое поле с маской (Masked Input)</strong></td>
- <td><code>VARCHAR(n)</code>, <code>CHAR(n)</code></td>
- <td><code>NOT NULL</code>, <code>CHECK (col ~ 'regex')</code></td>
- <td>
- Форматирует ввод пользователя по шаблону (например, <code>+7 (999) 999-99-99</code> или <code>999-999-999 99</code>). В базу данных передается так называемое <em>raw-значение</em> (только цифры) либо стандартизированная строка. Предотвращает ошибки оператора при вводе идентификаторов.
- </td>
- </tr>
- <tr>
- <td><strong>Выпадающий список (Combobox / Select)</strong></td>
- <td><code>INT</code>, <code>BIGINT</code>, <code>UUID</code></td>
- <td><code>FOREIGN KEY REFERENCES parent_table(id)</code></td>
- <td>
- <strong>Критически важное правило:</strong> разделение <em>Display Member</em> (видимый пользователю текст, например ФИО клиента) и <em>Value Member</em> (скрытый числовой суррогатный ключ <code>client_id</code>). В запрос <code>INSERT</code> отправляется строго <code>Value Member</code>. Для справочников свыше 100 позиций применяется динамический поиск <em>Autocomplete</em>.
- </td>
- </tr>
- <tr>
- <td><strong>Группа радиокнопок (RadioGroup)</strong></td>
- <td><code>VARCHAR(n)</code>, <code>ENUM</code>, <code>SMALLINT</code></td>
- <td><code>CHECK (priority IN ('low', 'medium', 'high'))</code></td>
- <td>
- Выбор одного варианта из фиксированного небольшого списка (2&ndash;5 значений). Все радиокнопки объединяются общим именем группы. Исключает ввод отсутствующих значений, так как одно из полей обычно выбрано по умолчанию (<code>DEFAULT</code> в таблице).
- </td>
- </tr>
- <tr>
- <td><strong>Флажок (Checkbox)</strong></td>
- <td><code>BOOLEAN</code></td>
- <td><code>NOT NULL DEFAULT FALSE</code></td>
- <td>
- Отражает бинарные состояния (0 или 1, Да или Нет). Свойство <code>checked = true</code> мапится в <code>TRUE</code>, <code>false</code> &mdash; в <code>FALSE</code>. Если колонка допускает <code>NULL</code>, используется трехпозиционный чекбокс (Tri-state), однако в архитектуре баз данных рекомендуется заменять такие атрибуты строгими перечислениями.
- </td>
- </tr>
- <tr>
- <td><strong>Компонент выбора даты (DatePicker)</strong></td>
- <td><code>DATE</code>, <code>TIMESTAMP</code>, <code>TIMESTAMPTZ</code></td>
- <td><code>CHECK (end_date &gt;= start_date)</code></td>
- <td>
- Исключает ввод несуществующих дат (30 февраля, 13 месяц). Маппинг данных осуществляется в строгом стандарте <strong>ISO 8601 (YYYY-MM-DD)</strong>, что исключает ошибки региональных настроек сервера СУБД (конфликт форматов DD/MM/YYYY и MM/DD/YYYY).
- </td>
- </tr>
- <tr>
- <td><strong>Табличная часть (Master-Detail Grid)</strong></td>
- <td>Две таблицы: Мастер-запись (1) и массив строк Деталей (М)</td>
- <td><code>FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE</code></td>
- <td>
- Позволяет вводить списки связанных сущностей: строки накладной, позиции спецификации заказа. Каждая строка содержит элементы выбора товара (FK), количества (INT/NUMERIC) и цены. Отправка и запись производятся единой неделимой транзакцией.
- </td>
- </tr>
- </tbody>
- </table>
- </section>
+    <table>
+      <thead>
+        <tr>
+          <th>Элемент UI</th>
+          <th>Привязка к типам СУБД</th>
+          <th>Связи и ограничения БД</th>
+          <th>Инженерные особенности маппинга</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Текстовое поле с маской (Masked Input)</strong></td>
+          <td><code>VARCHAR(n)</code>, <code>CHAR(n)</code></td>
+          <td><code>NOT NULL</code>, <code>CHECK (col ~ 'regex')</code></td>
+          <td>
+            Форматирует ввод пользователя по шаблону (например, <code>+7 (999) 999-99-99</code> или <code>999-999-999 99</code>). В базу данных передается так называемое <em>raw-значение</em> (только цифры) либо стандартизированная строка. Предотвращает ошибки оператора при вводе идентификаторов.
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Выпадающий список (Combobox / Select)</strong></td>
+          <td><code>INT</code>, <code>BIGINT</code>, <code>UUID</code></td>
+          <td><code>FOREIGN KEY REFERENCES parent_table(id)</code></td>
+          <td>
+            <strong>Критически важное правило:</strong> разделение <em>Display Member</em> (видимый пользователю текст, например ФИО клиента) и <em>Value Member</em> (скрытый числовой суррогатный ключ <code>client_id</code>). В запрос <code>INSERT</code> отправляется строго <code>Value Member</code>. Для справочников свыше 100 позиций применяется динамический поиск <em>Autocomplete</em>.
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Группа радиокнопок (RadioGroup)</strong></td>
+          <td><code>VARCHAR(n)</code>, <code>ENUM</code>, <code>SMALLINT</code></td>
+          <td><code>CHECK (priority IN ('low', 'medium', 'high'))</code></td>
+          <td>
+            Выбор одного варианта из фиксированного небольшого списка (2&ndash;5 значений). Все радиокнопки объединяются общим именем группы. Исключает ввод отсутствующих значений, так как одно из полей обычно выбрано по умолчанию (<code>DEFAULT</code> в таблице).
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Флажок (Checkbox)</strong></td>
+          <td><code>BOOLEAN</code></td>
+          <td><code>NOT NULL DEFAULT FALSE</code></td>
+          <td>
+            Отражает бинарные состояния (0 или 1, Да или Нет). Свойство <code>checked = true</code> мапится в <code>TRUE</code>, <code>false</code> &mdash; в <code>FALSE</code>. Если колонка допускает <code>NULL</code>, используется трехпозиционный чекбокс (Tri-state), однако в архитектуре баз данных рекомендуется заменять такие атрибуты строгими перечислениями.
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Компонент выбора даты (DatePicker)</strong></td>
+          <td><code>DATE</code>, <code>TIMESTAMP</code>, <code>TIMESTAMPTZ</code></td>
+          <td><code>CHECK (end_date &gt;= start_date)</code></td>
+          <td>
+            Исключает ввод несуществующих дат (30 февраля, 13 месяц). Маппинг данных осуществляется в строгом стандарте <strong>ISO 8601 (YYYY-MM-DD)</strong>, что исключает ошибки региональных настроек сервера СУБД (конфликт форматов DD/MM/YYYY и MM/DD/YYYY).
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Табличная часть (Master-Detail Grid)</strong></td>
+          <td>Две таблицы: Мастер-запись (1) и массив строк Деталей (М)</td>
+          <td><code>FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE</code></td>
+          <td>
+            Позволяет вводить списки связанных сущностей: строки накладной, позиции спецификации заказа. Каждая строка содержит элементы выбора товара (FK), количества (INT/NUMERIC) и цены. Отправка и запись производятся единой неделимой транзакцией.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
 
- <section class="card">
- <h2>4. Компоновка сложных форм ввода: паттерн Master-Detail</h2>
- <p>Большинство корпоративных учетных документов (заказы, счета-фактуры, путевые листы, истории болезней) представляют собой иерархическую структуру «Один-ко-Многим» (1:M). Для их ввода используется паттерн <strong>Master-Detail (Шапка &mdash; Табличная часть)</strong>.</p>
+  <section class="card">
+    <h2>4. Компоновка сложных форм ввода: паттерн Master-Detail</h2>
+    <p>Большинство корпоративных учетных документов (заказы, счета-фактуры, путевые листы, истории болезней) представляют собой иерархическую структуру «Один-ко-Многим» (1:M). Для их ввода используется паттерн <strong>Master-Detail (Шапка &mdash; Табличная часть)</strong>.</p>
 
- <div class="diagram-container">
- <div class="diagram-text">
+    <div class="diagram-container">
+      <div class="diagram-text">
 +--------------------------------------------------------------------------------------------------------+
-| ШАПКА ДОКУМЕНТА (MASTER RECORD) | Номер заказа: [ 2026-004812 ] Дата оформления: [ 2026-10-01 ] | Контрагент (Клиент): [ ООО "СеверТранс" | v ] (ID: 104) Склад: [ Центральный склад №1 | v ] |
+|                                    ШАПКА ДОКУМЕНТА (MASTER RECORD)                                     |
+|  Номер заказа: [ 2026-004812 ]          Дата оформления: [ 2026-10-01 ]                               |
+|  Контрагент (Клиент): [ ООО "СеверТранс" | v ] (ID: 104)     Склад: [ Центральный склад №1 | v ]     |
 +--------------------------------------------------------------------------------------------------------+
-| ТАБЛИЧНАЯ ЧАСТЬ СПЕЦИФИКАЦИИ (DETAIL GRID) | # | Товар / Услуга (Select FK) | Количество | Ед. изм. | Цена (руб) | Скидка % | Сумма (руб) | ---+--------------------------------------+------------+----------+------------+----------+--------------| 1 | Кабель витая пара UTP Cat 5e (305м) | 5 | бухта | 4 500.00 | 5% | 21 375.00 | 2 | Коммутатор управляемый 24-Port L2 | 2 | шт | 18 200.00 | 0% | 36 400.00 | 3 | Патч-панель 19" 24 порта RJ-45 | 4 | шт | 1 850.00 | 10% | 6 660.00 | [ + Добавить строку ] [ - Удалить выбранную ] |
+|                                  ТАБЛИЧНАЯ ЧАСТЬ СПЕЦИФИКАЦИИ (DETAIL GRID)                            |
+|  # | Товар / Услуга (Select FK)           | Количество | Ед. изм. | Цена (руб) | Скидка % | Сумма (руб)  |
+| ---+--------------------------------------+------------+----------+------------+----------+--------------|
+|  1 | Кабель витая пара UTP Cat 5e (305м)  |     5      | бухта    |   4 500.00 |    5%    |    21 375.00 |
+|  2 | Коммутатор управляемый 24-Port L2    |     2      | шт       |  18 200.00 |    0%    |    36 400.00 |
+|  3 | Патч-панель 19" 24 порта RJ-45       |     4      | шт       |   1 850.00 |   10%    |     6 660.00 |
+|  [ + Добавить строку ]  [ - Удалить выбранную ]                                                        |
 +--------------------------------------------------------------------------------------------------------+
-| ПОДВАЛ ФОРМЫ (ИТОГИ И ДЕЙСТВИЯ) | ИТОГО К ОПЛАТЕ: 64 435.00 руб. Статус: [ Черновик | v ] | [ Отменить ] [ Сохранить и провести заказ ] |
+|                                  ПОДВАЛ ФОРМЫ (ИТОГИ И ДЕЙСТВИЯ)                                       |
+|  ИТОГО К ОПЛАТЕ: 64 435.00 руб.          Статус: [ Черновик | v ]                                      |
+|  [  Отменить  ]                                                    [  Сохранить и провести заказ  ]   |
 +--------------------------------------------------------------------------------------------------------+
- </div>
- </div>
+      </div>
+    </div>
 
- <h3>Транзакционная механика сохранения Master-Detail в СУБД</h3>
- <p>При сохранении формы на бэкенд передается единый JSON-объект. Бэкенд выполняет атомарную транзакцию:</p>
- <pre><code>-- Серверная транзакция сохранения документа Master-Detail
+    <h3>Транзакционная механика сохранения Master-Detail в СУБД</h3>
+    <p>При сохранении формы на бэкенд передается единый JSON-объект. Бэкенд выполняет атомарную транзакцию:</p>
+    <pre><code>-- Серверная транзакция сохранения документа Master-Detail
 BEGIN;
 
 -- 1. Вставка родительской записи (Master) с получением сгенерированного ID
@@ -363,54 +406,54 @@ RETURNING order_id INTO :new_order_id;
 -- 2. Вставка строк спецификации (Detail) с привязкой к новому order_id
 INSERT INTO order_items (order_id, item_id, quantity, unit_price, discount_percent)
 VALUES 
- (:new_order_id, 301, 5, 4500.00, 5.00),
- (:new_order_id, 814, 2, 18200.00, 0.00),
- (:new_order_id, 922, 4, 1850.00, 10.00);
+    (:new_order_id, 301, 5, 4500.00, 5.00),
+    (:new_order_id, 814, 2, 18200.00, 0.00),
+    (:new_order_id, 922, 4, 1850.00, 10.00);
 
 -- 3. Фиксация транзакции: данные записаны либо полностью, либо ни одна строчка
 COMMIT;</code></pre>
- </section>
+  </section>
 
- <section class="card">
- <h2>5. Правила эргономики UI и UX-инженерия экранных форм</h2>
- <p>Эргономика интерфейса ввода напрямую влияет на достоверность информации в базе данных. Чем сложнее и неудобнее интерфейс, тем выше вероятность ошибки оператора при рутинном вводе:</p>
- 
- <ul>
- <li><strong>Логическая группировка:</strong> Поля разделяются на карточки по смыслу (Идентификация &rarr; Реквизиты &rarr; Параметры заказа &rarr; Служебные отметки).</li>
- <li><strong>Порядок обхода фокуса (Tab Order):</strong> Нажатие клавиши <code>Tab</code> должно последовательно перемещать фокус по полям сверху вниз, слева направо. Разрыв последовательности табуляции приводит к пропуску полей.</li>
- <li><strong>Визуальные индикаторы:</strong> Поля со свойством <code>NOT NULL</code> обязательно маркируются красной звездочкой (<code>*</code>). Недоступные для редактирования поля (вычисляемая сумма) делаются <code>readonly</code> с серой подложкой.</li>
- <li><strong>Двухуровневая валидация:</strong>
- <ol>
- <li><em>Клиентская валидация (Instant UX Feedback):</em> Проверяется при потере фокуса (<code>blur</code>) или вводе символа (<code>input</code>). Подсвечивает границу поля красным цветом и выводит текст подсказки. Экономит время пользователя и сетевой трафик.</li>
- <li><em>Серверная валидация и ограничения СУБД:</em> Единственный гарантированный рубеж защиты целостности данных. Выполняет проверку ограничений <code>CHECK</code>, <code>FOREIGN KEY</code>, <code>UNIQUE</code>.</li>
- </ol>
- </li>
- <li><strong>Защита от двойного клика (Double Submit):</strong> При нажатии кнопки отправки кнопка немедленно переводится в состояние <code>disabled</code> с индикацией вращающегося спиннера до получения ответа от сервера, предотвращая создание записей-дубликатов.</li>
- </ul>
- </section>
+  <section class="card">
+    <h2>5. Правила эргономики UI и UX-инженерия экранных форм</h2>
+    <p>Эргономика интерфейса ввода напрямую влияет на достоверность информации в базе данных. Чем сложнее и неудобнее интерфейс, тем выше вероятность ошибки оператора при рутинном вводе:</p>
+    
+    <ul>
+      <li><strong>Логическая группировка:</strong> Поля разделяются на карточки по смыслу (Идентификация &rarr; Реквизиты &rarr; Параметры заказа &rarr; Служебные отметки).</li>
+      <li><strong>Порядок обхода фокуса (Tab Order):</strong> Нажатие клавиши <code>Tab</code> должно последовательно перемещать фокус по полям сверху вниз, слева направо. Разрыв последовательности табуляции приводит к пропуску полей.</li>
+      <li><strong>Визуальные индикаторы:</strong> Поля со свойством <code>NOT NULL</code> обязательно маркируются красной звездочкой (<code>*</code>). Недоступные для редактирования поля (вычисляемая сумма) делаются <code>readonly</code> с серой подложкой.</li>
+      <li><strong>Двухуровневая валидация:</strong>
+        <ol>
+          <li><em>Клиентская валидация (Instant UX Feedback):</em> Проверяется при потере фокуса (<code>blur</code>) или вводе символа (<code>input</code>). Подсвечивает границу поля красным цветом и выводит текст подсказки. Экономит время пользователя и сетевой трафик.</li>
+          <li><em>Серверная валидация и ограничения СУБД:</em> Единственный гарантированный рубеж защиты целостности данных. Выполняет проверку ограничений <code>CHECK</code>, <code>FOREIGN KEY</code>, <code>UNIQUE</code>.</li>
+        </ol>
+      </li>
+      <li><strong>Защита от двойного клика (Double Submit):</strong> При нажатии кнопки отправки кнопка немедленно переводится в состояние <code>disabled</code> с индикацией вращающегося спиннера до получения ответа от сервера, предотвращая создание записей-дубликатов.</li>
+    </ul>
+  </section>
 
- <section class="card">
- <h2>6. Вопросы для самопроверки студентов</h2>
- <div class="qa-block">
- <div class="qa-q">1. Почему прямое связывание элементов формы ввода с SQL-запросами считается грубой архитектурной ошибкой?</div>
- <div class="qa-a">Потому что это нарушает принцип многоуровневой архитектуры, создает критическую уязвимость перед SQL-инъекциями, раскрывает учетные данные СУБД на клиенте и делает невозможным централизованный контроль бизнес-логики и прав доступа.</div>
- </div>
+  <section class="card">
+    <h2>6. Вопросы для самопроверки студентов</h2>
+    <div class="qa-block">
+      <div class="qa-q">1. Почему прямое связывание элементов формы ввода с SQL-запросами считается грубой архитектурной ошибкой?</div>
+      <div class="qa-a">Потому что это нарушает принцип многоуровневой архитектуры, создает критическую уязвимость перед SQL-инъекциями, раскрывает учетные данные СУБД на клиенте и делает невозможным централизованный контроль бизнес-логики и прав доступа.</div>
+    </div>
 
- <div class="qa-block">
- <div class="qa-q">2. Чем отличается Value Member от Display Member в выпадающем списке (Combobox)?</div>
- <div class="qa-a">Display Member &mdash; это читаемое строковое представление (например, ФИО врача или наименование товара), отображаемое пользователю. Value Member &mdash; это реальный суррогатный первичный ключ справочника (ID), который связывается с внешним ключом целевой таблицы при вставке.</div>
- </div>
+    <div class="qa-block">
+      <div class="qa-q">2. Чем отличается Value Member от Display Member в выпадающем списке (Combobox)?</div>
+      <div class="qa-a">Display Member &mdash; это читаемое строковое представление (например, ФИО врача или наименование товара), отображаемое пользователю. Value Member &mdash; это реальный суррогатный первичный ключ справочника (ID), который связывается с внешним ключом целевой таблицы при вставке.</div>
+    </div>
 
- <div class="qa-block">
- <div class="qa-q">3. Почему валидация на стороне интерфейса (HTML5 / JavaScript) не отменяет необходимость ограничений в СУБД?</div>
- <div class="qa-a">Потому что клиентский интерфейс не контролируется сервером: злоумышленник или сбой в ПО могут обойти JS-проверки, отправив прямой HTTP-запрос через консоль браузера или API-клиент. Гарантировать ACID-целостность могут только ограничения ядра базы данных.</div>
- </div>
+    <div class="qa-block">
+      <div class="qa-q">3. Почему валидация на стороне интерфейса (HTML5 / JavaScript) не отменяет необходимость ограничений в СУБД?</div>
+      <div class="qa-a">Потому что клиентский интерфейс не контролируется сервером: злоумышленник или сбой в ПО могут обойти JS-проверки, отправив прямой HTTP-запрос через консоль браузера или API-клиент. Гарантировать ACID-целостность могут только ограничения ядра базы данных.</div>
+    </div>
 
- <div class="qa-block">
- <div class="qa-q">4. В чем заключается архитектурная суть паттерна Master-Detail и почему его сохранение требует транзакции?</div>
- <div class="qa-a">Паттерн отображает связь «один ко многим» между документом и его строками. Транзакция обязательна, чтобы гарантировать неделимость: если сохранение хотя бы одной строки спецификации завершится ошибкой, шапка документа будет автоматически откатана (ROLLBACK), предотвращая появление «висячих» записей-сирот.</div>
- </div>
- </section>
+    <div class="qa-block">
+      <div class="qa-q">4. В чем заключается архитектурная суть паттерна Master-Detail и почему его сохранение требует транзакции?</div>
+      <div class="qa-a">Паттерн отображает связь «один ко многим» между документом и его строками. Транзакция обязательна, чтобы гарантировать неделимость: если сохранение хотя бы одной строки спецификации завершится ошибкой, шапка документа будет автоматически откатана (ROLLBACK), предотвращая появление «висячих» записей-сирот.</div>
+    </div>
+  </section>
 </div>
 </body>
 </html>

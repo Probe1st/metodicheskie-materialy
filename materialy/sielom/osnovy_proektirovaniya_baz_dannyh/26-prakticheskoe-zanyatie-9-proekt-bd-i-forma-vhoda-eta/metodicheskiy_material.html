@@ -1,349 +1,364 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
- <meta name="color-scheme" content="light">
- <title>Методический материал — Практическое занятие №9: проект БД и форма входа, этап 2</title>
- <style>
- :root {
- --bg: #f8fafc;
- --card: #ffffff;
- --text: #0f172a;
- --muted: #475569;
- --line: #cbd5e1;
- --accent: #0284c7;
- --accent-soft: #f0f9ff;
- --accent-dark: #0369a1;
- --warn: #b45309;
- --warn-soft: #fffbeb;
- --danger: #b91c1c;
- --danger-soft: #fef2f2;
- --success: #15803d;
- --success-soft: #f0fdf4;
- --code-bg: #0f172a;
- --code-text: #f8fafc;
- --radius: 12px;
- --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
- }
- * { box-sizing: border-box; }
- html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
- body {
- margin: 0;
- background: var(--bg);
- color: var(--text);
- font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
- line-height: 1.65;
- font-size: 16px;
- }.page {
- width: min(100% - 32px, 1020px);
- margin: 32px auto 80px;
- }.card {
- background: var(--card);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 32px;
- margin-bottom: 24px;
- box-shadow: var(--shadow);
- }
- h1 {
- margin: 0 0 12px;
- font-size: clamp(22px, 3.5vw, 30px);
- color: var(--text);
- line-height: 1.25;
- }.lead {
- color: var(--muted);
- margin: 0;
- font-size: 16px;
- }
- h2 {
- margin: 0 0 16px;
- font-size: 21px;
- color: var(--accent-dark);
- border-bottom: 2px solid var(--accent-soft);
- padding-bottom: 8px;
- }
- h3 {
- font-size: 17px;
- margin: 20px 0 10px;
- color: var(--text);
- }
- p, ul, ol {
- margin: 0 0 16px;
- }
- ul, ol {
- padding-left: 24px;
- }
- li {
- margin-bottom: 8px;
- }.box {
- border-radius: 8px;
- padding: 16px 20px;
- margin: 16px 0;
- border-left: 4px solid;
- }.box-info {
- background: var(--accent-soft);
- border-color: var(--accent);
- color: var(--text);
- }.box-warn {
- background: var(--warn-soft);
- border-color: var(--warn);
- color: #78350f;
- }.box-danger {
- background: var(--danger-soft);
- border-color: var(--danger);
- color: #7f1d1d;
- }.box-success {
- background: var(--success-soft);
- border-color: var(--success);
- color: #14532d;
- }
- table {
- width: 100%;
- border-collapse: collapse;
- margin: 16px 0;
- font-size: 14.5px;
- }
- th, td {
- border: 1px solid var(--line);
- padding: 10px 14px;
- text-align: left;
- vertical-align: top;
- }
- th {
- background: #f1f5f9;
- font-weight: 700;
- color: var(--text);
- }
- pre, code {
- font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
- font-size: 13.5px;
- }
- code {
- background: #f1f5f9;
- color: var(--accent-dark);
- padding: 2px 6px;
- border-radius: 4px;
- }
- pre {
- background: var(--code-bg);
- color: var(--code-text);
- padding: 16px;
- border-radius: 8px;
- overflow-x: auto;
- margin: 16px 0;
- line-height: 1.5;
- }.badge {
- display: inline-block;
- padding: 2px 8px;
- border-radius: 4px;
- font-size: 12px;
- font-weight: 700;
- text-transform: uppercase;
- margin-right: 6px;
- }.badge-primary { background: #e0f2fe; color: #0369a1; }.badge-warn { background: #fef3c7; color: #92400e; }.badge-danger { background: #fee2e2; color: #991b1b; }.badge-success { background: #dcfce7; color: #166534; }
- </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Методический материал — Практическое занятие №9: проект БД и форма входа, этап 2</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #0284c7;
+      --accent-soft: #f0f9ff;
+      --accent-dark: #0369a1;
+      --warn: #b45309;
+      --warn-soft: #fffbeb;
+      --danger: #b91c1c;
+      --danger-soft: #fef2f2;
+      --success: #15803d;
+      --success-soft: #f0fdf4;
+      --code-bg: #0f172a;
+      --code-text: #f8fafc;
+      --radius: 12px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      line-height: 1.65;
+      font-size: 16px;
+    }
+    .page {
+      width: min(100% - 32px, 1020px);
+      margin: 32px auto 80px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(22px, 3.5vw, 30px);
+      color: var(--text);
+      line-height: 1.25;
+    }
+    .lead {
+      color: var(--muted);
+      margin: 0;
+      font-size: 16px;
+    }
+    h2 {
+      margin: 0 0 16px;
+      font-size: 21px;
+      color: var(--accent-dark);
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 8px;
+    }
+    h3 {
+      font-size: 17px;
+      margin: 20px 0 10px;
+      color: var(--text);
+    }
+    p, ul, ol {
+      margin: 0 0 16px;
+    }
+    ul, ol {
+      padding-left: 24px;
+    }
+    li {
+      margin-bottom: 8px;
+    }
+    .box {
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 16px 0;
+      border-left: 4px solid;
+    }
+    .box-info {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--text);
+    }
+    .box-warn {
+      background: var(--warn-soft);
+      border-color: var(--warn);
+      color: #78350f;
+    }
+    .box-danger {
+      background: var(--danger-soft);
+      border-color: var(--danger);
+      color: #7f1d1d;
+    }
+    .box-success {
+      background: var(--success-soft);
+      border-color: var(--success);
+      color: #14532d;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 14.5px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 14px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #f1f5f9;
+      font-weight: 700;
+      color: var(--text);
+    }
+    pre, code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+    }
+    code {
+      background: #f1f5f9;
+      color: var(--accent-dark);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 16px 0;
+      line-height: 1.5;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-right: 6px;
+    }
+    .badge-primary { background: #e0f2fe; color: #0369a1; }
+    .badge-warn { background: #fef3c7; color: #92400e; }
+    .badge-danger { background: #fee2e2; color: #991b1b; }
+    .badge-success { background: #dcfce7; color: #166534; }
+  </style>
 </head>
 <body>
- <div class="page">
- <header class="card">
- <div style="margin-bottom: 8px;">
- <span class="badge badge-primary">СИЭУиП</span>
- <span class="badge badge-primary">ОП.08 Основы проектирования баз данных</span>
- <span class="badge badge-success">Занятие 26 • Практика №9</span>
- </div>
- <h1>Методическое руководство преподавателя</h1>
- <p class="lead">Тема 4. Проектирование структур баз данных — Практическое занятие №9: проект БД и форма входа, этап 2. Интеграция экранной формы входа с реляционной базой данных, криптографическая проверка пароля, механизмы защиты от подбора (Brute-force), журнал аудита безопасности Security Audit Log и ролевая адаптация интерфейса.</p>
- </header>
+  <div class="page">
+    <header class="card">
+      <div style="margin-bottom: 8px;">
+        <span class="badge badge-primary">СИЭУиП</span>
+        <span class="badge badge-primary">ОП.08 Основы проектирования баз данных</span>
+        <span class="badge badge-success">Занятие 26 • Практика №9</span>
+      </div>
+      <h1>Методическое руководство преподавателя</h1>
+      <p class="lead">Тема 4. Проектирование структур баз данных — Практическое занятие №9: проект БД и форма входа, этап 2. Интеграция экранной формы входа с реляционной базой данных, криптографическая проверка пароля, механизмы защиты от подбора (Brute-force), журнал аудита безопасности Security Audit Log и ролевая адаптация интерфейса.</p>
+    </header>
 
- <section class="card">
- <h2>1. Паспорт учебного занятия и целеполагание</h2>
- <p><strong>Вид занятия:</strong> Практическое занятие (лабораторно-практический практикум).</p>
- <p><strong>Длительность:</strong> 2 академических часа (основной регламент — 80 минут, сокращенный регламент — 60 минут).</p>
- <p><strong>Место в учебном плане:</strong> Занятие №26 логически развивает этап 1 практического занятия №9 (занятие 25). Если на этапе 1 студенты проектировали графический интерфейс формы входа и таблицы пользователей/ролей, то на этапе 2 осуществляется глубокая серверно-логическая связка клиентской формы с базой данных: обеспечение криптографической устойчивости, отражение атак перебора и разграничение полномочий.</p>
+    <section class="card">
+      <h2>1. Паспорт учебного занятия и целеполагание</h2>
+      <p><strong>Вид занятия:</strong> Практическое занятие (лабораторно-практический практикум).</p>
+      <p><strong>Длительность:</strong> 2 академических часа (основной регламент — 80 минут, сокращенный регламент — 60 минут).</p>
+      <p><strong>Место в учебном плане:</strong> Занятие №26 логически развивает этап 1 практического занятия №9 (занятие 25). Если на этапе 1 студенты проектировали графический интерфейс формы входа и таблицы пользователей/ролей, то на этапе 2 осуществляется глубокая серверно-логическая связка клиентской формы с базой данных: обеспечение криптографической устойчивости, отражение атак перебора и разграничение полномочий.</p>
 
- <h3>Ключевые образовательные цели</h3>
- <ul>
- <li><strong>Обучающие:</strong> освоить архитектурный процесс интеграции формы входа с СУБД; изучить алгоритм соленого хэширования HMAC/SHA-256; реализовать логику блокировки аккаунта (атрибуты <code>failed_attempts</code>, <code>locked_until</code>); спроектировать структуру таблицы аудита безопасности <code>Security_Audit_Log</code>; настроить ролевое управление элементами экранного интерфейса на клиенте.</li>
- <li><strong>Развивающие:</strong> развить критическое инженерное мышление при анализе векторов угроз (перебор паролей по словарю, инъекции, Race Condition при авторизации); сформировать навыки безопасной разработки (Secure by Design).</li>
- <li><strong>Воспитательные:</strong> воспитать профессиональную этику разработчика ПО и ответственность за сохранение конфиденциальности в соответствии с законодательством РФ (ФЗ-152 «О персональных данных»).</li>
- </ul>
- </section>
+      <h3>Ключевые образовательные цели</h3>
+      <ul>
+        <li><strong>Обучающие:</strong> освоить архитектурный процесс интеграции формы входа с СУБД; изучить алгоритм соленого хэширования HMAC/SHA-256; реализовать логику блокировки аккаунта (атрибуты <code>failed_attempts</code>, <code>locked_until</code>); спроектировать структуру таблицы аудита безопасности <code>Security_Audit_Log</code>; настроить ролевое управление элементами экранного интерфейса на клиенте.</li>
+        <li><strong>Развивающие:</strong> развить критическое инженерное мышление при анализе векторов угроз (перебор паролей по словарю, инъекции, Race Condition при авторизации); сформировать навыки безопасной разработки (Secure by Design).</li>
+        <li><strong>Воспитательные:</strong> воспитать профессиональную этику разработчика ПО и ответственность за сохранение конфиденциальности в соответствии с законодательством РФ (ФЗ-152 «О персональных данных»).</li>
+      </ul>
+    </section>
 
- <section class="card">
- <h2>2. Поминутный тайминг учебного занятия (80 и 60 минут)</h2>
- <p>Методический план предусматривает два регламента проведения с сохранением ключевых дидактических единиц:</p>
+    <section class="card">
+      <h2>2. Поминутный тайминг учебного занятия (80 и 60 минут)</h2>
+      <p>Методический план предусматривает два регламента проведения с сохранением ключевых дидактических единиц:</p>
 
- <table>
- <thead>
- <tr>
- <th style="width: 25%;">Этап занятия</th>
- <th style="width: 15%;">Основной (80 мин)</th>
- <th style="width: 15%;">Сокращенный (60 мин)</th>
- <th style="width: 45%;">Содержание и акценты деятельности преподавателя</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>1. Организационный момент и мотивационный кейс</strong></td>
- <td><strong>5 минут</strong></td>
- <td><strong>3 минуты</strong></td>
- <td>Приветствие, фиксация явки. Разбор реального кейса: атака словарем на веб-сервис без rate-limiting (1000 запросов/сек привели к компрометации 15% аккаунтов). Формулировка проблемы: одной визуальной формы недостаточно, защита требует транзакционного протокола СУБД.</td>
- </tr>
- <tr>
- <td><strong>2. Актуализация знаний и алгоритмический разбор</strong></td>
- <td><strong>15 минут</strong></td>
- <td><strong>12 минут</strong></td>
- <td>Фронтальный опрос: разница между аутентификацией и авторизацией. Разбор 5-шагового алгоритма верификации: 1) Поиск логина; 2) Проверка тайм-аута блокировки; 3) Хэширование введенного пароля с индивидуальной солью; 4) Безопасное сравнение; 5) Запись в журнал аудита.</td>
- </tr>
- <tr>
- <td><strong>3. Инструктаж и сквозная демонстрация эталона</strong></td>
- <td><strong>10 минут</strong></td>
- <td><strong>8 минут</strong></td>
- <td>Демонстрация работы SQL-процедуры верификации на проекторе. Имитация 3 неверных попыток: демонстрация перехода статуса в блокировку на 15 минут (<code>locked_until = NOW() + INTERVAL '15 minute'</code>). Показ записей в таблице <code>Security_Audit_Log</code>.</td>
- </tr>
- <tr>
- <td><strong>4. Самостоятельная практическая работа в zanyatie.html</strong></td>
- <td><strong>40 минут</strong></td>
- <td><strong>30 минут</strong></td>
- <td>Индивидуальное выполнение практических протоколов по 4 вариантам (Склад, Медицина, Банк, Образование). Консультирование студентов, контроль корректности SQL-транзакций, предотвращения Race Condition и динамического переключения UI.</td>
- </tr>
- <tr>
- <td><strong>5. Экспертный разбор типовых ошибок</strong></td>
- <td><strong>5 минут</strong></td>
- <td><strong>4 минуты</strong></td>
- <td>Разбор характерных багов: сброс счетчика ошибок при неверном пароле, отсутствие аудита неудач, отсутствие блокировки по времени.</td>
- </tr>
- <tr>
- <td><strong>6. Итог занятия, рефлексия, оценивание и ДЗ</strong></td>
- <td><strong>5 минут</strong></td>
- <td><strong>3 минуты</strong></td>
- <td>Демонстрация слайда 15 с веб-комиксом Bobby Tables (xkcd #327). Оценивание по 4-балльной рубрике (.rubrika.md). Пояснение условий сдачи резервного дистанционного ДЗ.</td>
- </tr>
- </tbody>
- </table>
- </section>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25%;">Этап занятия</th>
+            <th style="width: 15%;">Основной (80 мин)</th>
+            <th style="width: 15%;">Сокращенный (60 мин)</th>
+            <th style="width: 45%;">Содержание и акценты деятельности преподавателя</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Организационный момент и мотивационный кейс</strong></td>
+            <td><strong>5 минут</strong></td>
+            <td><strong>3 минуты</strong></td>
+            <td>Приветствие, фиксация явки. Разбор реального кейса: атака словарем на веб-сервис без rate-limiting (1000 запросов/сек привели к компрометации 15% аккаунтов). Формулировка проблемы: одной визуальной формы недостаточно, защита требует транзакционного протокола СУБД.</td>
+          </tr>
+          <tr>
+            <td><strong>2. Актуализация знаний и алгоритмический разбор</strong></td>
+            <td><strong>15 минут</strong></td>
+            <td><strong>12 минут</strong></td>
+            <td>Фронтальный опрос: разница между аутентификацией и авторизацией. Разбор 5-шагового алгоритма верификации: 1) Поиск логина; 2) Проверка тайм-аута блокировки; 3) Хэширование введенного пароля с индивидуальной солью; 4) Безопасное сравнение; 5) Запись в журнал аудита.</td>
+          </tr>
+          <tr>
+            <td><strong>3. Инструктаж и сквозная демонстрация эталона</strong></td>
+            <td><strong>10 минут</strong></td>
+            <td><strong>8 минут</strong></td>
+            <td>Демонстрация работы SQL-процедуры верификации на проекторе. Имитация 3 неверных попыток: демонстрация перехода статуса в блокировку на 15 минут (<code>locked_until = NOW() + INTERVAL '15 minute'</code>). Показ записей в таблице <code>Security_Audit_Log</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>4. Самостоятельная практическая работа в zanyatie.html</strong></td>
+            <td><strong>40 минут</strong></td>
+            <td><strong>30 минут</strong></td>
+            <td>Индивидуальное выполнение практических протоколов по 4 вариантам (Склад, Медицина, Банк, Образование). Консультирование студентов, контроль корректности SQL-транзакций, предотвращения Race Condition и динамического переключения UI.</td>
+          </tr>
+          <tr>
+            <td><strong>5. Экспертный разбор типовых ошибок</strong></td>
+            <td><strong>5 минут</strong></td>
+            <td><strong>4 минуты</strong></td>
+            <td>Разбор характерных багов: сброс счетчика ошибок при неверном пароле, отсутствие аудита неудач, отсутствие блокировки по времени.</td>
+          </tr>
+          <tr>
+            <td><strong>6. Итог занятия, рефлексия, оценивание и ДЗ</strong></td>
+            <td><strong>5 минут</strong></td>
+            <td><strong>3 минуты</strong></td>
+            <td>Демонстрация слайда 15 с веб-комиксом Bobby Tables (xkcd #327). Оценивание по 4-балльной рубрике (.rubrika.md). Пояснение условий сдачи резервного дистанционного ДЗ.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
 
- <section class="card">
- <h2>3. Архитектура интеграции формы входа с реляционной БД</h2>
+    <section class="card">
+      <h2>3. Архитектура интеграции формы входа с реляционной БД</h2>
 
- <h3>3.1. Схема сущностей безопасности (Users и Security_Audit_Log)</h3>
- <p>Для надежного функционирования подсистемы аутентификации таблица пользователей расширяется защитными атрибутами, а все события входа фиксируются в неизменяемом журнале аудита:</p>
+      <h3>3.1. Схема сущностей безопасности (Users и Security_Audit_Log)</h3>
+      <p>Для надежного функционирования подсистемы аутентификации таблица пользователей расширяется защитными атрибутами, а все события входа фиксируются в неизменяемом журнале аудита:</p>
 
- <pre><code>-- 1. Таблица учетных записей пользователей
+      <pre><code>-- 1. Таблица учетных записей пользователей
 CREATE TABLE app_users (
- user_id SERIAL PRIMARY KEY,
- login VARCHAR(50) NOT NULL UNIQUE,
- password_hash CHAR(64) NOT NULL, -- SHA-256 хэш (hex-строка)
- salt CHAR(32) NOT NULL, -- Индивидуальная криптографическая соль (16 байт hex)
- role_id INT NOT NULL REFERENCES app_roles(role_id),
- is_active BOOLEAN NOT NULL DEFAULT TRUE,
- failed_attempts INT NOT NULL DEFAULT 0, -- Счетчик подряд идущих неудачных попыток
- locked_until TIMESTAMP NULL, -- Время, до которого вход заблокирован
- password_expiry DATE NOT NULL, -- Срок годности пароля
- must_change_password BOOLEAN NOT NULL DEFAULT FALSE,
- created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);
+    user_id SERIAL PRIMARY KEY,
+    login VARCHAR(50) NOT NULL UNIQUE,
+    password_hash CHAR(64) NOT NULL,        -- SHA-256 хэш (hex-строка)
+    salt CHAR(32) NOT NULL,                 -- Индивидуальная криптографическая соль (16 байт hex)
+    role_id INT NOT NULL REFERENCES app_roles(role_id),
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    failed_attempts INT NOT NULL DEFAULT 0, -- Счетчик подряд идущих неудачных попыток
+    locked_until TIMESTAMP NULL,             -- Время, до которого вход заблокирован
+    password_expiry DATE NOT NULL,          -- Срок годности пароля
+    must_change_password BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
 -- 2. Таблица журнала аудита событий безопасности
 CREATE TABLE security_audit_log (
- log_id BIGSERIAL PRIMARY KEY,
- event_type VARCHAR(30) NOT NULL, -- 'AUTH_SUCCESS', 'AUTH_FAILURE', 'ACCOUNT_LOCKED', 'PWD_CHANGE'
- user_id INT NULL REFERENCES app_users(user_id) ON DELETE SET NULL,
- attempted_login VARCHAR(50) NOT NULL, -- Фиксируется введенный логин (даже если пользователя нет)
- ip_address VARCHAR(45) NOT NULL, -- IPv4 или IPv6 клиента
- timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
- status VARCHAR(20) NOT NULL, -- 'SUCCESS', 'FAILED', 'BLOCKED'
- details TEXT NULL -- Дополнительная диагностическая информация);
+    log_id BIGSERIAL PRIMARY KEY,
+    event_type VARCHAR(30) NOT NULL,        -- 'AUTH_SUCCESS', 'AUTH_FAILURE', 'ACCOUNT_LOCKED', 'PWD_CHANGE'
+    user_id INT NULL REFERENCES app_users(user_id) ON DELETE SET NULL,
+    attempted_login VARCHAR(50) NOT NULL,   -- Фиксируется введенный логин (даже если пользователя нет)
+    ip_address VARCHAR(45) NOT NULL,        -- IPv4 или IPv6 клиента
+    timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(20) NOT NULL,            -- 'SUCCESS', 'FAILED', 'BLOCKED'
+    details TEXT NULL                       -- Дополнительная диагностическая информация
+);
 CREATE INDEX idx_security_log_lookup ON security_audit_log (attempted_login, timestamp DESC);</code></pre>
 
- <h3>3.2. Алгоритм процедуры верификации пароля и защита от перебора (Brute-force)</h3>
- <p>Процедура верификации выполняет следующие обязательные шаги транзакционно:</p>
- <ol>
- <li><strong>Поиск пользователя:</strong> выборка по <code>login = p_login</code>. Если учетная запись не найдена, регистрируется событие <code>AUTH_FAILURE</code> с причиной «Пользователь не найден», при этом на клиенте выдается обобщенное сообщение: <em>«Неверный логин или пароль»</em> (предотвращение атак перечисления учетных записей — User Enumeration).</li>
- <li><strong>Проверка блокировки (locked_until):</strong> если <code>locked_until IS NOT NULL AND locked_until > CURRENT_TIMESTAMP</code>, вход отклоняется с фиксацией <code>ACCOUNT_LOCKED</code>, интерфейс сообщает время окончания блокировки.</li>
- <li><strong>Проверка активности (is_active):</strong> если <code>is_active = FALSE</code>, аккаунт деактивирован администратором — отказ в доступе.</li>
- <li><strong>Проверка хэша:</strong> вычисляется <code>v_computed_hash = SHA256(p_password | salt)</code>.</li>
- <li><strong>При несовпадении хэшей:</strong>
- <ul>
- <li>Инкрементируется <code>failed_attempts = failed_attempts + 1</code>.</li>
- <li>Если <code>failed_attempts >= 3</code> (порог системы): устанавливается <code>locked_until = CURRENT_TIMESTAMP + INTERVAL '15 minute'</code>, регистрируется событие <code>ACCOUNT_LOCKED</code>.</li>
- <li>Иначе регистрируется <code>AUTH_FAILURE</code>.</li>
- </ul>
- </li>
- <li><strong>При совпадении хэшей:</strong>
- <ul>
- <li>Сбрасывается счетчик: <code>failed_attempts = 0</code>, <code>locked_until = NULL</code>.</li>
- <li>Регистрируется <code>AUTH_SUCCESS</code> в журнале аудита.</li>
- <li>Возвращается токен/данные сессии и роль пользователя.</li>
- </ul>
- </li>
- </ol>
+      <h3>3.2. Алгоритм процедуры верификации пароля и защита от перебора (Brute-force)</h3>
+      <p>Процедура верификации выполняет следующие обязательные шаги транзакционно:</p>
+      <ol>
+        <li><strong>Поиск пользователя:</strong> выборка по <code>login = p_login</code>. Если учетная запись не найдена, регистрируется событие <code>AUTH_FAILURE</code> с причиной «Пользователь не найден», при этом на клиенте выдается обобщенное сообщение: <em>«Неверный логин или пароль»</em> (предотвращение атак перечисления учетных записей — User Enumeration).</li>
+        <li><strong>Проверка блокировки (locked_until):</strong> если <code>locked_until IS NOT NULL AND locked_until > CURRENT_TIMESTAMP</code>, вход отклоняется с фиксацией <code>ACCOUNT_LOCKED</code>, интерфейс сообщает время окончания блокировки.</li>
+        <li><strong>Проверка активности (is_active):</strong> если <code>is_active = FALSE</code>, аккаунт деактивирован администратором — отказ в доступе.</li>
+        <li><strong>Проверка хэша:</strong> вычисляется <code>v_computed_hash = SHA256(p_password || salt)</code>.</li>
+        <li><strong>При несовпадении хэшей:</strong>
+          <ul>
+            <li>Инкрементируется <code>failed_attempts = failed_attempts + 1</code>.</li>
+            <li>Если <code>failed_attempts >= 3</code> (порог системы): устанавливается <code>locked_until = CURRENT_TIMESTAMP + INTERVAL '15 minute'</code>, регистрируется событие <code>ACCOUNT_LOCKED</code>.</li>
+            <li>Иначе регистрируется <code>AUTH_FAILURE</code>.</li>
+          </ul>
+        </li>
+        <li><strong>При совпадении хэшей:</strong>
+          <ul>
+            <li>Сбрасывается счетчик: <code>failed_attempts = 0</code>, <code>locked_until = NULL</code>.</li>
+            <li>Регистрируется <code>AUTH_SUCCESS</code> в журнале аудита.</li>
+            <li>Возвращается токен/данные сессии и роль пользователя.</li>
+          </ul>
+        </li>
+      </ol>
 
- <div class="box box-warn">
- <strong>Методическое указание преподавателю:</strong> Обратите особое внимание студентов на то, что сброс счетчика <code>failed_attempts</code> должен происходить <em>строго после успешной верификации</em>, а не при начале попытки входа!
- </div>
+      <div class="box box-warn">
+        <strong>Методическое указание преподавателю:</strong> Обратите особое внимание студентов на то, что сброс счетчика <code>failed_attempts</code> должен происходить <em>строго после успешной верификации</em>, а не при начале попытки входа!
+      </div>
 
- <h3>3.3. Динамическая настройка прав экранного интерфейса по ролевой модели (RBAC)</h3>
- <p>После возврата сервером успешного ответа и идентификатора роли клиентское приложение настраивает отображение элементов:</p>
- <ul>
- <li><strong>Администратор (Role = 'ADMIN'):</strong> доступ ко всем управляющим модулям: справочники, редактирование записей, управление учетными записями, просмотр <code>security_audit_log</code>.</li>
- <li><strong>Специалист / Оператор (Role = 'OPERATOR' / 'DOCTOR' / 'STOREKEEPER'):</strong> доступ к предметным рабочим формам ввода и поиска в рамках должностных обязанностей; системные кнопки администрирования скрыты (<code>display: none</code> или удалены из DOM).</li>
- <li><strong>Пользователь / Студент (Role = 'USER' / 'STUDENT'):</strong> режим «только чтение» (Read-Only) своих данных и личный кабинет.</li>
- </ul>
- </section>
+      <h3>3.3. Динамическая настройка прав экранного интерфейса по ролевой модели (RBAC)</h3>
+      <p>После возврата сервером успешного ответа и идентификатора роли клиентское приложение настраивает отображение элементов:</p>
+      <ul>
+        <li><strong>Администратор (Role = 'ADMIN'):</strong> доступ ко всем управляющим модулям: справочники, редактирование записей, управление учетными записями, просмотр <code>security_audit_log</code>.</li>
+        <li><strong>Специалист / Оператор (Role = 'OPERATOR' / 'DOCTOR' / 'STOREKEEPER'):</strong> доступ к предметным рабочим формам ввода и поиска в рамках должностных обязанностей; системные кнопки администрирования скрыты (<code>display: none</code> или удалены из DOM).</li>
+        <li><strong>Пользователь / Студент (Role = 'USER' / 'STUDENT'):</strong> режим «только чтение» (Read-Only) своих данных и личный кабинет.</li>
+      </ul>
+    </section>
 
- <section class="card">
- <h2>4. Типовые студенческие ошибки и методы их устранения</h2>
- <table>
- <thead>
- <tr>
- <th style="width: 25%;">Типичная ошибка</th>
- <th style="width: 35%;">В чем заключается риск</th>
- <th style="width: 40%;">Педагогический прием устранения</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>Хранение паролей в открытом виде</strong></td>
- <td>Утечка дампа базы раскрывает пароли всех сотрудников сервиса, нарушает требования регуляторов и ФЗ-152.</td>
- <td>Показать на экране утилиту генерации SHA-256; объяснить необходимость соли для предотвращения атак по «радужным таблицам» (Rainbow Tables).</td>
- </tr>
- <tr>
- <td><strong>Дифференциация сообщений об ошибках</strong> («Пользователь не найден» vs «Неверный пароль»)</td>
- <td>Уязвимость User Enumeration: злоумышленник автоматизированно составляет валидный список существующих сотрудников компании.</td>
- <td>Объяснить принцип единого нейтрального ответа в UI: «Неверный логин или пароль», при этом детальную причину фиксировать исключительно в закрытом журнале аудита.</td>
- </tr>
- <tr>
- <td><strong>Обнуление счетчика неудач на клиенте</strong></td>
- <td>Клиентский код в браузере легко модифицируется через DevTools, обнуление счетчика на клиенте делает защиту бесполезной.</td>
- <td>Подчеркнуть принцип Zero Trust: состояние счетчика <code>failed_attempts</code> должно храниться и инкрементироваться строго внутри СУБД.</td>
- </tr>
- <tr>
- <td><strong>Игнорирование записи неудачных попыток в лог</strong></td>
- <td>Служба безопасности не видит факта распределенной атаки подбора паролей.</td>
- <td>Разобрать пример построения дашборда безопасности: всплеск событий <code>AUTH_FAILURE</code> с одного IP сигнализирует о Brute-force атаке.</td>
- </tr>
- </tbody>
- </table>
- </section>
+    <section class="card">
+      <h2>4. Типовые студенческие ошибки и методы их устранения</h2>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25%;">Типичная ошибка</th>
+            <th style="width: 35%;">В чем заключается риск</th>
+            <th style="width: 40%;">Педагогический прием устранения</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Хранение паролей в открытом виде</strong></td>
+            <td>Утечка дампа базы раскрывает пароли всех сотрудников сервиса, нарушает требования регуляторов и ФЗ-152.</td>
+            <td>Показать на экране утилиту генерации SHA-256; объяснить необходимость соли для предотвращения атак по «радужным таблицам» (Rainbow Tables).</td>
+          </tr>
+          <tr>
+            <td><strong>Дифференциация сообщений об ошибках</strong> («Пользователь не найден» vs «Неверный пароль»)</td>
+            <td>Уязвимость User Enumeration: злоумышленник автоматизированно составляет валидный список существующих сотрудников компании.</td>
+            <td>Объяснить принцип единого нейтрального ответа в UI: «Неверный логин или пароль», при этом детальную причину фиксировать исключительно в закрытом журнале аудита.</td>
+          </tr>
+          <tr>
+            <td><strong>Обнуление счетчика неудач на клиенте</strong></td>
+            <td>Клиентский код в браузере легко модифицируется через DevTools, обнуление счетчика на клиенте делает защиту бесполезной.</td>
+            <td>Подчеркнуть принцип Zero Trust: состояние счетчика <code>failed_attempts</code> должно храниться и инкрементироваться строго внутри СУБД.</td>
+          </tr>
+          <tr>
+            <td><strong>Игнорирование записи неудачных попыток в лог</strong></td>
+            <td>Служба безопасности не видит факта распределенной атаки подбора паролей.</td>
+            <td>Разобрать пример построения дашборда безопасности: всплеск событий <code>AUTH_FAILURE</code> с одного IP сигнализирует о Brute-force атаке.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
 
- <section class="card">
- <h2>5. Педагогические приемы и критерии оценивания</h2>
- <p>В ходе практического занятия рекомендуется использовать следующие приемы активного обучения:</p>
- <ul>
- <li><strong>Метод «Адвокат дьявола» (Red Team / Blue Team):</strong> преподаватель предлагает студентам попытаться обойти собственный алгоритм проверки пароля (например, отправить 10 запросов подряд без задержки).</li>
- <li><strong>Проблемная визуализация:</strong> демонстрация логов реальных атак перебора демонстрирует студентам прикладную ценность изучаемых механизмов.</li>
- </ul>
+    <section class="card">
+      <h2>5. Педагогические приемы и критерии оценивания</h2>
+      <p>В ходе практического занятия рекомендуется использовать следующие приемы активного обучения:</p>
+      <ul>
+        <li><strong>Метод «Адвокат дьявола» (Red Team / Blue Team):</strong> преподаватель предлагает студентам попытаться обойти собственный алгоритм проверки пароля (например, отправить 10 запросов подряд без задержки).</li>
+        <li><strong>Проблемная визуализация:</strong> демонстрация логов реальных атак перебора демонстрирует студентам прикладную ценность изучаемых механизмов.</li>
+      </ul>
 
- <div class="box box-info">
- <strong>Критериальная шкала оценивания (максимум 4 балла):</strong>
- <ul>
- <li><strong>2 балла — Логика верификации пароля:</strong> корректное соленое хэширование, параметризованные SQL-запросы, транзакционная проверка логина и пароля.</li>
- <li><strong>1 балл — Журнал аудита и защита от перебора:</strong> верная структура таблицы Security Audit Log, инкремент <code>failed_attempts</code>, блокировка <code>locked_until</code> на 15 мин при 3 ошибках.</li>
- <li><strong>1 балл — Ролевое разграничение и самопроверка:</strong> динамическая адаптация интерфейса под роль пользователя, развернутые ответы на вопросы самопроверки.</li>
- </ul>
- </div>
- </section>
- </div>
+      <div class="box box-info">
+        <strong>Критериальная шкала оценивания (максимум 4 балла):</strong>
+        <ul>
+          <li><strong>2 балла — Логика верификации пароля:</strong> корректное соленое хэширование, параметризованные SQL-запросы, транзакционная проверка логина и пароля.</li>
+          <li><strong>1 балл — Журнал аудита и защита от перебора:</strong> верная структура таблицы Security Audit Log, инкремент <code>failed_attempts</code>, блокировка <code>locked_until</code> на 15 мин при 3 ошибках.</li>
+          <li><strong>1 балл — Ролевое разграничение и самопроверка:</strong> динамическая адаптация интерфейса под роль пользователя, развернутые ответы на вопросы самопроверки.</li>
+        </ul>
+      </div>
+    </section>
+  </div>
 </body>
 </html>

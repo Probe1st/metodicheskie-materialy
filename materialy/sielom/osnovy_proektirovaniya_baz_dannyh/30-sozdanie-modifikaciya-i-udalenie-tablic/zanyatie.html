@@ -1,605 +1,667 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>Рабочий лист: Создание, модификация и удаление таблиц</title>
- <style>
- :root {
- --bg: #f8fafc;
- --card-bg: #ffffff;
- --text: #0f172a;
- --text-muted: #475569;
- --border: #cbd5e1;
- --accent: #0284c7;
- --accent-hover: #0369a1;
- --accent-soft: #f0f9ff;
- --danger: #ef4444;
- --danger-soft: #fee2e2;
- --success: #10b981;
- --success-soft: #dcfce7;
- --warn: #f59e0b;
- --warn-soft: #fef3c7;
- }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Рабочий лист: Создание, модификация и удаление таблиц</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #cbd5e1;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --accent-soft: #f0f9ff;
+      --danger: #ef4444;
+      --danger-soft: #fee2e2;
+      --success: #10b981;
+      --success-soft: #dcfce7;
+      --warn: #f59e0b;
+      --warn-soft: #fef3c7;
+    }
 
- * {
- box-sizing: border-box;
- margin: 0;
- padding: 0;
- }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
- body {
- font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
- background-color: var(--bg);
- color: var(--text);
- line-height: 1.6;
- padding: 24px 16px;
- min-width: 320px;
- }.container {
- max-width: 960px;
- margin: 0 auto;
- width: 100%;
- }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px;
+      min-width: 320px;
+    }
 
- header.task-header {
- background: var(--card-bg);
- border: 1px solid var(--border);
- border-radius: 12px;
- padding: 24px 28px;
- margin-bottom: 24px;
- box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
- }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      width: 100%;
+    }
 
- h1 {
- font-size: 1.75rem;
- font-weight: 800;
- color: var(--text);
- margin-bottom: 8px;
- word-break: break-word;
- }.meta-subtitle {
- font-size: 0.95rem;
- color: var(--text-muted);
- margin-bottom: 16px;
- }.student-info {
- display: grid;
- grid-template-columns: 1fr 1fr;
- gap: 16px;
- padding-top: 16px;
- border-top: 1px solid var(--border);
- }.info-group {
- display: flex;
- flex-direction: column;
- gap: 6px;
- }.info-group label {
- font-size: 0.82rem;
- font-weight: 700;
- color: var(--text-muted);
- text-transform: uppercase;
- letter-spacing: 0.05em;
- }.info-group input {
- padding: 10px 14px;
- border: 1px solid var(--border);
- border-radius: 8px;
- font-size: 1rem;
- background: #ffffff;
- color: var(--text);
- }.info-group input:focus {
- outline: none;
- border-color: var(--accent);
- box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
- }
+    header.task-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
 
- /* Навигация по вариантам */.variant-selector-box {
- background: var(--card-bg);
- border: 1px solid var(--border);
- border-radius: 12px;
- padding: 16px 20px;
- margin-bottom: 24px;
- box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
- }.variant-tabs {
- display: flex;
- gap: 8px;
- flex-wrap: wrap;
- }.v-tab-btn {
- padding: 10px 16px;
- border: 1px solid var(--border);
- background: #ffffff;
- color: var(--text);
- font-weight: 600;
- font-size: 0.92rem;
- border-radius: 8px;
- cursor: pointer;
- transition: all 0.2s ease;
- }.v-tab-btn:hover {
- background: var(--accent-soft);
- border-color: var(--accent);
- }.v-tab-btn.active {
- background: var(--accent);
- color: #ffffff;
- border-color: var(--accent-hover);
- }
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+      word-break: break-word;
+    }
 
- /* Блоки заданий */.variant-container {
- display: none;
- }.variant-container.active {
- display: block;
- }
+    .meta-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
 
- section.task-card {
- background: var(--card-bg);
- border: 1px solid var(--border);
- border-radius: 12px;
- padding: 24px 28px;
- margin-bottom: 24px;
- box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
- }
+    .student-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
 
- h2 {
- font-size: 1.35rem;
- font-weight: 700;
- color: var(--accent);
- margin-bottom: 16px;
- display: flex;
- align-items: center;
- gap: 8px;
- }.spec-box {
- background: #f8fafc;
- border: 1px solid #e2e8f0;
- border-radius: 8px;
- padding: 16px;
- margin-bottom: 18px;
- font-size: 0.95rem;
- }.spec-box p {
- margin-bottom: 8px;
- }.spec-box ul,.spec-box ol {
- margin-left: 20px;
- margin-bottom: 10px;
- }.spec-box li {
- margin-bottom: 4px;
- }
+    .info-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
 
- pre {
- background: #0f172a;
- color: #f8fafc;
- padding: 14px 16px;
- border-radius: 8px;
- overflow-x: auto;
- font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
- font-size: 0.88rem;
- line-height: 1.45;
- margin: 10px 0 16px;
- }
+    .info-group label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
 
- code {
- font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
- font-size: 0.9em;
- background: #e2e8f0;
- padding: 2px 6px;
- border-radius: 4px;
- color: #0f172a;
- }
+    .info-group input {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      background: #ffffff;
+      color: var(--text);
+    }
 
- pre code {
- background: transparent;
- padding: 0;
- color: inherit;
- }
+    .info-group input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
 
- label.field-label {
- display: block;
- font-weight: 700;
- font-size: 0.92rem;
- color: var(--text);
- margin: 14px 0 6px;
- }
+    /* Навигация по вариантам */
+    .variant-selector-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
 
- textarea.answer-area {
- width: 100%;
- min-height: 150px;
- padding: 12px 14px;
- border: 1px solid var(--border);
- border-radius: 8px;
- font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
- font-size: 0.92rem;
- line-height: 1.5;
- color: var(--text);
- background: #ffffff;
- resize: vertical;
- }
+    .variant-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
 
- textarea.answer-area:focus {
- outline: none;
- border-color: var(--accent);
- box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
- }
+    .v-tab-btn {
+      padding: 10px 16px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.92rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
 
- textarea.text-area-free {
- font-family: inherit;
- min-height: 90px;
- }
+    .v-tab-btn:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
 
- /* Нижняя панель действий */.action-panel {
- position: sticky;
- bottom: 16px;
- background: var(--card-bg);
- border: 1px solid var(--border);
- border-radius: 12px;
- padding: 16px 24px;
- box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
- display: flex;
- justify-content: space-between;
- align-items: center;
- gap: 16px;
- flex-wrap: wrap;
- }.btn-group {
- display: flex;
- gap: 12px;
- flex-wrap: wrap;
- }.action-btn {
- padding: 10px 18px;
- border-radius: 8px;
- font-size: 0.92rem;
- font-weight: 600;
- cursor: pointer;
- border: 1px solid transparent;
- transition: all 0.2s ease;
- }.action-btn-primary {
- background: var(--accent);
- color: #ffffff;
- }.action-btn-primary:hover {
- background: var(--accent-hover);
- }.action-btn-outline {
- background: #ffffff;
- border-color: var(--border);
- color: var(--text-muted);
- }.action-btn-outline:hover {
- background: #f1f5f9;
- color: var(--text);
- }.status-msg {
- display: none;
- color: var(--success);
- font-weight: 700;
- font-size: 0.9rem;
- }
+    .v-tab-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent-hover);
+    }
 
- /* Стили для печати (@media print) */
- @media print {
- body {
- background: #ffffff;
- color: #000000;
- padding: 0;
- }.container {
- max-width: 100%;
- margin: 0;
- }.variant-selector-box,.action-panel,.v-tab-btn {
- display: none !important;
- }
- header.task-header, section.task-card {
- border: 1px solid #000000;
- box-shadow: none;
- page-break-inside: avoid;
- margin-bottom: 14px;
- padding: 14px;
- }.variant-container {
- display: none !important;
- }.variant-container.active {
- display: block !important;
- }
- textarea.answer-area {
- border: 1px solid #000000;
- background: transparent;
- color: #000000;
- min-height: 90px;
- resize: none;
- overflow: visible;
- }
- input {
- border: 1px solid #000000 !important;
- background: transparent !important;
- color: #000000 !important;
- }
- input::placeholder, textarea::placeholder {
- color: transparent !important;
- }
- }
+    /* Блоки заданий */
+    .variant-container {
+      display: none;
+    }
 
- @media (max-width: 640px) {
- body {
- padding: 12px 8px;
- }.student-info {
- grid-template-columns: 1fr;
- }
- header.task-header, section.task-card {
- padding: 16px;
- }
- h1 {
- font-size: 1.45rem;
- }.v-tab-btn {
- width: 100%;
- text-align: left;
- }.action-panel {
- position: static;
- flex-direction: column;
- align-items: stretch;
- }.btn-group {
- flex-direction: column;
- }.action-btn {
- width: 100%;
- text-align: center;
- }
- }
- </style>
+    .variant-container.active {
+      display: block;
+    }
+
+    section.task-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .spec-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 18px;
+      font-size: 0.95rem;
+    }
+
+    .spec-box p {
+      margin-bottom: 8px;
+    }
+
+    .spec-box ul, .spec-box ol {
+      margin-left: 20px;
+      margin-bottom: 10px;
+    }
+
+    .spec-box li {
+      margin-bottom: 4px;
+    }
+
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 14px 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      margin: 10px 0 16px;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9em;
+      background: #e2e8f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+
+    pre code {
+      background: transparent;
+      padding: 0;
+      color: inherit;
+    }
+
+    label.field-label {
+      display: block;
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: var(--text);
+      margin: 14px 0 6px;
+    }
+
+    textarea.answer-area {
+      width: 100%;
+      min-height: 150px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      color: var(--text);
+      background: #ffffff;
+      resize: vertical;
+    }
+
+    textarea.answer-area:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+
+    textarea.text-area-free {
+      font-family: inherit;
+      min-height: 90px;
+    }
+
+    /* Нижняя панель действий */
+    .action-panel {
+      position: sticky;
+      bottom: 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 24px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .action-btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .action-btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .action-btn-outline {
+      background: #ffffff;
+      border-color: var(--border);
+      color: var(--text-muted);
+    }
+
+    .action-btn-outline:hover {
+      background: #f1f5f9;
+      color: var(--text);
+    }
+
+    .status-msg {
+      display: none;
+      color: var(--success);
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    /* Стили для печати (@media print) */
+    @media print {
+      body {
+        background: #ffffff;
+        color: #000000;
+        padding: 0;
+      }
+      .container {
+        max-width: 100%;
+        margin: 0;
+      }
+      .variant-selector-box, .action-panel, .v-tab-btn {
+        display: none !important;
+      }
+      header.task-header, section.task-card {
+        border: 1px solid #000000;
+        box-shadow: none;
+        page-break-inside: avoid;
+        margin-bottom: 14px;
+        padding: 14px;
+      }
+      .variant-container {
+        display: none !important;
+      }
+      .variant-container.active {
+        display: block !important;
+      }
+      textarea.answer-area {
+        border: 1px solid #000000;
+        background: transparent;
+        color: #000000;
+        min-height: 90px;
+        resize: none;
+        overflow: visible;
+      }
+      input {
+        border: 1px solid #000000 !important;
+        background: transparent !important;
+        color: #000000 !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 12px 8px;
+      }
+      .student-info {
+        grid-template-columns: 1fr;
+      }
+      header.task-header, section.task-card {
+        padding: 16px;
+      }
+      h1 {
+        font-size: 1.45rem;
+      }
+      .v-tab-btn {
+        width: 100%;
+        text-align: left;
+      }
+      .action-panel {
+        position: static;
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .btn-group {
+        flex-direction: column;
+      }
+      .action-btn {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
 </head>
 <body>
- <div class="container">
- <header class="task-header">
- <h1>Рабочий лист: Создание, модификация и удаление таблиц</h1>
- <div class="meta-subtitle">Дисциплина «ОП.08 Основы проектирования баз данных» — Занятие №30 (СИЭУиП)</div>
+  <div class="container">
+    <header class="task-header">
+      <h1>Рабочий лист: Создание, модификация и удаление таблиц</h1>
+      <div class="meta-subtitle">Дисциплина «ОП.08 Основы проектирования баз данных» — Занятие №30 (СИЭУиП)</div>
 
- <div class="student-info">
- <div class="info-group">
- <label for="studentFio">ФИО студента</label>
- <input type="text" id="studentFio">
- </div>
- <div class="info-group">
- <label for="studentGroup">Учебная группа</label>
- <input type="text" id="studentGroup">
- </div>
- </div>
- </header>
+      <div class="student-info">
+        <div class="info-group">
+          <label for="studentFio">ФИО студента</label>
+          <input type="text" id="studentFio">
+        </div>
+        <div class="info-group">
+          <label for="studentGroup">Учебная группа</label>
+          <input type="text" id="studentGroup">
+        </div>
+      </div>
+    </header>
 
- <div class="variant-selector-box">
- <div style="font-weight: 700; margin-bottom: 10px; font-size: 0.92rem; color: var(--text-muted); text-transform: uppercase;">
- Выберите назначенный практический вариант:
- </div>
- <div class="variant-tabs">
- <button type="button" class="v-tab-btn active" data-target="v1">Вариант 1 (Складской терминал)</button>
- <button type="button" class="v-tab-btn" data-target="v2">Вариант 2 (Гостиничный сервис)</button>
- <button type="button" class="v-tab-btn" data-target="v3">Вариант 3 (Банковская система)</button>
- <button type="button" class="v-tab-btn" data-target="v4">Вариант 4 (Образовательный портал)</button>
- </div>
- </div>
+    <div class="variant-selector-box">
+      <div style="font-weight: 700; margin-bottom: 10px; font-size: 0.92rem; color: var(--text-muted); text-transform: uppercase;">
+        Выберите назначенный практический вариант:
+      </div>
+      <div class="variant-tabs">
+        <button type="button" class="v-tab-btn active" data-target="v1">Вариант 1 (Складской терминал)</button>
+        <button type="button" class="v-tab-btn" data-target="v2">Вариант 2 (Гостиничный сервис)</button>
+        <button type="button" class="v-tab-btn" data-target="v3">Вариант 3 (Банковская система)</button>
+        <button type="button" class="v-tab-btn" data-target="v4">Вариант 4 (Образовательный портал)</button>
+      </div>
+    </div>
 
- <!-- ВАРИАНТ 1 -->
- <div id="v1" class="variant-container active">
- <section class="task-card">
- <h2>Вариант 1. Складской терминал логистического центра</h2>
- <div class="spec-box">
- <p><strong>Техническое задание:</strong></p>
- <ol>
- <li>Создайте таблицу складских комплексов <code>warehouses</code> (с поддержкой <code>IF NOT EXISTS</code>):
- <ul>
- <li><code>warehouse_id</code> — суррогатный первичный ключ (<code>SERIAL PRIMARY KEY</code>);</li>
- <li><code>warehouse_name</code> — строка до 100 символов (<code>VARCHAR(100) NOT NULL</code>);</li>
- <li><code>city</code> — город размещения (<code>VARCHAR(60) NOT NULL</code>);</li>
- <li><code>total_area_sqm</code> — общая площадь склада (<code>NUMERIC(10, 2) NOT NULL CHECK (total_area_sqm > 0)</code>);</li>
- <li><code>is_active</code> — признак функционирования (<code>BOOLEAN NOT NULL DEFAULT TRUE</code>);</li>
- <li><code>created_at</code> — метка времени создания записи (<code>TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP</code>).</li>
- </ul>
- </li>
- <li>Создайте временную сессионную таблицу оперативной суточной отгрузки <code>temp_daily_shipments</code> (с параметром <code>ON COMMIT PRESERVE ROWS</code>) со столбцами <code>shipment_id INT</code>, <code>warehouse_id INT</code>, <code>item_barcode VARCHAR(50)</code>, <code>quantity INT CHECK (quantity > 0)</code>, <code>scanned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP</code>.</li>
- <li>Используя оператор <code>ALTER TABLE</code>, добавьте в таблицу <code>warehouses</code> столбец температурного режима хранения: <code>temperature_zone VARCHAR(20) NOT NULL DEFAULT 'STANDARD'</code>.</li>
- <li>Переименуйте столбец <code>total_area_sqm</code> в <code>usable_area_sqm</code> с помощью команды <code>ALTER TABLE... RENAME COLUMN</code>.</li>
- <li>Выполните безопасное удаление временной таблицы отгрузки (<code>DROP TABLE IF EXISTS</code>).</li>
- </ol>
- </div>
+    <!-- ВАРИАНТ 1 -->
+    <div id="v1" class="variant-container active">
+      <section class="task-card">
+        <h2>Вариант 1. Складской терминал логистического центра</h2>
+        <div class="spec-box">
+          <p><strong>Техническое задание:</strong></p>
+          <ol>
+            <li>Создайте таблицу складских комплексов <code>warehouses</code> (с поддержкой <code>IF NOT EXISTS</code>):
+              <ul>
+                <li><code>warehouse_id</code> — суррогатный первичный ключ (<code>SERIAL PRIMARY KEY</code>);</li>
+                <li><code>warehouse_name</code> — строка до 100 символов (<code>VARCHAR(100) NOT NULL</code>);</li>
+                <li><code>city</code> — город размещения (<code>VARCHAR(60) NOT NULL</code>);</li>
+                <li><code>total_area_sqm</code> — общая площадь склада (<code>NUMERIC(10, 2) NOT NULL CHECK (total_area_sqm > 0)</code>);</li>
+                <li><code>is_active</code> — признак функционирования (<code>BOOLEAN NOT NULL DEFAULT TRUE</code>);</li>
+                <li><code>created_at</code> — метка времени создания записи (<code>TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP</code>).</li>
+              </ul>
+            </li>
+            <li>Создайте временную сессионную таблицу оперативной суточной отгрузки <code>temp_daily_shipments</code> (с параметром <code>ON COMMIT PRESERVE ROWS</code>) со столбцами <code>shipment_id INT</code>, <code>warehouse_id INT</code>, <code>item_barcode VARCHAR(50)</code>, <code>quantity INT CHECK (quantity > 0)</code>, <code>scanned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP</code>.</li>
+            <li>Используя оператор <code>ALTER TABLE</code>, добавьте в таблицу <code>warehouses</code> столбец температурного режима хранения: <code>temperature_zone VARCHAR(20) NOT NULL DEFAULT 'STANDARD'</code>.</li>
+            <li>Переименуйте столбец <code>total_area_sqm</code> в <code>usable_area_sqm</code> с помощью команды <code>ALTER TABLE ... RENAME COLUMN</code>.</li>
+            <li>Выполните безопасное удаление временной таблицы отгрузки (<code>DROP TABLE IF EXISTS</code>).</li>
+          </ol>
+        </div>
 
- <label for="v1_sql" class="field-label">1. Итоговый DDL-скрипт (CREATE, ALTER, DROP):</label>
- <textarea id="v1_sql" class="answer-area"></textarea>
+        <label for="v1_sql" class="field-label">1. Итоговый DDL-скрипт (CREATE, ALTER, DROP):</label>
+        <textarea id="v1_sql" class="answer-area"></textarea>
 
- <label for="v1_analysis" class="field-label">2. Аналитический вопрос: Почему добавление столбца с константным значением DEFAULT 'STANDARD' в современных версиях PostgreSQL не приводит к длительной блокировке и перезаписи всей таблицы на диске?</label>
- <textarea id="v1_analysis" class="answer-area text-area-free"></textarea>
- </section>
- </div>
+        <label for="v1_analysis" class="field-label">2. Аналитический вопрос: Почему добавление столбца с константным значением DEFAULT 'STANDARD' в современных версиях PostgreSQL не приводит к длительной блокировке и перезаписи всей таблицы на диске?</label>
+        <textarea id="v1_analysis" class="answer-area text-area-free"></textarea>
+      </section>
+    </div>
 
- <!-- ВАРИАНТ 2 -->
- <div id="v2" class="variant-container">
- <section class="task-card">
- <h2>Вариант 2. Гостиничный сервис (модификация типов и CHECK)</h2>
- <div class="spec-box">
- <p><strong>Исходная таблица:</strong> В сервисе бронирования создана таблица номерного фонда:</p>
- <pre><code>CREATE TABLE hotel_rooms (
- room_id SERIAL PRIMARY KEY,
- room_number VARCHAR(10) NOT NULL,
- category VARCHAR(50) NOT NULL,
- price_per_night INTEGER NOT NULL,
- is_available BOOLEAN NOT NULL DEFAULT TRUE);</code></pre>
- <p><strong>Техническое задание:</strong></p>
- <ol>
- <li>Бухгалтерия отеля переходит на расчеты с копейками. С помощью команды <code>ALTER TABLE</code> измените тип данных столбца <code>price_per_night</code> с <code>INTEGER</code> на <code>NUMERIC(10, 2)</code>. Обязательно используйте явное преобразование с помощью конструкции <code>USING price_per_night::NUMERIC(10, 2)</code>.</li>
- <li>Добавьте проверочное ограничение целостности с явным именем <code>chk_hotel_rooms_positive_price</code>, гарантирующее, что стоимость суток строго больше нуля (<code>price_per_night > 0.00</code>).</li>
- <li>Напишите SQL-запрос к системной схеме <code>information_schema.columns</code> для проверки обновленного типа данных столбца <code>price_per_night</code>.</li>
- </ol>
- </div>
+    <!-- ВАРИАНТ 2 -->
+    <div id="v2" class="variant-container">
+      <section class="task-card">
+        <h2>Вариант 2. Гостиничный сервис (модификация типов и CHECK)</h2>
+        <div class="spec-box">
+          <p><strong>Исходная таблица:</strong> В сервисе бронирования создана таблица номерного фонда:</p>
+          <pre><code>CREATE TABLE hotel_rooms (
+    room_id SERIAL PRIMARY KEY,
+    room_number VARCHAR(10) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    price_per_night INTEGER NOT NULL,
+    is_available BOOLEAN NOT NULL DEFAULT TRUE
+);</code></pre>
+          <p><strong>Техническое задание:</strong></p>
+          <ol>
+            <li>Бухгалтерия отеля переходит на расчеты с копейками. С помощью команды <code>ALTER TABLE</code> измените тип данных столбца <code>price_per_night</code> с <code>INTEGER</code> на <code>NUMERIC(10, 2)</code>. Обязательно используйте явное преобразование с помощью конструкции <code>USING price_per_night::NUMERIC(10, 2)</code>.</li>
+            <li>Добавьте проверочное ограничение целостности с явным именем <code>chk_hotel_rooms_positive_price</code>, гарантирующее, что стоимость суток строго больше нуля (<code>price_per_night > 0.00</code>).</li>
+            <li>Напишите SQL-запрос к системной схеме <code>information_schema.columns</code> для проверки обновленного типа данных столбца <code>price_per_night</code>.</li>
+          </ol>
+        </div>
 
- <label for="v2_sql" class="field-label">1. Итоговый DDL-скрипт (ALTER TABLE с USING и ADD CONSTRAINT):</label>
- <textarea id="v2_sql" class="answer-area"></textarea>
+        <label for="v2_sql" class="field-label">1. Итоговый DDL-скрипт (ALTER TABLE с USING и ADD CONSTRAINT):</label>
+        <textarea id="v2_sql" class="answer-area"></textarea>
 
- <label for="v2_analysis" class="field-label">2. Аналитический вопрос: Что произойдет, если выполнить ALTER COLUMN TYPE без выражения USING на таблице с несовместимыми данными? Как наложить ограничение CHECK на таблице в 10 млн строк без простоя сервиса (Zero-Downtime)?</label>
- <textarea id="v2_analysis" class="answer-area text-area-free"></textarea>
- </section>
- </div>
+        <label for="v2_analysis" class="field-label">2. Аналитический вопрос: Что произойдет, если выполнить ALTER COLUMN TYPE без выражения USING на таблице с несовместимыми данными? Как наложить ограничение CHECK на таблице в 10 млн строк без простоя сервиса (Zero-Downtime)?</label>
+        <textarea id="v2_analysis" class="answer-area text-area-free"></textarea>
+      </section>
+    </div>
 
- <!-- ВАРИАНТ 3 -->
- <div id="v3" class="variant-container">
- <section class="task-card">
- <h2>Вариант 3. Банковская система (ссылочная целостность и CASCADE)</h2>
- <div class="spec-box">
- <p><strong>Исходные таблицы:</strong> В процессинговой базе функционируют таблицы клиентов и счетов:</p>
- <pre><code>CREATE TABLE bank_clients (
- client_id SERIAL PRIMARY KEY,
- passport_hash VARCHAR(64) NOT NULL UNIQUE,
- full_name VARCHAR(150) NOT NULL,
- registered_at DATE NOT NULL DEFAULT CURRENT_DATE);
+    <!-- ВАРИАНТ 3 -->
+    <div id="v3" class="variant-container">
+      <section class="task-card">
+        <h2>Вариант 3. Банковская система (ссылочная целостность и CASCADE)</h2>
+        <div class="spec-box">
+          <p><strong>Исходные таблицы:</strong> В процессинговой базе функционируют таблицы клиентов и счетов:</p>
+          <pre><code>CREATE TABLE bank_clients (
+    client_id SERIAL PRIMARY KEY,
+    passport_hash VARCHAR(64) NOT NULL UNIQUE,
+    full_name VARCHAR(150) NOT NULL,
+    registered_at DATE NOT NULL DEFAULT CURRENT_DATE
+);
 
 CREATE TABLE bank_accounts (
- account_id SERIAL PRIMARY KEY,
- account_number VARCHAR(20) NOT NULL,
- client_id INT NOT NULL,
- balance NUMERIC(15, 2) NOT NULL DEFAULT 0.00,
- currency CHAR(3) NOT NULL DEFAULT 'RUB',
- CONSTRAINT unq_account_number UNIQUE (account_number));
+    account_id SERIAL PRIMARY KEY,
+    account_number VARCHAR(20) NOT NULL,
+    client_id INT NOT NULL,
+    balance NUMERIC(15, 2) NOT NULL DEFAULT 0.00,
+    currency CHAR(3) NOT NULL DEFAULT 'RUB',
+    CONSTRAINT unq_account_number UNIQUE (account_number)
+);
 
 CREATE TABLE transaction_audit_logs (
- log_id BIGSERIAL PRIMARY KEY,
- account_id INT NOT NULL REFERENCES bank_accounts(account_id) ON DELETE CASCADE,
- action_type VARCHAR(30) NOT NULL,
- logged_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);</code></pre>
- <p><strong>Техническое задание:</strong></p>
- <ol>
- <li>С помощью <code>ALTER TABLE</code> добавьте в таблицу <code>bank_accounts</code> внешний ключ <code>fk_bank_accounts_client</code> на таблицу <code>bank_clients(client_id)</code> с защитным правилом удаления <code>ON DELETE RESTRICT</code>.</li>
- <li>Удалите устаревшее ограничение уникальности <code>unq_account_number</code> из таблицы <code>bank_accounts</code> (команда <code>ALTER TABLE... DROP CONSTRAINT</code>).</li>
- <li>Выполните удаление таблицы архивных логов <code>transaction_audit_logs</code> с каскадным снятием зависимостей (<code>DROP TABLE... CASCADE</code>).</li>
- </ol>
- </div>
+    log_id BIGSERIAL PRIMARY KEY,
+    account_id INT NOT NULL REFERENCES bank_accounts(account_id) ON DELETE CASCADE,
+    action_type VARCHAR(30) NOT NULL,
+    logged_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);</code></pre>
+          <p><strong>Техническое задание:</strong></p>
+          <ol>
+            <li>С помощью <code>ALTER TABLE</code> добавьте в таблицу <code>bank_accounts</code> внешний ключ <code>fk_bank_accounts_client</code> на таблицу <code>bank_clients(client_id)</code> с защитным правилом удаления <code>ON DELETE RESTRICT</code>.</li>
+            <li>Удалите устаревшее ограничение уникальности <code>unq_account_number</code> из таблицы <code>bank_accounts</code> (команда <code>ALTER TABLE ... DROP CONSTRAINT</code>).</li>
+            <li>Выполните удаление таблицы архивных логов <code>transaction_audit_logs</code> с каскадным снятием зависимостей (<code>DROP TABLE ... CASCADE</code>).</li>
+          </ol>
+        </div>
 
- <label for="v3_sql" class="field-label">1. Итоговый DDL-скрипт (ALTER TABLE ADD/DROP CONSTRAINT и DROP TABLE CASCADE):</label>
- <textarea id="v3_sql" class="answer-area"></textarea>
+        <label for="v3_sql" class="field-label">1. Итоговый DDL-скрипт (ALTER TABLE ADD/DROP CONSTRAINT и DROP TABLE CASCADE):</label>
+        <textarea id="v3_sql" class="answer-area"></textarea>
 
- <label for="v3_analysis" class="field-label">2. Аналитический вопрос: Чем концептуально отличается правило ON DELETE RESTRICT от ON DELETE CASCADE при удалении клиента? Какие риски несет выполнение DROP TABLE... CASCADE в промышленной базе данных?</label>
- <textarea id="v3_analysis" class="answer-area text-area-free"></textarea>
- </section>
- </div>
+        <label for="v3_analysis" class="field-label">2. Аналитический вопрос: Чем концептуально отличается правило ON DELETE RESTRICT от ON DELETE CASCADE при удалении клиента? Какие риски несет выполнение DROP TABLE ... CASCADE в промышленной базе данных?</label>
+        <textarea id="v3_analysis" class="answer-area text-area-free"></textarea>
+      </section>
+    </div>
 
- <!-- ВАРИАНТ 4 -->
- <div id="v4" class="variant-container">
- <section class="task-card">
- <h2>Вариант 4. Образовательный университетский портал (UNIQUE и TRUNCATE)</h2>
- <div class="spec-box">
- <p><strong>Техническое задание:</strong></p>
- <ol>
- <li>Создайте таблицу академических дисциплин <code>disciplines</code> (с поддержкой <code>IF NOT EXISTS</code>):
- <ul>
- <li><code>discipline_id</code> — суррогатный первичный ключ (<code>SERIAL PRIMARY KEY</code>);</li>
- <li><code>discipline_code</code> — шифр предмета (<code>VARCHAR(20) NOT NULL</code>);</li>
- <li><code>title</code> — название дисциплины (<code>VARCHAR(150) NOT NULL</code>);</li>
- <li><code>semester_num</code> — номер семестра (<code>SMALLINT NOT NULL CHECK (semester_num BETWEEN 1 AND 12)</code>);</li>
- <li><code>total_hours</code> — объем часов (<code>INT NOT NULL CHECK (total_hours > 0)</code>);</li>
- <li><code>is_mandatory</code> — обязательный курс (<code>BOOLEAN NOT NULL DEFAULT TRUE</code>).</li>
- </ul>
- </li>
- <li>Используя <code>ALTER TABLE</code>, наложите составное ограничение уникальности с именем <code>unq_discipline_code_semester</code> на комбинацию полей <code>(discipline_code, semester_num)</code>, чтобы исключить дублирование предмета в одном семестре.</li>
- <li>Создайте таблицу журнала посещаемости <code>student_attendance_log</code> (столбцы: <code>log_id BIGSERIAL PRIMARY KEY</code>, <code>discipline_id INT REFERENCES disciplines(discipline_id)</code>, <code>student_id INT NOT NULL</code>, <code>attended_at DATE DEFAULT CURRENT_DATE</code>, <code>presence_status BOOLEAN DEFAULT FALSE</code>).</li>
- <li>В конце учебного года требуется моментально очистить таблицу посещаемости со сбросом автоинкрементного счетчика <code>log_id</code> в единицу. Напишите команду <code>TRUNCATE TABLE</code> с опцией <code>RESTART IDENTITY</code>.</li>
- </ol>
- </div>
+    <!-- ВАРИАНТ 4 -->
+    <div id="v4" class="variant-container">
+      <section class="task-card">
+        <h2>Вариант 4. Образовательный университетский портал (UNIQUE и TRUNCATE)</h2>
+        <div class="spec-box">
+          <p><strong>Техническое задание:</strong></p>
+          <ol>
+            <li>Создайте таблицу академических дисциплин <code>disciplines</code> (с поддержкой <code>IF NOT EXISTS</code>):
+              <ul>
+                <li><code>discipline_id</code> — суррогатный первичный ключ (<code>SERIAL PRIMARY KEY</code>);</li>
+                <li><code>discipline_code</code> — шифр предмета (<code>VARCHAR(20) NOT NULL</code>);</li>
+                <li><code>title</code> — название дисциплины (<code>VARCHAR(150) NOT NULL</code>);</li>
+                <li><code>semester_num</code> — номер семестра (<code>SMALLINT NOT NULL CHECK (semester_num BETWEEN 1 AND 12)</code>);</li>
+                <li><code>total_hours</code> — объем часов (<code>INT NOT NULL CHECK (total_hours > 0)</code>);</li>
+                <li><code>is_mandatory</code> — обязательный курс (<code>BOOLEAN NOT NULL DEFAULT TRUE</code>).</li>
+              </ul>
+            </li>
+            <li>Используя <code>ALTER TABLE</code>, наложите составное ограничение уникальности с именем <code>unq_discipline_code_semester</code> на комбинацию полей <code>(discipline_code, semester_num)</code>, чтобы исключить дублирование предмета в одном семестре.</li>
+            <li>Создайте таблицу журнала посещаемости <code>student_attendance_log</code> (столбцы: <code>log_id BIGSERIAL PRIMARY KEY</code>, <code>discipline_id INT REFERENCES disciplines(discipline_id)</code>, <code>student_id INT NOT NULL</code>, <code>attended_at DATE DEFAULT CURRENT_DATE</code>, <code>presence_status BOOLEAN DEFAULT FALSE</code>).</li>
+            <li>В конце учебного года требуется моментально очистить таблицу посещаемости со сбросом автоинкрементного счетчика <code>log_id</code> в единицу. Напишите команду <code>TRUNCATE TABLE</code> с опцией <code>RESTART IDENTITY</code>.</li>
+          </ol>
+        </div>
 
- <label for="v4_sql" class="field-label">1. Итоговый DDL-скрипт (CREATE TABLE, составной UNIQUE, TRUNCATE RESTART IDENTITY):</label>
- <textarea id="v4_sql" class="answer-area"></textarea>
+        <label for="v4_sql" class="field-label">1. Итоговый DDL-скрипт (CREATE TABLE, составной UNIQUE, TRUNCATE RESTART IDENTITY):</label>
+        <textarea id="v4_sql" class="answer-area"></textarea>
 
- <label for="v4_analysis" class="field-label">2. Аналитический вопрос: Почему для очистки миллиона записей посещаемости системный администратор обязан использовать TRUNCATE вместо DELETE FROM? Что делает опция RESTART IDENTITY?</label>
- <textarea id="v4_analysis" class="answer-area text-area-free"></textarea>
- </section>
- </div>
+        <label for="v4_analysis" class="field-label">2. Аналитический вопрос: Почему для очистки миллиона записей посещаемости системный администратор обязан использовать TRUNCATE вместо DELETE FROM? Что делает опция RESTART IDENTITY?</label>
+        <textarea id="v4_analysis" class="answer-area text-area-free"></textarea>
+      </section>
+    </div>
 
- <!-- Нижняя панель действий -->
- <div class="action-panel">
- <div class="btn-group">
- <button type="button" class="action-btn action-btn-primary" id="saveBtn">Сохранить локально</button>
- <button type="button" class="action-btn action-btn-outline" id="printBtn">Версия для печати / PDF</button>
- <button type="button" class="action-btn action-btn-outline" id="clearBtn">Очистить поля</button>
- </div>
- <span class="status-msg" id="saveAlert">Данные сохранены в браузере!</span>
- </div>
- </div>
+    <!-- Нижняя панель действий -->
+    <div class="action-panel">
+      <div class="btn-group">
+        <button type="button" class="action-btn action-btn-primary" id="saveBtn">Сохранить локально</button>
+        <button type="button" class="action-btn action-btn-outline" id="printBtn">Версия для печати / PDF</button>
+        <button type="button" class="action-btn action-btn-outline" id="clearBtn">Очистить поля</button>
+      </div>
+      <span class="status-msg" id="saveAlert">Данные сохранены в браузере!</span>
+    </div>
+  </div>
 
- <script>
- (function() {
- const STORAGE_KEY = 'zanyatie_db_lesson_30_data';
- const tabBtns = document.querySelectorAll('.v-tab-btn');
- const containers = document.querySelectorAll('.variant-container');
+  <script>
+    (function() {
+      const STORAGE_KEY = 'zanyatie_db_lesson_30_data';
+      const tabBtns = document.querySelectorAll('.v-tab-btn');
+      const containers = document.querySelectorAll('.variant-container');
 
- function getActiveVariant() {
- const active = document.querySelector('.variant-container.active');
- return active ? active.id : 'v1';
- }
+      function getActiveVariant() {
+        const active = document.querySelector('.variant-container.active');
+        return active ? active.id : 'v1';
+      }
 
- tabBtns.forEach(btn => {
- btn.addEventListener('click', () => {
- tabBtns.forEach(b => b.classList.remove('active'));
- containers.forEach(c => c.classList.remove('active'));
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          tabBtns.forEach(b => b.classList.remove('active'));
+          containers.forEach(c => c.classList.remove('active'));
 
- btn.classList.add('active');
- const targetId = btn.getAttribute('data-target');
- const targetCont = document.getElementById(targetId);
- if (targetCont) targetCont.classList.add('active');
+          btn.classList.add('active');
+          const targetId = btn.getAttribute('data-target');
+          const targetCont = document.getElementById(targetId);
+          if (targetCont) targetCont.classList.add('active');
 
- saveData();
- });
- });
+          saveData();
+        });
+      });
 
- function getAllInputs() {
- return document.querySelectorAll('input[type="text"], textarea');
- }
+      function getAllInputs() {
+        return document.querySelectorAll('input[type="text"], textarea');
+      }
 
- function saveData() {
- const data = {
- activeVariant: getActiveVariant(),
- fields: {}
- };
- getAllInputs().forEach(el => {
- if (el.id) data.fields[el.id] = el.value;
- });
- localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
- const alertBox = document.getElementById('saveAlert');
- if (alertBox) {
- alertBox.style.display = 'inline';
- setTimeout(() => { alertBox.style.display = 'none'; }, 2500);
- }
- }
+      function saveData() {
+        const data = {
+          activeVariant: getActiveVariant(),
+          fields: {}
+        };
+        getAllInputs().forEach(el => {
+          if (el.id) data.fields[el.id] = el.value;
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        const alertBox = document.getElementById('saveAlert');
+        if (alertBox) {
+          alertBox.style.display = 'inline';
+          setTimeout(() => { alertBox.style.display = 'none'; }, 2500);
+        }
+      }
 
- function loadData() {
- const raw = localStorage.getItem(STORAGE_KEY);
- if (!raw) return;
- try {
- const parsed = JSON.parse(raw);
- if (parsed.activeVariant) {
- tabBtns.forEach(b => {
- if (b.getAttribute('data-target') === parsed.activeVariant) {
- b.click();
- }
- });
- }
- if (parsed.fields) {
- Object.keys(parsed.fields).forEach(id => {
- const el = document.getElementById(id);
- if (el) el.value = parsed.fields[id];
- });
- }
- } catch (e) {
- console.error('Ошибка восстановления данных:', e);
- }
- }
+      function loadData() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed.activeVariant) {
+            tabBtns.forEach(b => {
+              if (b.getAttribute('data-target') === parsed.activeVariant) {
+                b.click();
+              }
+            });
+          }
+          if (parsed.fields) {
+            Object.keys(parsed.fields).forEach(id => {
+              const el = document.getElementById(id);
+              if (el) el.value = parsed.fields[id];
+            });
+          }
+        } catch (e) {
+          console.error('Ошибка восстановления данных:', e);
+        }
+      }
 
- function clearData() {
- if (confirm('Вы уверены, что хотите полностью очистить все поля рабочего листа?')) {
- localStorage.removeItem(STORAGE_KEY);
- getAllInputs().forEach(el => { el.value = ''; });
- }
- }
+      function clearData() {
+        if (confirm('Вы уверены, что хотите полностью очистить все поля рабочего листа?')) {
+          localStorage.removeItem(STORAGE_KEY);
+          getAllInputs().forEach(el => { el.value = ''; });
+        }
+      }
 
- document.getElementById('saveBtn').addEventListener('click', saveData);
- document.getElementById('clearBtn').addEventListener('click', clearData);
- document.getElementById('printBtn').addEventListener('click', () => {
- saveData();
- window.print();
- });
+      document.getElementById('saveBtn').addEventListener('click', saveData);
+      document.getElementById('clearBtn').addEventListener('click', clearData);
+      document.getElementById('printBtn').addEventListener('click', () => {
+        saveData();
+        window.print();
+      });
 
- document.addEventListener('input', (e) => {
- if (e.target.matches('input, textarea')) {
- const data = {
- activeVariant: getActiveVariant(),
- fields: {}
- };
- getAllInputs().forEach(el => {
- if (el.id) data.fields[el.id] = el.value;
- });
- localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
- }
- });
+      document.addEventListener('input', (e) => {
+        if (e.target.matches('input, textarea')) {
+          const data = {
+            activeVariant: getActiveVariant(),
+            fields: {}
+          };
+          getAllInputs().forEach(el => {
+            if (el.id) data.fields[el.id] = el.value;
+          });
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+      });
 
- window.addEventListener('DOMContentLoaded', loadData);
- })();
- </script>
+      window.addEventListener('DOMContentLoaded', loadData);
+    })();
+  </script>
 </body>
 </html>

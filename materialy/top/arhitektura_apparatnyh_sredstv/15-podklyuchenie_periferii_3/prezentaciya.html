@@ -1,601 +1,643 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
- <title>Презентация: Конструкция, подключение и инсталляция периферийных устройств — часть 3</title>
- <style>
- :root {
- --bg: #0f172a;
- --card-bg: #1e293b;
- --text: #f8fafc;
- --muted: #94a3b8;
- --line: #334155;
- --accent: #38bdf8;
- --accent-dim: rgba(56, 189, 248, 0.15);
- --success: #34d399;
- --warn: #fbbf24;
- --danger: #f87171;
- --radius: 14px;
- }
- * { box-sizing: border-box; margin: 0; padding: 0; }
- body {
- background: var(--bg);
- color: var(--text);
- font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
- overflow: hidden;
- height: 100vh;
- width: 100vw;
- display: flex;
- flex-direction: column;
- }.pres-container {
- flex: 1;
- position: relative;
- width: 100%;
- height: 100%;
- display: flex;
- flex-direction: column;
- padding: 24px 32px 80px;
- }.slide {
- display: none;
- height: 100%;
- width: 100%;
- max-width: 1200px;
- margin: 0 auto;
- flex-direction: column;
- justify-content: center;
- animation: fadeIn 0.25s ease-out;
- }.slide.active {
- display: flex;
- }
- @keyframes fadeIn {
- from { opacity: 0; transform: translateY(6px); }
- to { opacity: 1; transform: translateY(0); }
- }
- /* Слайд 1: строго только название крупным шрифтом */.slide-title-only {
- height: 100%;
- display: flex;
- align-items: center;
- justify-content: center;
- text-align: center;
- padding: 40px;
- }.slide-title-only h1 {
- font-size: clamp(32px, 5.5vw, 64px);
- font-weight: 800;
- color: var(--accent);
- line-height: 1.25;
- text-shadow: 0 4px 20px rgba(56, 189, 248, 0.3);
- max-width: 1050px;
- }.slide-title {
- font-size: clamp(22px, 3.2vw, 32px);
- font-weight: 700;
- color: var(--accent);
- margin-bottom: 24px;
- line-height: 1.3;
- border-bottom: 2px solid var(--accent-dim);
- padding-bottom: 12px;
- }.slide-content {
- font-size: clamp(16px, 1.8vw, 19px);
- line-height: 1.6;
- color: #e2e8f0;
- overflow-y: auto;
- max-height: calc(100vh - 180px);
- padding-right: 12px;
- }.grid-2 {
- display: grid;
- grid-template-columns: 1fr 1fr;
- gap: 24px;
- margin: 16px 0;
- }.grid-3 {
- display: grid;
- grid-template-columns: 1fr 1fr 1fr;
- gap: 18px;
- margin: 16px 0;
- }.box {
- background: var(--card-bg);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 20px;
- }.box h4 {
- color: var(--accent);
- font-size: 19px;
- margin-bottom: 10px;
- }.box-warn {
- background: rgba(251, 191, 36, 0.08);
- border: 1px solid var(--warn);
- }.box-warn h4 { color: var(--warn); }.box-danger {
- background: rgba(248, 113, 113, 0.08);
- border: 1px solid var(--danger);
- }.box-danger h4 { color: var(--danger); }.code-box {
- background: #090d16;
- border: 1px solid #1e293b;
- padding: 14px 18px;
- border-radius: 8px;
- font-family: ui-monospace, Menlo, Consolas, monospace;
- font-size: 15px;
- color: #38bdf8;
- margin: 12px 0;
- line-height: 1.5;
- }.badge {
- display: inline-block;
- padding: 3px 10px;
- border-radius: 6px;
- font-size: 13px;
- font-weight: 600;
- margin-bottom: 8px;
- }.badge-ok { background: rgba(52, 211, 153, 0.2); color: var(--success); }.badge-err { background: rgba(248, 113, 113, 0.2); color: var(--danger); }.badge-warn { background: rgba(251, 191, 36, 0.2); color: var(--warn); }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Презентация: Конструкция, подключение и инсталляция периферийных устройств — часть 3</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --line: #334155;
+      --accent: #38bdf8;
+      --accent-dim: rgba(56, 189, 248, 0.15);
+      --success: #34d399;
+      --warn: #fbbf24;
+      --danger: #f87171;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+    }
+    .pres-container {
+      flex: 1;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 24px 32px 80px;
+    }
+    .slide {
+      display: none;
+      height: 100%;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      flex-direction: column;
+      justify-content: center;
+      animation: fadeIn 0.25s ease-out;
+    }
+    .slide.active {
+      display: flex;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Слайд 1: строго только название крупным шрифтом */
+    .slide-title-only {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px;
+    }
+    .slide-title-only h1 {
+      font-size: clamp(32px, 5.5vw, 64px);
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1.25;
+      text-shadow: 0 4px 20px rgba(56, 189, 248, 0.3);
+      max-width: 1050px;
+    }
+    .slide-title {
+      font-size: clamp(22px, 3.2vw, 32px);
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 24px;
+      line-height: 1.3;
+      border-bottom: 2px solid var(--accent-dim);
+      padding-bottom: 12px;
+    }
+    .slide-content {
+      font-size: clamp(16px, 1.8vw, 19px);
+      line-height: 1.6;
+      color: #e2e8f0;
+      overflow-y: auto;
+      max-height: calc(100vh - 180px);
+      padding-right: 12px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin: 16px 0;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 18px;
+      margin: 16px 0;
+    }
+    .box {
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .box h4 {
+      color: var(--accent);
+      font-size: 19px;
+      margin-bottom: 10px;
+    }
+    .box-warn {
+      background: rgba(251, 191, 36, 0.08);
+      border: 1px solid var(--warn);
+    }
+    .box-warn h4 { color: var(--warn); }
+    .box-danger {
+      background: rgba(248, 113, 113, 0.08);
+      border: 1px solid var(--danger);
+    }
+    .box-danger h4 { color: var(--danger); }
+    .code-box {
+      background: #090d16;
+      border: 1px solid #1e293b;
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 15px;
+      color: #38bdf8;
+      margin: 12px 0;
+      line-height: 1.5;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .badge-ok { background: rgba(52, 211, 153, 0.2); color: var(--success); }
+    .badge-err { background: rgba(248, 113, 113, 0.2); color: var(--danger); }
+    .badge-warn { background: rgba(251, 191, 36, 0.2); color: var(--warn); }
 
- /* Навигация */.controls {
- position: fixed;
- bottom: 0;
- left: 0;
- right: 0;
- height: 64px;
- background: rgba(15, 23, 42, 0.92);
- backdrop-filter: blur(8px);
- border-top: 1px solid var(--line);
- display: flex;
- align-items: center;
- justify-content: space-between;
- padding: 0 32px;
- z-index: 100;
- }.controls-btns {
- display: flex;
- gap: 12px;
- }.nav-btn {
- background: var(--card-bg);
- color: var(--text);
- border: 1px solid var(--line);
- padding: 8px 18px;
- border-radius: 8px;
- font-size: 14px;
- font-weight: 600;
- cursor: pointer;
- transition: background 0.15s, border-color 0.15s;
- }.nav-btn:hover:not(:disabled) {
- background: #334155;
- border-color: var(--accent);
- }.nav-btn:disabled {
- opacity: 0.35;
- cursor: not-allowed;
- }.slide-counter {
- color: var(--muted);
- font-size: 14px;
- font-weight: 600;
- }
+    /* Навигация */
+    .controls {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      z-index: 100;
+    }
+    .controls-btns {
+      display: flex;
+      gap: 12px;
+    }
+    .nav-btn {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--line);
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .nav-btn:hover:not(:disabled) {
+      background: #334155;
+      border-color: var(--accent);
+    }
+    .nav-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+    .slide-counter {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+    }
 
- /* Мем на слайде 15 */.meme-wrap {
- display: flex;
- flex-direction: column;
- align-items: center;
- justify-content: center;
- text-align: center;
- margin: auto 0;
- }.meme-img {
- max-width: 480px;
- max-height: 48vh;
- border-radius: 12px;
- border: 2px solid var(--line);
- box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
- object-fit: contain;
- }.attribution {
- margin-top: 14px;
- font-size: 13.5px;
- color: var(--muted);
- max-width: 760px;
- line-height: 1.5;
- }.attribution strong { color: #cbd5e1; }
+    /* Мем на слайде 15 */
+    .meme-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      margin: auto 0;
+    }
+    .meme-img {
+      max-width: 480px;
+      max-height: 48vh;
+      border-radius: 12px;
+      border: 2px solid var(--line);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      object-fit: contain;
+    }
+    .attribution {
+      margin-top: 14px;
+      font-size: 13.5px;
+      color: var(--muted);
+      max-width: 760px;
+      line-height: 1.5;
+    }
+    .attribution strong { color: #cbd5e1; }
 
- /* Печать */
- @media print {
- body { background: #fff; color: #000; overflow: visible; height: auto; }.pres-container { padding: 0; }.controls { display: none !important; }.slide { display: block !important; page-break-after: always; height: auto; min-height: 90vh; padding: 24pt; }.slide-title-only h1 { color: #000; text-shadow: none; }.slide-title { color: #0f172a; border-bottom: 2px solid #cbd5e1; }.box { background: #f8fafc; border: 1px solid #cbd5e1; color: #000; }.code-box { background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; }.box h4 { color: #1e40af; }.attribution { color: #475569; }
- }
- @media (max-width: 768px) {.pres-container { padding: 16px 16px 70px; }.grid-2,.grid-3 { grid-template-columns: 1fr; }.controls { padding: 0 16px; }
- }
- </style>
+    /* Печать */
+    @media print {
+      body { background: #fff; color: #000; overflow: visible; height: auto; }
+      .pres-container { padding: 0; }
+      .controls { display: none !important; }
+      .slide { display: block !important; page-break-after: always; height: auto; min-height: 90vh; padding: 24pt; }
+      .slide-title-only h1 { color: #000; text-shadow: none; }
+      .slide-title { color: #0f172a; border-bottom: 2px solid #cbd5e1; }
+      .box { background: #f8fafc; border: 1px solid #cbd5e1; color: #000; }
+      .code-box { background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; }
+      .box h4 { color: #1e40af; }
+      .attribution { color: #475569; }
+    }
+    @media (max-width: 768px) {
+      .pres-container { padding: 16px 16px 70px; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .controls { padding: 0 16px; }
+    }
+  </style>
 </head>
 <body>
 
 <div class="pres-container">
 
- <!-- СЛАЙД 1: СТРОГО ТОЛЬКО НАЗВАНИЕ КРУПНЫМ ШРИФТОМ -->
- <div class="slide active" id="slide-1">
- <div class="slide-title-only">
- <h1>Конструкция, подключение и инсталляция периферийных устройств — часть 3</h1>
- </div>
- </div>
+  <!-- СЛАЙД 1: СТРОГО ТОЛЬКО НАЗВАНИЕ КРУПНЫМ ШРИФТОМ -->
+  <div class="slide active" id="slide-1">
+    <div class="slide-title-only">
+      <h1>Конструкция, подключение и инсталляция периферийных устройств — часть 3</h1>
+    </div>
+  </div>
 
- <!-- СЛАЙД 2: ПРОБЛЕМАТИКА И ТРЕХУРОВНЕВАЯ МОДЕЛЬ -->
- <div class="slide" id="slide-2">
- <div class="slide-title">1. Трехуровневая модель диагностики периферии</div>
- <div class="slide-content">
- <div class="grid-3">
- <div class="box">
- <span class="badge badge-err">Уровень 1 (L1)</span>
- <h4>Физический уровень (PHY)</h4>
- <p>Падение напряжения шины VBUS, деградация контактов, пробой TVS-диодов от ESD, завал фронтов и фазовый джиттер на линиях D+/D-.</p>
- </div>
- <div class="box">
- <span class="badge badge-warn">Уровень 2 (L2)</span>
- <h4>Протокол и шина (Link)</h4>
- <p>Таймауты Handshake (ACK/NAK), сбои PnP-энумерации, ошибки контрольных сумм CRC16, ошибка «Код 43 (Сбой дескриптора)».</p>
- </div>
- <div class="box">
- <span class="badge badge-ok">Уровень 3 (L3)</span>
- <h4>Драйвер и ядро (OS)</h4>
- <p>Очереди DPC/ISR, конфликты прерываний MSI-X в xHCI, аварийные остановы ядра BSOD (0xD1, 0x1E), термотроттлинг контроллеров.</p>
- </div>
- </div>
- </div>
- </div>
+  <!-- СЛАЙД 2: ПРОБЛЕМАТИКА И ТРЕХУРОВНЕВАЯ МОДЕЛЬ -->
+  <div class="slide" id="slide-2">
+    <div class="slide-title">1. Трехуровневая модель диагностики периферии</div>
+    <div class="slide-content">
+      <div class="grid-3">
+        <div class="box">
+          <span class="badge badge-err">Уровень 1 (L1)</span>
+          <h4>Физический уровень (PHY)</h4>
+          <p>Падение напряжения шины VBUS, деградация контактов, пробой TVS-диодов от ESD, завал фронтов и фазовый джиттер на линиях D+/D-.</p>
+        </div>
+        <div class="box">
+          <span class="badge badge-warn">Уровень 2 (L2)</span>
+          <h4>Протокол и шина (Link)</h4>
+          <p>Таймауты Handshake (ACK/NAK), сбои PnP-энумерации, ошибки контрольных сумм CRC16, ошибка «Код 43 (Сбой дескриптора)».</p>
+        </div>
+        <div class="box">
+          <span class="badge badge-ok">Уровень 3 (L3)</span>
+          <h4>Драйвер и ядро (OS)</h4>
+          <p>Очереди DPC/ISR, конфликты прерываний MSI-X в xHCI, аварийные остановы ядра BSOD (0xD1, 0x1E), термотроттлинг контроллеров.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
- <!-- СЛАЙД 3: ФИЗИЧЕСКИЙ УРОВЕНЬ - ПАДЕНИЕ НАПРЯЖЕНИЯ VBUS -->
- <div class="slide" id="slide-3">
- <div class="slide-title">2. Физический уровень: закон Ома на шине питания VBUS</div>
- <div class="slide-content">
- <div class="grid-2">
- <div class="box">
- <h4>Формула потерь в кабеле</h4>
- <div class="code-box">ΔU = I_load · (2 · R_жилы + R_контактов)</div>
- <p>Стандарт USB требует напряжение на разъеме устройства не менее <strong>4.75 В</strong> (допустимый минимум в переходном процессе — 4.45 В).</p>
- <p>При токе 1.2 А и тонком кабеле 28 AWG (0.21 Ом/м) падение составляет более 0.8 В!</p>
- </div>
- <div class="box box-warn">
- <h4>Симптомы дефицита питания:</h4>
- <ul>
- <li>Циклический сброс внешнего накопителя при старте записи.</li>
- <li>Акустические щелчки парковки головок 2.5″ HDD.</li>
- <li>Срабатывание схемы UVLO (Under-Voltage Lock-Out) контроллера диска при напряжении ниже 4.5 В.</li>
- <li>Решение: активный USB-хаб со стабилизированным блоком питания.</li>
- </ul>
- </div>
- </div>
- </div>
- </div>
+  <!-- СЛАЙД 3: ФИЗИЧЕСКИЙ УРОВЕНЬ - ПАДЕНИЕ НАПРЯЖЕНИЯ VBUS -->
+  <div class="slide" id="slide-3">
+    <div class="slide-title">2. Физический уровень: закон Ома на шине питания VBUS</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="box">
+          <h4>Формула потерь в кабеле</h4>
+          <div class="code-box">ΔU = I_load · (2 · R_жилы + R_контактов)</div>
+          <p>Стандарт USB требует напряжение на разъеме устройства не менее <strong>4.75 В</strong> (допустимый минимум в переходном процессе — 4.45 В).</p>
+          <p>При токе 1.2 А и тонком кабеле 28 AWG (0.21 Ом/м) падение составляет более 0.8 В!</p>
+        </div>
+        <div class="box box-warn">
+          <h4>Симптомы дефицита питания:</h4>
+          <ul>
+            <li>Циклический сброс внешнего накопителя при старте записи.</li>
+            <li>Акустические щелчки парковки головок 2.5″ HDD.</li>
+            <li>Срабатывание схемы UVLO (Under-Voltage Lock-Out) контроллера диска при напряжении ниже 4.5 В.</li>
+            <li>Решение: активный USB-хаб со стабилизированным блоком питания.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
 
- <!-- СЛАЙД 4: СИГНАЛЬНЫЕ ЛИНИИ D+ И D- -->
- <div class="slide" id="slide-4">
- <div class="slide-title">3. Дифференциальные линии данных и защита ESD</div>
- <div class="slide-content">
- <div class="grid-2">
- <div class="box">
- <h4>Дифференциальная передача D+ / D-</h4>
- <p>В режиме High-Speed (480 Мбит/с) дифференциальный размах составляет <strong>400 мВ</strong> при волновом сопротивлении тракта 90 Ом.</p>
- <p>Любая несогласованность, скрутки проводов или дешевые пассивные удлинители вызывают отражение волн и фазовый джиттер.</p>
- </div>
- <div class="box box-danger">
- <h4>Защитные диоды TVS и пробой статикой</h4>
- <p>Штатная проверка мультиметром в режиме диодной прозвонки (относительно GND):</p>
- <div class="code-box">Норма падения: 0.500 … 0.700 В
+  <!-- СЛАЙД 4: СИГНАЛЬНЫЕ ЛИНИИ D+ И D- -->
+  <div class="slide" id="slide-4">
+    <div class="slide-title">3. Дифференциальные линии данных и защита ESD</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="box">
+          <h4>Дифференциальная передача D+ / D-</h4>
+          <p>В режиме High-Speed (480 Мбит/с) дифференциальный размах составляет <strong>400 мВ</strong> при волновом сопротивлении тракта 90 Ом.</p>
+          <p>Любая несогласованность, скрутки проводов или дешевые пассивные удлинители вызывают отражение волн и фазовый джиттер.</p>
+        </div>
+        <div class="box box-danger">
+          <h4>Защитные диоды TVS и пробой статикой</h4>
+          <p>Штатная проверка мультиметром в режиме диодной прозвонки (относительно GND):</p>
+          <div class="code-box">Норма падения: 0.500 … 0.700 В
 Пробой (КЗ): 0.000 … 0.050 В
 Обрыв сборки: перегрузка (OL)</div>
- <p>При пробое диода линия D+ или D- садится на «землю», устройство полностью перестает детектироваться хостом.</p>
- </div>
- </div>
- </div>
- </div>
+          <p>При пробое диода линия D+ или D- садится на «землю», устройство полностью перестает детектироваться хостом.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
- <!-- СЛАЙД 5: ПРОТОКОЛ USB - АНАТОМИЯ ЭНУМЕРАЦИИ -->
- <div class="slide" id="slide-5">
- <div class="slide-title">4. Протокол USB: фазы аппаратной энумерации</div>
- <div class="slide-content">
- <div class="grid-2">
- <div class="box">
- <h4>Пошаговый алгоритм PnP-опроса</h4>
- <ol>
- <li><strong>Attach:</strong> подтяжка D+ к 3.3 В (Pull-up 1.5 кОм).</li>
- <li><strong>Reset:</strong> удержание D+ и D- в нуле &gt; 10 мс.</li>
- <li><strong>Chirp Handshake:</strong> согласование скорости HS/FS.</li>
- <li><strong>Get Device Descriptor (8 байт):</strong> определение размера пакета ep0.</li>
- <li><strong>Set Address:</strong> назначение уникального адреса (1–127).</li>
- <li><strong>Get Full Descriptors:</strong> чтение VID, PID, конфигураций.</li>
- </ol>
- </div>
- <div class="box">
- <h4>Пакетный обмен транзакции</h4>
- <div class="code-box">Host ──► SETUP token ──► Device
-Host ──► DATA0 packet ──► Device
+  <!-- СЛАЙД 5: ПРОТОКОЛ USB - АНАТОМИЯ ЭНУМЕРАЦИИ -->
+  <div class="slide" id="slide-5">
+    <div class="slide-title">4. Протокол USB: фазы аппаратной энумерации</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="box">
+          <h4>Пошаговый алгоритм PnP-опроса</h4>
+          <ol>
+            <li><strong>Attach:</strong> подтяжка D+ к 3.3 В (Pull-up 1.5 кОм).</li>
+            <li><strong>Reset:</strong> удержание D+ и D- в нуле &gt; 10 мс.</li>
+            <li><strong>Chirp Handshake:</strong> согласование скорости HS/FS.</li>
+            <li><strong>Get Device Descriptor (8 байт):</strong> определение размера пакета ep0.</li>
+            <li><strong>Set Address:</strong> назначение уникального адреса (1–127).</li>
+            <li><strong>Get Full Descriptors:</strong> чтение VID, PID, конфигураций.</li>
+          </ol>
+        </div>
+        <div class="box">
+          <h4>Пакетный обмен транзакции</h4>
+          <div class="code-box">Host   ──► SETUP token ──► Device
+Host   ──► DATA0 packet ──► Device
 Device ──► ACK handshake ──► Host</div>
- <p>Если устройство не ответило за время тайм-аута (<code>t_HANDSHAKE</code> &gt; 50 мкс), хост фиксирует ошибку шины.</p>
- </div>
- </div>
- </div>
- </div>
+          <p>Если устройство не ответило за время тайм-аута (<code>t_HANDSHAKE</code> &gt; 50 мкс), хост фиксирует ошибку шины.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
- <!-- СЛАЙД 6: РАЗБОР ОШИБКИ «КОД 43» -->
- <div class="slide" id="slide-6">
- <div class="slide-title">5. Ошибка Windows «Код 43 (Сбой дескриптора)»</div>
- <div class="slide-content">
- <div class="box-danger box">
- <h4>Почему переустановка драйверов бессмысленна?</h4>
- <p>Диспетчер устройств сообщает: <em>«Сбой запроса дескриптора устройства»</em>. Это значит, что хост не смог прочитать начальный блок 18 байт дескриптора.</p>
- <p>Операционная система <strong>не знает Hardware ID (VID/PID)</strong>. В стек не может быть загружен ни один драйвер, так как устройство физически не прошло опрос шины!</p>
- </div>
- <div class="grid-2" style="margin-top: 16px;">
- <div class="box">
- <h4>Аппаратные причины Кода 43:</h4>
- <ul>
- <li>Обрыв или плохой контакт в линии D+ или D-.</li>
- <li>Электромагнитная помеха (отсутствие экрана кабеля).</li>
- <li>Просадка питания VBUS во время ответа контроллера.</li>
- </ul>
- </div>
- <div class="box">
- <h4>Инженерные шаги устранения:</h4>
- <ul>
- <li>Подключение в корневой порт на задней панели ПК.</li>
- <li>Замена соединительного кабеля на качественный экранированный.</li>
- <li>Проверка разъема на окисление контактов (изопропанол).</li>
- </ul>
- </div>
- </div>
- </div>
- </div>
+  <!-- СЛАЙД 6: РАЗБОР ОШИБКИ «КОД 43» -->
+  <div class="slide" id="slide-6">
+    <div class="slide-title">5. Ошибка Windows «Код 43 (Сбой дескриптора)»</div>
+    <div class="slide-content">
+      <div class="box-danger box">
+        <h4>Почему переустановка драйверов бессмысленна?</h4>
+        <p>Диспетчер устройств сообщает: <em>«Сбой запроса дескриптора устройства»</em>. Это значит, что хост не смог прочитать начальный блок 18 байт дескриптора.</p>
+        <p>Операционная система <strong>не знает Hardware ID (VID/PID)</strong>. В стек не может быть загружен ни один драйвер, так как устройство физически не прошло опрос шины!</p>
+      </div>
+      <div class="grid-2" style="margin-top: 16px;">
+        <div class="box">
+          <h4>Аппаратные причины Кода 43:</h4>
+          <ul>
+            <li>Обрыв или плохой контакт в линии D+ или D-.</li>
+            <li>Электромагнитная помеха (отсутствие экрана кабеля).</li>
+            <li>Просадка питания VBUS во время ответа контроллера.</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>Инженерные шаги устранения:</h4>
+          <ul>
+            <li>Подключение в корневой порт на задней панели ПК.</li>
+            <li>Замена соединительного кабеля на качественный экранированный.</li>
+            <li>Проверка разъема на окисление контактов (изопропанол).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
 
- <!-- СЛАЙД 7: ИЗМЕРИТЕЛЬНЫЕ ПРИБОРЫ ДИАГНОСТИКИ -->
- <div class="slide" id="slide-7">
- <div class="slide-title">6. Инструментальная база: измерительные приборы</div>
- <div class="slide-content">
- <div class="grid-3">
- <div class="box">
- <h4>USB-тестер с триггером</h4>
- <p>Замеряет VBUS, ток нагрузки с дискретностью 1 мс, емкость, пульсации (мВ) и внутреннее сопротивление кабельной петли.</p>
- </div>
- <div class="box">
- <h4>Цифровой мультиметр</h4>
- <p>Прозвонка жил, измерение падения напряжения на защитных диодах TVS (0.5–0.7 В) и проверка отсутствия замыканий между VBUS и D-.</p>
- </div>
- <div class="box">
- <h4>Осциллограф (от 100 МГц)</h4>
- <p>Визуализация дифференциального глаза (Eye Pattern), оценка джиттера и выявление паразитных звонов при несогласованной нагрузке.</p>
- </div>
- </div>
- </div>
- </div>
+  <!-- СЛАЙД 7: ИЗМЕРИТЕЛЬНЫЕ ПРИБОРЫ ДИАГНОСТИКИ -->
+  <div class="slide" id="slide-7">
+    <div class="slide-title">6. Инструментальная база: измерительные приборы</div>
+    <div class="slide-content">
+      <div class="grid-3">
+        <div class="box">
+          <h4>USB-тестер с триггером</h4>
+          <p>Замеряет VBUS, ток нагрузки с дискретностью 1 мс, емкость, пульсации (мВ) и внутреннее сопротивление кабельной петли.</p>
+        </div>
+        <div class="box">
+          <h4>Цифровой мультиметр</h4>
+          <p>Прозвонка жил, измерение падения напряжения на защитных диодах TVS (0.5–0.7 В) и проверка отсутствия замыканий между VBUS и D-.</p>
+        </div>
+        <div class="box">
+          <h4>Осциллограф (от 100 МГц)</h4>
+          <p>Визуализация дифференциального глаза (Eye Pattern), оценка джиттера и выявление паразитных звонов при несогласованной нагрузке.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
- <!-- СЛАЙД 8: СИСТЕМНЫЙ УРОВЕНЬ - ИЕРАРХИЯ ПРЕРЫВАНИЙ IRQL -->
- <div class="slide" id="slide-8">
- <div class="slide-title">7. Системный уровень: архитектура прерываний ядра (IRQL)</div>
- <div class="slide-content">
- <div class="grid-2">
- <div class="box">
- <h4>Иерархия приоритетов Windows</h4>
- <div class="code-box">HIGH_LEVEL (31) ──► Аппаратный сбой процессора
-DIRQL (3-26) ──► Аппаратные прерывания (ISR)
-DISPATCH (2) ──► Очереди DPC / Планировщик потоков
-APC_LEVEL (1) ──► Асинхронные вызовы процедур
+  <!-- СЛАЙД 8: СИСТЕМНЫЙ УРОВЕНЬ - ИЕРАРХИЯ ПРЕРЫВАНИЙ IRQL -->
+  <div class="slide" id="slide-8">
+    <div class="slide-title">7. Системный уровень: архитектура прерываний ядра (IRQL)</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="box">
+          <h4>Иерархия приоритетов Windows</h4>
+          <div class="code-box">HIGH_LEVEL (31) ──► Аппаратный сбой процессора
+DIRQL (3-26)   ──► Аппаратные прерывания (ISR)
+DISPATCH (2)   ──► Очереди DPC / Планировщик потоков
+APC_LEVEL (1)  ──► Асинхронные вызовы процедур
 PASSIVE_LEVEL(0)──► Обычный пользовательский код</div>
- </div>
- <div class="box box-warn">
- <h4>Золотое правило драйверов ядра</h4>
- <p>На уровне <strong>DISPATCH_LEVEL (2)</strong> и выше планировщик потоков отключен. Любое обращение к выгружаемой (pageable) памяти, отсутствующей в RAM, приводит к фатальному исключению <code>Page Fault</code>.</p>
- <p>Диспетчер виртуальной памяти не может обратиться к диску для подкачки страницы, что вызывает немедленный аварийный останов системы (BSOD).</p>
- </div>
- </div>
- </div>
- </div>
+        </div>
+        <div class="box box-warn">
+          <h4>Золотое правило драйверов ядра</h4>
+          <p>На уровне <strong>DISPATCH_LEVEL (2)</strong> и выше планировщик потоков отключен. Любое обращение к выгружаемой (pageable) памяти, отсутствующей в RAM, приводит к фатальному исключению <code>Page Fault</code>.</p>
+          <p>Диспетчер виртуальной памяти не может обратиться к диску для подкачки страницы, что вызывает немедленный аварийный останов системы (BSOD).</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
- <!-- СЛАЙД 9: СИНИЙ ЭКРАН BSOD DRIVER_IRQL_NOT_LESS_OR_EQUAL -->
- <div class="slide" id="slide-9">
- <div class="slide-title">8. Анализ аварийного дампа: DRIVER_IRQL_NOT_LESS_OR_EQUAL</div>
- <div class="slide-content">
- <div class="box">
- <h4>Код останова 0x000000D1</h4>
- <div class="code-box">DRIVER_IRQL_NOT_LESS_OR_EQUAL (d1)
+  <!-- СЛАЙД 9: СИНИЙ ЭКРАН BSOD DRIVER_IRQL_NOT_LESS_OR_EQUAL -->
+  <div class="slide" id="slide-9">
+    <div class="slide-title">8. Анализ аварийного дампа: DRIVER_IRQL_NOT_LESS_OR_EQUAL</div>
+    <div class="slide-content">
+      <div class="box">
+        <h4>Код останова 0x000000D1</h4>
+        <div class="code-box">DRIVER_IRQL_NOT_LESS_OR_EQUAL (d1)
 Arg1: 0000000000000028 (Адрес памяти, к которому обратились)
 Arg2: 0000000000000002 (Уровень IRQL = DISPATCH_LEVEL)
 Arg3: 0000000000000000 (0 = операция чтения)
 Arg4: fffff8034b21a890 (Инструкция в драйвере usbvideo.sys)</div>
- <p><strong>Причина:</strong> Драйвер видеопотока веб-камеры на уровне DPC попытался прочитать структуру кадра по нулевому указателю (смещение 0x28). Сбой вызван переполнением буфера изохронного трансфера контроллера xHCI.</p>
- </div>
- </div>
- </div>
+        <p><strong>Причина:</strong> Драйвер видеопотока веб-камеры на уровне DPC попытался прочитать структуру кадра по нулевому указателю (смещение 0x28). Сбой вызван переполнением буфера изохронного трансфера контроллера xHCI.</p>
+      </div>
+    </div>
+  </div>
 
- <!-- СЛАЙД 10: РАСШИФРОВКА WINDBG И КОМАНДА !ANALYZE -V -->
- <div class="slide" id="slide-10">
- <div class="slide-title">9. Инструментарий WinDbg: синтаксис анализа minidump</div>
- <div class="slide-content">
- <div class="grid-2">
- <div class="box">
- <h4>Базовые команды WinDbg</h4>
- <div class="code-box">!analyze -v # Полный автоматический аудит сбоя
-kv # Стек вызовов потока с аргументами
-lmvm usbvideo # Сведения о версии и подписи драйвера
-!dpc # Анализ зависших очередей DPC
-!irql # Проверка текущего уровня прерываний</div>
- </div>
- <div class="box">
- <h4>Стек вызовов аварии (Stack Trace)</h4>
- <div class="code-box">nt!KeBugCheckEx
+  <!-- СЛАЙД 10: РАСШИФРОВКА WINDBG И КОМАНДА !ANALYZE -V -->
+  <div class="slide" id="slide-10">
+    <div class="slide-title">9. Инструментарий WinDbg: синтаксис анализа minidump</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="box">
+          <h4>Базовые команды WinDbg</h4>
+          <div class="code-box">!analyze -v      # Полный автоматический аудит сбоя
+kv               # Стек вызовов потока с аргументами
+lmvm usbvideo    # Сведения о версии и подписи драйвера
+!dpc             # Анализ зависших очередей DPC
+!irql            # Проверка текущего уровня прерываний</div>
+        </div>
+        <div class="box">
+          <h4>Стек вызовов аварии (Stack Trace)</h4>
+          <div class="code-box">nt!KeBugCheckEx
 nt!KiPageFault+0x460
 usbvideo!UvcProcessIsochronousTransfer
 USBXHCI!Bulk_ProcessTransferEvent
 nt!KiRetireDpcList
 nt!KiIdleLoop</div>
- <p>Стек показывает точную цепочку передачи управления: планировщик ядра &rarr; обработчик xHCI &rarr; драйвер камеры.</p>
- </div>
- </div>
- </div>
- </div>
+          <p>Стек показывает точную цепочку передачи управления: планировщик ядра &rarr; обработчик xHCI &rarr; драйвер камеры.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
- <!-- СЛАЙД 11: ПРЕРЫВАНИЯ MSI-X ПРОТИВ КЛАССИЧЕСКИХ IRQ -->
- <div class="slide" id="slide-11">
- <div class="slide-title">10. Аппаратная коллизия: IRQ Sharing против MSI-X</div>
- <div class="slide-content">
- <div class="grid-2">
- <div class="box">
- <h4>Устаревшие линии прерываний (Line-based IRQ)</h4>
- <ul>
- <li>Контроллер USB и сетевая карта делят одну физическую линию прерывания (IRQ 16).</li>
- <li>При поступлении сигнала процессор поочередно опрашивает все драйверы на линии.</li>
- <li>Задержка DPC Latency вырастает свыше 1500 мкс.</li>
- <li>Результат: треск в звуке, выпадение кадров потокового видео.</li>
- </ul>
- </div>
- <div class="box">
- <h4>Message Signaled Interrupts (MSI / MSI-X)</h4>
- <ul>
- <li>Прерывание передается как адресная запись в память по шине PCIe (In-Band Message).</li>
- <li>Каждое устройство и очередь получают индивидуальный вектор.</li>
- <li>Нулевая задержка опроса шины, распределение по ядрам CPU.</li>
- <li>Решение проблемы конфликта: включение MSI-режима для контроллера xHCI.</li>
- </ul>
- </div>
- </div>
- </div>
- </div>
+  <!-- СЛАЙД 11: ПРЕРЫВАНИЯ MSI-X ПРОТИВ КЛАССИЧЕСКИХ IRQ -->
+  <div class="slide" id="slide-11">
+    <div class="slide-title">10. Аппаратная коллизия: IRQ Sharing против MSI-X</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="box">
+          <h4>Устаревшие линии прерываний (Line-based IRQ)</h4>
+          <ul>
+            <li>Контроллер USB и сетевая карта делят одну физическую линию прерывания (IRQ 16).</li>
+            <li>При поступлении сигнала процессор поочередно опрашивает все драйверы на линии.</li>
+            <li>Задержка DPC Latency вырастает свыше 1500 мкс.</li>
+            <li>Результат: треск в звуке, выпадение кадров потокового видео.</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>Message Signaled Interrupts (MSI / MSI-X)</h4>
+          <ul>
+            <li>Прерывание передается как адресная запись в память по шине PCIe (In-Band Message).</li>
+            <li>Каждое устройство и очередь получают индивидуальный вектор.</li>
+            <li>Нулевая задержка опроса шины, распределение по ядрам CPU.</li>
+            <li>Решение проблемы конфликта: включение MSI-режима для контроллера xHCI.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
 
- <!-- СЛАЙД 12: ТЕПЛОВОЙ ТРОТТЛИНГ СЕТЕВЫХ МОСТОВ 2.5G -->
- <div class="slide" id="slide-12">
- <div class="slide-title">11. Температурный троттлинг внешних контроллеров (RTL8156)</div>
- <div class="slide-content">
- <div class="grid-2">
- <div class="box box-warn">
- <h4>Проблема тепловыделения 2.5G USB-адаптеров</h4>
- <p>Контроллеры Realtek RTL8156 / RTL8156B потребляют до <strong>1.8 Вт</strong> электроэнергии при интенсивной передаче пакетов Jumbo Frame (9000 байт).</p>
- <p>В закрытом компактном корпусе без теплоотвода температура кристалла за 3 минуты достигает <strong>85–90°C</strong>.</p>
- </div>
- <div class="box">
- <h4>Аппаратная реакция микросхемы:</h4>
- <ul>
- <li>Встроенный термосенсор активирует защитный троттлинг.</li>
- <li>Контроллер сбрасывает сетевой линк и принудительно переключается в режим 100 Мбит/с.</li>
- <li>В логах драйвера фиксируются ошибки CRC и дропы пакетов.</li>
- <li><strong>Устранение:</strong> монтаж теплопроводящей силиконовой прокладки на металлический корпус или установка радиатора.</li>
- </ul>
- </div>
- </div>
- </div>
- </div>
+  <!-- СЛАЙД 12: ТЕПЛОВОЙ ТРОТТЛИНГ СЕТЕВЫХ МОСТОВ 2.5G -->
+  <div class="slide" id="slide-12">
+    <div class="slide-title">11. Температурный троттлинг внешних контроллеров (RTL8156)</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="box box-warn">
+          <h4>Проблема тепловыделения 2.5G USB-адаптеров</h4>
+          <p>Контроллеры Realtek RTL8156 / RTL8156B потребляют до <strong>1.8 Вт</strong> электроэнергии при интенсивной передаче пакетов Jumbo Frame (9000 байт).</p>
+          <p>В закрытом компактном корпусе без теплоотвода температура кристалла за 3 минуты достигает <strong>85–90°C</strong>.</p>
+        </div>
+        <div class="box">
+          <h4>Аппаратная реакция микросхемы:</h4>
+          <ul>
+            <li>Встроенный термосенсор активирует защитный троттлинг.</li>
+            <li>Контроллер сбрасывает сетевой линк и принудительно переключается в режим 100 Мбит/с.</li>
+            <li>В логах драйвера фиксируются ошибки CRC и дропы пакетов.</li>
+            <li><strong>Устранение:</strong> монтаж теплопроводящей силиконовой прокладки на металлический корпус или установка радиатора.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
 
- <!-- СЛАЙД 13: СВОДНАЯ МАТРИЦА СИМПТОМОВ И ДЕФЕКТОВ -->
- <div class="slide" id="slide-13">
- <div class="slide-title">12. Сводная матрица симптомов и аппаратных дефектов</div>
- <div class="slide-content">
- <div class="grid-2">
- <div class="box">
- <h4>Симптом 1: Отключение диска при записи</h4>
- <p><strong>Уровень:</strong> L1 (Физика цепей).</p>
- <p><strong>Причина:</strong> Падение VBUS ниже 4.6 В из-за тонких жил кабеля 28 AWG.</p>
- <p><strong>Решение:</strong> Кабель 22 AWG, активный USB-хаб с внешним БП.</p>
- </div>
- <div class="box">
- <h4>Симптом 2: «Код 43 (Сбой дескриптора)»</h4>
- <p><strong>Уровень:</strong> L2 (Протокол и сигналы).</p>
- <p><strong>Причина:</strong> Повреждение линии D+/D-, помехи, пробой TVS-диода.</p>
- <p><strong>Решение:</strong> Замена кабеля, экранирование, чистка разъема.</p>
- </div>
- </div>
- <div class="grid-2" style="margin-top: 14px;">
- <div class="box">
- <h4>Симптом 3: BSOD при работе 4K веб-камеры</h4>
- <p><strong>Уровень:</strong> L3 (Драйвер и стек xHCI).</p>
- <p><strong>Причина:</strong> Конфликт очередей прерываний, деление шины PCH.</p>
- <p><strong>Решение:</strong> Переключение на нативный порт CPU, режим MSI-X.</p>
- </div>
- <div class="box">
- <h4>Симптом 4: Просадка сетевого адаптера 2.5G</h4>
- <p><strong>Уровень:</strong> L1/L3 (Тепловой режим моста).</p>
- <p><strong>Причина:</strong> Перегрев чипа RTL8156 свыше 85°C, термозащита.</p>
- <p><strong>Решение:</strong> Установка пассивного радиатора с термопрокладкой.</p>
- </div>
- </div>
- </div>
- </div>
+  <!-- СЛАЙД 13: СВОДНАЯ МАТРИЦА СИМПТОМОВ И ДЕФЕКТОВ -->
+  <div class="slide" id="slide-13">
+    <div class="slide-title">12. Сводная матрица симптомов и аппаратных дефектов</div>
+    <div class="slide-content">
+      <div class="grid-2">
+        <div class="box">
+          <h4>Симптом 1: Отключение диска при записи</h4>
+          <p><strong>Уровень:</strong> L1 (Физика цепей).</p>
+          <p><strong>Причина:</strong> Падение VBUS ниже 4.6 В из-за тонких жил кабеля 28 AWG.</p>
+          <p><strong>Решение:</strong> Кабель 22 AWG, активный USB-хаб с внешним БП.</p>
+        </div>
+        <div class="box">
+          <h4>Симптом 2: «Код 43 (Сбой дескриптора)»</h4>
+          <p><strong>Уровень:</strong> L2 (Протокол и сигналы).</p>
+          <p><strong>Причина:</strong> Повреждение линии D+/D-, помехи, пробой TVS-диода.</p>
+          <p><strong>Решение:</strong> Замена кабеля, экранирование, чистка разъема.</p>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top: 14px;">
+        <div class="box">
+          <h4>Симптом 3: BSOD при работе 4K веб-камеры</h4>
+          <p><strong>Уровень:</strong> L3 (Драйвер и стек xHCI).</p>
+          <p><strong>Причина:</strong> Конфликт очередей прерываний, деление шины PCH.</p>
+          <p><strong>Решение:</strong> Переключение на нативный порт CPU, режим MSI-X.</p>
+        </div>
+        <div class="box">
+          <h4>Симптом 4: Просадка сетевого адаптера 2.5G</h4>
+          <p><strong>Уровень:</strong> L1/L3 (Тепловой режим моста).</p>
+          <p><strong>Причина:</strong> Перегрев чипа RTL8156 свыше 85°C, термозащита.</p>
+          <p><strong>Решение:</strong> Установка пассивного радиатора с термопрокладкой.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
- <!-- СЛАЙД 14: ПРАКТИЧЕСКИЙ РЕГЛАМЕНТ ТЕСТИРОВАНИЯ -->
- <div class="slide" id="slide-14">
- <div class="slide-title">13. Алгоритм инженерной локализации на рабочем месте</div>
- <div class="slide-content">
- <div class="box">
- <h4>Шестишаговый контрольный чек-лист:</h4>
- <ol style="padding-left: 24px; line-height: 1.8;">
- <li><strong>Визуальный осмотр:</strong> механическое состояние разъемов USB (отсутствие замятия контактов, нагара и окислов).</li>
- <li><strong>Замер VBUS:</strong> подключение USB-тестера в разрыв, фиксация напряжения на холостом ходу и под рабочей нагрузкой.</li>
- <li><strong>Диодная прозвонка:</strong> проверка сборки TVS сигнальных линий D+ и D- мультиметром относительно земли.</li>
- <li><strong>Аудит энумерации:</strong> проверка статуса устройства в Диспетчере устройств и чтение аппаратных идентификаторов (VID/PID).</li>
- <li><strong>Аудит драйверов:</strong> проверка режима прерываний (MSI-X) и анализ дампа памяти при наличии синих экранов BSOD.</li>
- <li><strong>Стресс-тестирование:</strong> непрерывная нагрузка в течение 5–10 минут с контролем температуры чипа пирометром.</li>
- </ol>
- </div>
- </div>
- </div>
+  <!-- СЛАЙД 14: ПРАКТИЧЕСКИЙ РЕГЛАМЕНТ ТЕСТИРОВАНИЯ -->
+  <div class="slide" id="slide-14">
+    <div class="slide-title">13. Алгоритм инженерной локализации на рабочем месте</div>
+    <div class="slide-content">
+      <div class="box">
+        <h4>Шестишаговый контрольный чек-лист:</h4>
+        <ol style="padding-left: 24px; line-height: 1.8;">
+          <li><strong>Визуальный осмотр:</strong> механическое состояние разъемов USB (отсутствие замятия контактов, нагара и окислов).</li>
+          <li><strong>Замер VBUS:</strong> подключение USB-тестера в разрыв, фиксация напряжения на холостом ходу и под рабочей нагрузкой.</li>
+          <li><strong>Диодная прозвонка:</strong> проверка сборки TVS сигнальных линий D+ и D- мультиметром относительно земли.</li>
+          <li><strong>Аудит энумерации:</strong> проверка статуса устройства в Диспетчере устройств и чтение аппаратных идентификаторов (VID/PID).</li>
+          <li><strong>Аудит драйверов:</strong> проверка режима прерываний (MSI-X) и анализ дампа памяти при наличии синих экранов BSOD.</li>
+          <li><strong>Стресс-тестирование:</strong> непрерывная нагрузка в течение 5–10 минут с контролем температуры чипа пирометром.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
 
- <!-- СЛАЙД 15: РЕАЛЬНЫЙ ПОПУЛЯРНЫЙ ИНТЕРНЕТ-МЕМ СО СВОБОДНОЙ ЛИЦЕНЗИЕЙ -->
- <div class="slide" id="slide-15">
- <div class="slide-title">14. Архитектурный юмор: основы системного мышления</div>
- <div class="meme-wrap">
- <img class="meme-img" src="data:image/jpeg;base64,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8Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsf//Z" alt="Мем про 10 типов людей и двоичную систему">
- <div class="attribution">
- <strong>Мем:</strong> «Mathjoke (10 types of people in the world) — В мире существует 10 типов людей: те, кто понимает двоичную систему счисления, и те, кто её не понимает (а также те, кто читает аппаратные дескрипторы устройств, и те, кто слепо нажимает Далее)».<br>
- <strong>Автор:</strong> MjolnirPants (Wikimedia Commons).<br>
- <strong>Лицензия:</strong> Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).<br>
- <strong>Атрибуция:</strong> Изображение встроено автономно в формате Data URI (data:image/jpeg;base64) без сторонних сетевых запросов.
- </div>
- </div>
- </div>
+  <!-- СЛАЙД 15: РЕАЛЬНЫЙ ПОПУЛЯРНЫЙ ИНТЕРНЕТ-МЕМ СО СВОБОДНОЙ ЛИЦЕНЗИЕЙ -->
+  <div class="slide" id="slide-15">
+    <div class="slide-title">14. Архитектурный юмор: основы системного мышления</div>
+    <div class="meme-wrap">
+      <img class="meme-img" src="data:image/jpeg;base64,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8Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsfMNFfT3kQ/8APGP/AL5FHkQ/88Y/++RRzCsfMNFfT3kQ/wDPGP8A75FHkQ/88Y/++RRzCsfMNFfT3kQ/88Y/++RR5EP/ADxj/wC+RRzCsfMNFfT3kQ/88Y/++RR5EP8Azxj/AO+RRzCsf//Z" alt="Мем про 10 типов людей и двоичную систему">
+      <div class="attribution">
+        <strong>Мем:</strong> «Mathjoke (10 types of people in the world) — В мире существует 10 типов людей: те, кто понимает двоичную систему счисления, и те, кто её не понимает (а также те, кто читает аппаратные дескрипторы устройств, и те, кто слепо нажимает Далее)».<br>
+        <strong>Автор:</strong> MjolnirPants (Wikimedia Commons).<br>
+        <strong>Лицензия:</strong> Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).<br>
+        <strong>Атрибуция:</strong> Изображение встроено автономно в формате Data URI (data:image/jpeg;base64) без сторонних сетевых запросов.
+      </div>
+    </div>
+  </div>
 
- <!-- ПАНЕЛЬ УПРАВЛЕНИЯ СЛАЙДАМИ -->
- <div class="controls">
- <div class="controls-btns">
- <button type="button" class="nav-btn" id="btn_prev" onclick="prevSlide()">← Назад</button>
- <button type="button" class="nav-btn" id="btn_next" onclick="nextSlide()">Вперед →</button>
- </div>
- <div class="slide-counter" id="slide_counter">Слайд 1 из 15</div>
- </div>
+  <!-- ПАНЕЛЬ УПРАВЛЕНИЯ СЛАЙДАМИ -->
+  <div class="controls">
+    <div class="controls-btns">
+      <button type="button" class="nav-btn" id="btn_prev" onclick="prevSlide()">← Назад</button>
+      <button type="button" class="nav-btn" id="btn_next" onclick="nextSlide()">Вперед →</button>
+    </div>
+    <div class="slide-counter" id="slide_counter">Слайд 1 из 15</div>
+  </div>
 
 </div>
 
 <script>
- let currentSlide = 1;
- const totalSlides = 15;
+  let currentSlide = 1;
+  const totalSlides = 15;
 
- function showSlide(n) {
- if (n < 1) n = 1;
- if (n > totalSlides) n = totalSlides;
- currentSlide = n;
+  function showSlide(n) {
+    if (n < 1) n = 1;
+    if (n > totalSlides) n = totalSlides;
+    currentSlide = n;
 
- for (let i = 1; i <= totalSlides; i++) {
- const el = document.getElementById("slide-" + i);
- if (el) {
- if (i === currentSlide) {
- el.classList.add("active");
- } else {
- el.classList.remove("active");
- }
- }
- }
+    for (let i = 1; i <= totalSlides; i++) {
+      const el = document.getElementById("slide-" + i);
+      if (el) {
+        if (i === currentSlide) {
+          el.classList.add("active");
+        } else {
+          el.classList.remove("active");
+        }
+      }
+    }
 
- document.getElementById("slide_counter").textContent = "Слайд " + currentSlide + " из " + totalSlides;
- document.getElementById("btn_prev").disabled = (currentSlide === 1);
- document.getElementById("btn_next").disabled = (currentSlide === totalSlides);
- }
+    document.getElementById("slide_counter").textContent = "Слайд " + currentSlide + " из " + totalSlides;
+    document.getElementById("btn_prev").disabled = (currentSlide === 1);
+    document.getElementById("btn_next").disabled = (currentSlide === totalSlides);
+  }
 
- function prevSlide() {
- if (currentSlide > 1) showSlide(currentSlide - 1);
- }
+  function prevSlide() {
+    if (currentSlide > 1) showSlide(currentSlide - 1);
+  }
 
- function nextSlide() {
- if (currentSlide < totalSlides) showSlide(currentSlide + 1);
- }
+  function nextSlide() {
+    if (currentSlide < totalSlides) showSlide(currentSlide + 1);
+  }
 
- document.addEventListener("keydown", (e) => {
- if (e.key === "ArrowRight" | e.key === "PageDown" | e.key === " ") {
- e.preventDefault();
- nextSlide();
- } else if (e.key === "ArrowLeft" | e.key === "PageUp") {
- e.preventDefault();
- prevSlide();
- } else if (e.key === "Home") {
- e.preventDefault();
- showSlide(1);
- } else if (e.key === "End") {
- e.preventDefault();
- showSlide(totalSlides);
- }
- });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") {
+      e.preventDefault();
+      nextSlide();
+    } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+      e.preventDefault();
+      prevSlide();
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      showSlide(1);
+    } else if (e.key === "End") {
+      e.preventDefault();
+      showSlide(totalSlides);
+    }
+  });
 
- showSlide(1);
+  showSlide(1);
 </script>
 </body>
 </html>

@@ -1,644 +1,680 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
- <title>Рабочий лист: Диагностика, локализация отказов и аппаратный траблшутинг периферии</title>
- <style>
- :root {
- --bg: #f8fafc;
- --card: #ffffff;
- --text: #0f172a;
- --muted: #475569;
- --line: #cbd5e1;
- --accent: #1e40af;
- --accent-soft: #eff6ff;
- --ok: #059669;
- --warn: #d97706;
- --danger: #dc2626;
- --radius: 12px;
- --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
- }
- * { box-sizing: border-box; margin: 0; padding: 0; }
- body {
- background: var(--bg);
- color: var(--text);
- font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
- line-height: 1.6;
- font-size: 15px;
- padding: 20px 14px;
- }.page {
- max-width: 960px;
- margin: 0 auto;
- }.header-card,.student-card,.task-card,.actions-card,.rubric-card {
- background: var(--card);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 24px;
- margin-bottom: 20px;
- box-shadow: var(--shadow);
- }
- h1 {
- font-size: clamp(20px, 3.2vw, 25px);
- color: var(--accent);
- margin-bottom: 8px;
- line-height: 1.3;
- }
- h2 {
- font-size: 18px;
- color: var(--accent);
- margin: 18px 0 10px;
- border-bottom: 1.5px solid var(--accent-soft);
- padding-bottom: 6px;
- }
- h3 {
- font-size: 15.5px;
- margin: 14px 0 6px;
- color: #1e293b;
- }.desc {
- color: var(--muted);
- font-size: 14px;
- margin-bottom: 6px;
- }.notice {
- background: #eff6ff;
- border-left: 4px solid var(--accent);
- padding: 10px 14px;
- border-radius: 0 8px 8px 0;
- font-size: 13.5px;
- color: #1e40af;
- margin-top: 10px;
- }.notice-warn {
- background: #fef3c7;
- border-left: 4px solid var(--warn);
- padding: 10px 14px;
- border-radius: 0 8px 8px 0;
- font-size: 13.5px;
- color: #92400e;
- margin: 12px 0;
- }.student-grid {
- display: grid;
- grid-template-columns: 2fr 1fr;
- gap: 16px;
- margin-top: 10px;
- }.form-group {
- display: flex;
- flex-direction: column;
- gap: 5px;
- }
- label {
- font-size: 13.5px;
- font-weight: 600;
- color: var(--muted);
- }
- input[type="text"], select, textarea {
- width: 100%;
- padding: 9px 13px;
- border: 1.5px solid var(--line);
- border-radius: 8px;
- font-family: inherit;
- font-size: 14px;
- color: var(--text);
- background: #fafafa;
- transition: border-color 0.15s, background-color 0.15s;
- }
- input[type="text"]:focus, select:focus, textarea:focus {
- outline: none;
- border-color: var(--accent);
- background: #ffffff;
- }
- textarea {
- min-height: 95px;
- resize: vertical;
- }.code-box {
- background: #0f172a;
- color: #f8fafc;
- padding: 12px 14px;
- border-radius: 8px;
- font-family: ui-monospace, Menlo, Monaco, Consolas, monospace;
- font-size: 13px;
- overflow-x: auto;
- margin: 10px 0;
- line-height: 1.45;
- }.variant-selector {
- display: flex;
- gap: 8px;
- margin: 14px 0;
- flex-wrap: wrap;
- }.variant-btn {
- padding: 8px 16px;
- border: 1.5px solid var(--line);
- background: var(--card);
- border-radius: 8px;
- cursor: pointer;
- font-weight: 600;
- font-size: 13.5px;
- color: var(--muted);
- transition: all 0.15s;
- }.variant-btn:hover {
- border-color: var(--accent);
- color: var(--accent);
- }.variant-btn.active {
- background: var(--accent);
- border-color: var(--accent);
- color: white;
- }.variant-card {
- display: none;
- }.variant-card.active {
- display: block;
- }.checklist-item {
- display: flex;
- align-items: flex-start;
- gap: 10px;
- margin-bottom: 8px;
- font-size: 14px;
- }.checklist-item input[type="checkbox"] {
- margin-top: 3px;
- cursor: pointer;
- accent-color: var(--accent);
- }
- table {
- width: 100%;
- border-collapse: collapse;
- margin: 12px 0;
- font-size: 13.5px;
- }
- th, td {
- border: 1px solid var(--line);
- padding: 8px 10px;
- text-align: left;
- vertical-align: top;
- }
- th {
- background: var(--accent-soft);
- color: var(--accent);
- font-weight: 700;
- }.actions-card {
- display: flex;
- align-items: center;
- justify-content: space-between;
- flex-wrap: wrap;
- gap: 12px;
- }.btn-actions {
- display: flex;
- gap: 10px;
- flex-wrap: wrap;
- }
- button {
- padding: 10px 18px;
- border-radius: 8px;
- font: inherit;
- font-size: 14px;
- font-weight: 600;
- cursor: pointer;
- border: none;
- transition: background 0.15s;
- }.btn-primary { background: var(--accent); color: white; }.btn-primary:hover { background: #1d4ed8; }.btn-success { background: #059669; color: white; }.btn-success:hover { background: #047857; }.btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }.btn-danger:hover { background: #fecaca; }.status-msg {
- font-size: 13.5px;
- font-weight: 500;
- color: var(--ok);
- }.print-mirror {
- display: none;
- white-space: pre-wrap;
- word-break: break-word;
- font-size: 14px;
- line-height: 1.5;
- padding: 8px 12px;
- border: 1.5px solid #cbd5e1;
- border-radius: 8px;
- background: #fafafa;
- min-height: 50px;
- }
- @media (max-width: 480px) {
- body { padding: 12px 8px; font-size: 13.5px; }.header-card,.student-card,.task-card,.actions-card,.rubric-card { padding: 16px; }.student-grid { grid-template-columns: 1fr; }.variant-selector { flex-direction: column; }.btn-actions { flex-direction: column; width: 100%; }
- button { width: 100%; justify-content: center; }
- }
- @media print {
- body { background: #fff; padding: 0; font-size: 10pt; color: #000; }.page { max-width: 100%; margin: 0; }.header-card,.student-card,.task-card,.actions-card,.rubric-card {
- box-shadow: none;
- border: 1px solid #ccc;
- break-inside: avoid;
- margin-bottom: 10pt;
- padding: 10pt;
- }.actions-card,.notice,.status-msg,.variant-selector { display: none !important; }.variant-card { display: none !important; }.variant-card.active { display: block !important; }
- textarea { display: none !important; }.print-mirror { display: block !important; }
- input::placeholder, textarea::placeholder { color: transparent !important; }
- }
- </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Рабочий лист: Диагностика, локализация отказов и аппаратный траблшутинг периферии</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --ok: #059669;
+      --warn: #d97706;
+      --danger: #dc2626;
+      --radius: 12px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .task-card, .actions-card, .rubric-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(20px, 3.2vw, 25px);
+      color: var(--accent);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    h2 {
+      font-size: 18px;
+      color: var(--accent);
+      margin: 18px 0 10px;
+      border-bottom: 1.5px solid var(--accent-soft);
+      padding-bottom: 6px;
+    }
+    h3 {
+      font-size: 15.5px;
+      margin: 14px 0 6px;
+      color: #1e293b;
+    }
+    .desc {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+    .notice {
+      background: #eff6ff;
+      border-left: 4px solid var(--accent);
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      font-size: 13.5px;
+      color: #1e40af;
+      margin-top: 10px;
+    }
+    .notice-warn {
+      background: #fef3c7;
+      border-left: 4px solid var(--warn);
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      font-size: 13.5px;
+      color: #92400e;
+      margin: 12px 0;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+      margin-top: 10px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    label {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    input[type="text"], select, textarea {
+      width: 100%;
+      padding: 9px 13px;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--text);
+      background: #fafafa;
+      transition: border-color 0.15s, background-color 0.15s;
+    }
+    input[type="text"]:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: #ffffff;
+    }
+    textarea {
+      min-height: 95px;
+      resize: vertical;
+    }
+    .code-box {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-family: ui-monospace, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      overflow-x: auto;
+      margin: 10px 0;
+      line-height: 1.45;
+    }
+    .variant-selector {
+      display: flex;
+      gap: 8px;
+      margin: 14px 0;
+      flex-wrap: wrap;
+    }
+    .variant-btn {
+      padding: 8px 16px;
+      border: 1.5px solid var(--line);
+      background: var(--card);
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13.5px;
+      color: var(--muted);
+      transition: all 0.15s;
+    }
+    .variant-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .variant-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+    .variant-card {
+      display: none;
+    }
+    .variant-card.active {
+      display: block;
+    }
+    .checklist-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .checklist-item input[type="checkbox"] {
+      margin-top: 3px;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 13.5px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .actions-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .btn-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    button {
+      padding: 10px 18px;
+      border-radius: 8px;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background 0.15s;
+    }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-success { background: #059669; color: white; }
+    .btn-success:hover { background: #047857; }
+    .btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #fecaca; }
+    .status-msg {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--ok);
+    }
+    .print-mirror {
+      display: none;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 14px;
+      line-height: 1.5;
+      padding: 8px 12px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      background: #fafafa;
+      min-height: 50px;
+    }
+    @media (max-width: 480px) {
+      body { padding: 12px 8px; font-size: 13.5px; }
+      .header-card, .student-card, .task-card, .actions-card, .rubric-card { padding: 16px; }
+      .student-grid { grid-template-columns: 1fr; }
+      .variant-selector { flex-direction: column; }
+      .btn-actions { flex-direction: column; width: 100%; }
+      button { width: 100%; justify-content: center; }
+    }
+    @media print {
+      body { background: #fff; padding: 0; font-size: 10pt; color: #000; }
+      .page { max-width: 100%; margin: 0; }
+      .header-card, .student-card, .task-card, .actions-card, .rubric-card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+        break-inside: avoid;
+        margin-bottom: 10pt;
+        padding: 10pt;
+      }
+      .actions-card, .notice, .status-msg, .variant-selector { display: none !important; }
+      .variant-card { display: none !important; }
+      .variant-card.active { display: block !important; }
+      textarea { display: none !important; }
+      .print-mirror { display: block !important; }
+      input::placeholder, textarea::placeholder { color: transparent !important; }
+    }
+  </style>
 </head>
 <body>
 <div class="page">
 
- <!-- ШАПКА -->
- <div class="header-card">
- <h1>Рабочий лист: Диагностика, локализация отказов и аппаратный траблшутинг периферии</h1>
- <p class="desc">Практическая работа №4 (Часть 3). Инструментальный аудит аппаратных цепей, анализ сбоев энумерации, расшифровка аварийных дампов ядра (BSOD) и тепловой режим интерфейсов.</p>
- <div class="notice">
- Внимание: Данные сохраняются в локальном хранилище браузера. Для сдачи работы экспортируйте заполненный протокол в файл PDF через команду браузера «Печать».
- </div>
- </div>
+  <!-- ШАПКА -->
+  <div class="header-card">
+    <h1>Рабочий лист: Диагностика, локализация отказов и аппаратный траблшутинг периферии</h1>
+    <p class="desc">Практическая работа №4 (Часть 3). Инструментальный аудит аппаратных цепей, анализ сбоев энумерации, расшифровка аварийных дампов ядра (BSOD) и тепловой режим интерфейсов.</p>
+    <div class="notice">
+      Внимание: Данные сохраняются в локальном хранилище браузера. Для сдачи работы экспортируйте заполненный протокол в файл PDF через команду браузера «Печать».
+    </div>
+  </div>
 
- <!-- ДАННЫЕ СТУДЕНТА БЕЗ ПЛЕЙСХОЛДЕРОВ -->
- <div class="student-card">
- <h2>Сведения об обучающемся</h2>
- <div class="student-grid">
- <div class="form-group">
- <label for="student_fio">Фамилия, Имя, Отчество обучающегося:</label>
- <input type="text" id="student_fio" placeholder="">
- </div>
- <div class="form-group">
- <label for="student_group">Учебная группа:</label>
- <input type="text" id="student_group" placeholder="">
- </div>
- </div>
- </div>
+  <!-- ДАННЫЕ СТУДЕНТА БЕЗ ПЛЕЙСХОЛДЕРОВ -->
+  <div class="student-card">
+    <h2>Сведения об обучающемся</h2>
+    <div class="student-grid">
+      <div class="form-group">
+        <label for="student_fio">Фамилия, Имя, Отчество обучающегося:</label>
+        <input type="text" id="student_fio" placeholder="">
+      </div>
+      <div class="form-group">
+        <label for="student_group">Учебная группа:</label>
+        <input type="text" id="student_group" placeholder="">
+      </div>
+    </div>
+  </div>
 
- <!-- ВЫБОР ВАРИАНТА -->
- <div class="task-card">
- <h2>Выбор практического кейса диагностики</h2>
- <p class="desc">Выберите назначенный преподавателем вариант аппаратной неисправности:</p>
- <div class="variant-selector">
- <button type="button" class="variant-btn active" onclick="switchVariant(1)">Вариант 1: Внешний диск USB 3.0 (Просадка VBUS)</button>
- <button type="button" class="variant-btn" onclick="switchVariant(2)">Вариант 2: Сбой распознавания (Код 43)</button>
- <button type="button" class="variant-btn" onclick="switchVariant(3)">Вариант 3: 4K Веб-камера (BSOD и xHCI)</button>
- <button type="button" class="variant-btn" onclick="switchVariant(4)">Вариант 4: Сетевой адаптер 2.5G (Троттлинг RTL8156)</button>
- </div>
- </div>
+  <!-- ВЫБОР ВАРИАНТА -->
+  <div class="task-card">
+    <h2>Выбор практического кейса диагностики</h2>
+    <p class="desc">Выберите назначенный преподавателем вариант аппаратной неисправности:</p>
+    <div class="variant-selector">
+      <button type="button" class="variant-btn active" onclick="switchVariant(1)">Вариант 1: Внешний диск USB 3.0 (Просадка VBUS)</button>
+      <button type="button" class="variant-btn" onclick="switchVariant(2)">Вариант 2: Сбой распознавания (Код 43)</button>
+      <button type="button" class="variant-btn" onclick="switchVariant(3)">Вариант 3: 4K Веб-камера (BSOD и xHCI)</button>
+      <button type="button" class="variant-btn" onclick="switchVariant(4)">Вариант 4: Сетевой адаптер 2.5G (Троттлинг RTL8156)</button>
+    </div>
+  </div>
 
- <!-- ВАРИАНТ 1: ВНЕШНИЙ ДИСК USB 3.0 -->
- <div class="task-card variant-card active" id="v_card_1">
- <h2>Вариант 1. Спонтанное отключение внешнего жесткого диска USB 3.0 при интенсивной записи</h2>
- <div class="notice-warn">
- <strong>Симптомы инцидента:</strong> Внешний накопитель 2.5″ 2 ТБ подключен комплектным кабелем длиной 1.8 м к пассивному хабу. В Проводнике накопитель виден, чтение небольших файлов происходит без сбоев. При запуске стресс-записи большого файла через 10–15 секунд диск издает характерный акустический щелчок, отключается от шины, и Windows генерирует ошибку «Устройство ввода/вывода недоступно».
- </div>
+  <!-- ВАРИАНТ 1: ВНЕШНИЙ ДИСК USB 3.0 -->
+  <div class="task-card variant-card active" id="v_card_1">
+    <h2>Вариант 1. Спонтанное отключение внешнего жесткого диска USB 3.0 при интенсивной записи</h2>
+    <div class="notice-warn">
+      <strong>Симптомы инцидента:</strong> Внешний накопитель 2.5″ 2 ТБ подключен комплектным кабелем длиной 1.8 м к пассивному хабу. В Проводнике накопитель виден, чтение небольших файлов происходит без сбоев. При запуске стресс-записи большого файла через 10–15 секунд диск издает характерный акустический щелчок, отключается от шины, и Windows генерирует ошибку «Устройство ввода/вывода недоступно».
+    </div>
 
- <h3>1. Анализ симптомов и локализация уровня отказа (до 2 баллов)</h3>
- <p class="desc">Определите физическую природу сбоя. Почему чтение выполняется успешно, а запись приводит к аварийному отключению? Какую роль играет механизм UVLO контроллера?</p>
- <div class="form-group">
- <textarea id="v1_ans_1" placeholder=""></textarea>
- <div class="print-mirror" id="v1_ans_1_mirror"></div>
- </div>
+    <h3>1. Анализ симптомов и локализация уровня отказа (до 2 баллов)</h3>
+    <p class="desc">Определите физическую природу сбоя. Почему чтение выполняется успешно, а запись приводит к аварийному отключению? Какую роль играет механизм UVLO контроллера?</p>
+    <div class="form-group">
+      <textarea id="v1_ans_1" placeholder=""></textarea>
+      <div class="print-mirror" id="v1_ans_1_mirror"></div>
+    </div>
 
- <h3>2. Инструментальные расчеты и электрические замеры (1 балл)</h3>
- <p class="desc">Дано: напряжение на выходе порта хаба U<sub>0</sub> = 5.05 В, ток при записи I = 1.15 А, кабель 1.8 м с жилами питания 28 AWG (R<sub>уд</sub> = 0.21 Ом/м), контактное сопротивление разъемов R<sub>конт</sub> = 0.16 Ом. Рассчитайте суммарное сопротивление цепи R<sub>петли</sub>, падение напряжения Δ U и напряжение на плате контроллера U<sub>диска</sub>.</p>
- <div class="form-group">
- <textarea id="v1_ans_2" placeholder=""></textarea>
- <div class="print-mirror" id="v1_ans_2_mirror"></div>
- </div>
+    <h3>2. Инструментальные расчеты и электрические замеры (1 балл)</h3>
+    <p class="desc">Дано: напряжение на выходе порта хаба U<sub>0</sub> = 5.05 В, ток при записи I = 1.15 А, кабель 1.8 м с жилами питания 28 AWG (R<sub>уд</sub> = 0.21 Ом/м), контактное сопротивление разъемов R<sub>конт</sub> = 0.16 Ом. Рассчитайте суммарное сопротивление цепи R<sub>петли</sub>, падение напряжения Δ U и напряжение на плате контроллера U<sub>диска</sub>.</p>
+    <div class="form-group">
+      <textarea id="v1_ans_2" placeholder=""></textarea>
+      <div class="print-mirror" id="v1_ans_2_mirror"></div>
+    </div>
 
- <h3>3. План устранения и чек-лист верификации (1 балл)</h3>
- <p class="desc">Опишите комплекс мер по устранению сбоя (замена кабеля, активный хаб с внешним БП) и отметьте выполненные этапы проверки:</p>
- <div class="form-group" style="margin-bottom: 12px;">
- <textarea id="v1_ans_3" placeholder=""></textarea>
- <div class="print-mirror" id="v1_ans_3_mirror"></div>
- </div>
+    <h3>3. План устранения и чек-лист верификации (1 балл)</h3>
+    <p class="desc">Опишите комплекс мер по устранению сбоя (замена кабеля, активный хаб с внешним БП) и отметьте выполненные этапы проверки:</p>
+    <div class="form-group" style="margin-bottom: 12px;">
+      <textarea id="v1_ans_3" placeholder=""></textarea>
+      <div class="print-mirror" id="v1_ans_3_mirror"></div>
+    </div>
 
- <div class="checklist">
- <div class="checklist-item">
- <input type="checkbox" id="v1_chk_1">
- <label for="v1_chk_1">Подключение активного USB 3.0 хаба с блоком питания 12V/2A (или кабеля 20 AWG длиной до 0.5 м).</label>
- </div>
- <div class="checklist-item">
- <input type="checkbox" id="v1_chk_2">
- <label for="v1_chk_2">Замер напряжения VBUS тестером в разрыве под пиковой нагрузкой записи (U ≥ 4.85 В).</label>
- </div>
- <div class="checklist-item">
- <input type="checkbox" id="v1_chk_3">
- <label for="v1_chk_3">Прогон непрерывного теста записи файла 20 ГБ через утилиту CrystalDiskMark без сбросов шины.</label>
- </div>
- <div class="checklist-item">
- <input type="checkbox" id="v1_chk_4">
- <label for="v1_chk_4">Аудит журнала System Event Log на отсутствие предупреждений «The driver detected a controller error on \Device\HarddiskX».</label>
- </div>
- </div>
- </div>
+    <div class="checklist">
+      <div class="checklist-item">
+        <input type="checkbox" id="v1_chk_1">
+        <label for="v1_chk_1">Подключение активного USB 3.0 хаба с блоком питания 12V/2A (или кабеля 20 AWG длиной до 0.5 м).</label>
+      </div>
+      <div class="checklist-item">
+        <input type="checkbox" id="v1_chk_2">
+        <label for="v1_chk_2">Замер напряжения VBUS тестером в разрыве под пиковой нагрузкой записи (U ≥ 4.85 В).</label>
+      </div>
+      <div class="checklist-item">
+        <input type="checkbox" id="v1_chk_3">
+        <label for="v1_chk_3">Прогон непрерывного теста записи файла 20 ГБ через утилиту CrystalDiskMark без сбросов шины.</label>
+      </div>
+      <div class="checklist-item">
+        <input type="checkbox" id="v1_chk_4">
+        <label for="v1_chk_4">Аудит журнала System Event Log на отсутствие предупреждений «The driver detected a controller error on \Device\HarddiskX».</label>
+      </div>
+    </div>
+  </div>
 
- <!-- ВАРИАНТ 2: СБОЙ РАСПОЗНАВАНИЯ (КОД 43) -->
- <div class="task-card variant-card" id="v_card_2">
- <h2>Вариант 2. Сбой распознавания USB-устройства «Устройство USB не опознано (код 43)»</h2>
- <div class="notice-warn">
- <strong>Симптомы инцидента:</strong> При подключении многофункционального периферийного адаптера к разъему USB на передней панели системного блока Windows выдает всплывающее уведомление: «Устройство USB не опознано. Сбой запроса дескриптора устройства (Код 43)». Попытка обновить драйверы приводит к сообщению: «Наиболее подходящие драйверы уже установлены».
- </div>
+  <!-- ВАРИАНТ 2: СБОЙ РАСПОЗНАВАНИЯ (КОД 43) -->
+  <div class="task-card variant-card" id="v_card_2">
+    <h2>Вариант 2. Сбой распознавания USB-устройства «Устройство USB не опознано (код 43)»</h2>
+    <div class="notice-warn">
+      <strong>Симптомы инцидента:</strong> При подключении многофункционального периферийного адаптера к разъему USB на передней панели системного блока Windows выдает всплывающее уведомление: «Устройство USB не опознано. Сбой запроса дескриптора устройства (Код 43)». Попытка обновить драйверы приводит к сообщению: «Наиболее подходящие драйверы уже установлены».
+    </div>
 
- <h3>1. Анализ протокола энумерации и природа Кода 43 (до 2 баллов)</h3>
- <p class="desc">Объясните с точки зрения диаграммы транзакций USB (Reset, Set Address, Get Descriptor), почему операционная система выдает эту ошибку и почему поиск драйверов в Интернете принципиально не может решить проблему.</p>
- <div class="form-group">
- <textarea id="v2_ans_1" placeholder=""></textarea>
- <div class="print-mirror" id="v2_ans_1_mirror"></div>
- </div>
+    <h3>1. Анализ протокола энумерации и природа Кода 43 (до 2 баллов)</h3>
+    <p class="desc">Объясните с точки зрения диаграммы транзакций USB (Reset, Set Address, Get Descriptor), почему операционная система выдает эту ошибку и почему поиск драйверов в Интернете принципиально не может решить проблему.</p>
+    <div class="form-group">
+      <textarea id="v2_ans_1" placeholder=""></textarea>
+      <div class="print-mirror" id="v2_ans_1_mirror"></div>
+    </div>
 
- <h3>2. Инструментальная диагностика дифференциальных линий (1 балл)</h3>
- <p class="desc">Опишите методику прозвонки линий D+ и D- цифровым мультиметром в режиме проверки диодов (относительно GND при обесточенном ПК). Какие значения падения напряжения считаются нормой, а какие свидетельствуют о пробое TVS-диода или обрыве?</p>
- <div class="form-group">
- <textarea id="v2_ans_2" placeholder=""></textarea>
- <div class="print-mirror" id="v2_ans_2_mirror"></div>
- </div>
+    <h3>2. Инструментальная диагностика дифференциальных линий (1 балл)</h3>
+    <p class="desc">Опишите методику прозвонки линий D+ и D- цифровым мультиметром в режиме проверки диодов (относительно GND при обесточенном ПК). Какие значения падения напряжения считаются нормой, а какие свидетельствуют о пробое TVS-диода или обрыве?</p>
+    <div class="form-group">
+      <textarea id="v2_ans_2" placeholder=""></textarea>
+      <div class="print-mirror" id="v2_ans_2_mirror"></div>
+    </div>
 
- <h3>3. Алгоритм локализации и чек-лист верификации (1 балл)</h3>
- <p class="desc">Сформируйте пошаговый алгоритм локализации дефекта (кабель, разъем фронтальной панели, помехи, root-порт) и отметьте контрольные пункты:</p>
- <div class="form-group" style="margin-bottom: 12px;">
- <textarea id="v2_ans_3" placeholder=""></textarea>
- <div class="print-mirror" id="v2_ans_3_mirror"></div>
- </div>
+    <h3>3. Алгоритм локализации и чек-лист верификации (1 балл)</h3>
+    <p class="desc">Сформируйте пошаговый алгоритм локализации дефекта (кабель, разъем фронтальной панели, помехи, root-порт) и отметьте контрольные пункты:</p>
+    <div class="form-group" style="margin-bottom: 12px;">
+      <textarea id="v2_ans_3" placeholder=""></textarea>
+      <div class="print-mirror" id="v2_ans_3_mirror"></div>
+    </div>
 
- <div class="checklist">
- <div class="checklist-item">
- <input type="checkbox" id="v2_chk_1">
- <label for="v2_chk_1">Переключение устройства напрямую в корневой порт USB 3.0 на тыльной стороне материнской платы.</label>
- </div>
- <div class="checklist-item">
- <input type="checkbox" id="v2_chk_2">
- <label for="v2_chk_2">Проверка контактной группы разъема на наличие механической деформации и загрязнений.</label>
- </div>
- <div class="checklist-item">
- <input type="checkbox" id="v2_chk_3">
- <label for="v2_chk_3">Успешное считывание дескриптора и валидного Hardware ID (VID/PID) в утилите USB Device Tree Viewer.</label>
- </div>
- <div class="checklist-item">
- <input type="checkbox" id="v2_chk_4">
- <label for="v2_chk_4">Отсутствие ошибок энумерации и желтых восклицательных знаков в ветке «Контроллеры USB» Диспетчера устройств.</label>
- </div>
- </div>
- </div>
+    <div class="checklist">
+      <div class="checklist-item">
+        <input type="checkbox" id="v2_chk_1">
+        <label for="v2_chk_1">Переключение устройства напрямую в корневой порт USB 3.0 на тыльной стороне материнской платы.</label>
+      </div>
+      <div class="checklist-item">
+        <input type="checkbox" id="v2_chk_2">
+        <label for="v2_chk_2">Проверка контактной группы разъема на наличие механической деформации и загрязнений.</label>
+      </div>
+      <div class="checklist-item">
+        <input type="checkbox" id="v2_chk_3">
+        <label for="v2_chk_3">Успешное считывание дескриптора и валидного Hardware ID (VID/PID) в утилите USB Device Tree Viewer.</label>
+      </div>
+      <div class="checklist-item">
+        <input type="checkbox" id="v2_chk_4">
+        <label for="v2_chk_4">Отсутствие ошибок энумерации и желтых восклицательных знаков в ветке «Контроллеры USB» Диспетчера устройств.</label>
+      </div>
+    </div>
+  </div>
 
- <!-- ВАРИАНТ 3: BSOD ВЕБ-КАМЕРЫ 4K -->
- <div class="task-card variant-card" id="v_card_3">
- <h2>Вариант 3. Регулярный синий экран BSOD при видеоконференции через внешнюю 4K USB веб-камеру</h2>
- <div class="notice-warn">
- <strong>Симптомы инцидента:</strong> Внешняя стриминговая камера подключена к USB-разъему чипсетного контроллера. При запуске тестового окна в разрешении 1080p изображение передается стабильно. При переключении потока в 4K (3840×2160 @ 60 fps) через 20–30 секунд система падает в BSOD с кодом останова DRIVER_IRQL_NOT_LESS_OR_EQUAL в модуле <code>usbvideo.sys</code>.
- </div>
+  <!-- ВАРИАНТ 3: BSOD ВЕБ-КАМЕРЫ 4K -->
+  <div class="task-card variant-card" id="v_card_3">
+    <h2>Вариант 3. Регулярный синий экран BSOD при видеоконференции через внешнюю 4K USB веб-камеру</h2>
+    <div class="notice-warn">
+      <strong>Симптомы инцидента:</strong> Внешняя стриминговая камера подключена к USB-разъему чипсетного контроллера. При запуске тестового окна в разрешении 1080p изображение передается стабильно. При переключении потока в 4K (3840×2160 @ 60 fps) через 20–30 секунд система падает в BSOD с кодом останова DRIVER_IRQL_NOT_LESS_OR_EQUAL в модуле <code>usbvideo.sys</code>.
+    </div>
 
- <h3>1. Анализ аварийного дампа и причины BSOD (до 2 баллов)</h3>
- <p class="desc">Проанализируйте дамп памяти. Почему исключение возникло на уровне прерываний DISPATCH_LEVEL (Arg2 = 0x02)? Какова связь между тяжелым изохронным потоком кадров и сбоем очереди DPC в xHCI?</p>
- <div class="form-group">
- <textarea id="v3_ans_1" placeholder=""></textarea>
- <div class="print-mirror" id="v3_ans_1_mirror"></div>
- </div>
+    <h3>1. Анализ аварийного дампа и причины BSOD (до 2 баллов)</h3>
+    <p class="desc">Проанализируйте дамп памяти. Почему исключение возникло на уровне прерываний DISPATCH_LEVEL (Arg2 = 0x02)? Какова связь между тяжелым изохронным потоком кадров и сбоем очереди DPC в xHCI?</p>
+    <div class="form-group">
+      <textarea id="v3_ans_1" placeholder=""></textarea>
+      <div class="print-mirror" id="v3_ans_1_mirror"></div>
+    </div>
 
- <h3>2. Анализ аппаратных прерываний: IRQ Sharing против MSI-X (1 балл)</h3>
- <p class="desc">Объясните механизм конфликта прерываний при разделении физической линии PCI (Line-based IRQ) между хост-контроллером USB и сетевой картой. Как перевод контроллера в режим Message Signaled Interrupts (MSI-X) устраняет лаги обработки?</p>
- <div class="form-group">
- <textarea id="v3_ans_2" placeholder=""></textarea>
- <div class="print-mirror" id="v3_ans_2_mirror"></div>
- </div>
+    <h3>2. Анализ аппаратных прерываний: IRQ Sharing против MSI-X (1 балл)</h3>
+    <p class="desc">Объясните механизм конфликта прерываний при разделении физической линии PCI (Line-based IRQ) между хост-контроллером USB и сетевой картой. Как перевод контроллера в режим Message Signaled Interrupts (MSI-X) устраняет лаги обработки?</p>
+    <div class="form-group">
+      <textarea id="v3_ans_2" placeholder=""></textarea>
+      <div class="print-mirror" id="v3_ans_2_mirror"></div>
+    </div>
 
- <h3>3. Регламент устранения коллизии и чек-лист верификации (1 балл)</h3>
- <p class="desc">Опишите шаги по перенаправлению камеры на нативный порт процессора (Direct CPU USB) и отметьте пункты верификации:</p>
- <div class="form-group" style="margin-bottom: 12px;">
- <textarea id="v3_ans_3" placeholder=""></textarea>
- <div class="print-mirror" id="v3_ans_3_mirror"></div>
- </div>
+    <h3>3. Регламент устранения коллизии и чек-лист верификации (1 балл)</h3>
+    <p class="desc">Опишите шаги по перенаправлению камеры на нативный порт процессора (Direct CPU USB) и отметьте пункты верификации:</p>
+    <div class="form-group" style="margin-bottom: 12px;">
+      <textarea id="v3_ans_3" placeholder=""></textarea>
+      <div class="print-mirror" id="v3_ans_3_mirror"></div>
+    </div>
 
- <div class="checklist">
- <div class="checklist-item">
- <input type="checkbox" id="v3_chk_1">
- <label for="v3_chk_1">Переключение камеры в выделенный порт USB 3.2 Gen2, подключенный напрямую к линиям центрального процессора.</label>
- </div>
- <div class="checklist-item">
- <input type="checkbox" id="v3_chk_2">
- <label for="v3_chk_2">Активация режима MSI-X в ветке реестра для контроллера xHCI и установка драйверов чипсета последней версии.</label>
- </div>
- <div class="checklist-item">
- <input type="checkbox" id="v3_chk_3">
- <label for="v3_chk_3">Контроль задержки DPC Latency через LatencyMon (пиковая задержка ≤ 500 мкс во время трансляции).</label>
- </div>
- <div class="checklist-item">
- <input type="checkbox" id="v3_chk_4">
- <label for="v3_chk_4">Непрерывный 15-минутный стресс-тест видеопотока 4K 60 fps без дропов кадров и сбоев операционной системы.</label>
- </div>
- </div>
- </div>
+    <div class="checklist">
+      <div class="checklist-item">
+        <input type="checkbox" id="v3_chk_1">
+        <label for="v3_chk_1">Переключение камеры в выделенный порт USB 3.2 Gen2, подключенный напрямую к линиям центрального процессора.</label>
+      </div>
+      <div class="checklist-item">
+        <input type="checkbox" id="v3_chk_2">
+        <label for="v3_chk_2">Активация режима MSI-X в ветке реестра для контроллера xHCI и установка драйверов чипсета последней версии.</label>
+      </div>
+      <div class="checklist-item">
+        <input type="checkbox" id="v3_chk_3">
+        <label for="v3_chk_3">Контроль задержки DPC Latency через LatencyMon (пиковая задержка ≤ 500 мкс во время трансляции).</label>
+      </div>
+      <div class="checklist-item">
+        <input type="checkbox" id="v3_chk_4">
+        <label for="v3_chk_4">Непрерывный 15-минутный стресс-тест видеопотока 4K 60 fps без дропов кадров и сбоев операционной системы.</label>
+      </div>
+    </div>
+  </div>
 
- <!-- ВАРИАНТ 4: ТРОТТЛИНГ СЕТЕВОГО АДАПТЕРА 2.5G -->
- <div class="task-card variant-card" id="v_card_4">
- <h2>Вариант 4. Прерывистая работа сетевого адаптера 2.5G USB-Ethernet (контроллер RTL8156)</h2>
- <div class="notice-warn">
- <strong>Симптомы инцидента:</strong> Внешний адаптер 2.5G Ethernet в пластиковом корпусе используется для скоростной передачи резервных копий по локальной сети. В первые 2 минуты скорость передачи стабильно держится на уровне 280 МБ/с. Затем сетевое соединение на 2 секунды разрывается, восстанавливается со статусом «100 Мбит/с», а скорость падает до 11 МБ/с. Корпус адаптера сильно нагрет.
- </div>
+  <!-- ВАРИАНТ 4: ТРОТТЛИНГ СЕТЕВОГО АДАПТЕРА 2.5G -->
+  <div class="task-card variant-card" id="v_card_4">
+    <h2>Вариант 4. Прерывистая работа сетевого адаптера 2.5G USB-Ethernet (контроллер RTL8156)</h2>
+    <div class="notice-warn">
+      <strong>Симптомы инцидента:</strong> Внешний адаптер 2.5G Ethernet в пластиковом корпусе используется для скоростной передачи резервных копий по локальной сети. В первые 2 минуты скорость передачи стабильно держится на уровне 280 МБ/с. Затем сетевое соединение на 2 секунды разрывается, восстанавливается со статусом «100 Мбит/с», а скорость падает до 11 МБ/с. Корпус адаптера сильно нагрет.
+    </div>
 
- <h3>1. Анализ симптомов и механизм теплового троттлинга (до 2 баллов)</h3>
- <p class="desc">Объясните физический процесс деградации соединения. Почему контроллер сбрасывает скорость линка именно до 100 Мбит/с? Как встроенная защита кристалла предотвращает необратимый тепловой пробой?</p>
- <div class="form-group">
- <textarea id="v4_ans_1" placeholder=""></textarea>
- <div class="print-mirror" id="v4_ans_1_mirror"></div>
- </div>
+    <h3>1. Анализ симптомов и механизм теплового троттлинга (до 2 баллов)</h3>
+    <p class="desc">Объясните физический процесс деградации соединения. Почему контроллер сбрасывает скорость линка именно до 100 Мбит/с? Как встроенная защита кристалла предотвращает необратимый тепловой пробой?</p>
+    <div class="form-group">
+      <textarea id="v4_ans_1" placeholder=""></textarea>
+      <div class="print-mirror" id="v4_ans_1_mirror"></div>
+    </div>
 
- <h3>2. Теплотехнический анализ и ошибки CRC (1 балл)</h3>
- <p class="desc">Оцените рассеиваемую мощность адаптера (P ≈ 1.8 Вт) при отсутствии теплоотвода. Почему при нагреве кремния свыше 85°C резко возрастает число ошибок контрольной суммы пакетов (CRC Error) на физическом уровне?</p>
- <div class="form-group">
- <textarea id="v4_ans_2" placeholder=""></textarea>
- <div class="print-mirror" id="v4_ans_2_mirror"></div>
- </div>
+    <h3>2. Теплотехнический анализ и ошибки CRC (1 балл)</h3>
+    <p class="desc">Оцените рассеиваемую мощность адаптера (P ≈ 1.8 Вт) при отсутствии теплоотвода. Почему при нагреве кремния свыше 85°C резко возрастает число ошибок контрольной суммы пакетов (CRC Error) на физическом уровне?</p>
+    <div class="form-group">
+      <textarea id="v4_ans_2" placeholder=""></textarea>
+      <div class="print-mirror" id="v4_ans_2_mirror"></div>
+    </div>
 
- <h3>3. Инженерная модернизация охлаждения и чек-лист верификации (1 балл)</h3>
- <p class="desc">Предложите конструктивное решение по охлаждению адаптера (замена корпуса, термопрокладка, радиатор) и отметьте пункты чек-листа:</p>
- <div class="form-group" style="margin-bottom: 12px;">
- <textarea id="v4_ans_3" placeholder=""></textarea>
- <div class="print-mirror" id="v4_ans_3_mirror"></div>
- </div>
+    <h3>3. Инженерная модернизация охлаждения и чек-лист верификации (1 балл)</h3>
+    <p class="desc">Предложите конструктивное решение по охлаждению адаптера (замена корпуса, термопрокладка, радиатор) и отметьте пункты чек-листа:</p>
+    <div class="form-group" style="margin-bottom: 12px;">
+      <textarea id="v4_ans_3" placeholder=""></textarea>
+      <div class="print-mirror" id="v4_ans_3_mirror"></div>
+    </div>
 
- <div class="checklist">
- <div class="checklist-item">
- <input type="checkbox" id="v4_chk_1">
- <label for="v4_chk_1">Установка теплопроводящей силиконовой прокладки толщиной 1.0 мм (теплопроводность ≥ 6 Вт/(м·К)) на металлический корпус-радиатор.</label>
- </div>
- <div class="checklist-item">
- <input type="checkbox" id="v4_chk_2">
- <label for="v4_chk_2">Пирометрический контроль температуры корпуса под полной нагрузкой (стабилизация на уровне T ≤ 58^circC).</label>
- </div>
- <div class="checklist-item">
- <input type="checkbox" id="v4_chk_3">
- <label for="v4_chk_3">Проведение непрерывного 10-минутного теста пропускной способности iperf3 в дуплексном режиме (скорость ≥ 2.35 Гбит/с).</label>
- </div>
- <div class="checklist-item">
- <input type="checkbox" id="v4_chk_4">
- <label for="v4_chk_4">Контроль счетчиков сетевого интерфейса (netstat -e / ethtool): нулевой прирост пакетов с ошибками CRC и Discards.</label>
- </div>
- </div>
- </div>
+    <div class="checklist">
+      <div class="checklist-item">
+        <input type="checkbox" id="v4_chk_1">
+        <label for="v4_chk_1">Установка теплопроводящей силиконовой прокладки толщиной 1.0 мм (теплопроводность ≥ 6 Вт/(м·К)) на металлический корпус-радиатор.</label>
+      </div>
+      <div class="checklist-item">
+        <input type="checkbox" id="v4_chk_2">
+        <label for="v4_chk_2">Пирометрический контроль температуры корпуса под полной нагрузкой (стабилизация на уровне T ≤ 58^circC).</label>
+      </div>
+      <div class="checklist-item">
+        <input type="checkbox" id="v4_chk_3">
+        <label for="v4_chk_3">Проведение непрерывного 10-минутного теста пропускной способности iperf3 в дуплексном режиме (скорость ≥ 2.35 Гбит/с).</label>
+      </div>
+      <div class="checklist-item">
+        <input type="checkbox" id="v4_chk_4">
+        <label for="v4_chk_4">Контроль счетчиков сетевого интерфейса (netstat -e / ethtool): нулевой прирост пакетов с ошибками CRC и Discards.</label>
+      </div>
+    </div>
+  </div>
 
- <!-- КНОПКИ ДЕЙСТВИЙ -->
- <div class="actions-card">
- <div class="btn-actions">
- <button type="button" class="btn-primary" onclick="saveData()">Сохранить протокол</button>
- <button type="button" class="btn-success" onclick="prepareAndPrint()">Печать / Экспорт в PDF</button>
- <button type="button" class="btn-danger" onclick="clearData()">Очистить форму</button>
- </div>
- <div class="status-msg" id="save_status" style="display: none;">Протокол успешно сохранен в браузере!</div>
- </div>
+  <!-- КНОПКИ ДЕЙСТВИЙ -->
+  <div class="actions-card">
+    <div class="btn-actions">
+      <button type="button" class="btn-primary" onclick="saveData()">Сохранить протокол</button>
+      <button type="button" class="btn-success" onclick="prepareAndPrint()">Печать / Экспорт в PDF</button>
+      <button type="button" class="btn-danger" onclick="clearData()">Очистить форму</button>
+    </div>
+    <div class="status-msg" id="save_status" style="display: none;">Протокол успешно сохранен в браузере!</div>
+  </div>
 
- <!-- КРИТЕРИИ ОЦЕНИВАНИЯ -->
- <div class="rubric-card">
- <h2>Критерии оценивания работы (4-балльная шкала)</h2>
- <table>
- <thead>
- <tr>
- <th>Баллы</th>
- <th>Критерий и глубина технического анализа</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>4 балла</strong></td>
- <td>Исчерпывающе локализован уровень отказа (L1, L2 или L3); безошибочно выполнены инструментальные расчеты (падение напряжения VBUS, расшифровка дампа WinDbg с кодом останова или тепловой режим); предложен технически грамотный комплекс мер по устранению сбоя и заполнен чек-лист верификации.</td>
- </tr>
- <tr>
- <td><strong>3 балла</strong></td>
- <td>Правильно определена корневая причина отказа, но допущены неточности в расчетной части (погрешность в сопротивлении цепи или поверхностное описание очередей DPC).</td>
- </tr>
- <tr>
- <td><strong>2 балла</strong></td>
- <td>Уровень отказа определен верно лишь частично; отсутствуют расчеты либо регламент устранения не решает проблему на аппаратном уровне.</td>
- </tr>
- <tr>
- <td><strong>0–1 балл</strong></td>
- <td>Грубые ошибки, непонимание физических принципов работы интерфейсов, шаблонные отписки без технических данных.</td>
- </tr>
- </tbody>
- </table>
- </div>
+  <!-- КРИТЕРИИ ОЦЕНИВАНИЯ -->
+  <div class="rubric-card">
+    <h2>Критерии оценивания работы (4-балльная шкала)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Баллы</th>
+          <th>Критерий и глубина технического анализа</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>4 балла</strong></td>
+          <td>Исчерпывающе локализован уровень отказа (L1, L2 или L3); безошибочно выполнены инструментальные расчеты (падение напряжения VBUS, расшифровка дампа WinDbg с кодом останова или тепловой режим); предложен технически грамотный комплекс мер по устранению сбоя и заполнен чек-лист верификации.</td>
+        </tr>
+        <tr>
+          <td><strong>3 балла</strong></td>
+          <td>Правильно определена корневая причина отказа, но допущены неточности в расчетной части (погрешность в сопротивлении цепи или поверхностное описание очередей DPC).</td>
+        </tr>
+        <tr>
+          <td><strong>2 балла</strong></td>
+          <td>Уровень отказа определен верно лишь частично; отсутствуют расчеты либо регламент устранения не решает проблему на аппаратном уровне.</td>
+        </tr>
+        <tr>
+          <td><strong>0–1 балл</strong></td>
+          <td>Грубые ошибки, непонимание физических принципов работы интерфейсов, шаблонные отписки без технических данных.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
 </div>
 
 <script>
- const STORAGE_KEY = 'top_lab_15_peripheral_troubleshooting_v1';
- let activeVariant = 1;
+  const STORAGE_KEY = 'top_lab_15_peripheral_troubleshooting_v1';
+  let activeVariant = 1;
 
- function switchVariant(v) {
- activeVariant = v;
- const btns = document.querySelectorAll('.variant-btn');
- btns.forEach((btn, idx) => {
- if (idx + 1 === v) btn.classList.add('active');
- else btn.classList.remove('active');
- });
+  function switchVariant(v) {
+    activeVariant = v;
+    const btns = document.querySelectorAll('.variant-btn');
+    btns.forEach((btn, idx) => {
+      if (idx + 1 === v) btn.classList.add('active');
+      else btn.classList.remove('active');
+    });
 
- for (let i = 1; i <= 4; i++) {
- const card = document.getElementById('v_card_' + i);
- if (i === v) card.classList.add('active');
- else card.classList.remove('active');
- }
- }
+    for (let i = 1; i <= 4; i++) {
+      const card = document.getElementById('v_card_' + i);
+      if (i === v) card.classList.add('active');
+      else card.classList.remove('active');
+    }
+  }
 
- function updateMirrors() {
- for (let v = 1; v <= 4; v++) {
- for (let q = 1; q <= 3; q++) {
- const textarea = document.getElementById(`v${v}_ans_${q}`);
- const mirror = document.getElementById(`v${v}_ans_${q}_mirror`);
- if (textarea && mirror) {
- mirror.textContent = textarea.value;
- }
- }
- }
- }
+  function updateMirrors() {
+    for (let v = 1; v <= 4; v++) {
+      for (let q = 1; q <= 3; q++) {
+        const textarea = document.getElementById(`v${v}_ans_${q}`);
+        const mirror = document.getElementById(`v${v}_ans_${q}_mirror`);
+        if (textarea && mirror) {
+          mirror.textContent = textarea.value;
+        }
+      }
+    }
+  }
 
- function saveData() {
- const data = {
- fio: document.getElementById('student_fio').value,
- group: document.getElementById('student_group').value,
- variant: activeVariant,
- v1: {
- a1: document.getElementById('v1_ans_1').value,
- a2: document.getElementById('v1_ans_2').value,
- a3: document.getElementById('v1_ans_3').value,
- c1: document.getElementById('v1_chk_1').checked,
- c2: document.getElementById('v1_chk_2').checked,
- c3: document.getElementById('v1_chk_3').checked,
- c4: document.getElementById('v1_chk_4').checked
- },
- v2: {
- a1: document.getElementById('v2_ans_1').value,
- a2: document.getElementById('v2_ans_2').value,
- a3: document.getElementById('v2_ans_3').value,
- c1: document.getElementById('v2_chk_1').checked,
- c2: document.getElementById('v2_chk_2').checked,
- c3: document.getElementById('v2_chk_3').checked,
- c4: document.getElementById('v2_chk_4').checked
- },
- v3: {
- a1: document.getElementById('v3_ans_1').value,
- a2: document.getElementById('v3_ans_2').value,
- a3: document.getElementById('v3_ans_3').value,
- c1: document.getElementById('v3_chk_1').checked,
- c2: document.getElementById('v3_chk_2').checked,
- c3: document.getElementById('v3_chk_3').checked,
- c4: document.getElementById('v3_chk_4').checked
- },
- v4: {
- a1: document.getElementById('v4_ans_1').value,
- a2: document.getElementById('v4_ans_2').value,
- a3: document.getElementById('v4_ans_3').value,
- c1: document.getElementById('v4_chk_1').checked,
- c2: document.getElementById('v4_chk_2').checked,
- c3: document.getElementById('v4_chk_3').checked,
- c4: document.getElementById('v4_chk_4').checked
- }
- };
- localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
- updateMirrors();
- const status = document.getElementById('save_status');
- status.style.display = 'block';
- setTimeout(() => { status.style.display = 'none'; }, 3000);
- }
+  function saveData() {
+    const data = {
+      fio: document.getElementById('student_fio').value,
+      group: document.getElementById('student_group').value,
+      variant: activeVariant,
+      v1: {
+        a1: document.getElementById('v1_ans_1').value,
+        a2: document.getElementById('v1_ans_2').value,
+        a3: document.getElementById('v1_ans_3').value,
+        c1: document.getElementById('v1_chk_1').checked,
+        c2: document.getElementById('v1_chk_2').checked,
+        c3: document.getElementById('v1_chk_3').checked,
+        c4: document.getElementById('v1_chk_4').checked
+      },
+      v2: {
+        a1: document.getElementById('v2_ans_1').value,
+        a2: document.getElementById('v2_ans_2').value,
+        a3: document.getElementById('v2_ans_3').value,
+        c1: document.getElementById('v2_chk_1').checked,
+        c2: document.getElementById('v2_chk_2').checked,
+        c3: document.getElementById('v2_chk_3').checked,
+        c4: document.getElementById('v2_chk_4').checked
+      },
+      v3: {
+        a1: document.getElementById('v3_ans_1').value,
+        a2: document.getElementById('v3_ans_2').value,
+        a3: document.getElementById('v3_ans_3').value,
+        c1: document.getElementById('v3_chk_1').checked,
+        c2: document.getElementById('v3_chk_2').checked,
+        c3: document.getElementById('v3_chk_3').checked,
+        c4: document.getElementById('v3_chk_4').checked
+      },
+      v4: {
+        a1: document.getElementById('v4_ans_1').value,
+        a2: document.getElementById('v4_ans_2').value,
+        a3: document.getElementById('v4_ans_3').value,
+        c1: document.getElementById('v4_chk_1').checked,
+        c2: document.getElementById('v4_chk_2').checked,
+        c3: document.getElementById('v4_chk_3').checked,
+        c4: document.getElementById('v4_chk_4').checked
+      }
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    updateMirrors();
+    const status = document.getElementById('save_status');
+    status.style.display = 'block';
+    setTimeout(() => { status.style.display = 'none'; }, 3000);
+  }
 
- function loadData() {
- const raw = localStorage.getItem(STORAGE_KEY);
- if (!raw) return;
- try {
- const data = JSON.parse(raw);
- if (data.fio) document.getElementById('student_fio').value = data.fio;
- if (data.group) document.getElementById('student_group').value = data.group;
- if (data.variant) switchVariant(data.variant);
+  function loadData() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    try {
+      const data = JSON.parse(raw);
+      if (data.fio) document.getElementById('student_fio').value = data.fio;
+      if (data.group) document.getElementById('student_group').value = data.group;
+      if (data.variant) switchVariant(data.variant);
 
- for (let v = 1; v <= 4; v++) {
- const vData = data['v' + v];
- if (vData) {
- if (vData.a1) document.getElementById(`v${v}_ans_1`).value = vData.a1;
- if (vData.a2) document.getElementById(`v${v}_ans_2`).value = vData.a2;
- if (vData.a3) document.getElementById(`v${v}_ans_3`).value = vData.a3;
- if (vData.c1 !== undefined) document.getElementById(`v${v}_chk_1`).checked = vData.c1;
- if (vData.c2 !== undefined) document.getElementById(`v${v}_chk_2`).checked = vData.c2;
- if (vData.c3 !== undefined) document.getElementById(`v${v}_chk_3`).checked = vData.c3;
- if (vData.c4 !== undefined) document.getElementById(`v${v}_chk_4`).checked = vData.c4;
- }
- }
- updateMirrors();
- } catch (e) {
- console.error('Ошибка загрузки данных', e);
- }
- }
+      for (let v = 1; v <= 4; v++) {
+        const vData = data['v' + v];
+        if (vData) {
+          if (vData.a1) document.getElementById(`v${v}_ans_1`).value = vData.a1;
+          if (vData.a2) document.getElementById(`v${v}_ans_2`).value = vData.a2;
+          if (vData.a3) document.getElementById(`v${v}_ans_3`).value = vData.a3;
+          if (vData.c1 !== undefined) document.getElementById(`v${v}_chk_1`).checked = vData.c1;
+          if (vData.c2 !== undefined) document.getElementById(`v${v}_chk_2`).checked = vData.c2;
+          if (vData.c3 !== undefined) document.getElementById(`v${v}_chk_3`).checked = vData.c3;
+          if (vData.c4 !== undefined) document.getElementById(`v${v}_chk_4`).checked = vData.c4;
+        }
+      }
+      updateMirrors();
+    } catch (e) {
+      console.error('Ошибка загрузки данных', e);
+    }
+  }
 
- function clearData() {
- if (confirm('Вы уверены, что хотите полностью очистить все введенные данные протокола?')) {
- localStorage.removeItem(STORAGE_KEY);
- document.getElementById('student_fio').value = '';
- document.getElementById('student_group').value = '';
- for (let v = 1; v <= 4; v++) {
- document.getElementById(`v${v}_ans_1`).value = '';
- document.getElementById(`v${v}_ans_2`).value = '';
- document.getElementById(`v${v}_ans_3`).value = '';
- document.getElementById(`v${v}_chk_1`).checked = false;
- document.getElementById(`v${v}_chk_2`).checked = false;
- document.getElementById(`v${v}_chk_3`).checked = false;
- document.getElementById(`v${v}_chk_4`).checked = false;
- }
- updateMirrors();
- }
- }
+  function clearData() {
+    if (confirm('Вы уверены, что хотите полностью очистить все введенные данные протокола?')) {
+      localStorage.removeItem(STORAGE_KEY);
+      document.getElementById('student_fio').value = '';
+      document.getElementById('student_group').value = '';
+      for (let v = 1; v <= 4; v++) {
+        document.getElementById(`v${v}_ans_1`).value = '';
+        document.getElementById(`v${v}_ans_2`).value = '';
+        document.getElementById(`v${v}_ans_3`).value = '';
+        document.getElementById(`v${v}_chk_1`).checked = false;
+        document.getElementById(`v${v}_chk_2`).checked = false;
+        document.getElementById(`v${v}_chk_3`).checked = false;
+        document.getElementById(`v${v}_chk_4`).checked = false;
+      }
+      updateMirrors();
+    }
+  }
 
- function prepareAndPrint() {
- saveData();
- updateMirrors();
- window.print();
- }
+  function prepareAndPrint() {
+    saveData();
+    updateMirrors();
+    window.print();
+  }
 
- // Привязка слушателей ввода для зеркал печати
- for (let v = 1; v <= 4; v++) {
- for (let q = 1; q <= 3; q++) {
- const el = document.getElementById(`v${v}_ans_${q}`);
- if (el) el.addEventListener('input', updateMirrors);
- }
- }
+  // Привязка слушателей ввода для зеркал печати
+  for (let v = 1; v <= 4; v++) {
+    for (let q = 1; q <= 3; q++) {
+      const el = document.getElementById(`v${v}_ans_${q}`);
+      if (el) el.addEventListener('input', updateMirrors);
+    }
+  }
 
- window.addEventListener('DOMContentLoaded', loadData);
+  window.addEventListener('DOMContentLoaded', loadData);
 </script>
 </body>
 </html>

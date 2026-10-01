@@ -1,704 +1,730 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
- <title>Практикум: Порты ввода-вывода, накопители, системная логика и стандарты ATX</title>
- <style>
- :root {
- --bg: #f1f5f9;
- --card: #ffffff;
- --text: #0f172a;
- --muted: #475569;
- --line: #cbd5e1;
- --accent: #1e40af;
- --accent-soft: #eff6ff;
- --task-bg: #f8fafc;
- --border-task: #94a3b8;
- --ok: #059669;
- --warn: #d97706;
- --radius: 14px;
- --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
- }
- * { box-sizing: border-box; margin: 0; padding: 0; }
- body {
- background: var(--bg);
- color: var(--text);
- font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
- line-height: 1.6;
- font-size: 15px;
- padding: 20px 14px;
- }.page {
- max-width: 960px;
- margin: 0 auto;
- }.header-card,.student-card,.task-card,.actions-card {
- background: var(--card);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 24px;
- margin-bottom: 20px;
- box-shadow: var(--shadow);
- }
- h1 {
- font-size: clamp(22px, 3.5vw, 28px);
- color: var(--accent);
- margin-bottom: 8px;
- }.desc {
- color: var(--muted);
- font-size: 15px;
- line-height: 1.55;
- }.student-grid {
- display: grid;
- grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
- gap: 16px;
- }
- label {
- display: block;
- font-weight: 600;
- font-size: 13.5px;
- margin-bottom: 6px;
- color: #1e293b;
- }
- input[type="text"], input[type="date"], select, textarea {
- width: 100%;
- border: 1.5px solid var(--line);
- border-radius: 8px;
- padding: 9px 12px;
- font: inherit;
- font-size: 14px;
- background: #fff;
- color: var(--text);
- outline: none;
- transition: border-color.15s, box-shadow.15s;
- }
- input:focus, select:focus, textarea:focus {
- border-color: var(--accent);
- box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
- }
- textarea {
- min-height: 90px;
- resize: vertical;
- line-height: 1.5;
- }.task-title {
- font-size: 18px;
- color: var(--accent);
- margin-bottom: 12px;
- display: flex;
- align-items: center;
- gap: 8px;
- font-weight: 700;
- }.task-intro {
- font-size: 14px;
- color: var(--muted);
- margin-bottom: 16px;
- }.table-wrap {
- overflow-x: auto;
- margin: 14px 0;
- }
- table {
- width: 100%;
- border-collapse: collapse;
- font-size: 13.5px;
- min-width: 600px;
- }
- th, td {
- border: 1px solid var(--line);
- padding: 8px 10px;
- text-align: left;
- vertical-align: middle;
- }
- th {
- background: var(--accent-soft);
- font-weight: 600;
- color: var(--accent);
- }.table-input {
- padding: 6px 8px;
- font-size: 13px;
- }.btn-row {
- display: flex;
- gap: 12px;
- flex-wrap: wrap;
- margin-top: 10px;
- }
- button {
- padding: 10px 18px;
- border: none;
- border-radius: 8px;
- font: inherit;
- font-size: 14px;
- font-weight: 600;
- cursor: pointer;
- display: inline-flex;
- align-items: center;
- gap: 6px;
- transition: all.15s;
- }.btn-primary { background: var(--accent); color: #fff; }.btn-primary:hover { background: #1d4ed8; }.btn-sec { background: #e2e8f0; color: #1e293b; }.btn-sec:hover { background: #cbd5e1; }.btn-danger { background: #fee2e2; color: #b91c1c; }.btn-danger:hover { background: #fecaca; }.save-indicator {
- font-size: 13px;
- color: var(--ok);
- display: inline-flex;
- align-items: center;
- gap: 6px;
- margin-left: auto;
- font-weight: 500;
- }.criteria-box {
- background: #f8fafc;
- border-left: 4px solid var(--accent);
- padding: 12px 16px;
- border-radius: 0 8px 8px 0;
- font-size: 13.5px;
- margin-top: 16px;
- color: #334155;
- }.variant-selector-box {
- background: var(--accent-soft);
- padding: 14px;
- border-radius: 8px;
- margin-bottom: 16px;
- border: 1px solid #bfdbfe;
- }.variant-desc-card {
- background: #fff;
- border: 1px solid var(--line);
- border-radius: 8px;
- padding: 14px;
- margin-top: 10px;
- font-size: 14px;
- }.form-group {
- margin-bottom: 14px;
- }.form-group label {
- margin-bottom: 4px;
- }.print-select-text { display: none; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Практикум: Порты ввода-вывода, накопители, системная логика и стандарты ATX</title>
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --task-bg: #f8fafc;
+      --border-task: #94a3b8;
+      --ok: #059669;
+      --warn: #d97706;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .task-card, .actions-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(22px, 3.5vw, 28px);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .desc {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    input[type="text"], input[type="date"], select, textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+    }
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    .task-title {
+      font-size: 18px;
+      color: var(--accent);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+    }
+    .task-intro {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      margin: 14px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      min-width: 600px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: middle;
+    }
+    th {
+      background: var(--accent-soft);
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .table-input {
+      padding: 6px 8px;
+      font-size: 13px;
+    }
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    button {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 8px;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all .15s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-sec { background: #e2e8f0; color: #1e293b; }
+    .btn-sec:hover { background: #cbd5e1; }
+    .btn-danger { background: #fee2e2; color: #b91c1c; }
+    .btn-danger:hover { background: #fecaca; }
+    .save-indicator {
+      font-size: 13px;
+      color: var(--ok);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: auto;
+      font-weight: 500;
+    }
+    .criteria-box {
+      background: #f8fafc;
+      border-left: 4px solid var(--accent);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      font-size: 13.5px;
+      margin-top: 16px;
+      color: #334155;
+    }
+    .variant-selector-box {
+      background: var(--accent-soft);
+      padding: 14px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      border: 1px solid #bfdbfe;
+    }
+    .variant-desc-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-group label {
+      margin-bottom: 4px;
+    }
+    .print-select-text { display: none; }
 
- @media print {
- body {
- background: #fff;
- padding: 0;
- font-size: 11pt;
- color: #000;
- }.page {
- max-width: 100%;
- margin: 0;
- }.header-card,.student-card,.task-card {
- box-shadow: none;
- border: 1px solid #777;
- margin-bottom: 14pt;
- padding: 12pt;
- break-inside: auto;
- page-break-inside: auto;
- }.actions-card,.btn-row,.save-indicator {
- display: none !important;
- }
- input::placeholder, textarea::placeholder {
- color: transparent !important;
- -webkit-text-fill-color: transparent !important;
- opacity: 0 !important;
- }
- select {
- display: none !important;
- }.print-select-text {
- display: block !important;
- min-height: 22px;
- border: 1px solid #777 !important;
- border-radius: 4px;
- padding: 4px 6px;
- background: #fff !important;
- }
- textarea {
- height: auto !important;
- min-height: 85px;
- overflow: visible !important;
- white-space: pre-wrap !important;
- word-break: break-word !important;
- border: 1px solid #777 !important;
- background: #fff !important;
- color: #000 !important;
- }
- input[type="text"], input[type="date"],.table-input {
- border: 1px solid #777 !important;
- background: #fff !important;
- color: #000 !important;
- }
- table {
- page-break-inside: auto;
- }
- tr {
- page-break-inside: avoid;
- page-break-after: auto;
- }
- }
- </style>
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+        font-size: 11pt;
+        color: #000;
+      }
+      .page {
+        max-width: 100%;
+        margin: 0;
+      }
+      .header-card, .student-card, .task-card {
+        box-shadow: none;
+        border: 1px solid #777;
+        margin-bottom: 14pt;
+        padding: 12pt;
+        break-inside: auto;
+        page-break-inside: auto;
+      }
+      .actions-card, .btn-row, .save-indicator {
+        display: none !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        opacity: 0 !important;
+      }
+      select {
+        display: none !important;
+      }
+      .print-select-text {
+        display: block !important;
+        min-height: 22px;
+        border: 1px solid #777 !important;
+        border-radius: 4px;
+        padding: 4px 6px;
+        background: #fff !important;
+      }
+      textarea {
+        height: auto !important;
+        min-height: 85px;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      input[type="text"], input[type="date"], .table-input {
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      table {
+        page-break-inside: auto;
+      }
+      tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+      }
+    }
+  </style>
 </head>
 <body>
 <div class="page">
 
- <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
- <div class="header-card">
- <h1>Практикум: Порты USB/FireWire, накопители IDE/SCSI/SATA/SAS, чипсеты и электропитание ATX</h1>
- <p class="desc">Интерактивный рабочий лист студента по дисциплине «Архитектура аппаратных средств» (СИЭУиП, занятие 16). Сравнительный анализ периферийных интерфейсов (USB 2.0 / USB 3.2 / USB4 vs IEEE-1394 FireWire) и накопителей (PATA IDE vs SATA III vs SCSI/SAS); исследование эволюции системной логики (северный/южный мост &rarr; PCH); чек-лист электропитания ATX и управляющих сигналов PS_ON# / Power_Good; инженерный протокол выбора подсистемы I/O и питания под 4 варианта платформ.</p>
- </div>
+  <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
+  <div class="header-card">
+    <h1>Практикум: Порты USB/FireWire, накопители IDE/SCSI/SATA/SAS, чипсеты и электропитание ATX</h1>
+    <p class="desc">Интерактивный рабочий лист студента по дисциплине «Архитектура аппаратных средств» (СИЭУиП, занятие 16). Сравнительный анализ периферийных интерфейсов (USB 2.0 / USB 3.2 / USB4 vs IEEE-1394 FireWire) и накопителей (PATA IDE vs SATA III vs SCSI/SAS); исследование эволюции системной логики (северный/южный мост &rarr; PCH); чек-лист электропитания ATX и управляющих сигналов PS_ON# / Power_Good; инженерный протокол выбора подсистемы I/O и питания под 4 варианта платформ.</p>
+  </div>
 
- <!-- РЕКВИЗИТЫ СТУДЕНТА (ЧИСТЫЕ ПОЛЯ БЕЗ ВЫМЫШЛЕННЫХ ДАННЫХ) -->
- <div class="student-card">
- <div class="student-grid">
- <div>
- <label for="student_fio">ФИО обучающегося:</label>
- <input type="text" id="student_fio" placeholder="Введите ФИО" autocomplete="off">
- </div>
- <div>
- <label for="student_group">Учебная группа:</label>
- <input type="text" id="student_group" placeholder="Введите группу" autocomplete="off">
- </div>
- <div>
- <label for="work_date">Дата выполнения:</label>
- <input type="date" id="work_date">
- </div>
- <div>
- <label for="variant_select">Вариант платформы:</label>
- <select id="variant_select">
- <option value="1">Вариант 1: Сервер хранения данных (СХД / NAS)</option>
- <option value="2">Вариант 2: Студия звукозаписи и видеомонтажа</option>
- <option value="3">Вариант 3: Офисный ПК для ретро-архива и станков</option>
- <option value="4">Вариант 4: Игровой ПК / AI-станция 850W ATX 3.0</option>
- </select>
- <div class="print-select-text" id="variant_select_print"></div>
- </div>
- </div>
- </div>
+  <!-- РЕКВИЗИТЫ СТУДЕНТА (ЧИСТЫЕ ПОЛЯ БЕЗ ВЫМЫШЛЕННЫХ ДАННЫХ) -->
+  <div class="student-card">
+    <div class="student-grid">
+      <div>
+        <label for="student_fio">ФИО обучающегося:</label>
+        <input type="text" id="student_fio" placeholder="Введите ФИО" autocomplete="off">
+      </div>
+      <div>
+        <label for="student_group">Учебная группа:</label>
+        <input type="text" id="student_group" placeholder="Введите группу" autocomplete="off">
+      </div>
+      <div>
+        <label for="work_date">Дата выполнения:</label>
+        <input type="date" id="work_date">
+      </div>
+      <div>
+        <label for="variant_select">Вариант платформы:</label>
+        <select id="variant_select">
+          <option value="1">Вариант 1: Сервер хранения данных (СХД / NAS)</option>
+          <option value="2">Вариант 2: Студия звукозаписи и видеомонтажа</option>
+          <option value="3">Вариант 3: Офисный ПК для ретро-архива и станков</option>
+          <option value="4">Вариант 4: Игровой ПК / AI-станция 850W ATX 3.0</option>
+        </select>
+        <div class="print-select-text" id="variant_select_print"></div>
+      </div>
+    </div>
+  </div>
 
- <!-- ЗАДАНИЕ 1: СРАВНИТЕЛЬНЫЙ АНАЛИЗ ИНТЕРФЕЙСОВ -->
- <div class="task-card">
- <div class="task-title">Задание 1. Сравнительный анализ периферийных интерфейсов и дисковых подсистем</div>
- <p class="task-intro">Сопоставьте технические характеристики универсальных шин ввода-вывода (USB vs FireWire) и интерфейсов подключения накопителей данных. Опишите физические компромиссы кабельных линий.</p>
+  <!-- ЗАДАНИЕ 1: СРАВНИТЕЛЬНЫЙ АНАЛИЗ ИНТЕРФЕЙСОВ -->
+  <div class="task-card">
+    <div class="task-title">Задание 1. Сравнительный анализ периферийных интерфейсов и дисковых подсистем</div>
+    <p class="task-intro">Сопоставьте технические характеристики универсальных шин ввода-вывода (USB vs FireWire) и интерфейсов подключения накопителей данных. Опишите физические компромиссы кабельных линий.</p>
 
- <h3 style="font-size: 15px; margin: 12px 0 6px; color: var(--accent);">1.1. Периферийные интерфейсы: USB 2.0 / USB 3.2 / USB4 vs IEEE-1394 FireWire</h3>
- <div class="table-wrap">
- <table>
- <thead>
- <tr>
- <th style="width: 20%;">Параметр</th>
- <th style="width: 20%;">USB 2.0 High-Speed</th>
- <th style="width: 20%;">USB 3.2 Gen 2</th>
- <th style="width: 20%;">USB4 Gen 3x2</th>
- <th style="width: 20%;">IEEE-1394b FireWire 800</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>Топология шины</strong></td>
- <td><input type="text" class="table-input" id="t1_topo_usb2" placeholder="Укажите топологию"></td>
- <td><input type="text" class="table-input" id="t1_topo_usb3" placeholder="Укажите топологию"></td>
- <td><input type="text" class="table-input" id="t1_topo_usb4" placeholder="Укажите топологию"></td>
- <td><input type="text" class="table-input" id="t1_topo_fw" placeholder="Укажите топологию"></td>
- </tr>
- <tr>
- <td><strong>Физическая среда / диф. пары</strong></td>
- <td><input type="text" class="table-input" id="t1_phys_usb2" placeholder="Число пар, дуплекс"></td>
- <td><input type="text" class="table-input" id="t1_phys_usb3" placeholder="Число пар, дуплекс"></td>
- <td><input type="text" class="table-input" id="t1_phys_usb4" placeholder="Число пар, дуплекс"></td>
- <td><input type="text" class="table-input" id="t1_phys_fw" placeholder="Число пар, дуплекс"></td>
- </tr>
- <tr>
- <td><strong>Предельная скорость</strong></td>
- <td><input type="text" class="table-input" id="t1_speed_usb2" placeholder="Мбит/с или МБ/с"></td>
- <td><input type="text" class="table-input" id="t1_speed_usb3" placeholder="Гбит/с или ГБ/с"></td>
- <td><input type="text" class="table-input" id="t1_speed_usb4" placeholder="Гбит/с или ГБ/с"></td>
- <td><input type="text" class="table-input" id="t1_speed_fw" placeholder="Мбит/с или МБ/с"></td>
- </tr>
- <tr>
- <td><strong>Управление шиной (Host vs P2P)</strong></td>
- <td><input type="text" class="table-input" id="t1_ctrl_usb2" placeholder="Host-centric или P2P"></td>
- <td><input type="text" class="table-input" id="t1_ctrl_usb3" placeholder="Host-centric или P2P"></td>
- <td><input type="text" class="table-input" id="t1_ctrl_usb4" placeholder="Host-centric или P2P"></td>
- <td><input type="text" class="table-input" id="t1_ctrl_fw" placeholder="Host-centric или P2P"></td>
- </tr>
- <tr>
- <td><strong>Электропитание (Вольт / Ватт)</strong></td>
- <td><input type="text" class="table-input" id="t1_pwr_usb2" placeholder="В, мА, Вт"></td>
- <td><input type="text" class="table-input" id="t1_pwr_usb3" placeholder="В, мА, Вт"></td>
- <td><input type="text" class="table-input" id="t1_pwr_usb4" placeholder="В, мА, Вт"></td>
- <td><input type="text" class="table-input" id="t1_pwr_fw" placeholder="В, мА, Вт"></td>
- </tr>
- </tbody>
- </table>
- </div>
+    <h3 style="font-size: 15px; margin: 12px 0 6px; color: var(--accent);">1.1. Периферийные интерфейсы: USB 2.0 / USB 3.2 / USB4 vs IEEE-1394 FireWire</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 20%;">Параметр</th>
+            <th style="width: 20%;">USB 2.0 High-Speed</th>
+            <th style="width: 20%;">USB 3.2 Gen 2</th>
+            <th style="width: 20%;">USB4 Gen 3x2</th>
+            <th style="width: 20%;">IEEE-1394b FireWire 800</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Топология шины</strong></td>
+            <td><input type="text" class="table-input" id="t1_topo_usb2" placeholder="Укажите топологию"></td>
+            <td><input type="text" class="table-input" id="t1_topo_usb3" placeholder="Укажите топологию"></td>
+            <td><input type="text" class="table-input" id="t1_topo_usb4" placeholder="Укажите топологию"></td>
+            <td><input type="text" class="table-input" id="t1_topo_fw" placeholder="Укажите топологию"></td>
+          </tr>
+          <tr>
+            <td><strong>Физическая среда / диф. пары</strong></td>
+            <td><input type="text" class="table-input" id="t1_phys_usb2" placeholder="Число пар, дуплекс"></td>
+            <td><input type="text" class="table-input" id="t1_phys_usb3" placeholder="Число пар, дуплекс"></td>
+            <td><input type="text" class="table-input" id="t1_phys_usb4" placeholder="Число пар, дуплекс"></td>
+            <td><input type="text" class="table-input" id="t1_phys_fw" placeholder="Число пар, дуплекс"></td>
+          </tr>
+          <tr>
+            <td><strong>Предельная скорость</strong></td>
+            <td><input type="text" class="table-input" id="t1_speed_usb2" placeholder="Мбит/с или МБ/с"></td>
+            <td><input type="text" class="table-input" id="t1_speed_usb3" placeholder="Гбит/с или ГБ/с"></td>
+            <td><input type="text" class="table-input" id="t1_speed_usb4" placeholder="Гбит/с или ГБ/с"></td>
+            <td><input type="text" class="table-input" id="t1_speed_fw" placeholder="Мбит/с или МБ/с"></td>
+          </tr>
+          <tr>
+            <td><strong>Управление шиной (Host vs P2P)</strong></td>
+            <td><input type="text" class="table-input" id="t1_ctrl_usb2" placeholder="Host-centric или P2P"></td>
+            <td><input type="text" class="table-input" id="t1_ctrl_usb3" placeholder="Host-centric или P2P"></td>
+            <td><input type="text" class="table-input" id="t1_ctrl_usb4" placeholder="Host-centric или P2P"></td>
+            <td><input type="text" class="table-input" id="t1_ctrl_fw" placeholder="Host-centric или P2P"></td>
+          </tr>
+          <tr>
+            <td><strong>Электропитание (Вольт / Ватт)</strong></td>
+            <td><input type="text" class="table-input" id="t1_pwr_usb2" placeholder="В, мА, Вт"></td>
+            <td><input type="text" class="table-input" id="t1_pwr_usb3" placeholder="В, мА, Вт"></td>
+            <td><input type="text" class="table-input" id="t1_pwr_usb4" placeholder="В, мА, Вт"></td>
+            <td><input type="text" class="table-input" id="t1_pwr_fw" placeholder="В, мА, Вт"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
- <h3 style="font-size: 15px; margin: 16px 0 6px; color: var(--accent);">1.2. Дисковые интерфейсы: PATA IDE vs SATA III vs SCSI / SAS</h3>
- <div class="table-wrap">
- <table>
- <thead>
- <tr>
- <th style="width: 20%;">Параметр</th>
- <th style="width: 20%;">PATA IDE (UDMA 6)</th>
- <th style="width: 20%;">SATA III (Revision 3.0)</th>
- <th style="width: 20%;">Ultra-320 SCSI</th>
- <th style="width: 20%;">SAS-3 (12 Gbps)</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>Тип передачи (паспорт)</strong></td>
- <td><input type="text" class="table-input" id="t1_type_pata" placeholder="Параллельный / последовательный"></td>
- <td><input type="text" class="table-input" id="t1_type_sata" placeholder="Параллельный / последовательный"></td>
- <td><input type="text" class="table-input" id="t1_type_scsi" placeholder="Параллельный / последовательный"></td>
- <td><input type="text" class="table-input" id="t1_type_sas" placeholder="Параллельный / последовательный"></td>
- </tr>
- <tr>
- <td><strong>Кабель / число контактов</strong></td>
- <td><input type="text" class="table-input" id="t1_cab_pata" placeholder="Жилы / контакты"></td>
- <td><input type="text" class="table-input" id="t1_cab_sata" placeholder="Контакты, длина"></td>
- <td><input type="text" class="table-input" id="t1_cab_scsi" placeholder="Контакты кабеля"></td>
- <td><input type="text" class="table-input" id="t1_cab_sas" placeholder="Тип кабеля / разъем"></td>
- </tr>
- <tr>
- <td><strong>Макс. число дисков на канал</strong></td>
- <td><input type="text" class="table-input" id="t1_dev_pata" placeholder="Число устройств"></td>
- <td><input type="text" class="table-input" id="t1_dev_sata" placeholder="Число устройств"></td>
- <td><input type="text" class="table-input" id="t1_dev_scsi" placeholder="Число устройств"></td>
- <td><input type="text" class="table-input" id="t1_dev_sas" placeholder="Число устройств"></td>
- </tr>
- <tr>
- <td><strong>Предельная ПСП</strong></td>
- <td><input type="text" class="table-input" id="t1_bw_pata" placeholder="МБ/с"></td>
- <td><input type="text" class="table-input" id="t1_bw_sata" placeholder="МБ/с"></td>
- <td><input type="text" class="table-input" id="t1_bw_scsi" placeholder="МБ/с"></td>
- <td><input type="text" class="table-input" id="t1_bw_sas" placeholder="МБ/с на канал"></td>
- </tr>
- <tr>
- <td><strong>Очереди команд и арбитраж</strong></td>
- <td><input type="text" class="table-input" id="t1_q_pata" placeholder="Есть ли очереди"></td>
- <td><input type="text" class="table-input" id="t1_q_sata" placeholder="NCQ глубина"></td>
- <td><input type="text" class="table-input" id="t1_q_scsi" placeholder="TCQ глубина"></td>
- <td><input type="text" class="table-input" id="t1_q_sas" placeholder="Очереди команд"></td>
- </tr>
- </tbody>
- </table>
- </div>
+    <h3 style="font-size: 15px; margin: 16px 0 6px; color: var(--accent);">1.2. Дисковые интерфейсы: PATA IDE vs SATA III vs SCSI / SAS</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 20%;">Параметр</th>
+            <th style="width: 20%;">PATA IDE (UDMA 6)</th>
+            <th style="width: 20%;">SATA III (Revision 3.0)</th>
+            <th style="width: 20%;">Ultra-320 SCSI</th>
+            <th style="width: 20%;">SAS-3 (12 Gbps)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Тип передачи (паспорт)</strong></td>
+            <td><input type="text" class="table-input" id="t1_type_pata" placeholder="Параллельный / последовательный"></td>
+            <td><input type="text" class="table-input" id="t1_type_sata" placeholder="Параллельный / последовательный"></td>
+            <td><input type="text" class="table-input" id="t1_type_scsi" placeholder="Параллельный / последовательный"></td>
+            <td><input type="text" class="table-input" id="t1_type_sas" placeholder="Параллельный / последовательный"></td>
+          </tr>
+          <tr>
+            <td><strong>Кабель / число контактов</strong></td>
+            <td><input type="text" class="table-input" id="t1_cab_pata" placeholder="Жилы / контакты"></td>
+            <td><input type="text" class="table-input" id="t1_cab_sata" placeholder="Контакты, длина"></td>
+            <td><input type="text" class="table-input" id="t1_cab_scsi" placeholder="Контакты кабеля"></td>
+            <td><input type="text" class="table-input" id="t1_cab_sas" placeholder="Тип кабеля / разъем"></td>
+          </tr>
+          <tr>
+            <td><strong>Макс. число дисков на канал</strong></td>
+            <td><input type="text" class="table-input" id="t1_dev_pata" placeholder="Число устройств"></td>
+            <td><input type="text" class="table-input" id="t1_dev_sata" placeholder="Число устройств"></td>
+            <td><input type="text" class="table-input" id="t1_dev_scsi" placeholder="Число устройств"></td>
+            <td><input type="text" class="table-input" id="t1_dev_sas" placeholder="Число устройств"></td>
+          </tr>
+          <tr>
+            <td><strong>Предельная ПСП</strong></td>
+            <td><input type="text" class="table-input" id="t1_bw_pata" placeholder="МБ/с"></td>
+            <td><input type="text" class="table-input" id="t1_bw_sata" placeholder="МБ/с"></td>
+            <td><input type="text" class="table-input" id="t1_bw_scsi" placeholder="МБ/с"></td>
+            <td><input type="text" class="table-input" id="t1_bw_sas" placeholder="МБ/с на канал"></td>
+          </tr>
+          <tr>
+            <td><strong>Очереди команд и арбитраж</strong></td>
+            <td><input type="text" class="table-input" id="t1_q_pata" placeholder="Есть ли очереди"></td>
+            <td><input type="text" class="table-input" id="t1_q_sata" placeholder="NCQ глубина"></td>
+            <td><input type="text" class="table-input" id="t1_q_scsi" placeholder="TCQ глубина"></td>
+            <td><input type="text" class="table-input" id="t1_q_sas" placeholder="Очереди команд"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
- <div class="form-group" style="margin-top: 14px;">
- <label for="t1_analysis">1.3. Физический анализ: почему в PATA IDE понадобился 80-жильный шлейф и зачем шине SCSI терминатор?</label>
- <textarea id="t1_analysis" placeholder="Объясните физическую роль чередования заземляющих жил в 80-жильном шлейфе (подавление емкостной связи и Crosstalk) и физику волновых отражений в несогласованной шине SCSI..."></textarea>
- </div>
- </div>
+    <div class="form-group" style="margin-top: 14px;">
+      <label for="t1_analysis">1.3. Физический анализ: почему в PATA IDE понадобился 80-жильный шлейф и зачем шине SCSI терминатор?</label>
+      <textarea id="t1_analysis" placeholder="Объясните физическую роль чередования заземляющих жил в 80-жильном шлейфе (подавление емкостной связи и Crosstalk) и физику волновых отражений в несогласованной шине SCSI..."></textarea>
+    </div>
+  </div>
 
- <!-- ЗАДАНИЕ 2: ЭВОЛЮЦИЯ СИСТЕМНОЙ ЛОГИКИ -->
- <div class="task-card">
- <div class="task-title">Задание 2. Эволюция системной логики: Северный/Южный мост &rarr; PCH</div>
- <p class="task-intro">Проанализируйте архитектурный переход от классической двухмостовой архитектуры к однокристальному чипсету PCH с интеграцией контроллеров в кристалл процессора.</p>
+  <!-- ЗАДАНИЕ 2: ЭВОЛЮЦИЯ СИСТЕМНОЙ ЛОГИКИ -->
+  <div class="task-card">
+    <div class="task-title">Задание 2. Эволюция системной логики: Северный/Южный мост &rarr; PCH</div>
+    <p class="task-intro">Проанализируйте архитектурный переход от классической двухмостовой архитектуры к однокристальному чипсету PCH с интеграцией контроллеров в кристалл процессора.</p>
 
- <div class="table-wrap">
- <table>
- <thead>
- <tr>
- <th style="width: 25%;">Функциональный блок</th>
- <th style="width: 25%;">Двухмостовая схема (MCH + ICH)</th>
- <th style="width: 25%;">Современная схема (CPU + PCH)</th>
- <th style="width: 25%;">Архитектурный выигрыш</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>Контроллер памяти (IMC)</strong></td>
- <td><input type="text" class="table-input" id="t2_imc_old" placeholder="Где располагался"></td>
- <td><input type="text" class="table-input" id="t2_imc_new" placeholder="Где расположен сейчас"></td>
- <td><input type="text" class="table-input" id="t2_imc_gain" placeholder="Влияние на задержки и ПСП"></td>
- </tr>
- <tr>
- <td><strong>Линии PCIe для видеокарты</strong></td>
- <td><input type="text" class="table-input" id="t2_gfx_old" placeholder="Откуда выходили"></td>
- <td><input type="text" class="table-input" id="t2_gfx_new" placeholder="Откуда выходят сейчас"></td>
- <td><input type="text" class="table-input" id="t2_gfx_gain" placeholder="Прямая связь с CPU"></td>
- </tr>
- <tr>
- <td><strong>Шина связи CPU &mdash; Чипсет</strong></td>
- <td><input type="text" class="table-input" id="t2_bus_old" placeholder="Название шины (FSB...)"></td>
- <td><input type="text" class="table-input" id="t2_bus_new" placeholder="Название линка (DMI...)"></td>
- <td><input type="text" class="table-input" id="t2_bus_gain" placeholder="Топология и скорость"></td>
- </tr>
- <tr>
- <td><strong>Периферия (SATA, USB, LAN, Audio)</strong></td>
- <td><input type="text" class="table-input" id="t2_peri_old" placeholder="Какой узел управлял"></td>
- <td><input type="text" class="table-input" id="t2_peri_new" placeholder="Какой узел управляет"></td>
- <td><input type="text" class="table-input" id="t2_peri_gain" placeholder="Интеграция вторичных узлов"></td>
- </tr>
- </tbody>
- </table>
- </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25%;">Функциональный блок</th>
+            <th style="width: 25%;">Двухмостовая схема (MCH + ICH)</th>
+            <th style="width: 25%;">Современная схема (CPU + PCH)</th>
+            <th style="width: 25%;">Архитектурный выигрыш</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Контроллер памяти (IMC)</strong></td>
+            <td><input type="text" class="table-input" id="t2_imc_old" placeholder="Где располагался"></td>
+            <td><input type="text" class="table-input" id="t2_imc_new" placeholder="Где расположен сейчас"></td>
+            <td><input type="text" class="table-input" id="t2_imc_gain" placeholder="Влияние на задержки и ПСП"></td>
+          </tr>
+          <tr>
+            <td><strong>Линии PCIe для видеокарты</strong></td>
+            <td><input type="text" class="table-input" id="t2_gfx_old" placeholder="Откуда выходили"></td>
+            <td><input type="text" class="table-input" id="t2_gfx_new" placeholder="Откуда выходят сейчас"></td>
+            <td><input type="text" class="table-input" id="t2_gfx_gain" placeholder="Прямая связь с CPU"></td>
+          </tr>
+          <tr>
+            <td><strong>Шина связи CPU &mdash; Чипсет</strong></td>
+            <td><input type="text" class="table-input" id="t2_bus_old" placeholder="Название шины (FSB...)"></td>
+            <td><input type="text" class="table-input" id="t2_bus_new" placeholder="Название линка (DMI...)"></td>
+            <td><input type="text" class="table-input" id="t2_bus_gain" placeholder="Топология и скорость"></td>
+          </tr>
+          <tr>
+            <td><strong>Периферия (SATA, USB, LAN, Audio)</strong></td>
+            <td><input type="text" class="table-input" id="t2_peri_old" placeholder="Какой узел управлял"></td>
+            <td><input type="text" class="table-input" id="t2_peri_new" placeholder="Какой узел управляет"></td>
+            <td><input type="text" class="table-input" id="t2_peri_gain" placeholder="Интеграция вторичных узлов"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
- <div class="form-group" style="margin-top: 14px;">
- <label for="t2_fsb_problem">2.2. Аналитическое обоснование: в чем заключалось узкое место шины FSB и почему северный мост был ликвидирован?</label>
- <textarea id="t2_fsb_problem" placeholder="Объясните задержки (латентность) при обращении к ОЗУ через внешние контактные ножки сокета и параллельную шину FSB..."></textarea>
- </div>
- </div>
+    <div class="form-group" style="margin-top: 14px;">
+      <label for="t2_fsb_problem">2.2. Аналитическое обоснование: в чем заключалось узкое место шины FSB и почему северный мост был ликвидирован?</label>
+      <textarea id="t2_fsb_problem" placeholder="Объясните задержки (латентность) при обращении к ОЗУ через внешние контактные ножки сокета и параллельную шину FSB..."></textarea>
+    </div>
+  </div>
 
- <!-- ЗАДАНИЕ 3: СТАНДАРТЫ ATX И ЭЛЕКТРОПИТАНИЕ -->
- <div class="task-card">
- <div class="task-title">Задание 3. Чек-лист электропитания ATX и управляющие сигналы БП</div>
- <p class="task-intro">Заполните параметры электрических линий блока питания ATX, опишите логику взаимодействия сигналов PS_ON# и Power_Good, а также требования безопасности ATX 3.0.</p>
+  <!-- ЗАДАНИЕ 3: СТАНДАРТЫ ATX И ЭЛЕКТРОПИТАНИЕ -->
+  <div class="task-card">
+    <div class="task-title">Задание 3. Чек-лист электропитания ATX и управляющие сигналы БП</div>
+    <p class="task-intro">Заполните параметры электрических линий блока питания ATX, опишите логику взаимодействия сигналов PS_ON# и Power_Good, а также требования безопасности ATX 3.0.</p>
 
- <div class="table-wrap">
- <table>
- <thead>
- <tr>
- <th style="width: 20%;">Линия / Сигнал</th>
- <th style="width: 15%;">Напряжение (В)</th>
- <th style="width: 15%;">Допуск (%)</th>
- <th style="width: 25%;">Основные потребители</th>
- <th style="width: 25%;">Функция / Назначение</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>+12V (силовая)</strong></td>
- <td><input type="text" class="table-input" id="t3_v12" placeholder="+12 В"></td>
- <td><input type="text" class="table-input" id="t3_tol12" placeholder="±5%"></td>
- <td><input type="text" class="table-input" id="t3_dev12" placeholder="CPU VRM, GPU VRM, помпы"></td>
- <td><input type="text" class="table-input" id="t3_fn12" placeholder="Основная силовая нагрузка"></td>
- </tr>
- <tr>
- <td><strong>+5V (логика/USB)</strong></td>
- <td><input type="text" class="table-input" id="t3_v5" placeholder="+5 В"></td>
- <td><input type="text" class="table-input" id="t3_tol5" placeholder="±5%"></td>
- <td><input type="text" class="table-input" id="t3_dev5" placeholder="USB, 2.5 SSD, логика платы"></td>
- <td><input type="text" class="table-input" id="t3_fn5" placeholder="Питание цифровых микросхем"></td>
- </tr>
- <tr>
- <td><strong>+3.3V (компоненты)</strong></td>
- <td><input type="text" class="table-input" id="t3_v33" placeholder="+3.3 В"></td>
- <td><input type="text" class="table-input" id="t3_tol33" placeholder="±5%"></td>
- <td><input type="text" class="table-input" id="t3_dev33" placeholder="PCH, PCIe/M.2, DDR логика"></td>
- <td><input type="text" class="table-input" id="t3_fn33" placeholder="Низковольтное цифровое"></td>
- </tr>
- <tr>
- <td><strong>+5VSB (Standby)</strong></td>
- <td><input type="text" class="table-input" id="t3_vsb" placeholder="+5 В"></td>
- <td><input type="text" class="table-input" id="t3_tolsb" placeholder="±5%"></td>
- <td><input type="text" class="table-input" id="t3_devsb" placeholder="Super I/O, RTC, Wake-on-LAN"></td>
- <td><input type="text" class="table-input" id="t3_fnsb" placeholder="Дежурное непрерывное питание"></td>
- </tr>
- <tr>
- <td><strong>PS_ON# (управление)</strong></td>
- <td><input type="text" class="table-input" id="t3_vpson" placeholder="0 В / 5 В"></td>
- <td><input type="text" class="table-input" id="t3_tolpson" placeholder="Active Low"></td>
- <td><input type="text" class="table-input" id="t3_devpson" placeholder="Вход контроллера БП"></td>
- <td><input type="text" class="table-input" id="t3_fnpson" placeholder="Запуск БП замыканием на GND"></td>
- </tr>
- <tr>
- <td><strong>Power_Good (PWR_OK)</strong></td>
- <td><input type="text" class="table-input" id="t3_vpg" placeholder="+5 В"></td>
- <td><input type="text" class="table-input" id="t3_tolpg" placeholder="100-500 мс"></td>
- <td><input type="text" class="table-input" id="t3_devpg" placeholder="Вход RESET# процессора"></td>
- <td><input type="text" class="table-input" id="t3_fnpg" placeholder="Подтверждение стабилизации"></td>
- </tr>
- </tbody>
- </table>
- </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 20%;">Линия / Сигнал</th>
+            <th style="width: 15%;">Напряжение (В)</th>
+            <th style="width: 15%;">Допуск (%)</th>
+            <th style="width: 25%;">Основные потребители</th>
+            <th style="width: 25%;">Функция / Назначение</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>+12V (силовая)</strong></td>
+            <td><input type="text" class="table-input" id="t3_v12" placeholder="+12 В"></td>
+            <td><input type="text" class="table-input" id="t3_tol12" placeholder="±5%"></td>
+            <td><input type="text" class="table-input" id="t3_dev12" placeholder="CPU VRM, GPU VRM, помпы"></td>
+            <td><input type="text" class="table-input" id="t3_fn12" placeholder="Основная силовая нагрузка"></td>
+          </tr>
+          <tr>
+            <td><strong>+5V (логика/USB)</strong></td>
+            <td><input type="text" class="table-input" id="t3_v5" placeholder="+5 В"></td>
+            <td><input type="text" class="table-input" id="t3_tol5" placeholder="±5%"></td>
+            <td><input type="text" class="table-input" id="t3_dev5" placeholder="USB, 2.5 SSD, логика платы"></td>
+            <td><input type="text" class="table-input" id="t3_fn5" placeholder="Питание цифровых микросхем"></td>
+          </tr>
+          <tr>
+            <td><strong>+3.3V (компоненты)</strong></td>
+            <td><input type="text" class="table-input" id="t3_v33" placeholder="+3.3 В"></td>
+            <td><input type="text" class="table-input" id="t3_tol33" placeholder="±5%"></td>
+            <td><input type="text" class="table-input" id="t3_dev33" placeholder="PCH, PCIe/M.2, DDR логика"></td>
+            <td><input type="text" class="table-input" id="t3_fn33" placeholder="Низковольтное цифровое"></td>
+          </tr>
+          <tr>
+            <td><strong>+5VSB (Standby)</strong></td>
+            <td><input type="text" class="table-input" id="t3_vsb" placeholder="+5 В"></td>
+            <td><input type="text" class="table-input" id="t3_tolsb" placeholder="±5%"></td>
+            <td><input type="text" class="table-input" id="t3_devsb" placeholder="Super I/O, RTC, Wake-on-LAN"></td>
+            <td><input type="text" class="table-input" id="t3_fnsb" placeholder="Дежурное непрерывное питание"></td>
+          </tr>
+          <tr>
+            <td><strong>PS_ON# (управление)</strong></td>
+            <td><input type="text" class="table-input" id="t3_vpson" placeholder="0 В / 5 В"></td>
+            <td><input type="text" class="table-input" id="t3_tolpson" placeholder="Active Low"></td>
+            <td><input type="text" class="table-input" id="t3_devpson" placeholder="Вход контроллера БП"></td>
+            <td><input type="text" class="table-input" id="t3_fnpson" placeholder="Запуск БП замыканием на GND"></td>
+          </tr>
+          <tr>
+            <td><strong>Power_Good (PWR_OK)</strong></td>
+            <td><input type="text" class="table-input" id="t3_vpg" placeholder="+5 В"></td>
+            <td><input type="text" class="table-input" id="t3_tolpg" placeholder="100-500 мс"></td>
+            <td><input type="text" class="table-input" id="t3_devpg" placeholder="Вход RESET# процессора"></td>
+            <td><input type="text" class="table-input" id="t3_fnpg" placeholder="Подтверждение стабилизации"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
- <div class="form-group" style="margin-top: 14px;">
- <label for="t3_atx3_analysis">3.2. Анализ спецификации ATX 3.0: зачем введен разъем 12VHPWR / 12V-2x6 и как работают сигналы SENSE0/SENSE1?</label>
- <textarea id="t3_atx3_analysis" placeholder="Опишите парирование импульсных скачков потребления GPU (до 200%), назначение 4 сигнальных контактов Sideband и защиту разъема 12V-2x6 от перегрева..."></textarea>
- </div>
- </div>
+    <div class="form-group" style="margin-top: 14px;">
+      <label for="t3_atx3_analysis">3.2. Анализ спецификации ATX 3.0: зачем введен разъем 12VHPWR / 12V-2x6 и как работают сигналы SENSE0/SENSE1?</label>
+      <textarea id="t3_atx3_analysis" placeholder="Опишите парирование импульсных скачков потребления GPU (до 200%), назначение 4 сигнальных контактов Sideband и защиту разъема 12V-2x6 от перегрева..."></textarea>
+    </div>
+  </div>
 
- <!-- ЗАДАНИЕ 4: ИНЖЕНЕРНЫЙ ПРОТОКОЛ ВЫБОРА ПОД ВАРИАНТ -->
- <div class="task-card">
- <div class="task-title">Задание 4. Инженерный протокол выбора подсистемы I/O, накопителей и питания под целевую платформу</div>
- <div class="variant-selector-box">
- <strong>Учебный вариант:</strong> Выберите свой вариант в шапке рабочего листа (1, 2, 3 или 4). Составьте проект подсистемы интерфейсов и питания с аргументацией каждого узла.
- <div id="variant_instructions" class="variant-desc-card">
- <!-- Текст инструкции подставляется динамически -->
- </div>
- </div>
+  <!-- ЗАДАНИЕ 4: ИНЖЕНЕРНЫЙ ПРОТОКОЛ ВЫБОРА ПОД ВАРИАНТ -->
+  <div class="task-card">
+    <div class="task-title">Задание 4. Инженерный протокол выбора подсистемы I/O, накопителей и питания под целевую платформу</div>
+    <div class="variant-selector-box">
+      <strong>Учебный вариант:</strong> Выберите свой вариант в шапке рабочего листа (1, 2, 3 или 4). Составьте проект подсистемы интерфейсов и питания с аргументацией каждого узла.
+      <div id="variant_instructions" class="variant-desc-card">
+        <!-- Текст инструкции подставляется динамически -->
+      </div>
+    </div>
 
- <div class="form-group">
- <label for="proto_storage">4.1. Подсистема накопителей данных (интерфейсы, диски, контроллеры, резервирование):</label>
- <textarea id="proto_storage" placeholder="Укажите интерфейсы (SAS, SATA III, NVMe), типы накопителей, топологию подключения и аргументацию пропускной способности..."></textarea>
- </div>
+    <div class="form-group">
+      <label for="proto_storage">4.1. Подсистема накопителей данных (интерфейсы, диски, контроллеры, резервирование):</label>
+      <textarea id="proto_storage" placeholder="Укажите интерфейсы (SAS, SATA III, NVMe), типы накопителей, топологию подключения и аргументацию пропускной способности..."></textarea>
+    </div>
 
- <div class="form-group">
- <label for="proto_ports">4.2. Периферийные порты и внешние интерфейсы (USB, FireWire, RS-232, Thunderbolt):</label>
- <textarea id="proto_ports" placeholder="Опишите внешние порты, скорости, режим передачи (изохронный, дуплекс), необходимость гальваноразвязки или Alt Mode..."></textarea>
- </div>
+    <div class="form-group">
+      <label for="proto_ports">4.2. Периферийные порты и внешние интерфейсы (USB, FireWire, RS-232, Thunderbolt):</label>
+      <textarea id="proto_ports" placeholder="Опишите внешние порты, скорости, режим передачи (изохронный, дуплекс), необходимость гальваноразвязки или Alt Mode..."></textarea>
+    </div>
 
- <div class="form-group">
- <label for="proto_chipset">4.3. Системная логика и шинные соединения (процессорные линии vs PCH, шина линка):</label>
- <textarea id="proto_chipset" placeholder="Обоснуйте распределение процессорных линий PCIe и линий PCH, укажите шину связи CPU-чипсет без узких мест..."></textarea>
- </div>
+    <div class="form-group">
+      <label for="proto_chipset">4.3. Системная логика и шинные соединения (процессорные линии vs PCH, шина линка):</label>
+      <textarea id="proto_chipset" placeholder="Обоснуйте распределение процессорных линий PCIe и линий PCH, укажите шину связи CPU-чипсет без узких мест..."></textarea>
+    </div>
 
- <div class="form-group">
- <label for="proto_power">4.4. Подсистема электропитания (форм-фактор платы, мощность БП, стандарт ATX, линии +12V):</label>
- <textarea id="proto_power" placeholder="Рассчитайте или обоснуйте мощность БП, сертификат эффективности, распределение по линиям +12V, поддержку ATX 3.0 / 12VHPWR..."></textarea>
- </div>
+    <div class="form-group">
+      <label for="proto_power">4.4. Подсистема электропитания (форм-фактор платы, мощность БП, стандарт ATX, линии +12V):</label>
+      <textarea id="proto_power" placeholder="Рассчитайте или обоснуйте мощность БП, сертификат эффективности, распределение по линиям +12V, поддержку ATX 3.0 / 12VHPWR..."></textarea>
+    </div>
 
- <div class="criteria-box">
- <strong>Критерии 4-балльного оценивания:</strong><br>
- &bull; <strong>Корректность (до 2 баллов):</strong> точные технические спецификации в таблицах интерфейсов, накопителей, чипсетов и электропитания ATX.<br>
- &bull; <strong>Объяснение (1 балл):</strong> глубокое физико-техническое обоснование 80 жил шлейфа IDE, терминации SCSI, отказа от северного моста и сигналов Power_Good/PS_ON#.<br>
- &bull; <strong>Проверка (1 балл):</strong> логичный и технически непротиворечивый выбор интерфейсов, накопителей, чипсета и БП под вариант задания без узких мест.
- </div>
- </div>
+    <div class="criteria-box">
+      <strong>Критерии 4-балльного оценивания:</strong><br>
+      &bull; <strong>Корректность (до 2 баллов):</strong> точные технические спецификации в таблицах интерфейсов, накопителей, чипсетов и электропитания ATX.<br>
+      &bull; <strong>Объяснение (1 балл):</strong> глубокое физико-техническое обоснование 80 жил шлейфа IDE, терминации SCSI, отказа от северного моста и сигналов Power_Good/PS_ON#.<br>
+      &bull; <strong>Проверка (1 балл):</strong> логичный и технически непротиворечивый выбор интерфейсов, накопителей, чипсета и БП под вариант задания без узких мест.
+    </div>
+  </div>
 
- <!-- КНОПКИ ДЕЙСТВИЙ -->
- <div class="actions-card">
- <div class="btn-row">
- <button type="button" class="btn-primary" onclick="window.print()">
- <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
- Распечатать / Сохранить в PDF
- </button>
- <button type="button" class="btn-sec" onclick="saveToStorage(true)">
- <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
- Сохранить бланк
- </button>
- <button type="button" class="btn-danger" onclick="confirmReset()">
- <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
- Очистить бланк
- </button>
- <span id="save_status" class="save-indicator">
- <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
- Изменения сохранены
- </span>
- </div>
- </div>
+  <!-- КНОПКИ ДЕЙСТВИЙ -->
+  <div class="actions-card">
+    <div class="btn-row">
+      <button type="button" class="btn-primary" onclick="window.print()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+        Распечатать / Сохранить в PDF
+      </button>
+      <button type="button" class="btn-sec" onclick="saveToStorage(true)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Сохранить бланк
+      </button>
+      <button type="button" class="btn-danger" onclick="confirmReset()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        Очистить бланк
+      </button>
+      <span id="save_status" class="save-indicator">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Изменения сохранены
+      </span>
+    </div>
+  </div>
 
 </div>
 
 <script>
- const STORAGE_KEY = 'sie_hw16_interfeysy_atx_worksheet_v1';
+  const STORAGE_KEY = 'sie_hw16_interfeysy_atx_worksheet_v1';
 
- const VARIANTS = {
- '1': {
- title: 'Вариант 1: Сервер хранения данных (СХД / NAS-сервер корпоративного уровня)',
- desc: 'Требования: 16–24 диска емкостью 16 ТБ в отказоустойчивом массиве; кэширующий пул NVMe SSD; подключение к 10 GbE сети; резервирование питания (Redundant PSU); интерфейсы управления IPMI.'
- },
- '2': {
- title: 'Вариант 2: Студия звукозаписи и видеопроизводства (Pro Audio / Video Editing)',
- desc: 'Требования: студийный аудиоинтерфейс с гарантированным изохронным потоком сверхнизкой задержки; быстрый монтажный накопитель 4 ТБ; тихий блок питания с полупассивным охлаждением; порты Thunderbolt 4 / USB4 для внешних видеокарт и мониторов.'
- },
- '3': {
- title: 'Вариант 3: Офисный ПК для ретро-архива и заводских станков ЧПУ',
- desc: 'Требования: подключение к промышленному станку по RS-232 / IEEE 1284 LPT; возможность считывания архивных магнитных дисков IDE/PATA; энергопотребление до 250 Вт; компактный корпус mATX.'
- },
- '4': {
- title: 'Вариант 4: Высокопроизводительный игровой ПК / AI-станция 850W ATX 3.0',
- desc: 'Требования: видеокарта мощностью 450 Вт с разъемом 12VHPWR; процессор TDP 250 Вт; блок питания стандарта ATX 3.0 номиналом 850–1000 Вт; накопитель M.2 PCIe 5.0 x4 со скоростью 12 ГБ/с; скоростные порты USB 3.2 Gen 2x2 Type-C.'
- }
- };
+  const VARIANTS = {
+    '1': {
+      title: 'Вариант 1: Сервер хранения данных (СХД / NAS-сервер корпоративного уровня)',
+      desc: 'Требования: 16–24 диска емкостью 16 ТБ в отказоустойчивом массиве; кэширующий пул NVMe SSD; подключение к 10 GbE сети; резервирование питания (Redundant PSU); интерфейсы управления IPMI.'
+    },
+    '2': {
+      title: 'Вариант 2: Студия звукозаписи и видеопроизводства (Pro Audio / Video Editing)',
+      desc: 'Требования: студийный аудиоинтерфейс с гарантированным изохронным потоком сверхнизкой задержки; быстрый монтажный накопитель 4 ТБ; тихий блок питания с полупассивным охлаждением; порты Thunderbolt 4 / USB4 для внешних видеокарт и мониторов.'
+    },
+    '3': {
+      title: 'Вариант 3: Офисный ПК для ретро-архива и заводских станков ЧПУ',
+      desc: 'Требования: подключение к промышленному станку по RS-232 / IEEE 1284 LPT; возможность считывания архивных магнитных дисков IDE/PATA; энергопотребление до 250 Вт; компактный корпус mATX.'
+    },
+    '4': {
+      title: 'Вариант 4: Высокопроизводительный игровой ПК / AI-станция 850W ATX 3.0',
+      desc: 'Требования: видеокарта мощностью 450 Вт с разъемом 12VHPWR; процессор TDP 250 Вт; блок питания стандарта ATX 3.0 номиналом 850–1000 Вт; накопитель M.2 PCIe 5.0 x4 со скоростью 12 ГБ/с; скоростные порты USB 3.2 Gen 2x2 Type-C.'
+    }
+  };
 
- const FIELDS = [
- 'student_fio', 'student_group', 'work_date', 'variant_select',
- 't1_topo_usb2', 't1_topo_usb3', 't1_topo_usb4', 't1_topo_fw',
- 't1_phys_usb2', 't1_phys_usb3', 't1_phys_usb4', 't1_phys_fw',
- 't1_speed_usb2', 't1_speed_usb3', 't1_speed_usb4', 't1_speed_fw',
- 't1_ctrl_usb2', 't1_ctrl_usb3', 't1_ctrl_usb4', 't1_ctrl_fw',
- 't1_pwr_usb2', 't1_pwr_usb3', 't1_pwr_usb4', 't1_pwr_fw',
- 't1_type_pata', 't1_type_sata', 't1_type_scsi', 't1_type_sas',
- 't1_cab_pata', 't1_cab_sata', 't1_cab_scsi', 't1_cab_sas',
- 't1_dev_pata', 't1_dev_sata', 't1_dev_scsi', 't1_dev_sas',
- 't1_bw_pata', 't1_bw_sata', 't1_bw_scsi', 't1_bw_sas',
- 't1_q_pata', 't1_q_sata', 't1_q_scsi', 't1_q_sas',
- 't1_analysis',
- 't2_imc_old', 't2_imc_new', 't2_imc_gain',
- 't2_gfx_old', 't2_gfx_new', 't2_gfx_gain',
- 't2_bus_old', 't2_bus_new', 't2_bus_gain',
- 't2_peri_old', 't2_peri_new', 't2_peri_gain',
- 't2_fsb_problem',
- 't3_v12', 't3_tol12', 't3_dev12', 't3_fn12',
- 't3_v5', 't3_tol5', 't3_dev5', 't3_fn5',
- 't3_v33', 't3_tol33', 't3_dev33', 't3_fn33',
- 't3_vsb', 't3_tolsb', 't3_devsb', 't3_fnsb',
- 't3_vpson', 't3_tolpson', 't3_devpson', 't3_fnpson',
- 't3_vpg', 't3_tolpg', 't3_devpg', 't3_fnpg',
- 't3_atx3_analysis',
- 'proto_storage', 'proto_ports', 'proto_chipset', 'proto_power'
- ];
+  const FIELDS = [
+    'student_fio', 'student_group', 'work_date', 'variant_select',
+    't1_topo_usb2', 't1_topo_usb3', 't1_topo_usb4', 't1_topo_fw',
+    't1_phys_usb2', 't1_phys_usb3', 't1_phys_usb4', 't1_phys_fw',
+    't1_speed_usb2', 't1_speed_usb3', 't1_speed_usb4', 't1_speed_fw',
+    't1_ctrl_usb2', 't1_ctrl_usb3', 't1_ctrl_usb4', 't1_ctrl_fw',
+    't1_pwr_usb2', 't1_pwr_usb3', 't1_pwr_usb4', 't1_pwr_fw',
+    't1_type_pata', 't1_type_sata', 't1_type_scsi', 't1_type_sas',
+    't1_cab_pata', 't1_cab_sata', 't1_cab_scsi', 't1_cab_sas',
+    't1_dev_pata', 't1_dev_sata', 't1_dev_scsi', 't1_dev_sas',
+    't1_bw_pata', 't1_bw_sata', 't1_bw_scsi', 't1_bw_sas',
+    't1_q_pata', 't1_q_sata', 't1_q_scsi', 't1_q_sas',
+    't1_analysis',
+    't2_imc_old', 't2_imc_new', 't2_imc_gain',
+    't2_gfx_old', 't2_gfx_new', 't2_gfx_gain',
+    't2_bus_old', 't2_bus_new', 't2_bus_gain',
+    't2_peri_old', 't2_peri_new', 't2_peri_gain',
+    't2_fsb_problem',
+    't3_v12', 't3_tol12', 't3_dev12', 't3_fn12',
+    't3_v5', 't3_tol5', 't3_dev5', 't3_fn5',
+    't3_v33', 't3_tol33', 't3_dev33', 't3_fn33',
+    't3_vsb', 't3_tolsb', 't3_devsb', 't3_fnsb',
+    't3_vpson', 't3_tolpson', 't3_devpson', 't3_fnpson',
+    't3_vpg', 't3_tolpg', 't3_devpg', 't3_fnpg',
+    't3_atx3_analysis',
+    'proto_storage', 'proto_ports', 'proto_chipset', 'proto_power'
+  ];
 
- function updateVariantUI() {
- const sel = document.getElementById('variant_select');
- const val = sel.value | '1';
- const info = VARIANTS[val] | VARIANTS['1'];
- const box = document.getElementById('variant_instructions');
- if (box) {
- box.innerHTML = `<strong>${info.title}</strong><br><span style="color: #475569;">${info.desc}</span>`;
- }
- const printMirror = document.getElementById('variant_select_print');
- if (printMirror && sel.selectedOptions.length > 0) {
- printMirror.textContent = sel.selectedOptions[0].text;
- }
- }
+  function updateVariantUI() {
+    const sel = document.getElementById('variant_select');
+    const val = sel.value || '1';
+    const info = VARIANTS[val] || VARIANTS['1'];
+    const box = document.getElementById('variant_instructions');
+    if (box) {
+      box.innerHTML = `<strong>${info.title}</strong><br><span style="color: #475569;">${info.desc}</span>`;
+    }
+    const printMirror = document.getElementById('variant_select_print');
+    if (printMirror && sel.selectedOptions.length > 0) {
+      printMirror.textContent = sel.selectedOptions[0].text;
+    }
+  }
 
- function saveToStorage(notify = false) {
- const data = {};
- FIELDS.forEach(id => {
- const el = document.getElementById(id);
- if (el) data[id] = el.value;
- });
- localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
- const status = document.getElementById('save_status');
- if (status) {
- status.style.opacity = '1';
- status.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Сохранено`;
- }
- if (notify) {
- alert('Данные бланка успешно сохранены в браузере!');
- }
- }
+  function saveToStorage(notify = false) {
+    const data = {};
+    FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) data[id] = el.value;
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    const status = document.getElementById('save_status');
+    if (status) {
+      status.style.opacity = '1';
+      status.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Сохранено`;
+    }
+    if (notify) {
+      alert('Данные бланка успешно сохранены в браузере!');
+    }
+  }
 
- function loadFromStorage() {
- try {
- const raw = localStorage.getItem(STORAGE_KEY);
- if (!raw) {
- updateVariantUI();
- return;
- }
- const data = JSON.parse(raw);
- FIELDS.forEach(id => {
- const el = document.getElementById(id);
- if (el && data[id] !== undefined) {
- el.value = data[id];
- }
- });
- } catch (e) {
- console.error('Ошибка загрузки данных', e);
- }
- updateVariantUI();
- }
+  function loadFromStorage() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        updateVariantUI();
+        return;
+      }
+      const data = JSON.parse(raw);
+      FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && data[id] !== undefined) {
+          el.value = data[id];
+        }
+      });
+    } catch (e) {
+      console.error('Ошибка загрузки данных', e);
+    }
+    updateVariantUI();
+  }
 
- function confirmReset() {
- if (confirm('Вы действительно хотите очистить все введенные данные бланка? Это действие необратимо.')) {
- localStorage.removeItem(STORAGE_KEY);
- FIELDS.forEach(id => {
- const el = document.getElementById(id);
- if (el) {
- if (el.tagName === 'SELECT') el.selectedIndex = 0;
- else el.value = '';
- }
- });
- updateVariantUI();
- const status = document.getElementById('save_status');
- if (status) {
- status.innerHTML = `Бланк очищен`;
- }
- }
- }
+  function confirmReset() {
+    if (confirm('Вы действительно хотите очистить все введенные данные бланка? Это действие необратимо.')) {
+      localStorage.removeItem(STORAGE_KEY);
+      FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          if (el.tagName === 'SELECT') el.selectedIndex = 0;
+          else el.value = '';
+        }
+      });
+      updateVariantUI();
+      const status = document.getElementById('save_status');
+      if (status) {
+        status.innerHTML = `Бланк очищен`;
+      }
+    }
+  }
 
- document.addEventListener('DOMContentLoaded', () => {
- loadFromStorage();
+  document.addEventListener('DOMContentLoaded', () => {
+    loadFromStorage();
 
- FIELDS.forEach(id => {
- const el = document.getElementById(id);
- if (el) {
- el.addEventListener('input', () => {
- saveToStorage(false);
- if (id === 'variant_select') updateVariantUI();
- });
- el.addEventListener('change', () => {
- saveToStorage(false);
- if (id === 'variant_select') updateVariantUI();
- });
- }
- });
+    FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => {
+          saveToStorage(false);
+          if (id === 'variant_select') updateVariantUI();
+        });
+        el.addEventListener('change', () => {
+          saveToStorage(false);
+          if (id === 'variant_select') updateVariantUI();
+        });
+      }
+    });
 
- window.addEventListener('beforeprint', () => {
- updateVariantUI();
- });
- });
+    window.addEventListener('beforeprint', () => {
+      updateVariantUI();
+    });
+  });
 </script>
 </body>
 </html>

@@ -1,598 +1,660 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>Рабочий лист: Нормализация БД — проверка связей</title>
- <style>
- :root {
- --bg: #f8fafc;
- --card-bg: #ffffff;
- --text: #0f172a;
- --text-muted: #475569;
- --border: #cbd5e1;
- --accent: #0284c7;
- --accent-hover: #0369a1;
- --accent-soft: #f0f9ff;
- --danger: #ef4444;
- --danger-soft: #fee2e2;
- --success: #10b981;
- --success-soft: #dcfce7;
- --warn: #f59e0b;
- --warn-soft: #fef3c7;
- }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Рабочий лист: Нормализация БД — проверка связей</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #cbd5e1;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --accent-soft: #f0f9ff;
+      --danger: #ef4444;
+      --danger-soft: #fee2e2;
+      --success: #10b981;
+      --success-soft: #dcfce7;
+      --warn: #f59e0b;
+      --warn-soft: #fef3c7;
+    }
 
- * {
- box-sizing: border-box;
- margin: 0;
- padding: 0;
- }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
- body {
- font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
- background-color: var(--bg);
- color: var(--text);
- line-height: 1.6;
- padding: 24px 16px;
- min-width: 320px;
- }.container {
- max-width: 960px;
- margin: 0 auto;
- width: 100%;
- }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px;
+      min-width: 320px;
+    }
 
- header.task-header {
- background: var(--card-bg);
- border: 1px solid var(--border);
- border-radius: 12px;
- padding: 24px 28px;
- margin-bottom: 24px;
- box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
- }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      width: 100%;
+    }
 
- h1 {
- font-size: 1.75rem;
- font-weight: 800;
- color: var(--text);
- margin-bottom: 8px;
- word-break: break-word;
- }.meta-subtitle {
- font-size: 0.95rem;
- color: var(--text-muted);
- margin-bottom: 16px;
- }.student-info {
- display: grid;
- grid-template-columns: 1fr 1fr;
- gap: 16px;
- padding-top: 16px;
- border-top: 1px solid var(--border);
- }.info-group {
- display: flex;
- flex-direction: column;
- gap: 6px;
- }.info-group label {
- font-size: 0.82rem;
- font-weight: 700;
- color: var(--text-muted);
- text-transform: uppercase;
- letter-spacing: 0.05em;
- }.info-group input {
- padding: 8px 12px;
- border: 1px solid var(--border);
- border-radius: 6px;
- font-size: 0.95rem;
- color: var(--text);
- outline: none;
- background: #ffffff;
- }.info-group input:focus {
- border-color: var(--accent);
- box-shadow: 0 0 0 2px var(--accent-soft);
- }
+    header.task-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
 
- /* Variant Selector */.variant-selector-box {
- background: var(--card-bg);
- border: 1px solid var(--border);
- border-radius: 12px;
- padding: 16px 20px;
- margin-bottom: 24px;
- box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
- }.variant-tabs {
- display: flex;
- gap: 10px;
- flex-wrap: wrap;
- }.v-tab-btn {
- padding: 10px 16px;
- border: 1px solid var(--border);
- background: #f1f5f9;
- color: var(--text);
- font-weight: 600;
- border-radius: 8px;
- cursor: pointer;
- font-size: 0.92rem;
- transition: all 0.2s;
- }.v-tab-btn:hover {
- background: #e2e8f0;
- }.v-tab-btn.active {
- background: var(--accent);
- color: #ffffff;
- border-color: var(--accent-hover);
- }
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+      word-break: break-word;
+    }
 
- /* Variant Containers */.variant-container {
- display: none;
- }.variant-container.active {
- display: block;
- }
+    .meta-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
 
- section.task-card {
- background: var(--card-bg);
- border: 1px solid var(--border);
- border-radius: 12px;
- padding: 24px 28px;
- margin-bottom: 24px;
- box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
- }
+    .student-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
 
- h2 {
- font-size: 1.3rem;
- font-weight: 700;
- color: var(--accent-hover);
- margin-bottom: 12px;
- }
+    .info-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
 
- h3 {
- font-size: 1.05rem;
- font-weight: 700;
- color: var(--text);
- margin: 16px 0 8px;
- }.model-desc {
- background: #f8fafc;
- border: 1px solid var(--border);
- border-radius: 8px;
- padding: 16px;
- margin-bottom: 16px;
- font-size: 0.93rem;
- }.model-desc ul,.model-desc ol {
- margin-left: 20px;
- margin-top: 6px;
- }.model-desc li {
- margin-bottom: 4px;
- }.formula-badge {
- display: inline-block;
- font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
- background: #e2e8f0;
- padding: 2px 8px;
- border-radius: 4px;
- font-size: 0.9em;
- color: #0f172a;
- }
+    .info-group label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
 
- table {
- width: 100%;
- border-collapse: collapse;
- margin: 12px 0 16px;
- font-size: 0.9rem;
- }
+    .info-group input {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      color: var(--text);
+      outline: none;
+      background: #ffffff;
+    }
 
- th, td {
- border: 1px solid var(--border);
- padding: 8px 12px;
- text-align: left;
- }
+    .info-group input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
 
- th {
- background: #f1f5f9;
- font-weight: 700;
- }.input-label {
- display: block;
- font-weight: 600;
- font-size: 0.92rem;
- color: var(--text);
- margin-top: 14px;
- margin-bottom: 6px;
- }
+    /* Variant Selector */
+    .variant-selector-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
 
- textarea.answer-area {
- width: 100%;
- min-height: 100px;
- padding: 10px 12px;
- border: 1px solid var(--border);
- border-radius: 8px;
- font-family: inherit;
- font-size: 0.95rem;
- line-height: 1.5;
- color: var(--text);
- resize: vertical;
- background: #ffffff;
- outline: none;
- }
+    .variant-tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
 
- textarea.answer-area:focus {
- border-color: var(--accent);
- box-shadow: 0 0 0 2px var(--accent-soft);
- }.action-panel {
- background: var(--card-bg);
- border: 1px solid var(--border);
- border-radius: 12px;
- padding: 18px 24px;
- margin-top: 24px;
- display: flex;
- gap: 12px;
- align-items: center;
- flex-wrap: wrap;
- box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
- }.btn {
- padding: 10px 18px;
- border-radius: 6px;
- font-size: 0.92rem;
- font-weight: 600;
- cursor: pointer;
- border: none;
- transition: all 0.2s;
- }.btn-save {
- background: var(--accent);
- color: #ffffff;
- }.btn-save:hover {
- background: var(--accent-hover);
- }.btn-print {
- background: #e2e8f0;
- color: var(--text);
- }.btn-print:hover {
- background: #cbd5e1;
- }.btn-clear {
- background: var(--danger-soft);
- color: var(--danger);
- border: 1px solid #fca5a5;
- }.btn-clear:hover {
- background: #fecaca;
- }.save-alert {
- display: none;
- color: var(--success);
- font-weight: 600;
- font-size: 0.9rem;
- }
+    .v-tab-btn {
+      padding: 10px 16px;
+      border: 1px solid var(--border);
+      background: #f1f5f9;
+      color: var(--text);
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+      transition: all 0.2s;
+    }
 
- /* Адаптивность для 375px без горизонтального скролла */
- @media (max-width: 600px) {
- body {
- padding: 12px 6px;
- }
- header.task-header, section.task-card,.variant-selector-box,.action-panel {
- padding: 16px 14px;
- }.student-info {
- grid-template-columns: 1fr;
- gap: 12px;
- }.v-tab-btn {
- width: 100%;
- text-align: center;
- }
- h1 {
- font-size: 1.35rem;
- }
- h2 {
- font-size: 1.15rem;
- }
- table {
- font-size: 0.8rem;
- }
- th, td {
- padding: 6px 8px;
- }
- }
+    .v-tab-btn:hover {
+      background: #e2e8f0;
+    }
 
- @media (max-width: 375px) {
- body {
- padding: 8px 4px;
- }.container {
- width: 100%;
- overflow-x: hidden;
- }
- header.task-header, section.task-card,.variant-selector-box,.action-panel {
- padding: 12px 10px;
- border-radius: 8px;
- }
- h1 {
- font-size: 1.25rem;
- }.btn {
- width: 100%;
- text-align: center;
- }
- }
+    .v-tab-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent-hover);
+    }
 
- /* Стили для печати (@media print) */
- @media print {
- body {
- background: #ffffff;
- color: #000000;
- padding: 0;
- }.container {
- max-width: 100%;
- margin: 0;
- }.variant-selector-box,.action-panel,.v-tab-btn {
- display: none !important;
- }
- header.task-header, section.task-card {
- border: 1px solid #000000;
- box-shadow: none;
- page-break-inside: avoid;
- margin-bottom: 14px;
- padding: 14px;
- }.variant-container {
- display: none !important;
- }.variant-container.active {
- display: block !important;
- }
- textarea.answer-area {
- border: 1px solid #000000;
- background: transparent;
- color: #000000;
- min-height: 80px;
- resize: none;
- overflow: visible;
- }
- input {
- border: 1px solid #000000 !important;
- background: transparent !important;
- color: #000000 !important;
- }
- input::placeholder, textarea::placeholder {
- color: transparent !important;
- }
- }
- </style>
+    /* Variant Containers */
+    .variant-container {
+      display: none;
+    }
+
+    .variant-container.active {
+      display: block;
+    }
+
+    section.task-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--accent-hover);
+      margin-bottom: 12px;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 16px 0 8px;
+    }
+
+    .model-desc {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      font-size: 0.93rem;
+    }
+
+    .model-desc ul, .model-desc ol {
+      margin-left: 20px;
+      margin-top: 6px;
+    }
+
+    .model-desc li {
+      margin-bottom: 4px;
+    }
+
+    .formula-badge {
+      display: inline-block;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+      background: #e2e8f0;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.9em;
+      color: #0f172a;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 16px;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    th {
+      background: #f1f5f9;
+      font-weight: 700;
+    }
+
+    .input-label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.92rem;
+      color: var(--text);
+      margin-top: 14px;
+      margin-bottom: 6px;
+    }
+
+    textarea.answer-area {
+      width: 100%;
+      min-height: 100px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: var(--text);
+      resize: vertical;
+      background: #ffffff;
+      outline: none;
+    }
+
+    textarea.answer-area:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    .action-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 24px;
+      margin-top: 24px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-save {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .btn-save:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-print {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+
+    .btn-print:hover {
+      background: #cbd5e1;
+    }
+
+    .btn-clear {
+      background: var(--danger-soft);
+      color: var(--danger);
+      border: 1px solid #fca5a5;
+    }
+
+    .btn-clear:hover {
+      background: #fecaca;
+    }
+
+    .save-alert {
+      display: none;
+      color: var(--success);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    /* Адаптивность для 375px без горизонтального скролла */
+    @media (max-width: 600px) {
+      body {
+        padding: 12px 6px;
+      }
+      header.task-header, section.task-card, .variant-selector-box, .action-panel {
+        padding: 16px 14px;
+      }
+      .student-info {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .v-tab-btn {
+        width: 100%;
+        text-align: center;
+      }
+      h1 {
+        font-size: 1.35rem;
+      }
+      h2 {
+        font-size: 1.15rem;
+      }
+      table {
+        font-size: 0.8rem;
+      }
+      th, td {
+        padding: 6px 8px;
+      }
+    }
+
+    @media (max-width: 375px) {
+      body {
+        padding: 8px 4px;
+      }
+      .container {
+        width: 100%;
+        overflow-x: hidden;
+      }
+      header.task-header, section.task-card, .variant-selector-box, .action-panel {
+        padding: 12px 10px;
+        border-radius: 8px;
+      }
+      h1 {
+        font-size: 1.25rem;
+      }
+      .btn {
+        width: 100%;
+        text-align: center;
+      }
+    }
+
+    /* Стили для печати (@media print) */
+    @media print {
+      body {
+        background: #ffffff;
+        color: #000000;
+        padding: 0;
+      }
+      .container {
+        max-width: 100%;
+        margin: 0;
+      }
+      .variant-selector-box, .action-panel, .v-tab-btn {
+        display: none !important;
+      }
+      header.task-header, section.task-card {
+        border: 1px solid #000000;
+        box-shadow: none;
+        page-break-inside: avoid;
+        margin-bottom: 14px;
+        padding: 14px;
+      }
+      .variant-container {
+        display: none !important;
+      }
+      .variant-container.active {
+        display: block !important;
+      }
+      textarea.answer-area {
+        border: 1px solid #000000;
+        background: transparent;
+        color: #000000;
+        min-height: 80px;
+        resize: none;
+        overflow: visible;
+      }
+      input {
+        border: 1px solid #000000 !important;
+        background: transparent !important;
+        color: #000000 !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+      }
+    }
+  </style>
 </head>
 <body>
- <div class="container">
- <header class="task-header">
- <h1>Рабочий лист: Нормализация БД — проверка связей</h1>
- <div class="meta-subtitle">Дисциплина «ОП.08 Основы проектирования баз данных» — Занятие №16 (СИЭУиП)</div>
+  <div class="container">
+    <header class="task-header">
+      <h1>Рабочий лист: Нормализация БД — проверка связей</h1>
+      <div class="meta-subtitle">Дисциплина «ОП.08 Основы проектирования баз данных» — Занятие №16 (СИЭУиП)</div>
 
- <div class="student-info">
- <div class="info-group">
- <label for="studentFio">ФИО студента</label>
- <input type="text" id="studentFio">
- </div>
- <div class="info-group">
- <label for="studentGroup">Учебная группа</label>
- <input type="text" id="studentGroup">
- </div>
- </div>
- </header>
+      <div class="student-info">
+        <div class="info-group">
+          <label for="studentFio">ФИО студента</label>
+          <input type="text" id="studentFio">
+        </div>
+        <div class="info-group">
+          <label for="studentGroup">Учебная группа</label>
+          <input type="text" id="studentGroup">
+        </div>
+      </div>
+    </header>
 
- <div class="variant-selector-box">
- <div style="font-weight: 700; margin-bottom: 10px; font-size: 0.92rem; color: var(--text-muted); text-transform: uppercase;">
- Выберите назначенный практический вариант:
- </div>
- <div class="variant-tabs">
- <button type="button" class="v-tab-btn active" data-target="v1">Вариант 1 (R(A,B,C) и Риссанен)</button>
- <button type="button" class="v-tab-btn" data-target="v2">Вариант 2 (Маркетплейс и расчеты)</button>
- <button type="button" class="v-tab-btn" data-target="v3">Вариант 3 (Преподаватели, курсы, 4НФ)</button>
- <button type="button" class="v-tab-btn" data-target="v4">Вариант 4 (Витрина данных и OLAP)</button>
- </div>
- </div>
+    <div class="variant-selector-box">
+      <div style="font-weight: 700; margin-bottom: 10px; font-size: 0.92rem; color: var(--text-muted); text-transform: uppercase;">
+        Выберите назначенный практический вариант:
+      </div>
+      <div class="variant-tabs">
+        <button type="button" class="v-tab-btn active" data-target="v1">Вариант 1 (R(A,B,C) и Риссанен)</button>
+        <button type="button" class="v-tab-btn" data-target="v2">Вариант 2 (Маркетплейс и расчеты)</button>
+        <button type="button" class="v-tab-btn" data-target="v3">Вариант 3 (Преподаватели, курсы, 4НФ)</button>
+        <button type="button" class="v-tab-btn" data-target="v4">Вариант 4 (Витрина данных и OLAP)</button>
+      </div>
+    </div>
 
- <!-- ВАРИАНТ 1 -->
- <div id="v1" class="variant-container active">
- <section class="task-card">
- <h2>Вариант 1. Проверка декомпозиции R(A, B, C) с ФЗ {A → B}</h2>
- <div class="model-desc">
- <p><strong>Исходная математическая спецификация:</strong></p>
- <p>Дано отношение <code>R(A, B, C)</code> с единственной нетривиальной функциональной зависимостью:</p>
- <p class="formula-badge">F = { A → B }</p>
- <p style="margin-top: 8px;">Сравниваются две схемы декомпозиции отношения <code>R</code>:</p>
- <ul>
- <li><strong>Схема декомпозиции №1:</strong> <code>R₁(A, B)</code> и <code>R₂(A, C)</code></li>
- <li><strong>Схема декомпозиции №2:</strong> <code>R₁(A, B)</code> и <code>R₃(B, C)</code></li>
- </ul>
- </div>
+    <!-- ВАРИАНТ 1 -->
+    <div id="v1" class="variant-container active">
+      <section class="task-card">
+        <h2>Вариант 1. Проверка декомпозиции R(A, B, C) с ФЗ {A → B}</h2>
+        <div class="model-desc">
+          <p><strong>Исходная математическая спецификация:</strong></p>
+          <p>Дано отношение <code>R(A, B, C)</code> с единственной нетривиальной функциональной зависимостью:</p>
+          <p class="formula-badge">F = { A → B }</p>
+          <p style="margin-top: 8px;">Сравниваются две схемы декомпозиции отношения <code>R</code>:</p>
+          <ul>
+            <li><strong>Схема декомпозиции №1:</strong> <code>R₁(A, B)</code> и <code>R₂(A, C)</code></li>
+            <li><strong>Схема декомпозиции №2:</strong> <code>R₁(A, B)</code> и <code>R₃(B, C)</code></li>
+          </ul>
+        </div>
 
- <label class="input-label" for="v1_q1">1. Проверка Схемы №1 по теореме Риссанена (R₁ и R₂):</label>
- <textarea id="v1_q1" class="answer-area" placeholder="Найдите R₁ ∩ R₂, вычислите замыкание (R₁ ∩ R₂)⁺ и докажите, почему данная декомпозиция является соединением без потерь..."></textarea>
+        <label class="input-label" for="v1_q1">1. Проверка Схемы №1 по теореме Риссанена (R₁ и R₂):</label>
+        <textarea id="v1_q1" class="answer-area" placeholder="Найдите R₁ ∩ R₂, вычислите замыкание (R₁ ∩ R₂)⁺ и докажите, почему данная декомпозиция является соединением без потерь..."></textarea>
 
- <label class="input-label" for="v1_q2">2. Проверка Схемы №2 по теореме Риссанена (R₁ и R₃):</label>
- <textarea id="v1_q2" class="answer-area" placeholder="Найдите R₁ ∩ R₃, вычислите замыкание (R₁ ∩ R₃)⁺ и обоснуйте, почему декомпозиция приводит к потерям информации..."></textarea>
+        <label class="input-label" for="v1_q2">2. Проверка Схемы №2 по теореме Риссанена (R₁ и R₃):</label>
+        <textarea id="v1_q2" class="answer-area" placeholder="Найдите R₁ ∩ R₃, вычислите замыкание (R₁ ∩ R₃)⁺ и обоснуйте, почему декомпозиция приводит к потерям информации..."></textarea>
 
- <label class="input-label" for="v1_q3">3. Построение числового контрпримера с ложными кортежами (Spurious Tuples):</label>
- <textarea id="v1_q3" class="answer-area" placeholder="Задайте 2 конкретные строки отношения R, постройте проекции на R₁(A,B) и R₃(B,C), выполните естественное соединение и покажите, какие конкретно паразитные строки появились..."></textarea>
+        <label class="input-label" for="v1_q3">3. Построение числового контрпримера с ложными кортежами (Spurious Tuples):</label>
+        <textarea id="v1_q3" class="answer-area" placeholder="Задайте 2 конкретные строки отношения R, постройте проекции на R₁(A,B) и R₃(B,C), выполните естественное соединение и покажите, какие конкретно паразитные строки появились..."></textarea>
 
- <label class="input-label" for="v1_check">4. Блок самопроверки и выводы:</label>
- <textarea id="v1_check" class="answer-area" placeholder="Сформулируйте вывод: какое фундаментальное требование к общему атрибуту связываемых отношений защищает систему от появления ложных кортежей?"></textarea>
- </section>
- </div>
+        <label class="input-label" for="v1_check">4. Блок самопроверки и выводы:</label>
+        <textarea id="v1_check" class="answer-area" placeholder="Сформулируйте вывод: какое фундаментальное требование к общему атрибуту связываемых отношений защищает систему от появления ложных кортежей?"></textarea>
+      </section>
+    </div>
 
- <!-- ВАРИАНТ 2 -->
- <div id="v2" class="variant-container">
- <section class="task-card">
- <h2>Вариант 2. База заказов маркетплейса (сохранение зависимости суммы)</h2>
- <div class="model-desc">
- <p><strong>Предметная область: Обработка заказов маркетплейса</strong></p>
- <p>Исходное отношение фиксирует строки клиентских заказов:</p>
- <p class="formula-badge">R(Номер_заказа, Артикул, Количество, Цена_за_ед, Сумма)</p>
- <p style="margin-top: 8px;">Бизнес-правила предметной области:</p>
- <ul>
- <li>В заказе каждая позиция определяется составным ключом: <code>{Номер_заказа, Артикул}</code>.</li>
- <li>Вычисляемая функциональная зависимость: <code>{Количество, Цена_за_ед} → Сумма</code>, где <code>Сумма = Количество * Цена_за_ед</code>.</li>
- <li>В каталоге маркетплейса действует зависимость: <code>Артикул → Цена_в_каталоге</code>.</li>
- </ul>
- </div>
+    <!-- ВАРИАНТ 2 -->
+    <div id="v2" class="variant-container">
+      <section class="task-card">
+        <h2>Вариант 2. База заказов маркетплейса (сохранение зависимости суммы)</h2>
+        <div class="model-desc">
+          <p><strong>Предметная область: Обработка заказов маркетплейса</strong></p>
+          <p>Исходное отношение фиксирует строки клиентских заказов:</p>
+          <p class="formula-badge">R(Номер_заказа, Артикул, Количество, Цена_за_ед, Сумма)</p>
+          <p style="margin-top: 8px;">Бизнес-правила предметной области:</p>
+          <ul>
+            <li>В заказе каждая позиция определяется составным ключом: <code>{Номер_заказа, Артикул}</code>.</li>
+            <li>Вычисляемая функциональная зависимость: <code>{Количество, Цена_за_ед} → Сумма</code>, где <code>Сумма = Количество * Цена_за_ед</code>.</li>
+            <li>В каталоге маркетплейса действует зависимость: <code>Артикул → Цена_в_каталоге</code>.</li>
+          </ul>
+        </div>
 
- <label class="input-label" for="v2_q1">1. Анализ декомпозиции и сохранения зависимости Сумма = Количество * Цена_за_ед:</label>
- <textarea id="v2_q1" class="answer-area" placeholder="Что произойдет, если разбить схему на заказы R₁(Номер_заказа, Артикул, Количество) и каталог R₂(Артикул, Цена_в_каталоге), удалив поле Сумма? Сохранится ли ФЗ локально?"></textarea>
+        <label class="input-label" for="v2_q1">1. Анализ декомпозиции и сохранения зависимости Сумма = Количество * Цена_за_ед:</label>
+        <textarea id="v2_q1" class="answer-area" placeholder="Что произойдет, если разбить схему на заказы R₁(Номер_заказа, Артикул, Количество) и каталог R₂(Артикул, Цена_в_каталоге), удалив поле Сумма? Сохранится ли ФЗ локально?"></textarea>
 
- <label class="input-label" for="v2_q2">2. Анализ историчности цен (Point-in-Time Pricing) и бухгалтерские риски:</label>
- <textarea id="v2_q2" class="answer-area" placeholder="Объясните, почему замена Цена_за_ед на прямую связь с каталогом является критической ошибкой при сезонных акциях и инфляции (что случится со старыми чеками?)..."></textarea>
+        <label class="input-label" for="v2_q2">2. Анализ историчности цен (Point-in-Time Pricing) и бухгалтерские риски:</label>
+        <textarea id="v2_q2" class="answer-area" placeholder="Объясните, почему замена Цена_за_ед на прямую связь с каталогом является критической ошибкой при сезонных акциях и инфляции (что случится со старыми чеками?)..."></textarea>
 
- <label class="input-label" for="v2_q3">3. Синтез корректной схемы реляционных таблиц:</label>
- <textarea id="v2_q3" class="answer-area" placeholder="Предложите согласованную декомпозицию схемы с указанием первичных и внешних ключей, гарантирующую сохранение зависимостей и соединение без потерь..."></textarea>
+        <label class="input-label" for="v2_q3">3. Синтез корректной схемы реляционных таблиц:</label>
+        <textarea id="v2_q3" class="answer-area" placeholder="Предложите согласованную декомпозицию схемы с указанием первичных и внешних ключей, гарантирующую сохранение зависимостей и соединение без потерь..."></textarea>
 
- <label class="input-label" for="v2_check">4. Блок самопроверки и выводы:</label>
- <textarea id="v2_check" class="answer-area" placeholder="Обоснуйте, почему хранение зафиксированной цены транзакции в строке заказа является обязательным инженерным стандартом e-commerce..."></textarea>
- </section>
- </div>
+        <label class="input-label" for="v2_check">4. Блок самопроверки и выводы:</label>
+        <textarea id="v2_check" class="answer-area" placeholder="Обоснуйте, почему хранение зафиксированной цены транзакции в строке заказа является обязательным инженерным стандартом e-commerce..."></textarea>
+      </section>
+    </div>
 
- <!-- ВАРИАНТ 3 -->
- <div id="v3" class="variant-container">
- <section class="task-card">
- <h2>Вариант 3. Отношение «Преподаватели, Дисциплины, Учебники» (MVD и 4НФ)</h2>
- <div class="model-desc">
- <p><strong>Предметная область: Учебно-методическое обеспечение кафедры</strong></p>
- <p>Рассматривается отношение, связывающее преподавателей, читаемые курсы и рекомендуемые пособия:</p>
- <p class="formula-badge">R(Преподаватель, Дисциплина, Учебник)</p>
- <p style="margin-top: 8px;">Семантические ограничения предметной области:</p>
- <ul>
- <li>Один преподаватель ведет несколько дисциплин (1:N).</li>
- <li>Один преподаватель рекомендует список учебников (1:M).</li>
- <li>Рекомендация учебника не зависит от того, какую конкретно дисциплину из своего списка читает преподаватель (независимые множественные списки).</li>
- </ul>
- </div>
+    <!-- ВАРИАНТ 3 -->
+    <div id="v3" class="variant-container">
+      <section class="task-card">
+        <h2>Вариант 3. Отношение «Преподаватели, Дисциплины, Учебники» (MVD и 4НФ)</h2>
+        <div class="model-desc">
+          <p><strong>Предметная область: Учебно-методическое обеспечение кафедры</strong></p>
+          <p>Рассматривается отношение, связывающее преподавателей, читаемые курсы и рекомендуемые пособия:</p>
+          <p class="formula-badge">R(Преподаватель, Дисциплина, Учебник)</p>
+          <p style="margin-top: 8px;">Семантические ограничения предметной области:</p>
+          <ul>
+            <li>Один преподаватель ведет несколько дисциплин (1:N).</li>
+            <li>Один преподаватель рекомендует список учебников (1:M).</li>
+            <li>Рекомендация учебника не зависит от того, какую конкретно дисциплину из своего списка читает преподаватель (независимые множественные списки).</li>
+          </ul>
+        </div>
 
- <label class="input-label" for="v3_q1">1. Анализ первичного ключа и формального статуса НФБК:</label>
- <textarea id="v3_q1" class="answer-area" placeholder="Определите первичный ключ отношения R. Есть ли в нем нетривиальные ФЗ? Почему отношение формально находится в НФБК, несмотря на избыточность?"></textarea>
+        <label class="input-label" for="v3_q1">1. Анализ первичного ключа и формального статуса НФБК:</label>
+        <textarea id="v3_q1" class="answer-area" placeholder="Определите первичный ключ отношения R. Есть ли в нем нетривиальные ФЗ? Почему отношение формально находится в НФБК, несмотря на избыточность?"></textarea>
 
- <label class="input-label" for="v3_q2">2. Выявление многозначной зависимости (MVD) и расчет комбинаторного взрыва строк:</label>
- <textarea id="v3_q2" class="answer-area" placeholder="Запишите многозначные зависимости X ↠ Y. Посчитайте, сколько строк потребуется для 1 преподавателя, 3 курсов и 4 учебников. Опишите аномалию вставки нового учебника..."></textarea>
+        <label class="input-label" for="v3_q2">2. Выявление многозначной зависимости (MVD) и расчет комбинаторного взрыва строк:</label>
+        <textarea id="v3_q2" class="answer-area" placeholder="Запишите многозначные зависимости X ↠ Y. Посчитайте, сколько строк потребуется для 1 преподавателя, 3 курсов и 4 учебников. Опишите аномалию вставки нового учебника..."></textarea>
 
- <label class="input-label" for="v3_q3">3. Декомпозиция по теореме Фейгина и приведение к 4-й нормальной форме (4NF):</label>
- <textarea id="v3_q3" class="answer-area" placeholder="Предложите декомпозицию отношения R на 4НФ-подсхемы с указанием ключей. Докажите, что обратное соединение будет соединением без потерь..."></textarea>
+        <label class="input-label" for="v3_q3">3. Декомпозиция по теореме Фейгина и приведение к 4-й нормальной форме (4NF):</label>
+        <textarea id="v3_q3" class="answer-area" placeholder="Предложите декомпозицию отношения R на 4НФ-подсхемы с указанием ключей. Докажите, что обратное соединение будет соединением без потерь..."></textarea>
 
- <label class="input-label" for="v3_check">4. Блок самопроверки и выводы:</label>
- <textarea id="v3_check" class="answer-area" placeholder="Сформулируйте критерий четвертой нормальной формы: в каком случае нетривиальная многозначная зависимость перестает порождать аномалии?"></textarea>
- </section>
- </div>
+        <label class="input-label" for="v3_check">4. Блок самопроверки и выводы:</label>
+        <textarea id="v3_check" class="answer-area" placeholder="Сформулируйте критерий четвертой нормальной формы: в каком случае нетривиальная многозначная зависимость перестает порождать аномалии?"></textarea>
+      </section>
+    </div>
 
- <!-- ВАРИАНТ 4 -->
- <div id="v4" class="variant-container">
- <section class="task-card">
- <h2>Вариант 4. Высоконагруженная витрина данных (контролируемая денормализация)</h2>
- <div class="model-desc">
- <p><strong>Предметная область: Аналитическая витрина высоконагруженного ритейлера</strong></p>
- <p>В транзакционной базе данных (OLTP) действует нормализованная схема (3НФ):</p>
- <p class="formula-badge">Строки_чека(<u>ID_позиции</u>, ID_чека, ID_товара, Количество, Цена_продажи)</p>
- <p class="formula-badge" style="margin-top: 6px;">Товары(<u>ID_товара</u>, Название_товара, Артикул, ID_категории)</p>
- <p style="margin-top: 8px;">В сутки формируется 50 миллионов строк позиций чеков. Аналитический отдел ежеминутно запрашивает отчеты по выручке в разрезе <code>Название_товара</code>.</p>
- </div>
+    <!-- ВАРИАНТ 4 -->
+    <div id="v4" class="variant-container">
+      <section class="task-card">
+        <h2>Вариант 4. Высоконагруженная витрина данных (контролируемая денормализация)</h2>
+        <div class="model-desc">
+          <p><strong>Предметная область: Аналитическая витрина высоконагруженного ритейлера</strong></p>
+          <p>В транзакционной базе данных (OLTP) действует нормализованная схема (3НФ):</p>
+          <p class="formula-badge">Строки_чека(<u>ID_позиции</u>, ID_чека, ID_товара, Количество, Цена_продажи)</p>
+          <p class="formula-badge" style="margin-top: 6px;">Товары(<u>ID_товара</u>, Название_товара, Артикул, ID_категории)</p>
+          <p style="margin-top: 8px;">В сутки формируется 50 миллионов строк позиций чеков. Аналитический отдел ежеминутно запрашивает отчеты по выручке в разрезе <code>Название_товара</code>.</p>
+        </div>
 
- <label class="input-label" for="v4_q1">1. Анализ проблемы производительности нормализованной схемы при аналитических выборках:</label>
- <textarea id="v4_q1" class="answer-area" placeholder="Почему выполнение операции JOIN по 500 миллионам строк между Строки_чека и Товары приводит к перегрузке CPU и дисковой подсистемы?"></textarea>
+        <label class="input-label" for="v4_q1">1. Анализ проблемы производительности нормализованной схемы при аналитических выборках:</label>
+        <textarea id="v4_q1" class="answer-area" placeholder="Почему выполнение операции JOIN по 500 миллионам строк между Строки_чека и Товары приводит к перегрузке CPU и дисковой подсистемы?"></textarea>
 
- <label class="input-label" for="v4_q2">2. Обоснование решения о контролируемой денормализации витрины (OLAP):</label>
- <textarea id="v4_q2" class="answer-area" placeholder="Какое поле предлагается продублировать в таблицу Строки_чека? Какой выигрыш по скорости выполнения отчетов (Query Latency) это даст?"></textarea>
+        <label class="input-label" for="v4_q2">2. Обоснование решения о контролируемой денормализации витрины (OLAP):</label>
+        <textarea id="v4_q2" class="answer-area" placeholder="Какое поле предлагается продублировать в таблицу Строки_чека? Какой выигрыш по скорости выполнения отчетов (Query Latency) это даст?"></textarea>
 
- <label class="input-label" for="v4_q3">3. Архитектурные риски денормализации и компенсирующие механизмы синхронизации:</label>
- <textarea id="v4_q3" class="answer-area" placeholder="Какие риски рассинхронизации возникают при переименовании товара? Опишите компенсирующие механизмы: триггеры СУБД, потоки CDC (Change Data Capture) или ночные ETL-сверки..."></textarea>
+        <label class="input-label" for="v4_q3">3. Архитектурные риски денормализации и компенсирующие механизмы синхронизации:</label>
+        <textarea id="v4_q3" class="answer-area" placeholder="Какие риски рассинхронизации возникают при переименовании товара? Опишите компенсирующие механизмы: триггеры СУБД, потоки CDC (Change Data Capture) или ночные ETL-сверки..."></textarea>
 
- <label class="input-label" for="v4_check">4. Блок самопроверки и выводы:</label>
- <textarea id="v4_check" class="answer-area" placeholder="Сформулируйте золотое правило проектировщика: когда нормализация обязательна, а когда денормализация профессионально оправдана?"></textarea>
- </section>
- </div>
+        <label class="input-label" for="v4_check">4. Блок самопроверки и выводы:</label>
+        <textarea id="v4_check" class="answer-area" placeholder="Сформулируйте золотое правило проектировщика: когда нормализация обязательна, а когда денормализация профессионально оправдана?"></textarea>
+      </section>
+    </div>
 
- <!-- Кнопки управления -->
- <div class="action-panel">
- <button type="button" class="btn btn-save" id="saveBtn">Сохранить ответы</button>
- <button type="button" class="btn btn-print" id="printBtn">Печать / Сохранить в PDF</button>
- <button type="button" class="btn btn-clear" id="clearBtn">Очистить форму</button>
- <span class="save-alert" id="saveAlert">✓ Ответы успешно сохранены в браузере</span>
- </div>
- </div>
+    <!-- Кнопки управления -->
+    <div class="action-panel">
+      <button type="button" class="btn btn-save" id="saveBtn">Сохранить ответы</button>
+      <button type="button" class="btn btn-print" id="printBtn">Печать / Сохранить в PDF</button>
+      <button type="button" class="btn btn-clear" id="clearBtn">Очистить форму</button>
+      <span class="save-alert" id="saveAlert">✓ Ответы успешно сохранены в браузере</span>
+    </div>
+  </div>
 
- <script>
- (function() {
- const STORAGE_KEY = 'sieup_db_lesson16_worksheet';
+  <script>
+    (function() {
+      const STORAGE_KEY = 'sieup_db_lesson16_worksheet';
 
- // Переключение вкладок вариантов
- const tabBtns = document.querySelectorAll('.v-tab-btn');
- const containers = document.querySelectorAll('.variant-container');
+      // Переключение вкладок вариантов
+      const tabBtns = document.querySelectorAll('.v-tab-btn');
+      const containers = document.querySelectorAll('.variant-container');
 
- tabBtns.forEach(btn => {
- btn.addEventListener('click', () => {
- tabBtns.forEach(b => b.classList.remove('active'));
- containers.forEach(c => c.classList.remove('active'));
- btn.classList.add('active');
- const targetId = btn.getAttribute('data-target');
- const targetCont = document.getElementById(targetId);
- if (targetCont) targetCont.classList.add('active');
- saveData();
- });
- });
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          tabBtns.forEach(b => b.classList.remove('active'));
+          containers.forEach(c => c.classList.remove('active'));
+          btn.classList.add('active');
+          const targetId = btn.getAttribute('data-target');
+          const targetCont = document.getElementById(targetId);
+          if (targetCont) targetCont.classList.add('active');
+          saveData();
+        });
+      });
 
- function getAllInputs() {
- return document.querySelectorAll('input, textarea');
- }
+      function getAllInputs() {
+        return document.querySelectorAll('input, textarea');
+      }
 
- function getActiveVariant() {
- const activeTab = document.querySelector('.v-tab-btn.active');
- return activeTab ? activeTab.getAttribute('data-target') : 'v1';
- }
+      function getActiveVariant() {
+        const activeTab = document.querySelector('.v-tab-btn.active');
+        return activeTab ? activeTab.getAttribute('data-target') : 'v1';
+      }
 
- function saveData() {
- const data = {
- activeVariant: getActiveVariant(),
- fields: {}
- };
- getAllInputs().forEach(el => {
- if (el.id) data.fields[el.id] = el.value;
- });
- localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
- const alertBox = document.getElementById('saveAlert');
- if (alertBox) {
- alertBox.style.display = 'inline';
- setTimeout(() => { alertBox.style.display = 'none'; }, 2500);
- }
- }
+      function saveData() {
+        const data = {
+          activeVariant: getActiveVariant(),
+          fields: {}
+        };
+        getAllInputs().forEach(el => {
+          if (el.id) data.fields[el.id] = el.value;
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        const alertBox = document.getElementById('saveAlert');
+        if (alertBox) {
+          alertBox.style.display = 'inline';
+          setTimeout(() => { alertBox.style.display = 'none'; }, 2500);
+        }
+      }
 
- function loadData() {
- const raw = localStorage.getItem(STORAGE_KEY);
- if (!raw) return;
- try {
- const parsed = JSON.parse(raw);
- if (parsed.activeVariant) {
- tabBtns.forEach(b => {
- if (b.getAttribute('data-target') === parsed.activeVariant) {
- b.click();
- }
- });
- }
- if (parsed.fields) {
- Object.keys(parsed.fields).forEach(id => {
- const el = document.getElementById(id);
- if (el) el.value = parsed.fields[id];
- });
- }
- } catch (e) {
- console.error('Ошибка восстановления сохраненных данных:', e);
- }
- }
+      function loadData() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed.activeVariant) {
+            tabBtns.forEach(b => {
+              if (b.getAttribute('data-target') === parsed.activeVariant) {
+                b.click();
+              }
+            });
+          }
+          if (parsed.fields) {
+            Object.keys(parsed.fields).forEach(id => {
+              const el = document.getElementById(id);
+              if (el) el.value = parsed.fields[id];
+            });
+          }
+        } catch (e) {
+          console.error('Ошибка восстановления сохраненных данных:', e);
+        }
+      }
 
- function clearData() {
- if (confirm('Вы уверены, что хотите полностью очистить все поля рабочего листа?')) {
- localStorage.removeItem(STORAGE_KEY);
- getAllInputs().forEach(el => { el.value = ''; });
- }
- }
+      function clearData() {
+        if (confirm('Вы уверены, что хотите полностью очистить все поля рабочего листа?')) {
+          localStorage.removeItem(STORAGE_KEY);
+          getAllInputs().forEach(el => { el.value = ''; });
+        }
+      }
 
- document.getElementById('saveBtn').addEventListener('click', saveData);
- document.getElementById('clearBtn').addEventListener('click', clearData);
- document.getElementById('printBtn').addEventListener('click', () => {
- saveData();
- window.print();
- });
+      document.getElementById('saveBtn').addEventListener('click', saveData);
+      document.getElementById('clearBtn').addEventListener('click', clearData);
+      document.getElementById('printBtn').addEventListener('click', () => {
+        saveData();
+        window.print();
+      });
 
- // Автосохранение при вводе
- document.addEventListener('input', (e) => {
- if (e.target.matches('input, textarea')) {
- const data = {
- activeVariant: getActiveVariant(),
- fields: {}
- };
- getAllInputs().forEach(el => {
- if (el.id) data.fields[el.id] = el.value;
- });
- localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
- }
- });
+      // Автосохранение при вводе
+      document.addEventListener('input', (e) => {
+        if (e.target.matches('input, textarea')) {
+          const data = {
+            activeVariant: getActiveVariant(),
+            fields: {}
+          };
+          getAllInputs().forEach(el => {
+            if (el.id) data.fields[el.id] = el.value;
+          });
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+      });
 
- window.addEventListener('DOMContentLoaded', loadData);
- })();
- </script>
+      window.addEventListener('DOMContentLoaded', loadData);
+    })();
+  </script>
 </body>
 </html>

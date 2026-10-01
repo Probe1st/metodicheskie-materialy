@@ -1,791 +1,839 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>Рабочий лист: Практическое занятие №8: поиск по одному и нескольким полям</title>
- <style>
- :root {
- --bg: #f8fafc;
- --card-bg: #ffffff;
- --text: #0f172a;
- --text-muted: #475569;
- --border: #cbd5e1;
- --accent: #0284c7;
- --accent-hover: #0369a1;
- --accent-soft: #f0f9ff;
- --danger: #ef4444;
- --danger-soft: #fee2e2;
- --success: #10b981;
- --success-soft: #dcfce7;
- --warn: #f59e0b;
- --warn-soft: #fef3c7;
- }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Рабочий лист: Практическое занятие №8: поиск по одному и нескольким полям</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #cbd5e1;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --accent-soft: #f0f9ff;
+      --danger: #ef4444;
+      --danger-soft: #fee2e2;
+      --success: #10b981;
+      --success-soft: #dcfce7;
+      --warn: #f59e0b;
+      --warn-soft: #fef3c7;
+    }
 
- * {
- box-sizing: border-box;
- margin: 0;
- padding: 0;
- }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
- body {
- font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
- background-color: var(--bg);
- color: var(--text);
- line-height: 1.6;
- padding: 24px 16px;
- min-width: 320px;
- }.container {
- max-width: 980px;
- margin: 0 auto;
- width: 100%;
- }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px;
+      min-width: 320px;
+    }
 
- header.task-header {
- background: var(--card-bg);
- border: 1px solid var(--border);
- border-radius: 12px;
- padding: 24px 28px;
- margin-bottom: 24px;
- box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
- }
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      width: 100%;
+    }
 
- h1 {
- font-size: 1.75rem;
- font-weight: 800;
- color: var(--text);
- margin-bottom: 8px;
- word-break: break-word;
- }.meta-subtitle {
- font-size: 0.95rem;
- color: var(--text-muted);
- margin-bottom: 16px;
- }.student-info {
- display: grid;
- grid-template-columns: 1fr 1fr;
- gap: 16px;
- padding-top: 16px;
- border-top: 1px solid var(--border);
- }.info-group {
- display: flex;
- flex-direction: column;
- gap: 6px;
- }
+    header.task-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
 
- label {
- font-weight: 600;
- font-size: 0.88rem;
- color: var(--text-muted);
- text-transform: uppercase;
- letter-spacing: 0.025em;
- }
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+      word-break: break-word;
+    }
 
- input[type="text"] {
- border: 1px solid var(--border);
- padding: 10px 14px;
- border-radius: 8px;
- font-size: 1rem;
- background: #ffffff;
- color: var(--text);
- outline: none;
- transition: all 0.2s;
- }
+    .meta-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
 
- input[type="text"]:focus {
- border-color: var(--accent);
- box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
- }.variant-selector-box {
- background: var(--card-bg);
- border: 1px solid var(--border);
- border-radius: 12px;
- padding: 16px 20px;
- margin-bottom: 24px;
- box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
- }.variant-tabs {
- display: grid;
- grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
- gap: 10px;
- }.v-tab-btn {
- background: #f1f5f9;
- border: 1px solid var(--border);
- border-radius: 8px;
- padding: 10px 14px;
- font-size: 0.92rem;
- font-weight: 600;
- color: var(--text);
- cursor: pointer;
- text-align: center;
- transition: all 0.2s;
- }.v-tab-btn:hover {
- background: var(--accent-soft);
- border-color: var(--accent);
- color: var(--accent-hover);
- }.v-tab-btn.active {
- background: var(--accent);
- border-color: var(--accent);
- color: #ffffff;
- }.variant-container {
- display: none;
- }.variant-container.active {
- display: block;
- }
+    .student-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
 
- section.task-card {
- background: var(--card-bg);
- border: 1px solid var(--border);
- border-radius: 12px;
- padding: 24px 28px;
- margin-bottom: 24px;
- box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
- }
+    .info-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
 
- h2 {
- font-size: 1.3rem;
- font-weight: 700;
- color: var(--accent);
- margin-bottom: 12px;
- border-bottom: 1px solid #e2e8f0;
- padding-bottom: 8px;
- }
+    label {
+      font-weight: 600;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.025em;
+    }
 
- h3 {
- font-size: 1.05rem;
- font-weight: 600;
- color: var(--text);
- margin: 16px 0 8px;
- }
+    input[type="text"] {
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 1rem;
+      background: #ffffff;
+      color: var(--text);
+      outline: none;
+      transition: all 0.2s;
+    }
 
- p {
- margin-bottom: 12px;
- }
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
 
- ul, ol {
- padding-left: 20px;
- margin-bottom: 14px;
- }
+    .variant-selector-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
 
- li {
- margin-bottom: 6px;
- }
+    .variant-tabs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+    }
 
- code {
- font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
- font-size: 0.9em;
- background: #f1f5f9;
- padding: 2px 6px;
- border-radius: 4px;
- color: #0f172a;
- }
+    .v-tab-btn {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
 
- pre {
- background: #0f172a;
- color: #f8fafc;
- padding: 14px 18px;
- border-radius: 8px;
- overflow-x: auto;
- font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
- font-size: 0.9rem;
- margin: 12px 0 16px;
- }
+    .v-tab-btn:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent-hover);
+    }
 
- pre code {
- background: transparent;
- padding: 0;
- color: inherit;
- }
+    .v-tab-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
 
- textarea.answer-area {
- width: 100%;
- min-height: 100px;
- border: 1px solid var(--border);
- border-radius: 8px;
- padding: 12px 14px;
- font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
- font-size: 0.95rem;
- line-height: 1.5;
- color: var(--text);
- background: #ffffff;
- resize: vertical;
- margin-top: 8px;
- outline: none;
- transition: border-color 0.2s;
- }
+    .variant-container {
+      display: none;
+    }
 
- textarea.answer-area:focus {
- border-color: var(--accent);
- box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
- }
+    .variant-container.active {
+      display: block;
+    }
 
- table.protocol-table {
- width: 100%;
- border-collapse: collapse;
- margin: 16px 0;
- font-size: 0.9rem;
- }
+    section.task-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
 
- table.protocol-table th, table.protocol-table td {
- border: 1px solid var(--border);
- padding: 8px 10px;
- text-align: left;
- vertical-align: middle;
- }
+    h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 12px;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 8px;
+    }
 
- table.protocol-table th {
- background-color: #f1f5f9;
- font-weight: 700;
- color: var(--text);
- }
+    h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 16px 0 8px;
+    }
 
- table.protocol-table input[type="text"] {
- width: 100%;
- padding: 6px 8px;
- font-size: 0.88rem;
- border-radius: 4px;
- }.action-panel {
- display: flex;
- gap: 12px;
- justify-content: flex-end;
- margin-top: 24px;
- margin-bottom: 60px;
- flex-wrap: wrap;
- }.btn {
- padding: 10px 20px;
- border-radius: 8px;
- font-weight: 600;
- font-size: 0.95rem;
- cursor: pointer;
- border: none;
- transition: all 0.2s;
- }.btn-primary {
- background: var(--accent);
- color: #ffffff;
- }.btn-primary:hover {
- background: var(--accent-hover);
- }.btn-secondary {
- background: #e2e8f0;
- color: #334155;
- }.btn-secondary:hover {
- background: #cbd5e1;
- }.status-msg {
- margin-right: auto;
- align-self: center;
- font-size: 0.9rem;
- font-weight: 600;
- color: var(--success);
- display: none;
- }
+    p {
+      margin-bottom: 12px;
+    }
 
- /* Адаптивность для мобильных экранов (375px) */
- @media (max-width: 640px) {
- body {
- padding: 12px 8px;
- }
- header.task-header, section.task-card,.variant-selector-box {
- padding: 16px 14px;
- }.student-info {
- grid-template-columns: 1fr;
- gap: 12px;
- }.variant-tabs {
- grid-template-columns: 1fr;
- }.action-panel {
- flex-direction: column;
- }.btn {
- width: 100%;
- }
- table.protocol-table {
- display: block;
- overflow-x: auto;
- white-space: nowrap;
- }
- }
+    ul, ol {
+      padding-left: 20px;
+      margin-bottom: 14px;
+    }
 
- /* Стили для печати (@media print) */
- @media print {
- body {
- background: #ffffff;
- color: #000000;
- padding: 0;
- }.container {
- max-width: 100%;
- margin: 0;
- }.variant-selector-box,.action-panel,.v-tab-btn {
- display: none !important;
- }
- header.task-header, section.task-card {
- border: 1px solid #000000;
- box-shadow: none;
- page-break-inside: avoid;
- margin-bottom: 14px;
- padding: 14px;
- }.variant-container {
- display: none !important;
- }.variant-container.active {
- display: block !important;
- }
- textarea.answer-area {
- border: 1px solid #000000;
- background: transparent;
- color: #000000;
- min-height: 80px;
- resize: none;
- overflow: visible;
- }
- input {
- border: 1px solid #000000 !important;
- background: transparent !important;
- color: #000000 !important;
- }
- input::placeholder, textarea::placeholder {
- color: transparent !important;
- }
- table.protocol-table {
- display: table !important;
- overflow: visible !important;
- white-space: normal !important;
- }
- table.protocol-table th, table.protocol-table td {
- border: 1px solid #000000;
- }
- }
- </style>
+    li {
+      margin-bottom: 6px;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9em;
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 14px 18px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9rem;
+      margin: 12px 0 16px;
+    }
+
+    pre code {
+      background: transparent;
+      padding: 0;
+      color: inherit;
+    }
+
+    textarea.answer-area {
+      width: 100%;
+      min-height: 100px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: var(--text);
+      background: #ffffff;
+      resize: vertical;
+      margin-top: 8px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    textarea.answer-area:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+
+    table.protocol-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.9rem;
+    }
+
+    table.protocol-table th, table.protocol-table td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    table.protocol-table th {
+      background-color: #f1f5f9;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    table.protocol-table input[type="text"] {
+      width: 100%;
+      padding: 6px 8px;
+      font-size: 0.88rem;
+      border-radius: 4px;
+    }
+
+    .action-panel {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 24px;
+      margin-bottom: 60px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+
+    .status-msg {
+      margin-right: auto;
+      align-self: center;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--success);
+      display: none;
+    }
+
+    /* Адаптивность для мобильных экранов (375px) */
+    @media (max-width: 640px) {
+      body {
+        padding: 12px 8px;
+      }
+      header.task-header, section.task-card, .variant-selector-box {
+        padding: 16px 14px;
+      }
+      .student-info {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .variant-tabs {
+        grid-template-columns: 1fr;
+      }
+      .action-panel {
+        flex-direction: column;
+      }
+      .btn {
+        width: 100%;
+      }
+      table.protocol-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+
+    /* Стили для печати (@media print) */
+    @media print {
+      body {
+        background: #ffffff;
+        color: #000000;
+        padding: 0;
+      }
+      .container {
+        max-width: 100%;
+        margin: 0;
+      }
+      .variant-selector-box, .action-panel, .v-tab-btn {
+        display: none !important;
+      }
+      header.task-header, section.task-card {
+        border: 1px solid #000000;
+        box-shadow: none;
+        page-break-inside: avoid;
+        margin-bottom: 14px;
+        padding: 14px;
+      }
+      .variant-container {
+        display: none !important;
+      }
+      .variant-container.active {
+        display: block !important;
+      }
+      textarea.answer-area {
+        border: 1px solid #000000;
+        background: transparent;
+        color: #000000;
+        min-height: 80px;
+        resize: none;
+        overflow: visible;
+      }
+      input {
+        border: 1px solid #000000 !important;
+        background: transparent !important;
+        color: #000000 !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+      }
+      table.protocol-table {
+        display: table !important;
+        overflow: visible !important;
+        white-space: normal !important;
+      }
+      table.protocol-table th, table.protocol-table td {
+        border: 1px solid #000000;
+      }
+    }
+  </style>
 </head>
 <body>
- <div class="container">
- <header class="task-header">
- <h1>Рабочий лист: Практическое занятие №8: поиск по одному и нескольким полям</h1>
- <div class="meta-subtitle">Дисциплина «ОП.08 Основы проектирования баз данных» — Занятие №20 (СИЭУиП, завершение 3 семестра)</div>
+  <div class="container">
+    <header class="task-header">
+      <h1>Рабочий лист: Практическое занятие №8: поиск по одному и нескольким полям</h1>
+      <div class="meta-subtitle">Дисциплина «ОП.08 Основы проектирования баз данных» — Занятие №20 (СИЭУиП, завершение 3 семестра)</div>
 
- <div class="student-info">
- <div class="info-group">
- <label for="student_name">Фамилия, Имя студента</label>
- <input type="text" id="student_name" autocomplete="off">
- </div>
- <div class="info-group">
- <label for="student_group">Учебная группа</label>
- <input type="text" id="student_group" autocomplete="off">
- </div>
- </div>
- </header>
+      <div class="student-info">
+        <div class="info-group">
+          <label for="student_name">Фамилия, Имя студента</label>
+          <input type="text" id="student_name" autocomplete="off">
+        </div>
+        <div class="info-group">
+          <label for="student_group">Учебная группа</label>
+          <input type="text" id="student_group" autocomplete="off">
+        </div>
+      </div>
+    </header>
 
- <!-- Переключатель вариантов -->
- <div class="variant-selector-box">
- <div style="font-size: 0.88rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">
- Выберите вариант практического задания:
- </div>
- <div class="variant-tabs">
- <button class="v-tab-btn active" data-target="variant-1" type="button">Вариант 1. База банка</button>
- <button class="v-tab-btn" data-target="variant-2" type="button">Вариант 2. Каталог библиотеки</button>
- <button class="v-tab-btn" data-target="variant-3" type="button">Вариант 3. Реестр медкарт</button>
- <button class="v-tab-btn" data-target="variant-4" type="button">Вариант 4. IT Service Desk</button>
- </div>
- </div>
+    <!-- Переключатель вариантов -->
+    <div class="variant-selector-box">
+      <div style="font-size: 0.88rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">
+        Выберите вариант практического задания:
+      </div>
+      <div class="variant-tabs">
+        <button class="v-tab-btn active" data-target="variant-1" type="button">Вариант 1. База банка</button>
+        <button class="v-tab-btn" data-target="variant-2" type="button">Вариант 2. Каталог библиотеки</button>
+        <button class="v-tab-btn" data-target="variant-3" type="button">Вариант 3. Реестр медкарт</button>
+        <button class="v-tab-btn" data-target="variant-4" type="button">Вариант 4. IT Service Desk</button>
+      </div>
+    </div>
 
- <!-- ВАРИАНТ 1 -->
- <div class="variant-container active" id="variant-1">
- <section class="task-card">
- <h2>Вариант 1: Поисковая система клиентской базы банка</h2>
- <p><strong>Предметная область:</strong> Автоматизированная банковская система (АБС). Таблица <code>bank_clients</code> содержит 10&nbsp;000&nbsp;000 записей.</p>
- <pre><code>CREATE TABLE bank_clients (
- client_id BIGSERIAL PRIMARY KEY,
- contract_number VARCHAR(30) NOT NULL UNIQUE,
- full_name VARCHAR(200) NOT NULL,
- region VARCHAR(80) NOT NULL,
- status VARCHAR(20) NOT NULL,
- monthly_income NUMERIC(12,2) NOT NULL,
- created_at DATE NOT NULL DEFAULT CURRENT_DATE);</code></pre>
- </section>
+    <!-- ВАРИАНТ 1 -->
+    <div class="variant-container active" id="variant-1">
+      <section class="task-card">
+        <h2>Вариант 1: Поисковая система клиентской базы банка</h2>
+        <p><strong>Предметная область:</strong> Автоматизированная банковская система (АБС). Таблица <code>bank_clients</code> содержит 10&nbsp;000&nbsp;000 записей.</p>
+        <pre><code>CREATE TABLE bank_clients (
+    client_id BIGSERIAL PRIMARY KEY,
+    contract_number VARCHAR(30) NOT NULL UNIQUE,
+    full_name VARCHAR(200) NOT NULL,
+    region VARCHAR(80) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    monthly_income NUMERIC(12,2) NOT NULL,
+    created_at DATE NOT NULL DEFAULT CURRENT_DATE
+);</code></pre>
+      </section>
 
- <section class="task-card">
- <h2>Задание 1.1. Точечный поиск по номеру договора и маске ФИО (2 балла)</h2>
- <ol>
- <li>Напишите SQL-запрос точечного поиска клиента по точному номеру договора <code>contract_number = 'DOG-2024-98412'</code>. Какой индекс обслуживает этот запрос?</li>
- <li>Напишите SQL-запрос поиска клиентов по префиксной маске ФИО <code>'Иван%'</code>. Укажите DDL-команду создания индекса с учетом локали UTF-8.</li>
- </ol>
- <label for="v1_ans_1">Ваш SQL-код и обоснование методов доступа:</label>
- <textarea id="v1_ans_1" class="answer-area"></textarea>
- </section>
+      <section class="task-card">
+        <h2>Задание 1.1. Точечный поиск по номеру договора и маске ФИО (2 балла)</h2>
+        <ol>
+          <li>Напишите SQL-запрос точечного поиска клиента по точному номеру договора <code>contract_number = 'DOG-2024-98412'</code>. Какой индекс обслуживает этот запрос?</li>
+          <li>Напишите SQL-запрос поиска клиентов по префиксной маске ФИО <code>'Иван%'</code>. Укажите DDL-команду создания индекса с учетом локали UTF-8.</li>
+        </ol>
+        <label for="v1_ans_1">Ваш SQL-код и обоснование методов доступа:</label>
+        <textarea id="v1_ans_1" class="answer-area"></textarea>
+      </section>
 
- <section class="task-card">
- <h2>Задание 1.2. Комбинированный поиск: Регион + Статус + Доход (1 балл)</h2>
- <p>Составьте запрос фильтрации: <code>Регион = 'ХМАО-Югра' AND Статус = 'ACTIVE' AND Диапазон доходов от 80 000 до 150 000 руб</code>. Спроектируйте составной индекс, строго соблюдая правило «Равенства вперед, диапазоны в конец».</p>
- <label for="v1_ans_2">DDL составного индекса и поисковый запрос:</label>
- <textarea id="v1_ans_2" class="answer-area"></textarea>
- </section>
+      <section class="task-card">
+        <h2>Задание 1.2. Комбинированный поиск: Регион + Статус + Доход (1 балл)</h2>
+        <p>Составьте запрос фильтрации: <code>Регион = 'ХМАО-Югра' AND Статус = 'ACTIVE' AND Диапазон доходов от 80 000 до 150 000 руб</code>. Спроектируйте составной индекс, строго соблюдая правило «Равенства вперед, диапазоны в конец».</p>
+        <label for="v1_ans_2">DDL составного индекса и поисковый запрос:</label>
+        <textarea id="v1_ans_2" class="answer-area"></textarea>
+      </section>
 
- <section class="task-card">
- <h2>Задание 1.3. Поисковый протокол и фиксация времени отклика (1 балл)</h2>
- <p>Заполните поисковый протокол по результатам анализа планов выполнения (EXPLAIN ANALYZE):</p>
- <table class="protocol-table">
- <thead>
- <tr>
- <th>Сценарий</th>
- <th>Предикат WHERE</th>
- <th>Используемый индекс</th>
- <th>Узел EXPLAIN</th>
- <th>Время отклика (мс)</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td>Точный договор</td>
- <td><code>contract_number = '...'</code></td>
- <td><input type="text" id="v1_p1_idx"></td>
- <td><input type="text" id="v1_p1_node"></td>
- <td><input type="text" id="v1_p1_time"></td>
- </tr>
- <tr>
- <td>Маска ФИО</td>
- <td><code>full_name LIKE 'Иван%'</code></td>
- <td><input type="text" id="v1_p2_idx"></td>
- <td><input type="text" id="v1_p2_node"></td>
- <td><input type="text" id="v1_p2_time"></td>
- </tr>
- <tr>
- <td>Комбинированный</td>
- <td><code>region=... AND status=... AND income...</code></td>
- <td><input type="text" id="v1_p3_idx"></td>
- <td><input type="text" id="v1_p3_node"></td>
- <td><input type="text" id="v1_p3_time"></td>
- </tr>
- </tbody>
- </table>
+      <section class="task-card">
+        <h2>Задание 1.3. Поисковый протокол и фиксация времени отклика (1 балл)</h2>
+        <p>Заполните поисковый протокол по результатам анализа планов выполнения (EXPLAIN ANALYZE):</p>
+        <table class="protocol-table">
+          <thead>
+            <tr>
+              <th>Сценарий</th>
+              <th>Предикат WHERE</th>
+              <th>Используемый индекс</th>
+              <th>Узел EXPLAIN</th>
+              <th>Время отклика (мс)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Точный договор</td>
+              <td><code>contract_number = '...'</code></td>
+              <td><input type="text" id="v1_p1_idx"></td>
+              <td><input type="text" id="v1_p1_node"></td>
+              <td><input type="text" id="v1_p1_time"></td>
+            </tr>
+            <tr>
+              <td>Маска ФИО</td>
+              <td><code>full_name LIKE 'Иван%'</code></td>
+              <td><input type="text" id="v1_p2_idx"></td>
+              <td><input type="text" id="v1_p2_node"></td>
+              <td><input type="text" id="v1_p2_time"></td>
+            </tr>
+            <tr>
+              <td>Комбинированный</td>
+              <td><code>region=... AND status=... AND income...</code></td>
+              <td><input type="text" id="v1_p3_idx"></td>
+              <td><input type="text" id="v1_p3_node"></td>
+              <td><input type="text" id="v1_p3_time"></td>
+            </tr>
+          </tbody>
+        </table>
 
- <h3>Самопроверка</h3>
- <p>Почему запрос <code>WHERE full_name LIKE '%Иван%'</code> приведет к деградации до Sequential Scan, даже если индекс по <code>full_name</code> создан?</p>
- <textarea id="v1_ans_3" class="answer-area"></textarea>
- </section>
- </div>
+        <h3>Самопроверка</h3>
+        <p>Почему запрос <code>WHERE full_name LIKE '%Иван%'</code> приведет к деградации до Sequential Scan, даже если индекс по <code>full_name</code> создан?</p>
+        <textarea id="v1_ans_3" class="answer-area"></textarea>
+      </section>
+    </div>
 
- <!-- ВАРИАНТ 2 -->
- <div class="variant-container" id="variant-2">
- <section class="task-card">
- <h2>Вариант 2: Каталог научной библиотеки</h2>
- <p><strong>Предметная область:</strong> Электронная библиотечная система. Таблица <code>books</code> содержит 3&nbsp;000&nbsp;000 наименований.</p>
- <pre><code>CREATE TABLE books (
- book_id BIGSERIAL PRIMARY KEY,
- isbn VARCHAR(20) NOT NULL UNIQUE,
- author_name VARCHAR(150) NOT NULL,
- title VARCHAR(250) NOT NULL,
- annotation TEXT,
- publication_year INT NOT NULL,
- language_code CHAR(2) NOT NULL DEFAULT 'RU');</code></pre>
- </section>
+    <!-- ВАРИАНТ 2 -->
+    <div class="variant-container" id="variant-2">
+      <section class="task-card">
+        <h2>Вариант 2: Каталог научной библиотеки</h2>
+        <p><strong>Предметная область:</strong> Электронная библиотечная система. Таблица <code>books</code> содержит 3&nbsp;000&nbsp;000 наименований.</p>
+        <pre><code>CREATE TABLE books (
+    book_id BIGSERIAL PRIMARY KEY,
+    isbn VARCHAR(20) NOT NULL UNIQUE,
+    author_name VARCHAR(150) NOT NULL,
+    title VARCHAR(250) NOT NULL,
+    annotation TEXT,
+    publication_year INT NOT NULL,
+    language_code CHAR(2) NOT NULL DEFAULT 'RU'
+);</code></pre>
+      </section>
 
- <section class="task-card">
- <h2>Задание 2.1. Точечный поиск по ISBN и поиск по автору (2 балла)</h2>
- <ol>
- <li>Напишите SQL-запрос поиска книги по международному стандартному номеру <code>isbn = '978-5-97060-845-6'</code>.</li>
- <li>Напишите SQL-запрос поиска всех трудов автора <code>author_name = 'Дейт К. Дж.'</code>. Какой индекс необходим для устранения Seq Scan?</li>
- </ol>
- <label for="v2_ans_1">Ваш SQL-код и структура индексов:</label>
- <textarea id="v2_ans_1" class="answer-area"></textarea>
- </section>
+      <section class="task-card">
+        <h2>Задание 2.1. Точечный поиск по ISBN и поиск по автору (2 балла)</h2>
+        <ol>
+          <li>Напишите SQL-запрос поиска книги по международному стандартному номеру <code>isbn = '978-5-97060-845-6'</code>.</li>
+          <li>Напишите SQL-запрос поиска всех трудов автора <code>author_name = 'Дейт К. Дж.'</code>. Какой индекс необходим для устранения Seq Scan?</li>
+        </ol>
+        <label for="v2_ans_1">Ваш SQL-код и структура индексов:</label>
+        <textarea id="v2_ans_1" class="answer-area"></textarea>
+      </section>
 
- <section class="task-card">
- <h2>Задание 2.2. Полнотекстовый поиск по названию и аннотации (1 балл)</h2>
- <p>Пользователи ищут учебники по фразам «реляционные базы» или «нормализация отношений». Спроектируйте функциональный инвертированный индекс GIN с использованием функций <code>to_tsvector</code> и напишите запрос с оператором <code>@@</code> и <code>to_tsquery</code>.</p>
- <label for="v2_ans_2">DDL GIN-индекса и полнотекстовый запрос:</label>
- <textarea id="v2_ans_2" class="answer-area"></textarea>
- </section>
+      <section class="task-card">
+        <h2>Задание 2.2. Полнотекстовый поиск по названию и аннотации (1 балл)</h2>
+        <p>Пользователи ищут учебники по фразам «реляционные базы» или «нормализация отношений». Спроектируйте функциональный инвертированный индекс GIN с использованием функций <code>to_tsvector</code> и напишите запрос с оператором <code>@@</code> и <code>to_tsquery</code>.</p>
+        <label for="v2_ans_2">DDL GIN-индекса и полнотекстовый запрос:</label>
+        <textarea id="v2_ans_2" class="answer-area"></textarea>
+      </section>
 
- <section class="task-card">
- <h2>Задание 2.3. Поисковый протокол и фиксация времени отклика (1 балл)</h2>
- <table class="protocol-table">
- <thead>
- <tr>
- <th>Сценарий</th>
- <th>Предикат WHERE</th>
- <th>Используемый индекс</th>
- <th>Узел EXPLAIN</th>
- <th>Время отклика (мс)</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td>Поиск по ISBN</td>
- <td><code>isbn = '...'</code></td>
- <td><input type="text" id="v2_p1_idx"></td>
- <td><input type="text" id="v2_p1_node"></td>
- <td><input type="text" id="v2_p1_time"></td>
- </tr>
- <tr>
- <td>Поиск по автору</td>
- <td><code>author_name = '...'</code></td>
- <td><input type="text" id="v2_p2_idx"></td>
- <td><input type="text" id="v2_p2_node"></td>
- <td><input type="text" id="v2_p2_time"></td>
- </tr>
- <tr>
- <td>Полнотекстовый FTS</td>
- <td><code>to_tsvector(...) @@ to_tsquery(...)</code></td>
- <td><input type="text" id="v2_p3_idx"></td>
- <td><input type="text" id="v2_p3_node"></td>
- <td><input type="text" id="v2_p3_time"></td>
- </tr>
- </tbody>
- </table>
+      <section class="task-card">
+        <h2>Задание 2.3. Поисковый протокол и фиксация времени отклика (1 балл)</h2>
+        <table class="protocol-table">
+          <thead>
+            <tr>
+              <th>Сценарий</th>
+              <th>Предикат WHERE</th>
+              <th>Используемый индекс</th>
+              <th>Узел EXPLAIN</th>
+              <th>Время отклика (мс)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Поиск по ISBN</td>
+              <td><code>isbn = '...'</code></td>
+              <td><input type="text" id="v2_p1_idx"></td>
+              <td><input type="text" id="v2_p1_node"></td>
+              <td><input type="text" id="v2_p1_time"></td>
+            </tr>
+            <tr>
+              <td>Поиск по автору</td>
+              <td><code>author_name = '...'</code></td>
+              <td><input type="text" id="v2_p2_idx"></td>
+              <td><input type="text" id="v2_p2_node"></td>
+              <td><input type="text" id="v2_p2_time"></td>
+            </tr>
+            <tr>
+              <td>Полнотекстовый FTS</td>
+              <td><code>to_tsvector(...) @@ to_tsquery(...)</code></td>
+              <td><input type="text" id="v2_p3_idx"></td>
+              <td><input type="text" id="v2_p3_node"></td>
+              <td><input type="text" id="v2_p3_time"></td>
+            </tr>
+          </tbody>
+        </table>
 
- <h3>Самопроверка</h3>
- <p>Какую роль в полнотекстовом поиске играет стемминг (stemming) и почему поиск через GIN эффективнее LIKE по тексту аннотации?</p>
- <textarea id="v2_ans_3" class="answer-area"></textarea>
- </section>
- </div>
+        <h3>Самопроверка</h3>
+        <p>Какую роль в полнотекстовом поиске играет стемминг (stemming) и почему поиск через GIN эффективнее LIKE по тексту аннотации?</p>
+        <textarea id="v2_ans_3" class="answer-area"></textarea>
+      </section>
+    </div>
 
- <!-- ВАРИАНТ 3 -->
- <div class="variant-container" id="variant-3">
- <section class="task-card">
- <h2>Вариант 3: Реестр медицинских карт</h2>
- <p><strong>Предметная область:</strong> Единая медицинская информационная система (ЕМИС). Таблица <code>medical_records</code> содержит 8&nbsp;000&nbsp;000 визитов.</p>
- <pre><code>CREATE TABLE medical_records (
- record_id BIGSERIAL PRIMARY KEY,
- policy_number CHAR(16) NOT NULL,
- patient_name VARCHAR(150) NOT NULL,
- department_code VARCHAR(20) NOT NULL,
- visit_date TIMESTAMP NOT NULL,
- diagnosis_code VARCHAR(10) NOT NULL, -- МКБ-10
- doctor_id INT NOT NULL);</code></pre>
- </section>
+    <!-- ВАРИАНТ 3 -->
+    <div class="variant-container" id="variant-3">
+      <section class="task-card">
+        <h2>Вариант 3: Реестр медицинских карт</h2>
+        <p><strong>Предметная область:</strong> Единая медицинская информационная система (ЕМИС). Таблица <code>medical_records</code> содержит 8&nbsp;000&nbsp;000 визитов.</p>
+        <pre><code>CREATE TABLE medical_records (
+    record_id BIGSERIAL PRIMARY KEY,
+    policy_number CHAR(16) NOT NULL,
+    patient_name VARCHAR(150) NOT NULL,
+    department_code VARCHAR(20) NOT NULL,
+    visit_date TIMESTAMP NOT NULL,
+    diagnosis_code VARCHAR(10) NOT NULL, -- МКБ-10
+    doctor_id INT NOT NULL
+);</code></pre>
+      </section>
 
- <section class="task-card">
- <h2>Задание 3.1. Точечный поиск по полису ОМС и диапазон дат визитов (2 балла)</h2>
- <ol>
- <li>Напишите SQL-запрос поиска по 16-значному номеру полиса ОМС.</li>
- <li>Напишите SQL-запрос выборки истории приемов конкретного пациента за первое полугодие 2024 года с сортировкой от новых к старым (<code>Index Range Scan</code>).</li>
- </ol>
- <label for="v3_ans_1">Ваш SQL-код и индексное решение:</label>
- <textarea id="v3_ans_1" class="answer-area"></textarea>
- </section>
+      <section class="task-card">
+        <h2>Задание 3.1. Точечный поиск по полису ОМС и диапазон дат визитов (2 балла)</h2>
+        <ol>
+          <li>Напишите SQL-запрос поиска по 16-значному номеру полиса ОМС.</li>
+          <li>Напишите SQL-запрос выборки истории приемов конкретного пациента за первое полугодие 2024 года с сортировкой от новых к старым (<code>Index Range Scan</code>).</li>
+        </ol>
+        <label for="v3_ans_1">Ваш SQL-код и индексное решение:</label>
+        <textarea id="v3_ans_1" class="answer-area"></textarea>
+      </section>
 
- <section class="task-card">
- <h2>Задание 3.2. Комбинированный поиск по отделению и диагнозу (1 балл)</h2>
- <p>Главврачу требуется статистика: найти все записи кардиологического отделения (<code>department_code = 'CARDIOLOGY'</code>) с диагнозом <code>'I20.0'</code> за текущий месяц. Спроектируйте оптимальный составной B-Tree индекс.</p>
- <label for="v3_ans_2">DDL составного индекса и SQL-запрос:</label>
- <textarea id="v3_ans_2" class="answer-area"></textarea>
- </section>
+      <section class="task-card">
+        <h2>Задание 3.2. Комбинированный поиск по отделению и диагнозу (1 балл)</h2>
+        <p>Главврачу требуется статистика: найти все записи кардиологического отделения (<code>department_code = 'CARDIOLOGY'</code>) с диагнозом <code>'I20.0'</code> за текущий месяц. Спроектируйте оптимальный составной B-Tree индекс.</p>
+        <label for="v3_ans_2">DDL составного индекса и SQL-запрос:</label>
+        <textarea id="v3_ans_2" class="answer-area"></textarea>
+      </section>
 
- <section class="task-card">
- <h2>Задание 3.3. Поисковый протокол и фиксация времени отклика (1 балл)</h2>
- <table class="protocol-table">
- <thead>
- <tr>
- <th>Сценарий</th>
- <th>Предикат WHERE</th>
- <th>Используемый индекс</th>
- <th>Узел EXPLAIN</th>
- <th>Время отклика (мс)</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td>Полис ОМС</td>
- <td><code>policy_number = '...'</code></td>
- <td><input type="text" id="v3_p1_idx"></td>
- <td><input type="text" id="v3_p1_node"></td>
- <td><input type="text" id="v3_p1_time"></td>
- </tr>
- <tr>
- <td>Диапазон дат</td>
- <td><code>policy =... AND visit_date BETWEEN...</code></td>
- <td><input type="text" id="v3_p2_idx"></td>
- <td><input type="text" id="v3_p2_node"></td>
- <td><input type="text" id="v3_p2_time"></td>
- </tr>
- <tr>
- <td>Отделение + Диагноз</td>
- <td><code>dept =... AND diagnosis =...</code></td>
- <td><input type="text" id="v3_p3_idx"></td>
- <td><input type="text" id="v3_p3_node"></td>
- <td><input type="text" id="v3_p3_time"></td>
- </tr>
- </tbody>
- </table>
+      <section class="task-card">
+        <h2>Задание 3.3. Поисковый протокол и фиксация времени отклика (1 балл)</h2>
+        <table class="protocol-table">
+          <thead>
+            <tr>
+              <th>Сценарий</th>
+              <th>Предикат WHERE</th>
+              <th>Используемый индекс</th>
+              <th>Узел EXPLAIN</th>
+              <th>Время отклика (мс)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Полис ОМС</td>
+              <td><code>policy_number = '...'</code></td>
+              <td><input type="text" id="v3_p1_idx"></td>
+              <td><input type="text" id="v3_p1_node"></td>
+              <td><input type="text" id="v3_p1_time"></td>
+            </tr>
+            <tr>
+              <td>Диапазон дат</td>
+              <td><code>policy = ... AND visit_date BETWEEN ...</code></td>
+              <td><input type="text" id="v3_p2_idx"></td>
+              <td><input type="text" id="v3_p2_node"></td>
+              <td><input type="text" id="v3_p2_time"></td>
+            </tr>
+            <tr>
+              <td>Отделение + Диагноз</td>
+              <td><code>dept = ... AND diagnosis = ...</code></td>
+              <td><input type="text" id="v3_p3_idx"></td>
+              <td><input type="text" id="v3_p3_node"></td>
+              <td><input type="text" id="v3_p3_time"></td>
+            </tr>
+          </tbody>
+        </table>
 
- <h3>Самопроверка</h3>
- <p>Почему для диапазона дат в связке с полисом ОМС индекс <code>(policy_number, visit_date DESC)</code> эффективнее, чем <code>(visit_date, policy_number)</code>?</p>
- <textarea id="v3_ans_3" class="answer-area"></textarea>
- </section>
- </div>
+        <h3>Самопроверка</h3>
+        <p>Почему для диапазона дат в связке с полисом ОМС индекс <code>(policy_number, visit_date DESC)</code> эффективнее, чем <code>(visit_date, policy_number)</code>?</p>
+        <textarea id="v3_ans_3" class="answer-area"></textarea>
+      </section>
+    </div>
 
- <!-- ВАРИАНТ 4 -->
- <div class="variant-container" id="variant-4">
- <section class="task-card">
- <h2>Вариант 4: Служба поддержки пользователей IT-сервиса (Service Desk)</h2>
- <p><strong>Предметная область:</strong> Система обработки заявок технической поддержки. Таблица <code>support_tickets</code> содержит 4&nbsp;000&nbsp;000 заявок.</p>
- <pre><code>CREATE TABLE support_tickets (
- ticket_id BIGSERIAL PRIMARY KEY,
- ticket_uuid UUID NOT NULL UNIQUE,
- subject VARCHAR(200) NOT NULL,
- priority VARCHAR(15) NOT NULL, -- 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL'
- status VARCHAR(20) NOT NULL, -- 'OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'
- assigned_engineer_id INT,
- created_at TIMESTAMP NOT NULL DEFAULT NOW(),
- description TEXT);</code></pre>
- </section>
+    <!-- ВАРИАНТ 4 -->
+    <div class="variant-container" id="variant-4">
+      <section class="task-card">
+        <h2>Вариант 4: Служба поддержки пользователей IT-сервиса (Service Desk)</h2>
+        <p><strong>Предметная область:</strong> Система обработки заявок технической поддержки. Таблица <code>support_tickets</code> содержит 4&nbsp;000&nbsp;000 заявок.</p>
+        <pre><code>CREATE TABLE support_tickets (
+    ticket_id BIGSERIAL PRIMARY KEY,
+    ticket_uuid UUID NOT NULL UNIQUE,
+    subject VARCHAR(200) NOT NULL,
+    priority VARCHAR(15) NOT NULL, -- 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL'
+    status VARCHAR(20) NOT NULL,   -- 'OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'
+    assigned_engineer_id INT,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    description TEXT
+);</code></pre>
+      </section>
 
- <section class="task-card">
- <h2>Задание 4.1. Точечный поиск тикета по ID и префикс темы (2 балла)</h2>
- <ol>
- <li>Напишите SQL-запрос поиска обращения по уникальному числовому <code>ticket_id = 459102</code>.</li>
- <li>Напишите SQL-запрос поиска всех тикетов, тема которых начинается со слова <code>'VPN%'</code>. Спроектируйте индекс под префикс.</li>
- </ol>
- <label for="v4_ans_1">Ваш SQL-код и индексное решение:</label>
- <textarea id="v4_ans_1" class="answer-area"></textarea>
- </section>
+      <section class="task-card">
+        <h2>Задание 4.1. Точечный поиск тикета по ID и префикс темы (2 балла)</h2>
+        <ol>
+          <li>Напишите SQL-запрос поиска обращения по уникальному числовому <code>ticket_id = 459102</code>.</li>
+          <li>Напишите SQL-запрос поиска всех тикетов, тема которых начинается со слова <code>'VPN%'</code>. Спроектируйте индекс под префикс.</li>
+        </ol>
+        <label for="v4_ans_1">Ваш SQL-код и индексное решение:</label>
+        <textarea id="v4_ans_1" class="answer-area"></textarea>
+      </section>
 
- <section class="task-card">
- <h2>Задание 4.2. Фильтрация очереди инженера по приоритету и статусу (1 балл)</h2>
- <p>Инженеру с <code>assigned_engineer_id = 42</code> необходимо вывести активные критические заявки: <code>status = 'IN_PROGRESS' AND priority IN ('HIGH', 'CRITICAL')</code> с сортировкой по времени создания (свежие первыми). Спроектируйте составной индекс.</p>
- <label for="v4_ans_2">DDL составного индекса и SQL-запрос:</label>
- <textarea id="v4_ans_2" class="answer-area"></textarea>
- </section>
+      <section class="task-card">
+        <h2>Задание 4.2. Фильтрация очереди инженера по приоритету и статусу (1 балл)</h2>
+        <p>Инженеру с <code>assigned_engineer_id = 42</code> необходимо вывести активные критические заявки: <code>status = 'IN_PROGRESS' AND priority IN ('HIGH', 'CRITICAL')</code> с сортировкой по времени создания (свежие первыми). Спроектируйте составной индекс.</p>
+        <label for="v4_ans_2">DDL составного индекса и SQL-запрос:</label>
+        <textarea id="v4_ans_2" class="answer-area"></textarea>
+      </section>
 
- <section class="task-card">
- <h2>Задание 4.3. Поисковый протокол и фиксация времени отклика (1 балл)</h2>
- <table class="protocol-table">
- <thead>
- <tr>
- <th>Сценарий</th>
- <th>Предикат WHERE</th>
- <th>Используемый индекс</th>
- <th>Узел EXPLAIN</th>
- <th>Время отклика (мс)</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td>Поиск по ID</td>
- <td><code>ticket_id = 459102</code></td>
- <td><input type="text" id="v4_p1_idx"></td>
- <td><input type="text" id="v4_p1_node"></td>
- <td><input type="text" id="v4_p1_time"></td>
- </tr>
- <tr>
- <td>Префикс темы</td>
- <td><code>subject LIKE 'VPN%'</code></td>
- <td><input type="text" id="v4_p2_idx"></td>
- <td><input type="text" id="v4_p2_node"></td>
- <td><input type="text" id="v4_p2_time"></td>
- </tr>
- <tr>
- <td>Очередь инженера</td>
- <td><code>engineer =... AND status =... AND priority IN (...)</code></td>
- <td><input type="text" id="v4_p3_idx"></td>
- <td><input type="text" id="v4_p3_node"></td>
- <td><input type="text" id="v4_p3_time"></td>
- </tr>
- </tbody>
- </table>
+      <section class="task-card">
+        <h2>Задание 4.3. Поисковый протокол и фиксация времени отклика (1 балл)</h2>
+        <table class="protocol-table">
+          <thead>
+            <tr>
+              <th>Сценарий</th>
+              <th>Предикат WHERE</th>
+              <th>Используемый индекс</th>
+              <th>Узел EXPLAIN</th>
+              <th>Время отклика (мс)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Поиск по ID</td>
+              <td><code>ticket_id = 459102</code></td>
+              <td><input type="text" id="v4_p1_idx"></td>
+              <td><input type="text" id="v4_p1_node"></td>
+              <td><input type="text" id="v4_p1_time"></td>
+            </tr>
+            <tr>
+              <td>Префикс темы</td>
+              <td><code>subject LIKE 'VPN%'</code></td>
+              <td><input type="text" id="v4_p2_idx"></td>
+              <td><input type="text" id="v4_p2_node"></td>
+              <td><input type="text" id="v4_p2_time"></td>
+            </tr>
+            <tr>
+              <td>Очередь инженера</td>
+              <td><code>engineer = ... AND status = ... AND priority IN (...)</code></td>
+              <td><input type="text" id="v4_p3_idx"></td>
+              <td><input type="text" id="v4_p3_node"></td>
+              <td><input type="text" id="v4_p3_time"></td>
+            </tr>
+          </tbody>
+        </table>
 
- <h3>Самопроверка</h3>
- <p>В чем преимущество использования составного индекса перед двумя отдельными индексами по колонкам <code>assigned_engineer_id</code> и <code>status</code> при высокой интенсивности запросов?</p>
- <textarea id="v4_ans_3" class="answer-area"></textarea>
- </section>
- </div>
+        <h3>Самопроверка</h3>
+        <p>В чем преимущество использования составного индекса перед двумя отдельными индексами по колонкам <code>assigned_engineer_id</code> и <code>status</code> при высокой интенсивности запросов?</p>
+        <textarea id="v4_ans_3" class="answer-area"></textarea>
+      </section>
+    </div>
 
- <!-- Панель управления -->
- <div class="action-panel">
- <span class="status-msg" id="save_status">Данные сохранены локально</span>
- <button type="button" class="btn btn-secondary" id="btn_clear">Очистить форму</button>
- <button type="button" class="btn btn-primary" id="btn_print">Печать / Сохранить в PDF</button>
- </div>
- </div>
+    <!-- Панель управления -->
+    <div class="action-panel">
+      <span class="status-msg" id="save_status">Данные сохранены локально</span>
+      <button type="button" class="btn btn-secondary" id="btn_clear">Очистить форму</button>
+      <button type="button" class="btn btn-primary" id="btn_print">Печать / Сохранить в PDF</button>
+    </div>
+  </div>
 
- <script>
- (function() {
- const STORAGE_KEY = 'SIE_DB_HW20_STUDENT_SHEET';
- const statusMsg = document.getElementById('save_status');
+  <script>
+    (function() {
+      const STORAGE_KEY = 'SIE_DB_HW20_STUDENT_SHEET';
+      const statusMsg = document.getElementById('save_status');
 
- // Переключение вкладок вариантов
- const tabBtns = document.querySelectorAll('.v-tab-btn');
- const containers = document.querySelectorAll('.variant-container');
+      // Переключение вкладок вариантов
+      const tabBtns = document.querySelectorAll('.v-tab-btn');
+      const containers = document.querySelectorAll('.variant-container');
 
- tabBtns.forEach(btn => {
- btn.addEventListener('click', () => {
- tabBtns.forEach(b => b.classList.remove('active'));
- containers.forEach(c => c.classList.remove('active'));
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          tabBtns.forEach(b => b.classList.remove('active'));
+          containers.forEach(c => c.classList.remove('active'));
 
- btn.classList.add('active');
- const targetId = btn.getAttribute('data-target');
- const targetCont = document.getElementById(targetId);
- if (targetCont) {
- targetCont.classList.add('active');
- }
- saveData();
- });
- });
+          btn.classList.add('active');
+          const targetId = btn.getAttribute('data-target');
+          const targetCont = document.getElementById(targetId);
+          if (targetCont) {
+            targetCont.classList.add('active');
+          }
+          saveData();
+        });
+      });
 
- // Сохранение и загрузка полей
- function getAllInputs() {
- return document.querySelectorAll('input[type="text"], textarea');
- }
+      // Сохранение и загрузка полей
+      function getAllInputs() {
+        return document.querySelectorAll('input[type="text"], textarea');
+      }
 
- function loadData() {
- try {
- const raw = localStorage.getItem(STORAGE_KEY);
- if (!raw) return;
- const data = JSON.parse(raw);
+      function loadData() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return;
+          const data = JSON.parse(raw);
 
- getAllInputs().forEach(el => {
- if (el.id && data[el.id] !== undefined) {
- el.value = data[el.id];
- }
- });
+          getAllInputs().forEach(el => {
+            if (el.id && data[el.id] !== undefined) {
+              el.value = data[el.id];
+            }
+          });
 
- if (data['__active_tab']) {
- tabBtns.forEach(b => {
- if (b.getAttribute('data-target') === data['__active_tab']) {
- b.click();
- }
- });
- }
- } catch (e) {
- console.error('Ошибка загрузки данных:', e);
- }
- }
+          if (data['__active_tab']) {
+            tabBtns.forEach(b => {
+              if (b.getAttribute('data-target') === data['__active_tab']) {
+                b.click();
+              }
+            });
+          }
+        } catch (e) {
+          console.error('Ошибка загрузки данных:', e);
+        }
+      }
 
- function saveData() {
- try {
- const data = {};
- getAllInputs().forEach(el => {
- if (el.id) {
- data[el.id] = el.value;
- }
- });
- const activeBtn = document.querySelector('.v-tab-btn.active');
- if (activeBtn) {
- data['__active_tab'] = activeBtn.getAttribute('data-target');
- }
- localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
- statusMsg.style.display = 'inline';
- setTimeout(() => {
- statusMsg.style.display = 'none';
- }, 2000);
- } catch (e) {
- console.error('Ошибка сохранения:', e);
- }
- }
+      function saveData() {
+        try {
+          const data = {};
+          getAllInputs().forEach(el => {
+            if (el.id) {
+              data[el.id] = el.value;
+            }
+          });
+          const activeBtn = document.querySelector('.v-tab-btn.active');
+          if (activeBtn) {
+            data['__active_tab'] = activeBtn.getAttribute('data-target');
+          }
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+          statusMsg.style.display = 'inline';
+          setTimeout(() => {
+            statusMsg.style.display = 'none';
+          }, 2000);
+        } catch (e) {
+          console.error('Ошибка сохранения:', e);
+        }
+      }
 
- getAllInputs().forEach(el => {
- el.addEventListener('input', saveData);
- });
+      getAllInputs().forEach(el => {
+        el.addEventListener('input', saveData);
+      });
 
- // Подтверждение очистки формы confirm()
- document.getElementById('btn_clear').addEventListener('click', () => {
- if (confirm('Вы уверены, что хотите очистить все поля рабочего листа? Все внесенные ответы и протоколы будут удалены.')) {
- localStorage.removeItem(STORAGE_KEY);
- getAllInputs().forEach(el => {
- el.value = '';
- });
- }
- });
+      // Подтверждение очистки формы confirm()
+      document.getElementById('btn_clear').addEventListener('click', () => {
+        if (confirm('Вы уверены, что хотите очистить все поля рабочего листа? Все внесенные ответы и протоколы будут удалены.')) {
+          localStorage.removeItem(STORAGE_KEY);
+          getAllInputs().forEach(el => {
+            el.value = '';
+          });
+        }
+      });
 
- // Печать
- document.getElementById('btn_print').addEventListener('click', () => {
- window.print();
- });
+      // Печать
+      document.getElementById('btn_print').addEventListener('click', () => {
+        window.print();
+      });
 
- loadData();
- })();
- </script>
+      loadData();
+    })();
+  </script>
 </body>
 </html>

@@ -1,323 +1,342 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>Теоретический конспект — Средства проектирования структур БД: объекты</title>
- <style>
- :root {
- --bg: #f8fafc;
- --card-bg: #ffffff;
- --text: #0f172a;
- --muted: #475569;
- --primary: #2563eb;
- --primary-dark: #1d4ed8;
- --accent: #0284c7;
- --border: #e2e8f0;
- --code-bg: #0f172a;
- --code-text: #f8fafc;
- --success: #16a34a;
- --warn: #ca8a04;
- }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Теоретический конспект — Средства проектирования структур БД: объекты</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --accent: #0284c7;
+      --border: #e2e8f0;
+      --code-bg: #0f172a;
+      --code-text: #f8fafc;
+      --success: #16a34a;
+      --warn: #ca8a04;
+    }
 
- * { box-sizing: border-box; margin: 0; padding: 0; }
- body {
- font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
- background: var(--bg);
- color: var(--text);
- line-height: 1.7;
- padding: 24px;
- }.container {
- max-width: 1040px;
- margin: 0 auto;
- background: var(--card-bg);
- border-radius: 12px;
- box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
- padding: 40px;
- border: 1px solid var(--border);
- }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 24px;
+    }
 
- header {
- border-bottom: 2px solid var(--border);
- padding-bottom: 20px;
- margin-bottom: 30px;
- }.tag {
- display: inline-block;
- padding: 4px 12px;
- background: #e0f2fe;
- color: var(--accent);
- border-radius: 9999px;
- font-size: 13px;
- font-weight: 600;
- margin-bottom: 10px;
- }
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      padding: 40px;
+      border: 1px solid var(--border);
+    }
 
- h1 {
- font-size: 26px;
- color: var(--text);
- margin-bottom: 8px;
- line-height: 1.3;
- }.subtitle {
- font-size: 15px;
- color: var(--muted);
- margin-bottom: 16px;
- }
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
 
- h2 {
- font-size: 20px;
- color: var(--primary-dark);
- margin: 32px 0 16px;
- border-bottom: 1px solid var(--border);
- padding-bottom: 6px;
- }
+    .tag {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #e0f2fe;
+      color: var(--accent);
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
 
- h3 {
- font-size: 16px;
- color: var(--text);
- margin: 20px 0 10px;
- }
+    h1 {
+      font-size: 26px;
+      color: var(--text);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
 
- p { margin-bottom: 14px; }
- ul, ol { margin: 0 0 16px 24px; }
- li { margin-bottom: 6px; }
+    .subtitle {
+      font-size: 15px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
 
- /* ASCII / SVG Блок-схема иерархии */.tree-box {
- background: #f1f5f9;
- border: 1px solid var(--border);
- border-radius: 8px;
- padding: 20px;
- margin: 20px 0;
- font-family: 'Consolas', 'Courier New', monospace;
- font-size: 14px;
- line-height: 1.5;
- overflow-x: auto;
- }.tree-title {
- font-weight: bold;
- color: var(--primary-dark);
- margin-bottom: 12px;
- font-family: inherit;
- }
+    h2 {
+      font-size: 20px;
+      color: var(--primary-dark);
+      margin: 32px 0 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+    }
 
- table {
- width: 100%;
- border-collapse: collapse;
- margin: 16px 0 24px;
- font-size: 14px;
- }
+    h3 {
+      font-size: 16px;
+      color: var(--text);
+      margin: 20px 0 10px;
+    }
 
- th, td {
- border: 1px solid var(--border);
- padding: 10px 14px;
- text-align: left;
- }
+    p { margin-bottom: 14px; }
+    ul, ol { margin: 0 0 16px 24px; }
+    li { margin-bottom: 6px; }
 
- th {
- background-color: #f8fafc;
- font-weight: 600;
- color: var(--text);
- }
+    /* ASCII / SVG Блок-схема иерархии */
+    .tree-box {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      overflow-x: auto;
+    }
 
- pre {
- background: var(--code-bg);
- color: var(--code-text);
- padding: 16px;
- border-radius: 8px;
- overflow-x: auto;
- font-family: 'Consolas', 'Courier New', monospace;
- font-size: 13px;
- margin: 14px 0 18px;
- line-height: 1.5;
- }
+    .tree-title {
+      font-weight: bold;
+      color: var(--primary-dark);
+      margin-bottom: 12px;
+      font-family: inherit;
+    }
 
- code {
- font-family: 'Consolas', 'Courier New', monospace;
- background: #f1f5f9;
- color: #b91c1c;
- padding: 2px 6px;
- border-radius: 4px;
- font-size: 13px;
- }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 24px;
+      font-size: 14px;
+    }
 
- pre code {
- background: transparent;
- color: inherit;
- padding: 0;
- }.notice {
- background: #eff6ff;
- border-left: 4px solid var(--primary);
- padding: 14px 18px;
- border-radius: 6px;
- margin: 18px 0;
- font-size: 14px;
- }.quiz-box {
- background: #faf5ff;
- border: 1px solid #e9d5ff;
- border-radius: 8px;
- padding: 20px;
- margin-top: 30px;
- }.quiz-title {
- font-weight: bold;
- color: #6b21a8;
- margin-bottom: 12px;
- }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      text-align: left;
+    }
 
- footer {
- margin-top: 40px;
- padding-top: 20px;
- border-top: 1px solid var(--border);
- color: var(--muted);
- font-size: 13px;
- text-align: center;
- }
- </style>
+    th {
+      background-color: #f8fafc;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 13px;
+      margin: 14px 0 18px;
+      line-height: 1.5;
+    }
+
+    code {
+      font-family: 'Consolas', 'Courier New', monospace;
+      background: #f1f5f9;
+      color: #b91c1c;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+
+    .notice {
+      background: #eff6ff;
+      border-left: 4px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 6px;
+      margin: 18px 0;
+      font-size: 14px;
+    }
+
+    .quiz-box {
+      background: #faf5ff;
+      border: 1px solid #e9d5ff;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 30px;
+    }
+
+    .quiz-title {
+      font-weight: bold;
+      color: #6b21a8;
+      margin-bottom: 12px;
+    }
+
+    footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
 <div class="container">
- <header>
- <span class="tag">Теоретический конспект | ОП.08 Базы данных</span>
- <h1>Тема 4. Проектирование структур баз данных — Средства проектирования структур БД: объекты</h1>
- <div class="subtitle">Учебный конспект для обучающихся СПО (СИЭУиП) | Семестр 4, Занятие №21</div>
- </header>
+  <header>
+    <span class="tag">Теоретический конспект | ОП.08 Базы данных</span>
+    <h1>Тема 4. Проектирование структур баз данных — Средства проектирования структур БД: объекты</h1>
+    <div class="subtitle">Учебный конспект для обучающихся СПО (СИЭУиП) | Семестр 4, Занятие №21</div>
+  </header>
 
- <section>
- <h2>1. Введение: от реляционной алгебры к системным объектам СУБД</h2>
- <p>В 3 семестре вы изучили реляционную модель данных, правила нормализации отношений от 1NF до BCNF, основы SQL-запросов и построение первичных индексов. На этом этапе база данных рассматривалась преимущественно как совокупность таблиц (отношений) и связей между ними.</p>
- <p>Однако в реальных промышленных информационных системах (банковских АБС, медицинских архивах PACS, логистических центрах, ERP) база данных представляет собой <strong>высокоорганизованный комплекс взаимосвязанных объектов</strong>, управляемых системным каталогом СУБД. Грамотное проектирование требует применения специализированных объектов, решающих задачи изоляции подсистем, разграничения доступа, кэширования ресурсоемких расчетов и потоковой генерации уникальных ключей.</p>
- </section>
+  <section>
+    <h2>1. Введение: от реляционной алгебры к системным объектам СУБД</h2>
+    <p>В 3 семестре вы изучили реляционную модель данных, правила нормализации отношений от 1NF до BCNF, основы SQL-запросов и построение первичных индексов. На этом этапе база данных рассматривалась преимущественно как совокупность таблиц (отношений) и связей между ними.</p>
+    <p>Однако в реальных промышленных информационных системах (банковских АБС, медицинских архивах PACS, логистических центрах, ERP) база данных представляет собой <strong>высокоорганизованный комплекс взаимосвязанных объектов</strong>, управляемых системным каталогом СУБД. Грамотное проектирование требует применения специализированных объектов, решающих задачи изоляции подсистем, разграничения доступа, кэширования ресурсоемких расчетов и потоковой генерации уникальных ключей.</p>
+  </section>
 
- <section>
- <h2>2. Иерархия объектов в системном каталоге реляционной СУБД</h2>
- <p>Каждая промышленная реляционная СУБД (PostgreSQL, Oracle, Microsoft SQL Server) организует пространство хранения в виде строгой многоуровневой иерархии:</p>
+  <section>
+    <h2>2. Иерархия объектов в системном каталоге реляционной СУБД</h2>
+    <p>Каждая промышленная реляционная СУБД (PostgreSQL, Oracle, Microsoft SQL Server) организует пространство хранения в виде строгой многоуровневой иерархии:</p>
 
- <div class="tree-box">
+    <div class="tree-box">
 <div class="tree-title">Архитектурная блок-схема иерархии объектов СУБД:</div>
 [ СУБД КЛАСТЕР (Database Cluster / Instance) ]
- |-- Общие ресурсы: Shared Buffers, WAL, Табличные пространства (Tablespaces)
- |-- Глобальные объекты безопасности: Роли и Пользователи (ROLES / USERS)
- |
- +-- [ БАЗА ДАННЫХ A (Database) ]
- |-- Системный каталог (information_schema, pg_catalog)
- | +-- [ СХЕМА / ПРОСТРАНСТВО ИМЕН: public ]
- | +-- Таблицы (TABLES)
- | +-- Индексы (INDEXES)
- | +-- [ СХЕМА / ПРОСТРАНСТВО ИМЕН: billing ]
- | +-- Таблицы (TABLES): subscribers, accruals, payments
- | +-- Представления (VIEWS): v_active_subscribers
- | +-- Материализованные витрины (MATVIEWS): mv_monthly_debt_summary
- | +-- Последовательности (SEQUENCES): receipt_seq, invoice_seq
- | +-- Пользовательские типы (TYPES): payment_status_enum
- | +-- [ СХЕМА / ПРОСТРАНСТВО ИМЕН: audit ]
- | +-- Партиционированные таблицы истории изменений
- |
- +-- [ БАЗА ДАННЫХ B (Database) ]
- +--... (полная логическая изоляция)
- </div>
+  |-- Общие ресурсы: Shared Buffers, WAL, Табличные пространства (Tablespaces)
+  |-- Глобальные объекты безопасности: Роли и Пользователи (ROLES / USERS)
+  |
+  +-- [ БАЗА ДАННЫХ A (Database) ]
+  |     |-- Системный каталог (information_schema, pg_catalog)
+  |     |
+  |     +-- [ СХЕМА / ПРОСТРАНСТВО ИМЕН: public ]
+  |     |     +-- Таблицы (TABLES)
+  |     |     +-- Индексы (INDEXES)
+  |     |
+  |     +-- [ СХЕМА / ПРОСТРАНСТВО ИМЕН: billing ]
+  |     |     +-- Таблицы (TABLES): subscribers, accruals, payments
+  |     |     +-- Представления (VIEWS): v_active_subscribers
+  |     |     +-- Материализованные витрины (MATVIEWS): mv_monthly_debt_summary
+  |     |     +-- Последовательности (SEQUENCES): receipt_seq, invoice_seq
+  |     |     +-- Пользовательские типы (TYPES): payment_status_enum
+  |     |
+  |     +-- [ СХЕМА / ПРОСТРАНСТВО ИМЕН: audit ]
+  |           +-- Партиционированные таблицы истории изменений
+  |
+  +-- [ БАЗА ДАННЫХ B (Database) ]
+        +-- ... (полная логическая изоляция)
+    </div>
 
- <h3>Разбор уровней иерархии:</h3>
- <ul>
- <li><strong>Кластер СУБД (Cluster):</strong> единый запущенный программный экземпляр СУБД, использующий общий пул оперативной памяти и один системный порт (например, TCP 5432). Кластер содержит один или несколько независимых каталогов баз данных.</li>
- <li><strong>База данных (Database):</strong> замкнутое хранилище. По умолчанию транзакции выполняются строго внутри одной базы данных, обеспечивая полную изоляцию прикладных систем.</li>
- <li><strong>Схема (Schema / Namespace):</strong> внутреннее логическое пространство имен внутри конкретной базы данных. Схемы позволяют организовать модульность архитектуры (например, модуль <code>logistics</code>, модуль <code>security</code>, модуль <code>billing</code>), предотвратить конфликты имен таблиц и тонко настраивать права доступа групп пользователей.</li>
- <li><strong>Объекты хранения и обработки (Schema Objects):</strong> таблицы, представления, индексы, генераторы последовательностей, триггеры и хранимые процедуры.</li>
- </ul>
+    <h3>Разбор уровней иерархии:</h3>
+    <ul>
+      <li><strong>Кластер СУБД (Cluster):</strong> единый запущенный программный экземпляр СУБД, использующий общий пул оперативной памяти и один системный порт (например, TCP 5432). Кластер содержит один или несколько независимых каталогов баз данных.</li>
+      <li><strong>База данных (Database):</strong> замкнутое хранилище. По умолчанию транзакции выполняются строго внутри одной базы данных, обеспечивая полную изоляцию прикладных систем.</li>
+      <li><strong>Схема (Schema / Namespace):</strong> внутреннее логическое пространство имен внутри конкретной базы данных. Схемы позволяют организовать модульность архитектуры (например, модуль <code>logistics</code>, модуль <code>security</code>, модуль <code>billing</code>), предотвратить конфликты имен таблиц и тонко настраивать права доступа групп пользователей.</li>
+      <li><strong>Объекты хранения и обработки (Schema Objects):</strong> таблицы, представления, индексы, генераторы последовательностей, триггеры и хранимые процедуры.</li>
+    </ul>
 
- <div class="notice">
- <strong>Управление пространством поиска:</strong> Переменная сессии <code>search_path</code> определяет приоритет схем при обращении к объекту без явного квалификатора (например, просто <code>SELECT * FROM clients</code> вместо <code>SELECT * FROM billing.clients</code>). Команда: <code>SET search_path TO billing, public;</code>
- </div>
- </section>
+    <div class="notice">
+      <strong>Управление пространством поиска:</strong> Переменная сессии <code>search_path</code> определяет приоритет схем при обращении к объекту без явного квалификатора (например, просто <code>SELECT * FROM clients</code> вместо <code>SELECT * FROM billing.clients</code>). Команда: <code>SET search_path TO billing, public;</code>
+    </div>
+  </section>
 
- <section>
- <h2>3. Последовательности (SEQUENCE) и генераторы первичных ключей</h2>
- <p><strong>SEQUENCE (Последовательность)</strong> — это специализированный объект базы данных, предназначенный для генерации неповторяющейся числовой последовательности (чаще всего целочисленной: <code>INTEGER</code> или <code>BIGINT</code>).</p>
+  <section>
+    <h2>3. Последовательности (SEQUENCE) и генераторы первичных ключей</h2>
+    <p><strong>SEQUENCE (Последовательность)</strong> — это специализированный объект базы данных, предназначенный для генерации неповторяющейся числовой последовательности (чаще всего целочисленной: <code>INTEGER</code> или <code>BIGINT</code>).</p>
 
- <h3>Зачем нужна отдельная SEQUENCE вместо <code>MAX(id) + 1</code>?</h3>
- <p>Наивная попытка вычислить следующий идентификатор через <code>SELECT MAX(id) + 1 FROM table</code> приводит к двум катастрофическим проблемам:</p>
- <ol>
- <li><strong>Гонка условий (Race Condition):</strong> при одновременной вставке двух транзакций они прочитают одинаковое значение <code>MAX(id)</code>, что приведет к нарушению ограничения уникальности <code>PRIMARY KEY</code>.</li>
- <li><strong>Падение производительности:</strong> блокировка всей таблицы ради вычисления максимума превращает многопоточную систему в медленную однопоточную очередь.</li>
- </ol>
- <p>Объект <code>SEQUENCE</code> работает <strong>вне транзакционного контекста</strong> через атомарные счетчики в оперативной памяти (Shared Memory):</p>
+    <h3>Зачем нужна отдельная SEQUENCE вместо <code>MAX(id) + 1</code>?</h3>
+    <p>Наивная попытка вычислить следующий идентификатор через <code>SELECT MAX(id) + 1 FROM table</code> приводит к двум катастрофическим проблемам:</p>
+    <ol>
+      <li><strong>Гонка условий (Race Condition):</strong> при одновременной вставке двух транзакций они прочитают одинаковое значение <code>MAX(id)</code>, что приведет к нарушению ограничения уникальности <code>PRIMARY KEY</code>.</li>
+      <li><strong>Падение производительности:</strong> блокировка всей таблицы ради вычисления максимума превращает многопоточную систему в медленную однопоточную очередь.</li>
+    </ol>
+    <p>Объект <code>SEQUENCE</code> работает <strong>вне транзакционного контекста</strong> через атомарные счетчики в оперативной памяти (Shared Memory):</p>
 
- <pre><code>-- Создание независимой последовательности
+    <pre><code>-- Создание независимой последовательности
 CREATE SEQUENCE billing.receipt_seq
- START WITH 100000
- INCREMENT BY 1
- MINVALUE 100000
- MAXVALUE 999999999
- CACHE 20;
+    START WITH 100000
+    INCREMENT BY 1
+    MINVALUE 100000
+    MAXVALUE 999999999
+    CACHE 20;
 
 -- Основные функции работы с последовательностью:
 -- 1. nextval('receipt_seq') - атомарно инкрементирует и возвращает новое значение.
 -- 2. currval('receipt_seq') - возвращает текущее значение в рамках ДАННОЙ пользовательской сессии.
 -- 3. setval('receipt_seq', 500000) - устанавливает счетчик на заданное число.</code></pre>
 
- <div class="notice">
- <strong>Важное свойство:</strong> Если транзакция, выполнившая <code>nextval()</code>, завершилась с ошибкой или была отменена (<code>ROLLBACK</code>), сгенерированное число <strong>не возвращается обратно в последовательность</strong>. В первичных ключах возникают допустимые пропуски (Gaps). Последовательности проектируются ради скорости и уникальности, а не непрерывности.
- </div>
- </section>
+    <div class="notice">
+      <strong>Важное свойство:</strong> Если транзакция, выполнившая <code>nextval()</code>, завершилась с ошибкой или была отменена (<code>ROLLBACK</code>), сгенерированное число <strong>не возвращается обратно в последовательность</strong>. В первичных ключах возникают допустимые пропуски (Gaps). Последовательности проектируются ради скорости и уникальности, а не непрерывности.
+    </div>
+  </section>
 
- <section>
- <h2>4. Представления: Динамические (VIEW) против Материализованных (MATERIALIZED VIEW)</h2>
- <p>Представление (View) в SQL — это именованный сохраненный запрос. В современной инженерии баз данных существует два принципиально разных вида представлений:</p>
+  <section>
+    <h2>4. Представления: Динамические (VIEW) против Материализованных (MATERIALIZED VIEW)</h2>
+    <p>Представление (View) в SQL — это именованный сохраненный запрос. В современной инженерии баз данных существует два принципиально разных вида представлений:</p>
 
- <table>
- <thead>
- <tr>
- <th>Параметр сравнения</th>
- <th>Обычное представление (VIEW)</th>
- <th>Материализованное представление (MATERIALIZED VIEW)</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>Принцип работы</strong></td>
- <td>Виртуальная таблица. Текст SQL-запроса подставляется оптимизатором в абстрактное синтаксическое дерево (AST) клиентского запроса.</td>
- <td>Физическая таблица-снапшот. Результат запроса однократно вычисляется и физически записывается на диск в блоки данных.</td>
- </tr>
- <tr>
- <td><strong>Занимаемая память на диске</strong></td>
- <td>0 байт (хранится только мета-описание запроса в системном каталоге <code>pg_views</code>).</td>
- <td>Полноценный объем данных (включая дисковое пространство под созданные индексы).</td>
- </tr>
- <tr>
- <td><strong>Свежесть данных</strong></td>
- <td>Мгновенная (всегда отражает состояние базовых таблиц на микросекунду выполнения).</td>
- <td>Статичный снимок на момент выполнения команды <code>REFRESH</code>. Данные могут отставать от оперативной базы.</td>
- </tr>
- <tr>
- <td><strong>Возможность индексации</strong></td>
- <td>Невозможно создать индекс на сам VIEW.</td>
- <td><strong>Поддерживает создание любых индексов</strong> (B-Tree, Hash, BRIN, GIN) прямо по вычисленным столбцам!</td>
- </tr>
- <tr>
- <td><strong>Скорость выполнения</strong></td>
- <td>Зависит от сложности исходного запроса (JOIN, подзапросы, агрегаты). Медленно на больших объемах.</td>
- <td><strong>Экстремально высокая (O(log N))</strong> при наличии индексов, так как данные уже предвычислены.</td>
- </tr>
- <tr>
- <td><strong>Целевое назначение</strong></td>
- <td>Маскирование персональных данных, изоляция столбцов для ролей, упрощение сложных бизнес-выборок.</td>
- <td>Аналитические отчеты (OLAP), дашборды руководителей, агрегация миллионов транзакций за сутки/месяцы.</td>
- </tr>
- </tbody>
- </table>
+    <table>
+      <thead>
+        <tr>
+          <th>Параметр сравнения</th>
+          <th>Обычное представление (VIEW)</th>
+          <th>Материализованное представление (MATERIALIZED VIEW)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Принцип работы</strong></td>
+          <td>Виртуальная таблица. Текст SQL-запроса подставляется оптимизатором в абстрактное синтаксическое дерево (AST) клиентского запроса.</td>
+          <td>Физическая таблица-снапшот. Результат запроса однократно вычисляется и физически записывается на диск в блоки данных.</td>
+        </tr>
+        <tr>
+          <td><strong>Занимаемая память на диске</strong></td>
+          <td>0 байт (хранится только мета-описание запроса в системном каталоге <code>pg_views</code>).</td>
+          <td>Полноценный объем данных (включая дисковое пространство под созданные индексы).</td>
+        </tr>
+        <tr>
+          <td><strong>Свежесть данных</strong></td>
+          <td>Мгновенная (всегда отражает состояние базовых таблиц на микросекунду выполнения).</td>
+          <td>Статичный снимок на момент выполнения команды <code>REFRESH</code>. Данные могут отставать от оперативной базы.</td>
+        </tr>
+        <tr>
+          <td><strong>Возможность индексации</strong></td>
+          <td>Невозможно создать индекс на сам VIEW.</td>
+          <td><strong>Поддерживает создание любых индексов</strong> (B-Tree, Hash, BRIN, GIN) прямо по вычисленным столбцам!</td>
+        </tr>
+        <tr>
+          <td><strong>Скорость выполнения</strong></td>
+          <td>Зависит от сложности исходного запроса (JOIN, подзапросы, агрегаты). Медленно на больших объемах.</td>
+          <td><strong>Экстремально высокая (O(log N))</strong> при наличии индексов, так как данные уже предвычислены.</td>
+        </tr>
+        <tr>
+          <td><strong>Целевое назначение</strong></td>
+          <td>Маскирование персональных данных, изоляция столбцов для ролей, упрощение сложных бизнес-выборок.</td>
+          <td>Аналитические отчеты (OLAP), дашборды руководителей, агрегация миллионов транзакций за сутки/месяцы.</td>
+        </tr>
+      </tbody>
+    </table>
 
- <h3>Синтаксис и регламент обновления MATERIALIZED VIEW:</h3>
- <pre><code>-- 1. Создание материализованной витрины
+    <h3>Синтаксис и регламент обновления MATERIALIZED VIEW:</h3>
+    <pre><code>-- 1. Создание материализованной витрины
 CREATE MATERIALIZED VIEW billing.mv_monthly_debt_summary AS
 SELECT 
- s.district_id,
- date_trunc('month', a.accrual_date)::date AS billing_month,
- count(DISTINCT s.subscriber_id) AS active_subscribers_count,
- sum(a.amount) AS total_accrued_rub,
- sum(coalesce(p.paid_amount, 0)) AS total_paid_rub,
- sum(a.amount - coalesce(p.paid_amount, 0)) AS total_debt_rub
+    s.district_id,
+    date_trunc('month', a.accrual_date)::date AS billing_month,
+    count(DISTINCT s.subscriber_id) AS active_subscribers_count,
+    sum(a.amount) AS total_accrued_rub,
+    sum(coalesce(p.paid_amount, 0)) AS total_paid_rub,
+    sum(a.amount - coalesce(p.paid_amount, 0)) AS total_debt_rub
 FROM billing.subscribers s
 JOIN billing.accruals a ON s.subscriber_id = a.subscriber_id
 LEFT JOIN (
- SELECT accrual_id, sum(amount) AS paid_amount
- FROM billing.payments
- GROUP BY accrual_id) p ON a.accrual_id = p.accrual_id
+    SELECT accrual_id, sum(amount) AS paid_amount
+    FROM billing.payments
+    GROUP BY accrual_id
+) p ON a.accrual_id = p.accrual_id
 GROUP BY s.district_id, date_trunc('month', a.accrual_date);
 
 -- 2. Создание обязательного УНИКАЛЬНОГО индекса для фонового обновления
@@ -330,58 +349,60 @@ ON billing.mv_monthly_debt_summary (district_id, billing_month);
 
 -- Конкурентное фоновое обновление (клиенты продолжают читать старый снимок без задержек):
 REFRESH MATERIALIZED VIEW CONCURRENTLY billing.mv_monthly_debt_summary;</code></pre>
- </section>
+  </section>
 
- <section>
- <h2>5. Доменные типы данных: ENUM и составные структуры</h2>
- <p>Реляционная модель требует атомарности значений (1NF). Однако введение перечислимых и составных типов на уровне СУБД повышает надежность модели данных и предотвращает запись мусорных строковых значений:</p>
+  <section>
+    <h2>5. Доменные типы данных: ENUM и составные структуры</h2>
+    <p>Реляционная модель требует атомарности значений (1NF). Однако введение перечислимых и составных типов на уровне СУБД повышает надежность модели данных и предотвращает запись мусорных строковых значений:</p>
 
- <pre><code>-- Перечислимый тип для статусов логистических отправлений
+    <pre><code>-- Перечислимый тип для статусов логистических отправлений
 CREATE TYPE logistics.parcel_status AS ENUM (
- 'REGISTERED',
- 'IN_TRANSIT',
- 'ARRIVED_AT_HUB',
- 'OUT_FOR_DELIVERY',
- 'DELIVERED',
- 'RETURNED');
+    'REGISTERED',
+    'IN_TRANSIT',
+    'ARRIVED_AT_HUB',
+    'OUT_FOR_DELIVERY',
+    'DELIVERED',
+    'RETURNED'
+);
 
 -- Составной тип для географических координат
 CREATE TYPE logistics.coordinates AS (
- lat NUMERIC(9, 6),
- lon NUMERIC(9, 6));</code></pre>
- </section>
+    lat NUMERIC(9, 6),
+    lon NUMERIC(9, 6)
+);</code></pre>
+  </section>
 
- <section>
- <h2>6. CASE-инструменты визуального проектирования и DDL-инженерия</h2>
- <p>В современной промышленной разработке проектирование архитектуры СУБД осуществляется в специализированных CASE-пакетах (Computer-Aided Software Engineering):</p>
- <ul>
- <li><strong>pgModeler:</strong> графический редактор с открытым исходным кодом, ориентированный на PostgreSQL. Позволяет проектировать все типы объектов (схемы, таблицы, материализованные представления, индексы, роли) на диаграмме и в один клик получать валидный DDL.</li>
- <li><strong>DBeaver EE / PRO:</strong> универсальный клиент с модулем визуального моделирования ERD, обратной инженерии и синхронизации схем данных.</li>
- <li><strong>dbForge Studio:</strong> промышленный комбайн для работы со схемами БД, визуального построения запросов и отслеживания различий структур.</li>
- <li><strong>ERwin Data Modeler:</strong> классический enterprise-инструмент для сквозного проектирования на концептуальном, логическом и физическом уровнях.</li>
- </ul>
+  <section>
+    <h2>6. CASE-инструменты визуального проектирования и DDL-инженерия</h2>
+    <p>В современной промышленной разработке проектирование архитектуры СУБД осуществляется в специализированных CASE-пакетах (Computer-Aided Software Engineering):</p>
+    <ul>
+      <li><strong>pgModeler:</strong> графический редактор с открытым исходным кодом, ориентированный на PostgreSQL. Позволяет проектировать все типы объектов (схемы, таблицы, материализованные представления, индексы, роли) на диаграмме и в один клик получать валидный DDL.</li>
+      <li><strong>DBeaver EE / PRO:</strong> универсальный клиент с модулем визуального моделирования ERD, обратной инженерии и синхронизации схем данных.</li>
+      <li><strong>dbForge Studio:</strong> промышленный комбайн для работы со схемами БД, визуального построения запросов и отслеживания различий структур.</li>
+      <li><strong>ERwin Data Modeler:</strong> классический enterprise-инструмент для сквозного проектирования на концептуальном, логическом и физическом уровнях.</li>
+    </ul>
 
- <h3>Концепции Forward и Reverse Engineering:</h3>
- <ul>
- <li><strong>Forward Engineering (Прямое проектирование):</strong> преобразование визуальной диаграммы сущностей и объектов в текстовый DDL-скрипт (набор операторов <code>CREATE...</code>) для развертывания на боевом сервере.</li>
- <li><strong>Reverse Engineering (Обратное проектирование):</strong> подключение к работающей СУБД, чтение системных таблиц каталога (интроспекция) и автоматическая реконструкция визуальной схемы БД со всеми внешними ключами и зависимостями.</li>
- </ul>
- </section>
+    <h3>Концепции Forward и Reverse Engineering:</h3>
+    <ul>
+      <li><strong>Forward Engineering (Прямое проектирование):</strong> преобразование визуальной диаграммы сущностей и объектов в текстовый DDL-скрипт (набор операторов <code>CREATE ...</code>) для развертывания на боевом сервере.</li>
+      <li><strong>Reverse Engineering (Обратное проектирование):</strong> подключение к работающей СУБД, чтение системных таблиц каталога (интроспекция) и автоматическая реконструкция визуальной схемы БД со всеми внешними ключами и зависимостями.</li>
+    </ul>
+  </section>
 
- <div class="quiz-box">
- <div class="quiz-title">Вопросы для самопроверки и закрепления знаний:</div>
- <ol>
- <li>В чем заключается фундаментальное архитектурное различие между кластером СУБД, базой данных и схемой?</li>
- <li>Почему при откате транзакции (<code>ROLLBACK</code>) счетчик <code>SEQUENCE</code> не возвращается назад? К каким последствиям это привело бы в высоконагруженной системе?</li>
- <li>В каких бизнес-ситуациях архитектурно оправдано использование <code>MATERIALIZED VIEW</code> вместо обычного <code>VIEW</code>? Назовите минимум 2 фактора.</li>
- <li>Какое техническое условие является строго обязательным для выполнения команды <code>REFRESH MATERIALIZED VIEW CONCURRENTLY</code>?</li>
- <li>Чем отличается концепция Forward Engineering от Reverse Engineering в CASE-инструментах?</li>
- </ol>
- </div>
+  <div class="quiz-box">
+    <div class="quiz-title">Вопросы для самопроверки и закрепления знаний:</div>
+    <ol>
+      <li>В чем заключается фундаментальное архитектурное различие между кластером СУБД, базой данных и схемой?</li>
+      <li>Почему при откате транзакции (<code>ROLLBACK</code>) счетчик <code>SEQUENCE</code> не возвращается назад? К каким последствиям это привело бы в высоконагруженной системе?</li>
+      <li>В каких бизнес-ситуациях архитектурно оправдано использование <code>MATERIALIZED VIEW</code> вместо обычного <code>VIEW</code>? Назовите минимум 2 фактора.</li>
+      <li>Какое техническое условие является строго обязательным для выполнения команды <code>REFRESH MATERIALIZED VIEW CONCURRENTLY</code>?</li>
+      <li>Чем отличается концепция Forward Engineering от Reverse Engineering в CASE-инструментах?</li>
+    </ol>
+  </div>
 
- <footer>
- Теоретический конспект к занятию №21 | ОП.08 Основы проектирования баз данных | СИЭУиП
- </footer>
+  <footer>
+    Теоретический конспект к занятию №21 | ОП.08 Основы проектирования баз данных | СИЭУиП
+  </footer>
 </div>
 </body>
 </html>

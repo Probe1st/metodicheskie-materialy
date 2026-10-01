@@ -1,433 +1,473 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>Конспект лекции: Основные понятия теории БД</title>
- <style>
- :root {
- --bg: #f8fafc;
- --card-bg: #ffffff;
- --text: #0f172a;
- --text-muted: #475569;
- --border: #e2e8f0;
- --accent: #0284c7;
- --accent-dark: #0369a1;
- --accent-soft: #f0f9ff;
- --code-bg: #0f172a;
- --code-text: #f8fafc;
- }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Конспект лекции: Основные понятия теории БД</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #e2e8f0;
+      --accent: #0284c7;
+      --accent-dark: #0369a1;
+      --accent-soft: #f0f9ff;
+      --code-bg: #0f172a;
+      --code-text: #f8fafc;
+    }
 
- * {
- box-sizing: border-box;
- margin: 0;
- padding: 0;
- }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
- body {
- font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
- background-color: var(--bg);
- color: var(--text);
- line-height: 1.65;
- padding: 24px 16px;
- }.container {
- max-width: 1040px;
- margin: 0 auto;
- }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      padding: 24px 16px;
+    }
 
- header.lecture-header {
- background: var(--card-bg);
- border: 1px solid var(--border);
- border-radius: 12px;
- padding: 28px;
- margin-bottom: 24px;
- box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
- }
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
 
- h1 {
- font-size: 2.1rem;
- font-weight: 800;
- color: var(--text);
- margin-bottom: 8px;
- }.subtitle {
- font-size: 1.1rem;
- color: var(--text-muted);
- }
+    header.lecture-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
 
- section {
- background: var(--card-bg);
- border: 1px solid var(--border);
- border-radius: 12px;
- padding: 26px 30px;
- margin-bottom: 24px;
- box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
- }
+    h1 {
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
 
- h2 {
- font-size: 1.45rem;
- font-weight: 700;
- color: var(--accent-dark);
- margin-bottom: 16px;
- border-left: 4px solid var(--accent);
- padding-left: 12px;
- }
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+    }
 
- h3 {
- font-size: 1.2rem;
- font-weight: 600;
- margin-top: 22px;
- margin-bottom: 10px;
- color: var(--text);
- }
+    section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 26px 30px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
 
- p {
- margin-bottom: 14px;
- }
+    h2 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--accent-dark);
+      margin-bottom: 16px;
+      border-left: 4px solid var(--accent);
+      padding-left: 12px;
+    }
 
- ul, ol {
- margin-left: 24px;
- margin-bottom: 14px;
- }
+    h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-top: 22px;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
 
- li {
- margin-bottom: 6px;
- }
+    p {
+      margin-bottom: 14px;
+    }
 
- table {
- width: 100%;
- border-collapse: collapse;
- margin: 18px 0;
- font-size: 0.95rem;
- }
+    ul, ol {
+      margin-left: 24px;
+      margin-bottom: 14px;
+    }
 
- th, td {
- border: 1px solid var(--border);
- padding: 10px 14px;
- text-align: left;
- }
+    li {
+      margin-bottom: 6px;
+    }
 
- th {
- background-color: #f1f5f9;
- font-weight: 600;
- color: #334155;
- }.term-card {
- background-color: var(--accent-soft);
- border-left: 4px solid var(--accent);
- border-radius: 6px;
- padding: 14px 18px;
- margin: 14px 0;
- }.term-title {
- font-weight: 700;
- color: var(--accent-dark);
- font-size: 1.05rem;
- margin-bottom: 4px;
- }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      font-size: 0.95rem;
+    }
 
- /* Адаптивная блок-схема ANSI/SPARC */.scheme-container {
- background: #f8fafc;
- border: 2px dashed #cbd5e1;
- border-radius: 12px;
- padding: 24px;
- margin: 20px 0;
- }.scheme-level {
- background: #ffffff;
- border: 2px solid var(--accent);
- border-radius: 8px;
- padding: 16px;
- margin-bottom: 12px;
- box-shadow: 0 2px 4px rgba(0,0,0,0.04);
- }.scheme-level.external {
- border-color: #0284c7;
- }.scheme-level.conceptual {
- border-color: #059669;
- }.scheme-level.internal {
- border-color: #d97706;
- }.scheme-title {
- font-weight: 700;
- font-size: 1.1rem;
- margin-bottom: 6px;
- display: flex;
- justify-content: space-between;
- align-items: center;
- flex-wrap: wrap;
- }.scheme-badge {
- font-size: 0.8rem;
- padding: 2px 8px;
- border-radius: 4px;
- font-weight: 600;
- text-transform: uppercase;
- }.badge-blue { background: #e0f2fe; color: #0284c7; }.badge-green { background: #dcfce7; color: #15803d; }.badge-amber { background: #fef3c7; color: #b45309; }.scheme-arrow {
- text-align: center;
- font-weight: 800;
- color: #64748b;
- margin: 6px 0;
- font-size: 1.2rem;
- }.views-grid {
- display: grid;
- grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
- gap: 10px;
- margin-top: 10px;
- }.view-card {
- background: #f0f9ff;
- border: 1px solid #bae6fd;
- border-radius: 6px;
- padding: 8px 12px;
- font-size: 0.9rem;
- }.self-test {
- background: #fdf4ff;
- border: 1px solid #f0abfc;
- border-radius: 8px;
- padding: 20px;
- margin-top: 24px;
- }.self-test h3 {
- color: #86198f;
- margin-top: 0;
- }.test-q {
- margin-bottom: 16px;
- }.test-q strong {
- display: block;
- margin-bottom: 4px;
- color: #701a75;
- }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      text-align: left;
+    }
 
- @media (max-width: 768px) {
- body { padding: 12px 8px; }
- section, header.lecture-header { padding: 18px 14px; }.views-grid { grid-template-columns: 1fr; }
- }
- </style>
+    th {
+      background-color: #f1f5f9;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .term-card {
+      background-color: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      border-radius: 6px;
+      padding: 14px 18px;
+      margin: 14px 0;
+    }
+
+    .term-title {
+      font-weight: 700;
+      color: var(--accent-dark);
+      font-size: 1.05rem;
+      margin-bottom: 4px;
+    }
+
+    /* Адаптивная блок-схема ANSI/SPARC */
+    .scheme-container {
+      background: #f8fafc;
+      border: 2px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 24px;
+      margin: 20px 0;
+    }
+
+    .scheme-level {
+      background: #ffffff;
+      border: 2px solid var(--accent);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+
+    .scheme-level.external {
+      border-color: #0284c7;
+    }
+
+    .scheme-level.conceptual {
+      border-color: #059669;
+    }
+
+    .scheme-level.internal {
+      border-color: #d97706;
+    }
+
+    .scheme-title {
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .scheme-badge {
+      font-size: 0.8rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge-blue { background: #e0f2fe; color: #0284c7; }
+    .badge-green { background: #dcfce7; color: #15803d; }
+    .badge-amber { background: #fef3c7; color: #b45309; }
+
+    .scheme-arrow {
+      text-align: center;
+      font-weight: 800;
+      color: #64748b;
+      margin: 6px 0;
+      font-size: 1.2rem;
+    }
+
+    .views-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .view-card {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+    }
+
+    .self-test {
+      background: #fdf4ff;
+      border: 1px solid #f0abfc;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 24px;
+    }
+
+    .self-test h3 {
+      color: #86198f;
+      margin-top: 0;
+    }
+
+    .test-q {
+      margin-bottom: 16px;
+    }
+
+    .test-q strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #701a75;
+    }
+
+    @media (max-width: 768px) {
+      body { padding: 12px 8px; }
+      section, header.lecture-header { padding: 18px 14px; }
+      .views-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
 
 <div class="container">
 
- <header class="lecture-header">
- <h1>Теоретический конспект: Основные понятия теории баз данных</h1>
- <div class="subtitle">Учебная дисциплина: «ОП.08 Основы проектирования баз данных» | Тема 1</div>
- </header>
+  <header class="lecture-header">
+    <h1>Теоретический конспект: Основные понятия теории баз данных</h1>
+    <div class="subtitle">Учебная дисциплина: «ОП.08 Основы проектирования баз данных» | Тема 1 (§2.2 с.7)</div>
+  </header>
 
- <section>
- <h2>1. Понятийный базис: Данные, Информация, База данных, СУБД</h2>
- 
- <div class="term-card">
- <div class="term-title">Данные (Data)</div>
- <p>Сведения, зафиксированные на материальном носителе в формализованном виде, обеспечивающем возможность их сохранения, передачи и автоматической обработки вычислительной техникой. Сами по себе данные лишены смысловой интерпретации (например, массив чисел <code>[24, 760, 4]</code>).</p>
- </div>
+  <section>
+    <h2>1. Понятийный базис: Данные, Информация, База данных, СУБД</h2>
+    
+    <div class="term-card">
+      <div class="term-title">Данные (Data)</div>
+      <p>Сведения, зафиксированные на материальном носителе в формализованном виде, обеспечивающем возможность их сохранения, передачи и автоматической обработки вычислительной техникой. Сами по себе данные лишены смысловой интерпретации (например, массив чисел <code>[24, 760, 4]</code>).</p>
+    </div>
 
- <div class="term-card">
- <div class="term-title">Информация (Information)</div>
- <p>Результат смысловой интерпретации данных в контексте решаемой прикладной задачи, уменьшающий степень неопределенности знаний об окружающем мире (например: «Температура 24 °C, атмосферное давление 760 мм рт. ст., скорость ветра 4 м/с — метеорологическая норма для взлета самолета»).</p>
- </div>
+    <div class="term-card">
+      <div class="term-title">Информация (Information)</div>
+      <p>Результат смысловой интерпретации данных в контексте решаемой прикладной задачи, уменьшающий степень неопределенности знаний об окружающем мире (например: «Температура 24 °C, атмосферное давление 760 мм рт. ст., скорость ветра 4 м/с — метеорологическая норма для взлета самолета»).</p>
+    </div>
 
- <div class="term-card">
- <div class="term-title">База данных (БД / Database)</div>
- <p>Организованная в соответствии с определенными правилами, поименованная совокупность взаимосвязанных данных, отображающая состояние объектов предметной области и их отношений, хранящаяся на машинных носителях независимо от прикладных программ.</p>
- </div>
+    <div class="term-card">
+      <div class="term-title">База данных (БД / Database)</div>
+      <p>Организованная в соответствии с определенными правилами, поименованная совокупность взаимосвязанных данных, отображающая состояние объектов предметной области и их отношений, хранящаяся на машинных носителях независимо от прикладных программ.</p>
+    </div>
 
- <div class="term-card">
- <div class="term-title">Система управления базами данных (СУБД / DBMS)</div>
- <p>Специализированный комплекс программных и лингвистических средств общего назначения, обеспечивающий пользователям и прикладным программам централизованное создание, модификацию, поддержание целостности, защиту и эффективный параллельный доступ к данным.</p>
- </div>
+    <div class="term-card">
+      <div class="term-title">Система управления базами данных (СУБД / DBMS)</div>
+      <p>Специализированный комплекс программных и лингвистических средств общего назначения, обеспечивающий пользователям и прикладным программам централизованное создание, модификацию, поддержание целостности, защиту и эффективный параллельный доступ к данным.</p>
+    </div>
 
- <h3>Ключевые функции современной СУБД:</h3>
- <ol>
- <li><strong>Управление постоянным хранением данных:</strong> Размещение страниц данных на дисковых накопителях (HDD/SSD/NVMe), кэширование «горячих» блоков в оперативной памяти (Shared Buffers), эффективная организация пространства.</li>
- <li><strong>Управление транзакциями (ACID):</strong> Обеспечение неделимости (Atomicity), согласованности (Consistency), изолированности (Isolation) и долговечности (Durability) операций модификации через журнал опережающей записи (WAL / Write-Ahead Logging).</li>
- <li><strong>Управление параллельным доступом (Concurrency Control):</strong> Предотвращение конфликтов при одновременной работе тысяч пользователей за счет механизмов блокировок (Row Locks, Table Locks) и версионности (MVCC).</li>
- <li><strong>Поддержание ссылочной и логической целостности:</strong> Автоматическая проверка ограничений (Primary Key, Foreign Key, Check, Not Null, Unique).</li>
- <li><strong>Обеспечение безопасности и аутентификации:</strong> Разграничение прав доступа на уровне таблиц, строк (Row-Level Security) и столбцов; шифрование при передаче и хранении.</li>
- <li><strong>Резервное копирование и аварийное восстановление:</strong> Возможность отката к любой точке во времени (Point-in-Time Recovery).</li>
- </ol>
- </section>
+    <h3>Ключевые функции современной СУБД:</h3>
+    <ol>
+      <li><strong>Управление постоянным хранением данных:</strong> Размещение страниц данных на дисковых накопителях (HDD/SSD/NVMe), кэширование «горячих» блоков в оперативной памяти (Shared Buffers), эффективная организация пространства.</li>
+      <li><strong>Управление транзакциями (ACID):</strong> Обеспечение неделимости (Atomicity), согласованности (Consistency), изолированности (Isolation) и долговечности (Durability) операций модификации через журнал опережающей записи (WAL / Write-Ahead Logging).</li>
+      <li><strong>Управление параллельным доступом (Concurrency Control):</strong> Предотвращение конфликтов при одновременной работе тысяч пользователей за счет механизмов блокировок (Row Locks, Table Locks) и версионности (MVCC).</li>
+      <li><strong>Поддержание ссылочной и логической целостности:</strong> Автоматическая проверка ограничений (Primary Key, Foreign Key, Check, Not Null, Unique).</li>
+      <li><strong>Обеспечение безопасности и аутентификации:</strong> Разграничение прав доступа на уровне таблиц, строк (Row-Level Security) и столбцов; шифрование при передаче и хранении.</li>
+      <li><strong>Резервное копирование и аварийное восстановление:</strong> Возможность отката к любой точке во времени (Point-in-Time Recovery).</li>
+    </ol>
+  </section>
 
- <section>
- <h2>2. Сравнительный анализ: Файловые системы vs Промышленные СУБД</h2>
- <p>
- На заре вычислительной техники данные хранились в обычных текстовых или бинарных файлах операционной системы (и сегодня неопытные разработчики часто пытаются использовать Excel или CSV в качестве хранилища). Рассмотрим фундаментальные различия подходов:
- </p>
+  <section>
+    <h2>2. Сравнительный анализ: Файловые системы vs Промышленные СУБД</h2>
+    <p>
+      На заре вычислительной техники данные хранились в обычных текстовых или бинарных файлах операционной системы (и сегодня неопытные разработчики часто пытаются использовать Excel или CSV в качестве хранилища). Рассмотрим фундаментальные различия подходов:
+    </p>
 
- <table>
- <thead>
- <tr>
- <th>Критерий сравнения</th>
- <th>Файловая система (Файлы / Таблицы Excel)</th>
- <th>Промышленная СУБД (PostgreSQL / Oracle)</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>Избыточность и дублирование</strong></td>
- <td>Высокая. Каждая программа хранит копии нужных полей. При изменении адреса клиента данные обновляются в одном файле и «забываются» в другом.</td>
- <td>Минимальная. За счет нормализации данные хранятся строго в одном месте, исключая аномалии рассогласования.</td>
- </tr>
- <tr>
- <td><strong>Зависимость данных от программ</strong></td>
- <td>Абсолютная (сильная сцепленность). Изменение формата бинарного файла требует перекомпиляции всех приложений, работающих с ним.</td>
- <td>Независимость. Приложения обращаются через декларативный язык запросов (SQL). Физическая структура скрыта от клиентского кода.</td>
- </tr>
- <tr>
- <td><strong>Многопользовательский доступ</strong></td>
- <td>Примитивный. Блокируется весь файл целиком («Файл заблокирован для редактирования другим пользователем»), либо возникает потеря чужих правок (Lost Update).</td>
- <td>Высокопроизводительный конкурентный доступ. Блокировки на уровне отдельных строк, чтение никогда не блокирует запись благодаря MVCC.</td>
- </tr>
- <tr>
- <td><strong>Контроль целостности</strong></td>
- <td>Отсутствует. Программист обязан в коде каждого приложения проверять корректность связей. При ошибке в одном скрипте файл разрушается.</td>
- <td>Декларативный на уровне СУБД. База физически отвергнет операцию, нарушающую внешний ключ (Foreign Key) или формат поля.</td>
- </tr>
- <tr>
- <td><strong>Отказоустойчивость и сбои питания</strong></td>
- <td>Низкая. При аварийном отключении питания во время записи файл часто оказывается поврежденным и не подлежит восстановлению.</td>
- <td>Гарантированная (ACID). Журнал транзакций (WAL) позволяет накатить зафиксированные изменения и откатить незавершенные при перезагрузке.</td>
- </tr>
- <tr>
- <td><strong>Безопасность и аудит</strong></td>
- <td>Файл можно целиком скопировать на флешку или удалить, если есть доступ к папке.</td>
- <td>Централизованный серверный контроль. Пользователь не имеет доступа к файлу на диске; доступ дается только к разрешенным строкам и колонкам.</td>
- </tr>
- </tbody>
- </table>
- </section>
+    <table>
+      <thead>
+        <tr>
+          <th>Критерий сравнения</th>
+          <th>Файловая система (Файлы / Таблицы Excel)</th>
+          <th>Промышленная СУБД (PostgreSQL / Oracle)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Избыточность и дублирование</strong></td>
+          <td>Высокая. Каждая программа хранит копии нужных полей. При изменении адреса клиента данные обновляются в одном файле и «забываются» в другом.</td>
+          <td>Минимальная. За счет нормализации данные хранятся строго в одном месте, исключая аномалии рассогласования.</td>
+        </tr>
+        <tr>
+          <td><strong>Зависимость данных от программ</strong></td>
+          <td>Абсолютная (сильная сцепленность). Изменение формата бинарного файла требует перекомпиляции всех приложений, работающих с ним.</td>
+          <td>Независимость. Приложения обращаются через декларативный язык запросов (SQL). Физическая структура скрыта от клиентского кода.</td>
+        </tr>
+        <tr>
+          <td><strong>Многопользовательский доступ</strong></td>
+          <td>Примитивный. Блокируется весь файл целиком («Файл заблокирован для редактирования другим пользователем»), либо возникает потеря чужих правок (Lost Update).</td>
+          <td>Высокопроизводительный конкурентный доступ. Блокировки на уровне отдельных строк, чтение никогда не блокирует запись благодаря MVCC.</td>
+        </tr>
+        <tr>
+          <td><strong>Контроль целостности</strong></td>
+          <td>Отсутствует. Программист обязан в коде каждого приложения проверять корректность связей. При ошибке в одном скрипте файл разрушается.</td>
+          <td>Декларативный на уровне СУБД. База физически отвергнет операцию, нарушающую внешний ключ (Foreign Key) или формат поля.</td>
+        </tr>
+        <tr>
+          <td><strong>Отказоустойчивость и сбои питания</strong></td>
+          <td>Низкая. При аварийном отключении питания во время записи файл часто оказывается поврежденным и не подлежит восстановлению.</td>
+          <td>Гарантированная (ACID). Журнал транзакций (WAL) позволяет накатить зафиксированные изменения и откатить незавершенные при перезагрузке.</td>
+        </tr>
+        <tr>
+          <td><strong>Безопасность и аудит</strong></td>
+          <td>Файл можно целиком скопировать на флешку или удалить, если есть доступ к папке.</td>
+          <td>Централизованный серверный контроль. Пользователь не имеет доступа к файлу на диске; доступ дается только к разрешенным строкам и колонкам.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
 
- <section>
- <h2>3. Трехуровневая архитектура ANSI/SPARC</h2>
- <p>
- В 1975 году Комитет по планированию стандартов и требований Американского национального института стандартов (ANSI/X3/SPARC) предложил трехуровневую архитектуру СУБД, ставшую классической основой теории баз данных. Главная цель архитектуры — обеспечение <strong>независимости данных</strong>.
- </p>
+  <section>
+    <h2>3. Трехуровневая архитектура ANSI/SPARC</h2>
+    <p>
+      В 1975 году Комитет по планированию стандартов и требований Американского национального института стандартов (ANSI/X3/SPARC) предложил трехуровневую архитектуру СУБД, ставшую классической основой теории баз данных. Главная цель архитектуры — обеспечение <strong>независимости данных</strong>.
+    </p>
 
- <!-- Адаптивная блок-схема ANSI/SPARC -->
- <div class="scheme-container">
- <div class="scheme-level external">
- <div class="scheme-title">
- <span>1. Внешний уровень (External Level / Пользовательские представления)</span>
- <span class="scheme-badge badge-blue">Пользовательский интерфейс</span>
- </div>
- <p style="font-size: 0.92rem; color: var(--text-muted); margin-bottom: 8px;">
- Описывает ту часть базы данных, которая релевантна конкретной группе пользователей или приложению. Скрывает конфиденциальные или избыточные данные.
- </p>
- <div class="views-grid">
- <div class="view-card">
- <strong>Представление врача:</strong>
- <div>Диагнозы, история болезни, назначения. Скрыты финансовые счета.</div>
- </div>
- <div class="view-card">
- <strong>Представление регистратора:</strong>
- <div>ФИО, полис ОМС, талоны к врачам. Скрыты врачебные диагнозы.</div>
- </div>
- <div class="view-card">
- <strong>Личный кабинет пациента:</strong>
- <div>Только собственные записи и рекомендации. Доступ к чужим картам закрыт.</div>
- </div>
- </div>
- </div>
+    <!-- Адаптивная блок-схема ANSI/SPARC -->
+    <div class="scheme-container">
+      <div class="scheme-level external">
+        <div class="scheme-title">
+          <span>1. Внешний уровень (External Level / Пользовательские представления)</span>
+          <span class="scheme-badge badge-blue">Пользовательский интерфейс</span>
+        </div>
+        <p style="font-size: 0.92rem; color: var(--text-muted); margin-bottom: 8px;">
+          Описывает ту часть базы данных, которая релевантна конкретной группе пользователей или приложению. Скрывает конфиденциальные или избыточные данные.
+        </p>
+        <div class="views-grid">
+          <div class="view-card">
+            <strong>Представление врача:</strong>
+            <div>Диагнозы, история болезни, назначения. Скрыты финансовые счета.</div>
+          </div>
+          <div class="view-card">
+            <strong>Представление регистратора:</strong>
+            <div>ФИО, полис ОМС, талоны к врачам. Скрыты врачебные диагнозы.</div>
+          </div>
+          <div class="view-card">
+            <strong>Личный кабинет пациента:</strong>
+            <div>Только собственные записи и рекомендации. Доступ к чужим картам закрыт.</div>
+          </div>
+        </div>
+      </div>
 
- <div class="scheme-arrow">↕ Логическая независимость данных (Logical Data Independence) ↕</div>
+      <div class="scheme-arrow">↕ Логическая независимость данных (Logical Data Independence) ↕</div>
 
- <div class="scheme-level conceptual">
- <div class="scheme-title">
- <span>2. Концептуальный уровень (Conceptual Level / Логическая схема)</span>
- <span class="scheme-badge badge-green">Бизнес-логика и сущности</span>
- </div>
- <p style="font-size: 0.92rem; color: var(--text-muted); margin-bottom: 4px;">
- Обобщенное логическое представление ВСЕЙ базы данных администратором и разработчиком. Описывает сущности, атрибуты, связи между ними и ограничения целостности, абстрагируясь от того, как байты лежат на физических дисках.
- </p>
- <p style="font-size: 0.88rem; font-family: monospace; background: #ecfdf5; padding: 6px 10px; border-radius: 4px; margin-top: 6px;">
- Таблицы: Patients, Doctors, Appointments, Diagnoses | Связи: 1:M, M:M | Ограничения: PK, FK, CHECK
- </p>
- </div>
+      <div class="scheme-level conceptual">
+        <div class="scheme-title">
+          <span>2. Концептуальный уровень (Conceptual Level / Логическая схема)</span>
+          <span class="scheme-badge badge-green">Бизнес-логика и сущности</span>
+        </div>
+        <p style="font-size: 0.92rem; color: var(--text-muted); margin-bottom: 4px;">
+          Обобщенное логическое представление ВСЕЙ базы данных администратором и разработчиком. Описывает сущности, атрибуты, связи между ними и ограничения целостности, абстрагируясь от того, как байты лежат на физических дисках.
+        </p>
+        <p style="font-size: 0.88rem; font-family: monospace; background: #ecfdf5; padding: 6px 10px; border-radius: 4px; margin-top: 6px;">
+          Таблицы: Patients, Doctors, Appointments, Diagnoses | Связи: 1:M, M:M | Ограничения: PK, FK, CHECK
+        </p>
+      </div>
 
- <div class="scheme-arrow">↕ Физическая независимость данных (Physical Data Independence) ↕</div>
+      <div class="scheme-arrow">↕ Физическая независимость данных (Physical Data Independence) ↕</div>
 
- <div class="scheme-level internal">
- <div class="scheme-title">
- <span>3. Внутренний уровень (Internal / Physical Level / Физическое хранение)</span>
- <span class="scheme-badge badge-amber">Диск, страницы, индексы</span>
- </div>
- <p style="font-size: 0.92rem; color: var(--text-muted); margin-bottom: 4px;">
- Определяет непосредственное размещение данных на физических носителях: разметку дисковых страниц (по 8 КБ), распределение табличных пространств (Tablespaces), алгоритмы сжатия данных, физическую структуру индексов (B-Tree, Hash, GiST, GIN).
- </p>
- <p style="font-size: 0.88rem; font-family: monospace; background: #fffbeb; padding: 6px 10px; border-radius: 4px; margin-top: 6px;">
- Файлы: /var/lib/postgresql/data/base/16384/* | Индексы: btree(snils_idx) | Сжатие: pglz/lz4
- </p>
- </div>
- </div>
+      <div class="scheme-level internal">
+        <div class="scheme-title">
+          <span>3. Внутренний уровень (Internal / Physical Level / Физическое хранение)</span>
+          <span class="scheme-badge badge-amber">Диск, страницы, индексы</span>
+        </div>
+        <p style="font-size: 0.92rem; color: var(--text-muted); margin-bottom: 4px;">
+          Определяет непосредственное размещение данных на физических носителях: разметку дисковых страниц (по 8 КБ), распределение табличных пространств (Tablespaces), алгоритмы сжатия данных, физическую структуру индексов (B-Tree, Hash, GiST, GIN).
+        </p>
+        <p style="font-size: 0.88rem; font-family: monospace; background: #fffbeb; padding: 6px 10px; border-radius: 4px; margin-top: 6px;">
+          Файлы: /var/lib/postgresql/data/base/16384/* | Индексы: btree(snils_idx) | Сжатие: pglz/lz4
+        </p>
+      </div>
+    </div>
 
- <h3>Два вида независимости данных:</h3>
- <ul>
- <li><strong>Логическая независимость:</strong> Возможность изменения концептуальной схемы (добавление новых сущностей, атрибутов или связей) без необходимости модификации существующих внешних представлений и переписывания прикладных программ.</li>
- <li><strong>Физическая независимость:</strong> Возможность изменения физической структуры хранения (перенос базы на быстрый NVMe-диск, изменение кластеризации, создание или удаление B-Tree индексов, настройка сжатия) без изменения концептуальной схемы и пользовательских запросов.</li>
- </ul>
- </section>
+    <h3>Два вида независимости данных:</h3>
+    <ul>
+      <li><strong>Логическая независимость:</strong> Возможность изменения концептуальной схемы (добавление новых сущностей, атрибутов или связей) без необходимости модификации существующих внешних представлений и переписывания прикладных программ.</li>
+      <li><strong>Физическая независимость:</strong> Возможность изменения физической структуры хранения (перенос базы на быстрый NVMe-диск, изменение кластеризации, создание или удаление B-Tree индексов, настройка сжатия) без изменения концептуальной схемы и пользовательских запросов.</li>
+    </ul>
+  </section>
 
- <section>
- <h2>4. Классификация моделей данных современных СУБД</h2>
- <p>
- В зависимости от структуры хранения и способа моделирования взаимосвязей выделяют четыре фундаментальных класса систем:
- </p>
+  <section>
+    <h2>4. Классификация моделей данных современных СУБД</h2>
+    <p>
+      В зависимости от структуры хранения и способа моделирования взаимосвязей выделяют четыре фундаментальных класса систем:
+    </p>
 
- <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 16px 0;">
- <div style="border: 1px solid var(--border); border-radius: 8px; padding: 16px; background: #ffffff;">
- <h4 style="color: #0284c7; margin-bottom: 6px;">1. Реляционные (RDBMS)</h4>
- <p style="font-size: 0.9rem; color: var(--text-muted);">
- Основаны на реляционной алгебре Эдгара Кодда (1970 г.). Данные представлены в виде двумерных таблиц (отношений), связанных через первичные и внешние ключи. Строгая схема (Schema-on-write), поддержка языка SQL, соблюдение принципов ACID.
- </p>
- <div style="font-size: 0.85rem; font-weight: 600; color: #0369a1;">Примеры: PostgreSQL, MySQL, MariaDB, Oracle Database, MS SQL Server, SQLite.</div>
- </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 16px 0;">
+      <div style="border: 1px solid var(--border); border-radius: 8px; padding: 16px; background: #ffffff;">
+        <h4 style="color: #0284c7; margin-bottom: 6px;">1. Реляционные (RDBMS)</h4>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">
+          Основаны на реляционной алгебре Эдгара Кодда (1970 г.). Данные представлены в виде двумерных таблиц (отношений), связанных через первичные и внешние ключи. Строгая схема (Schema-on-write), поддержка языка SQL, соблюдение принципов ACID.
+        </p>
+        <div style="font-size: 0.85rem; font-weight: 600; color: #0369a1;">Примеры: PostgreSQL, MySQL, MariaDB, Oracle Database, MS SQL Server, SQLite.</div>
+      </div>
 
- <div style="border: 1px solid var(--border); border-radius: 8px; padding: 16px; background: #ffffff;">
- <h4 style="color: #059669; margin-bottom: 6px;">2. Документные (Document NoSQL)</h4>
- <p style="font-size: 0.9rem; color: var(--text-muted);">
- Данные хранятся в виде структурированных текстовых или бинарных документов (JSON, BSON, XML). Каждый документ может иметь уникальный набор полей (Schema-on-read). Отлично подходят для каталогов с вариативными атрибутами и быстро меняющихся структур.
- </p>
- <div style="font-size: 0.85rem; font-weight: 600; color: #15803d;">Примеры: MongoDB, CouchDB, RavenDB, Amazon DocumentDB.</div>
- </div>
+      <div style="border: 1px solid var(--border); border-radius: 8px; padding: 16px; background: #ffffff;">
+        <h4 style="color: #059669; margin-bottom: 6px;">2. Документные (Document NoSQL)</h4>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">
+          Данные хранятся в виде структурированных текстовых или бинарных документов (JSON, BSON, XML). Каждый документ может иметь уникальный набор полей (Schema-on-read). Отлично подходят для каталогов с вариативными атрибутами и быстро меняющихся структур.
+        </p>
+        <div style="font-size: 0.85rem; font-weight: 600; color: #15803d;">Примеры: MongoDB, CouchDB, RavenDB, Amazon DocumentDB.</div>
+      </div>
 
- <div style="border: 1px solid var(--border); border-radius: 8px; padding: 16px; background: #ffffff;">
- <h4 style="color: #d97706; margin-bottom: 6px;">3. Ключ-значение (Key-Value)</h4>
- <p style="font-size: 0.9rem; color: var(--text-muted);">
- Простейшая модель: хранение пар «ключ — значение». Чрезвычайно высокая скорость операций по чтению и записи, часто хранят данные прямо в ОЗУ. Используются для кэширования, хранения сессий, списков онлайн-пользователей.
- </p>
- <div style="font-size: 0.85rem; font-weight: 600; color: #b45309;">Примеры: Redis, Memcached, Amazon DynamoDB, KeyDB.</div>
- </div>
+      <div style="border: 1px solid var(--border); border-radius: 8px; padding: 16px; background: #ffffff;">
+        <h4 style="color: #d97706; margin-bottom: 6px;">3. Ключ-значение (Key-Value)</h4>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">
+          Простейшая модель: хранение пар «ключ — значение». Чрезвычайно высокая скорость операций по чтению и записи, часто хранят данные прямо в ОЗУ. Используются для кэширования, хранения сессий, списков онлайн-пользователей.
+        </p>
+        <div style="font-size: 0.85rem; font-weight: 600; color: #b45309;">Примеры: Redis, Memcached, Amazon DynamoDB, KeyDB.</div>
+      </div>
 
- <div style="border: 1px solid var(--border); border-radius: 8px; padding: 16px; background: #ffffff;">
- <h4 style="color: #7c3aed; margin-bottom: 6px;">4. Графовые (Graph DBMS)</h4>
- <p style="font-size: 0.9rem; color: var(--text-muted);">
- Представляют данные в виде узлов (вершин) и направленных связей (ребер). Оптимизированы для запросов по обходу графов любой глубины без тяжелых реляционных JOIN-операций. Идеальны для соцсетей, борьбы с мошенничеством, логистики.
- </p>
- <div style="font-size: 0.85rem; font-weight: 600; color: #6d28d9;">Примеры: Neo4j, Amazon Neptune, Memgraph, ArangoDB.</div>
- </div>
- </div>
- </section>
+      <div style="border: 1px solid var(--border); border-radius: 8px; padding: 16px; background: #ffffff;">
+        <h4 style="color: #7c3aed; margin-bottom: 6px;">4. Графовые (Graph DBMS)</h4>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">
+          Представляют данные в виде узлов (вершин) и направленных связей (ребер). Оптимизированы для запросов по обходу графов любой глубины без тяжелых реляционных JOIN-операций. Идеальны для соцсетей, борьбы с мошенничеством, логистики.
+        </p>
+        <div style="font-size: 0.85rem; font-weight: 600; color: #6d28d9;">Примеры: Neo4j, Amazon Neptune, Memgraph, ArangoDB.</div>
+      </div>
+    </div>
+  </section>
 
- <section>
- <h2>5. Роль и задачи администратора базы данных (DBA)</h2>
- <p>
- <strong>Database Administrator (DBA)</strong> — специалист, несущий персональную ответственность за работоспособность, целостность, доступность и быстродействие баз данных предприятия.
- </p>
- <ul>
- <li><strong>Управление физической инфраструктурой:</strong> Конфигурирование кластеров, настройка дисковых массивов, выделение пулов оперативной памяти под кэш буферов и сортировку.</li>
- <li><strong>Резервное копирование и Disaster Recovery:</strong> Регулярное создание полных и инкрементальных бэкапов, постоянное тестирование сценариев восстановления из архивов при авариях.</li>
- <li><strong>Оптимизация производительности (Performance Tuning):</strong> Выявление «медленных» запросов через логи и системные представления, анализ планов выполнения запросов (Explain Plan), проектирование оптимальных индексов, реорганизация фрагментированных таблиц (Vacuum).</li>
- <li><strong>Обеспечение безопасности:</strong> Управление учетными записями, предоставление минимально необходимых привилегий (принцип Least Privilege), шифрование конфиденциальных данных.</li>
- </ul>
+  <section>
+    <h2>5. Роль и задачи администратора базы данных (DBA)</h2>
+    <p>
+      <strong>Database Administrator (DBA)</strong> — специалист, несущий персональную ответственность за работоспособность, целостность, доступность и быстродействие баз данных предприятия.
+    </p>
+    <ul>
+      <li><strong>Управление физической инфраструктурой:</strong> Конфигурирование кластеров, настройка дисковых массивов, выделение пулов оперативной памяти под кэш буферов и сортировку.</li>
+      <li><strong>Резервное копирование и Disaster Recovery:</strong> Регулярное создание полных и инкрементальных бэкапов, постоянное тестирование сценариев восстановления из архивов при авариях.</li>
+      <li><strong>Оптимизация производительности (Performance Tuning):</strong> Выявление «медленных» запросов через логи и системные представления, анализ планов выполнения запросов (Explain Plan), проектирование оптимальных индексов, реорганизация фрагментированных таблиц (Vacuum).</li>
+      <li><strong>Обеспечение безопасности:</strong> Управление учетными записями, предоставление минимально необходимых привилегий (принцип Least Privilege), шифрование конфиденциальных данных.</li>
+    </ul>
 
- <!-- Вопросы для самопроверки -->
- <div class="self-test">
- <h3>Вопросы для самопроверки студентов:</h3>
- <div class="test-q">
- <strong>1. В чем состоит принципиальная разница между понятием «база данных» и «СУБД»?</strong>
- <div><em>Ответ для самоконтроля: База данных — это сами упорядоченные данные на носителе; СУБД — это программный комплекс, управляющий этой базой и предоставляющий доступ к ней.</em></div>
- </div>
- <div class="test-q">
- <strong>2. Какая аномалия возникает при одновременной несогласованной записи в файл двумя пользователями?</strong>
- <div><em>Ответ для самоконтроля: Аномалия потерянного обновления (Lost Update), при которой изменения первого пользователя безвозвратно затираются сохранением второго пользователя.</em></div>
- </div>
- <div class="test-q">
- <strong>3. Приведите пример обеспечения физической независимости данных в архитектуре ANSI/SPARC.</strong>
- <div><em>Ответ для самоконтроля: Перенос таблицы на более быстрый SSD накопитель или создание B-Tree индекса для ускорения поиска не требует переписывания текста SQL-запросов в пользовательских программах.</em></div>
- </div>
- </div>
- </section>
+    <!-- Вопросы для самопроверки -->
+    <div class="self-test">
+      <h3>Вопросы для самопроверки студентов:</h3>
+      <div class="test-q">
+        <strong>1. В чем состоит принципиальная разница между понятием «база данных» и «СУБД»?</strong>
+        <div><em>Ответ для самоконтроля: База данных — это сами упорядоченные данные на носителе; СУБД — это программный комплекс, управляющий этой базой и предоставляющий доступ к ней.</em></div>
+      </div>
+      <div class="test-q">
+        <strong>2. Какая аномалия возникает при одновременной несогласованной записи в файл двумя пользователями?</strong>
+        <div><em>Ответ для самоконтроля: Аномалия потерянного обновления (Lost Update), при которой изменения первого пользователя безвозвратно затираются сохранением второго пользователя.</em></div>
+      </div>
+      <div class="test-q">
+        <strong>3. Приведите пример обеспечения физической независимости данных в архитектуре ANSI/SPARC.</strong>
+        <div><em>Ответ для самоконтроля: Перенос таблицы на более быстрый SSD накопитель или создание B-Tree индекса для ускорения поиска не требует переписывания текста SQL-запросов в пользовательских программах.</em></div>
+      </div>
+    </div>
+  </section>
 
 </div>
 

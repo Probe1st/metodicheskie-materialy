@@ -1,631 +1,662 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
- <title>Практикум: Законы Мура. Основные характеристики процессоров</title>
- <style>
- :root {
- --bg: #f1f5f9;
- --card: #ffffff;
- --text: #0f172a;
- --muted: #475569;
- --line: #cbd5e1;
- --accent: #1e40af;
- --accent-soft: #eff6ff;
- --task-bg: #f8fafc;
- --border-task: #94a3b8;
- --ok: #059669;
- --radius: 14px;
- --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
- }
- * { box-sizing: border-box; margin: 0; padding: 0; }
- body {
- background: var(--bg);
- color: var(--text);
- font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
- line-height: 1.6;
- font-size: 15.5px;
- padding: 20px 14px;
- }.page {
- max-width: 980px;
- margin: 0 auto;
- }.header-card,.student-card,.task-card,.actions-card {
- background: var(--card);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 24px;
- margin-bottom: 20px;
- box-shadow: var(--shadow);
- }
- h1 {
- font-size: clamp(22px, 3.5vw, 28px);
- color: var(--accent);
- margin-bottom: 8px;
- }.desc {
- color: var(--muted);
- font-size: 15px;
- }.student-grid {
- display: grid;
- grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
- gap: 14px;
- }
- label {
- display: block;
- font-weight: 600;
- font-size: 13.5px;
- margin-bottom: 6px;
- color: #1e293b;
- }
- input[type="text"], input[type="date"], select, textarea {
- width: 100%;
- border: 1.5px solid var(--line);
- border-radius: 8px;
- padding: 9px 12px;
- font: inherit;
- font-size: 14.5px;
- background: #fff;
- color: var(--text);
- outline: none;
- transition: border-color.15s, box-shadow.15s;
- }
- input:focus, select:focus, textarea:focus {
- border-color: var(--accent);
- box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
- }
- textarea {
- min-height: 85px;
- resize: vertical;
- line-height: 1.5;
- }.criteria-box {
- background: #f0fdf4;
- border: 1px solid #bbf7d0;
- border-radius: 10px;
- padding: 14px 18px;
- margin-bottom: 18px;
- font-size: 14px;
- }.criteria-box strong { color: var(--ok); }.task-title {
- font-size: 17.5px;
- font-weight: 700;
- color: var(--accent);
- margin-bottom: 10px;
- display: flex;
- align-items: center;
- gap: 8px;
- }.task-help {
- background: var(--accent-soft);
- border-left: 3px solid var(--accent);
- padding: 10px 14px;
- border-radius: 0 6px 6px 0;
- margin-bottom: 14px;
- font-size: 14px;
- color: #1e3a8a;
- }.table-wrap {
- overflow-x: auto;
- margin: 14px 0;
- }
- table {
- width: 100%;
- border-collapse: collapse;
- font-size: 13.5px;
- }
- th, td {
- border: 1px solid var(--line);
- padding: 8px 10px;
- text-align: left;
- vertical-align: top;
- }
- th {
- background: var(--accent-soft);
- color: var(--accent);
- font-weight: 600;
- }.table-input {
- border: 1px solid var(--line);
- border-radius: 4px;
- padding: 6px 8px;
- font-size: 13px;
- width: 100%;
- box-sizing: border-box;
- background: #fff;
- }.table-input:focus {
- border-color: var(--accent);
- outline: none;
- }.field-group {
- margin-bottom: 16px;
- }.field-group:last-child {
- margin-bottom: 0;
- }.variant-card {
- background: var(--task-bg);
- border: 1px solid var(--line);
- border-radius: 10px;
- padding: 16px;
- margin-top: 14px;
- }.variant-title {
- font-weight: 700;
- color: #1e293b;
- margin-bottom: 8px;
- font-size: 15px;
- }.formula-badge {
- display: inline-block;
- background: #e2e8f0;
- color: #0f172a;
- padding: 2px 8px;
- border-radius: 4px;
- font-family: ui-monospace, monospace;
- font-size: 13px;
- margin: 2px 0;
- }.btn-row {
- display: flex;
- flex-wrap: wrap;
- gap: 12px;
- align-items: center;
- }
- button {
- cursor: pointer;
- border: none;
- border-radius: 8px;
- padding: 10px 18px;
- font: inherit;
- font-weight: 600;
- font-size: 14.5px;
- transition: background.15s, transform.05s;
- }
- button:active { transform: scale(0.98); }.btn-primary { background: var(--accent); color: #fff; }.btn-primary:hover { background: #1d4ed8; }.btn-secondary { background: #e2e8f0; color: #334155; }.btn-secondary:hover { background: #cbd5e1; }.btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }.btn-danger:hover { background: #fecaca; }.status-msg {
- font-size: 14px;
- font-weight: 600;
- margin-left: auto;
- }.status-saved { color: var(--ok); }.print-select-text { display: none; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Практикум: Законы Мура. Основные характеристики процессоров</title>
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --task-bg: #f8fafc;
+      --border-task: #94a3b8;
+      --ok: #059669;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15.5px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .task-card, .actions-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(22px, 3.5vw, 28px);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .desc {
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    input[type="text"], input[type="date"], select, textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14.5px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+    }
+    textarea {
+      min-height: 85px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    .criteria-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      font-size: 14px;
+    }
+    .criteria-box strong { color: var(--ok); }
+    .task-title {
+      font-size: 17.5px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .task-help {
+      background: var(--accent-soft);
+      border-left: 3px solid var(--accent);
+      padding: 10px 14px;
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 14px;
+      font-size: 14px;
+      color: #1e3a8a;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      margin: 14px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .table-input {
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 6px 8px;
+      font-size: 13px;
+      width: 100%;
+      box-sizing: border-box;
+      background: #fff;
+    }
+    .table-input:focus {
+      border-color: var(--accent);
+      outline: none;
+    }
+    .field-group {
+      margin-bottom: 16px;
+    }
+    .field-group:last-child {
+      margin-bottom: 0;
+    }
+    .variant-card {
+      background: var(--task-bg);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 14px;
+    }
+    .variant-title {
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+    .formula-badge {
+      display: inline-block;
+      background: #e2e8f0;
+      color: #0f172a;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: ui-monospace, monospace;
+      font-size: 13px;
+      margin: 2px 0;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font: inherit;
+      font-weight: 600;
+      font-size: 14.5px;
+      transition: background .15s, transform .05s;
+    }
+    button:active { transform: scale(0.98); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary { background: #e2e8f0; color: #334155; }
+    .btn-secondary:hover { background: #cbd5e1; }
+    .btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #fecaca; }
+    .status-msg {
+      font-size: 14px;
+      font-weight: 600;
+      margin-left: auto;
+    }
+    .status-saved { color: var(--ok); }
+    .print-select-text { display: none; }
 
- @media print {
- body {
- background: #fff;
- padding: 0;
- font-size: 11pt;
- color: #000;
- }.page {
- max-width: 100%;
- margin: 0;
- }.header-card,.student-card,.task-card {
- box-shadow: none;
- border: 1px solid #777;
- margin-bottom: 14pt;
- padding: 12pt;
- break-inside: auto;
- page-break-inside: auto;
- }.actions-card,.btn-row {
- display: none !important;
- }
- input::placeholder, textarea::placeholder {
- color: transparent !important;
- -webkit-text-fill-color: transparent !important;
- opacity: 0 !important;
- }
- select {
- display: none !important;
- }.print-select-text {
- display: block !important;
- min-height: 22px;
- border: 1px solid #777 !important;
- border-radius: 4px;
- padding: 4px 6px;
- background: #fff !important;
- }
- textarea {
- height: auto !important;
- min-height: 90px;
- overflow: visible !important;
- white-space: pre-wrap !important;
- word-break: break-word !important;
- border: 1px solid #777 !important;
- background: #fff !important;
- color: #000 !important;
- break-inside: auto;
- page-break-inside: auto;
- }
- input[type="text"], input[type="date"],.table-input {
- border: 1px solid #777 !important;
- background: #fff !important;
- color: #000 !important;
- }.table-wrap {
- overflow-x: visible;
- }
- table {
- font-size: 10pt;
- }
- th, td {
- border: 1px solid #555;
- }
- }
- </style>
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+        font-size: 11pt;
+        color: #000;
+      }
+      .page {
+        max-width: 100%;
+        margin: 0;
+      }
+      .header-card, .student-card, .task-card {
+        box-shadow: none;
+        border: 1px solid #777;
+        margin-bottom: 14pt;
+        padding: 12pt;
+        break-inside: auto;
+        page-break-inside: auto;
+      }
+      .actions-card, .btn-row {
+        display: none !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        opacity: 0 !important;
+      }
+      select {
+        display: none !important;
+      }
+      .print-select-text {
+        display: block !important;
+        min-height: 22px;
+        border: 1px solid #777 !important;
+        border-radius: 4px;
+        padding: 4px 6px;
+        background: #fff !important;
+      }
+      textarea {
+        height: auto !important;
+        min-height: 90px;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+        break-inside: auto;
+        page-break-inside: auto;
+      }
+      input[type="text"], input[type="date"], .table-input {
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      .table-wrap {
+        overflow-x: visible;
+      }
+      table {
+        font-size: 10pt;
+      }
+      th, td {
+        border: 1px solid #555;
+      }
+    }
+  </style>
 </head>
 <body>
 <div class="page">
 
- <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
- <div class="header-card">
- <h1>Практикум: Законы Мура. Основные характеристики процессоров</h1>
- <p class="desc">Интерактивный рабочий лист студента: сопоставление архитектурных параметров и бенчмарков 4 реальных процессоров под 4 прикладных профиля, расчёт ускорения многоядерных систем по закону Амдала, анализ аппаратных узких мест (IPC vs GHz vs кэш) и оформление расчётно-обоснованного протокола выбора процессора по 4 вариантам.</p>
- </div>
+  <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
+  <div class="header-card">
+    <h1>Практикум: Законы Мура. Основные характеристики процессоров</h1>
+    <p class="desc">Интерактивный рабочий лист студента: сопоставление архитектурных параметров и бенчмарков 4 реальных процессоров под 4 прикладных профиля, расчёт ускорения многоядерных систем по закону Амдала, анализ аппаратных узких мест (IPC vs GHz vs кэш) и оформление расчётно-обоснованного протокола выбора процессора по 4 вариантам.</p>
+  </div>
 
- <!-- РЕКВИЗИТЫ СТУДЕНТА (ЧИСТЫЕ ПОЛЯ БЕЗ ВЫМЫШЛЕННЫХ ДАННЫХ) -->
- <div class="student-card">
- <div class="student-grid">
- <div>
- <label for="student_fio">ФИО обучающегося:</label>
- <input type="text" id="student_fio" name="student_fio" placeholder="Фамилия Имя Отчество">
- </div>
- <div>
- <label for="student_group">Учебная группа:</label>
- <input type="text" id="student_group" name="student_group" placeholder="Введите группу">
- </div>
- <div>
- <label for="work_date">Дата выполнения:</label>
- <input type="date" id="work_date" name="work_date">
- </div>
- <div>
- <label for="student_variant">Вариант профиля нагрузки:</label>
- <select id="student_variant" name="student_variant" onchange="syncVariantPrint()">
- <option value="">Выберите вариант...</option>
- <option value="1">Вариант 1: Киберспортивный игровой ПК (High-FPS Gaming)</option>
- <option value="2">Вариант 2: Рабочая станция 3D-рендеринга и компиляции</option>
- <option value="3">Вариант 3: Офисно-бухгалтерский компьютер (1С / ЭДО)</option>
- <option value="4">Вариант 4: Сервер виртуализации и контейнеризации (24/7)</option>
- </select>
- <div class="print-select-text" id="print_variant_text">Вариант не выбран</div>
- </div>
- </div>
- </div>
+  <!-- РЕКВИЗИТЫ СТУДЕНТА (ЧИСТЫЕ ПОЛЯ БЕЗ ВЫМЫШЛЕННЫХ ДАННЫХ) -->
+  <div class="student-card">
+    <div class="student-grid">
+      <div>
+        <label for="student_fio">ФИО обучающегося:</label>
+        <input type="text" id="student_fio" name="student_fio" placeholder="Фамилия Имя Отчество">
+      </div>
+      <div>
+        <label for="student_group">Учебная группа:</label>
+        <input type="text" id="student_group" name="student_group" placeholder="Введите группу">
+      </div>
+      <div>
+        <label for="work_date">Дата выполнения:</label>
+        <input type="date" id="work_date" name="work_date">
+      </div>
+      <div>
+        <label for="student_variant">Вариант профиля нагрузки:</label>
+        <select id="student_variant" name="student_variant" onchange="syncVariantPrint()">
+          <option value="">Выберите вариант...</option>
+          <option value="1">Вариант 1: Киберспортивный игровой ПК (High-FPS Gaming)</option>
+          <option value="2">Вариант 2: Рабочая станция 3D-рендеринга и компиляции</option>
+          <option value="3">Вариант 3: Офисно-бухгалтерский компьютер (1С / ЭДО)</option>
+          <option value="4">Вариант 4: Сервер виртуализации и контейнеризации (24/7)</option>
+        </select>
+        <div class="print-select-text" id="print_variant_text">Вариант не выбран</div>
+      </div>
+    </div>
+  </div>
 
- <!-- КРИТЕРИИ ОЦЕНИВАНИЯ РАБОТЫ -->
- <div class="criteria-box">
- <strong>Критерии открытой 4-балльной оценки:</strong>
- <ul style="margin: 6px 0 0 18px;">
- <li><strong>Корректность (до 2 баллов):</strong> верное заполнение матрицы характеристик и бенчмарков 4 процессоров, математически точные расчёты ускорения по закону Амдала S(N) и асимптотического предела S<sub>max</sub>, расчёт удельной энергоэффективности (Perf/Watt).</li>
- <li><strong>Объяснение (1 балл):</strong> глубокое инженерное объяснение архитектурных компромиссов (IPC, тактовая частота, латентность и объём кэша 3D V-Cache, многопоточность SMT/HT, гетерогенные P/E ядра) и разоблачение «мегагерцевого мифа».</li>
- <li><strong>Проверка (1 балл):</strong> доказательное заключение в протоколе выбора под свой вариант: верное выявление узкого места (Compute-bound / Memory-bound / Cache-bound) и обоснование непригодности альтернативных вариантов.</li>
- </ul>
- <div style="margin-top: 6px; font-size: 13px; color: #15803d;">Срок сдачи индивидуального отчёта: до следующей пары.</div>
- </div>
+  <!-- КРИТЕРИИ ОЦЕНИВАНИЯ РАБОТЫ -->
+  <div class="criteria-box">
+    <strong>Критерии открытой 4-балльной оценки:</strong>
+    <ul style="margin: 6px 0 0 18px;">
+      <li><strong>Корректность (до 2 баллов):</strong> верное заполнение матрицы характеристик и бенчмарков 4 процессоров, математически точные расчёты ускорения по закону Амдала S(N) и асимптотического предела S<sub>max</sub>, расчёт удельной энергоэффективности (Perf/Watt).</li>
+      <li><strong>Объяснение (1 балл):</strong> глубокое инженерное объяснение архитектурных компромиссов (IPC, тактовая частота, латентность и объём кэша 3D V-Cache, многопоточность SMT/HT, гетерогенные P/E ядра) и разоблачение «мегагерцевого мифа».</li>
+      <li><strong>Проверка (1 балл):</strong> доказательное заключение в протоколе выбора под свой вариант: верное выявление узкого места (Compute-bound / Memory-bound / Cache-bound) и обоснование непригодности альтернативных вариантов.</li>
+    </ul>
+    <div style="margin-top: 6px; font-size: 13px; color: #15803d;">Срок сдачи индивидуального отчёта: до следующей пары.</div>
+  </div>
 
- <!-- ЗАДАНИЕ 1 -->
- <div class="task-card">
- <div class="task-title">Задание 1. Сравнительный анализ характеристик и бенчмарков 4 процессоров</div>
- <div class="task-help">
- Проанализируйте технические характеристики и тестовые показатели 4 процессоров разных классов: массового офисного (Core i3-14100), игрового с 3D V-Cache (Ryzen 7 7800X3D), флагманского настольного (Core i9-14900K) и серверного многоядерного (EPYC 9354P). Рассчитайте показатель удельной энергоэффективности под нагрузкой и сформулируйте архитектурные выводы.
- </div>
+  <!-- ЗАДАНИЕ 1 -->
+  <div class="task-card">
+    <div class="task-title">Задание 1. Сравнительный анализ характеристик и бенчмарков 4 процессоров</div>
+    <div class="task-help">
+      Проанализируйте технические характеристики и тестовые показатели 4 процессоров разных классов: массового офисного (Core i3-14100), игрового с 3D V-Cache (Ryzen 7 7800X3D), флагманского настольного (Core i9-14900K) и серверного многоядерного (EPYC 9354P). Рассчитайте показатель удельной энергоэффективности под нагрузкой и сформулируйте архитектурные выводы.
+    </div>
 
- <div class="table-wrap">
- <table>
- <thead>
- <tr>
- <th style="width: 22%;">Параметр / Метрика</th>
- <th style="width: 19%;">Intel Core i3-14100</th>
- <th style="width: 20%;">AMD Ryzen 7 7800X3D</th>
- <th style="width: 20%;">Intel Core i9-14900K</th>
- <th style="width: 19%;">AMD EPYC 9354P</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>Микроархитектура / Техпроцесс</strong></td>
- <td>Raptor Lake / Intel 7 (10 нм)</td>
- <td>Zen 4 / TSMC 5 нм (+ 6 нм IOD)</td>
- <td>Raptor Lake Refresh / Intel 7</td>
- <td>Zen 4 / TSMC 5 нм SP5</td>
- </tr>
- <tr>
- <td><strong>Ядра / Потоки</strong></td>
- <td>4P + 0E / 8 потоков</td>
- <td>8P / 16 потоков</td>
- <td>8P + 16E / 32 потока</td>
- <td>32 ядра / 64 потока</td>
- </tr>
- <tr>
- <td><strong>Базовая / Макс. частота (ГГц)</strong></td>
- <td>3.50 / 4.70 ГГц</td>
- <td>4.20 / 5.00 ГГц</td>
- <td>3.20 / 6.00 ГГц (P-ядра)</td>
- <td>3.25 / 3.80 ГГц</td>
- </tr>
- <tr>
- <td><strong>Кэш-память L2 / L3</strong></td>
- <td>5 МБ L2 / 12 МБ L3</td>
- <td>8 МБ L2 / 96 МБ L3 (3D V-Cache)</td>
- <td>32 МБ L2 / 36 МБ L3</td>
- <td>32 МБ L2 / 256 МБ L3</td>
- </tr>
- <tr>
- <td><strong>Каналы памяти ОЗУ / Тип</strong></td>
- <td>2 канала / DDR4-3200, DDR5-4800</td>
- <td>2 канала / DDR5-5200 (до 6000)</td>
- <td>2 канала / DDR5-5600 (до 7200+)</td>
- <td>12 каналов / DDR5-4800 ECC</td>
- </tr>
- <tr>
- <td><strong>Лимиты мощности: Base / PL2 (TDP)</strong></td>
- <td>60 Вт / 110 Вт</td>
- <td>120 Вт (в играх ~65 Вт)</td>
- <td>125 Вт / 253 Вт (до 300+ Вт)</td>
- <td>280 Вт (TDP cTDP до 300 Вт)</td>
- </tr>
- <tr>
- <td><strong>Cinebench R23 (Single-Core), баллы</strong></td>
- <td>~1 780</td>
- <td>~1 820</td>
- <td>~2 320</td>
- <td>~1 520</td>
- </tr>
- <tr>
- <td><strong>Cinebench R23 (Multi-Core), баллы</strong></td>
- <td>~9 100</td>
- <td>~18 400</td>
- <td>~40 500</td>
- <td>~58 000</td>
- </tr>
- <tr>
- <td><strong>Киберспортивный FPS (CS2 / 1080p Low)</strong></td>
- <td>~260 FPS (1% low: ~130)</td>
- <td>~620 FPS (1% low: ~310)</td>
- <td>~540 FPS (1% low: ~230)</td>
- <td>~280 FPS (1% low: ~140)</td>
- </tr>
- <tr>
- <td><strong>Удельная энергоэффективность: CB R23 Multi / Max TDP (баллов/Вт)</strong></td>
- <td><input type="text" class="table-input" id="eff_i3" name="eff_i3" placeholder="Рассчитайте: 9100 / 110"></td>
- <td><input type="text" class="table-input" id="eff_r7" name="eff_r7" placeholder="Рассчитайте: 18400 / 120"></td>
- <td><input type="text" class="table-input" id="eff_i9" name="eff_i9" placeholder="Рассчитайте: 40500 / 253"></td>
- <td><input type="text" class="table-input" id="eff_epyc" name="eff_epyc" placeholder="Рассчитайте: 58000 / 280"></td>
- </tr>
- </tbody>
- </table>
- </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 22%;">Параметр / Метрика</th>
+            <th style="width: 19%;">Intel Core i3-14100</th>
+            <th style="width: 20%;">AMD Ryzen 7 7800X3D</th>
+            <th style="width: 20%;">Intel Core i9-14900K</th>
+            <th style="width: 19%;">AMD EPYC 9354P</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Микроархитектура / Техпроцесс</strong></td>
+            <td>Raptor Lake / Intel 7 (10 нм)</td>
+            <td>Zen 4 / TSMC 5 нм (+ 6 нм IOD)</td>
+            <td>Raptor Lake Refresh / Intel 7</td>
+            <td>Zen 4 / TSMC 5 нм SP5</td>
+          </tr>
+          <tr>
+            <td><strong>Ядра / Потоки</strong></td>
+            <td>4P + 0E / 8 потоков</td>
+            <td>8P / 16 потоков</td>
+            <td>8P + 16E / 32 потока</td>
+            <td>32 ядра / 64 потока</td>
+          </tr>
+          <tr>
+            <td><strong>Базовая / Макс. частота (ГГц)</strong></td>
+            <td>3.50 / 4.70 ГГц</td>
+            <td>4.20 / 5.00 ГГц</td>
+            <td>3.20 / 6.00 ГГц (P-ядра)</td>
+            <td>3.25 / 3.80 ГГц</td>
+          </tr>
+          <tr>
+            <td><strong>Кэш-память L2 / L3</strong></td>
+            <td>5 МБ L2 / 12 МБ L3</td>
+            <td>8 МБ L2 / 96 МБ L3 (3D V-Cache)</td>
+            <td>32 МБ L2 / 36 МБ L3</td>
+            <td>32 МБ L2 / 256 МБ L3</td>
+          </tr>
+          <tr>
+            <td><strong>Каналы памяти ОЗУ / Тип</strong></td>
+            <td>2 канала / DDR4-3200, DDR5-4800</td>
+            <td>2 канала / DDR5-5200 (до 6000)</td>
+            <td>2 канала / DDR5-5600 (до 7200+)</td>
+            <td>12 каналов / DDR5-4800 ECC</td>
+          </tr>
+          <tr>
+            <td><strong>Лимиты мощности: Base / PL2 (TDP)</strong></td>
+            <td>60 Вт / 110 Вт</td>
+            <td>120 Вт (в играх ~65 Вт)</td>
+            <td>125 Вт / 253 Вт (до 300+ Вт)</td>
+            <td>280 Вт (TDP cTDP до 300 Вт)</td>
+          </tr>
+          <tr>
+            <td><strong>Cinebench R23 (Single-Core), баллы</strong></td>
+            <td>~1 780</td>
+            <td>~1 820</td>
+            <td>~2 320</td>
+            <td>~1 520</td>
+          </tr>
+          <tr>
+            <td><strong>Cinebench R23 (Multi-Core), баллы</strong></td>
+            <td>~9 100</td>
+            <td>~18 400</td>
+            <td>~40 500</td>
+            <td>~58 000</td>
+          </tr>
+          <tr>
+            <td><strong>Киберспортивный FPS (CS2 / 1080p Low)</strong></td>
+            <td>~260 FPS (1% low: ~130)</td>
+            <td>~620 FPS (1% low: ~310)</td>
+            <td>~540 FPS (1% low: ~230)</td>
+            <td>~280 FPS (1% low: ~140)</td>
+          </tr>
+          <tr>
+            <td><strong>Удельная энергоэффективность: CB R23 Multi / Max TDP (баллов/Вт)</strong></td>
+            <td><input type="text" class="table-input" id="eff_i3" name="eff_i3" placeholder="Рассчитайте: 9100 / 110"></td>
+            <td><input type="text" class="table-input" id="eff_r7" name="eff_r7" placeholder="Рассчитайте: 18400 / 120"></td>
+            <td><input type="text" class="table-input" id="eff_i9" name="eff_i9" placeholder="Рассчитайте: 40500 / 253"></td>
+            <td><input type="text" class="table-input" id="eff_epyc" name="eff_epyc" placeholder="Рассчитайте: 58000 / 280"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
- <div class="field-group">
- <label for="ans_tradeoff_ipc_cache">Архитектурный анализ компромисса «Частота против Объёма кэша»: почему Ryzen 7 7800X3D с частотой 5.0 ГГц и 8 ядрами превосходит 24-ядерный Core i9-14900K с частотой 6.0 ГГц в соревновательных играх (CS2) на 15–30% по показателю редких событий (1% Low FPS)?</label>
- <textarea id="ans_tradeoff_ipc_cache" name="ans_tradeoff_ipc_cache" placeholder="Объясните через понятия: задержка обращения к ОЗУ (Memory Latency), промах кэша (Cache Miss Penalty), объём кэша L3 96 МБ (3D V-Cache), простой конвейера процессора..."></textarea>
- </div>
+    <div class="field-group">
+      <label for="ans_tradeoff_ipc_cache">Архитектурный анализ компромисса «Частота против Объёма кэша»: почему Ryzen 7 7800X3D с частотой 5.0 ГГц и 8 ядрами превосходит 24-ядерный Core i9-14900K с частотой 6.0 ГГц в соревновательных играх (CS2) на 15–30% по показателю редких событий (1% Low FPS)?</label>
+      <textarea id="ans_tradeoff_ipc_cache" name="ans_tradeoff_ipc_cache" placeholder="Объясните через понятия: задержка обращения к ОЗУ (Memory Latency), промах кэша (Cache Miss Penalty), объём кэша L3 96 МБ (3D V-Cache), простой конвейера процессора..."></textarea>
+    </div>
 
- <div class="field-group">
- <label for="ans_tradeoff_pe_cores">Архитектурный анализ гетерогенных ядер P/E: какую роль играют 16 E-ядер в Core i9-14900K при многопоточном рендеринге и почему они не дают прироста в офисных задачах или соревновательных играх?</label>
- <textarea id="ans_tradeoff_pe_cores" name="ans_tradeoff_pe_cores" placeholder="Опишите различие между P-ядрами (высокий IPC, широкое декодирование, высокая частота) и E-ядрами (компактная энергоэффективная архитектура Gracemont без гиперпоточности), планировщик Intel Thread Director..."></textarea>
- </div>
- </div>
+    <div class="field-group">
+      <label for="ans_tradeoff_pe_cores">Архитектурный анализ гетерогенных ядер P/E: какую роль играют 16 E-ядер в Core i9-14900K при многопоточном рендеринге и почему они не дают прироста в офисных задачах или соревновательных играх?</label>
+      <textarea id="ans_tradeoff_pe_cores" name="ans_tradeoff_pe_cores" placeholder="Опишите различие между P-ядрами (высокий IPC, широкое декодирование, высокая частота) и E-ядрами (компактная энергоэффективная архитектура Gracemont без гиперпоточности), планировщик Intel Thread Director..."></textarea>
+    </div>
+  </div>
 
- <!-- ЗАДАНИЕ 2 -->
- <div class="task-card">
- <div class="task-title">Задание 2. Расчёт пределов ускорения по закону Амдала</div>
- <div class="task-help">
- Закон Амдала определяет теоретический предел ускорения S(N) при распараллеливании вычислений на N исполнительных ядер:<br>
- <span class="formula-badge">S(N) = 1 / ((1 - p) + p / N)</span>, асимптотический предел: <span class="formula-badge">S_max = 1 / (1 - p)</span> при N &rarr; &infin;.<br>
- Заполните расчётную таблицу ускорений относительно одного ядра (N=1) для трёх профилей параллельности программного кода.
- </div>
+  <!-- ЗАДАНИЕ 2 -->
+  <div class="task-card">
+    <div class="task-title">Задание 2. Расчёт пределов ускорения по закону Амдала</div>
+    <div class="task-help">
+      Закон Амдала определяет теоретический предел ускорения S(N) при распараллеливании вычислений на N исполнительных ядер:<br>
+      <span class="formula-badge">S(N) = 1 / ((1 - p) + p / N)</span>, асимптотический предел: <span class="formula-badge">S_max = 1 / (1 - p)</span> при N &rarr; &infin;.<br>
+      Заполните расчётную таблицу ускорений относительно одного ядра (N=1) для трёх профилей параллельности программного кода.
+    </div>
 
- <div class="table-wrap">
- <table>
- <thead>
- <tr>
- <th style="width: 25%;">Профиль нагрузки и доля p</th>
- <th style="width: 15%;">S(4 ядра)</th>
- <th style="width: 15%;">S(8 ядер)</th>
- <th style="width: 15%;">S(16 ядер)</th>
- <th style="width: 15%;">S(32 ядра)</th>
- <th style="width: 15%;">Предел S_max (&infin;)</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>Случай A: Офис / 1С / Браузинг</strong><br>Параллельная доля: <code>p = 0.40</code> (40%)</td>
- <td><input type="text" class="table-input" id="amd_a_4" name="amd_a_4" placeholder="1 / (0.60 + 0.10) =..."></td>
- <td><input type="text" class="table-input" id="amd_a_8" name="amd_a_8" placeholder="1 / (0.60 + 0.05) =..."></td>
- <td><input type="text" class="table-input" id="amd_a_16" name="amd_a_16" placeholder="..."></td>
- <td><input type="text" class="table-input" id="amd_a_32" name="amd_a_32" placeholder="..."></td>
- <td><input type="text" class="table-input" id="amd_a_inf" name="amd_a_inf" placeholder="1 / (1 - 0.40) =..."></td>
- </tr>
- <tr>
- <td><strong>Случай B: Игровой движок (CS2 / физика)</strong><br>Параллельная доля: <code>p = 0.70</code> (70%)</td>
- <td><input type="text" class="table-input" id="amd_b_4" name="amd_b_4" placeholder="1 / (0.30 + 0.175) =..."></td>
- <td><input type="text" class="table-input" id="amd_b_8" name="amd_b_8" placeholder="..."></td>
- <td><input type="text" class="table-input" id="amd_b_16" name="amd_b_16" placeholder="..."></td>
- <td><input type="text" class="table-input" id="amd_b_32" name="amd_b_32" placeholder="..."></td>
- <td><input type="text" class="table-input" id="amd_b_inf" name="amd_b_inf" placeholder="1 / (1 - 0.70) =..."></td>
- </tr>
- <tr>
- <td><strong>Случай C: 3D-рендеринг / Компиляция</strong><br>Параллельная доля: <code>p = 0.95</code> (95%)</td>
- <td><input type="text" class="table-input" id="amd_c_4" name="amd_c_4" placeholder="1 / (0.05 + 0.2375) =..."></td>
- <td><input type="text" class="table-input" id="amd_c_8" name="amd_c_8" placeholder="..."></td>
- <td><input type="text" class="table-input" id="amd_c_16" name="amd_c_16" placeholder="..."></td>
- <td><input type="text" class="table-input" id="amd_c_32" name="amd_c_32" placeholder="..."></td>
- <td><input type="text" class="table-input" id="amd_c_inf" name="amd_c_inf" placeholder="1 / (1 - 0.95) =..."></td>
- </tr>
- </tbody>
- </table>
- </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25%;">Профиль нагрузки и доля p</th>
+            <th style="width: 15%;">S(4 ядра)</th>
+            <th style="width: 15%;">S(8 ядер)</th>
+            <th style="width: 15%;">S(16 ядер)</th>
+            <th style="width: 15%;">S(32 ядра)</th>
+            <th style="width: 15%;">Предел S_max (&infin;)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Случай A: Офис / 1С / Браузинг</strong><br>Параллельная доля: <code>p = 0.40</code> (40%)</td>
+            <td><input type="text" class="table-input" id="amd_a_4" name="amd_a_4" placeholder="1 / (0.60 + 0.10) = ..."></td>
+            <td><input type="text" class="table-input" id="amd_a_8" name="amd_a_8" placeholder="1 / (0.60 + 0.05) = ..."></td>
+            <td><input type="text" class="table-input" id="amd_a_16" name="amd_a_16" placeholder="..."></td>
+            <td><input type="text" class="table-input" id="amd_a_32" name="amd_a_32" placeholder="..."></td>
+            <td><input type="text" class="table-input" id="amd_a_inf" name="amd_a_inf" placeholder="1 / (1 - 0.40) = ..."></td>
+          </tr>
+          <tr>
+            <td><strong>Случай B: Игровой движок (CS2 / физика)</strong><br>Параллельная доля: <code>p = 0.70</code> (70%)</td>
+            <td><input type="text" class="table-input" id="amd_b_4" name="amd_b_4" placeholder="1 / (0.30 + 0.175) = ..."></td>
+            <td><input type="text" class="table-input" id="amd_b_8" name="amd_b_8" placeholder="..."></td>
+            <td><input type="text" class="table-input" id="amd_b_16" name="amd_b_16" placeholder="..."></td>
+            <td><input type="text" class="table-input" id="amd_b_32" name="amd_b_32" placeholder="..."></td>
+            <td><input type="text" class="table-input" id="amd_b_inf" name="amd_b_inf" placeholder="1 / (1 - 0.70) = ..."></td>
+          </tr>
+          <tr>
+            <td><strong>Случай C: 3D-рендеринг / Компиляция</strong><br>Параллельная доля: <code>p = 0.95</code> (95%)</td>
+            <td><input type="text" class="table-input" id="amd_c_4" name="amd_c_4" placeholder="1 / (0.05 + 0.2375) = ..."></td>
+            <td><input type="text" class="table-input" id="amd_c_8" name="amd_c_8" placeholder="..."></td>
+            <td><input type="text" class="table-input" id="amd_c_16" name="amd_c_16" placeholder="..."></td>
+            <td><input type="text" class="table-input" id="amd_c_32" name="amd_c_32" placeholder="..."></td>
+            <td><input type="text" class="table-input" id="amd_c_inf" name="amd_c_inf" placeholder="1 / (1 - 0.95) = ..."></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
- <div class="field-group">
- <label for="ans_amdahl_conclusion">Инженерный вывод по закону Амдала: на сколько процентов ускоряется офисная работа (p=0.40) при переходе с 4-ядерного чипа на 32-ядерный процессор? Оправданы ли финансовые затраты и энергопотребление такого апгрейда?</label>
- <textarea id="ans_amdahl_conclusion" name="ans_amdahl_conclusion" placeholder="Сравните S(4) и S(32), рассчитайте процент реального прироста ((S(32) - S(4)) / S(4) * 100%), сделайте вывод об экономической и аппаратной целесообразности..."></textarea>
- </div>
- </div>
+    <div class="field-group">
+      <label for="ans_amdahl_conclusion">Инженерный вывод по закону Амдала: на сколько процентов ускоряется офисная работа (p=0.40) при переходе с 4-ядерного чипа на 32-ядерный процессор? Оправданы ли финансовые затраты и энергопотребление такого апгрейда?</label>
+      <textarea id="ans_amdahl_conclusion" name="ans_amdahl_conclusion" placeholder="Сравните S(4) и S(32), рассчитайте процент реального прироста ((S(32) - S(4)) / S(4) * 100%), сделайте вывод об экономической и аппаратной целесообразности..."></textarea>
+    </div>
+  </div>
 
- <!-- ЗАДАНИЕ 3 -->
- <div class="task-card">
- <div class="task-title">Задание 3. Индивидуальный расчётно-обоснованный протокол выбора процессора</div>
- <div class="task-help">
- Заполните протокол строго по выбранному в шапке варианту профиля нагрузки. Выберите оптимальный процессор из матрицы 4 моделей, обоснуйте выбор через закон Амдала и узкие места архитектуры, а также докажите непригодность или неэффективность остальных 3 процессоров.
- </div>
+  <!-- ЗАДАНИЕ 3 -->
+  <div class="task-card">
+    <div class="task-title">Задание 3. Индивидуальный расчётно-обоснованный протокол выбора процессора</div>
+    <div class="task-help">
+      Заполните протокол строго по выбранному в шапке варианту профиля нагрузки. Выберите оптимальный процессор из матрицы 4 моделей, обоснуйте выбор через закон Амдала и узкие места архитектуры, а также докажите непригодность или неэффективность остальных 3 процессоров.
+    </div>
 
- <div class="variant-card">
- <div class="variant-title">Справка по профилям нагрузки вариантов:</div>
- <ul style="margin-left: 20px; font-size: 14px;">
- <li><strong>Вариант 1 (Киберспортивный игровой ПК):</strong> соревновательные онлайн-шутеры (CS2, Valorant, Dota 2), 240+ FPS, монитор 240/360 Гц, критична задержка межъядерного взаимодействия и доступ к кэшу L3, p ≈ 0.65 - 0.70.</li>
- <li><strong>Вариант 2 (Рабочая станция 3D-рендеринга):</strong> Blender Cycles, Cinema 4D, компиляция масштабных C++/Rust проектов, высокопараллельная нагрузка на все ядра, p ≈ 0.95.</li>
- <li><strong>Вариант 3 (Офисно-бухгалтерский компьютер):</strong> 1С:Предприятие (толстый/тонкий клиент), сводные таблицы Excel с макросами, электронный документооборот, видеоконференции, лимит бюджета и требования к тишине/энергоэффективности, p ≈ 0.40.</li>
- <li><strong>Вариант 4 (Сервер виртуализации для IT-лаборатории):</strong> Proxmox VE, одновременный запуск 25–30 виртуальных машин студентов, СУБД PostgreSQL, непрерывная работа 24/7, критична пропускная способность памяти и поддержка ECC.</li>
- </ul>
- </div>
+    <div class="variant-card">
+      <div class="variant-title">Справка по профилям нагрузки вариантов:</div>
+      <ul style="margin-left: 20px; font-size: 14px;">
+        <li><strong>Вариант 1 (Киберспортивный игровой ПК):</strong> соревновательные онлайн-шутеры (CS2, Valorant, Dota 2), 240+ FPS, монитор 240/360 Гц, критична задержка межъядерного взаимодействия и доступ к кэшу L3, p ≈ 0.65 - 0.70.</li>
+        <li><strong>Вариант 2 (Рабочая станция 3D-рендеринга):</strong> Blender Cycles, Cinema 4D, компиляция масштабных C++/Rust проектов, высокопараллельная нагрузка на все ядра, p ≈ 0.95.</li>
+        <li><strong>Вариант 3 (Офисно-бухгалтерский компьютер):</strong> 1С:Предприятие (толстый/тонкий клиент), сводные таблицы Excel с макросами, электронный документооборот, видеоконференции, лимит бюджета и требования к тишине/энергоэффективности, p ≈ 0.40.</li>
+        <li><strong>Вариант 4 (Сервер виртуализации для IT-лаборатории):</strong> Proxmox VE, одновременный запуск 25–30 виртуальных машин студентов, СУБД PostgreSQL, непрерывная работа 24/7, критична пропускная способность памяти и поддержка ECC.</li>
+      </ul>
+    </div>
 
- <div class="field-group" style="margin-top: 16px;">
- <label for="proto_chosen_cpu">1. Выбранная оптимальная модель процессора под профиль варианта:</label>
- <input type="text" id="proto_chosen_cpu" name="proto_chosen_cpu" placeholder="Укажите точное наименование процессора из матрицы (Core i3 / Ryzen 7 / Core i9 / EPYC)">
- </div>
+    <div class="field-group" style="margin-top: 16px;">
+      <label for="proto_chosen_cpu">1. Выбранная оптимальная модель процессора под профиль варианта:</label>
+      <input type="text" id="proto_chosen_cpu" name="proto_chosen_cpu" placeholder="Укажите точное наименование процессора из матрицы (Core i3 / Ryzen 7 / Core i9 / EPYC)">
+    </div>
 
- <div class="field-group">
- <label for="proto_bottleneck">2. Архитектурная идентификация ключевого узкого места задачи (Bottleneck):</label>
- <textarea id="proto_bottleneck" name="proto_bottleneck" placeholder="Определите характер нагрузки: Compute-bound (вычислительная пропускная способность ALU/FPU), Memory-bound (пропускная способность шины памяти ОЗУ), Cache-latency bound (задержка доступа к кэшу) или Single-thread latency bound... Обоснуйте, почему именно этот фактор является решающим."></textarea>
- </div>
+    <div class="field-group">
+      <label for="proto_bottleneck">2. Архитектурная идентификация ключевого узкого места задачи (Bottleneck):</label>
+      <textarea id="proto_bottleneck" name="proto_bottleneck" placeholder="Определите характер нагрузки: Compute-bound (вычислительная пропускная способность ALU/FPU), Memory-bound (пропускная способность шины памяти ОЗУ), Cache-latency bound (задержка доступа к кэшу) или Single-thread latency bound... Обоснуйте, почему именно этот фактор является решающим."></textarea>
+    </div>
 
- <div class="field-group">
- <label for="proto_amdahl_calc">3. Расчётное обоснование эффективности числа ядер по закону Амдала:</label>
- <textarea id="proto_amdahl_calc" name="proto_amdahl_calc" placeholder="Приведите расчет ускорения S(N) для выбранного процессора относительно базового 4-ядерного решения. Укажите долю p для вашего варианта и продемонстрируйте, насколько эффективно используются ядра выбранного чипа."></textarea>
- </div>
+    <div class="field-group">
+      <label for="proto_amdahl_calc">3. Расчётное обоснование эффективности числа ядер по закону Амдала:</label>
+      <textarea id="proto_amdahl_calc" name="proto_amdahl_calc" placeholder="Приведите расчет ускорения S(N) для выбранного процессора относительно базового 4-ядерного решения. Укажите долю p для вашего варианта и продемонстрируйте, насколько эффективно используются ядра выбранного чипа."></textarea>
+    </div>
 
- <div class="field-group">
- <label for="proto_alternatives_critique">4. Критический сравнительный анализ 3 альтернативных процессоров (почему они отклонены):</label>
- <textarea id="proto_alternatives_critique" name="proto_alternatives_critique" placeholder="Последовательно разберите три оставшихся чипа из матрицы:
+    <div class="field-group">
+      <label for="proto_alternatives_critique">4. Критический сравнительный анализ 3 альтернативных процессоров (почему они отклонены):</label>
+      <textarea id="proto_alternatives_critique" name="proto_alternatives_critique" placeholder="Последовательно разберите три оставшихся чипа из матрицы:
 1) Почему первый чип не подходит (избыточность цены/TDP или нехватка мощности/кэша)?
 2) Почему второй чип не подходит (недостаточная надежность/каналы памяти или перегрев)?
 3) Почему третий чип не подходит (архитектурные ограничения или неэффективность)?"></textarea>
- </div>
+    </div>
 
- <div class="field-group">
- <label for="proto_cooling_power">5. Требования к энергопотреблению, лимитам мощности (PL1/PL2/TDP) и системе охлаждения:</label>
- <textarea id="proto_cooling_power" name="proto_cooling_power" placeholder="Опишите тепловыделение выбранного чипа при длительной 100% нагрузке: достаточно ли бюджетного кулера (TDP до 95 Вт), суперкулера (до 200 Вт), жидкостной системы охлаждения (СЖО 360 мм, до 300 Вт) или требуется серверное шасси со сквозным продувом..."></textarea>
- </div>
- </div>
+    <div class="field-group">
+      <label for="proto_cooling_power">5. Требования к энергопотреблению, лимитам мощности (PL1/PL2/TDP) и системе охлаждения:</label>
+      <textarea id="proto_cooling_power" name="proto_cooling_power" placeholder="Опишите тепловыделение выбранного чипа при длительной 100% нагрузке: достаточно ли бюджетного кулера (TDP до 95 Вт), суперкулера (до 200 Вт), жидкостной системы охлаждения (СЖО 360 мм, до 300 Вт) или требуется серверное шасси со сквозным продувом..."></textarea>
+    </div>
+  </div>
 
- <!-- ПАНЕЛЬ ДЕЙСТВИЙ (СКРЫВАЕТСЯ НА ПЕЧАТИ) -->
- <div class="actions-card">
- <div class="btn-row">
- <button type="button" class="btn-primary" onclick="printPage()">🖨️ Печать / Сохранить в PDF</button>
- <button type="button" class="btn-secondary" onclick="saveData(true)">💾 Сохранить черновик</button>
- <button type="button" class="btn-danger" onclick="confirmReset()">🗑️ Очистить форму</button>
- <span class="status-msg status-saved" id="save_status"></span>
- </div>
- </div>
+  <!-- ПАНЕЛЬ ДЕЙСТВИЙ (СКРЫВАЕТСЯ НА ПЕЧАТИ) -->
+  <div class="actions-card">
+    <div class="btn-row">
+      <button type="button" class="btn-primary" onclick="printPage()">🖨️ Печать / Сохранить в PDF</button>
+      <button type="button" class="btn-secondary" onclick="saveData(true)">💾 Сохранить черновик</button>
+      <button type="button" class="btn-danger" onclick="confirmReset()">🗑️ Очистить форму</button>
+      <span class="status-msg status-saved" id="save_status"></span>
+    </div>
+  </div>
 
 </div>
 
 <script>
- const STORAGE_KEY = 'arch_lab6_cpu_comparison_data';
+  const STORAGE_KEY = 'arch_lab6_cpu_comparison_data';
 
- const fieldIds = [
- 'student_fio', 'student_group', 'work_date', 'student_variant',
- 'eff_i3', 'eff_r7', 'eff_i9', 'eff_epyc',
- 'ans_tradeoff_ipc_cache', 'ans_tradeoff_pe_cores',
- 'amd_a_4', 'amd_a_8', 'amd_a_16', 'amd_a_32', 'amd_a_inf',
- 'amd_b_4', 'amd_b_8', 'amd_b_16', 'amd_b_32', 'amd_b_inf',
- 'amd_c_4', 'amd_c_8', 'amd_c_16', 'amd_c_32', 'amd_c_inf',
- 'ans_amdahl_conclusion',
- 'proto_chosen_cpu', 'proto_bottleneck', 'proto_amdahl_calc',
- 'proto_alternatives_critique', 'proto_cooling_power'
- ];
+  const fieldIds = [
+    'student_fio', 'student_group', 'work_date', 'student_variant',
+    'eff_i3', 'eff_r7', 'eff_i9', 'eff_epyc',
+    'ans_tradeoff_ipc_cache', 'ans_tradeoff_pe_cores',
+    'amd_a_4', 'amd_a_8', 'amd_a_16', 'amd_a_32', 'amd_a_inf',
+    'amd_b_4', 'amd_b_8', 'amd_b_16', 'amd_b_32', 'amd_b_inf',
+    'amd_c_4', 'amd_c_8', 'amd_c_16', 'amd_c_32', 'amd_c_inf',
+    'ans_amdahl_conclusion',
+    'proto_chosen_cpu', 'proto_bottleneck', 'proto_amdahl_calc',
+    'proto_alternatives_critique', 'proto_cooling_power'
+  ];
 
- function autoResize(el) {
- el.style.height = 'auto';
- el.style.height = (el.scrollHeight + 4) + 'px';
- }
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = (el.scrollHeight + 4) + 'px';
+  }
 
- function syncVariantPrint() {
- const sel = document.getElementById('student_variant');
- const printEl = document.getElementById('print_variant_text');
- if (sel && printEl) {
- const txt = sel.options[sel.selectedIndex]?.text | '';
- printEl.textContent = sel.value ? txt : 'Вариант не выбран';
- }
- }
+  function syncVariantPrint() {
+    const sel = document.getElementById('student_variant');
+    const printEl = document.getElementById('print_variant_text');
+    if (sel && printEl) {
+      const txt = sel.options[sel.selectedIndex]?.text || '';
+      printEl.textContent = sel.value ? txt : 'Вариант не выбран';
+    }
+  }
 
- function saveData(notify) {
- const data = {};
- fieldIds.forEach(id => {
- const el = document.getElementById(id);
- if (el) {
- data[id] = el.value;
- }
- });
- try {
- localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
- if (notify) {
- showStatus('Данные успешно сохранены локально');
- }
- } catch (e) {
- console.warn('LocalStorage save failed:', e);
- }
- }
+  function saveData(notify) {
+    const data = {};
+    fieldIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        data[id] = el.value;
+      }
+    });
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      if (notify) {
+        showStatus('Данные успешно сохранены локально');
+      }
+    } catch (e) {
+      console.warn('LocalStorage save failed:', e);
+    }
+  }
 
- function loadData() {
- try {
- const raw = localStorage.getItem(STORAGE_KEY);
- if (!raw) return;
- const data = JSON.parse(raw);
- fieldIds.forEach(id => {
- const el = document.getElementById(id);
- if (el && data[id] !== undefined) {
- el.value = data[id];
- if (el.tagName.toLowerCase() === 'textarea') {
- autoResize(el);
- }
- }
- });
- syncVariantPrint();
- showStatus('Сохранённые данные восстановлены');
- } catch (e) {
- console.warn('LocalStorage load failed:', e);
- }
- }
+  function loadData() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      fieldIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && data[id] !== undefined) {
+          el.value = data[id];
+          if (el.tagName.toLowerCase() === 'textarea') {
+            autoResize(el);
+          }
+        }
+      });
+      syncVariantPrint();
+      showStatus('Сохранённые данные восстановлены');
+    } catch (e) {
+      console.warn('LocalStorage load failed:', e);
+    }
+  }
 
- function confirmReset() {
- if (confirm('Вы действительно хотите очистить все поля формы? Все введённые данные будут безвозвратно удалены.')) {
- localStorage.removeItem(STORAGE_KEY);
- fieldIds.forEach(id => {
- const el = document.getElementById(id);
- if (el) {
- el.value = '';
- if (el.tagName.toLowerCase() === 'textarea') {
- el.style.height = '';
- }
- }
- });
- syncVariantPrint();
- showStatus('Форма очищена');
- }
- }
+  function confirmReset() {
+    if (confirm('Вы действительно хотите очистить все поля формы? Все введённые данные будут безвозвратно удалены.')) {
+      localStorage.removeItem(STORAGE_KEY);
+      fieldIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.value = '';
+          if (el.tagName.toLowerCase() === 'textarea') {
+            el.style.height = '';
+          }
+        }
+      });
+      syncVariantPrint();
+      showStatus('Форма очищена');
+    }
+  }
 
- function printPage() {
- syncVariantPrint();
- window.print();
- }
+  function printPage() {
+    syncVariantPrint();
+    window.print();
+  }
 
- function showStatus(text) {
- const el = document.getElementById('save_status');
- if (el) {
- el.textContent = text;
- el.style.display = 'inline';
- setTimeout(() => {
- el.textContent = '';
- }, 4000);
- }
- }
+  function showStatus(text) {
+    const el = document.getElementById('save_status');
+    if (el) {
+      el.textContent = text;
+      el.style.display = 'inline';
+      setTimeout(() => {
+        el.textContent = '';
+      }, 4000);
+    }
+  }
 
- document.addEventListener('DOMContentLoaded', () => {
- loadData();
+  document.addEventListener('DOMContentLoaded', () => {
+    loadData();
 
- document.querySelectorAll('textarea').forEach(ta => {
- autoResize(ta);
- ta.addEventListener('input', () => {
- autoResize(ta);
- saveData(false);
- });
- });
+    document.querySelectorAll('textarea').forEach(ta => {
+      autoResize(ta);
+      ta.addEventListener('input', () => {
+        autoResize(ta);
+        saveData(false);
+      });
+    });
 
- document.querySelectorAll('input, select').forEach(inp => {
- inp.addEventListener('input', () => {
- saveData(false);
- });
- inp.addEventListener('change', () => {
- saveData(false);
- });
- });
- });
+    document.querySelectorAll('input, select').forEach(inp => {
+      inp.addEventListener('input', () => {
+        saveData(false);
+      });
+      inp.addEventListener('change', () => {
+        saveData(false);
+      });
+    });
+  });
 </script>
 </body>
 </html>

@@ -1,629 +1,663 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
- <title>Рабочий лист: Программная инсталляция и конфигурирование периферийных устройств</title>
- <style>
- :root {
- --bg: #f8fafc;
- --card: #ffffff;
- --text: #0f172a;
- --muted: #475569;
- --line: #cbd5e1;
- --accent: #1e40af;
- --accent-soft: #eff6ff;
- --ok: #059669;
- --warn: #d97706;
- --danger: #dc2626;
- --radius: 12px;
- --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
- }
- * { box-sizing: border-box; margin: 0; padding: 0; }
- body {
- background: var(--bg);
- color: var(--text);
- font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
- line-height: 1.6;
- font-size: 15px;
- padding: 20px 14px;
- }.page {
- max-width: 960px;
- margin: 0 auto;
- }.header-card,.student-card,.task-card,.actions-card,.rubric-card {
- background: var(--card);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 24px;
- margin-bottom: 20px;
- box-shadow: var(--shadow);
- }
- h1 {
- font-size: clamp(20px, 3.2vw, 25px);
- color: var(--accent);
- margin-bottom: 8px;
- line-height: 1.3;
- }
- h2 {
- font-size: 18px;
- color: var(--accent);
- margin: 18px 0 10px;
- border-bottom: 1.5px solid var(--accent-soft);
- padding-bottom: 6px;
- }
- h3 {
- font-size: 15.5px;
- margin: 14px 0 6px;
- color: #1e293b;
- }.desc {
- color: var(--muted);
- font-size: 14px;
- margin-bottom: 6px;
- }.notice {
- background: #eff6ff;
- border-left: 4px solid var(--accent);
- padding: 10px 14px;
- border-radius: 0 8px 8px 0;
- font-size: 13.5px;
- color: #1e40af;
- margin-top: 10px;
- }.student-grid {
- display: grid;
- grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
- gap: 16px;
- margin-bottom: 8px;
- }
- label {
- display: block;
- font-weight: 600;
- font-size: 13.5px;
- margin-bottom: 6px;
- color: #1e293b;
- }
- input[type="text"], select, textarea {
- width: 100%;
- border: 1.5px solid var(--line);
- border-radius: 8px;
- padding: 9px 12px;
- font: inherit;
- font-size: 14px;
- background: #fff;
- color: var(--text);
- outline: none;
- transition: border-color 0.2s, box-shadow 0.2s;
- }
- input:focus, select:focus, textarea:focus {
- border-color: var(--accent);
- box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.12);
- }
- textarea {
- min-height: 85px;
- resize: vertical;
- }.variant-card {
- display: none;
- animation: fadeIn 0.2s ease-in-out;
- }.variant-card.active {
- display: block;
- }
- @keyframes fadeIn {
- from { opacity: 0; transform: translateY(4px); }
- to { opacity: 1; transform: translateY(0); }
- }.variant-header {
- background: var(--accent-soft);
- border: 1px solid #bfdbfe;
- border-radius: 10px;
- padding: 16px;
- margin-bottom: 18px;
- }.variant-badge {
- display: inline-block;
- padding: 3px 10px;
- border-radius: 6px;
- background: var(--accent);
- color: #fff;
- font-size: 12px;
- font-weight: 700;
- text-transform: uppercase;
- letter-spacing: 0.05em;
- margin-bottom: 6px;
- }.variant-title {
- font-size: 17px;
- font-weight: 700;
- color: var(--accent);
- margin-bottom: 4px;
- }.checklist {
- list-style: none;
- padding: 0;
- margin: 12px 0;
- }.checklist li {
- display: flex;
- align-items: flex-start;
- gap: 10px;
- margin-bottom: 8px;
- font-size: 14px;
- }.checklist input[type="checkbox"] {
- width: 18px;
- height: 18px;
- margin-top: 2px;
- accent-color: var(--accent);
- cursor: pointer;
- }.code-tag {
- font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
- font-size: 13px;
- background: #e2e8f0;
- color: #0f172a;
- padding: 2px 6px;
- border-radius: 4px;
- }.form-group {
- margin-bottom: 16px;
- }.btn-group {
- display: flex;
- flex-wrap: wrap;
- gap: 12px;
- align-items: center;
- justify-content: space-between;
- }.btn-actions {
- display: flex;
- gap: 10px;
- flex-wrap: wrap;
- }
- button {
- padding: 10px 18px;
- border-radius: 8px;
- font: inherit;
- font-size: 14px;
- font-weight: 600;
- cursor: pointer;
- border: none;
- transition: background 0.15s, transform 0.05s;
- }
- button:active { transform: translateY(1px); }.btn-primary { background: var(--accent); color: white; }.btn-primary:hover { background: #1d4ed8; }.btn-success { background: #059669; color: white; }.btn-success:hover { background: #047857; }.btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }.btn-danger:hover { background: #fecaca; }.status-msg {
- font-size: 13.5px;
- font-weight: 500;
- color: var(--ok);
- }.print-mirror {
- display: none;
- white-space: pre-wrap;
- word-break: break-word;
- font-size: 14px;
- line-height: 1.5;
- padding: 8px 12px;
- border: 1.5px solid #cbd5e1;
- border-radius: 8px;
- background: #fafafa;
- min-height: 60px;
- }
- @media (max-width: 480px) {
- body { padding: 12px 8px; font-size: 13.5px; }.header-card,.student-card,.task-card,.actions-card { padding: 16px; }.student-grid { grid-template-columns: 1fr; }.btn-group { flex-direction: column; align-items: stretch; }
- button { width: 100%; justify-content: center; }
- }
- @media print {
- body { background: #fff; padding: 0; font-size: 10pt; color: #000; }.page { max-width: 100%; margin: 0; }.header-card,.student-card,.task-card,.actions-card,.rubric-card {
- box-shadow: none;
- border: 1px solid #ccc;
- break-inside: avoid;
- margin-bottom: 10pt;
- padding: 10pt;
- }.actions-card,.notice,.status-msg { display: none !important; }.variant-card { display: none !important; }.variant-card.active { display: block !important; }
- textarea { display: none !important; }.print-mirror { display: block !important; }
- input::placeholder, textarea::placeholder { color: transparent !important; }
- }
- </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Рабочий лист: Программная инсталляция и конфигурирование периферийных устройств</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --ok: #059669;
+      --warn: #d97706;
+      --danger: #dc2626;
+      --radius: 12px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .task-card, .actions-card, .rubric-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(20px, 3.2vw, 25px);
+      color: var(--accent);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    h2 {
+      font-size: 18px;
+      color: var(--accent);
+      margin: 18px 0 10px;
+      border-bottom: 1.5px solid var(--accent-soft);
+      padding-bottom: 6px;
+    }
+    h3 {
+      font-size: 15.5px;
+      margin: 14px 0 6px;
+      color: #1e293b;
+    }
+    .desc {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+    .notice {
+      background: #eff6ff;
+      border-left: 4px solid var(--accent);
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      font-size: 13.5px;
+      color: #1e40af;
+      margin-top: 10px;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    input[type="text"], select, textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.12);
+    }
+    textarea {
+      min-height: 85px;
+      resize: vertical;
+    }
+    .variant-card {
+      display: none;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+    .variant-card.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .variant-header {
+      background: var(--accent-soft);
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+    .variant-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 6px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+    .variant-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .checklist {
+      list-style: none;
+      padding: 0;
+      margin: 12px 0;
+    }
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .checklist input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+    .code-tag {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      background: #e2e8f0;
+      color: #0f172a;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .btn-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    button {
+      padding: 10px 18px;
+      border-radius: 8px;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background 0.15s, transform 0.05s;
+    }
+    button:active { transform: translateY(1px); }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-success { background: #059669; color: white; }
+    .btn-success:hover { background: #047857; }
+    .btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #fecaca; }
+    .status-msg {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--ok);
+    }
+    .print-mirror {
+      display: none;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 14px;
+      line-height: 1.5;
+      padding: 8px 12px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      background: #fafafa;
+      min-height: 60px;
+    }
+    @media (max-width: 480px) {
+      body { padding: 12px 8px; font-size: 13.5px; }
+      .header-card, .student-card, .task-card, .actions-card { padding: 16px; }
+      .student-grid { grid-template-columns: 1fr; }
+      .btn-group { flex-direction: column; align-items: stretch; }
+      button { width: 100%; justify-content: center; }
+    }
+    @media print {
+      body { background: #fff; padding: 0; font-size: 10pt; color: #000; }
+      .page { max-width: 100%; margin: 0; }
+      .header-card, .student-card, .task-card, .actions-card, .rubric-card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+        break-inside: avoid;
+        margin-bottom: 10pt;
+        padding: 10pt;
+      }
+      .actions-card, .notice, .status-msg { display: none !important; }
+      .variant-card { display: none !important; }
+      .variant-card.active { display: block !important; }
+      textarea { display: none !important; }
+      .print-mirror { display: block !important; }
+      input::placeholder, textarea::placeholder { color: transparent !important; }
+    }
+  </style>
 </head>
 <body>
 <div class="page">
 
- <!-- ШАПКА -->
- <div class="header-card">
- <h1>Рабочий лист: Программная инсталляция и конфигурирование периферийных устройств</h1>
- <div class="desc">Практический протокол идентификации оборудования по дескрипторам Hardware ID, устранения системных конфликтов, настройки параметров портов и инструментальной проверки работоспособности.</div>
- <div class="notice">
- Внимание: форма автоматически сохраняет все вводимые данные в локальное хранилище текущего браузера. Перед окончанием работы в компьютерном классе экспортируйте заполненный протокол в PDF.
- </div>
- </div>
+  <!-- ШАПКА -->
+  <div class="header-card">
+    <h1>Рабочий лист: Программная инсталляция и конфигурирование периферийных устройств</h1>
+    <div class="desc">Практический протокол идентификации оборудования по дескрипторам Hardware ID, устранения системных конфликтов, настройки параметров портов и инструментальной проверки работоспособности.</div>
+    <div class="notice">
+      Внимание: форма автоматически сохраняет все вводимые данные в локальное хранилище текущего браузера. Перед окончанием работы в компьютерном классе экспортируйте заполненный протокол в PDF.
+    </div>
+  </div>
 
- <!-- ДАННЫЕ СТУДЕНТА И ВЫБОР ВАРИАНТА -->
- <div class="student-card">
- <div class="student-grid">
- <div>
- <label for="st_fio">Фамилия, Имя обучающегося:</label>
- <input type="text" id="st_fio" autocomplete="name">
- </div>
- <div>
- <label for="st_group">Учебная группа:</label>
- <input type="text" id="st_group">
- </div>
- <div>
- <label for="var_select">Практический вариант (профиль устройства):</label>
- <select id="var_select" onchange="switchVariant()">
- <option value="1">Вариант 1: Сетевое МФУ (RAW 9100 / PCL6 / Duplex)</option>
- <option value="2">Вариант 2: Графический планшет и перо (WinTab / 8192 уровней)</option>
- <option value="3">Вариант 3: Аудиоинтерфейс USB Audio 2.0 (ASIO / Буфер 64-128)</option>
- <option value="4">Вариант 4: Промышленный сканер ШК (Virtual COM / 115200 / CR-LF)</option>
- </select>
- </div>
- </div>
- </div>
+  <!-- ДАННЫЕ СТУДЕНТА И ВЫБОР ВАРИАНТА -->
+  <div class="student-card">
+    <div class="student-grid">
+      <div>
+        <label for="st_fio">Фамилия, Имя обучающегося:</label>
+        <input type="text" id="st_fio" autocomplete="name">
+      </div>
+      <div>
+        <label for="st_group">Учебная группа:</label>
+        <input type="text" id="st_group">
+      </div>
+      <div>
+        <label for="var_select">Практический вариант (профиль устройства):</label>
+        <select id="var_select" onchange="switchVariant()">
+          <option value="1">Вариант 1: Сетевое МФУ (RAW 9100 / PCL6 / Duplex)</option>
+          <option value="2">Вариант 2: Графический планшет и перо (WinTab / 8192 уровней)</option>
+          <option value="3">Вариант 3: Аудиоинтерфейс USB Audio 2.0 (ASIO / Буфер 64-128)</option>
+          <option value="4">Вариант 4: Промышленный сканер ШК (Virtual COM / 115200 / CR-LF)</option>
+        </select>
+      </div>
+    </div>
+  </div>
 
- <!-- ================= ВАРИАНТ 1 ================= -->
- <div class="task-card variant-card active" id="var-1">
- <div class="variant-header">
- <span class="variant-badge">Вариант 1</span>
- <div class="variant-title">Инсталляция и конфигурация сетевого многофункционального устройства</div>
- <div class="desc">Сценарий: развертывание лазерного МФУ в корпоративной подсети отдела разработки. Организация стабильной печати с защитой от сбоев динамической адресации.</div>
- </div>
+  <!-- ================= ВАРИАНТ 1 ================= -->
+  <div class="task-card variant-card active" id="var-1">
+    <div class="variant-header">
+      <span class="variant-badge">Вариант 1</span>
+      <div class="variant-title">Инсталляция и конфигурация сетевого многофункционального устройства</div>
+      <div class="desc">Сценарий: развертывание лазерного МФУ в корпоративной подсети отдела разработки. Организация стабильной печати с защитой от сбоев динамической адресации.</div>
+    </div>
 
- <h2>1. Аппаратный паспорт и идентификация интерфейса</h2>
- <div class="form-group">
- <label for="v1_hwid">Аппаратные и сетевые идентификаторы МФУ (IP-адрес, MAC-адрес, Hardware ID сетевого контроллера, порт):</label>
- <input type="text" id="v1_hwid">
- </div>
+    <h2>1. Аппаратный паспорт и идентификация интерфейса</h2>
+    <div class="form-group">
+      <label for="v1_hwid">Аппаратные и сетевые идентификаторы МФУ (IP-адрес, MAC-адрес, Hardware ID сетевого контроллера, порт):</label>
+      <input type="text" id="v1_hwid">
+    </div>
 
- <h2>2. Конфигурация сетевого порта печати</h2>
- <div class="form-group">
- <label for="v1_port_proto">Обоснование выбора сетевого порта (сравнение RAW 9100 и WSD; риски мультикаст-обнаружения в разных VLAN):</label>
- <textarea id="v1_port_proto"></textarea>
- <div class="print-mirror" id="v1_port_proto_mirror"></div>
- </div>
+    <h2>2. Конфигурация сетевого порта печати</h2>
+    <div class="form-group">
+      <label for="v1_port_proto">Обоснование выбора сетевого порта (сравнение RAW 9100 и WSD; риски мультикаст-обнаружения в разных VLAN):</label>
+      <textarea id="v1_port_proto"></textarea>
+      <div class="print-mirror" id="v1_port_proto_mirror"></div>
+    </div>
 
- <h2>3. Выбор и инсталляция драйвера</h2>
- <div class="form-group">
- <label for="v1_driver_choice">Сравнение драйверов PCL6 (PCL XL), PostScript 3 и Universal Print Driver (UPD). Обоснование выбора под офисные задачи:</label>
- <textarea id="v1_driver_choice"></textarea>
- <div class="print-mirror" id="v1_driver_choice_mirror"></div>
- </div>
+    <h2>3. Выбор и инсталляция драйвера</h2>
+    <div class="form-group">
+      <label for="v1_driver_choice">Сравнение драйверов PCL6 (PCL XL), PostScript 3 и Universal Print Driver (UPD). Обоснование выбора под офисные задачи:</label>
+      <textarea id="v1_driver_choice"></textarea>
+      <div class="print-mirror" id="v1_driver_choice_mirror"></div>
+    </div>
 
- <h2>4. Чек-лист верификации и контрольный тест</h2>
- <ul class="checklist">
- <li>
- <input type="checkbox" id="v1_chk_1">
- <label for="v1_chk_1">В сетевых настройках принтера задан статический IP-адрес вне диапазона пула DHCP маршрутизатора.</label>
- </li>
- <li>
- <input type="checkbox" id="v1_chk_2">
- <label for="v1_chk_2">Создан порт Standard TCP/IP Port с протоколом RAW и номером порта 9100 (опрос SNMP включен).</label>
- </li>
- <li>
- <input type="checkbox" id="v1_chk_3">
- <label for="v1_chk_3">В свойствах драйвера активирован модуль автоматической двусторонней печати (Duplex Unit) и второй лоток подачи.</label>
- </li>
- <li>
- <input type="checkbox" id="v1_chk_4">
- <label for="v1_chk_4">Выполнена тестовая печать страницы конфигурации; зафиксировано отсутствие зависания очереди печати в спулере.</label>
- </li>
- </ul>
+    <h2>4. Чек-лист верификации и контрольный тест</h2>
+    <ul class="checklist">
+      <li>
+        <input type="checkbox" id="v1_chk_1">
+        <label for="v1_chk_1">В сетевых настройках принтера задан статический IP-адрес вне диапазона пула DHCP маршрутизатора.</label>
+      </li>
+      <li>
+        <input type="checkbox" id="v1_chk_2">
+        <label for="v1_chk_2">Создан порт Standard TCP/IP Port с протоколом RAW и номером порта 9100 (опрос SNMP включен).</label>
+      </li>
+      <li>
+        <input type="checkbox" id="v1_chk_3">
+        <label for="v1_chk_3">В свойствах драйвера активирован модуль автоматической двусторонней печати (Duplex Unit) и второй лоток подачи.</label>
+      </li>
+      <li>
+        <input type="checkbox" id="v1_chk_4">
+        <label for="v1_chk_4">Выполнена тестовая печать страницы конфигурации; зафиксировано отсутствие зависания очереди печати в спулере.</label>
+      </li>
+    </ul>
 
- <div class="form-group">
- <label for="v1_test_report">Протокол тестовой проверки (время прохождения задания, статус спулера, проверка двусторонней печати):</label>
- <textarea id="v1_test_report"></textarea>
- <div class="print-mirror" id="v1_test_report_mirror"></div>
- </div>
- </div>
+    <div class="form-group">
+      <label for="v1_test_report">Протокол тестовой проверки (время прохождения задания, статус спулера, проверка двусторонней печати):</label>
+      <textarea id="v1_test_report"></textarea>
+      <div class="print-mirror" id="v1_test_report_mirror"></div>
+    </div>
+  </div>
 
- <!-- ================= ВАРИАНТ 2 ================= -->
- <div class="task-card variant-card" id="var-2">
- <div class="variant-header">
- <span class="variant-badge">Вариант 2</span>
- <div class="variant-title">Инсталляция и калибровка специализированного графического планшета</div>
- <div class="desc">Сценарий: подключение профессионального дигитайзера с электромагнитным пером для 2D/3D-графики. Устранение системных задержек и артефактов ввода.</div>
- </div>
+  <!-- ================= ВАРИАНТ 2 ================= -->
+  <div class="task-card variant-card" id="var-2">
+    <div class="variant-header">
+      <span class="variant-badge">Вариант 2</span>
+      <div class="variant-title">Инсталляция и калибровка специализированного графического планшета</div>
+      <div class="desc">Сценарий: подключение профессионального дигитайзера с электромагнитным пером для 2D/3D-графики. Устранение системных задержек и артефактов ввода.</div>
+    </div>
 
- <h2>1. Аппаратная идентификация дигитайзера</h2>
- <div class="form-group">
- <label for="v2_hwid">Аппаратные дескрипторы устройства (VID, PID, ревизия, класс USB HID, количество осей и уровней нажатия):</label>
- <input type="text" id="v2_hwid">
- </div>
+    <h2>1. Аппаратная идентификация дигитайзера</h2>
+    <div class="form-group">
+      <label for="v2_hwid">Аппаратные дескрипторы устройства (VID, PID, ревизия, класс USB HID, количество осей и уровней нажатия):</label>
+      <input type="text" id="v2_hwid">
+    </div>
 
- <h2>2. Разрешение конфликта со службой Windows Ink</h2>
- <div class="form-group">
- <label for="v2_ink_conflict">Анализ коллизии Windows Ink (круговая анимация правого клика, лаг начала штриха) и переход на WinTab API:</label>
- <textarea id="v2_ink_conflict"></textarea>
- <div class="print-mirror" id="v2_ink_conflict_mirror"></div>
- </div>
+    <h2>2. Разрешение конфликта со службой Windows Ink</h2>
+    <div class="form-group">
+      <label for="v2_ink_conflict">Анализ коллизии Windows Ink (круговая анимация правого клика, лаг начала штриха) и переход на WinTab API:</label>
+      <textarea id="v2_ink_conflict"></textarea>
+      <div class="print-mirror" id="v2_ink_conflict_mirror"></div>
+    </div>
 
- <h2>3. Калибровка пера и горячих клавиш</h2>
- <div class="form-group">
- <label for="v2_calib_curve">Настройка кривой чувствительности 8192 уровней нажатия пера и маппинг горячих клавиш (ExpressKeys) под графический редактор:</label>
- <textarea id="v2_calib_curve"></textarea>
- <div class="print-mirror" id="v2_calib_curve_mirror"></div>
- </div>
+    <h2>3. Калибровка пера и горячих клавиш</h2>
+    <div class="form-group">
+      <label for="v2_calib_curve">Настройка кривой чувствительности 8192 уровней нажатия пера и маппинг горячих клавиш (ExpressKeys) под графический редактор:</label>
+      <textarea id="v2_calib_curve"></textarea>
+      <div class="print-mirror" id="v2_calib_curve_mirror"></div>
+    </div>
 
- <h2>4. Чек-лист верификации и контрольный тест</h2>
- <ul class="checklist">
- <li>
- <input type="checkbox" id="v2_chk_1">
- <label for="v2_chk_1">Инсталлирован официальный вендорный драйвер KMDF с цифровой подписью WHQL.</label>
- </li>
- <li>
- <input type="checkbox" id="v2_chk_2">
- <label for="v2_chk_2">В панели управления планшетом отключена галочка «Использовать Windows Ink» (Use Windows Ink).</label>
- </li>
- <li>
- <input type="checkbox" id="v2_chk_3">
- <label for="v2_chk_3">Выполнена привязка рабочей области планшета строго к пропорциям основного монитора (16:9 / 16:10) без искажений окружностей.</label>
- </li>
- <li>
- <input type="checkbox" id="v2_chk_4">
- <label for="v2_chk_4">Проверена динамика нарастания толщины линии от легкого касания до максимального нажима 8192 в тестовой утилите.</label>
- </li>
- </ul>
+    <h2>4. Чек-лист верификации и контрольный тест</h2>
+    <ul class="checklist">
+      <li>
+        <input type="checkbox" id="v2_chk_1">
+        <label for="v2_chk_1">Инсталлирован официальный вендорный драйвер KMDF с цифровой подписью WHQL.</label>
+      </li>
+      <li>
+        <input type="checkbox" id="v2_chk_2">
+        <label for="v2_chk_2">В панели управления планшетом отключена галочка «Использовать Windows Ink» (Use Windows Ink).</label>
+      </li>
+      <li>
+        <input type="checkbox" id="v2_chk_3">
+        <label for="v2_chk_3">Выполнена привязка рабочей области планшета строго к пропорциям основного монитора (16:9 / 16:10) без искажений окружностей.</label>
+      </li>
+      <li>
+        <input type="checkbox" id="v2_chk_4">
+        <label for="v2_chk_4">Проверена динамика нарастания толщины линии от легкого касания до максимального нажима 8192 в тестовой утилите.</label>
+      </li>
+    </ul>
 
- <div class="form-group">
- <label for="v2_test_report">Протокол тестирования координатного ввода (плавность штриха, отсутствие паразитных кругов ожидания, работа ластика пера):</label>
- <textarea id="v2_test_report"></textarea>
- <div class="print-mirror" id="v2_test_report_mirror"></div>
- </div>
- </div>
+    <div class="form-group">
+      <label for="v2_test_report">Протокол тестирования координатного ввода (плавность штриха, отсутствие паразитных кругов ожидания, работа ластика пера):</label>
+      <textarea id="v2_test_report"></textarea>
+      <div class="print-mirror" id="v2_test_report_mirror"></div>
+    </div>
+  </div>
 
- <!-- ================= ВАРИАНТ 3 ================= -->
- <div class="task-card variant-card" id="var-3">
- <div class="variant-header">
- <span class="variant-badge">Вариант 3</span>
- <div class="variant-title">Конфигурирование звукового интерфейса USB Audio Class 2.0</div>
- <div class="desc">Сценарий: интеграция студийного аудиоинтерфейса. Минимизация сквозной задержки ввода-вывода (Round-Trip Latency) и устранение опустошения буферов.</div>
- </div>
+  <!-- ================= ВАРИАНТ 3 ================= -->
+  <div class="task-card variant-card" id="var-3">
+    <div class="variant-header">
+      <span class="variant-badge">Вариант 3</span>
+      <div class="variant-title">Конфигурирование звукового интерфейса USB Audio Class 2.0</div>
+      <div class="desc">Сценарий: интеграция студийного аудиоинтерфейса. Минимизация сквозной задержки ввода-вывода (Round-Trip Latency) и устранение опустошения буферов.</div>
+    </div>
 
- <h2>1. Аппаратный дескриптор и режим шины</h2>
- <div class="form-group">
- <label for="v3_hwid">Строка идентификатора (USB VID/PID), версия USB Audio Class (1.0 vs 2.0), режим синхронизации клока (Asynchronous):</label>
- <input type="text" id="v3_hwid">
- </div>
+    <h2>1. Аппаратный дескриптор и режим шины</h2>
+    <div class="form-group">
+      <label for="v3_hwid">Строка идентификатора (USB VID/PID), версия USB Audio Class (1.0 vs 2.0), режим синхронизации клока (Asynchronous):</label>
+      <input type="text" id="v3_hwid">
+    </div>
 
- <h2>2. Архитектура драйвера: WASAPI vs ASIO</h2>
- <div class="form-group">
- <label for="v3_driver_arch">Обоснование использования ASIO в обход системного микшера Windows WASAPI. Расчет задержки при частоте 48 кГц и буферах 64 / 128 сэмплов:</label>
- <textarea id="v3_driver_arch"></textarea>
- <div class="print-mirror" id="v3_driver_arch_mirror"></div>
- </div>
+    <h2>2. Архитектура драйвера: WASAPI vs ASIO</h2>
+    <div class="form-group">
+      <label for="v3_driver_arch">Обоснование использования ASIO в обход системного микшера Windows WASAPI. Расчет задержки при частоте 48 кГц и буферах 64 / 128 сэмплов:</label>
+      <textarea id="v3_driver_arch"></textarea>
+      <div class="print-mirror" id="v3_driver_arch_mirror"></div>
+    </div>
 
- <h2>3. Диагностика стабильности потока (DPC Latency)</h2>
- <div class="form-group">
- <label for="v3_buffer_underrun">Причины возникновения щелчков и выпадений звука (Buffer Underrun / Glitches). Методика оптимизации системных прерываний:</label>
- <textarea id="v3_buffer_underrun"></textarea>
- <div class="print-mirror" id="v3_buffer_underrun_mirror"></div>
- </div>
+    <h2>3. Диагностика стабильности потока (DPC Latency)</h2>
+    <div class="form-group">
+      <label for="v3_buffer_underrun">Причины возникновения щелчков и выпадений звука (Buffer Underrun / Glitches). Методика оптимизации системных прерываний:</label>
+      <textarea id="v3_buffer_underrun"></textarea>
+      <div class="print-mirror" id="v3_buffer_underrun_mirror"></div>
+    </div>
 
- <h2>4. Чек-лист верификации и контрольный тест</h2>
- <ul class="checklist">
- <li>
- <input type="checkbox" id="v3_chk_1">
- <label for="v3_chk_1">Инсталлирован низкоуровневый драйвер ASIO с поддержкой прямого доступа DMA к контроллеру шины.</label>
- </li>
- <li>
- <input type="checkbox" id="v3_chk_2">
- <label for="v3_chk_2">В панели управления аудиоинтерфейса выставлен размер буфера 64 или 128 сэмплов при частоте дискретизации 48 000 Гц.</label>
- </li>
- <li>
- <input type="checkbox" id="v3_chk_3">
- <label for="v3_chk_3">Проведен тест непрерывного воспроизведения и записи в течение 60 секунд без единого зафиксированного дропаута.</label>
- </li>
- <li>
- <input type="checkbox" id="v3_chk_4">
- <label for="v3_chk_4">Замерена сквозная аппаратная задержка (Round-Trip Latency), значение укладывается в норматив &le; 6 мс.</label>
- </li>
- </ul>
+    <h2>4. Чек-лист верификации и контрольный тест</h2>
+    <ul class="checklist">
+      <li>
+        <input type="checkbox" id="v3_chk_1">
+        <label for="v3_chk_1">Инсталлирован низкоуровневый драйвер ASIO с поддержкой прямого доступа DMA к контроллеру шины.</label>
+      </li>
+      <li>
+        <input type="checkbox" id="v3_chk_2">
+        <label for="v3_chk_2">В панели управления аудиоинтерфейса выставлен размер буфера 64 или 128 сэмплов при частоте дискретизации 48 000 Гц.</label>
+      </li>
+      <li>
+        <input type="checkbox" id="v3_chk_3">
+        <label for="v3_chk_3">Проведен тест непрерывного воспроизведения и записи в течение 60 секунд без единого зафиксированного дропаута.</label>
+      </li>
+      <li>
+        <input type="checkbox" id="v3_chk_4">
+        <label for="v3_chk_4">Замерена сквозная аппаратная задержка (Round-Trip Latency), значение укладывается в норматив &le; 6 мс.</label>
+      </li>
+    </ul>
 
- <div class="form-group">
- <label for="v3_test_report">Протокол замеров аудиотракта (значение расчетной и фактической задержки в мс, загрузка CPU, результаты стресс-теста):</label>
- <textarea id="v3_test_report"></textarea>
- <div class="print-mirror" id="v3_test_report_mirror"></div>
- </div>
- </div>
+    <div class="form-group">
+      <label for="v3_test_report">Протокол замеров аудиотракта (значение расчетной и фактической задержки в мс, загрузка CPU, результаты стресс-теста):</label>
+      <textarea id="v3_test_report"></textarea>
+      <div class="print-mirror" id="v3_test_report_mirror"></div>
+    </div>
+  </div>
 
- <!-- ================= ВАРИАНТ 4 ================= -->
- <div class="task-card variant-card" id="var-4">
- <div class="variant-header">
- <span class="variant-badge">Вариант 4</span>
- <div class="variant-title">Инсталляция промышленного сканера штрихкодов в режиме Virtual COM</div>
- <div class="desc">Сценарий: интеграция 2D-сканера в складскую автоматизированную систему. Перевод из эмуляции клавиатуры в виртуальный последовательный порт.</div>
- </div>
+  <!-- ================= ВАРИАНТ 4 ================= -->
+  <div class="task-card variant-card" id="var-4">
+    <div class="variant-header">
+      <span class="variant-badge">Вариант 4</span>
+      <div class="variant-title">Инсталляция промышленного сканера штрихкодов в режиме Virtual COM</div>
+      <div class="desc">Сценарий: интеграция 2D-сканера в складскую автоматизированную систему. Перевод из эмуляции клавиатуры в виртуальный последовательный порт.</div>
+    </div>
 
- <h2>1. Аппаратный дескриптор и драйвер моста USB-to-UART</h2>
- <div class="form-group">
- <label for="v4_hwid">Строка идентификатора (USB VID/PID), производитель чипа контроллера (CDC ACM / FTDI / Silicon Labs), номер виртуального COM-порта:</label>
- <input type="text" id="v4_hwid">
- </div>
+    <h2>1. Аппаратный дескриптор и драйвер моста USB-to-UART</h2>
+    <div class="form-group">
+      <label for="v4_hwid">Строка идентификатора (USB VID/PID), производитель чипа контроллера (CDC ACM / FTDI / Silicon Labs), номер виртуального COM-порта:</label>
+      <input type="text" id="v4_hwid">
+    </div>
 
- <h2>2. Обоснование отказа от режима HID Keyboard Emulation</h2>
- <div class="form-group">
- <label for="v4_mode_reason">Технические недостатки режима клавиатуры (конфликт раскладки Cyrillic/Latin, потеря фокуса окна) и преимущества режима Virtual COM Port:</label>
- <textarea id="v4_mode_reason"></textarea>
- <div class="print-mirror" id="v4_mode_reason_mirror"></div>
- </div>
+    <h2>2. Обоснование отказа от режима HID Keyboard Emulation</h2>
+    <div class="form-group">
+      <label for="v4_mode_reason">Технические недостатки режима клавиатуры (конфликт раскладки Cyrillic/Latin, потеря фокуса окна) и преимущества режима Virtual COM Port:</label>
+      <textarea id="v4_mode_reason"></textarea>
+      <div class="print-mirror" id="v4_mode_reason_mirror"></div>
+    </div>
 
- <h2>3. Конфигурация параметров UART и сервисных суффиксов</h2>
- <div class="form-group">
- <label for="v4_uart_params">Настройка параметров последовательного порта (Baud rate 115200, 8-N-1, Hardware Flow Control) и добавление суффиксов пакета (CR/LF):</label>
- <textarea id="v4_uart_params"></textarea>
- <div class="print-mirror" id="v4_uart_params_mirror"></div>
- </div>
+    <h2>3. Конфигурация параметров UART и сервисных суффиксов</h2>
+    <div class="form-group">
+      <label for="v4_uart_params">Настройка параметров последовательного порта (Baud rate 115200, 8-N-1, Hardware Flow Control) и добавление суффиксов пакета (CR/LF):</label>
+      <textarea id="v4_uart_params"></textarea>
+      <div class="print-mirror" id="v4_uart_params_mirror"></div>
+    </div>
 
- <h2>4. Чек-лист верификации и контрольный тест</h2>
- <ul class="checklist">
- <li>
- <input type="checkbox" id="v4_chk_1">
- <label for="v4_chk_1">Устройство переведено в режим Virtual COM Port путем считывания сервисного настроечного штрихкода из мануала.</label>
- </li>
- <li>
- <input type="checkbox" id="v4_chk_2">
- <label for="v4_chk_2">В Диспетчере устройств появился порт «USB Serial Port (COMx)» без предупреждающих знаков со статусом Код 0.</label>
- </li>
- <li>
- <input type="checkbox" id="v4_chk_3">
- <label for="v4_chk_3">Запрограммированы аппаратные суффиксы возврата каретки (CR / 0x0D) и перевода строки (LF / 0x0A) для автоматического завершения ввода.</label>
- </li>
- <li>
- <input type="checkbox" id="v4_chk_4">
- <label for="v4_chk_4">В терминальной программе (PuTTY / SerialPort) открыт порт COMx и успешно считан тестовый штрихкод стандарта DataMatrix / EAN-13.</label>
- </li>
- </ul>
+    <h2>4. Чек-лист верификации и контрольный тест</h2>
+    <ul class="checklist">
+      <li>
+        <input type="checkbox" id="v4_chk_1">
+        <label for="v4_chk_1">Устройство переведено в режим Virtual COM Port путем считывания сервисного настроечного штрихкода из мануала.</label>
+      </li>
+      <li>
+        <input type="checkbox" id="v4_chk_2">
+        <label for="v4_chk_2">В Диспетчере устройств появился порт «USB Serial Port (COMx)» без предупреждающих знаков со статусом Код 0.</label>
+      </li>
+      <li>
+        <input type="checkbox" id="v4_chk_3">
+        <label for="v4_chk_3">Запрограммированы аппаратные суффиксы возврата каретки (CR / 0x0D) и перевода строки (LF / 0x0A) для автоматического завершения ввода.</label>
+      </li>
+      <li>
+        <input type="checkbox" id="v4_chk_4">
+        <label for="v4_chk_4">В терминальной программе (PuTTY / SerialPort) открыт порт COMx и успешно считан тестовый штрихкод стандарта DataMatrix / EAN-13.</label>
+      </li>
+    </ul>
 
- <div class="form-group">
- <label for="v4_test_report">Протокол терминального теста (считанная ASCII-последовательность, проверка завершающих байтов 0x0D 0x0A, скорость приема пакета):</label>
- <textarea id="v4_test_report"></textarea>
- <div class="print-mirror" id="v4_test_report_mirror"></div>
- </div>
- </div>
+    <div class="form-group">
+      <label for="v4_test_report">Протокол терминального теста (считанная ASCII-последовательность, проверка завершающих байтов 0x0D 0x0A, скорость приема пакета):</label>
+      <textarea id="v4_test_report"></textarea>
+      <div class="print-mirror" id="v4_test_report_mirror"></div>
+    </div>
+  </div>
 
- <!-- КРИТЕРИИ ОЦЕНИВАНИЯ -->
- <div class="rubric-card">
- <h2>Критерии оценивания практической работы (4 балла)</h2>
- <ul>
- <li><strong>Протокол инсталляции и конфигурация (2 балла):</strong> обоснованный выбор порта/протокола, безошибочная настройка параметров подсистемы ввода-вывода.</li>
- <li><strong>Диагностика идентификаторов и ошибок (1 балл):</strong> точное считывание Hardware ID (VID/PID, VEN/DEV), объяснение архитектурного типа драйвера и системных кодов состояния.</li>
- <li><strong>Верификация работоспособности (1 балл):</strong> выполнение всех пунктов чек-листа, подробное описание результатов контрольного тестового испытания.</li>
- </ul>
- </div>
+  <!-- КРИТЕРИИ ОЦЕНИВАНИЯ -->
+  <div class="rubric-card">
+    <h2>Критерии оценивания практической работы (4 балла)</h2>
+    <ul>
+      <li><strong>Протокол инсталляции и конфигурация (2 балла):</strong> обоснованный выбор порта/протокола, безошибочная настройка параметров подсистемы ввода-вывода.</li>
+      <li><strong>Диагностика идентификаторов и ошибок (1 балл):</strong> точное считывание Hardware ID (VID/PID, VEN/DEV), объяснение архитектурного типа драйвера и системных кодов состояния.</li>
+      <li><strong>Верификация работоспособности (1 балл):</strong> выполнение всех пунктов чек-листа, подробное описание результатов контрольного тестового испытания.</li>
+    </ul>
+  </div>
 
- <!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
- <div class="actions-card">
- <div class="btn-group">
- <div class="btn-actions">
- <button type="button" class="btn-primary" onclick="saveData()">Сохранить протокол</button>
- <button type="button" class="btn-success" onclick="printDoc()">Сохранить в PDF</button>
- <button type="button" class="btn-danger" onclick="clearData()">Очистить форму</button>
- </div>
- <div class="status-msg" id="status_msg"></div>
- </div>
- </div>
+  <!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
+  <div class="actions-card">
+    <div class="btn-group">
+      <div class="btn-actions">
+        <button type="button" class="btn-primary" onclick="saveData()">Сохранить протокол</button>
+        <button type="button" class="btn-success" onclick="printDoc()">Сохранить в PDF</button>
+        <button type="button" class="btn-danger" onclick="clearData()">Очистить форму</button>
+      </div>
+      <div class="status-msg" id="status_msg"></div>
+    </div>
+  </div>
 
 </div>
 
 <script>
- const STORAGE_KEY = 'top_pnp_pract_14_data';
+  const STORAGE_KEY = 'top_pnp_pract_14_data';
 
- const textFields = [
- 'st_fio', 'st_group', 'var_select',
- 'v1_hwid', 'v1_port_proto', 'v1_driver_choice', 'v1_test_report',
- 'v2_hwid', 'v2_ink_conflict', 'v2_calib_curve', 'v2_test_report',
- 'v3_hwid', 'v3_driver_arch', 'v3_buffer_underrun', 'v3_test_report',
- 'v4_hwid', 'v4_mode_reason', 'v4_uart_params', 'v4_test_report'
- ];
+  const textFields = [
+    'st_fio', 'st_group', 'var_select',
+    'v1_hwid', 'v1_port_proto', 'v1_driver_choice', 'v1_test_report',
+    'v2_hwid', 'v2_ink_conflict', 'v2_calib_curve', 'v2_test_report',
+    'v3_hwid', 'v3_driver_arch', 'v3_buffer_underrun', 'v3_test_report',
+    'v4_hwid', 'v4_mode_reason', 'v4_uart_params', 'v4_test_report'
+  ];
 
- const checkFields = [
- 'v1_chk_1', 'v1_chk_2', 'v1_chk_3', 'v1_chk_4',
- 'v2_chk_1', 'v2_chk_2', 'v2_chk_3', 'v2_chk_4',
- 'v3_chk_1', 'v3_chk_2', 'v3_chk_3', 'v3_chk_4',
- 'v4_chk_1', 'v4_chk_2', 'v4_chk_3', 'v4_chk_4'
- ];
+  const checkFields = [
+    'v1_chk_1', 'v1_chk_2', 'v1_chk_3', 'v1_chk_4',
+    'v2_chk_1', 'v2_chk_2', 'v2_chk_3', 'v2_chk_4',
+    'v3_chk_1', 'v3_chk_2', 'v3_chk_3', 'v3_chk_4',
+    'v4_chk_1', 'v4_chk_2', 'v4_chk_3', 'v4_chk_4'
+  ];
 
- const mirrorMap = {
- 'v1_port_proto': 'v1_port_proto_mirror',
- 'v1_driver_choice': 'v1_driver_choice_mirror',
- 'v1_test_report': 'v1_test_report_mirror',
- 'v2_ink_conflict': 'v2_ink_conflict_mirror',
- 'v2_calib_curve': 'v2_calib_curve_mirror',
- 'v2_test_report': 'v2_test_report_mirror',
- 'v3_driver_arch': 'v3_driver_arch_mirror',
- 'v3_buffer_underrun': 'v3_buffer_underrun_mirror',
- 'v3_test_report': 'v3_test_report_mirror',
- 'v4_mode_reason': 'v4_mode_reason_mirror',
- 'v4_uart_params': 'v4_uart_params_mirror',
- 'v4_test_report': 'v4_test_report_mirror'
- };
+  const mirrorMap = {
+    'v1_port_proto': 'v1_port_proto_mirror',
+    'v1_driver_choice': 'v1_driver_choice_mirror',
+    'v1_test_report': 'v1_test_report_mirror',
+    'v2_ink_conflict': 'v2_ink_conflict_mirror',
+    'v2_calib_curve': 'v2_calib_curve_mirror',
+    'v2_test_report': 'v2_test_report_mirror',
+    'v3_driver_arch': 'v3_driver_arch_mirror',
+    'v3_buffer_underrun': 'v3_buffer_underrun_mirror',
+    'v3_test_report': 'v3_test_report_mirror',
+    'v4_mode_reason': 'v4_mode_reason_mirror',
+    'v4_uart_params': 'v4_uart_params_mirror',
+    'v4_test_report': 'v4_test_report_mirror'
+  };
 
- function switchVariant() {
- const selected = document.getElementById('var_select').value;
- for (let i = 1; i <= 4; i++) {
- const card = document.getElementById('var-' + i);
- if (card) {
- if (i.toString() === selected) {
- card.classList.add('active');
- } else {
- card.classList.remove('active');
- }
- }
- }
- }
+  function switchVariant() {
+    const selected = document.getElementById('var_select').value;
+    for (let i = 1; i <= 4; i++) {
+      const card = document.getElementById('var-' + i);
+      if (card) {
+        if (i.toString() === selected) {
+          card.classList.add('active');
+        } else {
+          card.classList.remove('active');
+        }
+      }
+    }
+  }
 
- function updateMirrors() {
- for (const [inputId, mirrorId] of Object.entries(mirrorMap)) {
- const input = document.getElementById(inputId);
- const mirror = document.getElementById(mirrorId);
- if (input && mirror) {
- mirror.textContent = input.value | '(запись отсутствует)';
- }
- }
- }
+  function updateMirrors() {
+    for (const [inputId, mirrorId] of Object.entries(mirrorMap)) {
+      const input = document.getElementById(inputId);
+      const mirror = document.getElementById(mirrorId);
+      if (input && mirror) {
+        mirror.textContent = input.value || '(запись отсутствует)';
+      }
+    }
+  }
 
- function saveData() {
- const data = { texts: {}, checks: {} };
- textFields.forEach(id => {
- const el = document.getElementById(id);
- if (el) data.texts[id] = el.value;
- });
- checkFields.forEach(id => {
- const el = document.getElementById(id);
- if (el) data.checks[id] = el.checked;
- });
- localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
- updateMirrors();
- const status = document.getElementById('status_msg');
- status.textContent = 'Протокол сохранен: ' + new Date().toLocaleTimeString();
- setTimeout(() => { status.textContent = ''; }, 3500);
- }
+  function saveData() {
+    const data = { texts: {}, checks: {} };
+    textFields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) data.texts[id] = el.value;
+    });
+    checkFields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) data.checks[id] = el.checked;
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    updateMirrors();
+    const status = document.getElementById('status_msg');
+    status.textContent = 'Протокол сохранен: ' + new Date().toLocaleTimeString();
+    setTimeout(() => { status.textContent = ''; }, 3500);
+  }
 
- function loadData() {
- const raw = localStorage.getItem(STORAGE_KEY);
- if (!raw) return;
- try {
- const data = JSON.parse(raw);
- if (data.texts) {
- textFields.forEach(id => {
- const el = document.getElementById(id);
- if (el && data.texts[id] !== undefined) {
- el.value = data.texts[id];
- }
- });
- }
- if (data.checks) {
- checkFields.forEach(id => {
- const el = document.getElementById(id);
- if (el && data.checks[id] !== undefined) {
- el.checked = data.checks[id];
- }
- });
- }
- switchVariant();
- updateMirrors();
- } catch (e) {
- console.error(e);
- }
- }
+  function loadData() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    try {
+      const data = JSON.parse(raw);
+      if (data.texts) {
+        textFields.forEach(id => {
+          const el = document.getElementById(id);
+          if (el && data.texts[id] !== undefined) {
+            el.value = data.texts[id];
+          }
+        });
+      }
+      if (data.checks) {
+        checkFields.forEach(id => {
+          const el = document.getElementById(id);
+          if (el && data.checks[id] !== undefined) {
+            el.checked = data.checks[id];
+          }
+        });
+      }
+      switchVariant();
+      updateMirrors();
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
- function clearData() {
- if (confirm('Вы действительно хотите полностью очистить протокол? Все введенные данные будут безвозвратно удалены.')) {
- localStorage.removeItem(STORAGE_KEY);
- textFields.forEach(id => {
- const el = document.getElementById(id);
- if (el) el.value = '';
- });
- checkFields.forEach(id => {
- const el = document.getElementById(id);
- if (el) el.checked = false;
- });
- document.getElementById('var_select').value = '1';
- switchVariant();
- updateMirrors();
- const status = document.getElementById('status_msg');
- status.textContent = 'Форма очищена';
- setTimeout(() => { status.textContent = ''; }, 2500);
- }
- }
+  function clearData() {
+    if (confirm('Вы действительно хотите полностью очистить протокол? Все введенные данные будут безвозвратно удалены.')) {
+      localStorage.removeItem(STORAGE_KEY);
+      textFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      checkFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.checked = false;
+      });
+      document.getElementById('var_select').value = '1';
+      switchVariant();
+      updateMirrors();
+      const status = document.getElementById('status_msg');
+      status.textContent = 'Форма очищена';
+      setTimeout(() => { status.textContent = ''; }, 2500);
+    }
+  }
 
- function printDoc() {
- updateMirrors();
- window.print();
- }
+  function printDoc() {
+    updateMirrors();
+    window.print();
+  }
 
- document.addEventListener('DOMContentLoaded', () => {
- loadData();
- textFields.forEach(id => {
- const el = document.getElementById(id);
- if (el) {
- el.addEventListener('input', updateMirrors);
- }
- });
- });
+  document.addEventListener('DOMContentLoaded', () => {
+    loadData();
+    textFields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', updateMirrors);
+      }
+    });
+  });
 </script>
 </body>
 </html>

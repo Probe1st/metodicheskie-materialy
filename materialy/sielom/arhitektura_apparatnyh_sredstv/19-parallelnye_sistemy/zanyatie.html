@@ -1,636 +1,663 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
- <title>Практикум: Многопрограммная работа ЭВМ. Многомашинные и многопроцессорные вычислительные системы</title>
- <style>
- :root {
- --bg: #f1f5f9;
- --card: #ffffff;
- --text: #0f172a;
- --muted: #475569;
- --line: #cbd5e1;
- --accent: #1e40af;
- --accent-soft: #eff6ff;
- --task-bg: #f8fafc;
- --border-task: #94a3b8;
- --ok: #059669;
- --warn: #d97706;
- --radius: 14px;
- --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
- }
- * { box-sizing: border-box; margin: 0; padding: 0; }
- body {
- background: var(--bg);
- color: var(--text);
- font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
- line-height: 1.6;
- font-size: 15px;
- padding: 20px 14px;
- }.page {
- max-width: 960px;
- margin: 0 auto;
- }.header-card,.student-card,.task-card,.actions-card {
- background: var(--card);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 24px;
- margin-bottom: 20px;
- box-shadow: var(--shadow);
- }
- h1 {
- font-size: clamp(20px, 3.2vw, 26px);
- color: var(--accent);
- margin-bottom: 8px;
- }.desc {
- color: var(--muted);
- font-size: 14.5px;
- line-height: 1.55;
- }.student-grid {
- display: grid;
- grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
- gap: 16px;
- }
- label {
- display: block;
- font-weight: 600;
- font-size: 13.5px;
- margin-bottom: 6px;
- color: #1e293b;
- }
- input[type="text"], input[type="date"], select, textarea {
- width: 100%;
- border: 1.5px solid var(--line);
- border-radius: 8px;
- padding: 9px 12px;
- font: inherit;
- font-size: 14px;
- background: #fff;
- color: var(--text);
- outline: none;
- transition: border-color.15s, box-shadow.15s;
- }
- input:focus, select:focus, textarea:focus {
- border-color: var(--accent);
- box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
- }
- textarea {
- min-height: 90px;
- resize: vertical;
- }.print-select-text {
- display: none;
- }.task-title {
- font-size: 18px;
- font-weight: 700;
- color: var(--accent);
- margin-bottom: 8px;
- display: flex;
- align-items: center;
- gap: 8px;
- }.task-intro {
- font-size: 14.5px;
- color: var(--muted);
- margin-bottom: 16px;
- }.table-wrap {
- overflow-x: auto;
- margin-bottom: 16px;
- border: 1px solid var(--line);
- border-radius: 10px;
- }
- table {
- width: 100%;
- border-collapse: collapse;
- font-size: 13.5px;
- background: #fff;
- }
- th, td {
- border: 1px solid var(--line);
- padding: 10px 12px;
- text-align: left;
- vertical-align: top;
- }
- th {
- background: var(--accent-soft);
- color: var(--accent);
- font-weight: 700;
- }.table-input {
- width: 100%;
- border: 1px solid #cbd5e1;
- border-radius: 6px;
- padding: 6px 8px;
- font-size: 13px;
- background: #fafafa;
- }.table-input:focus {
- background: #fff;
- border-color: var(--accent);
- }.sub-task {
- background: var(--task-bg);
- border: 1px solid var(--border-task);
- border-radius: 10px;
- padding: 16px;
- margin-bottom: 16px;
- }.sub-title {
- font-weight: 700;
- font-size: 15px;
- color: #1e293b;
- margin-bottom: 8px;
- }.formula-box {
- background: #f8fafc;
- border-left: 4px solid var(--accent);
- padding: 10px 14px;
- border-radius: 0 8px 8px 0;
- font-family: monospace, monospace;
- font-size: 14px;
- margin-bottom: 12px;
- color: #0f172a;
- }.variant-card {
- background: #f8fafc;
- border: 1.5px dashed var(--accent);
- border-radius: 10px;
- padding: 16px;
- margin-bottom: 16px;
- }.btn-row {
- display: flex;
- flex-wrap: wrap;
- gap: 12px;
- align-items: center;
- }
- button {
- padding: 10px 18px;
- border-radius: 8px;
- font-size: 14px;
- font-weight: 600;
- cursor: pointer;
- border: none;
- transition: background-color.15s, opacity.15s;
- }.btn-primary {
- background: var(--accent);
- color: #fff;
- }.btn-primary:hover {
- background: #1d4ed8;
- }.btn-secondary {
- background: #e2e8f0;
- color: #1e293b;
- }.btn-secondary:hover {
- background: #cbd5e1;
- }.btn-danger {
- background: #fee2e2;
- color: #991b1b;
- }.btn-danger:hover {
- background: #fecaca;
- }.status-msg {
- font-size: 13.5px;
- font-weight: 500;
- }.status-saved {
- color: var(--ok);
- }
- @media print {
- body {
- background: #fff !important;
- color: #000 !important;
- padding: 0 !important;
- font-size: 11pt !important;
- }.page {
- max-width: 100% !important;
- margin: 0 !important;
- }.header-card,.student-card,.task-card {
- box-shadow: none !important;
- border: 1px solid #777 !important;
- margin-bottom: 14pt !important;
- padding: 12pt !important;
- break-inside: auto !important;
- page-break-inside: auto !important;
- }.actions-card,.btn-row {
- display: none !important;
- }
- input::placeholder, textarea::placeholder {
- color: transparent !important;
- -webkit-text-fill-color: transparent !important;
- opacity: 0 !important;
- }
- select {
- display: none !important;
- }.print-select-text {
- display: block !important;
- min-height: 22px;
- border: 1px solid #777 !important;
- border-radius: 4px;
- padding: 4px 6px;
- background: #fff !important;
- }
- textarea {
- height: auto !important;
- min-height: 85px;
- overflow: visible !important;
- white-space: pre-wrap !important;
- word-break: break-word !important;
- border: 1px solid #777 !important;
- background: #fff !important;
- color: #000 !important;
- }
- input[type="text"], input[type="date"],.table-input {
- border: 1px solid #777 !important;
- background: #fff !important;
- color: #000 !important;
- }
- table {
- page-break-inside: auto;
- }
- tr {
- page-break-inside: avoid;
- page-break-after: auto;
- }
- }
- </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Практикум: Многопрограммная работа ЭВМ. Многомашинные и многопроцессорные вычислительные системы</title>
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --task-bg: #f8fafc;
+      --border-task: #94a3b8;
+      --ok: #059669;
+      --warn: #d97706;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .task-card, .actions-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(20px, 3.2vw, 26px);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .desc {
+      color: var(--muted);
+      font-size: 14.5px;
+      line-height: 1.55;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    input[type="text"], input[type="date"], select, textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+    }
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+    .print-select-text {
+      display: none;
+    }
+    .task-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .task-intro {
+      font-size: 14.5px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      margin-bottom: 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      background: #fff;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .table-input {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 13px;
+      background: #fafafa;
+    }
+    .table-input:focus {
+      background: #fff;
+      border-color: var(--accent);
+    }
+    .sub-task {
+      background: var(--task-bg);
+      border: 1px solid var(--border-task);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .sub-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    .formula-box {
+      background: #f8fafc;
+      border-left: 4px solid var(--accent);
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      font-family: monospace, monospace;
+      font-size: 14px;
+      margin-bottom: 12px;
+      color: #0f172a;
+    }
+    .variant-card {
+      background: #f8fafc;
+      border: 1.5px dashed var(--accent);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    button {
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background-color .15s, opacity .15s;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+    .btn-danger {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .btn-danger:hover {
+      background: #fecaca;
+    }
+    .status-msg {
+      font-size: 13.5px;
+      font-weight: 500;
+    }
+    .status-saved {
+      color: var(--ok);
+    }
+    @media print {
+      body {
+        background: #fff !important;
+        color: #000 !important;
+        padding: 0 !important;
+        font-size: 11pt !important;
+      }
+      .page {
+        max-width: 100% !important;
+        margin: 0 !important;
+      }
+      .header-card, .student-card, .task-card {
+        box-shadow: none !important;
+        border: 1px solid #777 !important;
+        margin-bottom: 14pt !important;
+        padding: 12pt !important;
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+      }
+      .actions-card, .btn-row {
+        display: none !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        opacity: 0 !important;
+      }
+      select {
+        display: none !important;
+      }
+      .print-select-text {
+        display: block !important;
+        min-height: 22px;
+        border: 1px solid #777 !important;
+        border-radius: 4px;
+        padding: 4px 6px;
+        background: #fff !important;
+      }
+      textarea {
+        height: auto !important;
+        min-height: 85px;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      input[type="text"], input[type="date"], .table-input {
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      table {
+        page-break-inside: auto;
+      }
+      tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+      }
+    }
+  </style>
 </head>
 <body>
 <div class="page">
 
- <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
- <div class="header-card">
- <h1>Практикум: Многопрограммная работа ЭВМ. Многомашинные и многопроцессорные вычислительные системы</h1>
- <p class="desc">Интерактивный рабочий лист студента по дисциплине «Архитектура аппаратных средств» (СИЭУиП, занятие 19). Архитектурные парадигмы параллелизма: многопрограммность ОС vs сильносвязанные SMP/NUMA vs слабосвязанные кластеры MPI; аппаратные уровни параллелизма ILP, DLP, TLP; протокол кэш-когерентности MESI и эффект False Sharing; топологии кластерных интерконнектов InfiniBand/RoCE/Ethernet; расчет ускорения масштабирования по 4 вариантам прикладных задач.</p>
- </div>
+  <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
+  <div class="header-card">
+    <h1>Практикум: Многопрограммная работа ЭВМ. Многомашинные и многопроцессорные вычислительные системы</h1>
+    <p class="desc">Интерактивный рабочий лист студента по дисциплине «Архитектура аппаратных средств» (СИЭУиП, занятие 19). Архитектурные парадигмы параллелизма: многопрограммность ОС vs сильносвязанные SMP/NUMA vs слабосвязанные кластеры MPI; аппаратные уровни параллелизма ILP, DLP, TLP; протокол кэш-когерентности MESI и эффект False Sharing; топологии кластерных интерконнектов InfiniBand/RoCE/Ethernet; расчет ускорения масштабирования по 4 вариантам прикладных задач.</p>
+  </div>
 
- <!-- КАРТОЧКА СТУДЕНТА (ЧИСТЫЕ ПОЛЯ БЕЗ ВЫМЫШЛЕННЫХ ДАННЫХ) -->
- <div class="student-card">
- <div class="student-grid">
- <div>
- <label for="student_fio">ФИО обучающегося:</label>
- <input type="text" id="student_fio" placeholder="Фамилия Имя Отчество" autocomplete="off">
- </div>
- <div>
- <label for="student_group">Учебная группа:</label>
- <input type="text" id="student_group" placeholder="Введите группу" autocomplete="off">
- </div>
- <div>
- <label for="work_variant">Вариант задания:</label>
- <select id="work_variant" onchange="updateVariantSelection()">
- <option value="">-- Выберите вариант (1–4) --</option>
- <option value="1">Вариант 1: Кластер молекулярной динамики и квантовой химии (32 узла, MPI/RDMA)</option>
- <option value="2">Вариант 2: Многопоточный сервер высоконагруженной СУБД (4 сокета, ccNUMA, 128 ядер)</option>
- <option value="3">Вариант 3: Распределенный комплекс обучения больших языковых моделей (512 GPU, NVLink/InfiniBand)</option>
- <option value="4">Вариант 4: Бортовой отказоустойчивый комплекс беспилотного транспорта (3 канала, TMR, жесткое реальное время)</option>
- </select>
- <div id="print_work_variant" class="print-select-text">Вариант не выбран</div>
- </div>
- <div>
- <label for="work_date">Дата выполнения:</label>
- <input type="date" id="work_date">
- </div>
- </div>
- </div>
+  <!-- КАРТОЧКА СТУДЕНТА (ЧИСТЫЕ ПОЛЯ БЕЗ ВЫМЫШЛЕННЫХ ДАННЫХ) -->
+  <div class="student-card">
+    <div class="student-grid">
+      <div>
+        <label for="student_fio">ФИО обучающегося:</label>
+        <input type="text" id="student_fio" placeholder="Фамилия Имя Отчество" autocomplete="off">
+      </div>
+      <div>
+        <label for="student_group">Учебная группа:</label>
+        <input type="text" id="student_group" placeholder="Введите группу" autocomplete="off">
+      </div>
+      <div>
+        <label for="work_variant">Вариант задания:</label>
+        <select id="work_variant" onchange="updateVariantSelection()">
+          <option value="">-- Выберите вариант (1–4) --</option>
+          <option value="1">Вариант 1: Кластер молекулярной динамики и квантовой химии (32 узла, MPI/RDMA)</option>
+          <option value="2">Вариант 2: Многопоточный сервер высоконагруженной СУБД (4 сокета, ccNUMA, 128 ядер)</option>
+          <option value="3">Вариант 3: Распределенный комплекс обучения больших языковых моделей (512 GPU, NVLink/InfiniBand)</option>
+          <option value="4">Вариант 4: Бортовой отказоустойчивый комплекс беспилотного транспорта (3 канала, TMR, жесткое реальное время)</option>
+        </select>
+        <div id="print_work_variant" class="print-select-text">Вариант не выбран</div>
+      </div>
+      <div>
+        <label for="work_date">Дата выполнения:</label>
+        <input type="date" id="work_date">
+      </div>
+    </div>
+  </div>
 
- <!-- ЗАДАНИЕ 1 -->
- <div class="task-card">
- <div class="task-title">Задание 1. Сравнительный анализ архитектурных моделей параллелизма</div>
- <div class="task-intro">Сопоставьте три базовые модели параллельной обработки данных: программный параллелизм ОС, аппаратные многопроцессорные комплексы и многомашинные кластеры. Заполните сравнительную таблицу и сформулируйте аппаратные различия уровней ILP, DLP, TLP.</div>
+  <!-- ЗАДАНИЕ 1 -->
+  <div class="task-card">
+    <div class="task-title">Задание 1. Сравнительный анализ архитектурных моделей параллелизма</div>
+    <div class="task-intro">Сопоставьте три базовые модели параллельной обработки данных: программный параллелизм ОС, аппаратные многопроцессорные комплексы и многомашинные кластеры. Заполните сравнительную таблицу и сформулируйте аппаратные различия уровней ILP, DLP, TLP.</div>
 
- <div class="sub-task">
- <div class="sub-title">1.1. Сравнительная матрица моделей организации параллелизма</div>
- <div class="table-wrap">
- <table>
- <thead>
- <tr>
- <th style="width: 20%;">Модель параллелизма</th>
- <th style="width: 20%;">Изоляция памяти</th>
- <th style="width: 20%;">Механизм обмена данными</th>
- <th style="width: 20%;">Аппаратная среда / шина</th>
- <th style="width: 20%;">Главный источник накладных расходов</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>Многопрограммность ОС (1 CPU / ядро)</strong></td>
- <td><input type="text" class="table-input" id="t1_row1_mem" placeholder="Уровень изоляции страниц MMU..."></td>
- <td><input type="text" class="table-input" id="t1_row1_comm" placeholder="Системные вызовы IPC, pipes..."></td>
- <td><input type="text" class="table-input" id="t1_row1_hw" placeholder="Внутренняя шина ЦП, общее ОЗУ..."></td>
- <td><input type="text" class="table-input" id="t1_row1_cost" placeholder="Переключение контекста, сброс TLB..."></td>
- </tr>
- <tr>
- <td><strong>Многопроцессорные системы (SMP / NUMA)</strong></td>
- <td><input type="text" class="table-input" id="t1_row2_mem" placeholder="Общее адресное пространство..."></td>
- <td><input type="text" class="table-input" id="t1_row2_comm" placeholder="Прямые инструкции LOAD/STORE..."></td>
- <td><input type="text" class="table-input" id="t1_row2_hw" placeholder="Системная шина, Intel UPI, AMD IF..."></td>
- <td><input type="text" class="table-input" id="t1_row2_cost" placeholder="Когерентность MESI, NUMA ratio..."></td>
- </tr>
- <tr>
- <td><strong>Многомашинные кластеры (Beowulf / MPI)</strong></td>
- <td><input type="text" class="table-input" id="t1_row3_mem" placeholder="Полная физическая изоляция..."></td>
- <td><input type="text" class="table-input" id="t1_row3_comm" placeholder="Передача сообщений MPI (Send/Recv)..."></td>
- <td><input type="text" class="table-input" id="t1_row3_hw" placeholder="Интерконнект InfiniBand, Ethernet..."></td>
- <td><input type="text" class="table-input" id="t1_row3_cost" placeholder="Сетевая латентность, барьеры..."></td>
- </tr>
- </tbody>
- </table>
- </div>
- </div>
+    <div class="sub-task">
+      <div class="sub-title">1.1. Сравнительная матрица моделей организации параллелизма</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 20%;">Модель параллелизма</th>
+              <th style="width: 20%;">Изоляция памяти</th>
+              <th style="width: 20%;">Механизм обмена данными</th>
+              <th style="width: 20%;">Аппаратная среда / шина</th>
+              <th style="width: 20%;">Главный источник накладных расходов</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Многопрограммность ОС (1 CPU / ядро)</strong></td>
+              <td><input type="text" class="table-input" id="t1_row1_mem" placeholder="Уровень изоляции страниц MMU..."></td>
+              <td><input type="text" class="table-input" id="t1_row1_comm" placeholder="Системные вызовы IPC, pipes..."></td>
+              <td><input type="text" class="table-input" id="t1_row1_hw" placeholder="Внутренняя шина ЦП, общее ОЗУ..."></td>
+              <td><input type="text" class="table-input" id="t1_row1_cost" placeholder="Переключение контекста, сброс TLB..."></td>
+            </tr>
+            <tr>
+              <td><strong>Многопроцессорные системы (SMP / NUMA)</strong></td>
+              <td><input type="text" class="table-input" id="t1_row2_mem" placeholder="Общее адресное пространство..."></td>
+              <td><input type="text" class="table-input" id="t1_row2_comm" placeholder="Прямые инструкции LOAD/STORE..."></td>
+              <td><input type="text" class="table-input" id="t1_row2_hw" placeholder="Системная шина, Intel UPI, AMD IF..."></td>
+              <td><input type="text" class="table-input" id="t1_row2_cost" placeholder="Когерентность MESI, NUMA ratio..."></td>
+            </tr>
+            <tr>
+              <td><strong>Многомашинные кластеры (Beowulf / MPI)</strong></td>
+              <td><input type="text" class="table-input" id="t1_row3_mem" placeholder="Полная физическая изоляция..."></td>
+              <td><input type="text" class="table-input" id="t1_row3_comm" placeholder="Передача сообщений MPI (Send/Recv)..."></td>
+              <td><input type="text" class="table-input" id="t1_row3_hw" placeholder="Интерконнект InfiniBand, Ethernet..."></td>
+              <td><input type="text" class="table-input" id="t1_row3_cost" placeholder="Сетевая латентность, барьеры..."></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
- <div class="sub-task">
- <div class="sub-title">1.2. Разграничение аппаратных уровней параллелизма: ILP, DLP, TLP</div>
- <label for="t1_levels_analysis">Опишите физическую суть и аппаратные механизмы реализации каждого уровня параллелизма (ILP — суперскалярность/конвейер/OoO; DLP — векторные регистры SIMD/AVX; TLP — потоки SMT/Hyper-Threading и процессорные ядра):</label>
- <textarea id="t1_levels_analysis" placeholder="Дайте подробное объяснение аппаратных различий между ILP, DLP и TLP..."></textarea>
- </div>
- </div>
+    <div class="sub-task">
+      <div class="sub-title">1.2. Разграничение аппаратных уровней параллелизма: ILP, DLP, TLP</div>
+      <label for="t1_levels_analysis">Опишите физическую суть и аппаратные механизмы реализации каждого уровня параллелизма (ILP — суперскалярность/конвейер/OoO; DLP — векторные регистры SIMD/AVX; TLP — потоки SMT/Hyper-Threading и процессорные ядра):</label>
+      <textarea id="t1_levels_analysis" placeholder="Дайте подробное объяснение аппаратных различий между ILP, DLP и TLP..."></textarea>
+    </div>
+  </div>
 
- <!-- ЗАДАНИЕ 2 -->
- <div class="task-card">
- <div class="task-title">Задание 2. Анализ протокола когерентности кэш-памяти MESI и деградации производительности</div>
- <div class="task-intro">В сильносвязанных SMP-системах каждое ядро имеет локальный кэш L1/L2. Для обеспечения когерентности данных используется протокол шинного снупинга MESI. Заполните таблицу переходов состояний строк кэша и проанализируйте аппаратный эффект «ложного разделения данных» (False Sharing).</div>
+  <!-- ЗАДАНИЕ 2 -->
+  <div class="task-card">
+    <div class="task-title">Задание 2. Анализ протокола когерентности кэш-памяти MESI и деградации производительности</div>
+    <div class="task-intro">В сильносвязанных SMP-системах каждое ядро имеет локальный кэш L1/L2. Для обеспечения когерентности данных используется протокол шинного снупинга MESI. Заполните таблицу переходов состояний строк кэша и проанализируйте аппаратный эффект «ложного разделения данных» (False Sharing).</div>
 
- <div class="sub-task">
- <div class="sub-title">2.1. Анализ переходов состояний протокола MESI (Modified, Exclusive, Shared, Invalid)</div>
- <div class="table-wrap">
- <table>
- <thead>
- <tr>
- <th style="width: 18%;">Исходное состояние в Кэше 1</th>
- <th style="width: 26%;">Событие (операция процессора / шины)</th>
- <th style="width: 18%;">Новое состояние в Кэше 1</th>
- <th style="width: 18%;">Состояние в Кэше 2</th>
- <th style="width: 20%;">Транзакция на системной шине</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>I (Invalid)</strong></td>
- <td>Процессор 1 читает адрес (Local Read). В Кэше 2 этой строки нет.</td>
- <td><input type="text" class="table-input" id="t2_row1_s1" placeholder="M / E / S / I..."></td>
- <td><input type="text" class="table-input" id="t2_row1_s2" placeholder="Состояние в Кэше 2..."></td>
- <td><input type="text" class="table-input" id="t2_row1_bus" placeholder="Чтение из ОЗУ (BusRd)..."></td>
- </tr>
- <tr>
- <td><strong>I (Invalid)</strong></td>
- <td>Процессор 1 читает адрес (Local Read). В Кэше 2 строка в состоянии E.</td>
- <td><input type="text" class="table-input" id="t2_row2_s1" placeholder="M / E / S / I..."></td>
- <td><input type="text" class="table-input" id="t2_row2_s2" placeholder="Состояние в Кэше 2..."></td>
- <td><input type="text" class="table-input" id="t2_row2_bus" placeholder="Снупинг Кэша 2, смена E->S..."></td>
- </tr>
- <tr>
- <td><strong>S (Shared)</strong></td>
- <td>Процессор 1 выполняет запись по адресу (Local Write).</td>
- <td><input type="text" class="table-input" id="t2_row3_s1" placeholder="M / E / S / I..."></td>
- <td><input type="text" class="table-input" id="t2_row3_s2" placeholder="Состояние в Кэше 2..."></td>
- <td><input type="text" class="table-input" id="t2_row3_bus" placeholder="Инвалидация шины (BusInval)..."></td>
- </tr>
- <tr>
- <td><strong>M (Modified)</strong></td>
- <td>Процессор 2 инициирует чтение этого адреса (BusRd от CPU 2).</td>
- <td><input type="text" class="table-input" id="t2_row4_s1" placeholder="M / E / S / I..."></td>
- <td><input type="text" class="table-input" id="t2_row4_s2" placeholder="Состояние в Кэше 2..."></td>
- <td><input type="text" class="table-input" id="t2_row4_bus" placeholder="Write-Back в память, снупинг..."></td>
- </tr>
- </tbody>
- </table>
- </div>
- </div>
+    <div class="sub-task">
+      <div class="sub-title">2.1. Анализ переходов состояний протокола MESI (Modified, Exclusive, Shared, Invalid)</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 18%;">Исходное состояние в Кэше 1</th>
+              <th style="width: 26%;">Событие (операция процессора / шины)</th>
+              <th style="width: 18%;">Новое состояние в Кэше 1</th>
+              <th style="width: 18%;">Состояние в Кэше 2</th>
+              <th style="width: 20%;">Транзакция на системной шине</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>I (Invalid)</strong></td>
+              <td>Процессор 1 читает адрес (Local Read). В Кэше 2 этой строки нет.</td>
+              <td><input type="text" class="table-input" id="t2_row1_s1" placeholder="M / E / S / I..."></td>
+              <td><input type="text" class="table-input" id="t2_row1_s2" placeholder="Состояние в Кэше 2..."></td>
+              <td><input type="text" class="table-input" id="t2_row1_bus" placeholder="Чтение из ОЗУ (BusRd)..."></td>
+            </tr>
+            <tr>
+              <td><strong>I (Invalid)</strong></td>
+              <td>Процессор 1 читает адрес (Local Read). В Кэше 2 строка в состоянии E.</td>
+              <td><input type="text" class="table-input" id="t2_row2_s1" placeholder="M / E / S / I..."></td>
+              <td><input type="text" class="table-input" id="t2_row2_s2" placeholder="Состояние в Кэше 2..."></td>
+              <td><input type="text" class="table-input" id="t2_row2_bus" placeholder="Снупинг Кэша 2, смена E->S..."></td>
+            </tr>
+            <tr>
+              <td><strong>S (Shared)</strong></td>
+              <td>Процессор 1 выполняет запись по адресу (Local Write).</td>
+              <td><input type="text" class="table-input" id="t2_row3_s1" placeholder="M / E / S / I..."></td>
+              <td><input type="text" class="table-input" id="t2_row3_s2" placeholder="Состояние в Кэше 2..."></td>
+              <td><input type="text" class="table-input" id="t2_row3_bus" placeholder="Инвалидация шины (BusInval)..."></td>
+            </tr>
+            <tr>
+              <td><strong>M (Modified)</strong></td>
+              <td>Процессор 2 инициирует чтение этого адреса (BusRd от CPU 2).</td>
+              <td><input type="text" class="table-input" id="t2_row4_s1" placeholder="M / E / S / I..."></td>
+              <td><input type="text" class="table-input" id="t2_row4_s2" placeholder="Состояние в Кэше 2..."></td>
+              <td><input type="text" class="table-input" id="t2_row4_bus" placeholder="Write-Back в память, снупинг..."></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
- <div class="sub-task">
- <div class="sub-title">2.2. Анализ деградации производительности: эффект False Sharing (ложное разделение данных)</div>
- <label for="t2_false_sharing">Объясните, почему размещение двух независимых переменных в одной 64-байтной кэш-линии приводит к катастрофическому падению скорости в многопоточных программах. Какие аппаратные и программные меры (alignas, padding) предотвращают эту проблему?</label>
- <textarea id="t2_false_sharing" placeholder="Опишите механизм постоянной инвалидации кэш-линий и методы решения..."></textarea>
- </div>
- </div>
+    <div class="sub-task">
+      <div class="sub-title">2.2. Анализ деградации производительности: эффект False Sharing (ложное разделение данных)</div>
+      <label for="t2_false_sharing">Объясните, почему размещение двух независимых переменных в одной 64-байтной кэш-линии приводит к катастрофическому падению скорости в многопоточных программах. Какие аппаратные и программные меры (alignas, padding) предотвращают эту проблему?</label>
+      <textarea id="t2_false_sharing" placeholder="Опишите механизм постоянной инвалидации кэш-линий и методы решения..."></textarea>
+    </div>
+  </div>
 
- <!-- ЗАДАНИЕ 3 -->
- <div class="task-card">
- <div class="task-title">Задание 3. Анализ масштабируемости параллельных систем и топологий интерконнекта</div>
- <div class="task-intro">Исследуйте масштабируемость параллельной вычислительной системы при доле последовательного кода s = 0.04 (p = 0.96) и сравните сетевые интерфейсы кластеров (Ethernet, RoCE v2, InfiniBand).</div>
+  <!-- ЗАДАНИЕ 3 -->
+  <div class="task-card">
+    <div class="task-title">Задание 3. Анализ масштабируемости параллельных систем и топологий интерконнекта</div>
+    <div class="task-intro">Исследуйте масштабируемость параллельной вычислительной системы при доле последовательного кода s = 0.04 (p = 0.96) и сравните сетевые интерфейсы кластеров (Ethernet, RoCE v2, InfiniBand).</div>
 
- <div class="formula-box">
- Закон Амдала (Strong Scaling): S_A = 1 / (s + p/n) | Предел при n -> inf: S_max = 1 / s<br>
- Закон Густафсона-Барсиса (Weak Scaling): S_G = s + p * n | Эффективность: E = S / n
- </div>
+    <div class="formula-box">
+      Закон Амдала (Strong Scaling): S_A = 1 / (s + p/n) | Предел при n -> inf: S_max = 1 / s<br>
+      Закон Густафсона-Барсиса (Weak Scaling): S_G = s + p * n | Эффективность: E = S / n
+    </div>
 
- <div class="sub-task">
- <div class="sub-title">3.1. Таблица расчета ускорения и эффективности масштабирования (s = 0.04, p = 0.96)</div>
- <div class="table-wrap">
- <table>
- <thead>
- <tr>
- <th style="width: 15%;">Узлы / Ядра (n)</th>
- <th style="width: 22%;">Ускорение по Амдалу (S_A)</th>
- <th style="width: 18%;">КПД Амдала (E_A)</th>
- <th style="width: 25%;">Ускорение по Густафсону (S_G)</th>
- <th style="width: 20%;">КПД Густафсона (E_G)</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>n = 4</strong></td>
- <td><input type="text" class="table-input" id="t3_row1_sa" placeholder="Например, 3.57"></td>
- <td><input type="text" class="table-input" id="t3_row1_ea" placeholder="Например, 89.29%"></td>
- <td><input type="text" class="table-input" id="t3_row1_sg" placeholder="Например, 3.88"></td>
- <td><input type="text" class="table-input" id="t3_row1_eg" placeholder="Например, 97.00%"></td>
- </tr>
- <tr>
- <td><strong>n = 16</strong></td>
- <td><input type="text" class="table-input" id="t3_row2_sa" placeholder="S_A..."></td>
- <td><input type="text" class="table-input" id="t3_row2_ea" placeholder="E_A..."></td>
- <td><input type="text" class="table-input" id="t3_row2_sg" placeholder="S_G..."></td>
- <td><input type="text" class="table-input" id="t3_row2_eg" placeholder="E_G..."></td>
- </tr>
- <tr>
- <td><strong>n = 64</strong></td>
- <td><input type="text" class="table-input" id="t3_row3_sa" placeholder="S_A..."></td>
- <td><input type="text" class="table-input" id="t3_row3_ea" placeholder="E_A..."></td>
- <td><input type="text" class="table-input" id="t3_row3_sg" placeholder="S_G..."></td>
- <td><input type="text" class="table-input" id="t3_row3_eg" placeholder="E_G..."></td>
- </tr>
- <tr>
- <td><strong>n = 256</strong></td>
- <td><input type="text" class="table-input" id="t3_row4_sa" placeholder="S_A..."></td>
- <td><input type="text" class="table-input" id="t3_row4_ea" placeholder="E_A..."></td>
- <td><input type="text" class="table-input" id="t3_row4_sg" placeholder="S_G..."></td>
- <td><input type="text" class="table-input" id="t3_row4_eg" placeholder="E_G..."></td>
- </tr>
- </tbody>
- </table>
- </div>
- </div>
+    <div class="sub-task">
+      <div class="sub-title">3.1. Таблица расчета ускорения и эффективности масштабирования (s = 0.04, p = 0.96)</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 15%;">Узлы / Ядра (n)</th>
+              <th style="width: 22%;">Ускорение по Амдалу (S_A)</th>
+              <th style="width: 18%;">КПД Амдала (E_A)</th>
+              <th style="width: 25%;">Ускорение по Густафсону (S_G)</th>
+              <th style="width: 20%;">КПД Густафсона (E_G)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>n = 4</strong></td>
+              <td><input type="text" class="table-input" id="t3_row1_sa" placeholder="Например, 3.57"></td>
+              <td><input type="text" class="table-input" id="t3_row1_ea" placeholder="Например, 89.29%"></td>
+              <td><input type="text" class="table-input" id="t3_row1_sg" placeholder="Например, 3.88"></td>
+              <td><input type="text" class="table-input" id="t3_row1_eg" placeholder="Например, 97.00%"></td>
+            </tr>
+            <tr>
+              <td><strong>n = 16</strong></td>
+              <td><input type="text" class="table-input" id="t3_row2_sa" placeholder="S_A..."></td>
+              <td><input type="text" class="table-input" id="t3_row2_ea" placeholder="E_A..."></td>
+              <td><input type="text" class="table-input" id="t3_row2_sg" placeholder="S_G..."></td>
+              <td><input type="text" class="table-input" id="t3_row2_eg" placeholder="E_G..."></td>
+            </tr>
+            <tr>
+              <td><strong>n = 64</strong></td>
+              <td><input type="text" class="table-input" id="t3_row3_sa" placeholder="S_A..."></td>
+              <td><input type="text" class="table-input" id="t3_row3_ea" placeholder="E_A..."></td>
+              <td><input type="text" class="table-input" id="t3_row3_sg" placeholder="S_G..."></td>
+              <td><input type="text" class="table-input" id="t3_row3_eg" placeholder="E_G..."></td>
+            </tr>
+            <tr>
+              <td><strong>n = 256</strong></td>
+              <td><input type="text" class="table-input" id="t3_row4_sa" placeholder="S_A..."></td>
+              <td><input type="text" class="table-input" id="t3_row4_ea" placeholder="E_A..."></td>
+              <td><input type="text" class="table-input" id="t3_row4_sg" placeholder="S_G..."></td>
+              <td><input type="text" class="table-input" id="t3_row4_eg" placeholder="E_G..."></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
- <div class="sub-task">
- <div class="sub-title">3.2. Сравнение кластерных интерфейсов: Ethernet vs RoCE v2 vs InfiniBand</div>
- <label for="t3_interconnect_analysis">Сравните стандартный стек TCP/IP Ethernet и технологии RDMA (RoCE v2, InfiniBand). Почему прямая передача данных без прерываний процессора (Kernel-Bypass, Zero-Copy) критична для параллельных масштабируемых комплексов?</label>
- <textarea id="t3_interconnect_analysis" placeholder="Сравните задержки (latency), пропускную способность и нагрузку на CPU..."></textarea>
- </div>
- </div>
+    <div class="sub-task">
+      <div class="sub-title">3.2. Сравнение кластерных интерфейсов: Ethernet vs RoCE v2 vs InfiniBand</div>
+      <label for="t3_interconnect_analysis">Сравните стандартный стек TCP/IP Ethernet и технологии RDMA (RoCE v2, InfiniBand). Почему прямая передача данных без прерываний процессора (Kernel-Bypass, Zero-Copy) критична для параллельных масштабируемых комплексов?</label>
+      <textarea id="t3_interconnect_analysis" placeholder="Сравните задержки (latency), пропускную способность и нагрузку на CPU..."></textarea>
+    </div>
+  </div>
 
- <!-- ЗАДАНИЕ 4 (ИНДИВИДУАЛЬНЫЙ ТРЕНИРОВОЧНЫЙ КЕЙС ПО 4 ВАРИАНТАМ) -->
- <div class="task-card">
- <div class="task-title">Задание 4. Индивидуальный расчетно-аналитический кейс</div>
- <div class="task-intro">Решите инженерный кейс в соответствии с вариантом, выбранным в карточке обучающегося. Обоснуйте выбор архитектурной модели, рассчитайте ускорение и предложите аппаратную конфигурацию под заданную прикладную нагрузку.</div>
+  <!-- ЗАДАНИЕ 4 (ИНДИВИДУАЛЬНЫЙ ТРЕНИРОВОЧНЫЙ КЕЙС ПО 4 ВАРИАНТАМ) -->
+  <div class="task-card">
+    <div class="task-title">Задание 4. Индивидуальный расчетно-аналитический кейс</div>
+    <div class="task-intro">Решите инженерный кейс в соответствии с вариантом, выбранным в карточке обучающегося. Обоснуйте выбор архитектурной модели, рассчитайте ускорение и предложите аппаратную конфигурацию под заданную прикладную нагрузку.</div>
 
- <div class="variant-card" id="variant_task_box">
- <div id="variant_title" style="font-weight: 700; color: var(--accent); margin-bottom: 6px;">Вариант не выбран</div>
- <div id="variant_desc" style="color: var(--muted); font-size: 14px;">Выберите вариант задания в верхней карточке, чтобы загрузить исходные параметры целевой вычислительной системы.</div>
- </div>
+    <div class="variant-card" id="variant_task_box">
+      <div id="variant_title" style="font-weight: 700; color: var(--accent); margin-bottom: 6px;">Вариант не выбран</div>
+      <div id="variant_desc" style="color: var(--muted); font-size: 14px;">Выберите вариант задания в верхней карточке, чтобы загрузить исходные параметры целевой вычислительной системы.</div>
+    </div>
 
- <div class="sub-task">
- <div class="sub-title">4.1. Выбор и обоснование архитектурной модели параллелизма</div>
- <label for="t4_model_choice">Определите архитектурный класс системы (многопрограммная ОС, SMP/NUMA, кластер с распределенной памятью, гибридный комплекс) и объясните организацию оперативной памяти и обмена данными:</label>
- <textarea id="t4_model_choice" placeholder="Обоснуйте выбор модели параллелизма и структуру адресного пространства..."></textarea>
- </div>
+    <div class="sub-task">
+      <div class="sub-title">4.1. Выбор и обоснование архитектурной модели параллелизма</div>
+      <label for="t4_model_choice">Определите архитектурный класс системы (многопрограммная ОС, SMP/NUMA, кластер с распределенной памятью, гибридный комплекс) и объясните организацию оперативной памяти и обмена данными:</label>
+      <textarea id="t4_model_choice" placeholder="Обоснуйте выбор модели параллелизма и структуру адресного пространства..."></textarea>
+    </div>
 
- <div class="sub-task">
- <div class="sub-title">4.2. Математический расчет масштабируемости (ускорение и эффективность)</div>
- <label for="t4_calc_solution">Приведите пошаговый расчет ускорения по закону Амдала (S_A), предела масштабирования S_max, ускорения по Густафсону (S_G) и эффективности параллелизации (E):</label>
- <textarea id="t4_calc_solution" placeholder="Укажите формулы, промежуточные расчеты и итоговые числовые значения..."></textarea>
- </div>
+    <div class="sub-task">
+      <div class="sub-title">4.2. Математический расчет масштабируемости (ускорение и эффективность)</div>
+      <label for="t4_calc_solution">Приведите пошаговый расчет ускорения по закону Амдала (S_A), предела масштабирования S_max, ускорения по Густафсону (S_G) и эффективности параллелизации (E):</label>
+      <textarea id="t4_calc_solution" placeholder="Укажите формулы, промежуточные расчеты и итоговые числовые значения..."></textarea>
+    </div>
 
- <div class="sub-task">
- <div class="sub-title">4.3. Выявление критических узких мест архитектуры</div>
- <label for="t4_bottlenecks">Опишите физические и аппаратные барьеры, ограничивающие рост производительности в данном сценарии (штрафы кэш-когерентности, сетевая латентность барьеров, блокировки, задержки интерконнекта):</label>
- <textarea id="t4_bottlenecks" placeholder="Укажите ключевые узкие места исследуемой конфигурации..."></textarea>
- </div>
+    <div class="sub-task">
+      <div class="sub-title">4.3. Выявление критических узких мест архитектуры</div>
+      <label for="t4_bottlenecks">Опишите физические и аппаратные барьеры, ограничивающие рост производительности в данном сценарии (штрафы кэш-когерентности, сетевая латентность барьеров, блокировки, задержки интерконнекта):</label>
+      <textarea id="t4_bottlenecks" placeholder="Укажите ключевые узкие места исследуемой конфигурации..."></textarea>
+    </div>
 
- <div class="sub-task">
- <div class="sub-title">4.4. Инженерное обоснование спецификации оборудования</div>
- <label for="t4_hardware_spec">Сформулируйте практические рекомендации по конфигурации оборудования (интерконнект, топология сети, привязка NUMA, организация синхронизации) для устранения узких мест:</label>
- <textarea id="t4_hardware_spec" placeholder="Сформулируйте законченную спецификацию аппаратного решения..."></textarea>
- </div>
- </div>
+    <div class="sub-task">
+      <div class="sub-title">4.4. Инженерное обоснование спецификации оборудования</div>
+      <label for="t4_hardware_spec">Сформулируйте практические рекомендации по конфигурации оборудования (интерконнект, топология сети, привязка NUMA, организация синхронизации) для устранения узких мест:</label>
+      <textarea id="t4_hardware_spec" placeholder="Сформулируйте законченную спецификацию аппаратного решения..."></textarea>
+    </div>
+  </div>
 
- <!-- КАРТОЧКА ДЕЙСТВИЙ (СКРЫВАЕТСЯ ПРИ ПЕЧАТИ) -->
- <div class="actions-card">
- <div class="btn-row">
- <button type="button" class="btn-primary" onclick="window.print()">Сохранить в PDF / Распечатать</button>
- <button type="button" class="btn-secondary" onclick="saveToLocalStorage(true)">Сохранить черновик</button>
- <button type="button" class="btn-danger" onclick="confirmReset()">Очистить бланк</button>
- <span id="save_status" class="status-msg"></span>
- </div>
- </div>
+  <!-- КАРТОЧКА ДЕЙСТВИЙ (СКРЫВАЕТСЯ ПРИ ПЕЧАТИ) -->
+  <div class="actions-card">
+    <div class="btn-row">
+      <button type="button" class="btn-primary" onclick="window.print()">Сохранить в PDF / Распечатать</button>
+      <button type="button" class="btn-secondary" onclick="saveToLocalStorage(true)">Сохранить черновик</button>
+      <button type="button" class="btn-danger" onclick="confirmReset()">Очистить бланк</button>
+      <span id="save_status" class="status-msg"></span>
+    </div>
+  </div>
 
 </div>
 
 <script>
- const STORAGE_KEY = 'sie_hw19_student_worksheet';
- const FORM_FIELDS = [
- 'student_fio', 'student_group', 'work_variant', 'work_date',
- 't1_row1_mem', 't1_row1_comm', 't1_row1_hw', 't1_row1_cost',
- 't1_row2_mem', 't1_row2_comm', 't1_row2_hw', 't1_row2_cost',
- 't1_row3_mem', 't1_row3_comm', 't1_row3_hw', 't1_row3_cost',
- 't1_levels_analysis',
- 't2_row1_s1', 't2_row1_s2', 't2_row1_bus',
- 't2_row2_s1', 't2_row2_s2', 't2_row2_bus',
- 't2_row3_s1', 't2_row3_s2', 't2_row3_bus',
- 't2_row4_s1', 't2_row4_s2', 't2_row4_bus',
- 't2_false_sharing',
- 't3_row1_sa', 't3_row1_ea', 't3_row1_sg', 't3_row1_eg',
- 't3_row2_sa', 't3_row2_ea', 't3_row2_sg', 't3_row2_eg',
- 't3_row3_sa', 't3_row3_ea', 't3_row3_sg', 't3_row3_eg',
- 't3_row4_sa', 't3_row4_ea', 't3_row4_sg', 't3_row4_eg',
- 't3_interconnect_analysis',
- 't4_model_choice', 't4_calc_solution', 't4_bottlenecks', 't4_hardware_spec'
- ];
+  const STORAGE_KEY = 'sie_hw19_student_worksheet';
+  const FORM_FIELDS = [
+    'student_fio', 'student_group', 'work_variant', 'work_date',
+    't1_row1_mem', 't1_row1_comm', 't1_row1_hw', 't1_row1_cost',
+    't1_row2_mem', 't1_row2_comm', 't1_row2_hw', 't1_row2_cost',
+    't1_row3_mem', 't1_row3_comm', 't1_row3_hw', 't1_row3_cost',
+    't1_levels_analysis',
+    't2_row1_s1', 't2_row1_s2', 't2_row1_bus',
+    't2_row2_s1', 't2_row2_s2', 't2_row2_bus',
+    't2_row3_s1', 't2_row3_s2', 't2_row3_bus',
+    't2_row4_s1', 't2_row4_s2', 't2_row4_bus',
+    't2_false_sharing',
+    't3_row1_sa', 't3_row1_ea', 't3_row1_sg', 't3_row1_eg',
+    't3_row2_sa', 't3_row2_ea', 't3_row2_sg', 't3_row2_eg',
+    't3_row3_sa', 't3_row3_ea', 't3_row3_sg', 't3_row3_eg',
+    't3_row4_sa', 't3_row4_ea', 't3_row4_sg', 't3_row4_eg',
+    't3_interconnect_analysis',
+    't4_model_choice', 't4_calc_solution', 't4_bottlenecks', 't4_hardware_spec'
+  ];
 
- const VARIANTS_INFO = {
- '1': {
- title: 'Вариант 1: Кластер молекулярной динамики и квантовой химии (GROMACS / VASP)',
- desc: 'Параметры: 32 вычислительных узла (n = 32), моделирование взаимодействия 5 млн атомов. Доля последовательного кода s = 0.03 (p = 0.97). Алгоритм требует регулярной синхронизации пространственных границ ячеек (Halo Exchange) и глобальных барьеров Allreduce на каждом временном шаге.'
- },
- '2': {
- title: 'Вариант 2: Многопоточный сервер высоконагруженной СУБД (ccNUMA, OLAP / ClickHouse)',
- desc: 'Параметры: 4-сокетный ccNUMA-сервер, суммарно 128 процессорных ядер (n = 128). Обработка тяжелых параллельных агрегационных аналитических запросов. Доля последовательного кода s = 0.06 (p = 0.94). Высокая конкуренция потоков за общие страницы буферного пула и блокировки таблиц.'
- },
- '3': {
- title: 'Вариант 3: Распределенный комплекс обучения больших языковых моделей (LLM Megatron-LM)',
- desc: 'Параметры: 64 GPU-сервера по 8 ускорителей = 512 тензорных GPU (n = 512). Обучение трансформера с 3D-параллелизмом (Data, Tensor, Pipeline). Доля последовательного кода s = 0.02 (p = 0.98). Критически важная фаза редукции градиентов AllReduce между всеми узлами.'
- },
- '4': {
- title: 'Вариант 4: Бортовой отказоустойчивый комплекс беспилотного транспорта (TMR)',
- desc: 'Параметры: Тройной модульный резервированный вычислитель (n = 3 канала) с жестким реальным временем и мажоритарным голосованием по алгоритму Byzantine Agreement. Доля последовательного кода s = 0.12 (p = 0.88). Критична надежность при нулевой вероятности единой точки отказа.'
- }
- };
+  const VARIANTS_INFO = {
+    '1': {
+      title: 'Вариант 1: Кластер молекулярной динамики и квантовой химии (GROMACS / VASP)',
+      desc: 'Параметры: 32 вычислительных узла (n = 32), моделирование взаимодействия 5 млн атомов. Доля последовательного кода s = 0.03 (p = 0.97). Алгоритм требует регулярной синхронизации пространственных границ ячеек (Halo Exchange) и глобальных барьеров Allreduce на каждом временном шаге.'
+    },
+    '2': {
+      title: 'Вариант 2: Многопоточный сервер высоконагруженной СУБД (ccNUMA, OLAP / ClickHouse)',
+      desc: 'Параметры: 4-сокетный ccNUMA-сервер, суммарно 128 процессорных ядер (n = 128). Обработка тяжелых параллельных агрегационных аналитических запросов. Доля последовательного кода s = 0.06 (p = 0.94). Высокая конкуренция потоков за общие страницы буферного пула и блокировки таблиц.'
+    },
+    '3': {
+      title: 'Вариант 3: Распределенный комплекс обучения больших языковых моделей (LLM Megatron-LM)',
+      desc: 'Параметры: 64 GPU-сервера по 8 ускорителей = 512 тензорных GPU (n = 512). Обучение трансформера с 3D-параллелизмом (Data, Tensor, Pipeline). Доля последовательного кода s = 0.02 (p = 0.98). Критически важная фаза редукции градиентов AllReduce между всеми узлами.'
+    },
+    '4': {
+      title: 'Вариант 4: Бортовой отказоустойчивый комплекс беспилотного транспорта (TMR)',
+      desc: 'Параметры: Тройной модульный резервированный вычислитель (n = 3 канала) с жестким реальным временем и мажоритарным голосованием по алгоритму Byzantine Agreement. Доля последовательного кода s = 0.12 (p = 0.88). Критична надежность при нулевой вероятности единой точки отказа.'
+    }
+  };
 
- function updateVariantSelection() {
- const sel = document.getElementById('work_variant');
- const val = sel.value;
- const titleElem = document.getElementById('variant_title');
- const descElem = document.getElementById('variant_desc');
- const printElem = document.getElementById('print_work_variant');
+  function updateVariantSelection() {
+    const sel = document.getElementById('work_variant');
+    const val = sel.value;
+    const titleElem = document.getElementById('variant_title');
+    const descElem = document.getElementById('variant_desc');
+    const printElem = document.getElementById('print_work_variant');
 
- if (VARIANTS_INFO[val]) {
- titleElem.textContent = VARIANTS_INFO[val].title;
- descElem.textContent = VARIANTS_INFO[val].desc;
- printElem.textContent = sel.options[sel.selectedIndex].text;
- } else {
- titleElem.textContent = 'Вариант не выбран';
- descElem.textContent = 'Выберите вариант задания в карточке обучающегося вверху страницы для отображения технического задания.';
- printElem.textContent = 'Вариант не выбран';
- }
- saveToLocalStorage(false);
- }
+    if (VARIANTS_INFO[val]) {
+      titleElem.textContent = VARIANTS_INFO[val].title;
+      descElem.textContent = VARIANTS_INFO[val].desc;
+      printElem.textContent = sel.options[sel.selectedIndex].text;
+    } else {
+      titleElem.textContent = 'Вариант не выбран';
+      descElem.textContent = 'Выберите вариант задания в карточке обучающегося вверху страницы для отображения технического задания.';
+      printElem.textContent = 'Вариант не выбран';
+    }
+    saveToLocalStorage(false);
+  }
 
- function saveToLocalStorage(showFeedback) {
- const data = {};
- FORM_FIELDS.forEach(id => {
- const el = document.getElementById(id);
- if (el) data[id] = el.value;
- });
- try {
- localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
- if (showFeedback) {
- const status = document.getElementById('save_status');
- status.textContent = '✓ Сохранено в браузере';
- status.className = 'status-msg status-saved';
- setTimeout(() => { status.textContent = ''; }, 3000);
- }
- } catch (e) {
- console.warn('LocalStorage error:', e);
- }
- }
+  function saveToLocalStorage(showFeedback) {
+    const data = {};
+    FORM_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) data[id] = el.value;
+    });
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      if (showFeedback) {
+        const status = document.getElementById('save_status');
+        status.textContent = '✓ Сохранено в браузере';
+        status.className = 'status-msg status-saved';
+        setTimeout(() => { status.textContent = ''; }, 3000);
+      }
+    } catch (e) {
+      console.warn('LocalStorage error:', e);
+    }
+  }
 
- function loadFromLocalStorage() {
- try {
- const raw = localStorage.getItem(STORAGE_KEY);
- if (raw) {
- const data = JSON.parse(raw);
- FORM_FIELDS.forEach(id => {
- if (data[id] !== undefined) {
- const el = document.getElementById(id);
- if (el) el.value = data[id];
- }
- });
- }
- } catch (e) {
- console.warn('LocalStorage load error:', e);
- }
- updateVariantSelection();
- }
+  function loadFromLocalStorage() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const data = JSON.parse(raw);
+        FORM_FIELDS.forEach(id => {
+          if (data[id] !== undefined) {
+            const el = document.getElementById(id);
+            if (el) el.value = data[id];
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('LocalStorage load error:', e);
+    }
+    updateVariantSelection();
+  }
 
- function confirmReset() {
- if (confirm('Внимание! Все введенные данные в практическом бланке будут безвозвратно удалены. Продолжить очистку?')) {
- FORM_FIELDS.forEach(id => {
- const el = document.getElementById(id);
- if (el) el.value = '';
- });
- try {
- localStorage.removeItem(STORAGE_KEY);
- } catch (e) {}
- updateVariantSelection();
- const status = document.getElementById('save_status');
- status.textContent = 'Форма очищена';
- status.className = 'status-msg';
- setTimeout(() => { status.textContent = ''; }, 3000);
- }
- }
+  function confirmReset() {
+    if (confirm('Внимание! Все введенные данные в практическом бланке будут безвозвратно удалены. Продолжить очистку?')) {
+      FORM_FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (e) {}
+      updateVariantSelection();
+      const status = document.getElementById('save_status');
+      status.textContent = 'Форма очищена';
+      status.className = 'status-msg';
+      setTimeout(() => { status.textContent = ''; }, 3000);
+    }
+  }
 
- document.addEventListener('DOMContentLoaded', () => {
- loadFromLocalStorage();
- FORM_FIELDS.forEach(id => {
- const el = document.getElementById(id);
- if (el) {
- el.addEventListener('input', () => saveToLocalStorage(false));
- el.addEventListener('change', () => saveToLocalStorage(false));
- }
- });
- });
+  document.addEventListener('DOMContentLoaded', () => {
+    loadFromLocalStorage();
+    FORM_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => saveToLocalStorage(false));
+        el.addEventListener('change', () => saveToLocalStorage(false));
+      }
+    });
+  });
 
- window.addEventListener('beforeprint', () => {
- updateVariantSelection();
- });
+  window.addEventListener('beforeprint', () => {
+    updateVariantSelection();
+  });
 </script>
 </body>
 </html>

@@ -1,551 +1,565 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
- <title>Конспект лекции: Логические основы ЭВМ, элементы и узлы — ОП.02 Архитектура аппаратных средств</title>
- <style>
- :root {
- --bg: #f8fafc;
- --card: #ffffff;
- --text: #0f172a;
- --muted: #475569;
- --line: #cbd5e1;
- --accent: #1e40af;
- --accent-soft: #eff6ff;
- --code-bg: #0f172a;
- --code-text: #f1f5f9;
- --success: #059669;
- --warn: #d97706;
- --danger: #dc2626;
- --radius: 14px;
- --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
- }
- * { box-sizing: border-box; margin: 0; padding: 0; }
- body {
- background: var(--bg);
- color: var(--text);
- font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
- line-height: 1.65;
- font-size: 16px;
- padding: 24px 16px;
- }.container {
- max-width: 940px;
- margin: 0 auto;
- }
- header {
- background: var(--card);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 28px 24px;
- margin-bottom: 20px;
- box-shadow: var(--shadow);
- }
- h1 {
- font-size: clamp(22px, 3.8vw, 30px);
- line-height: 1.3;
- color: var(--accent);
- margin-bottom: 12px;
- }.lead {
- color: var(--muted);
- font-size: 16px;
- }.card {
- background: var(--card);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 24px;
- margin-bottom: 20px;
- box-shadow: var(--shadow);
- }
- h2 {
- font-size: 20px;
- color: var(--accent);
- margin: 20px 0 12px;
- border-bottom: 2px solid var(--accent-soft);
- padding-bottom: 6px;
- }
- h3 {
- font-size: 17px;
- margin: 16px 0 8px;
- color: #1e293b;
- }
- p, ul, ol { margin-bottom: 14px; }
- ul, ol { padding-left: 24px; }
- li { margin-bottom: 6px; }.note {
- background: var(--accent-soft);
- border-left: 4px solid var(--accent);
- padding: 12px 18px;
- border-radius: 0 8px 8px 0;
- margin: 16px 0;
- font-size: 15px;
- }.note-warn {
- background: #fef3c7;
- border-left: 4px solid var(--warn);
- color: #92400e;
- padding: 12px 18px;
- border-radius: 0 8px 8px 0;
- margin: 16px 0;
- font-size: 15px;
- }
- table {
- width: 100%;
- border-collapse: collapse;
- margin: 16px 0;
- font-size: 14.5px;
- }
- th, td {
- border: 1px solid var(--line);
- padding: 9px 12px;
- text-align: center;
- vertical-align: middle;
- }
- th {
- background: var(--accent-soft);
- color: var(--accent);
- font-weight: 700;
- }
- td.left { text-align: left; }
- code {
- font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
- font-size: 14px;
- background: #f1f5f9;
- padding: 2px 6px;
- border-radius: 4px;
- color: #0f172a;
- }.badge {
- display: inline-block;
- padding: 3px 8px;
- border-radius: 6px;
- font-size: 12.5px;
- font-weight: 600;
- background: #e2e8f0;
- color: #334155;
- }.circuit-box {
- background: #f8fafc;
- border: 1.5px solid var(--line);
- border-radius: 10px;
- padding: 16px;
- margin: 16px 0;
- display: flex;
- flex-direction: column;
- align-items: center;
- justify-content: center;
- }.circuit-svg {
- max-width: 100%;
- height: auto;
- }.circuit-caption {
- font-size: 13.5px;
- color: var(--muted);
- margin-top: 8px;
- text-align: center;
- }.grid-2 {
- display: grid;
- grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
- gap: 16px;
- }.quiz-card {
- background: #fdfdfd;
- border: 1px dashed var(--accent);
- border-radius: 10px;
- padding: 16px;
- margin-top: 14px;
- }.quiz-card summary {
- cursor: pointer;
- font-weight: 600;
- color: var(--accent);
- outline: none;
- }.quiz-answer {
- margin-top: 10px;
- padding-top: 10px;
- border-top: 1px solid #e2e8f0;
- color: #334155;
- font-size: 14.5px;
- }
- @media print {
- body { background: #fff; padding: 0; font-size: 10.5pt; }.card, header { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 12pt; }
- details { open: true; }
- details > div { display: block !important; }
- }
- </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Конспект лекции: Логические основы ЭВМ, элементы и узлы — ОП.02 Архитектура аппаратных средств</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --code-bg: #0f172a;
+      --code-text: #f1f5f9;
+      --success: #059669;
+      --warn: #d97706;
+      --danger: #dc2626;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.65;
+      font-size: 16px;
+      padding: 24px 16px;
+    }
+    .container {
+      max-width: 940px;
+      margin: 0 auto;
+    }
+    header {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(22px, 3.8vw, 30px);
+      line-height: 1.3;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .lead {
+      color: var(--muted);
+      font-size: 16px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h2 {
+      font-size: 20px;
+      color: var(--accent);
+      margin: 20px 0 12px;
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 6px;
+    }
+    h3 {
+      font-size: 17px;
+      margin: 16px 0 8px;
+      color: #1e293b;
+    }
+    p, ul, ol { margin-bottom: 14px; }
+    ul, ol { padding-left: 24px; }
+    li { margin-bottom: 6px; }
+    .note {
+      background: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      padding: 12px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+      font-size: 15px;
+    }
+    .note-warn {
+      background: #fef3c7;
+      border-left: 4px solid var(--warn);
+      color: #92400e;
+      padding: 12px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+      font-size: 15px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 14.5px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 9px 12px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    td.left { text-align: left; }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+      background: #e2e8f0;
+      color: #334155;
+    }
+    .circuit-box {
+      background: #f8fafc;
+      border: 1.5px solid var(--line);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 16px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .circuit-svg {
+      max-width: 100%;
+      height: auto;
+    }
+    .circuit-caption {
+      font-size: 13.5px;
+      color: var(--muted);
+      margin-top: 8px;
+      text-align: center;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .quiz-card {
+      background: #fdfdfd;
+      border: 1px dashed var(--accent);
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 14px;
+    }
+    .quiz-card summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--accent);
+      outline: none;
+    }
+    .quiz-answer {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #e2e8f0;
+      color: #334155;
+      font-size: 14.5px;
+    }
+    @media print {
+      body { background: #fff; padding: 0; font-size: 10.5pt; }
+      .card, header { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 12pt; }
+      details { open: true; }
+      details > div { display: block !important; }
+    }
+  </style>
 </head>
 <body>
 <div class="container">
 
- <header>
- <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
- <span class="badge">ММКЦТ «Академия TOP»</span>
- <span class="badge">Дисциплина: ОП.02 Архитектура аппаратных средств</span>
- </div>
- <h1>Теоретический конспект: Логические основы ЭВМ, элементы и узлы</h1>
- <p class="lead">Раздел 3 программы курса. Булева алгебра, функционально полные базисы, схемотехника логических вентилей, комбинационные схемы (сумматоры, мультиплексоры, дешифраторы) и последовательностные узлы (триггеры памяти).</p>
- </header>
+  <header>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+      <span class="badge">ММКЦТ «Академия TOP»</span>
+      <span class="badge">Дисциплина: ОП.02 Архитектура аппаратных средств</span>
+    </div>
+    <h1>Теоретический конспект: Логические основы ЭВМ, элементы и узлы</h1>
+    <p class="lead">Раздел 3 программы курса (§2.2 с.8). Булева алгебра, функционально полные базисы, схемотехника логических вентилей, комбинационные схемы (сумматоры, мультиплексоры, дешифраторы) и последовательностные узлы (триггеры памяти).</p>
+  </header>
 
- <!-- РАЗДЕЛ 1: ФИЗИКА И АЛГЕБРА ЛОГИКИ -->
- <div class="card">
- <h2>1. Физическая природа цифровой логики и основы булевой алгебры</h2>
- <p>Любая современная цифровая вычислительная система (от копеечного микроконтроллера до 128-ядерного серверного процессора) на фундаментальном аппаратном уровне представляет собой совокупность миллиардов микроскопических полупроводниковых ключей — <strong>полевых транзисторов структуры металл-оксид-полупроводник (MOSFET)</strong>.</p>
- 
- <p>В цифровой электронике абстрактные математические понятия <em>«логический 0» (False)</em> и <em>«логическая 1» (True)</em> физически материализуются в виде строго определенных диапазонов электрического напряжения относительно общей шины «земли» (GND, 0 Вольт):</p>
- <ul>
- <li><strong>Логический 0 (Low / Низкий уровень):</strong> потенциал, близкий к 0 В (например, в стандартах CMOS 3.3 В диапазон составляет от 0.0 В до 0.8 В).</li>
- <li><strong>Логическая 1 (High / Высокий уровень):</strong> потенциал, близкий к напряжению питания микросхемы V<sub>DD</sub> (в CMOS 3.3 В диапазон составляет от 2.0 В до 3.3 В).</li>
- </ul>
+  <!-- РАЗДЕЛ 1: ФИЗИКА И АЛГЕБРА ЛОГИКИ -->
+  <div class="card">
+    <h2>1. Физическая природа цифровой логики и основы булевой алгебры</h2>
+    <p>Любая современная цифровая вычислительная система (от копеечного микроконтроллера до 128-ядерного серверного процессора) на фундаментальном аппаратном уровне представляет собой совокупность миллиардов микроскопических полупроводниковых ключей — <strong>полевых транзисторов структуры металл-оксид-полупроводник (MOSFET)</strong>.</p>
+    
+    <p>В цифровой электронике абстрактные математические понятия <em>«логический 0» (False)</em> и <em>«логическая 1» (True)</em> физически материализуются в виде строго определенных диапазонов электрического напряжения относительно общей шины «земли» (GND, 0 Вольт):</p>
+    <ul>
+      <li><strong>Логический 0 (Low / Низкий уровень):</strong> потенциал, близкий к 0 В (например, в стандартах CMOS 3.3 В диапазон составляет от 0.0 В до 0.8 В).</li>
+      <li><strong>Логическая 1 (High / Высокий уровень):</strong> потенциал, близкий к напряжению питания микросхемы V<sub>DD</sub> (в CMOS 3.3 В диапазон составляет от 2.0 В до 3.3 В).</li>
+    </ul>
 
- <div class="note">
- <strong>Принцип помехоустойчивости:</strong> Промежуточная зона напряжений (от 0.8 В до 2.0 В) является <em>запрещенной</em>. Цифровой логический вентиль никогда не должен длительно находиться в этом диапазоне, что обеспечивает исключительную устойчивость микропроцессоров к электромагнитным шумам и перекрестным помехам.
- </div>
+    <div class="note">
+      <strong>Принцип помехоустойчивости:</strong> Промежуточная зона напряжений (от 0.8 В до 2.0 В) является <em>запрещенной</em>. Цифровой логический вентиль никогда не должен длительно находиться в этом диапазоне, что обеспечивает исключительную устойчивость микропроцессоров к электромагнитным шумам и перекрестным помехам.
+    </div>
 
- <h3>Аксиомы и ключевые законы алгебры логики (Булевой алгебры)</h3>
- <p>Фундаментом математического синтеза цифровых схем служит булева алгебра, предложенная Джорджем Булем в 1854 году и примененная к релейно-электронным схемам Клодом Шенноном в 1938 году:</p>
- <ol>
- <li><strong>Коммутативность:</strong> A · B = B · A; &nbsp; A + B = B + A</li>
- <li><strong>Ассоциативность:</strong> (A · B) · C = A · (B · C); &nbsp; (A + B) + C = A + (B + C)</li>
- <li><strong>Дистрибутивность:</strong> A · (B + C) = (A · B) + (A · C); &nbsp; A + (B · C) = (A + B) · (A + C)</li>
- <li><strong>Законы идемпотентности:</strong> A · A = A; &nbsp; A + A = A</li>
- <li><strong>Операции с константами:</strong> A · 0 = 0; &nbsp; A · 1 = A; &nbsp; A + 0 = A; &nbsp; A + 1 = 1</li>
- <li><strong>Закон противоречия и исключенного третьего:</strong> A · overline{A} = 0; &nbsp; A + overline{A} = 1</li>
- <li><strong>Закон двойного отрицания:</strong> overline{overline{A}} = A</li>
- <li><strong>Законы де Моргана (правило инверсии базиса):</strong>
- <br><div class="formula">overline{A · B} = overline{A} + overline{B}</div>
- <br><div class="formula">overline{A + B} = overline{A} · overline{B}</div>
- </li>
- <li><strong>Закон склеивания (основа карт Карно):</strong> A · B + A · overline{B} = A</li>
- </ol>
- </div>
+    <h3>Аксиомы и ключевые законы алгебры логики (Булевой алгебры)</h3>
+    <p>Фундаментом математического синтеза цифровых схем служит булева алгебра, предложенная Джорджем Булем в 1854 году и примененная к релейно-электронным схемам Клодом Шенноном в 1938 году:</p>
+    <ol>
+      <li><strong>Коммутативность:</strong> A · B = B · A; &nbsp; A + B = B + A</li>
+      <li><strong>Ассоциативность:</strong> (A · B) · C = A · (B · C); &nbsp; (A + B) + C = A + (B + C)</li>
+      <li><strong>Дистрибутивность:</strong> A · (B + C) = (A · B) + (A · C); &nbsp; A + (B · C) = (A + B) · (A + C)</li>
+      <li><strong>Законы идемпотентности:</strong> A · A = A; &nbsp; A + A = A</li>
+      <li><strong>Операции с константами:</strong> A · 0 = 0; &nbsp; A · 1 = A; &nbsp; A + 0 = A; &nbsp; A + 1 = 1</li>
+      <li><strong>Закон противоречия и исключенного третьего:</strong> A · overline{A} = 0; &nbsp; A + overline{A} = 1</li>
+      <li><strong>Закон двойного отрицания:</strong> overline{overline{A}} = A</li>
+      <li><strong>Законы де Моргана (правило инверсии базиса):</strong>
+        <br><div class="formula">overline{A · B} = overline{A} + overline{B}</div>
+        <br><div class="formula">overline{A + B} = overline{A} · overline{B}</div>
+      </li>
+      <li><strong>Закон склеивания (основа карт Карно):</strong> A · B + A · overline{B} = A</li>
+    </ol>
+  </div>
 
- <!-- РАЗДЕЛ 2: БАЗОВЫЕ ЛОГИЧЕСКИЕ ВЕНТИЛИ -->
- <div class="card">
- <h2>2. Базовые логические вентили и функционально полные базисы</h2>
- <p>Логический вентиль (Gate) — это физическое электронное устройство, реализующее элементарную булеву операцию над одним или несколькими входными логическими сигналами. В мировой практике используются два стандарта условных графических обозначений (УГО): отечественный <strong>ГОСТ 2.743-91</strong> (прямоугольные блоки с символами <code>&</code>, <code>1</code>, <code>=1</code>) и международный <strong>IEEE / ANSI 91-1984</strong> (фигурные пиктограммы).</p>
+  <!-- РАЗДЕЛ 2: БАЗОВЫЕ ЛОГИЧЕСКИЕ ВЕНТИЛИ -->
+  <div class="card">
+    <h2>2. Базовые логические вентили и функционально полные базисы</h2>
+    <p>Логический вентиль (Gate) — это физическое электронное устройство, реализующее элементарную булеву операцию над одним или несколькими входными логическими сигналами. В мировой практике используются два стандарта условных графических обозначений (УГО): отечественный <strong>ГОСТ 2.743-91</strong> (прямоугольные блоки с символами <code>&</code>, <code>1</code>, <code>=1</code>) и международный <strong>IEEE / ANSI 91-1984</strong> (фигурные пиктограммы).</p>
 
- <div class="grid-2">
- <!-- ВЕНТИЛЬ И -->
- <div class="circuit-box">
- <h4>1. Конъюнкция: Логический элемент И (AND)</h4>
- <svg class="circuit-svg" width="220" height="90" viewBox="0 0 220 90">
- <!-- Inputs -->
- <line x1="20" y1="30" x2="60" y2="30" stroke="#1e40af" stroke-width="2.5" />
- <line x1="20" y1="60" x2="60" y2="60" stroke="#1e40af" stroke-width="2.5" />
- <text x="10" y="35" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a">A</text>
- <text x="10" y="65" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a">B</text>
- <!-- Gate GOST -->
- <rect x="60" y="15" width="60" height="60" rx="3" fill="#eff6ff" stroke="#1e40af" stroke-width="2" />
- <text x="85" y="50" font-family="sans-serif" font-size="18" font-weight="bold" fill="#1e40af">&amp;</text>
- <!-- Output -->
- <line x1="120" y1="45" x2="180" y2="45" stroke="#1e40af" stroke-width="2.5" />
- <text x="190" y="50" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a">Y</text>
- </svg>
- <div class="circuit-caption">Обозначение ГОСТ: Y = A · B (лог. умножение)</div>
- </div>
+    <div class="grid-2">
+      <!-- ВЕНТИЛЬ И -->
+      <div class="circuit-box">
+        <h4>1. Конъюнкция: Логический элемент И (AND)</h4>
+        <svg class="circuit-svg" width="220" height="90" viewBox="0 0 220 90">
+          <!-- Inputs -->
+          <line x1="20" y1="30" x2="60" y2="30" stroke="#1e40af" stroke-width="2.5" />
+          <line x1="20" y1="60" x2="60" y2="60" stroke="#1e40af" stroke-width="2.5" />
+          <text x="10" y="35" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a">A</text>
+          <text x="10" y="65" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a">B</text>
+          <!-- Gate GOST -->
+          <rect x="60" y="15" width="60" height="60" rx="3" fill="#eff6ff" stroke="#1e40af" stroke-width="2" />
+          <text x="85" y="50" font-family="sans-serif" font-size="18" font-weight="bold" fill="#1e40af">&amp;</text>
+          <!-- Output -->
+          <line x1="120" y1="45" x2="180" y2="45" stroke="#1e40af" stroke-width="2.5" />
+          <text x="190" y="50" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a">Y</text>
+        </svg>
+        <div class="circuit-caption">Обозначение ГОСТ: Y = A · B (лог. умножение)</div>
+      </div>
 
- <!-- ВЕНТИЛЬ ИЛИ -->
- <div class="circuit-box">
- <h4>2. Дизъюнкция: Логический элемент ИЛИ (OR)</h4>
- <svg class="circuit-svg" width="220" height="90" viewBox="0 0 220 90">
- <line x1="20" y1="30" x2="60" y2="30" stroke="#1e40af" stroke-width="2.5" />
- <line x1="20" y1="60" x2="60" y2="60" stroke="#1e40af" stroke-width="2.5" />
- <text x="10" y="35" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a">A</text>
- <text x="10" y="65" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a">B</text>
- <rect x="60" y="15" width="60" height="60" rx="3" fill="#eff6ff" stroke="#1e40af" stroke-width="2" />
- <text x="83" y="50" font-family="sans-serif" font-size="16" font-weight="bold" fill="#1e40af">1</text>
- <line x1="120" y1="45" x2="180" y2="45" stroke="#1e40af" stroke-width="2.5" />
- <text x="190" y="50" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a">Y</text>
- </svg>
- <div class="circuit-caption">Обозначение ГОСТ: Y = A + B (лог. сложение)</div>
- </div>
- </div>
+      <!-- ВЕНТИЛЬ ИЛИ -->
+      <div class="circuit-box">
+        <h4>2. Дизъюнкция: Логический элемент ИЛИ (OR)</h4>
+        <svg class="circuit-svg" width="220" height="90" viewBox="0 0 220 90">
+          <line x1="20" y1="30" x2="60" y2="30" stroke="#1e40af" stroke-width="2.5" />
+          <line x1="20" y1="60" x2="60" y2="60" stroke="#1e40af" stroke-width="2.5" />
+          <text x="10" y="35" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a">A</text>
+          <text x="10" y="65" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a">B</text>
+          <rect x="60" y="15" width="60" height="60" rx="3" fill="#eff6ff" stroke="#1e40af" stroke-width="2" />
+          <text x="83" y="50" font-family="sans-serif" font-size="16" font-weight="bold" fill="#1e40af">1</text>
+          <line x1="120" y1="45" x2="180" y2="45" stroke="#1e40af" stroke-width="2.5" />
+          <text x="190" y="50" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a">Y</text>
+        </svg>
+        <div class="circuit-caption">Обозначение ГОСТ: Y = A + B (лог. сложение)</div>
+      </div>
+    </div>
 
- <div class="grid-2" style="margin-top:12px;">
- <!-- ВЕНТИЛЬ НЕ -->
- <div class="circuit-box">
- <h4>3. Инверсия: Логический элемент НЕ (NOT)</h4>
- <svg class="circuit-svg" width="220" height="90" viewBox="0 0 220 90">
- <line x1="20" y1="45" x2="60" y2="45" stroke="#1e40af" stroke-width="2.5" />
- <text x="10" y="50" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a">A</text>
- <rect x="60" y="15" width="60" height="60" rx="3" fill="#eff6ff" stroke="#1e40af" stroke-width="2" />
- <text x="86" y="50" font-family="sans-serif" font-size="16" font-weight="bold" fill="#1e40af">1</text>
- <!-- Inversion circle -->
- <circle cx="126" cy="45" r="5" fill="#ffffff" stroke="#1e40af" stroke-width="2" />
- <line x1="131" y1="45" x2="180" y2="45" stroke="#1e40af" stroke-width="2.5" />
- <text x="190" y="50" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a">Y</text>
- </svg>
- <div class="circuit-caption">Обозначение ГОСТ: Y = overline{A} (инвертор)</div>
- </div>
+    <div class="grid-2" style="margin-top:12px;">
+      <!-- ВЕНТИЛЬ НЕ -->
+      <div class="circuit-box">
+        <h4>3. Инверсия: Логический элемент НЕ (NOT)</h4>
+        <svg class="circuit-svg" width="220" height="90" viewBox="0 0 220 90">
+          <line x1="20" y1="45" x2="60" y2="45" stroke="#1e40af" stroke-width="2.5" />
+          <text x="10" y="50" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a">A</text>
+          <rect x="60" y="15" width="60" height="60" rx="3" fill="#eff6ff" stroke="#1e40af" stroke-width="2" />
+          <text x="86" y="50" font-family="sans-serif" font-size="16" font-weight="bold" fill="#1e40af">1</text>
+          <!-- Inversion circle -->
+          <circle cx="126" cy="45" r="5" fill="#ffffff" stroke="#1e40af" stroke-width="2" />
+          <line x1="131" y1="45" x2="180" y2="45" stroke="#1e40af" stroke-width="2.5" />
+          <text x="190" y="50" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a">Y</text>
+        </svg>
+        <div class="circuit-caption">Обозначение ГОСТ: Y = overline{A} (инвертор)</div>
+      </div>
 
- <!-- ВЕНТИЛЬ ИСКЛЮЧАЮЩЕЕ ИЛИ (XOR) -->
- <div class="circuit-box">
- <h4>4. Сложение по модулю 2: Элемент XOR</h4>
- <svg class="circuit-svg" width="220" height="90" viewBox="0 0 220 90">
- <line x1="20" y1="30" x2="60" y2="30" stroke="#1e40af" stroke-width="2.5" />
- <line x1="20" y1="60" x2="60" y2="60" stroke="#1e40af" stroke-width="2.5" />
- <text x="10" y="35" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a">A</text>
- <text x="10" y="65" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a">B</text>
- <rect x="60" y="15" width="60" height="60" rx="3" fill="#eff6ff" stroke="#1e40af" stroke-width="2" />
- <text x="76" y="50" font-family="sans-serif" font-size="15" font-weight="bold" fill="#1e40af">=1</text>
- <line x1="120" y1="45" x2="180" y2="45" stroke="#1e40af" stroke-width="2.5" />
- <text x="190" y="50" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a">Y</text>
- </svg>
- <div class="circuit-caption">Обозначение ГОСТ: Y = A ⊕ B = overline{A}B + Aoverline{B}</div>
- </div>
- </div>
+      <!-- ВЕНТИЛЬ ИСКЛЮЧАЮЩЕЕ ИЛИ (XOR) -->
+      <div class="circuit-box">
+        <h4>4. Сложение по модулю 2: Элемент XOR</h4>
+        <svg class="circuit-svg" width="220" height="90" viewBox="0 0 220 90">
+          <line x1="20" y1="30" x2="60" y2="30" stroke="#1e40af" stroke-width="2.5" />
+          <line x1="20" y1="60" x2="60" y2="60" stroke="#1e40af" stroke-width="2.5" />
+          <text x="10" y="35" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a">A</text>
+          <text x="10" y="65" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a">B</text>
+          <rect x="60" y="15" width="60" height="60" rx="3" fill="#eff6ff" stroke="#1e40af" stroke-width="2" />
+          <text x="76" y="50" font-family="sans-serif" font-size="15" font-weight="bold" fill="#1e40af">=1</text>
+          <line x1="120" y1="45" x2="180" y2="45" stroke="#1e40af" stroke-width="2.5" />
+          <text x="190" y="50" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a">Y</text>
+        </svg>
+        <div class="circuit-caption">Обозначение ГОСТ: Y = A ⊕ B = overline{A}B + Aoverline{B}</div>
+      </div>
+    </div>
 
- <h3>Сводная таблица истинности базовых элементов</h3>
- <table>
- <thead>
- <tr>
- <th>Вход A</th>
- <th>Вход B</th>
- <th>НЕ (overline{A})</th>
- <th>И (A · B)</th>
- <th>ИЛИ (A + B)</th>
- <th>И-НЕ (overline{A · B})</th>
- <th>ИЛИ-НЕ (overline{A + B})</th>
- <th>XOR (A ⊕ B)</th>
- <th>XNOR (overline{A ⊕ B})</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>0</strong></td>
- <td><strong>0</strong></td>
- <td>1</td>
- <td>0</td>
- <td>0</td>
- <td><strong>1</strong></td>
- <td><strong>1</strong></td>
- <td>0</td>
- <td>1</td>
- </tr>
- <tr>
- <td><strong>0</strong></td>
- <td><strong>1</strong></td>
- <td>1</td>
- <td>0</td>
- <td>1</td>
- <td><strong>1</strong></td>
- <td><strong>0</strong></td>
- <td>1</td>
- <td>0</td>
- </tr>
- <tr>
- <td><strong>1</strong></td>
- <td><strong>0</strong></td>
- <td>0</td>
- <td>0</td>
- <td>1</td>
- <td><strong>1</strong></td>
- <td><strong>0</strong></td>
- <td>1</td>
- <td>0</td>
- </tr>
- <tr>
- <td><strong>1</strong></td>
- <td><strong>1</strong></td>
- <td>0</td>
- <td>1</td>
- <td>1</td>
- <td><strong>0</strong></td>
- <td><strong>0</strong></td>
- <td>0</td>
- <td>1</td>
- </tr>
- </tbody>
- </table>
+    <h3>Сводная таблица истинности базовых элементов</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Вход A</th>
+          <th>Вход B</th>
+          <th>НЕ (overline{A})</th>
+          <th>И (A · B)</th>
+          <th>ИЛИ (A + B)</th>
+          <th>И-НЕ (overline{A · B})</th>
+          <th>ИЛИ-НЕ (overline{A + B})</th>
+          <th>XOR (A ⊕ B)</th>
+          <th>XNOR (overline{A ⊕ B})</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>0</strong></td>
+          <td><strong>0</strong></td>
+          <td>1</td>
+          <td>0</td>
+          <td>0</td>
+          <td><strong>1</strong></td>
+          <td><strong>1</strong></td>
+          <td>0</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td><strong>0</strong></td>
+          <td><strong>1</strong></td>
+          <td>1</td>
+          <td>0</td>
+          <td>1</td>
+          <td><strong>1</strong></td>
+          <td><strong>0</strong></td>
+          <td>1</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td><strong>1</strong></td>
+          <td><strong>0</strong></td>
+          <td>0</td>
+          <td>0</td>
+          <td>1</td>
+          <td><strong>1</strong></td>
+          <td><strong>0</strong></td>
+          <td>1</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td><strong>1</strong></td>
+          <td><strong>1</strong></td>
+          <td>0</td>
+          <td>1</td>
+          <td>1</td>
+          <td><strong>0</strong></td>
+          <td><strong>0</strong></td>
+          <td>0</td>
+          <td>1</td>
+        </tr>
+      </tbody>
+    </table>
 
- <div class="note">
- <strong>Функциональная полнота базисов Шеффера (И-НЕ) и Пирса (ИЛИ-НЕ):</strong><br>
- Набор логических элементов называется <em>функционально полным</em>, если с его помощью можно реализовать абсолютно любую сколь угодно сложную логическую функцию. Элемент И-НЕ (штрих Шеффера) образует базис из одной-единственной операции:
- <ul>
- <li>Отрицание: overline{A} = overline{A · A} (входы закорочены вместе);</li>
- <li>Конъюнкция: A · B = overline{overline{A · B}} (элемент И-НЕ плюс инвертор);</li>
- <li>Дизъюнкция: A + B = overline{overline{A} · overline{B}} (по закону де Моргана).</li>
- </ul>
- Именно поэтому кремниевые микропроцессоры на 80–90% синтезируются именно из транзисторных вентилей И-НЕ/ИЛИ-НЕ как наиболее компактных по площади кремния.
- </div>
- </div>
+    <div class="note">
+      <strong>Функциональная полнота базисов Шеффера (И-НЕ) и Пирса (ИЛИ-НЕ):</strong><br>
+      Набор логических элементов называется <em>функционально полным</em>, если с его помощью можно реализовать абсолютно любую сколь угодно сложную логическую функцию. Элемент И-НЕ (штрих Шеффера) образует базис из одной-единственной операции:
+      <ul>
+        <li>Отрицание: overline{A} = overline{A · A} (входы закорочены вместе);</li>
+        <li>Конъюнкция: A · B = overline{overline{A · B}} (элемент И-НЕ плюс инвертор);</li>
+        <li>Дизъюнкция: A + B = overline{overline{A} · overline{B}} (по закону де Моргана).</li>
+      </ul>
+      Именно поэтому кремниевые микропроцессоры на 80–90% синтезируются именно из транзисторных вентилей И-НЕ/ИЛИ-НЕ как наиболее компактных по площади кремния.
+    </div>
+  </div>
 
- <!-- РАЗДЕЛ 3: КОМБИНАЦИОННЫЕ УЗЛЫ -->
- <div class="card">
- <h2>3. Комбинационные логические узлы вычислительных машин</h2>
- <p>Комбинационными называют логические схемы, значения выходных сигналов которых в любой момент времени однозначно определяются исключительно текущими значениями входных сигналов и не зависят от предыстории работы схемы (в них отсутствуют контуры памяти и защелкивания).</p>
+  <!-- РАЗДЕЛ 3: КОМБИНАЦИОННЫЕ УЗЛЫ -->
+  <div class="card">
+    <h2>3. Комбинационные логические узлы вычислительных машин</h2>
+    <p>Комбинационными называют логические схемы, значения выходных сигналов которых в любой момент времени однозначно определяются исключительно текущими значениями входных сигналов и не зависят от предыстории работы схемы (в них отсутствуют контуры памяти и защелкивания).</p>
 
- <h3>3.1. Полусумматор (Half Adder)</h3>
- <p>Полусумматор — это простейший комбинационный узел, выполняющий сложение двух одноразрядных двоичных чисел A и B. Он формирует младший разряд суммы S и выходной бит переноса в старший разряд C (Carry Out).</p>
- 
- <div class="circuit-box">
- <h4>Схемотехническая структура полусумматора (Half Adder)</h4>
- <svg class="circuit-svg" width="360" height="150" viewBox="0 0 360 150">
- <!-- Input Lines -->
- <line x1="20" y1="40" x2="100" y2="40" stroke="#1e40af" stroke-width="2.5" />
- <line x1="20" y1="100" x2="80" y2="100" stroke="#1e40af" stroke-width="2.5" />
- <text x="10" y="45" font-family="sans-serif" font-size="15" font-weight="bold" fill="#0f172a">A</text>
- <text x="10" y="105" font-family="sans-serif" font-size="15" font-weight="bold" fill="#0f172a">B</text>
- <!-- Branch to XOR -->
- <circle cx="60" cy="40" r="3.5" fill="#1e40af" />
- <line x1="60" y1="40" x2="60" y2="55" stroke="#1e40af" stroke-width="2.5" />
- <line x1="60" y1="55" x2="120" y2="55" stroke="#1e40af" stroke-width="2.5" />
- <!-- Branch to AND -->
- <line x1="100" y1="40" x2="100" y2="110" stroke="#1e40af" stroke-width="2.5" />
- <line x1="100" y1="110" x2="120" y2="110" stroke="#1e40af" stroke-width="2.5" />
- <circle cx="80" cy="100" r="3.5" fill="#1e40af" />
- <line x1="80" y1="100" x2="80" y2="75" stroke="#1e40af" stroke-width="2.5" />
- <line x1="80" y1="75" x2="120" y2="75" stroke="#1e40af" stroke-width="2.5" />
- <line x1="80" y1="100" x2="120" y2="130" stroke="#1e40af" stroke-width="2.5" />
- <!-- XOR Gate for Sum -->
- <rect x="120" y="45" width="55" height="40" rx="3" fill="#eff6ff" stroke="#1e40af" stroke-width="2" />
- <text x="136" y="70" font-family="sans-serif" font-size="14" font-weight="bold" fill="#1e40af">=1</text>
- <line x1="175" y1="65" x2="290" y2="65" stroke="#1e40af" stroke-width="2.5" />
- <text x="300" y="70" font-family="sans-serif" font-size="15" font-weight="bold" fill="#059669">S (Сумма: A ⊕ B)</text>
- <!-- AND Gate for Carry -->
- <rect x="120" y="105" width="55" height="40" rx="3" fill="#eff6ff" stroke="#1e40af" stroke-width="2" />
- <text x="142" y="130" font-family="sans-serif" font-size="16" font-weight="bold" fill="#1e40af">&amp;</text>
- <line x1="175" y1="125" x2="290" y2="125" stroke="#1e40af" stroke-width="2.5" />
- <text x="300" y="130" font-family="sans-serif" font-size="15" font-weight="bold" fill="#dc2626">C (Перенос: A · B)</text>
- </svg>
- <div class="circuit-caption">Рис 1. Полусумматор (Half Adder): вычисление бита суммы на элементе XOR и переноса на элементе И</div>
- </div>
+    <h3>3.1. Полусумматор (Half Adder)</h3>
+    <p>Полусумматор — это простейший комбинационный узел, выполняющий сложение двух одноразрядных двоичных чисел A и B. Он формирует младший разряд суммы S и выходной бит переноса в старший разряд C (Carry Out).</p>
+    
+    <div class="circuit-box">
+      <h4>Схемотехническая структура полусумматора (Half Adder)</h4>
+      <svg class="circuit-svg" width="360" height="150" viewBox="0 0 360 150">
+        <!-- Input Lines -->
+        <line x1="20" y1="40" x2="100" y2="40" stroke="#1e40af" stroke-width="2.5" />
+        <line x1="20" y1="100" x2="80" y2="100" stroke="#1e40af" stroke-width="2.5" />
+        <text x="10" y="45" font-family="sans-serif" font-size="15" font-weight="bold" fill="#0f172a">A</text>
+        <text x="10" y="105" font-family="sans-serif" font-size="15" font-weight="bold" fill="#0f172a">B</text>
+        <!-- Branch to XOR -->
+        <circle cx="60" cy="40" r="3.5" fill="#1e40af" />
+        <line x1="60" y1="40" x2="60" y2="55" stroke="#1e40af" stroke-width="2.5" />
+        <line x1="60" y1="55" x2="120" y2="55" stroke="#1e40af" stroke-width="2.5" />
+        <!-- Branch to AND -->
+        <line x1="100" y1="40" x2="100" y2="110" stroke="#1e40af" stroke-width="2.5" />
+        <line x1="100" y1="110" x2="120" y2="110" stroke="#1e40af" stroke-width="2.5" />
+        <circle cx="80" cy="100" r="3.5" fill="#1e40af" />
+        <line x1="80" y1="100" x2="80" y2="75" stroke="#1e40af" stroke-width="2.5" />
+        <line x1="80" y1="75" x2="120" y2="75" stroke="#1e40af" stroke-width="2.5" />
+        <line x1="80" y1="100" x2="120" y2="130" stroke="#1e40af" stroke-width="2.5" />
+        <!-- XOR Gate for Sum -->
+        <rect x="120" y="45" width="55" height="40" rx="3" fill="#eff6ff" stroke="#1e40af" stroke-width="2" />
+        <text x="136" y="70" font-family="sans-serif" font-size="14" font-weight="bold" fill="#1e40af">=1</text>
+        <line x1="175" y1="65" x2="290" y2="65" stroke="#1e40af" stroke-width="2.5" />
+        <text x="300" y="70" font-family="sans-serif" font-size="15" font-weight="bold" fill="#059669">S (Сумма: A ⊕ B)</text>
+        <!-- AND Gate for Carry -->
+        <rect x="120" y="105" width="55" height="40" rx="3" fill="#eff6ff" stroke="#1e40af" stroke-width="2" />
+        <text x="142" y="130" font-family="sans-serif" font-size="16" font-weight="bold" fill="#1e40af">&amp;</text>
+        <line x1="175" y1="125" x2="290" y2="125" stroke="#1e40af" stroke-width="2.5" />
+        <text x="300" y="130" font-family="sans-serif" font-size="15" font-weight="bold" fill="#dc2626">C (Перенос: A · B)</text>
+      </svg>
+      <div class="circuit-caption">Рис 1. Полусумматор (Half Adder): вычисление бита суммы на элементе XOR и переноса на элементе И</div>
+    </div>
 
- <h3>3.2. Полный сумматор (Full Adder)</h3>
- <p>Чтобы построить арифметико-логическое устройство (АЛУ) любой разрядности (8, 32 или 64 бита), полусумматора недостаточно, так как он не умеет принимать перенос C<sub>in</sub>, пришедший от предыдущего разряда. <strong>Полный сумматор (Full Adder)</strong> имеет три входа (A, B, C<sub>in</sub>) и два выхода (S, C<sub>out</sub>):</p>
- <ul>
- <li>Уравнение суммы: S = A ⊕ B ⊕ C<sub>in</sub></li>
- <li>Уравнение переноса: C<sub>out</sub> = A · B + C<sub>in</sub> · (A ⊕ B) = A · B + B · C<sub>in</sub> + A · C<sub>in</sub></li>
- </ul>
- <p>Полный сумматор собирается каскадно из <em>двух полусумматоров</em> и одного элемента ИЛИ для объединения частичных переносов.</p>
+    <h3>3.2. Полный сумматор (Full Adder)</h3>
+    <p>Чтобы построить арифметико-логическое устройство (АЛУ) любой разрядности (8, 32 или 64 бита), полусумматора недостаточно, так как он не умеет принимать перенос C<sub>in</sub>, пришедший от предыдущего разряда. <strong>Полный сумматор (Full Adder)</strong> имеет три входа (A, B, C<sub>in</sub>) и два выхода (S, C<sub>out</sub>):</p>
+    <ul>
+      <li>Уравнение суммы: S = A ⊕ B ⊕ C<sub>in</sub></li>
+      <li>Уравнение переноса: C<sub>out</sub> = A · B + C<sub>in</sub> · (A ⊕ B) = A · B + B · C<sub>in</sub> + A · C<sub>in</sub></li>
+    </ul>
+    <p>Полный сумматор собирается каскадно из <em>двух полусумматоров</em> и одного элемента ИЛИ для объединения частичных переносов.</p>
 
- <h3>3.3. Мультиплексор (MUX) и Дешифратор (DC)</h3>
- <ul>
- <li><strong>Мультиплексор (Multiplexer, MUX):</strong> электронный переключатель, передающий цифровой сигнал с одного из нескольких информационных входов D<sub>0</sub>..D<sub>N-1</sub> на единственный общий выход Y под управлением адресного кода A<sub>0</sub>..A<sub>k-1</sub> (N = 2<sup>k</sup>). Находит широчайшее применение в коммутации внутренних процессорных шин и трактах операндов АЛУ.</li>
- <li><strong>Дешифратор (Decoder, DC):</strong> логический узел, преобразующий двоичный k-разрядный код адреса в унитарный сигнал возбуждения («1 из 2<sup>k</sup>»). Используется при декодировании инструкций в конвейере CPU и селекции адресных строк (Word Lines) в матрицах оперативной памяти SRAM/DRAM.</li>
- </ul>
- </div>
+    <h3>3.3. Мультиплексор (MUX) и Дешифратор (DC)</h3>
+    <ul>
+      <li><strong>Мультиплексор (Multiplexer, MUX):</strong> электронный переключатель, передающий цифровой сигнал с одного из нескольких информационных входов D<sub>0</sub>..D<sub>N-1</sub> на единственный общий выход Y под управлением адресного кода A<sub>0</sub>..A<sub>k-1</sub> (N = 2<sup>k</sup>). Находит широчайшее применение в коммутации внутренних процессорных шин и трактах операндов АЛУ.</li>
+      <li><strong>Дешифратор (Decoder, DC):</strong> логический узел, преобразующий двоичный k-разрядный код адреса в унитарный сигнал возбуждения («1 из 2<sup>k</sup>»). Используется при декодировании инструкций в конвейере CPU и селекции адресных строк (Word Lines) в матрицах оперативной памяти SRAM/DRAM.</li>
+    </ul>
+  </div>
 
- <!-- РАЗДЕЛ 4: ПОСЛЕДОВАТЕЛЬНОСТНЫЕ СХЕМЫ И ТРИГГЕРЫ -->
- <div class="card">
- <h2>4. Последовательностные схемы: триггеры, регистры и основы памяти</h2>
- <p>Вычислительная машина принципиально не может состоять только из комбинационной логики: процессору необходимо сохранять промежуточные результаты вычислений, фиксировать код текущей инструкции и хранить флаги состояния. Узлы, обладающие памятью, называются <strong>последовательностными (автоматами с памятью)</strong>. Свойство запоминания достигается введением <em>положительной обратной связи</em>, когда выход логического вентиля соединяется с его собственным входом.</p>
+  <!-- РАЗДЕЛ 4: ПОСЛЕДОВАТЕЛЬНОСТНЫЕ СХЕМЫ И ТРИГГЕРЫ -->
+  <div class="card">
+    <h2>4. Последовательностные схемы: триггеры, регистры и основы памяти</h2>
+    <p>Вычислительная машина принципиально не может состоять только из комбинационной логики: процессору необходимо сохранять промежуточные результаты вычислений, фиксировать код текущей инструкции и хранить флаги состояния. Узлы, обладающие памятью, называются <strong>последовательностными (автоматами с памятью)</strong>. Свойство запоминания достигается введением <em>положительной обратной связи</em>, когда выход логического вентиля соединяется с его собственным входом.</p>
 
- <h3>4.1. Асинхронный RS-триггер</h3>
- <p>Простейший бистабильный элемент памяти — RS-триггер (Reset / Set), собранный на двух перекрестно замкнутых вентилях ИЛИ-НЕ (или И-НЕ):</p>
- 
- <div class="circuit-box">
- <h4>Схема RS-триггера на элементах ИЛИ-НЕ</h4>
- <svg class="circuit-svg" width="380" height="160" viewBox="0 0 380 160">
- <!-- R and S inputs -->
- <line x1="20" y1="35" x2="100" y2="35" stroke="#1e40af" stroke-width="2.5" />
- <text x="10" y="40" font-family="sans-serif" font-size="15" font-weight="bold" fill="#dc2626">R</text>
- <line x1="20" y1="125" x2="100" y2="125" stroke="#1e40af" stroke-width="2.5" />
- <text x="10" y="130" font-family="sans-serif" font-size="15" font-weight="bold" fill="#059669">S</text>
- <!-- Top Gate NOR1 -->
- <rect x="100" y="20" width="60" height="50" rx="3" fill="#eff6ff" stroke="#1e40af" stroke-width="2" />
- <text x="122" y="47" font-family="sans-serif" font-size="16" font-weight="bold" fill="#1e40af">1</text>
- <circle cx="166" cy="45" r="5" fill="#fff" stroke="#1e40af" stroke-width="2" />
- <!-- Bottom Gate NOR2 -->
- <rect x="100" y="90" width="60" height="50" rx="3" fill="#eff6ff" stroke="#1e40af" stroke-width="2" />
- <text x="122" y="117" font-family="sans-serif" font-size="16" font-weight="bold" fill="#1e40af">1</text>
- <circle cx="166" cy="115" r="5" fill="#fff" stroke="#1e40af" stroke-width="2" />
- <!-- Outputs -->
- <line x1="171" y1="45" x2="300" y2="45" stroke="#1e40af" stroke-width="2.5" />
- <text x="310" y="50" font-family="sans-serif" font-size="16" font-weight="bold" fill="#0f172a">Q</text>
- <line x1="171" y1="115" x2="300" y2="115" stroke="#1e40af" stroke-width="2.5" />
- <text x="310" y="120" font-family="sans-serif" font-size="16" font-weight="bold" fill="#0f172a">Q̄</text>
- <!-- Cross-coupling feedback -->
- <circle cx="210" cy="45" r="3.5" fill="#1e40af" />
- <line x1="210" y1="45" x2="210" y2="85" stroke="#1e40af" stroke-width="2" />
- <line x1="210" y1="85" x2="70" y2="85" stroke="#1e40af" stroke-width="2" />
- <line x1="70" y1="85" x2="70" y2="105" stroke="#1e40af" stroke-width="2" />
- <line x1="70" y1="105" x2="100" y2="105" stroke="#1e40af" stroke-width="2" />
+    <h3>4.1. Асинхронный RS-триггер</h3>
+    <p>Простейший бистабильный элемент памяти — RS-триггер (Reset / Set), собранный на двух перекрестно замкнутых вентилях ИЛИ-НЕ (или И-НЕ):</p>
+    
+    <div class="circuit-box">
+      <h4>Схема RS-триггера на элементах ИЛИ-НЕ</h4>
+      <svg class="circuit-svg" width="380" height="160" viewBox="0 0 380 160">
+        <!-- R and S inputs -->
+        <line x1="20" y1="35" x2="100" y2="35" stroke="#1e40af" stroke-width="2.5" />
+        <text x="10" y="40" font-family="sans-serif" font-size="15" font-weight="bold" fill="#dc2626">R</text>
+        <line x1="20" y1="125" x2="100" y2="125" stroke="#1e40af" stroke-width="2.5" />
+        <text x="10" y="130" font-family="sans-serif" font-size="15" font-weight="bold" fill="#059669">S</text>
+        <!-- Top Gate NOR1 -->
+        <rect x="100" y="20" width="60" height="50" rx="3" fill="#eff6ff" stroke="#1e40af" stroke-width="2" />
+        <text x="122" y="47" font-family="sans-serif" font-size="16" font-weight="bold" fill="#1e40af">1</text>
+        <circle cx="166" cy="45" r="5" fill="#fff" stroke="#1e40af" stroke-width="2" />
+        <!-- Bottom Gate NOR2 -->
+        <rect x="100" y="90" width="60" height="50" rx="3" fill="#eff6ff" stroke="#1e40af" stroke-width="2" />
+        <text x="122" y="117" font-family="sans-serif" font-size="16" font-weight="bold" fill="#1e40af">1</text>
+        <circle cx="166" cy="115" r="5" fill="#fff" stroke="#1e40af" stroke-width="2" />
+        <!-- Outputs -->
+        <line x1="171" y1="45" x2="300" y2="45" stroke="#1e40af" stroke-width="2.5" />
+        <text x="310" y="50" font-family="sans-serif" font-size="16" font-weight="bold" fill="#0f172a">Q</text>
+        <line x1="171" y1="115" x2="300" y2="115" stroke="#1e40af" stroke-width="2.5" />
+        <text x="310" y="120" font-family="sans-serif" font-size="16" font-weight="bold" fill="#0f172a">Q̄</text>
+        <!-- Cross-coupling feedback -->
+        <circle cx="210" cy="45" r="3.5" fill="#1e40af" />
+        <line x1="210" y1="45" x2="210" y2="85" stroke="#1e40af" stroke-width="2" />
+        <line x1="210" y1="85" x2="70" y2="85" stroke="#1e40af" stroke-width="2" />
+        <line x1="70" y1="85" x2="70" y2="105" stroke="#1e40af" stroke-width="2" />
+        <line x1="70" y1="105" x2="100" y2="105" stroke="#1e40af" stroke-width="2" />
 
- <circle cx="230" cy="115" r="3.5" fill="#1e40af" />
- <line x1="230" y1="115" x2="230" y2="75" stroke="#1e40af" stroke-width="2" />
- <line x1="230" y1="75" x2="85" y2="75" stroke="#1e40af" stroke-width="2" />
- <line x1="85" y1="75" x2="85" y2="55" stroke="#1e40af" stroke-width="2" />
- <line x1="85" y1="55" x2="100" y2="55" stroke="#1e40af" stroke-width="2" />
- </svg>
- <div class="circuit-caption">Рис 2. Базовая ячейка RS-триггера с перекрестной обратной связью</div>
- </div>
+        <circle cx="230" cy="115" r="3.5" fill="#1e40af" />
+        <line x1="230" y1="115" x2="230" y2="75" stroke="#1e40af" stroke-width="2" />
+        <line x1="230" y1="75" x2="85" y2="75" stroke="#1e40af" stroke-width="2" />
+        <line x1="85" y1="75" x2="85" y2="55" stroke="#1e40af" stroke-width="2" />
+        <line x1="85" y1="55" x2="100" y2="55" stroke="#1e40af" stroke-width="2" />
+      </svg>
+      <div class="circuit-caption">Рис 2. Базовая ячейка RS-триггера с перекрестной обратной связью</div>
+    </div>
 
- <table>
- <thead>
- <tr>
- <th>Вход S (Set)</th>
- <th>Вход R (Reset)</th>
- <th>Состояние выхода Q(t+1)</th>
- <th>Описание режима</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td>0</td>
- <td>0</td>
- <td>Q(t)</td>
- <td><strong>Режим хранения:</strong> состояние памяти сохраняется неограниченно долго.</td>
- </tr>
- <tr>
- <td>0</td>
- <td>1</td>
- <td>0</td>
- <td><strong>Режим сброса (Reset):</strong> выход Q сбрасывается в 0.</td>
- </tr>
- <tr>
- <td>1</td>
- <td>0</td>
- <td>1</td>
- <td><strong>Режим установки (Set):</strong> выход Q устанавливается в 1.</td>
- </tr>
- <tr>
- <td>1</td>
- <td>1</td>
- <td><em>Запрещенное состояние</em></td>
- <td><strong>Неопределенность:</strong> оба выхода становятся 0; при снятии сигналов — гонка фронтов.</td>
- </tr>
- </tbody>
- </table>
+    <table>
+      <thead>
+        <tr>
+          <th>Вход S (Set)</th>
+          <th>Вход R (Reset)</th>
+          <th>Состояние выхода Q(t+1)</th>
+          <th>Описание режима</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>0</td>
+          <td>0</td>
+          <td>Q(t)</td>
+          <td><strong>Режим хранения:</strong> состояние памяти сохраняется неограниченно долго.</td>
+        </tr>
+        <tr>
+          <td>0</td>
+          <td>1</td>
+          <td>0</td>
+          <td><strong>Режим сброса (Reset):</strong> выход Q сбрасывается в 0.</td>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>0</td>
+          <td>1</td>
+          <td><strong>Режим установки (Set):</strong> выход Q устанавливается в 1.</td>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>1</td>
+          <td><em>Запрещенное состояние</em></td>
+          <td><strong>Неопределенность:</strong> оба выхода становятся 0; при снятии сигналов — гонка фронтов.</td>
+        </tr>
+      </tbody>
+    </table>
 
- <h3>4.2. Синхронный D-триггер и параметры синхронизации</h3>
- <p>Чтобы исключить запрещенные комбинации и синхронизировать запись данных с тактовым генератором процессора, применяют <strong>D-триггер (Data-latch / Delay Flip-Flop)</strong>. Его выход Q в точности принимает логическое значение информационного входа D исключительно в момент прихода активного перепада тактового импульса CLK (uparrow).</p>
+    <h3>4.2. Синхронный D-триггер и параметры синхронизации</h3>
+    <p>Чтобы исключить запрещенные комбинации и синхронизировать запись данных с тактовым генератором процессора, применяют <strong>D-триггер (Data-latch / Delay Flip-Flop)</strong>. Его выход Q в точности принимает логическое значение информационного входа D исключительно в момент прихода активного перепада тактового импульса CLK (uparrow).</p>
 
- <div class="note-warn">
- <strong>Критические физические параметры D-триггера:</strong>
- <ul>
- <li><strong>Время предустановки (t<sub>setup</sub>):</strong> время до фронта такта, в течение которого входные данные D должны оставаться абсолютно стабильными.</li>
- <li><strong>Время удержания (t<sub>hold</sub>):</strong> время после фронта такта, в течение которого входные данные D запрещено изменять.</li>
- <li><strong>Метастабильность:</strong> если сигнал D изменился в окне [t<sub>setup</sub>, t<sub>hold</sub>], внутренний контур триггера зависает на неопределенном уровне напряжения (V<sub>DD</sub>/2) на непредсказуемое время, вызывая катастрофический системный сбой процессора. Для синхронизации асинхронных сигналов применяют двухкаскадные триггерные синхронизаторы.</li>
- </ul>
- </div>
- </div>
+    <div class="note-warn">
+      <strong>Критические физические параметры D-триггера:</strong>
+      <ul>
+        <li><strong>Время предустановки (t<sub>setup</sub>):</strong> время до фронта такта, в течение которого входные данные D должны оставаться абсолютно стабильными.</li>
+        <li><strong>Время удержания (t<sub>hold</sub>):</strong> время после фронта такта, в течение которого входные данные D запрещено изменять.</li>
+        <li><strong>Метастабильность:</strong> если сигнал D изменился в окне [t<sub>setup</sub>, t<sub>hold</sub>], внутренний контур триггера зависает на неопределенном уровне напряжения (V<sub>DD</sub>/2) на непредсказуемое время, вызывая катастрофический системный сбой процессора. Для синхронизации асинхронных сигналов применяют двухкаскадные триггерные синхронизаторы.</li>
+      </ul>
+    </div>
+  </div>
 
- <!-- РАЗДЕЛ 5: САМОПРОВЕРКА -->
- <div class="card">
- <h2>5. Контрольные вопросы и задачи для самопроверки</h2>
- 
- <details class="quiz-card">
- <summary>Вопрос 1: Чему равно выражение (A + overline{B}) · (A + B)?</summary>
- <div class="quiz-answer">
- <strong>Ответ:</strong> Раскрывая скобки или применяя второй закон дистрибутивности: (A + overline{B}) · (A + B) = A + (overline{B} · B) = A + 0 = A. Либо по закону склеивания конъюнктов.
- </div>
- </details>
+  <!-- РАЗДЕЛ 5: САМОПРОВЕРКА -->
+  <div class="card">
+    <h2>5. Контрольные вопросы и задачи для самопроверки</h2>
+    
+    <details class="quiz-card">
+      <summary>Вопрос 1: Чему равно выражение (A + overline{B}) · (A + B)?</summary>
+      <div class="quiz-answer">
+        <strong>Ответ:</strong> Раскрывая скобки или применяя второй закон дистрибутивности: (A + overline{B}) · (A + B) = A + (overline{B} · B) = A + 0 = A. Либо по закону склеивания конъюнктов.
+      </div>
+    </details>
 
- <details class="quiz-card">
- <summary>Вопрос 2: В чем ключевое схемотехническое отличие полусумматора от полного сумматора?</summary>
- <div class="quiz-answer">
- <strong>Ответ:</strong> Полусумматор имеет 2 входа (A, B) и не способен принимать сигнал переноса от предыдущего разряда. Полный сумматор имеет 3 входа (A, B, C<sub>in</sub>) и полноценно каскадируется в многоразрядные АЛУ.
- </div>
- </details>
+    <details class="quiz-card">
+      <summary>Вопрос 2: В чем ключевое схемотехническое отличие полусумматора от полного сумматора?</summary>
+      <div class="quiz-answer">
+        <strong>Ответ:</strong> Полусумматор имеет 2 входа (A, B) и не способен принимать сигнал переноса от предыдущего разряда. Полный сумматор имеет 3 входа (A, B, C<sub>in</sub>) и полноценно каскадируется в многоразрядные АЛУ.
+      </div>
+    </details>
 
- <details class="quiz-card">
- <summary>Вопрос 3: Почему комбинация входов R=1, S=1 запрещена для RS-триггера на элементах ИЛИ-НЕ?</summary>
- <div class="quiz-answer">
- <strong>Ответ:</strong> При R=1, S=1 нарушается базовое правило взаимной инверсии выходов: оба выхода Q и overline{Q} принудительно становятся равными 0. При одновременном снятии управляющих импульсов (1 → 0) из-за технологического разброса задержек вентилей триггер свалится в случайное состояние (эффект гонки сигналов).
- </div>
- </details>
+    <details class="quiz-card">
+      <summary>Вопрос 3: Почему комбинация входов R=1, S=1 запрещена для RS-триггера на элементах ИЛИ-НЕ?</summary>
+      <div class="quiz-answer">
+        <strong>Ответ:</strong> При R=1, S=1 нарушается базовое правило взаимной инверсии выходов: оба выхода Q и overline{Q} принудительно становятся равными 0. При одновременном снятии управляющих импульсов (1 → 0) из-за технологического разброса задержек вентилей триггер свалится в случайное состояние (эффект гонки сигналов).
+      </div>
+    </details>
 
- <details class="quiz-card">
- <summary>Вопрос 4: Как мультиплексор 4:1 может заменить произвольную комбинационную схему трех переменных?</summary>
- <div class="quiz-answer">
- <strong>Ответ:</strong> Две переменные подаются на адресные входы A<sub>1</sub>, A<sub>0</sub>, а третья переменная (либо ее инверсия, либо константы 0/1) подключается к информационным входам D<sub>0</sub>..D<sub>3</sub> в соответствии с таблицей истинности целевой функции (концепция LUT в микросхемах ПЛИС/FPGA).
- </div>
- </details>
- </div>
+    <details class="quiz-card">
+      <summary>Вопрос 4: Как мультиплексор 4:1 может заменить произвольную комбинационную схему трех переменных?</summary>
+      <div class="quiz-answer">
+        <strong>Ответ:</strong> Две переменные подаются на адресные входы A<sub>1</sub>, A<sub>0</sub>, а третья переменная (либо ее инверсия, либо константы 0/1) подключается к информационным входам D<sub>0</sub>..D<sub>3</sub> в соответствии с таблицей истинности целевой функции (концепция LUT в микросхемах ПЛИС/FPGA).
+      </div>
+    </details>
+  </div>
 
 </div>
 </body>

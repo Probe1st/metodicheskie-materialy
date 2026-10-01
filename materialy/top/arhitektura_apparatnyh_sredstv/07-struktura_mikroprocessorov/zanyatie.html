@@ -1,453 +1,477 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
- <title>Рабочий лист студента: Классификация и типовая структура микропроцессоров</title>
- <style>
- :root {
- --bg: #f8fafc;
- --card: #ffffff;
- --text: #0f172a;
- --muted: #475569;
- --line: #cbd5e1;
- --accent: #1e40af;
- --accent-soft: #eff6ff;
- --ok: #059669;
- --warn: #d97706;
- --danger: #dc2626;
- --radius: 14px;
- --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
- }
- * { box-sizing: border-box; margin: 0; padding: 0; }
- body {
- background: var(--bg);
- color: var(--text);
- font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
- line-height: 1.6;
- font-size: 15px;
- padding: 20px 14px;
- }.page {
- max-width: 960px;
- margin: 0 auto;
- }.header-card,.student-card,.task-card,.actions-card {
- background: var(--card);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 24px;
- margin-bottom: 20px;
- box-shadow: var(--shadow);
- }
- h1 {
- font-size: clamp(20px, 3.2vw, 26px);
- color: var(--accent);
- margin-bottom: 8px;
- }.desc {
- color: var(--muted);
- font-size: 14.5px;
- }.student-grid {
- display: grid;
- grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
- gap: 16px;
- }
- label {
- display: block;
- font-weight: 600;
- font-size: 13.5px;
- margin-bottom: 6px;
- color: #1e293b;
- }
- input[type="text"], input[type="date"], select, textarea {
- width: 100%;
- border: 1.5px solid var(--line);
- border-radius: 8px;
- padding: 9px 12px;
- font: inherit;
- font-size: 14px;
- background: #fff;
- color: var(--text);
- outline: none;
- transition: border-color.15s, box-shadow.15s;
- }
- input:focus, select:focus, textarea:focus {
- border-color: var(--accent);
- box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
- }
- textarea {
- min-height: 95px;
- resize: vertical;
- }.task-title {
- font-size: 18px;
- font-weight: 700;
- color: var(--accent);
- margin-bottom: 8px;
- }.task-intro {
- font-size: 14px;
- color: var(--muted);
- margin-bottom: 16px;
- }.table-wrap {
- overflow-x: auto;
- margin-bottom: 12px;
- }
- table {
- width: 100%;
- border-collapse: collapse;
- font-size: 13.5px;
- }
- th, td {
- border: 1px solid var(--line);
- padding: 8px 10px;
- text-align: left;
- vertical-align: middle;
- }
- th {
- background: var(--accent-soft);
- color: var(--accent);
- font-weight: 700;
- }.table-input {
- padding: 6px 8px;
- font-size: 13.5px;
- }.case-box {
- background: #f1f5f9;
- border: 1px solid var(--line);
- border-radius: 10px;
- padding: 16px;
- margin-bottom: 16px;
- }.case-box h4 {
- color: var(--accent);
- margin-bottom: 8px;
- font-size: 15.5px;
- }.case-box p {
- font-size: 14px;
- margin-bottom: 6px;
- color: #334155;
- }.case-box p strong {
- color: #0f172a;
- }.btn-row {
- display: flex;
- gap: 12px;
- flex-wrap: wrap;
- align-items: center;
- }
- button {
- padding: 10px 18px;
- border-radius: 8px;
- font: inherit;
- font-weight: 600;
- font-size: 14px;
- cursor: pointer;
- border: none;
- transition: opacity.15s, transform.05s;
- }
- button:active { transform: scale(0.98); }.btn-save { background: var(--accent); color: #fff; }.btn-clear { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }.status-msg {
- font-size: 13.5px;
- color: var(--ok);
- font-weight: 600;
- }.print-select-text {
- display: none;
- }
- @media print {
- body {
- background: #fff !important;
- color: #000 !important;
- padding: 0 !important;
- font-size: 10pt !important;
- }.page {
- max-width: 100% !important;
- margin: 0 !important;
- }.header-card,.student-card,.task-card,.actions-card {
- box-shadow: none !important;
- border: 1px solid #777 !important;
- padding: 8pt !important;
- break-inside: auto !important;
- page-break-inside: auto !important;
- }.actions-card,.btn-row {
- display: none !important;
- }
- input::placeholder, textarea::placeholder {
- color: transparent !important;
- -webkit-text-fill-color: transparent !important;
- opacity: 0 !important;
- }
- select {
- display: none !important;
- }.print-select-text {
- display: block !important;
- min-height: 22px;
- border: 1px solid #777 !important;
- border-radius: 4px;
- padding: 4px 6px;
- background: #fff !important;
- font-weight: 600;
- }
- textarea {
- height: auto !important;
- min-height: 80px;
- overflow: visible !important;
- white-space: pre-wrap !important;
- word-break: break-word !important;
- border: 1px solid #777 !important;
- background: #fff !important;
- color: #000 !important;
- }
- input[type="text"], input[type="date"],.table-input {
- border: 1px solid #777 !important;
- background: #fff !important;
- color: #000 !important;
- }.case-box {
- border: 1px solid #777 !important;
- background: #fff !important;
- break-inside: avoid;
- }
- }
- @media (max-width: 480px) {
- body { padding: 10px 6px; }.header-card,.student-card,.task-card,.actions-card { padding: 14px 10px; }.student-grid { grid-template-columns: 1fr; }
- table { font-size: 12px; }
- th, td { padding: 6px 6px; }
- }
- </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Рабочий лист студента: Классификация и типовая структура микропроцессоров</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --ok: #059669;
+      --warn: #d97706;
+      --danger: #dc2626;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .task-card, .actions-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(20px, 3.2vw, 26px);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .desc {
+      color: var(--muted);
+      font-size: 14.5px;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    input[type="text"], input[type="date"], select, textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+    }
+    textarea {
+      min-height: 95px;
+      resize: vertical;
+    }
+    .task-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .task-intro {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      margin-bottom: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: middle;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .table-input {
+      padding: 6px 8px;
+      font-size: 13.5px;
+    }
+    .case-box {
+      background: #f1f5f9;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .case-box h4 {
+      color: var(--accent);
+      margin-bottom: 8px;
+      font-size: 15.5px;
+    }
+    .case-box p {
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: #334155;
+    }
+    .case-box p strong {
+      color: #0f172a;
+    }
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    button {
+      padding: 10px 18px;
+      border-radius: 8px;
+      font: inherit;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      transition: opacity .15s, transform .05s;
+    }
+    button:active { transform: scale(0.98); }
+    .btn-save { background: var(--accent); color: #fff; }
+    .btn-clear { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+    .status-msg {
+      font-size: 13.5px;
+      color: var(--ok);
+      font-weight: 600;
+    }
+    .print-select-text {
+      display: none;
+    }
+    @media print {
+      body {
+        background: #fff !important;
+        color: #000 !important;
+        padding: 0 !important;
+        font-size: 10pt !important;
+      }
+      .page {
+        max-width: 100% !important;
+        margin: 0 !important;
+      }
+      .header-card, .student-card, .task-card, .actions-card {
+        box-shadow: none !important;
+        border: 1px solid #777 !important;
+        padding: 8pt !important;
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+      }
+      .actions-card, .btn-row {
+        display: none !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        opacity: 0 !important;
+      }
+      select {
+        display: none !important;
+      }
+      .print-select-text {
+        display: block !important;
+        min-height: 22px;
+        border: 1px solid #777 !important;
+        border-radius: 4px;
+        padding: 4px 6px;
+        background: #fff !important;
+        font-weight: 600;
+      }
+      textarea {
+        height: auto !important;
+        min-height: 80px;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      input[type="text"], input[type="date"], .table-input {
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      .case-box {
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        break-inside: avoid;
+      }
+    }
+    @media (max-width: 480px) {
+      body { padding: 10px 6px; }
+      .header-card, .student-card, .task-card, .actions-card { padding: 14px 10px; }
+      .student-grid { grid-template-columns: 1fr; }
+      table { font-size: 12px; }
+      th, td { padding: 6px 6px; }
+    }
+  </style>
 </head>
 <body>
 <div class="page">
 
- <div class="header-card">
- <h1>Рабочий лист: Классификация и типовая структура микропроцессоров</h1>
- <div class="desc">
- Дисциплина: ОП.02 Архитектура аппаратных средств. Раздел 3. Архитектура и принципы работы основных логических блоков системы.
- </div>
- </div>
+  <div class="header-card">
+    <h1>Рабочий лист: Классификация и типовая структура микропроцессоров</h1>
+    <div class="desc">
+      Дисциплина: ОП.02 Архитектура аппаратных средств. Раздел 3. Архитектура и принципы работы основных логических блоков системы (§2.2 с.8 программы).
+    </div>
+  </div>
 
- <div class="student-card">
- <div class="student-grid">
- <div>
- <label for="student_fio">ФИО студента:</label>
- <input type="text" id="student_fio" placeholder="">
- </div>
- <div>
- <label for="student_group">Учебная группа:</label>
- <input type="text" id="student_group" placeholder="">
- </div>
- <div>
- <label for="work_date">Дата проведения:</label>
- <input type="date" id="work_date">
- </div>
- </div>
- </div>
+  <div class="student-card">
+    <div class="student-grid">
+      <div>
+        <label for="student_fio">ФИО студента:</label>
+        <input type="text" id="student_fio" placeholder="">
+      </div>
+      <div>
+        <label for="student_group">Учебная группа:</label>
+        <input type="text" id="student_group" placeholder="">
+      </div>
+      <div>
+        <label for="work_date">Дата проведения:</label>
+        <input type="date" id="work_date">
+      </div>
+    </div>
+  </div>
 
- <!-- ЧАСТЬ 1: ФУНКЦИОНАЛЬНАЯ МАТРИЦА БЛОКОВ ЯДРА CPU -->
- <div class="task-card">
- <div class="task-title">Часть 1. Функциональная структура ядра микропроцессора</div>
- <div class="task-intro">
- Заполните ключевые функциональные характеристики узлов процессорного ядра, указав их базовую логическую структуру, роль в машинном такте и характер взаимодействия с шинами.
- </div>
- <div class="table-wrap">
- <table>
- <thead>
- <tr>
- <th style="width: 22%;">Функциональный блок ядра</th>
- <th style="width: 26%;">Схемотехническая основа (элементы/память)</th>
- <th style="width: 28%;">Роль в конвейере и цикле команды</th>
- <th style="width: 24%;">Входные и выходные сигналы / шины</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>АЛУ (ALU)</strong></td>
- <td><input type="text" class="table-input" id="core_alu_basis" placeholder=""></td>
- <td><input type="text" class="table-input" id="core_alu_role" placeholder=""></td>
- <td><input type="text" class="table-input" id="core_alu_signals" placeholder=""></td>
- </tr>
- <tr>
- <td><strong>Устройство Управления (CU)</strong></td>
- <td><input type="text" class="table-input" id="core_cu_basis" placeholder=""></td>
- <td><input type="text" class="table-input" id="core_cu_role" placeholder=""></td>
- <td><input type="text" class="table-input" id="core_cu_signals" placeholder=""></td>
- </tr>
- <tr>
- <td><strong>Регистры РОН (GPR)</strong></td>
- <td><input type="text" class="table-input" id="core_gpr_basis" placeholder=""></td>
- <td><input type="text" class="table-input" id="core_gpr_role" placeholder=""></td>
- <td><input type="text" class="table-input" id="core_gpr_signals" placeholder=""></td>
- </tr>
- <tr>
- <td><strong>Счетчик команд (PC / IP)</strong></td>
- <td><input type="text" class="table-input" id="core_pc_basis" placeholder=""></td>
- <td><input type="text" class="table-input" id="core_pc_role" placeholder=""></td>
- <td><input type="text" class="table-input" id="core_pc_signals" placeholder=""></td>
- </tr>
- <tr>
- <td><strong>Регистр флагов (FLAGS)</strong></td>
- <td><input type="text" class="table-input" id="core_flags_basis" placeholder=""></td>
- <td><input type="text" class="table-input" id="core_flags_role" placeholder=""></td>
- <td><input type="text" class="table-input" id="core_flags_signals" placeholder=""></td>
- </tr>
- <tr>
- <td><strong>Кэш L1 (L1i / L1d)</strong></td>
- <td><input type="text" class="table-input" id="core_l1_basis" placeholder=""></td>
- <td><input type="text" class="table-input" id="core_l1_role" placeholder=""></td>
- <td><input type="text" class="table-input" id="core_l1_signals" placeholder=""></td>
- </tr>
- </tbody>
- </table>
- </div>
- </div>
+  <!-- ЧАСТЬ 1: ФУНКЦИОНАЛЬНАЯ МАТРИЦА БЛОКОВ ЯДРА CPU -->
+  <div class="task-card">
+    <div class="task-title">Часть 1. Функциональная структура ядра микропроцессора</div>
+    <div class="task-intro">
+      Заполните ключевые функциональные характеристики узлов процессорного ядра, указав их базовую логическую структуру, роль в машинном такте и характер взаимодействия с шинами.
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 22%;">Функциональный блок ядра</th>
+            <th style="width: 26%;">Схемотехническая основа (элементы/память)</th>
+            <th style="width: 28%;">Роль в конвейере и цикле команды</th>
+            <th style="width: 24%;">Входные и выходные сигналы / шины</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>АЛУ (ALU)</strong></td>
+            <td><input type="text" class="table-input" id="core_alu_basis" placeholder=""></td>
+            <td><input type="text" class="table-input" id="core_alu_role" placeholder=""></td>
+            <td><input type="text" class="table-input" id="core_alu_signals" placeholder=""></td>
+          </tr>
+          <tr>
+            <td><strong>Устройство Управления (CU)</strong></td>
+            <td><input type="text" class="table-input" id="core_cu_basis" placeholder=""></td>
+            <td><input type="text" class="table-input" id="core_cu_role" placeholder=""></td>
+            <td><input type="text" class="table-input" id="core_cu_signals" placeholder=""></td>
+          </tr>
+          <tr>
+            <td><strong>Регистры РОН (GPR)</strong></td>
+            <td><input type="text" class="table-input" id="core_gpr_basis" placeholder=""></td>
+            <td><input type="text" class="table-input" id="core_gpr_role" placeholder=""></td>
+            <td><input type="text" class="table-input" id="core_gpr_signals" placeholder=""></td>
+          </tr>
+          <tr>
+            <td><strong>Счетчик команд (PC / IP)</strong></td>
+            <td><input type="text" class="table-input" id="core_pc_basis" placeholder=""></td>
+            <td><input type="text" class="table-input" id="core_pc_role" placeholder=""></td>
+            <td><input type="text" class="table-input" id="core_pc_signals" placeholder=""></td>
+          </tr>
+          <tr>
+            <td><strong>Регистр флагов (FLAGS)</strong></td>
+            <td><input type="text" class="table-input" id="core_flags_basis" placeholder=""></td>
+            <td><input type="text" class="table-input" id="core_flags_role" placeholder=""></td>
+            <td><input type="text" class="table-input" id="core_flags_signals" placeholder=""></td>
+          </tr>
+          <tr>
+            <td><strong>Кэш L1 (L1i / L1d)</strong></td>
+            <td><input type="text" class="table-input" id="core_l1_basis" placeholder=""></td>
+            <td><input type="text" class="table-input" id="core_l1_role" placeholder=""></td>
+            <td><input type="text" class="table-input" id="core_l1_signals" placeholder=""></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
- <!-- ЧАСТЬ 2: АРХИТЕКТУРНЫЙ АНАЛИЗ ПО 4 ВАРИАНТАМ -->
- <div class="task-card">
- <div class="task-title">Часть 2. Архитектурный анализ специализированного процессора</div>
- <div class="task-intro">
- Выберите назначенный преподавателем вариант архитектурного профиля процессора и выполните его детальный инженерный анализ.
- </div>
+  <!-- ЧАСТЬ 2: АРХИТЕКТУРНЫЙ АНАЛИЗ ПО 4 ВАРИАНТАМ -->
+  <div class="task-card">
+    <div class="task-title">Часть 2. Архитектурный анализ специализированного процессора</div>
+    <div class="task-intro">
+      Выберите назначенный преподавателем вариант архитектурного профиля процессора и выполните его детальный инженерный анализ.
+    </div>
 
- <!-- ОПИСАНИЯ 4 ВАРИАНТОВ -->
- <div class="case-box">
- <h4>Вариант 1. Десктопный процессор общего назначения x86-64</h4>
- <p><strong>Контекст:</strong> Высокопроизводительный процессор для рабочих станций и ПК (архитектура CISC, сложная система команд, внеочередное исполнение Out-of-Order).</p>
- <p><strong>Особенности:</strong> Декодер расщепляет инструкции x86 переменной длины (1–15 байт) на внутренние микрооперации (&mu;ops). Блок Microcode ROM для сложных инструкций. Многоуровневый кэш L1/L2/L3 (до 96+ МБ 3D V-Cache). Мощные векторные расширения AVX-512.</p>
- </div>
+    <!-- ОПИСАНИЯ 4 ВАРИАНТОВ -->
+    <div class="case-box">
+      <h4>Вариант 1. Десктопный процессор общего назначения x86-64</h4>
+      <p><strong>Контекст:</strong> Высокопроизводительный процессор для рабочих станций и ПК (архитектура CISC, сложная система команд, внеочередное исполнение Out-of-Order).</p>
+      <p><strong>Особенности:</strong> Декодер расщепляет инструкции x86 переменной длины (1–15 байт) на внутренние микрооперации (&mu;ops). Блок Microcode ROM для сложных инструкций. Многоуровневый кэш L1/L2/L3 (до 96+ МБ 3D V-Cache). Мощные векторные расширения AVX-512.</p>
+    </div>
 
- <div class="case-box">
- <h4>Вариант 2. Мобильный энергоэффективный процессор ARM big.LITTLE / DynamIQ</h4>
- <p><strong>Контекст:</strong> Процессор для смартфонов и планшетов (архитектура RISC, фиксированная 32-битная длина инструкций, жесткий тепловой лимит 5–10 Вт).</p>
- <p><strong>Особенности:</strong> Гетерогенная кластерная организация ядер: высокопроизводительные ядра Cortex-X/A7xx для рендеринга и игр, энергоэффективные ядра Cortex-A5xx для фоновых системных демонов. Строгая архитектура Load-Store. Простой аппаратный декодер прямого действия.</p>
- </div>
+    <div class="case-box">
+      <h4>Вариант 2. Мобильный энергоэффективный процессор ARM big.LITTLE / DynamIQ</h4>
+      <p><strong>Контекст:</strong> Процессор для смартфонов и планшетов (архитектура RISC, фиксированная 32-битная длина инструкций, жесткий тепловой лимит 5–10 Вт).</p>
+      <p><strong>Особенности:</strong> Гетерогенная кластерная организация ядер: высокопроизводительные ядра Cortex-X/A7xx для рендеринга и игр, энергоэффективные ядра Cortex-A5xx для фоновых системных демонов. Строгая архитектура Load-Store. Простой аппаратный декодер прямого действия.</p>
+    </div>
 
- <div class="case-box">
- <h4>Вариант 3. Открытая процессорная архитектура RISC-V для встраиваемых систем</h4>
- <p><strong>Контекст:</strong> Микроконтроллерное и IoT-применение на базе свободной открытой спецификации ISA (модульный стандарт RV32I / RV64I).</p>
- <p><strong>Особенности:</strong> Базовый целочисленный набор (RV32I — всего 40 инструкций) дополняется аппаратными модулями: M (умножение/деление), A (атомарные операции), F/D (плавающая точка), C (16-битные сжатые команды). 32 регистра РОН (x0 жестко заземлен на 0). Отсутствие лицензионных отчислений.</p>
- </div>
+    <div class="case-box">
+      <h4>Вариант 3. Открытая процессорная архитектура RISC-V для встраиваемых систем</h4>
+      <p><strong>Контекст:</strong> Микроконтроллерное и IoT-применение на базе свободной открытой спецификации ISA (модульный стандарт RV32I / RV64I).</p>
+      <p><strong>Особенности:</strong> Базовый целочисленный набор (RV32I — всего 40 инструкций) дополняется аппаратными модулями: M (умножение/деление), A (атомарные операции), F/D (плавающая точка), C (16-битные сжатые команды). 32 регистра РОН (x0 жестко заземлен на 0). Отсутствие лицензионных отчислений.</p>
+    </div>
 
- <div class="case-box">
- <h4>Вариант 4. Векторный / сигнальный процессор DSP / VLIW</h4>
- <p><strong>Контекст:</strong> Процессор для цифровой обработки сигналов, радаров, телекоммуникаций и вычислений с высоким параллелизмом данных (архитектура типа TI C6000 или Эльбрус).</p>
- <p><strong>Особенности:</strong> Архитектура сверхдлинного командного слова (VLIW — Very Long Instruction Word). Аппаратный декодер отсутствует: компилятор статически упаковывает независимые микрооперации в широкую связку (128–512 бит) под разные порты АЛУ. Детерминированное потактовое исполнение.</p>
- </div>
+    <div class="case-box">
+      <h4>Вариант 4. Векторный / сигнальный процессор DSP / VLIW</h4>
+      <p><strong>Контекст:</strong> Процессор для цифровой обработки сигналов, радаров, телекоммуникаций и вычислений с высоким параллелизмом данных (архитектура типа TI C6000 или Эльбрус).</p>
+      <p><strong>Особенности:</strong> Архитектура сверхдлинного командного слова (VLIW — Very Long Instruction Word). Аппаратный декодер отсутствует: компилятор статически упаковывает независимые микрооперации в широкую связку (128–512 бит) под разные порты АЛУ. Детерминированное потактовое исполнение.</p>
+    </div>
 
- <!-- ФОРМА АНАЛИЗА ВАРИАНТА -->
- <div style="margin-top: 18px;">
- <label for="chosen_variant">Выбранный вариант для выполнения:</label>
- <select id="chosen_variant" onchange="updateSelectPrint(this, 'print_case_var')">
- <option value="">-- Выберите вариант из списка --</option>
- <option value="1">Вариант 1: Десктопный процессор x86-64 (CISC, Out-of-Order, uops)</option>
- <option value="2">Вариант 2: Мобильный процессор ARM big.LITTLE / DynamIQ (RISC, Load-Store)</option>
- <option value="3">Вариант 3: Открытая архитектура RISC-V для IoT (модульная ISA RV32I/RV64I)</option>
- <option value="4">Вариант 4: Векторный/сигнальный процессор DSP / VLIW (статический ILP)</option>
- </select>
- <div id="print_case_var" class="print-select-text"></div>
- </div>
+    <!-- ФОРМА АНАЛИЗА ВАРИАНТА -->
+    <div style="margin-top: 18px;">
+      <label for="chosen_variant">Выбранный вариант для выполнения:</label>
+      <select id="chosen_variant" onchange="updateSelectPrint(this, 'print_case_var')">
+        <option value="">-- Выберите вариант из списка --</option>
+        <option value="1">Вариант 1: Десктопный процессор x86-64 (CISC, Out-of-Order, uops)</option>
+        <option value="2">Вариант 2: Мобильный процессор ARM big.LITTLE / DynamIQ (RISC, Load-Store)</option>
+        <option value="3">Вариант 3: Открытая архитектура RISC-V для IoT (модульная ISA RV32I/RV64I)</option>
+        <option value="4">Вариант 4: Векторный/сигнальный процессор DSP / VLIW (статический ILP)</option>
+      </select>
+      <div id="print_case_var" class="print-select-text"></div>
+    </div>
 
- <div style="margin-top: 14px;">
- <label for="ans_isa_type">1. Архитектурная классификация (CISC/RISC/VLIW), формат команд и способ адресации памяти:</label>
- <textarea id="ans_isa_type" placeholder=""></textarea>
- </div>
+    <div style="margin-top: 14px;">
+      <label for="ans_isa_type">1. Архитектурная классификация (CISC/RISC/VLIW), формат команд и способ адресации памяти:</label>
+      <textarea id="ans_isa_type" placeholder=""></textarea>
+    </div>
 
- <div style="margin-top: 14px;">
- <label for="ans_decode_pipeline">2. Организация декодирования инструкций и работа конвейера (Hardware Decoder vs Microcode ROM vs Static Compiler):</label>
- <textarea id="ans_decode_pipeline" placeholder=""></textarea>
- </div>
+    <div style="margin-top: 14px;">
+      <label for="ans_decode_pipeline">2. Организация декодирования инструкций и работа конвейера (Hardware Decoder vs Microcode ROM vs Static Compiler):</label>
+      <textarea id="ans_decode_pipeline" placeholder=""></textarea>
+    </div>
 
- <div style="margin-top: 14px;">
- <label for="ans_reg_memory">3. Регистровый файл и подсистема кэш-памяти (число РОН, назначение спецрегистров, уровни кэша):</label>
- <textarea id="ans_reg_memory" placeholder=""></textarea>
- </div>
+    <div style="margin-top: 14px;">
+      <label for="ans_reg_memory">3. Регистровый файл и подсистема кэш-памяти (число РОН, назначение спецрегистров, уровни кэша):</label>
+      <textarea id="ans_reg_memory" placeholder=""></textarea>
+    </div>
 
- <div style="margin-top: 14px;">
- <label for="ans_bottlenecks">4. Аппаратные барьеры, узкие места и инженерные ограничения выбранной архитектуры (TDP, промахи кэша, задержки декодера):</label>
- <textarea id="ans_bottlenecks" placeholder=""></textarea>
- </div>
+    <div style="margin-top: 14px;">
+      <label for="ans_bottlenecks">4. Аппаратные барьеры, узкие места и инженерные ограничения выбранной архитектуры (TDP, промахи кэша, задержки декодера):</label>
+      <textarea id="ans_bottlenecks" placeholder=""></textarea>
+    </div>
 
- </div>
+  </div>
 
- <div class="actions-card">
- <div class="btn-row">
- <button type="button" class="btn-save" onclick="saveData()">Сохранить локально</button>
- <button type="button" class="btn-clear" onclick="clearData()">Очистить форму</button>
- <span class="status-msg" id="status_msg"></span>
- </div>
- </div>
+  <div class="actions-card">
+    <div class="btn-row">
+      <button type="button" class="btn-save" onclick="saveData()">Сохранить локально</button>
+      <button type="button" class="btn-clear" onclick="clearData()">Очистить форму</button>
+      <span class="status-msg" id="status_msg"></span>
+    </div>
+  </div>
 
 </div>
 
 <script>
- const STORAGE_KEY = 'top_arch_hw07_student_worksheet';
+  const STORAGE_KEY = 'top_arch_hw07_student_worksheet';
 
- const formFields = [
- 'student_fio', 'student_group', 'work_date',
- 'core_alu_basis', 'core_alu_role', 'core_alu_signals',
- 'core_cu_basis', 'core_cu_role', 'core_cu_signals',
- 'core_gpr_basis', 'core_gpr_role', 'core_gpr_signals',
- 'core_pc_basis', 'core_pc_role', 'core_pc_signals',
- 'core_flags_basis', 'core_flags_role', 'core_flags_signals',
- 'core_l1_basis', 'core_l1_role', 'core_l1_signals',
- 'chosen_variant',
- 'ans_isa_type', 'ans_decode_pipeline', 'ans_reg_memory', 'ans_bottlenecks'
- ];
+  const formFields = [
+    'student_fio', 'student_group', 'work_date',
+    'core_alu_basis', 'core_alu_role', 'core_alu_signals',
+    'core_cu_basis', 'core_cu_role', 'core_cu_signals',
+    'core_gpr_basis', 'core_gpr_role', 'core_gpr_signals',
+    'core_pc_basis', 'core_pc_role', 'core_pc_signals',
+    'core_flags_basis', 'core_flags_role', 'core_flags_signals',
+    'core_l1_basis', 'core_l1_role', 'core_l1_signals',
+    'chosen_variant',
+    'ans_isa_type', 'ans_decode_pipeline', 'ans_reg_memory', 'ans_bottlenecks'
+  ];
 
- function updateSelectPrint(selectEl, printElId) {
- const printEl = document.getElementById(printElId);
- if (printEl) {
- printEl.textContent = selectEl.options[selectEl.selectedIndex] ? selectEl.options[selectEl.selectedIndex].text : '';
- }
- }
+  function updateSelectPrint(selectEl, printElId) {
+    const printEl = document.getElementById(printElId);
+    if (printEl) {
+      printEl.textContent = selectEl.options[selectEl.selectedIndex] ? selectEl.options[selectEl.selectedIndex].text : '';
+    }
+  }
 
- function saveData() {
- const data = {};
- formFields.forEach(id => {
- const el = document.getElementById(id);
- if (el) data[id] = el.value;
- });
- localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
- const status = document.getElementById('status_msg');
- status.textContent = 'Сохранено: ' + new Date().toLocaleTimeString();
- setTimeout(() => { status.textContent = ''; }, 4000);
- }
+  function saveData() {
+    const data = {};
+    formFields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) data[id] = el.value;
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    const status = document.getElementById('status_msg');
+    status.textContent = 'Сохранено: ' + new Date().toLocaleTimeString();
+    setTimeout(() => { status.textContent = ''; }, 4000);
+  }
 
- function loadData() {
- const raw = localStorage.getItem(STORAGE_KEY);
- if (!raw) return;
- try {
- const data = JSON.parse(raw);
- formFields.forEach(id => {
- const el = document.getElementById(id);
- if (el && data[id] !== undefined) {
- el.value = data[id];
- if (el.tagName === 'SELECT') {
- updateSelectPrint(el, 'print_case_var');
- }
- }
- });
- } catch (e) {
- console.error(e);
- }
- }
+  function loadData() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    try {
+      const data = JSON.parse(raw);
+      formFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && data[id] !== undefined) {
+          el.value = data[id];
+          if (el.tagName === 'SELECT') {
+            updateSelectPrint(el, 'print_case_var');
+          }
+        }
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
- function clearData() {
- if (confirm('Вы уверены, что хотите полностью очистить форму? Все несохраненные данные будут удалены.')) {
- localStorage.removeItem(STORAGE_KEY);
- formFields.forEach(id => {
- const el = document.getElementById(id);
- if (el) el.value = '';
- });
- const printEl = document.getElementById('print_case_var');
- if (printEl) printEl.textContent = '';
- const status = document.getElementById('status_msg');
- status.textContent = 'Форма очищена';
- setTimeout(() => { status.textContent = ''; }, 3000);
- }
- }
+  function clearData() {
+    if (confirm('Вы уверены, что хотите полностью очистить форму? Все несохраненные данные будут удалены.')) {
+      localStorage.removeItem(STORAGE_KEY);
+      formFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      const printEl = document.getElementById('print_case_var');
+      if (printEl) printEl.textContent = '';
+      const status = document.getElementById('status_msg');
+      status.textContent = 'Форма очищена';
+      setTimeout(() => { status.textContent = ''; }, 3000);
+    }
+  }
 
- document.addEventListener('DOMContentLoaded', () => {
- loadData();
- formFields.forEach(id => {
- const el = document.getElementById(id);
- if (el) {
- el.addEventListener('input', () => {
- if (el.tagName === 'SELECT') updateSelectPrint(el, 'print_case_var');
- });
- }
- });
- });
+  document.addEventListener('DOMContentLoaded', () => {
+    loadData();
+    formFields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => {
+          if (el.tagName === 'SELECT') updateSelectPrint(el, 'print_case_var');
+        });
+      }
+    });
+  });
 </script>
 </body>
 </html>

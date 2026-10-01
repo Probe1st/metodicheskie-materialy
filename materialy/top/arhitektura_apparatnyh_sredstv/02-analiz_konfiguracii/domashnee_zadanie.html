@@ -1,430 +1,445 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
- <title>Домашнее задание - Анализ конфигурации вычислительной машины</title>
- <style>
- :root {
- --bg: #f8fafc;
- --card: #ffffff;
- --text: #0f172a;
- --muted: #475569;
- --line: #cbd5e1;
- --accent: #1e40af;
- --accent-soft: #eff6ff;
- --ok: #059669;
- --warn: #d97706;
- --radius: 14px;
- --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
- }
- * { box-sizing: border-box; margin: 0; padding: 0; }
- body {
- background: var(--bg);
- color: var(--text);
- font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
- line-height: 1.6;
- font-size: 15px;
- padding: 20px 14px;
- }.page {
- max-width: 900px;
- margin: 0 auto;
- }.header-card,.student-card,.card,.actions-card {
- background: var(--card);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 24px;
- margin-bottom: 20px;
- box-shadow: var(--shadow);
- }
- h1 {
- font-size: clamp(22px, 3.5vw, 27px);
- color: var(--accent);
- margin-bottom: 8px;
- }.notice {
- background: #fef3c7;
- border-left: 4px solid #f59e0b;
- padding: 12px 16px;
- margin: 12px 0 16px;
- border-radius: 4px;
- font-size: 14.5px;
- color: #92400e;
- font-weight: 500;
- }.meta-line {
- color: var(--muted);
- font-size: 14px;
- margin-bottom: 6px;
- }.field-group {
- margin-bottom: 14px;
- }
- label {
- display: block;
- font-weight: 600;
- margin-bottom: 6px;
- color: #1e293b;
- font-size: 14px;
- }
- input[type="text"], textarea, select {
- width: 100%;
- padding: 10px 12px;
- border: 1px solid var(--line);
- border-radius: 8px;
- font-size: 14.5px;
- font-family: inherit;
- color: var(--text);
- background: #ffffff;
- transition: border-color 0.2s;
- }
- input[type="text"]:focus, textarea:focus, select:focus {
- outline: none;
- border-color: var(--accent);
- box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
- }
- textarea {
- resize: vertical;
- min-height: 90px;
- }
- table {
- width: 100%;
- border-collapse: collapse;
- margin: 14px 0;
- font-size: 14px;
- }
- th, td {
- border: 1px solid var(--line);
- padding: 9px 11px;
- text-align: left;
- }
- th {
- background: var(--accent-soft);
- color: var(--accent);
- }.example-box {
- background: #f1f5f9;
- border: 1px solid #cbd5e1;
- border-radius: 8px;
- padding: 16px;
- margin: 14px 0;
- font-size: 14.5px;
- }.example-title {
- font-weight: 700;
- color: #0f172a;
- margin-bottom: 8px;
- }.btn-group {
- display: flex;
- flex-wrap: wrap;
- gap: 10px;
- align-items: center;
- }
- button {
- padding: 10px 20px;
- border-radius: 8px;
- font-size: 14.5px;
- font-weight: 600;
- cursor: pointer;
- border: none;
- transition: all 0.2s;
- }.btn-primary {
- background: var(--accent);
- color: #ffffff;
- }.btn-primary:hover {
- background: #1d4ed8;
- }.btn-danger {
- background: #ef4444;
- color: #ffffff;
- }.btn-danger:hover {
- background: #dc2626;
- }.status-msg {
- font-size: 13.5px;
- color: var(--ok);
- font-weight: 600;
- margin-left: 8px;
- }
- code {
- background: #e2e8f0;
- padding: 2px 5px;
- border-radius: 4px;
- font-family: monospace;
- font-size: 0.9em;
- }
- @media print {
- body {
- background: #fff;
- padding: 0;
- font-size: 11pt;
- color: #000;
- }.actions-card, button,.status-msg {
- display: none !important;
- }.header-card,.student-card,.card {
- box-shadow: none;
- border: 1px solid #999;
- margin-bottom: 12px;
- page-break-inside: avoid;
- }
- input, textarea, select {
- border: 1px solid #999;
- }
- ::placeholder {
- color: transparent !important;
- }
- }
- </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Домашнее задание - Анализ конфигурации вычислительной машины</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --ok: #059669;
+      --warn: #d97706;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .card, .actions-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(22px, 3.5vw, 27px);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .notice {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 12px 16px;
+      margin: 12px 0 16px;
+      border-radius: 4px;
+      font-size: 14.5px;
+      color: #92400e;
+      font-weight: 500;
+    }
+    .meta-line {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+    .field-group {
+      margin-bottom: 14px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #1e293b;
+      font-size: 14px;
+    }
+    input[type="text"], textarea, select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 14.5px;
+      font-family: inherit;
+      color: var(--text);
+      background: #ffffff;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    }
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 9px 11px;
+      text-align: left;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .example-box {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 14px 0;
+      font-size: 14.5px;
+    }
+    .example-title {
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    button {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+    .btn-danger {
+      background: #ef4444;
+      color: #ffffff;
+    }
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+    .status-msg {
+      font-size: 13.5px;
+      color: var(--ok);
+      font-weight: 600;
+      margin-left: 8px;
+    }
+    code {
+      background: #e2e8f0;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+        font-size: 11pt;
+        color: #000;
+      }
+      .actions-card, button, .status-msg {
+        display: none !important;
+      }
+      .header-card, .student-card, .card {
+        box-shadow: none;
+        border: 1px solid #999;
+        margin-bottom: 12px;
+        page-break-inside: avoid;
+      }
+      input, textarea, select {
+        border: 1px solid #999;
+      }
+      ::placeholder {
+        color: transparent !important;
+      }
+    }
+  </style>
 </head>
 <body>
 
 <div class="page">
 
- <!-- ШАПКА ЗАДАНИЯ -->
- <div class="header-card">
- <h1>Домашнее задание - Анализ конфигурации вычислительной машины</h1>
- <div class="meta-line">
- <strong>Дисциплина:</strong> ОП.02 Архитектура аппаратных средств &nbsp;|&nbsp; <strong>Раздел 1:</strong> Практическая работа №1
- </div>
- 
- <!-- СТРОГАЯ РЕЗЕРВНАЯ ПЛАШКА ПО ТРЕБОВАНИЮ -->
- <div class="notice">
- Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
- </div>
+  <!-- ШАПКА ЗАДАНИЯ -->
+  <div class="header-card">
+    <h1>Домашнее задание - Анализ конфигурации вычислительной машины</h1>
+    <div class="meta-line">
+      <strong>Дисциплина:</strong> ОП.02 Архитектура аппаратных средств &nbsp;|&nbsp; <strong>Раздел 1:</strong> Практическая работа №1 (§2.2 с.8)
+    </div>
+    
+    <!-- СТРОГАЯ РЕЗЕРВНАЯ ПЛАШКА ПО ТРЕБОВАНИЮ -->
+    <div class="notice">
+      Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+    </div>
 
- <p style="font-size: 14.5px; color: var(--muted); margin-top: 6px;">
- Резервное задание предназначено для самостоятельной отработки практических навыков инженерного анализа, декомпозиции спецификаций и выявления узких мест (Bottleneck) в аппаратных конфигурациях персональных и серверных ЭВМ.
- </p>
- </div>
+    <p style="font-size: 14.5px; color: var(--muted); margin-top: 6px;">
+      Резервное задание предназначено для самостоятельной отработки практических навыков инженерного анализа, декомпозиции спецификаций и выявления узких мест (Bottleneck) в аппаратных конфигурациях персональных и серверных ЭВМ.
+    </p>
+  </div>
 
- <!-- БЛОК СТУДЕНТА -->
- <div class="student-card">
- <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;">
- <div class="field-group">
- <label for="dz_student_fio">ФИО студента:</label>
- <input type="text" id="dz_student_fio" placeholder="">
- </div>
- <div class="field-group">
- <label for="dz_student_group">Группа:</label>
- <input type="text" id="dz_student_group" placeholder="">
- </div>
- </div>
- </div>
+  <!-- БЛОК СТУДЕНТА -->
+  <div class="student-card">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;">
+      <div class="field-group">
+        <label for="dz_student_fio">ФИО студента:</label>
+        <input type="text" id="dz_student_fio" placeholder="">
+      </div>
+      <div class="field-group">
+        <label for="dz_student_group">Группа:</label>
+        <input type="text" id="dz_student_group" placeholder="">
+      </div>
+    </div>
+  </div>
 
- <!-- РАЗДЕЛ 1: РАЗБОР ТИПОВОЙ КОНФИГУРАЦИИ -->
- <div class="card">
- <h2>Раздел 1. Инженерный разбор типовой конфигурации (Эталон-пример)</h2>
- <p>Ниже представлен детальный анализ офисной конфигурации ПК с точки зрения системного баланса и расчета совокупной стоимости владения (TCO).</p>
- 
- <div class="example-box">
- <div class="example-title">Анализируемая конфигурация: Рабочее место менеджера / экономиста</div>
- <table>
- <tr>
- <th style="width: 25%;">Узел системы</th>
- <th style="width: 35%;">Выбранный компонент</th>
- <th style="width: 40%;">Инженерное обоснование и проверка баланса</th>
- </tr>
- <tr>
- <td><strong>Центральный процессор</strong></td>
- <td>Intel Core i3-12100 (4 ядра / 8 потоков, 3.3–4.3 ГГц, UHD Graphics 730, TDP 60–89 Вт)</td>
- <td>Высокая однопоточная производительность для офисных пакетов (Excel, 1C). Наличие встроенного GPU исключает затраты на дискретную видеокарту (~7000–10000 руб.). Базовый сокет LGA1700.</td>
- </tr>
- <tr>
- <td><strong>Кулер CPU</strong></td>
- <td>DeepCool AG300 (3 теплотрубки, 120 мм гидродинамический вентилятор, рассеивание до 150 Вт)</td>
- <td>Запас по охлаждению 1.7× относительно пикового лимита PL2 (89 Вт). Работа на пониженных оборотах (до 900 об/мин) обеспечивает акустический комфорт (< 20 дБА).</td>
- </tr>
- <tr>
- <td><strong>Материнская плата</strong></td>
- <td>Чипсет Intel B760 (Micro-ATX, 6+1+1 фаз VRM с радиатором на силовых мосфетах, 2× M.2 PCIe 4.0, видеовыходы DP+HDMI)</td>
- <td>Чипсет B760 обеспечивает стабильное питание и поддержку двух мониторов. Наличие радиатора на VRM исключает перегрев текстолита при многочасовой работе.</td>
- </tr>
- <tr>
- <td><strong>Оперативная память</strong></td>
- <td>16 ГБ (2 × 8 ГБ) DDR4-3200 МГц CL16</td>
- <td>Двухканальный режим удваивает пропускную способность шины памяти до <strong>51.2 ГБ/с</strong>. Это критично для встроенного видеоядра UHD 730, использующего системное ОЗУ под видеобуфер.</td>
- </tr>
- <tr>
- <td><strong>Накопитель</strong></td>
- <td>500 ГБ NVMe M.2 PCIe 4.0 (чтение до 4700 МБ/с, запись до 3500 МБ/с, ресурс 320 TBW)</td>
- <td>В 8–9 раз быстрее SATA III SSD, прямое подключение к процессорным линиям PCIe 4.0 x4 без задержек чипсета. Ресурс 320 TBW при записи 20 ГБ/сут гарантирует работу более 40 лет.</td>
- </tr>
- <tr>
- <td><strong>Блок питания</strong></td>
- <td>450 Вт 80 PLUS Bronze (активный PFC, DC-DC преобразователи, тихий вентилятор 120 мм)</td>
- <td>Пиковое потребление системы составляет 130–140 Вт. Блок питания работает в диапазоне нагрузки ~30–35% с наивысшим КПД (85%) и нулевым износом компонентов.</td>
- </tr>
- </table>
- <p style="margin-top: 10px; font-weight: 600; color: var(--ok);">
- Вывод эксперта: Конфигурация сбалансирована. Архитектурных узких мест (Bottleneck) не выявлено. TCO минимален за счет низкого энергопотребления (до 40 Вт в простое) и отсутствия избыточных узлов.
- </p>
- </div>
- </div>
+  <!-- РАЗДЕЛ 1: РАЗБОР ТИПОВОЙ КОНФИГУРАЦИИ -->
+  <div class="card">
+    <h2>Раздел 1. Инженерный разбор типовой конфигурации (Эталон-пример)</h2>
+    <p>Ниже представлен детальный анализ офисной конфигурации ПК с точки зрения системного баланса и расчета совокупной стоимости владения (TCO).</p>
+    
+    <div class="example-box">
+      <div class="example-title">Анализируемая конфигурация: Рабочее место менеджера / экономиста</div>
+      <table>
+        <tr>
+          <th style="width: 25%;">Узел системы</th>
+          <th style="width: 35%;">Выбранный компонент</th>
+          <th style="width: 40%;">Инженерное обоснование и проверка баланса</th>
+        </tr>
+        <tr>
+          <td><strong>Центральный процессор</strong></td>
+          <td>Intel Core i3-12100 (4 ядра / 8 потоков, 3.3–4.3 ГГц, UHD Graphics 730, TDP 60–89 Вт)</td>
+          <td>Высокая однопоточная производительность для офисных пакетов (Excel, 1C). Наличие встроенного GPU исключает затраты на дискретную видеокарту (~7000–10000 руб.). Базовый сокет LGA1700.</td>
+        </tr>
+        <tr>
+          <td><strong>Кулер CPU</strong></td>
+          <td>DeepCool AG300 (3 теплотрубки, 120 мм гидродинамический вентилятор, рассеивание до 150 Вт)</td>
+          <td>Запас по охлаждению 1.7× относительно пикового лимита PL2 (89 Вт). Работа на пониженных оборотах (до 900 об/мин) обеспечивает акустический комфорт (< 20 дБА).</td>
+        </tr>
+        <tr>
+          <td><strong>Материнская плата</strong></td>
+          <td>Чипсет Intel B760 (Micro-ATX, 6+1+1 фаз VRM с радиатором на силовых мосфетах, 2× M.2 PCIe 4.0, видеовыходы DP+HDMI)</td>
+          <td>Чипсет B760 обеспечивает стабильное питание и поддержку двух мониторов. Наличие радиатора на VRM исключает перегрев текстолита при многочасовой работе.</td>
+        </tr>
+        <tr>
+          <td><strong>Оперативная память</strong></td>
+          <td>16 ГБ (2 × 8 ГБ) DDR4-3200 МГц CL16</td>
+          <td>Двухканальный режим удваивает пропускную способность шины памяти до <strong>51.2 ГБ/с</strong>. Это критично для встроенного видеоядра UHD 730, использующего системное ОЗУ под видеобуфер.</td>
+        </tr>
+        <tr>
+          <td><strong>Накопитель</strong></td>
+          <td>500 ГБ NVMe M.2 PCIe 4.0 (чтение до 4700 МБ/с, запись до 3500 МБ/с, ресурс 320 TBW)</td>
+          <td>В 8–9 раз быстрее SATA III SSD, прямое подключение к процессорным линиям PCIe 4.0 x4 без задержек чипсета. Ресурс 320 TBW при записи 20 ГБ/сут гарантирует работу более 40 лет.</td>
+        </tr>
+        <tr>
+          <td><strong>Блок питания</strong></td>
+          <td>450 Вт 80 PLUS Bronze (активный PFC, DC-DC преобразователи, тихий вентилятор 120 мм)</td>
+          <td>Пиковое потребление системы составляет 130–140 Вт. Блок питания работает в диапазоне нагрузки ~30–35% с наивысшим КПД (85%) и нулевым износом компонентов.</td>
+        </tr>
+      </table>
+      <p style="margin-top: 10px; font-weight: 600; color: var(--ok);">
+        Вывод эксперта: Конфигурация сбалансирована. Архитектурных узких мест (Bottleneck) не выявлено. TCO минимален за счет низкого энергопотребления (до 40 Вт в простое) и отсутствия избыточных узлов.
+      </p>
+    </div>
+  </div>
 
- <!-- РАЗДЕЛ 2: САМОСТОЯТЕЛЬНЫЕ УПРАЖНЕНИЯ -->
- <div class="card">
- <h2>Раздел 2. Самостоятельные практические упражнения</h2>
+  <!-- РАЗДЕЛ 2: САМОСТОЯТЕЛЬНЫЕ УПРАЖНЕНИЯ -->
+  <div class="card">
+    <h2>Раздел 2. Самостоятельные практические упражнения</h2>
 
- <!-- Упражнение 1 -->
- <div style="margin-bottom: 22px;">
- <h3 style="color: var(--accent); margin-bottom: 8px;">Упражнение 1. Выявление аппаратных узких мест (Bottleneck Analysis)</h3>
- <p>Проанализируйте предложенную сборку игрового / мультимедийного ПК, найдите 3 грубые архитектурные ошибки и обоснуйте каждую:</p>
- 
- <div style="background: #f8fafc; border: 1px solid var(--line); border-radius: 6px; padding: 12px; margin-bottom: 12px; font-size: 14px;">
- <strong>Спецификация для анализа:</strong><br>
- 1. Процессор: Intel Core i9-14900K (24 ядра, лимит PL2 = 253 Вт).<br>
- 2. Материнская плата: Бюджетная плата на чипсете H610 (Micro-ATX, 4 фазы питания VRM без радиаторов).<br>
- 3. Оперативная память: 1 модуль 32 ГБ DDR5-4800 МГц (Single Channel).<br>
- 4. Видеокарта: NVIDIA GeForce RTX 4080 (320 Вт).<br>
- 5. Блок питания: 500 Вт стандартный (без сертификата 80 PLUS).
- </div>
+    <!-- Упражнение 1 -->
+    <div style="margin-bottom: 22px;">
+      <h3 style="color: var(--accent); margin-bottom: 8px;">Упражнение 1. Выявление аппаратных узких мест (Bottleneck Analysis)</h3>
+      <p>Проанализируйте предложенную сборку игрового / мультимедийного ПК, найдите 3 грубые архитектурные ошибки и обоснуйте каждую:</p>
+      
+      <div style="background: #f8fafc; border: 1px solid var(--line); border-radius: 6px; padding: 12px; margin-bottom: 12px; font-size: 14px;">
+        <strong>Спецификация для анализа:</strong><br>
+        1. Процессор: Intel Core i9-14900K (24 ядра, лимит PL2 = 253 Вт).<br>
+        2. Материнская плата: Бюджетная плата на чипсете H610 (Micro-ATX, 4 фазы питания VRM без радиаторов).<br>
+        3. Оперативная память: 1 модуль 32 ГБ DDR5-4800 МГц (Single Channel).<br>
+        4. Видеокарта: NVIDIA GeForce RTX 4080 (320 Вт).<br>
+        5. Блок питания: 500 Вт стандартный (без сертификата 80 PLUS).
+      </div>
 
- <div class="field-group">
- <label for="dz_u1_error1">Ошибка 1 (Процессор и материнская плата / VRM):</label>
- <textarea id="dz_u1_error1" placeholder="Укажите, что произойдет с цепями питания VRM и частотами процессора..."></textarea>
- </div>
+      <div class="field-group">
+        <label for="dz_u1_error1">Ошибка 1 (Процессор и материнская плата / VRM):</label>
+        <textarea id="dz_u1_error1" placeholder="Укажите, что произойдет с цепями питания VRM и частотами процессора..."></textarea>
+      </div>
 
- <div class="field-group">
- <label for="dz_u1_error2">Ошибка 2 (Подсистема памяти и канальность):</label>
- <textarea id="dz_u1_error2" placeholder="Опишите падение пропускной способности памяти из-за одного модуля..."></textarea>
- </div>
+      <div class="field-group">
+        <label for="dz_u1_error2">Ошибка 2 (Подсистема памяти и канальность):</label>
+        <textarea id="dz_u1_error2" placeholder="Опишите падение пропускной способности памяти из-за одного модуля..."></textarea>
+      </div>
 
- <div class="field-group">
- <label for="dz_u1_error3">Ошибка 3 (Энергопотребление и блок питания):</label>
- <textarea id="dz_u1_error3" placeholder="Рассчитайте суммарную нагрузку и опишите последствия скачков токов (Transient Spikes)..."></textarea>
- </div>
- </div>
+      <div class="field-group">
+        <label for="dz_u1_error3">Ошибка 3 (Энергопотребление и блок питания):</label>
+        <textarea id="dz_u1_error3" placeholder="Рассчитайте суммарную нагрузку и опишите последствия скачков токов (Transient Spikes)..."></textarea>
+      </div>
+    </div>
 
- <hr style="border: 0; border-top: 1px solid var(--line); margin: 20px 0;">
+    <hr style="border: 0; border-top: 1px solid var(--line); margin: 20px 0;">
 
- <!-- Упражнение 2 -->
- <div style="margin-bottom: 22px;">
- <h3 style="color: var(--accent); margin-bottom: 8px;">Упражнение 2. Инженерные расчеты пропускной способности и энергобаланса</h3>
- <p>Выполните расчеты по формулам из конспекта лекции и запишите итоговые значения:</p>
+    <!-- Упражнение 2 -->
+    <div style="margin-bottom: 22px;">
+      <h3 style="color: var(--accent); margin-bottom: 8px;">Упражнение 2. Инженерные расчеты пропускной способности и энергобаланса</h3>
+      <p>Выполните расчеты по формулам из конспекта лекции и запишите итоговые значения:</p>
 
- <div class="field-group">
- <label for="dz_u2_ram_calc">1. Расчет ПСП памяти: Комплект 2 × 16 ГБ DDR5-6000 МГц в двухканальном режиме (128 бит):</label>
- <input type="text" id="dz_u2_ram_calc" placeholder="Приведите формулу и расчет в ГБ/с...">
- </div>
+      <div class="field-group">
+        <label for="dz_u2_ram_calc">1. Расчет ПСП памяти: Комплект 2 × 16 ГБ DDR5-6000 МГц в двухканальном режиме (128 бит):</label>
+        <input type="text" id="dz_u2_ram_calc" placeholder="Приведите формулу и расчет в ГБ/с...">
+      </div>
 
- <div class="field-group">
- <label for="dz_u2_psu_calc">2. Расчет номинала БП: Система потребляет в пике: CPU (180 Вт) + GPU (285 Вт) + Motherboard/RAM (50 Вт) + 2× NVMe SSD (20 Вт). Коэффициент запаса 1.4:</label>
- <input type="text" id="dz_u2_psu_calc" placeholder="Суммарная мощность и рекомендуемый номинал БП (Вт)...">
- </div>
+      <div class="field-group">
+        <label for="dz_u2_psu_calc">2. Расчет номинала БП: Система потребляет в пике: CPU (180 Вт) + GPU (285 Вт) + Motherboard/RAM (50 Вт) + 2× NVMe SSD (20 Вт). Коэффициент запаса 1.4:</label>
+        <input type="text" id="dz_u2_psu_calc" placeholder="Суммарная мощность и рекомендуемый номинал БП (Вт)...">
+      </div>
 
- <div class="field-group">
- <label for="dz_u2_tbw_calc">3. Расчет надежности: Твердотельный накопитель 1 ТБ имеет показатель DWPD = 1.5 при 5 годах гарантии. Рассчитайте суммарный гарантированный ресурс TBW:</label>
- <input type="text" id="dz_u2_tbw_calc" placeholder="Формула и итоговое значение в Терабайтах (TBW)...">
- </div>
- </div>
+      <div class="field-group">
+        <label for="dz_u2_tbw_calc">3. Расчет надежности: Твердотельный накопитель 1 ТБ имеет показатель DWPD = 1.5 при 5 годах гарантии. Рассчитайте суммарный гарантированный ресурс TBW:</label>
+        <input type="text" id="dz_u2_tbw_calc" placeholder="Формула и итоговое значение в Терабайтах (TBW)...">
+      </div>
+    </div>
 
- <hr style="border: 0; border-top: 1px solid var(--line); margin: 20px 0;">
+    <hr style="border: 0; border-top: 1px solid var(--line); margin: 20px 0;">
 
- <!-- Упражнение 3 -->
- <div>
- <h3 style="color: var(--accent); margin-bottom: 8px;">Упражнение 3. Инженерный кейс: Сервер аналитики данных</h3>
- <p>Предприятию требуется подобрать подсистему хранения данных для сервера СУБД (PostgreSQL). Выберите оптимальный массив RAID и обоснуйте отказ от альтернативных вариантов:</p>
- 
- <div class="field-group">
- <label for="dz_u3_raid_choice">Рекомендуемый массив RAID (RAID-0, RAID-1, RAID-5 или RAID-10):</label>
- <select id="dz_u3_raid_choice">
- <option value="">-- Выберите массив --</option>
- <option value="raid0">RAID-0</option>
- <option value="raid1">RAID-1</option>
- <option value="raid5">RAID-5</option>
- <option value="raid10">RAID-10</option>
- </select>
- </div>
+    <!-- Упражнение 3 -->
+    <div>
+      <h3 style="color: var(--accent); margin-bottom: 8px;">Упражнение 3. Инженерный кейс: Сервер аналитики данных</h3>
+      <p>Предприятию требуется подобрать подсистему хранения данных для сервера СУБД (PostgreSQL). Выберите оптимальный массив RAID и обоснуйте отказ от альтернативных вариантов:</p>
+      
+      <div class="field-group">
+        <label for="dz_u3_raid_choice">Рекомендуемый массив RAID (RAID-0, RAID-1, RAID-5 или RAID-10):</label>
+        <select id="dz_u3_raid_choice">
+          <option value="">-- Выберите массив --</option>
+          <option value="raid0">RAID-0</option>
+          <option value="raid1">RAID-1</option>
+          <option value="raid5">RAID-5</option>
+          <option value="raid10">RAID-10</option>
+        </select>
+      </div>
 
- <div class="field-group">
- <label for="dz_u3_justification">Технико-экономическое обоснование выбора (скорость IOPS, надежность при отказе дисков, отсутствие штрафа на четность):</label>
- <textarea id="dz_u3_justification" placeholder="Приведите аргументы с точки зрения архитектуры СУБД..."></textarea>
- </div>
- </div>
+      <div class="field-group">
+        <label for="dz_u3_justification">Технико-экономическое обоснование выбора (скорость IOPS, надежность при отказе дисков, отсутствие штрафа на четность):</label>
+        <textarea id="dz_u3_justification" placeholder="Приведите аргументы с точки зрения архитектуры СУБД..."></textarea>
+      </div>
+    </div>
 
- </div>
+  </div>
 
- <!-- ДЕЙСТВИЯ -->
- <div class="actions-card">
- <div class="btn-group">
- <button class="btn-primary" onclick="saveData(true)">Сохранить ответы</button>
- <button class="btn-primary" style="background: #0284c7;" onclick="window.print()">Печать в PDF</button>
- <button class="btn-danger" onclick="confirmReset()">Очистить форму</button>
- <span id="save_status" class="status-msg"></span>
- </div>
- </div>
+  <!-- ДЕЙСТВИЯ -->
+  <div class="actions-card">
+    <div class="btn-group">
+      <button class="btn-primary" onclick="saveData(true)">Сохранить ответы</button>
+      <button class="btn-primary" style="background: #0284c7;" onclick="window.print()">Печать в PDF</button>
+      <button class="btn-danger" onclick="confirmReset()">Очистить форму</button>
+      <span id="save_status" class="status-msg"></span>
+    </div>
+  </div>
 
 </div>
 
 <script>
- const STORAGE_KEY = 'top_hw02_dz_state';
+  const STORAGE_KEY = 'top_hw02_dz_state';
 
- const FIELDS = [
- 'dz_student_fio',
- 'dz_student_group',
- 'dz_u1_error1',
- 'dz_u1_error2',
- 'dz_u1_error3',
- 'dz_u2_ram_calc',
- 'dz_u2_psu_calc',
- 'dz_u2_tbw_calc',
- 'dz_u3_raid_choice',
- 'dz_u3_justification'
- ];
+  const FIELDS = [
+    'dz_student_fio',
+    'dz_student_group',
+    'dz_u1_error1',
+    'dz_u1_error2',
+    'dz_u1_error3',
+    'dz_u2_ram_calc',
+    'dz_u2_psu_calc',
+    'dz_u2_tbw_calc',
+    'dz_u3_raid_choice',
+    'dz_u3_justification'
+  ];
 
- function saveData(showFeedback = false) {
- try {
- const data = {};
- FIELDS.forEach(id => {
- const el = document.getElementById(id);
- if (el) data[id] = el.value;
- });
- localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
- if (showFeedback) {
- const status = document.getElementById('save_status');
- status.textContent = '✓ Ответы сохранены в браузере';
- setTimeout(() => { status.textContent = ''; }, 3000);
- }
- } catch (e) {
- console.warn('LocalStorage error:', e);
- }
- }
+  function saveData(showFeedback = false) {
+    try {
+      const data = {};
+      FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) data[id] = el.value;
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      if (showFeedback) {
+        const status = document.getElementById('save_status');
+        status.textContent = '✓ Ответы сохранены в браузере';
+        setTimeout(() => { status.textContent = ''; }, 3000);
+      }
+    } catch (e) {
+      console.warn('LocalStorage error:', e);
+    }
+  }
 
- function loadData() {
- try {
- const raw = localStorage.getItem(STORAGE_KEY);
- if (raw) {
- const data = JSON.parse(raw);
- FIELDS.forEach(id => {
- if (data[id] !== undefined) {
- const el = document.getElementById(id);
- if (el) el.value = data[id];
- }
- });
- }
- } catch (e) {
- console.warn('LocalStorage load error:', e);
- }
- }
+  function loadData() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const data = JSON.parse(raw);
+        FIELDS.forEach(id => {
+          if (data[id] !== undefined) {
+            const el = document.getElementById(id);
+            if (el) el.value = data[id];
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('LocalStorage load error:', e);
+    }
+  }
 
- function confirmReset() {
- if (confirm('Внимание! Все введенные ответы в домашнем задании будут удалены. Продолжить?')) {
- FIELDS.forEach(id => {
- const el = document.getElementById(id);
- if (el) el.value = '';
- });
- try {
- localStorage.removeItem(STORAGE_KEY);
- } catch (e) {}
- const status = document.getElementById('save_status');
- status.textContent = 'Форма очищена';
- setTimeout(() => { status.textContent = ''; }, 3000);
- }
- }
+  function confirmReset() {
+    if (confirm('Внимание! Все введенные ответы в домашнем задании будут удалены. Продолжить?')) {
+      FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (e) {}
+      const status = document.getElementById('save_status');
+      status.textContent = 'Форма очищена';
+      setTimeout(() => { status.textContent = ''; }, 3000);
+    }
+  }
 
- document.addEventListener('DOMContentLoaded', () => {
- loadData();
- FIELDS.forEach(id => {
- const el = document.getElementById(id);
- if (el) {
- el.addEventListener('input', () => saveData(false));
- el.addEventListener('change', () => saveData(false));
- }
- });
- });
+  document.addEventListener('DOMContentLoaded', () => {
+    loadData();
+    FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => saveData(false));
+        el.addEventListener('change', () => saveData(false));
+      }
+    });
+  });
 </script>
 </body>
 </html>

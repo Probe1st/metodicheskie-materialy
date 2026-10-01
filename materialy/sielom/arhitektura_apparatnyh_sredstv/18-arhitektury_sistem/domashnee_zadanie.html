@@ -1,377 +1,395 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
- <title>Домашнее задание - Архитектуры вычислительных систем и оценка производительности</title>
- <style>
- :root {
- --bg: #f8fafc;
- --card: #ffffff;
- --text: #0f172a;
- --muted: #475569;
- --line: #cbd5e1;
- --accent: #1e40af;
- --accent-soft: #eff6ff;
- --ok: #059669;
- --warn: #d97706;
- --radius: 14px;
- --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
- }
- * { box-sizing: border-box; margin: 0; padding: 0; }
- body {
- background: var(--bg);
- color: var(--text);
- font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
- line-height: 1.6;
- font-size: 15px;
- padding: 20px 14px;
- }.page {
- max-width: 900px;
- margin: 0 auto;
- }.header-card,.student-card,.card,.actions-card {
- background: var(--card);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 24px;
- margin-bottom: 20px;
- box-shadow: var(--shadow);
- }
- h1 {
- font-size: clamp(22px, 3.5vw, 27px);
- color: var(--accent);
- margin-bottom: 8px;
- }.notice {
- background: #fef3c7;
- border-left: 4px solid #f59e0b;
- padding: 12px 16px;
- border-radius: 0 8px 8px 0;
- font-size: 14.5px;
- color: #92400e;
- margin-top: 10px;
- font-weight: 500;
- }.student-grid {
- display: grid;
- grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
- gap: 14px;
- }
- label {
- display: block;
- font-weight: 600;
- font-size: 13.5px;
- margin-bottom: 6px;
- color: #1e293b;
- }
- input[type="text"], input[type="date"], textarea {
- width: 100%;
- border: 1.5px solid var(--line);
- border-radius: 8px;
- padding: 9px 12px;
- font: inherit;
- font-size: 14px;
- background: #fff;
- color: var(--text);
- outline: none;
- transition: border-color.15s, box-shadow.15s;
- }
- input:focus, textarea:focus {
- border-color: var(--accent);
- box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
- }
- textarea {
- min-height: 95px;
- resize: vertical;
- }.example-box {
- background: var(--accent-soft);
- border: 1.5px solid #bfdbfe;
- border-radius: 10px;
- padding: 18px;
- margin-top: 12px;
- }.example-box h3 {
- font-size: 16px;
- color: var(--accent);
- margin-bottom: 8px;
- }.table-wrap {
- overflow-x: auto;
- margin: 14px 0;
- border: 1px solid var(--line);
- border-radius: 8px;
- }
- table {
- width: 100%;
- border-collapse: collapse;
- font-size: 13.5px;
- background: #fff;
- }
- th, td {
- border: 1px solid var(--line);
- padding: 9px 12px;
- text-align: left;
- vertical-align: top;
- }
- th {
- background: #f1f5f9;
- color: #1e293b;
- font-weight: 700;
- }.btn-row {
- display: flex;
- flex-wrap: wrap;
- gap: 12px;
- align-items: center;
- }
- button {
- padding: 10px 20px;
- border-radius: 8px;
- border: none;
- font-weight: 600;
- font-size: 14px;
- cursor: pointer;
- display: inline-flex;
- align-items: center;
- gap: 8px;
- transition: background-color.15s;
- }.btn-primary {
- background: var(--accent);
- color: #fff;
- }.btn-primary:hover {
- background: #1d4ed8;
- }.btn-secondary {
- background: #e2e8f0;
- color: var(--text);
- }.btn-secondary:hover {
- background: #cbd5e1;
- }.btn-danger {
- background: #fee2e2;
- color: #991b1b;
- }.btn-danger:hover {
- background: #fecaca;
- }.status-msg {
- font-size: 13.5px;
- font-weight: 500;
- color: var(--ok);
- }
- @media print {
- body {
- background: #fff !important;
- color: #000 !important;
- padding: 0 !important;
- font-size: 11pt !important;
- }.page {
- max-width: 100% !important;
- margin: 0 !important;
- }.header-card,.student-card,.card {
- box-shadow: none !important;
- border: 1px solid #777 !important;
- margin-bottom: 14pt !important;
- padding: 12pt !important;
- break-inside: auto !important;
- page-break-inside: auto !important;
- }.actions-card,.btn-row {
- display: none !important;
- }
- input::placeholder, textarea::placeholder {
- color: transparent !important;
- -webkit-text-fill-color: transparent !important;
- opacity: 0 !important;
- }
- textarea {
- height: auto !important;
- min-height: 85px;
- overflow: visible !important;
- white-space: pre-wrap !important;
- word-break: break-word !important;
- border: 1px solid #777 !important;
- background: #fff !important;
- color: #000 !important;
- }
- input[type="text"], input[type="date"] {
- border: 1px solid #777 !important;
- background: #fff !important;
- color: #000 !important;
- }
- table {
- page-break-inside: auto;
- }
- tr {
- page-break-inside: avoid;
- page-break-after: auto;
- }
- }
- </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Домашнее задание - Архитектуры вычислительных систем и оценка производительности</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --ok: #059669;
+      --warn: #d97706;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .card, .actions-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(22px, 3.5vw, 27px);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .notice {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      font-size: 14.5px;
+      color: #92400e;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    input[type="text"], input[type="date"], textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+    }
+    textarea {
+      min-height: 95px;
+      resize: vertical;
+    }
+    .example-box {
+      background: var(--accent-soft);
+      border: 1.5px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .example-box h3 {
+      font-size: 16px;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      margin: 14px 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      background: #fff;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 9px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #f1f5f9;
+      color: #1e293b;
+      font-weight: 700;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    button {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background-color .15s;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+    .btn-secondary {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+    .btn-danger {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .btn-danger:hover {
+      background: #fecaca;
+    }
+    .status-msg {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--ok);
+    }
+    @media print {
+      body {
+        background: #fff !important;
+        color: #000 !important;
+        padding: 0 !important;
+        font-size: 11pt !important;
+      }
+      .page {
+        max-width: 100% !important;
+        margin: 0 !important;
+      }
+      .header-card, .student-card, .card {
+        box-shadow: none !important;
+        border: 1px solid #777 !important;
+        margin-bottom: 14pt !important;
+        padding: 12pt !important;
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+      }
+      .actions-card, .btn-row {
+        display: none !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        opacity: 0 !important;
+      }
+      textarea {
+        height: auto !important;
+        min-height: 85px;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      input[type="text"], input[type="date"] {
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      table {
+        page-break-inside: auto;
+      }
+      tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+      }
+    }
+  </style>
 </head>
 <body>
 <div class="page">
 
- <!-- ШАПКА ЗАДАНИЯ С ОБЯЗАТЕЛЬНЫМ РЕГЛАМЕНТНЫМ ЗАГОЛОВКОМ И СТРОКОЙ ПРЕДУПРЕЖДЕНИЯ -->
- <div class="header-card">
- <h1>Домашнее задание - Архитектуры вычислительных систем и оценка производительности</h1>
- <p class="notice">Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.</p>
- </div>
+  <!-- ШАПКА ЗАДАНИЯ С ОБЯЗАТЕЛЬНЫМ РЕГЛАМЕНТНЫМ ЗАГОЛОВКОМ И СТРОКОЙ ПРЕДУПРЕЖДЕНИЯ -->
+  <div class="header-card">
+    <h1>Домашнее задание - Архитектуры вычислительных систем и оценка производительности</h1>
+    <p class="notice">Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.</p>
+  </div>
 
- <!-- КАРТОЧКА СТУДЕНТА БЕЗ ВЫМЫШЛЕННЫХ ДАННЫХ -->
- <div class="student-card">
- <div class="student-grid">
- <div>
- <label for="hw_fio">ФИО обучающегося:</label>
- <input type="text" id="hw_fio" placeholder="Фамилия Имя Отчество" autocomplete="off">
- </div>
- <div>
- <label for="hw_group">Учебная группа:</label>
- <input type="text" id="hw_group" placeholder="Введите группу" autocomplete="off">
- </div>
- <div>
- <label for="hw_date">Дата сдачи:</label>
- <input type="date" id="hw_date">
- </div>
- </div>
- </div>
+  <!-- КАРТОЧКА СТУДЕНТА БЕЗ ВЫМЫШЛЕННЫХ ДАННЫХ -->
+  <div class="student-card">
+    <div class="student-grid">
+      <div>
+        <label for="hw_fio">ФИО обучающегося:</label>
+        <input type="text" id="hw_fio" placeholder="Фамилия Имя Отчество" autocomplete="off">
+      </div>
+      <div>
+        <label for="hw_group">Учебная группа:</label>
+        <input type="text" id="hw_group" placeholder="Введите группу" autocomplete="off">
+      </div>
+      <div>
+        <label for="hw_date">Дата сдачи:</label>
+        <input type="date" id="hw_date">
+      </div>
+    </div>
+  </div>
 
- <!-- РАЗОБРАННЫЙ ОБРАЗЕЦ -->
- <div class="card">
- <h2 style="color: var(--accent); font-size: 18px; margin-bottom: 10px;">Разобранный образец: расчет пиковой производительности и пределов ускорения по закону Амдала и Густафсона</h2>
- <div class="example-box">
- <h3>Условие задачи-образца:</h3>
- <p>Вычислительный узел состоит из двух 16-ядерных процессоров (всего 32 ядра), работающих на частоте 3.0 ГГц. Каждое ядро за один такт выполняет 16 операций с плавающей запятой двойной точности (DP FLOP/цикл с поддержкой AVX2 FMA). На данном узле запускается алгоритм численного моделирования, в котором доля последовательного кода составляет 5% (s = 0.05, p = 0.95). Требуется:</p>
- <ol style="margin-left: 20px; font-size: 14px; margin-top: 6px;">
- <li>Рассчитать теоретическую пиковую производительность узла (R<sub>peak</sub>) в GFLOPS и TFLOPS.</li>
- <li>Рассчитать теоретическое ускорение узла (S<sub>Amdahl</sub>) по закону Амдала при использовании всех 32 ядер. Найти эффективность распараллеливания (E = S / n).</li>
- <li>Рассчитать ускорение по закону Густафсона-Барсиса (S<sub>Gustafson</sub>) в предположении, что объем задачи масштабируется пропорционально числу ядер.</li>
- </ol>
- 
- <h3 style="margin-top: 14px;">Эталонное решение:</h3>
- <ol style="padding-left: 20px; font-size: 14px; line-height: 1.6;">
- <li><strong>Расчет теоретической пиковой производительности (R<sub>peak</sub>):</strong>
- <br>Формула: R<sub>peak</sub> = N<sub>ядер</sub> × f × FLOP/цикл.
- <br>Подстановка данных: R<sub>peak</sub> = 32 × 3.0 × 10<sup>9</sup> Гц × 16 оп/цикл = 1536 × 10<sup>9</sup> FLOP/s.
- <br>В единицах измерения: R<sub>peak</sub> = 1536 text{ GFLOPS} = 1.536 text{ TFLOPS} (двойная точность FP64).
- </li>
- <li><strong>Расчет ускорения по закону Амдала (Strong Scaling):</strong>
- <br>Формула: S<sub>A</sub> = frac{1}{s + frac{p}{n}} = frac{1}{0.05 + frac{0.95}{32}}.
- <br>Вычисление параллельной компоненты: frac{0.95}{32} ≈ 0.0296875.
- <br>Знаменатель: 0.05 + 0.0296875 = 0.0796875.
- <br>Ускорение: S<sub>A</sub> = frac{1}{0.0796875} ≈ 12.55 раз.
- <br>Эффективность: E<sub>A</sub> = frac{S<sub>A</sub>}{n} = frac{12.55}{32} ≈ 0.392 или 39.2\%.
- <br><em>Вывод:</em> Из-за всего 5% последовательного кода производительность 32 ядер используется лишь на 39.2%, а предельное теоретическое ускорение при бесконечном числе ядер не превысит frac{1}{s} = frac{1}{0.05} = 20 раз.
- </li>
- <li><strong>Расчет ускорения по закону Густафсона-Барсиса (Weak Scaling):</strong>
- <br>Формула: S<sub>G</sub> = s + p × n = 1 + (n - 1) × p.
- <br>Подстановка: S<sub>G</sub> = 0.05 + 0.95 × 32 = 0.05 + 30.40 = 30.45 раз.
- <br>Эффективность: E<sub>G</sub> = frac{S<sub>G</sub>}{n} = frac{30.45}{32} ≈ 0.952 или 95.2\%.
- <br><em>Вывод:</em> Если с ростом вычислительной мощности пропорционально увеличивать детализацию модели (число ячеек сетки), то доля последовательных накладных расходов размывается, обеспечивая близкое к линейному ускорение (30.45× на 32 ядрах).
- </li>
- </ol>
- </div>
- </div>
+  <!-- РАЗОБРАННЫЙ ОБРАЗЕЦ -->
+  <div class="card">
+    <h2 style="color: var(--accent); font-size: 18px; margin-bottom: 10px;">Разобранный образец: расчет пиковой производительности и пределов ускорения по закону Амдала и Густафсона</h2>
+    <div class="example-box">
+      <h3>Условие задачи-образца:</h3>
+      <p>Вычислительный узел состоит из двух 16-ядерных процессоров (всего 32 ядра), работающих на частоте 3.0 ГГц. Каждое ядро за один такт выполняет 16 операций с плавающей запятой двойной точности (DP FLOP/цикл с поддержкой AVX2 FMA). На данном узле запускается алгоритм численного моделирования, в котором доля последовательного кода составляет 5% (s = 0.05, p = 0.95). Требуется:</p>
+      <ol style="margin-left: 20px; font-size: 14px; margin-top: 6px;">
+        <li>Рассчитать теоретическую пиковую производительность узла (R<sub>peak</sub>) в GFLOPS и TFLOPS.</li>
+        <li>Рассчитать теоретическое ускорение узла (S<sub>Amdahl</sub>) по закону Амдала при использовании всех 32 ядер. Найти эффективность распараллеливания (E = S / n).</li>
+        <li>Рассчитать ускорение по закону Густафсона-Барсиса (S<sub>Gustafson</sub>) в предположении, что объем задачи масштабируется пропорционально числу ядер.</li>
+      </ol>
+      
+      <h3 style="margin-top: 14px;">Эталонное решение:</h3>
+      <ol style="padding-left: 20px; font-size: 14px; line-height: 1.6;">
+        <li><strong>Расчет теоретической пиковой производительности (R<sub>peak</sub>):</strong>
+          <br>Формула: R<sub>peak</sub> = N<sub>ядер</sub> × f × FLOP/цикл.
+          <br>Подстановка данных: R<sub>peak</sub> = 32 × 3.0 × 10<sup>9</sup>  Гц × 16  оп/цикл = 1536 × 10<sup>9</sup>  FLOP/s.
+          <br>В единицах измерения: R<sub>peak</sub> = 1536 text{ GFLOPS} = 1.536 text{ TFLOPS} (двойная точность FP64).
+        </li>
+        <li><strong>Расчет ускорения по закону Амдала (Strong Scaling):</strong>
+          <br>Формула: S<sub>A</sub> = frac{1}{s + frac{p}{n}} = frac{1}{0.05 + frac{0.95}{32}}.
+          <br>Вычисление параллельной компоненты: frac{0.95}{32} ≈ 0.0296875.
+          <br>Знаменатель: 0.05 + 0.0296875 = 0.0796875.
+          <br>Ускорение: S<sub>A</sub> = frac{1}{0.0796875} ≈ 12.55 раз.
+          <br>Эффективность: E<sub>A</sub> = frac{S<sub>A</sub>}{n} = frac{12.55}{32} ≈ 0.392 или 39.2\%.
+          <br><em>Вывод:</em> Из-за всего 5% последовательного кода производительность 32 ядер используется лишь на 39.2%, а предельное теоретическое ускорение при бесконечном числе ядер не превысит frac{1}{s} = frac{1}{0.05} = 20 раз.
+        </li>
+        <li><strong>Расчет ускорения по закону Густафсона-Барсиса (Weak Scaling):</strong>
+          <br>Формула: S<sub>G</sub> = s + p × n = 1 + (n - 1) × p.
+          <br>Подстановка: S<sub>G</sub> = 0.05 + 0.95 × 32 = 0.05 + 30.40 = 30.45 раз.
+          <br>Эффективность: E<sub>G</sub> = frac{S<sub>G</sub>}{n} = frac{30.45}{32} ≈ 0.952 или 95.2\%.
+          <br><em>Вывод:</em> Если с ростом вычислительной мощности пропорционально увеличивать детализацию модели (число ячеек сетки), то доля последовательных накладных расходов размывается, обеспечивая близкое к линейному ускорение (30.45× на 32 ядрах).
+        </li>
+      </ol>
+    </div>
+  </div>
 
- <!-- УПРАЖНЕНИЕ 1. КЛАССИФИКАЦИЯ И МЕТРИКИ -->
- <div class="card">
- <h2 style="color: var(--accent); font-size: 18px; margin-bottom: 10px;">Упражнение 1. Классификация архитектур ЭВМ и метрики быстродействия</h2>
- <p style="color: var(--muted); font-size: 14px; margin-bottom: 12px;">Ответьте на теоретические вопросы, опираясь на таксономию Флинна и методики тестирования производительности.</p>
+  <!-- УПРАЖНЕНИЕ 1. КЛАССИФИКАЦИЯ И МЕТРИКИ -->
+  <div class="card">
+    <h2 style="color: var(--accent); font-size: 18px; margin-bottom: 10px;">Упражнение 1. Классификация архитектур ЭВМ и метрики быстродействия</h2>
+    <p style="color: var(--muted); font-size: 14px; margin-bottom: 12px;">Ответьте на теоретические вопросы, опираясь на таксономию Флинна и методики тестирования производительности.</p>
 
- <label for="hw_ex1_q1">1.1. К какому классу по таксономии Флинна относятся: а) суперскалярный одноядерный процессор; б) тензорные ядра видеокарты; в) дублированный управляющий комплекс с пошаговой сверкой результатов; г) суперкомпьютерный кластер? Обоснуйте ответ.</label>
- <textarea id="hw_ex1_q1" placeholder="Укажите потоки команд и данных для каждого случая (SISD, SIMD, MISD, MIMD)..."></textarea>
+    <label for="hw_ex1_q1">1.1. К какому классу по таксономии Флинна относятся: а) суперскалярный одноядерный процессор; б) тензорные ядра видеокарты; в) дублированный управляющий комплекс с пошаговой сверкой результатов; г) суперкомпьютерный кластер? Обоснуйте ответ.</label>
+    <textarea id="hw_ex1_q1" placeholder="Укажите потоки команд и данных для каждого случая (SISD, SIMD, MISD, MIMD)..."></textarea>
 
- <label for="hw_ex1_q2" style="margin-top: 12px;">1.2. В серверной системе используются два многоядерных процессора. Объясните, почему при обращении к оперативной памяти соседнего сокета возникает эффект NUMA-штрафа (NUMA latency penalty)? Какие системные средства предотвращают межсокетовые задержки?</label>
- <textarea id="hw_ex1_q2" placeholder="Опишите прохождение запросов через межпроцессорную шину UPI/Infinity Fabric, задержки кэш-когерентности и механизм NUMA node interleaving / привязку потоков (CPU affinity)..."></textarea>
- </div>
+    <label for="hw_ex1_q2" style="margin-top: 12px;">1.2. В серверной системе используются два многоядерных процессора. Объясните, почему при обращении к оперативной памяти соседнего сокета возникает эффект NUMA-штрафа (NUMA latency penalty)? Какие системные средства предотвращают межсокетовые задержки?</label>
+    <textarea id="hw_ex1_q2" placeholder="Опишите прохождение запросов через межпроцессорную шину UPI/Infinity Fabric, задержки кэш-когерентности и механизм NUMA node interleaving / привязку потоков (CPU affinity)..."></textarea>
+  </div>
 
- <!-- УПРАЖНЕНИЕ 2. РАСЧЕТНАЯ ЗАДАЧА -->
- <div class="card">
- <h2 style="color: var(--accent); font-size: 18px; margin-bottom: 10px;">Упражнение 2. Расчет пиковой производительности и масштабируемости</h2>
- <p style="color: var(--muted); font-size: 14px; margin-bottom: 12px;">Выполните практический расчет характеристик вычислительной системы по приведенным исходным данным.</p>
+  <!-- УПРАЖНЕНИЕ 2. РАСЧЕТНАЯ ЗАДАЧА -->
+  <div class="card">
+    <h2 style="color: var(--accent); font-size: 18px; margin-bottom: 10px;">Упражнение 2. Расчет пиковой производительности и масштабируемости</h2>
+    <p style="color: var(--muted); font-size: 14px; margin-bottom: 12px;">Выполните практический расчет характеристик вычислительной системы по приведенным исходным данным.</p>
 
- <div style="background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 14px; margin-bottom: 14px; font-size: 14px;">
- <strong>Исходные данные:</strong>
- <br>Серверный вычислительный кластер состоит из <strong>16 двухпроцессорных узлов</strong> (в каждом узле 2 процессора по 16 ядер с тактовой частотой <strong>2.0 ГГц</strong>, выполняющих <strong>16 DP FLOP/цикл</strong> на ядро). Общее число ядер в кластере: 16 × 2 × 16 = 512 ядер.
- <br>В параллельной программе физического моделирования доля строго последовательного кода составляет <strong>1% (s = 0.01, p = 0.99)</strong>.
- </div>
+    <div style="background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 14px; margin-bottom: 14px; font-size: 14px;">
+      <strong>Исходные данные:</strong>
+      <br>Серверный вычислительный кластер состоит из <strong>16 двухпроцессорных узлов</strong> (в каждом узле 2 процессора по 16 ядер с тактовой частотой <strong>2.0 ГГц</strong>, выполняющих <strong>16 DP FLOP/цикл</strong> на ядро). Общее число ядер в кластере: 16 × 2 × 16 = 512 ядер.
+      <br>В параллельной программе физического моделирования доля строго последовательного кода составляет <strong>1% (s = 0.01, p = 0.99)</strong>.
+    </div>
 
- <label for="hw_ex2_q1">2.1. Рассчитайте суммарную пиковую производительность (R<sub>peak</sub>) всего кластера из 512 ядер в GFLOPS и TFLOPS.</label>
- <textarea id="hw_ex2_q1" placeholder="Приведите формулу и числовой результат в GFLOPS и TFLOPS..."></textarea>
+    <label for="hw_ex2_q1">2.1. Рассчитайте суммарную пиковую производительность (R<sub>peak</sub>) всего кластера из 512 ядер в GFLOPS и TFLOPS.</label>
+    <textarea id="hw_ex2_q1" placeholder="Приведите формулу и числовой результат в GFLOPS и TFLOPS..."></textarea>
 
- <label for="hw_ex2_q2" style="margin-top: 12px;">2.2. Рассчитайте теоретическое ускорение по закону Амдала (S<sub>A</sub>) и эффективность параллелизации (E<sub>A</sub>) на 512 ядрах. Найдите теоретический предел ускорения при n → infty.</label>
- <textarea id="hw_ex2_q2" placeholder="Приведите пошаговый расчет S_Amdahl, E_Amdahl и предела 1/s..."></textarea>
+    <label for="hw_ex2_q2" style="margin-top: 12px;">2.2. Рассчитайте теоретическое ускорение по закону Амдала (S<sub>A</sub>) и эффективность параллелизации (E<sub>A</sub>) на 512 ядрах. Найдите теоретический предел ускорения при n → infty.</label>
+    <textarea id="hw_ex2_q2" placeholder="Приведите пошаговый расчет S_Amdahl, E_Amdahl и предела 1/s..."></textarea>
 
- <label for="hw_ex2_q3" style="margin-top: 12px;">2.3. Рассчитайте ускорение по закону Густафсона-Барсиса (S<sub>G</sub>) для 512 ядер при масштабировании объема задачи (Weak Scaling). Сравните результаты с законом Амдала.</label>
- <textarea id="hw_ex2_q3" placeholder="Приведите формулу S_Gustafson = s + p*n, расчет и аналитический вывод о применимости законов к суперкомпьютерам..."></textarea>
- </div>
+    <label for="hw_ex2_q3" style="margin-top: 12px;">2.3. Рассчитайте ускорение по закону Густафсона-Барсиса (S<sub>G</sub>) для 512 ядер при масштабировании объема задачи (Weak Scaling). Сравните результаты с законом Амдала.</label>
+    <textarea id="hw_ex2_q3" placeholder="Приведите формулу S_Gustafson = s + p*n, расчет и аналитический вывод о применимости законов к суперкомпьютерам..."></textarea>
+  </div>
 
- <!-- ПАНЕЛЬ ДЕЙСТВИЙ (СКРЫТА ПРИ ПЕЧАТИ) -->
- <div class="actions-card">
- <div class="btn-row">
- <button type="button" class="btn-primary" onclick="window.print()">Распечатать / Сохранить в PDF</button>
- <button type="button" class="btn-secondary" onclick="saveHwState(true)">Сохранить черновик</button>
- <button type="button" class="btn-danger" onclick="resetHwForm()">Очистить форму</button>
- <span id="hw_save_status" class="status-msg"></span>
- </div>
- </div>
+  <!-- ПАНЕЛЬ ДЕЙСТВИЙ (СКРЫТА ПРИ ПЕЧАТИ) -->
+  <div class="actions-card">
+    <div class="btn-row">
+      <button type="button" class="btn-primary" onclick="window.print()">Распечатать / Сохранить в PDF</button>
+      <button type="button" class="btn-secondary" onclick="saveHwState(true)">Сохранить черновик</button>
+      <button type="button" class="btn-danger" onclick="resetHwForm()">Очистить форму</button>
+      <span id="hw_save_status" class="status-msg"></span>
+    </div>
+  </div>
 
 </div>
 
 <script>
- const HW_STORAGE_KEY = 'sie_hw18_domashnee_state';
- const HW_FIELDS = ['hw_fio', 'hw_group', 'hw_date', 'hw_ex1_q1', 'hw_ex1_q2', 'hw_ex2_q1', 'hw_ex2_q2', 'hw_ex2_q3'];
+  const HW_STORAGE_KEY = 'sie_hw18_domashnee_state';
+  const HW_FIELDS = ['hw_fio', 'hw_group', 'hw_date', 'hw_ex1_q1', 'hw_ex1_q2', 'hw_ex2_q1', 'hw_ex2_q2', 'hw_ex2_q3'];
 
- function saveHwState(showFeedback) {
- const data = {};
- HW_FIELDS.forEach(id => {
- const el = document.getElementById(id);
- if (el) data[id] = el.value;
- });
- try {
- localStorage.setItem(HW_STORAGE_KEY, JSON.stringify(data));
- if (showFeedback) {
- const s = document.getElementById('hw_save_status');
- s.textContent = '✓ Сохранено в браузере';
- setTimeout(() => { s.textContent = ''; }, 3000);
- }
- } catch (e) {
- console.warn('LocalStorage error:', e);
- }
- }
+  function saveHwState(showFeedback) {
+    const data = {};
+    HW_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) data[id] = el.value;
+    });
+    try {
+      localStorage.setItem(HW_STORAGE_KEY, JSON.stringify(data));
+      if (showFeedback) {
+        const s = document.getElementById('hw_save_status');
+        s.textContent = '✓ Сохранено в браузере';
+        setTimeout(() => { s.textContent = ''; }, 3000);
+      }
+    } catch (e) {
+      console.warn('LocalStorage error:', e);
+    }
+  }
 
- function loadHwState() {
- try {
- const raw = localStorage.getItem(HW_STORAGE_KEY);
- if (raw) {
- const data = JSON.parse(raw);
- HW_FIELDS.forEach(id => {
- if (data[id] !== undefined) {
- const el = document.getElementById(id);
- if (el) el.value = data[id];
- }
- });
- }
- } catch (e) {
- console.warn('LocalStorage load error:', e);
- }
- }
+  function loadHwState() {
+    try {
+      const raw = localStorage.getItem(HW_STORAGE_KEY);
+      if (raw) {
+        const data = JSON.parse(raw);
+        HW_FIELDS.forEach(id => {
+          if (data[id] !== undefined) {
+            const el = document.getElementById(id);
+            if (el) el.value = data[id];
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('LocalStorage load error:', e);
+    }
+  }
 
- function resetHwForm() {
- if (confirm('Очистить все введенные ответы в домашнем задании?')) {
- HW_FIELDS.forEach(id => {
- const el = document.getElementById(id);
- if (el) el.value = '';
- });
- try {
- localStorage.removeItem(HW_STORAGE_KEY);
- } catch (e) {}
- const s = document.getElementById('hw_save_status');
- s.textContent = 'Форма очищена';
- setTimeout(() => { s.textContent = ''; }, 3000);
- }
- }
+  function resetHwForm() {
+    if (confirm('Очистить все введенные ответы в домашнем задании?')) {
+      HW_FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      try {
+        localStorage.removeItem(HW_STORAGE_KEY);
+      } catch (e) {}
+      const s = document.getElementById('hw_save_status');
+      s.textContent = 'Форма очищена';
+      setTimeout(() => { s.textContent = ''; }, 3000);
+    }
+  }
 
- document.addEventListener('DOMContentLoaded', () => {
- loadHwState();
- HW_FIELDS.forEach(id => {
- const el = document.getElementById(id);
- if (el) {
- el.addEventListener('input', () => saveHwState(false));
- el.addEventListener('change', () => saveHwState(false));
- }
- });
- });
+  document.addEventListener('DOMContentLoaded', () => {
+    loadHwState();
+    HW_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => saveHwState(false));
+        el.addEventListener('change', () => saveHwState(false));
+      }
+    });
+  });
 </script>
 </body>
 </html>

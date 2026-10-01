@@ -1,462 +1,486 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>Домашнее задание - Практическое занятие №7: сортировка и фильтрация</title>
- <style>
- :root {
- --bg: #f8fafc;
- --card-bg: #ffffff;
- --text: #0f172a;
- --text-muted: #475569;
- --border: #cbd5e1;
- --accent: #0284c7;
- --accent-hover: #0369a1;
- --accent-soft: #f0f9ff;
- --warn: #f59e0b;
- --warn-soft: #fef3c7;
- --warn-text: #92400e;
- --success: #16a34a;
- --success-soft: #dcfce7;
- --danger: #dc2626;
- --danger-soft: #fee2e2;
- }
- * {
- box-sizing: border-box;
- margin: 0;
- padding: 0;
- }
- body {
- font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
- background-color: var(--bg);
- color: var(--text);
- line-height: 1.6;
- padding: 24px 16px;
- min-width: 320px;
- }.container {
- max-width: 920px;
- margin: 0 auto;
- width: 100%;
- }
- header.hw-header {
- background: var(--card-bg);
- border: 1px solid var(--border);
- border-radius: 12px;
- padding: 24px 28px;
- margin-bottom: 24px;
- box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
- }
- h1 {
- font-size: 1.85rem;
- font-weight: 800;
- color: var(--text);
- margin-bottom: 12px;
- word-break: break-word;
- }.reserve-notice {
- display: inline-block;
- background-color: var(--warn-soft);
- color: var(--warn-text);
- padding: 10px 16px;
- border-radius: 8px;
- font-size: 0.95rem;
- font-weight: 600;
- margin-bottom: 14px;
- border-left: 4px solid var(--warn);
- line-height: 1.45;
- }.instruction {
- font-size: 0.98rem;
- color: var(--text-muted);
- margin-bottom: 16px;
- }.student-info {
- display: grid;
- grid-template-columns: 1fr 1fr;
- gap: 16px;
- padding-top: 16px;
- border-top: 1px solid var(--border);
- }.info-group {
- display: flex;
- flex-direction: column;
- gap: 6px;
- }.info-group label {
- font-size: 0.82rem;
- font-weight: 700;
- color: var(--text-muted);
- text-transform: uppercase;
- letter-spacing: 0.05em;
- }.info-group input {
- padding: 8px 12px;
- border: 1px solid var(--border);
- border-radius: 6px;
- font-size: 0.95rem;
- color: var(--text);
- outline: none;
- background: #ffffff;
- }.info-group input:focus {
- border-color: var(--accent);
- box-shadow: 0 0 0 2px var(--accent-soft);
- }
- section.hw-card {
- background: var(--card-bg);
- border: 1px solid var(--border);
- border-radius: 12px;
- padding: 24px 28px;
- margin-bottom: 24px;
- box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
- }
- h2 {
- font-size: 1.25rem;
- font-weight: 700;
- color: var(--accent);
- margin-bottom: 14px;
- display: flex;
- align-items: center;
- gap: 8px;
- }
- h3 {
- font-size: 1.05rem;
- font-weight: 600;
- color: var(--text);
- margin: 16px 0 8px;
- }
- p, ul, ol {
- margin-bottom: 14px;
- font-size: 0.98rem;
- }
- ul, ol {
- padding-left: 24px;
- }
- li {
- margin-bottom: 6px;
- }
- pre, code {
- font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
- font-size: 13.5px;
- }
- code {
- background: #f1f5f9;
- color: #0f172a;
- padding: 2px 6px;
- border-radius: 4px;
- }
- pre {
- background: #0f172a;
- color: #f8fafc;
- padding: 14px;
- border-radius: 8px;
- overflow-x: auto;
- margin: 12px 0 16px;
- line-height: 1.45;
- }
- pre code { background: transparent; color: inherit; padding: 0; }
- textarea.answer-area {
- width: 100%;
- min-height: 110px;
- padding: 12px;
- border: 1px solid var(--border);
- border-radius: 8px;
- font-family: ui-monospace, monospace;
- font-size: 0.95rem;
- line-height: 1.5;
- color: var(--text);
- resize: vertical;
- background: #ffffff;
- outline: none;
- margin-top: 8px;
- }
- textarea.answer-area:focus {
- border-color: var(--accent);
- box-shadow: 0 0 0 2px var(--accent-soft);
- }.print-mirror {
- display: none;
- white-space: pre-wrap;
- word-break: break-word;
- font-family: ui-monospace, monospace;
- font-size: 13.5px;
- padding: 10px;
- border: 1px solid #94a3b8;
- border-radius: 6px;
- background: #fafafa;
- margin-top: 8px;
- min-height: 50px;
- }.action-panel {
- position: sticky;
- bottom: 20px;
- background: var(--card-bg);
- border: 1px solid var(--border);
- border-radius: 12px;
- padding: 16px 24px;
- display: flex;
- justify-content: space-between;
- align-items: center;
- box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
- z-index: 50;
- gap: 12px;
- flex-wrap: wrap;
- }.btn {
- padding: 10px 20px;
- border-radius: 8px;
- font-size: 0.95rem;
- font-weight: 600;
- cursor: pointer;
- border: none;
- transition: all 0.2s ease;
- text-decoration: none;
- display: inline-flex;
- align-items: center;
- gap: 6px;
- }.btn-primary { background-color: var(--accent); color: #ffffff; }.btn-primary:hover { background-color: var(--accent-hover); }.btn-secondary { background-color: #f1f5f9; color: var(--text); border: 1px solid var(--border); }.btn-secondary:hover { background-color: #e2e8f0; }.btn-danger { background-color: #fef2f2; color: var(--danger); border: 1px solid #fca5a5; }.btn-danger:hover { background-color: #fee2e2; }.status-msg {
- font-size: 0.9rem;
- color: var(--success);
- font-weight: 600;
- display: none;
- }
- @media (max-width: 640px) {
- body { padding: 12px 8px; }
- header.hw-header, section.hw-card { padding: 16px 14px; }
- h1 { font-size: 1.35rem; }.student-info { grid-template-columns: 1fr; }.action-panel { flex-direction: column; align-items: stretch; }.btn { width: 100%; justify-content: center; }
- }
- @media print {
- body { background: #ffffff; color: #000000; padding: 0; }.container { max-width: 100%; margin: 0; }.action-panel { display: none !important; }
- header.hw-header, section.hw-card {
- border: 1px solid #000000;
- box-shadow: none;
- page-break-inside: avoid;
- margin-bottom: 14px;
- padding: 14px;
- }
- textarea.answer-area {
- display: none !important;
- }.print-mirror {
- display: block !important;
- border: 1px solid #000000;
- background: transparent;
- color: #000000;
- }
- input {
- border: 1px solid #000000 !important;
- background: transparent !important;
- color: #000000 !important;
- }
- input::placeholder, textarea::placeholder {
- color: transparent !important;
- }
- }
- </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Домашнее задание - Практическое занятие №7: сортировка и фильтрация</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #cbd5e1;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --accent-soft: #f0f9ff;
+      --warn: #f59e0b;
+      --warn-soft: #fef3c7;
+      --warn-text: #92400e;
+      --success: #16a34a;
+      --success-soft: #dcfce7;
+      --danger: #dc2626;
+      --danger-soft: #fee2e2;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px;
+      min-width: 320px;
+    }
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    header.hw-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 12px;
+      word-break: break-word;
+    }
+    .reserve-notice {
+      display: inline-block;
+      background-color: var(--warn-soft);
+      color: var(--warn-text);
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+      border-left: 4px solid var(--warn);
+      line-height: 1.45;
+    }
+    .instruction {
+      font-size: 0.98rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    .student-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .info-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .info-group label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .info-group input {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      color: var(--text);
+      outline: none;
+      background: #ffffff;
+    }
+    .info-group input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+    section.hw-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 16px 0 8px;
+    }
+    p, ul, ol {
+      margin-bottom: 14px;
+      font-size: 0.98rem;
+    }
+    ul, ol {
+      padding-left: 24px;
+    }
+    li {
+      margin-bottom: 6px;
+    }
+    pre, code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+    }
+    code {
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 14px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 12px 0 16px;
+      line-height: 1.45;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+    textarea.answer-area {
+      width: 100%;
+      min-height: 110px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: ui-monospace, monospace;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: var(--text);
+      resize: vertical;
+      background: #ffffff;
+      outline: none;
+      margin-top: 8px;
+    }
+    textarea.answer-area:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+    .print-mirror {
+      display: none;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: ui-monospace, monospace;
+      font-size: 13.5px;
+      padding: 10px;
+      border: 1px solid #94a3b8;
+      border-radius: 6px;
+      background: #fafafa;
+      margin-top: 8px;
+      min-height: 50px;
+    }
+    .action-panel {
+      position: sticky;
+      bottom: 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      z-index: 50;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-primary { background-color: var(--accent); color: #ffffff; }
+    .btn-primary:hover { background-color: var(--accent-hover); }
+    .btn-secondary { background-color: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background-color: #e2e8f0; }
+    .btn-danger { background-color: #fef2f2; color: var(--danger); border: 1px solid #fca5a5; }
+    .btn-danger:hover { background-color: #fee2e2; }
+    .status-msg {
+      font-size: 0.9rem;
+      color: var(--success);
+      font-weight: 600;
+      display: none;
+    }
+    @media (max-width: 640px) {
+      body { padding: 12px 8px; }
+      header.hw-header, section.hw-card { padding: 16px 14px; }
+      h1 { font-size: 1.35rem; }
+      .student-info { grid-template-columns: 1fr; }
+      .action-panel { flex-direction: column; align-items: stretch; }
+      .btn { width: 100%; justify-content: center; }
+    }
+    @media print {
+      body { background: #ffffff; color: #000000; padding: 0; }
+      .container { max-width: 100%; margin: 0; }
+      .action-panel { display: none !important; }
+      header.hw-header, section.hw-card {
+        border: 1px solid #000000;
+        box-shadow: none;
+        page-break-inside: avoid;
+        margin-bottom: 14px;
+        padding: 14px;
+      }
+      textarea.answer-area {
+        display: none !important;
+      }
+      .print-mirror {
+        display: block !important;
+        border: 1px solid #000000;
+        background: transparent;
+        color: #000000;
+      }
+      input {
+        border: 1px solid #000000 !important;
+        background: transparent !important;
+        color: #000000 !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+      }
+    }
+  </style>
 </head>
 <body>
- <div class="container">
- <header class="hw-header">
- <h1>Домашнее задание - Практическое занятие №7: сортировка и фильтрация</h1>
- <div class="reserve-notice">
- Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
- </div>
- <p class="instruction">
- Данная работа представляет собой резервное дистанционное практическое задание по дисциплине «ОП.08 Основы проектирования баз данных» (СИЭУиП). Все поля сохраняются локально в вашем браузере. После заполнения экспортируйте результат в PDF или передайте преподавателю.
- </p>
+  <div class="container">
+    <header class="hw-header">
+      <h1>Домашнее задание - Практическое занятие №7: сортировка и фильтрация</h1>
+      <div class="reserve-notice">
+        Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+      </div>
+      <p class="instruction">
+        Данная работа представляет собой резервное дистанционное практическое задание по дисциплине «ОП.08 Основы проектирования баз данных» (СИЭУиП). Все поля сохраняются локально в вашем браузере. После заполнения экспортируйте результат в PDF или передайте преподавателю.
+      </p>
 
- <div class="student-info">
- <div class="info-group">
- <label for="hw_student_name">Фамилия, Имя студента</label>
- <input type="text" id="hw_student_name" autocomplete="off">
- </div>
- <div class="info-group">
- <label for="hw_student_group">Учебная группа</label>
- <input type="text" id="hw_student_group" autocomplete="off">
- </div>
- </div>
- </header>
+      <div class="student-info">
+        <div class="info-group">
+          <label for="hw_student_name">Фамилия, Имя студента</label>
+          <input type="text" id="hw_student_name" autocomplete="off">
+        </div>
+        <div class="info-group">
+          <label for="hw_student_group">Учебная группа</label>
+          <input type="text" id="hw_student_group" autocomplete="off">
+        </div>
+      </div>
+    </header>
 
- <!-- Раздел 1. Описание предметной области -->
- <section class="hw-card">
- <h2>1. Описание исследовательской предметной области</h2>
- <p>Вам поручена разработка и оптимизация модуля формирования аналитических выписок в информационной системе корпоративного лизинга транспортных средств <strong>«ТрансЛизинг-Корп»</strong>.</p>
- <p>База данных содержит основную учетную таблицу договоров лизинга <code>LeaseContracts</code> со следующей структурой:</p>
- <ul>
- <li><code>contract_id</code> (BIGINT, PRIMARY KEY) — уникальный идентификатор договора;</li>
- <li><code>client_id</code> (BIGINT, NOT NULL) — идентификатор клиента-лизингополучателя;</li>
- <li><code>region_code</code> (VARCHAR(10), NOT NULL) — код субъекта РФ (например, 'RU-MOW', 'RU-SPE', 'RU-KHM');</li>
- <li><code>vehicle_category</code> (VARCHAR(30), NOT NULL) — категория транспорта ('TRUCK', 'CAR', 'BUS', 'SPECIAL');</li>
- <li><code>contract_status</code> (VARCHAR(20), NOT NULL) — статус ('ACTIVE', 'CLOSED', 'DEFAULT', 'PENDING');</li>
- <li><code>contract_sum</code> (NUMERIC(15,2), NOT NULL) — общая сумма финансирования в рублях;</li>
- <li><code>monthly_payment</code> (NUMERIC(15,2), NOT NULL) — ежемесячный лизинговый платеж;</li>
- <li><code>signing_date</code> (DATE, NOT NULL) — дата подписания договора;</li>
- <li><code>credit_rating</code> (NUMERIC(3,1), NULL) — скоринговый балл риска клиента (от 1.0 до 10.0; может быть <code>NULL</code>, если оценка не проводилась).</li>
- </ul>
- </section>
+    <!-- Раздел 1. Описание предметной области -->
+    <section class="hw-card">
+      <h2>1. Описание исследовательской предметной области</h2>
+      <p>Вам поручена разработка и оптимизация модуля формирования аналитических выписок в информационной системе корпоративного лизинга транспортных средств <strong>«ТрансЛизинг-Корп»</strong>.</p>
+      <p>База данных содержит основную учетную таблицу договоров лизинга <code>LeaseContracts</code> со следующей структурой:</p>
+      <ul>
+        <li><code>contract_id</code> (BIGINT, PRIMARY KEY) — уникальный идентификатор договора;</li>
+        <li><code>client_id</code> (BIGINT, NOT NULL) — идентификатор клиента-лизингополучателя;</li>
+        <li><code>region_code</code> (VARCHAR(10), NOT NULL) — код субъекта РФ (например, 'RU-MOW', 'RU-SPE', 'RU-KHM');</li>
+        <li><code>vehicle_category</code> (VARCHAR(30), NOT NULL) — категория транспорта ('TRUCK', 'CAR', 'BUS', 'SPECIAL');</li>
+        <li><code>contract_status</code> (VARCHAR(20), NOT NULL) — статус ('ACTIVE', 'CLOSED', 'DEFAULT', 'PENDING');</li>
+        <li><code>contract_sum</code> (NUMERIC(15,2), NOT NULL) — общая сумма финансирования в рублях;</li>
+        <li><code>monthly_payment</code> (NUMERIC(15,2), NOT NULL) — ежемесячный лизинговый платеж;</li>
+        <li><code>signing_date</code> (DATE, NOT NULL) — дата подписания договора;</li>
+        <li><code>credit_rating</code> (NUMERIC(3,1), NULL) — скоринговый балл риска клиента (от 1.0 до 10.0; может быть <code>NULL</code>, если оценка не проводилась).</li>
+      </ul>
+    </section>
 
- <!-- Раздел 2. Комплексное задание 1 -->
- <section class="hw-card">
- <h2>2. Задание 1. Построение сложного комбинированного запроса фильтрации и многоуровневой сортировки</h2>
- <p>Сформируйте SQL-запрос для аналитического отчета службы безопасности и финансового мониторинга со следующими строгими требованиями:</p>
- <ol>
- <li><strong>Условия фильтрации:</strong>
- <ul>
- <li>В выборку должны войти только действующие договоры (<code>contract_status = 'ACTIVE'</code>);</li>
- <li>Категория транспорта строго грузовые или спецтехника (<code>'TRUCK'</code> или <code>'SPECIAL'</code>);</li>
- <li>Сумма договора находится в диапазоне от 3 000 000 до 25 000 000 рублей включительно;</li>
- <li>Договор заключен в период с 1 января 2024 года по 31 декабря 2025 года включительно (условие должно быть строго SARGable).</li>
- </ul>
- </li>
- <li><strong>Правила многоуровневой сортировки:</strong>
- <ul>
- <li>1-й уровень: по коду региона (<code>region_code</code>) по возрастанию с явным указанием локали <code>COLLATE "C"</code>;</li>
- <li>2-й уровень: по скоринговому рейтингу (<code>credit_rating</code>) по убыванию (DESC), при этом договоры с нерассчитанным рейтингом (<code>NULL</code>) должны обязательно выводиться в самом конце списка (<code>NULLS LAST</code>);</li>
- <li>3-й уровень: по сумме договора (<code>contract_sum</code>) по убыванию;</li>
- <li>4-й уровень (детерминирующий tie-breaker): по первичному ключу (<code>contract_id</code>) по возрастанию.</li>
- </ul>
- </li>
- <li><strong>Ограничение выборки:</strong> вернуть первые 25 записей первой страницы.</li>
- </ol>
+    <!-- Раздел 2. Комплексное задание 1 -->
+    <section class="hw-card">
+      <h2>2. Задание 1. Построение сложного комбинированного запроса фильтрации и многоуровневой сортировки</h2>
+      <p>Сформируйте SQL-запрос для аналитического отчета службы безопасности и финансового мониторинга со следующими строгими требованиями:</p>
+      <ol>
+        <li><strong>Условия фильтрации:</strong>
+          <ul>
+            <li>В выборку должны войти только действующие договоры (<code>contract_status = 'ACTIVE'</code>);</li>
+            <li>Категория транспорта строго грузовые или спецтехника (<code>'TRUCK'</code> или <code>'SPECIAL'</code>);</li>
+            <li>Сумма договора находится в диапазоне от 3 000 000 до 25 000 000 рублей включительно;</li>
+            <li>Договор заключен в период с 1 января 2024 года по 31 декабря 2025 года включительно (условие должно быть строго SARGable).</li>
+          </ul>
+        </li>
+        <li><strong>Правила многоуровневой сортировки:</strong>
+          <ul>
+            <li>1-й уровень: по коду региона (<code>region_code</code>) по возрастанию с явным указанием локали <code>COLLATE "C"</code>;</li>
+            <li>2-й уровень: по скоринговому рейтингу (<code>credit_rating</code>) по убыванию (DESC), при этом договоры с нерассчитанным рейтингом (<code>NULL</code>) должны обязательно выводиться в самом конце списка (<code>NULLS LAST</code>);</li>
+            <li>3-й уровень: по сумме договора (<code>contract_sum</code>) по убыванию;</li>
+            <li>4-й уровень (детерминирующий tie-breaker): по первичному ключу (<code>contract_id</code>) по возрастанию.</li>
+          </ul>
+        </li>
+        <li><strong>Ограничение выборки:</strong> вернуть первые 25 записей первой страницы.</li>
+      </ol>
 
- <label for="hw_ans_task1"><strong>Ваш SQL-запрос для Задания 1:</strong></label>
- <textarea id="hw_ans_task1" class="answer-area" spellcheck="false"></textarea>
- <div id="hw_ans_task1_mirror" class="print-mirror"></div>
- </section>
+      <label for="hw_ans_task1"><strong>Ваш SQL-запрос для Задания 1:</strong></label>
+      <textarea id="hw_ans_task1" class="answer-area" spellcheck="false"></textarea>
+      <div id="hw_ans_task1_mirror" class="print-mirror"></div>
+    </section>
 
- <!-- Раздел 3. Комплексное задание 2 -->
- <section class="hw-card">
- <h2>3. Задание 2. Инженерное обоснование поведения NULL и Collation</h2>
- <p>Ответьте на аналитические вопросы по поведению сформированного запроса:</p>
- <ol>
- <li>Что произойдет с выводом строк, если удалить явную директиву <code>NULLS LAST</code> в PostgreSQL при сортировке <code>ORDER BY credit_rating DESC</code>? Опишите конкретный бизнес-риск для отчета финансового мониторинга.</li>
- <li>Почему для строкового поля <code>region_code</code> допустимо использование <code>COLLATE "C"</code>, тогда как для поля с кириллическим наименованием клиента (ФИО) использование <code>COLLATE "C"</code> привело бы к грубой ошибке алфавитной сортировки?</li>
- </ol>
+    <!-- Раздел 3. Комплексное задание 2 -->
+    <section class="hw-card">
+      <h2>3. Задание 2. Инженерное обоснование поведения NULL и Collation</h2>
+      <p>Ответьте на аналитические вопросы по поведению сформированного запроса:</p>
+      <ol>
+        <li>Что произойдет с выводом строк, если удалить явную директиву <code>NULLS LAST</code> в PostgreSQL при сортировке <code>ORDER BY credit_rating DESC</code>? Опишите конкретный бизнес-риск для отчета финансового мониторинга.</li>
+        <li>Почему для строкового поля <code>region_code</code> допустимо использование <code>COLLATE "C"</code>, тогда как для поля с кириллическим наименованием клиента (ФИО) использование <code>COLLATE "C"</code> привело бы к грубой ошибке алфавитной сортировки?</li>
+      </ol>
 
- <label for="hw_ans_task2"><strong>Ваше аналитическое обоснование для Задания 2:</strong></label>
- <textarea id="hw_ans_task2" class="answer-area" spellcheck="false"></textarea>
- <div id="hw_ans_task2_mirror" class="print-mirror"></div>
- </section>
+      <label for="hw_ans_task2"><strong>Ваше аналитическое обоснование для Задания 2:</strong></label>
+      <textarea id="hw_ans_task2" class="answer-area" spellcheck="false"></textarea>
+      <div id="hw_ans_task2_mirror" class="print-mirror"></div>
+    </section>
 
- <!-- Раздел 4. Комплексное задание 3 -->
- <section class="hw-card">
- <h2>4. Задание 3. Оптимизация плана выполнения и проектирование составного B-Tree индекса</h2>
- <p>В таблице <code>LeaseContracts</code> содержится 12 000 000 строк. При выполнении запроса из Задания 1 планировщик <code>EXPLAIN ANALYZE</code> показывает:</p>
- <pre><code>-> Seq Scan on leasecontracts (cost=0.00..385412.00 rows=142000 width=128)
- Filter: ((contract_status = 'ACTIVE') AND...)
- Rows Removed by Filter: 11858000
--> Sort (cost=412050..412405 rows=142000)
- Sort Key: region_code, credit_rating DESC NULLS LAST, contract_sum DESC, contract_id
- Sort Method: external merge Disk: 32400kB</code></pre>
- 
- <p><strong>Требуется:</strong></p>
- <ol>
- <li>Спроектировать DDL-команду <code>CREATE INDEX</code> составного B-Tree индекса, который устранит операцию <code>external merge Disk</code> и позволит выполнить запрос через чистый <code>Index Scan</code> без отдельного узла сортировки в памяти (правило ESR: Equality &rarr; Sort &rarr; Range).</li>
- <li>Сформулировать переписанный SQL-запрос для перехода на курсорную пагинацию (Keyset Pagination) при переходе со страницы 1 на страницу 2, если последняя запись первой страницы имела значения: <code>region_code = 'RU-MOW', credit_rating = 8.5, contract_sum = 12500000.00, contract_id = 948120</code>.</li>
- </ol>
+    <!-- Раздел 4. Комплексное задание 3 -->
+    <section class="hw-card">
+      <h2>4. Задание 3. Оптимизация плана выполнения и проектирование составного B-Tree индекса</h2>
+      <p>В таблице <code>LeaseContracts</code> содержится 12 000 000 строк. При выполнении запроса из Задания 1 планировщик <code>EXPLAIN ANALYZE</code> показывает:</p>
+      <pre><code>->  Seq Scan on leasecontracts (cost=0.00..385412.00 rows=142000 width=128)
+      Filter: ((contract_status = 'ACTIVE') AND ...)
+      Rows Removed by Filter: 11858000
+->  Sort (cost=412050..412405 rows=142000)
+      Sort Key: region_code, credit_rating DESC NULLS LAST, contract_sum DESC, contract_id
+      Sort Method: external merge  Disk: 32400kB</code></pre>
+      
+      <p><strong>Требуется:</strong></p>
+      <ol>
+        <li>Спроектировать DDL-команду <code>CREATE INDEX</code> составного B-Tree индекса, который устранит операцию <code>external merge Disk</code> и позволит выполнить запрос через чистый <code>Index Scan</code> без отдельного узла сортировки в памяти (правило ESR: Equality &rarr; Sort &rarr; Range).</li>
+        <li>Сформулировать переписанный SQL-запрос для перехода на курсорную пагинацию (Keyset Pagination) при переходе со страницы 1 на страницу 2, если последняя запись первой страницы имела значения: <code>region_code = 'RU-MOW', credit_rating = 8.5, contract_sum = 12500000.00, contract_id = 948120</code>.</li>
+      </ol>
 
- <label for="hw_ans_task3"><strong>Ваше решение по оптимизации и DDL-скрипт для Задания 3:</strong></label>
- <textarea id="hw_ans_task3" class="answer-area" spellcheck="false"></textarea>
- <div id="hw_ans_task3_mirror" class="print-mirror"></div>
- </section>
+      <label for="hw_ans_task3"><strong>Ваше решение по оптимизации и DDL-скрипт для Задания 3:</strong></label>
+      <textarea id="hw_ans_task3" class="answer-area" spellcheck="false"></textarea>
+      <div id="hw_ans_task3_mirror" class="print-mirror"></div>
+    </section>
 
- <!-- Плавающая панель действий -->
- <div class="action-panel">
- <div style="display: flex; gap: 10px; align-items: center;">
- <button type="button" class="btn btn-primary" id="saveBtn">Сохранить черновик</button>
- <button type="button" class="btn btn-secondary" id="printBtn">Печать / Экспорт в PDF</button>
- <button type="button" class="btn btn-danger" id="clearBtn">Очистить ответы</button>
- </div>
- <span class="status-msg" id="statusMsg">Все изменения сохранены в браузере</span>
- </div>
- </div>
+    <!-- Плавающая панель действий -->
+    <div class="action-panel">
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <button type="button" class="btn btn-primary" id="saveBtn">Сохранить черновик</button>
+        <button type="button" class="btn btn-secondary" id="printBtn">Печать / Экспорт в PDF</button>
+        <button type="button" class="btn btn-danger" id="clearBtn">Очистить ответы</button>
+      </div>
+      <span class="status-msg" id="statusMsg">Все изменения сохранены в браузере</span>
+    </div>
+  </div>
 
- <script>
- (function() {
- const STORAGE_KEY = 'sielom_db_lesson19_homework_v1';
- const inputs = [
- 'hw_student_name',
- 'hw_student_group',
- 'hw_ans_task1',
- 'hw_ans_task2',
- 'hw_ans_task3'
- ];
+  <script>
+    (function() {
+      const STORAGE_KEY = 'sielom_db_lesson19_homework_v1';
+      const inputs = [
+        'hw_student_name',
+        'hw_student_group',
+        'hw_ans_task1',
+        'hw_ans_task2',
+        'hw_ans_task3'
+      ];
 
- function syncMirrors() {
- ['hw_ans_task1', 'hw_ans_task2', 'hw_ans_task3'].forEach(id => {
- const area = document.getElementById(id);
- const mirror = document.getElementById(id + '_mirror');
- if (area && mirror) {
- mirror.textContent = area.value | '(Ответ не введен)';
- }
- });
- }
+      function syncMirrors() {
+        ['hw_ans_task1', 'hw_ans_task2', 'hw_ans_task3'].forEach(id => {
+          const area = document.getElementById(id);
+          const mirror = document.getElementById(id + '_mirror');
+          if (area && mirror) {
+            mirror.textContent = area.value || '(Ответ не введен)';
+          }
+        });
+      }
 
- function loadData() {
- try {
- const raw = localStorage.getItem(STORAGE_KEY);
- if (raw) {
- const data = JSON.parse(raw);
- inputs.forEach(id => {
- const el = document.getElementById(id);
- if (el && data[id] !== undefined) {
- el.value = data[id];
- }
- });
- }
- } catch (e) {
- console.error('Ошибка загрузки данных из localStorage:', e);
- }
- syncMirrors();
- }
+      function loadData() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const data = JSON.parse(raw);
+            inputs.forEach(id => {
+              const el = document.getElementById(id);
+              if (el && data[id] !== undefined) {
+                el.value = data[id];
+              }
+            });
+          }
+        } catch (e) {
+          console.error('Ошибка загрузки данных из localStorage:', e);
+        }
+        syncMirrors();
+      }
 
- function saveData() {
- try {
- const data = {};
- inputs.forEach(id => {
- const el = document.getElementById(id);
- if (el) data[id] = el.value;
- });
- localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
- syncMirrors();
- showStatus('Все изменения сохранены локально!');
- } catch (e) {
- console.error('Ошибка сохранения данных:', e);
- showStatus('Ошибка при сохранении!', true);
- }
- }
+      function saveData() {
+        try {
+          const data = {};
+          inputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) data[id] = el.value;
+          });
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+          syncMirrors();
+          showStatus('Все изменения сохранены локально!');
+        } catch (e) {
+          console.error('Ошибка сохранения данных:', e);
+          showStatus('Ошибка при сохранении!', true);
+        }
+      }
 
- function showStatus(text, isError) {
- const msg = document.getElementById('statusMsg');
- msg.textContent = text;
- msg.style.color = isError ? 'var(--danger)' : 'var(--success)';
- msg.style.display = 'inline-block';
- setTimeout(() => {
- msg.style.display = 'none';
- }, 3500);
- }
+      function showStatus(text, isError) {
+        const msg = document.getElementById('statusMsg');
+        msg.textContent = text;
+        msg.style.color = isError ? 'var(--danger)' : 'var(--success)';
+        msg.style.display = 'inline-block';
+        setTimeout(() => {
+          msg.style.display = 'none';
+        }, 3500);
+      }
 
- document.getElementById('saveBtn').addEventListener('click', saveData);
+      document.getElementById('saveBtn').addEventListener('click', saveData);
 
- document.getElementById('printBtn').addEventListener('click', () => {
- saveData();
- window.print();
- });
+      document.getElementById('printBtn').addEventListener('click', () => {
+        saveData();
+        window.print();
+      });
 
- document.getElementById('clearBtn').addEventListener('click', () => {
- if (confirm('Вы уверены, что хотите удалить все введенные ответы? Это действие необратимо.')) {
- localStorage.removeItem(STORAGE_KEY);
- inputs.forEach(id => {
- const el = document.getElementById(id);
- if (el) el.value = '';
- });
- syncMirrors();
- showStatus('Все поля очищены');
- }
- });
+      document.getElementById('clearBtn').addEventListener('click', () => {
+        if (confirm('Вы уверены, что хотите удалить все введенные ответы? Это действие необратимо.')) {
+          localStorage.removeItem(STORAGE_KEY);
+          inputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+          });
+          syncMirrors();
+          showStatus('Все поля очищены');
+        }
+      });
 
- inputs.forEach(id => {
- const el = document.getElementById(id);
- if (el) {
- el.addEventListener('input', () => {
- syncMirrors();
- });
- el.addEventListener('change', saveData);
- }
- });
+      inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', () => {
+            syncMirrors();
+          });
+          el.addEventListener('change', saveData);
+        }
+      });
 
- window.addEventListener('DOMContentLoaded', loadData);
- })();
- </script>
+      window.addEventListener('DOMContentLoaded', loadData);
+    })();
+  </script>
 </body>
 </html>

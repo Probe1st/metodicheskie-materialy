@@ -1,588 +1,655 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
- <meta name="color-scheme" content="light">
- <title>Рабочий лист: Анализ предметной области: сущности и свойства</title>
- <style>
- :root {
- --bg: #f3f6fa;
- --card: #ffffff;
- --text: #172033;
- --muted: #53637a;
- --line: #d8e2ee;
- --accent: #1d58d8;
- --accent-soft: #edf3ff;
- --accent-hover: #1545aa;
- --task-bg: #fffdf5;
- --task-border: #f0de95;
- --code-bg: #0f172a;
- --code-text: #f1f5f9;
- --ok: #0d6832;
- --ok-soft: #eaf8ef;
- --warn: #944a00;
- --warn-soft: #fff4e5;
- --radius: 14px;
- --radius-sm: 8px;
- --shadow: 0 4px 16px rgba(23, 32, 51, 0.06);
- }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Рабочий лист: Анализ предметной области: сущности и свойства</title>
+  <style>
+    :root {
+      --bg: #f3f6fa;
+      --card: #ffffff;
+      --text: #172033;
+      --muted: #53637a;
+      --line: #d8e2ee;
+      --accent: #1d58d8;
+      --accent-soft: #edf3ff;
+      --accent-hover: #1545aa;
+      --task-bg: #fffdf5;
+      --task-border: #f0de95;
+      --code-bg: #0f172a;
+      --code-text: #f1f5f9;
+      --ok: #0d6832;
+      --ok-soft: #eaf8ef;
+      --warn: #944a00;
+      --warn-soft: #fff4e5;
+      --radius: 14px;
+      --radius-sm: 8px;
+      --shadow: 0 4px 16px rgba(23, 32, 51, 0.06);
+    }
 
- * {
- box-sizing: border-box;
- margin: 0;
- padding: 0;
- }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
- html {
- scroll-behavior: smooth;
- -webkit-text-size-adjust: 100%;
- }
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
 
- body {
- background: var(--bg);
- color: var(--text);
- font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
- line-height: 1.55;
- font-size: 15px;
- padding-bottom: 70px;
- }.container {
- width: min(100% - 24px, 940px);
- margin: 20px auto;
- }.card {
- background: var(--card);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- box-shadow: var(--shadow);
- padding: 24px;
- margin-bottom: 20px;
- }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      line-height: 1.55;
+      font-size: 15px;
+      padding-bottom: 70px;
+    }
 
- header.hero {
- border-left: 6px solid var(--accent);
- }.hero h1 {
- font-size: clamp(20px, 4vw, 28px);
- line-height: 1.25;
- letter-spacing: -0.02em;
- color: var(--text);
- margin-bottom: 10px;
- }.hero p {
- font-size: 15px;
- color: var(--muted);
- max-width: 820px;
- }.timing-badge {
- display: inline-flex;
- align-items: center;
- gap: 6px;
- background: var(--accent-soft);
- color: var(--accent);
- padding: 4px 12px;
- border-radius: 20px;
- font-weight: 600;
- font-size: 13px;
- margin-top: 12px;
- }.student-grid {
- display: grid;
- grid-template-columns: 2fr 1fr;
- gap: 16px;
- }
+    .container {
+      width: min(100% - 24px, 940px);
+      margin: 20px auto;
+    }
 
- @media (max-width: 600px) {.student-grid { grid-template-columns: 1fr; }
- }.form-group {
- display: flex;
- flex-direction: column;
- gap: 6px;
- }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
 
- label {
- font-weight: 600;
- font-size: 13.5px;
- color: var(--text);
- }
+    header.hero {
+      border-left: 6px solid var(--accent);
+    }
 
- input[type="text"], select, textarea {
- width: 100%;
- font-family: inherit;
- font-size: 14.5px;
- border: 1px solid var(--line);
- border-radius: var(--radius-sm);
- padding: 10px 12px;
- background: #ffffff;
- color: var(--text);
- transition: border-color 0.2s, box-shadow 0.2s;
- }
+    .hero h1 {
+      font-size: clamp(20px, 4vw, 28px);
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
 
- input[type="text"]:focus, select:focus, textarea:focus {
- outline: none;
- border-color: var(--accent);
- box-shadow: 0 0 0 3px rgba(29, 88, 216, 0.15);
- }.variant-selector-box {
- background: var(--accent-soft);
- border: 1px solid #bfdbfe;
- border-radius: var(--radius);
- padding: 16px 20px;
- margin-bottom: 20px;
- display: flex;
- flex-wrap: wrap;
- align-items: center;
- justify-content: space-between;
- gap: 12px;
- }.variant-selector-box label {
- font-size: 15px;
- font-weight: 700;
- color: var(--accent);
- }.variant-selector-box select {
- max-width: 480px;
- font-weight: 600;
- border-color: #93c5fd;
- }.variant-pane {
- display: none;
- }.variant-pane.active {
- display: block;
- }.scenario-desc {
- background: #f8fafc;
- border-left: 4px solid var(--accent);
- padding: 16px;
- border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
- margin-bottom: 20px;
- font-size: 14.5px;
- }.scenario-desc strong {
- color: var(--text);
- }.task-block {
- background: #ffffff;
- border: 1px solid var(--line);
- border-radius: var(--radius-sm);
- padding: 18px;
- margin-bottom: 16px;
- }.task-title {
- font-weight: 700;
- font-size: 15px;
- color: var(--text);
- margin-bottom: 8px;
- display: flex;
- align-items: center;
- gap: 8px;
- }.badge-task {
- background: var(--accent-soft);
- color: var(--accent);
- font-size: 11px;
- text-transform: uppercase;
- padding: 2px 6px;
- border-radius: 4px;
- font-weight: 700;
- }.task-hint {
- font-size: 13.5px;
- color: var(--muted);
- margin-bottom: 10px;
- }.actions-bar {
- position: sticky;
- bottom: 12px;
- background: rgba(255, 255, 255, 0.95);
- backdrop-filter: blur(8px);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 12px 18px;
- display: flex;
- flex-wrap: wrap;
- align-items: center;
- justify-content: space-between;
- gap: 10px;
- box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
- z-index: 50;
- }.btn {
- font-family: inherit;
- font-size: 14px;
- font-weight: 600;
- padding: 8px 16px;
- border-radius: var(--radius-sm);
- border: 1px solid transparent;
- cursor: pointer;
- display: inline-flex;
- align-items: center;
- gap: 6px;
- transition: all 0.2s;
- }.btn-primary {
- background: var(--accent);
- color: #ffffff;
- }.btn-primary:hover {
- background: var(--accent-hover);
- }.btn-outline {
- background: #ffffff;
- border-color: var(--line);
- color: var(--text);
- }.btn-outline:hover {
- background: #f1f5f9;
- }.btn-danger {
- background: #fff1f2;
- border-color: #fecdd3;
- color: #be123c;
- }.btn-danger:hover {
- background: #ffe4e6;
- }.save-indicator {
- font-size: 13px;
- color: var(--ok);
- font-weight: 600;
- display: inline-flex;
- align-items: center;
- gap: 5px;
- }
+    .hero p {
+      font-size: 15px;
+      color: var(--muted);
+      max-width: 820px;
+    }
 
- /* Адаптивность для ширины 375px */
- @media (max-width: 480px) {.container {
- width: 100%;
- padding: 0 8px;
- margin: 12px auto;
- }.card {
- padding: 16px 12px;
- }.actions-bar {
- position: static;
- flex-direction: column;
- align-items: stretch;
- }.btn {
- justify-content: center;
- }
- }
+    .timing-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 13px;
+      margin-top: 12px;
+    }
 
- /* СТИЛИ ДЛЯ ПЕЧАТИ (@media print) */
- @media print {
- body {
- background: #ffffff !important;
- color: #000000 !important;
- font-size: 12pt;
- padding-bottom: 0;
- }.no-print,.actions-bar,.variant-selector-box,.timing-badge {
- display: none !important;
- }.container {
- width: 100% !important;
- margin: 0 !important;
- padding: 0 !important;
- }.card {
- border: 1px solid #999 !important;
- box-shadow: none !important;
- margin-bottom: 15px !important;
- padding: 14px !important;
- page-break-inside: avoid;
- }
+    .student-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+    }
 
- /* Скрытие плейсхолдеров при печати */
- input::placeholder, textarea::placeholder {
- color: transparent !important;
- }
+    @media (max-width: 600px) {
+      .student-grid { grid-template-columns: 1fr; }
+    }
 
- /* Аккуратные рамки для рукописного ввода */
- input[type="text"], textarea {
- border: 1px solid #444 !important;
- background: #ffffff !important;
- color: #000000 !important;
- height: auto !important;
- min-height: 70px !important;
- page-break-inside: avoid;
- resize: none;
- }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
 
- input[type="text"] {
- min-height: 32px !important;
- }.variant-pane {
- display: block !important;
- page-break-after: always;
- }
- }
- </style>
+    label {
+      font-weight: 600;
+      font-size: 13.5px;
+      color: var(--text);
+    }
+
+    input[type="text"], select, textarea {
+      width: 100%;
+      font-family: inherit;
+      font-size: 14.5px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      background: #ffffff;
+      color: var(--text);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="text"]:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(29, 88, 216, 0.15);
+    }
+
+    .variant-selector-box {
+      background: var(--accent-soft);
+      border: 1px solid #bfdbfe;
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .variant-selector-box label {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .variant-selector-box select {
+      max-width: 480px;
+      font-weight: 600;
+      border-color: #93c5fd;
+    }
+
+    .variant-pane {
+      display: none;
+    }
+
+    .variant-pane.active {
+      display: block;
+    }
+
+    .scenario-desc {
+      background: #f8fafc;
+      border-left: 4px solid var(--accent);
+      padding: 16px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin-bottom: 20px;
+      font-size: 14.5px;
+    }
+
+    .scenario-desc strong {
+      color: var(--text);
+    }
+
+    .task-block {
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .task-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-task {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 11px;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .task-hint {
+      font-size: 13.5px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .actions-bar {
+      position: sticky;
+      bottom: 12px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px 18px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      z-index: 50;
+    }
+
+    .btn {
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-outline {
+      background: #ffffff;
+      border-color: var(--line);
+      color: var(--text);
+    }
+
+    .btn-outline:hover {
+      background: #f1f5f9;
+    }
+
+    .btn-danger {
+      background: #fff1f2;
+      border-color: #fecdd3;
+      color: #be123c;
+    }
+
+    .btn-danger:hover {
+      background: #ffe4e6;
+    }
+
+    .save-indicator {
+      font-size: 13px;
+      color: var(--ok);
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* Адаптивность для ширины 375px */
+    @media (max-width: 480px) {
+      .container {
+        width: 100%;
+        padding: 0 8px;
+        margin: 12px auto;
+      }
+      .card {
+        padding: 16px 12px;
+      }
+      .actions-bar {
+        position: static;
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .btn {
+        justify-content: center;
+      }
+    }
+
+    /* СТИЛИ ДЛЯ ПЕЧАТИ (@media print) */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 12pt;
+        padding-bottom: 0;
+      }
+
+      .no-print, .actions-bar, .variant-selector-box, .timing-badge {
+        display: none !important;
+      }
+
+      .container {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      .card {
+        border: 1px solid #999 !important;
+        box-shadow: none !important;
+        margin-bottom: 15px !important;
+        padding: 14px !important;
+        page-break-inside: avoid;
+      }
+
+      /* Скрытие плейсхолдеров при печати */
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+      }
+
+      /* Аккуратные рамки для рукописного ввода */
+      input[type="text"], textarea {
+        border: 1px solid #444 !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        height: auto !important;
+        min-height: 70px !important;
+        page-break-inside: avoid;
+        resize: none;
+      }
+
+      input[type="text"] {
+        min-height: 32px !important;
+      }
+
+      .variant-pane {
+        display: block !important;
+        page-break-after: always;
+      }
+    }
+  </style>
 </head>
 <body>
 
 <main class="container">
 
- <!-- ШАПКА ЗАНЯТИЯ -->
- <header class="card hero">
- <h1>Анализ предметной области: сущности и свойства</h1>
- <p>Интерактивный рабочий лист студента. Освоение методологии инфологического анализа, спецификации сущностей, классификации атрибутов по осям, ограничений доменов и обоснования ключей.</p>
- <div class="timing-badge">
- Регламент пары: 80 минут (сокращенно 60 минут) • Оценивание: 4 балла (.rubrika.md)
- </div>
- </header>
+  <!-- ШАПКА ЗАНЯТИЯ -->
+  <header class="card hero">
+    <h1>Анализ предметной области: сущности и свойства</h1>
+    <p>Интерактивный рабочий лист студента. Освоение методологии инфологического анализа, спецификации сущностей, классификации атрибутов по осям, ограничений доменов и обоснования ключей.</p>
+    <div class="timing-badge">
+      Регламент пары: 80 минут (сокращенно 60 минут) • Оценивание: 4 балла (.rubrika.md)
+    </div>
+  </header>
 
- <!-- КАРТОЧКА СТУДЕНТА (ЧИСТЫЕ ПОЛЯ БЕЗ ВЫМЫШЛЕННЫХ ПЛЕЙСХОЛДЕРОВ) -->
- <section class="card" aria-label="Сведения об обучающемся">
- <div class="student-grid">
- <div class="form-group">
- <label for="studentName">Фамилия и имя обучающегося</label>
- <input type="text" id="studentName" data-save="" autocomplete="name">
- </div>
- <div class="form-group">
- <label for="studentGroup">Учебная группа</label>
- <input type="text" id="studentGroup" data-save="">
- </div>
- </div>
- </section>
+  <!-- КАРТОЧКА СТУДЕНТА (ЧИСТЫЕ ПОЛЯ БЕЗ ВЫМЫШЛЕННЫХ ПЛЕЙСХОЛДЕРОВ) -->
+  <section class="card" aria-label="Сведения об обучающемся">
+    <div class="student-grid">
+      <div class="form-group">
+        <label for="studentName">Фамилия и имя обучающегося</label>
+        <input type="text" id="studentName" data-save="" autocomplete="name">
+      </div>
+      <div class="form-group">
+        <label for="studentGroup">Учебная группа</label>
+        <input type="text" id="studentGroup" data-save="">
+      </div>
+    </div>
+  </section>
 
- <!-- ВЫБОР ВАРИАНТА -->
- <div class="variant-selector-box no-print">
- <label for="variantSelect">Выберите ваш рабочий вариант:</label>
- <select id="variantSelect">
- <option value="var1">Вариант 1: Автопарк логистической компании</option>
- <option value="var2">Вариант 2: Гостиничный комплекс</option>
- <option value="var3">Вариант 3: Библиотечная система</option>
- <option value="var4">Вариант 4: Сервисный центр по ремонту техники</option>
- </select>
- </div>
+  <!-- ВЫБОР ВАРИАНТА -->
+  <div class="variant-selector-box no-print">
+    <label for="variantSelect">Выберите ваш рабочий вариант:</label>
+    <select id="variantSelect">
+      <option value="var1">Вариант 1: Автопарк логистической компании</option>
+      <option value="var2">Вариант 2: Гостиничный комплекс</option>
+      <option value="var3">Вариант 3: Библиотечная система</option>
+      <option value="var4">Вариант 4: Сервисный центр по ремонту техники</option>
+    </select>
+  </div>
 
- <!-- ==================== ВАРИАНТ 1 ==================== -->
- <div class="variant-pane active" id="pane-var1">
- <section class="card">
- <h2 style="font-size: 18px; margin-bottom: 12px; color: var(--accent);">Вариант 1. Автопарк логистической компании</h2>
- <div class="scenario-desc">
- <strong>Описание предметной области:</strong><br>
- Транспортная компания управляет парком грузовых автомобилей. Каждый <strong>Автомобиль</strong> имеет уникальный заводской номер кузова (VIN-код, 17 символов), государственный регистрационный номер, марку и модель, год выпуска и грузоподъемность в тоннах. Для ускорения внутренних связей в учетной системе компании каждому ТС также присваивается целочисленный инвентарный код (ID_авто). В штате компании состоят <strong>Водители</strong>, для каждого из которых фиксируются табельный номер, ФИО (Фамилия, Имя, Отчество), номер водительского удостоверения и список открытых водительских категорий (B, C, CE). Выход в рейс оформляется документом <strong>Путевой лист</strong>, содержащим номер документа, дату выезда, показания одометра при выезде, показания одометра при возвращении и итоговый пробег за смену.
- </div>
+  <!-- ==================== ВАРИАНТ 1 ==================== -->
+  <div class="variant-pane active" id="pane-var1">
+    <section class="card">
+      <h2 style="font-size: 18px; margin-bottom: 12px; color: var(--accent);">Вариант 1. Автопарк логистической компании</h2>
+      <div class="scenario-desc">
+        <strong>Описание предметной области:</strong><br>
+        Транспортная компания управляет парком грузовых автомобилей. Каждый <strong>Автомобиль</strong> имеет уникальный заводской номер кузова (VIN-код, 17 символов), государственный регистрационный номер, марку и модель, год выпуска и грузоподъемность в тоннах. Для ускорения внутренних связей в учетной системе компании каждому ТС также присваивается целочисленный инвентарный код (ID_авто). В штате компании состоят <strong>Водители</strong>, для каждого из которых фиксируются табельный номер, ФИО (Фамилия, Имя, Отчество), номер водительского удостоверения и список открытых водительских категорий (B, C, CE). Выход в рейс оформляется документом <strong>Путевой лист</strong>, содержащим номер документа, дату выезда, показания одометра при выезде, показания одометра при возвращении и итоговый пробег за смену.
+      </div>
 
- <div class="task-block">
- <div class="task-title"><span class="badge-task">Задание 1</span> Спецификация сущностей (до 2 баллов)</div>
- <div class="task-hint">Выделите 3 профильные сущности предметной области (Автомобиль, Водитель, Путевой лист) и приведите по одному конкретному примеру экземпляра для каждой.</div>
- <textarea rows="4" data-save="" id="v1_task1"></textarea>
- </div>
+      <div class="task-block">
+        <div class="task-title"><span class="badge-task">Задание 1</span> Спецификация сущностей (до 2 баллов)</div>
+        <div class="task-hint">Выделите 3 профильные сущности предметной области (Автомобиль, Водитель, Путевой лист) и приведите по одному конкретному примеру экземпляра для каждой.</div>
+        <textarea rows="4" data-save="" id="v1_task1"></textarea>
+      </div>
 
- <div class="task-block">
- <div class="task-title"><span class="badge-task">Задание 2</span> Классификация атрибутов и домены (1 балл)</div>
- <div class="task-hint">
- 1) Укажите составной атрибут водителя и напишите его компоненты.<br>
- 2) Укажите многозначный атрибут водителя и объясните, как его реализовать в реляционной БД.<br>
- 3) Найдите производный атрибут в путевом листе и приведите формулу его расчета.<br>
- 4) Задайте домен для атрибута «Грузоподъемность» (тип, диапазон).
- </div>
- <textarea rows="6" data-save="" id="v1_task2"></textarea>
- </div>
+      <div class="task-block">
+        <div class="task-title"><span class="badge-task">Задание 2</span> Классификация атрибутов и домены (1 балл)</div>
+        <div class="task-hint">
+          1) Укажите составной атрибут водителя и напишите его компоненты.<br>
+          2) Укажите многозначный атрибут водителя и объясните, как его реализовать в реляционной БД.<br>
+          3) Найдите производный атрибут в путевом листе и приведите формулу его расчета.<br>
+          4) Задайте домен для атрибута «Грузоподъемность» (тип, диапазон).
+        </div>
+        <textarea rows="6" data-save="" id="v1_task2"></textarea>
+      </div>
 
- <div class="task-block">
- <div class="task-title"><span class="badge-task">Задание 3</span> Обоснование первичного ключа (1 балл)</div>
- <div class="task-hint">
- Сравните естественный ключ (VIN-код) и суррогатный ключ (ID_авто) для сущности «Автомобиль». Какой из них целесообразно назначить Primary Key, а какой — Unique? Приведите не менее двух инженерных аргументов (размер в байтах, скорость соединений JOIN, риск опечаток при вводе).
- </div>
- <textarea rows="5" data-save="" id="v1_task3"></textarea>
- </div>
- </section>
- </div>
+      <div class="task-block">
+        <div class="task-title"><span class="badge-task">Задание 3</span> Обоснование первичного ключа (1 балл)</div>
+        <div class="task-hint">
+          Сравните естественный ключ (VIN-код) и суррогатный ключ (ID_авто) для сущности «Автомобиль». Какой из них целесообразно назначить Primary Key, а какой — Unique? Приведите не менее двух инженерных аргументов (размер в байтах, скорость соединений JOIN, риск опечаток при вводе).
+        </div>
+        <textarea rows="5" data-save="" id="v1_task3"></textarea>
+      </div>
+    </section>
+  </div>
 
- <!-- ==================== ВАРИАНТ 2 ==================== -->
- <div class="variant-pane" id="pane-var2">
- <section class="card">
- <h2 style="font-size: 18px; margin-bottom: 12px; color: var(--accent);">Вариант 2. Гостиничный комплекс</h2>
- <div class="scenario-desc">
- <strong>Описание предметной области:</strong><br>
- Гостиничный комплекс ведет учет номерного фонда и проживания постояльцев. <strong>Номер</strong> характеризуется уникальным номером комнаты на двери (например, «301-А»), этажом, категорией комфорта (допустимые значения: «Эконом», «Стандарт», «Комфорт», «Люкс», «Апартаменты») и базовым суточным тарифом в рублях. О каждом <strong>Госте</strong> регистрируются паспортные данные (серия, номер, кем и когда выдан), полное имя (ФИО), дата рождения и контактный мобильный телефон. Факт проживания фиксируется сущностью <strong>Бронирование</strong>, содержащей дату заезда, запланированную дату выезда, фактически проведенное количество дней и рассчитанную итоговую стоимость проживания.
- </div>
+  <!-- ==================== ВАРИАНТ 2 ==================== -->
+  <div class="variant-pane" id="pane-var2">
+    <section class="card">
+      <h2 style="font-size: 18px; margin-bottom: 12px; color: var(--accent);">Вариант 2. Гостиничный комплекс</h2>
+      <div class="scenario-desc">
+        <strong>Описание предметной области:</strong><br>
+        Гостиничный комплекс ведет учет номерного фонда и проживания постояльцев. <strong>Номер</strong> характеризуется уникальным номером комнаты на двери (например, «301-А»), этажом, категорией комфорта (допустимые значения: «Эконом», «Стандарт», «Комфорт», «Люкс», «Апартаменты») и базовым суточным тарифом в рублях. О каждом <strong>Госте</strong> регистрируются паспортные данные (серия, номер, кем и когда выдан), полное имя (ФИО), дата рождения и контактный мобильный телефон. Факт проживания фиксируется сущностью <strong>Бронирование</strong>, содержащей дату заезда, запланированную дату выезда, фактически проведенное количество дней и рассчитанную итоговую стоимость проживания.
+      </div>
 
- <div class="task-block">
- <div class="task-title"><span class="badge-task">Задание 1</span> Спецификация сущностей (до 2 баллов)</div>
- <div class="task-hint">Опишите сущности «Номер», «Гость» и «Бронирование». Укажите семантическую разницу между описанием сущности «Номер» и конкретным проживанием гостя.</div>
- <textarea rows="4" data-save="" id="v2_task1"></textarea>
- </div>
+      <div class="task-block">
+        <div class="task-title"><span class="badge-task">Задание 1</span> Спецификация сущностей (до 2 баллов)</div>
+        <div class="task-hint">Опишите сущности «Номер», «Гость» и «Бронирование». Укажите семантическую разницу между описанием сущности «Номер» и конкретным проживанием гостя.</div>
+        <textarea rows="4" data-save="" id="v2_task1"></textarea>
+      </div>
 
- <div class="task-block">
- <div class="task-title"><span class="badge-task">Задание 2</span> Классификация атрибутов и домены (1 балл)</div>
- <div class="task-hint">
- 1) Определите производный атрибут «Стоимость_проживания». Напишите математическую формулу его расчета через количество дней и тариф номера.<br>
- 2) Почему физическое хранение вычисляемой стоимости в таблице может привести к ошибкам согласованности при изменении дат проживания?<br>
- 3) Специфицируйте домен атрибута «Категория» номера (перечисление допустимых значений ENUM).
- </div>
- <textarea rows="6" data-save="" id="v2_task2"></textarea>
- </div>
+      <div class="task-block">
+        <div class="task-title"><span class="badge-task">Задание 2</span> Классификация атрибутов и домены (1 балл)</div>
+        <div class="task-hint">
+          1) Определите производный атрибут «Стоимость_проживания». Напишите математическую формулу его расчета через количество дней и тариф номера.<br>
+          2) Почему физическое хранение вычисляемой стоимости в таблице может привести к ошибкам согласованности при изменении дат проживания?<br>
+          3) Специфицируйте домен атрибута «Категория» номера (перечисление допустимых значений ENUM).
+        </div>
+        <textarea rows="6" data-save="" id="v2_task2"></textarea>
+      </div>
 
- <div class="task-block">
- <div class="task-title"><span class="badge-task">Задание 3</span> Обоснование первичного ключа (1 балл)</div>
- <div class="task-hint">
- Для сущности «Гость» проанализируйте паспортные данные (серия + номер) как естественный потенциальный ключ. Почему во внутренних связях БД надежнее использовать суррогатный числовой ID_гостя? (Укажите конфиденциальность ПДн, объем составного ключа и каскадные обновления при смене паспорта).
- </div>
- <textarea rows="5" data-save="" id="v2_task3"></textarea>
- </div>
- </section>
- </div>
+      <div class="task-block">
+        <div class="task-title"><span class="badge-task">Задание 3</span> Обоснование первичного ключа (1 балл)</div>
+        <div class="task-hint">
+          Для сущности «Гость» проанализируйте паспортные данные (серия + номер) как естественный потенциальный ключ. Почему во внутренних связях БД надежнее использовать суррогатный числовой ID_гостя? (Укажите конфиденциальность ПДн, объем составного ключа и каскадные обновления при смене паспорта).
+        </div>
+        <textarea rows="5" data-save="" id="v2_task3"></textarea>
+      </div>
+    </section>
+  </div>
 
- <!-- ==================== ВАРИАНТ 3 ==================== -->
- <div class="variant-pane" id="pane-var3">
- <section class="card">
- <h2 style="font-size: 18px; margin-bottom: 12px; color: var(--accent);">Вариант 3. Библиотечная система</h2>
- <div class="scenario-desc">
- <strong>Описание предметной области:</strong><br>
- Библиотечный фонд организует каталог изданий и обслуживание читателей. <strong>Книга (Издание)</strong> описывается международным кодом ISBN (13 или 17 символов), названием произведения, годом публикации, издательством и списком авторов (у одной книги может быть несколько соавторов). На полках библиотеки хранится множество физических копий одного и того же издания — сущность <strong>Экземпляр книги</strong>. Каждый экземпляр имеет уникальный наклеенный инвентарный номер со штрихкодом, шифр расстановки на стеллаже и отметку текущего физического состояния («Отличное», «Хорошее», «Ветхое»). Сущность <strong>Читатель</strong> содержит номер электронного читательского билета, ФИО и дату регистрации.
- </div>
+  <!-- ==================== ВАРИАНТ 3 ==================== -->
+  <div class="variant-pane" id="pane-var3">
+    <section class="card">
+      <h2 style="font-size: 18px; margin-bottom: 12px; color: var(--accent);">Вариант 3. Библиотечная система</h2>
+      <div class="scenario-desc">
+        <strong>Описание предметной области:</strong><br>
+        Библиотечный фонд организует каталог изданий и обслуживание читателей. <strong>Книга (Издание)</strong> описывается международным кодом ISBN (13 или 17 символов), названием произведения, годом публикации, издательством и списком авторов (у одной книги может быть несколько соавторов). На полках библиотеки хранится множество физических копий одного и того же издания — сущность <strong>Экземпляр книги</strong>. Каждый экземпляр имеет уникальный наклеенный инвентарный номер со штрихкодом, шифр расстановки на стеллаже и отметку текущего физического состояния («Отличное», «Хорошее», «Ветхое»). Сущность <strong>Читатель</strong> содержит номер электронного читательского билета, ФИО и дату регистрации.
+      </div>
 
- <div class="task-block">
- <div class="task-title"><span class="badge-task">Задание 1</span> Спецификация сущностей (до 2 баллов)</div>
- <div class="task-hint">Разграничьте абстрактную сущность «Книга» (библиографическое описание) и материальную сущность «Экземпляр» (физическая книга на полке). Почему нельзя объединить их в одну таблицу?</div>
- <textarea rows="4" data-save="" id="v3_task1"></textarea>
- </div>
+      <div class="task-block">
+        <div class="task-title"><span class="badge-task">Задание 1</span> Спецификация сущностей (до 2 баллов)</div>
+        <div class="task-hint">Разграничьте абстрактную сущность «Книга» (библиографическое описание) и материальную сущность «Экземпляр» (физическая книга на полке). Почему нельзя объединить их в одну таблицу?</div>
+        <textarea rows="4" data-save="" id="v3_task1"></textarea>
+      </div>
 
- <div class="task-block">
- <div class="task-title"><span class="badge-task">Задание 2</span> Классификация атрибутов и домены (1 балл)</div>
- <div class="task-hint">
- 1) К какому типу атрибутов относится «Список авторов» книги? Почему хранение соавторов через запятую в одной ячейке («Иванов, Петров, Сидоров») разрушает реляционную целостность (1НФ)?<br>
- 2) Задайте домен атрибута «Год_издания» (тип данных, допустимый диапазон лет от возникновения книгопечатания до текущего года).
- </div>
- <textarea rows="6" data-save="" id="v3_task2"></textarea>
- </div>
+      <div class="task-block">
+        <div class="task-title"><span class="badge-task">Задание 2</span> Классификация атрибутов и домены (1 балл)</div>
+        <div class="task-hint">
+          1) К какому типу атрибутов относится «Список авторов» книги? Почему хранение соавторов через запятую в одной ячейке («Иванов, Петров, Сидоров») разрушает реляционную целостность (1НФ)?<br>
+          2) Задайте домен атрибута «Год_издания» (тип данных, допустимый диапазон лет от возникновения книгопечатания до текущего года).
+        </div>
+        <textarea rows="6" data-save="" id="v3_task2"></textarea>
+      </div>
 
- <div class="task-block">
- <div class="task-title"><span class="badge-task">Задание 3</span> Обоснование первичного ключа (1 балл)</div>
- <div class="task-hint">
- Сравните естественный ключ ISBN и суррогатный «Инвентарный номер». Почему ISBN не может служить первичным ключом для физической книги на библиотечной полке? Какой ключ должен быть назначен Primary Key в таблице экземпляров?
- </div>
- <textarea rows="5" data-save="" id="v3_task3"></textarea>
- </div>
- </section>
- </div>
+      <div class="task-block">
+        <div class="task-title"><span class="badge-task">Задание 3</span> Обоснование первичного ключа (1 балл)</div>
+        <div class="task-hint">
+          Сравните естественный ключ ISBN и суррогатный «Инвентарный номер». Почему ISBN не может служить первичным ключом для физической книги на библиотечной полке? Какой ключ должен быть назначен Primary Key в таблице экземпляров?
+        </div>
+        <textarea rows="5" data-save="" id="v3_task3"></textarea>
+      </div>
+    </section>
+  </div>
 
- <!-- ==================== ВАРИАНТ 4 ==================== -->
- <div class="variant-pane" id="pane-var4">
- <section class="card">
- <h2 style="font-size: 18px; margin-bottom: 12px; color: var(--accent);">Вариант 4. Сервисный центр по ремонту техники</h2>
- <div class="scenario-desc">
- <strong>Описание предметной области:</strong><br>
- Сервисный центр производит диагностику и гарантийный ремонт цифровой техники. При обращении формируется <strong>Заказ</strong>: фиксируются уникальный порядковый номер квитанции, дата и время приема, дата фактической выдачи, заявленная клиентом неисправность и текущий статус заказа («Принят», «Диагностика», «Ожидание деталей», «В работе», «Готов», «Выдан»). <strong>Клиент</strong> идентифицируется контактным номером мобильного телефона и ФИО. Ремонт осуществляет назначенный <strong>Мастер</strong> (табельный номер, ФИО, квалификационный разряд). На складе хранятся <strong>Запчасти</strong> (артикул производителя, наименование, закупочная цена, текущий остаток на складе в штуках).
- </div>
+  <!-- ==================== ВАРИАНТ 4 ==================== -->
+  <div class="variant-pane" id="pane-var4">
+    <section class="card">
+      <h2 style="font-size: 18px; margin-bottom: 12px; color: var(--accent);">Вариант 4. Сервисный центр по ремонту техники</h2>
+      <div class="scenario-desc">
+        <strong>Описание предметной области:</strong><br>
+        Сервисный центр производит диагностику и гарантийный ремонт цифровой техники. При обращении формируется <strong>Заказ</strong>: фиксируются уникальный порядковый номер квитанции, дата и время приема, дата фактической выдачи, заявленная клиентом неисправность и текущий статус заказа («Принят», «Диагностика», «Ожидание деталей», «В работе», «Готов», «Выдан»). <strong>Клиент</strong> идентифицируется контактным номером мобильного телефона и ФИО. Ремонт осуществляет назначенный <strong>Мастер</strong> (табельный номер, ФИО, квалификационный разряд). На складе хранятся <strong>Запчасти</strong> (артикул производителя, наименование, закупочная цена, текущий остаток на складе в штуках).
+      </div>
 
- <div class="task-block">
- <div class="task-title"><span class="badge-task">Задание 1</span> Спецификация сущностей (до 2 баллов)</div>
- <div class="task-hint">Выделите 4 основные сущности (Заказ, Клиент, Мастер, Запчасть). Для каждой сущности приведите пример одного реального экземпляра с набором значений.</div>
- <textarea rows="5" data-save="" id="v4_task1"></textarea>
- </div>
+      <div class="task-block">
+        <div class="task-title"><span class="badge-task">Задание 1</span> Спецификация сущностей (до 2 баллов)</div>
+        <div class="task-hint">Выделите 4 основные сущности (Заказ, Клиент, Мастер, Запчасть). Для каждой сущности приведите пример одного реального экземпляра с набором значений.</div>
+        <textarea rows="5" data-save="" id="v4_task1"></textarea>
+      </div>
 
- <div class="task-block">
- <div class="task-title"><span class="badge-task">Задание 2</span> Классификация атрибутов и домены (1 балл)</div>
- <div class="task-hint">
- 1) Специфицируйте домен атрибута «Статус заказа»: перечислите все допустимые дискретные состояния (ENUM).<br>
- 2) Сформулируйте доменное ограничение целостности для дат: какое логическое правило связывает «Дату приема» и «Дату выдачи» заказа (условие CHECK)?<br>
- 3) Задайте домен атрибута «Остаток на складе» (тип данных, условие неотрицательности).
- </div>
- <textarea rows="6" data-save="" id="v4_task2"></textarea>
- </div>
+      <div class="task-block">
+        <div class="task-title"><span class="badge-task">Задание 2</span> Классификация атрибутов и домены (1 балл)</div>
+        <div class="task-hint">
+          1) Специфицируйте домен атрибута «Статус заказа»: перечислите все допустимые дискретные состояния (ENUM).<br>
+          2) Сформулируйте доменное ограничение целостности для дат: какое логическое правило связывает «Дату приема» и «Дату выдачи» заказа (условие CHECK)?<br>
+          3) Задайте домен атрибута «Остаток на складе» (тип данных, условие неотрицательности).
+        </div>
+        <textarea rows="6" data-save="" id="v4_task2"></textarea>
+      </div>
 
- <div class="task-block">
- <div class="task-title"><span class="badge-task">Задание 3</span> Обоснование первичного ключа (1 балл)</div>
- <div class="task-hint">
- Для сущности «Заказ» обоснуйте использование суррогатного числового идентификатора (Номер_заказа INT AUTO_INCREMENT). Почему комбинация (Телефон клиента + Дата приема) не является надежным первичным ключом?
- </div>
- <textarea rows="5" data-save="" id="v4_task3"></textarea>
- </div>
- </section>
- </div>
+      <div class="task-block">
+        <div class="task-title"><span class="badge-task">Задание 3</span> Обоснование первичного ключа (1 балл)</div>
+        <div class="task-hint">
+          Для сущности «Заказ» обоснуйте использование суррогатного числового идентификатора (Номер_заказа INT AUTO_INCREMENT). Почему комбинация (Телефон клиента + Дата приема) не является надежным первичным ключом?
+        </div>
+        <textarea rows="5" data-save="" id="v4_task3"></textarea>
+      </div>
+    </section>
+  </div>
 
- <!-- НИЖНЯЯ ПАНЕЛЬ ДЕЙСТВИЙ -->
- <div class="actions-bar no-print">
- <div class="save-indicator" id="saveIndicator">
- <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
- <span>Данные сохранены локально</span>
- </div>
+  <!-- НИЖНЯЯ ПАНЕЛЬ ДЕЙСТВИЙ -->
+  <div class="actions-bar no-print">
+    <div class="save-indicator" id="saveIndicator">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      <span>Данные сохранены локально</span>
+    </div>
 
- <div style="display: flex; gap: 8px; flex-wrap: wrap;">
- <button class="btn btn-outline" id="printBtn" type="button" title="Распечатать или сохранить в PDF">
- <span>🖨️ Печать / PDF</span>
- </button>
- <button class="btn btn-danger" id="clearBtn" type="button" title="Очистить все поля бланка">
- <span>🗑️ Очистить бланк</span>
- </button>
- </div>
- </div>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+      <button class="btn btn-outline" id="printBtn" type="button" title="Распечатать или сохранить в PDF">
+        <span>🖨️ Печать / PDF</span>
+      </button>
+      <button class="btn btn-danger" id="clearBtn" type="button" title="Очистить все поля бланка">
+        <span>🗑️ Очистить бланк</span>
+      </button>
+    </div>
+  </div>
 
 </main>
 
 <script>
- (function() {
- const STORAGE_KEY = 'sielom_db_lesson02_data';
- const variantSelect = document.getElementById('variantSelect');
- const panes = {
- 'var1': document.getElementById('pane-var1'),
- 'var2': document.getElementById('pane-var2'),
- 'var3': document.getElementById('pane-var3'),
- 'var4': document.getElementById('pane-var4')
- };
- const saveIndicator = document.getElementById('saveIndicator');
+  (function() {
+    const STORAGE_KEY = 'sielom_db_lesson02_data';
+    const variantSelect = document.getElementById('variantSelect');
+    const panes = {
+      'var1': document.getElementById('pane-var1'),
+      'var2': document.getElementById('pane-var2'),
+      'var3': document.getElementById('pane-var3'),
+      'var4': document.getElementById('pane-var4')
+    };
+    const saveIndicator = document.getElementById('saveIndicator');
 
- function switchVariant(v) {
- Object.keys(panes).forEach(k => {
- panes[k].classList.remove('active');
- });
- if (panes[v]) {
- panes[v].classList.add('active');
- }
- }
+    function switchVariant(v) {
+      Object.keys(panes).forEach(k => {
+        panes[k].classList.remove('active');
+      });
+      if (panes[v]) {
+        panes[v].classList.add('active');
+      }
+    }
 
- variantSelect.addEventListener('change', (e) => {
- switchVariant(e.target.value);
- saveData();
- });
+    variantSelect.addEventListener('change', (e) => {
+      switchVariant(e.target.value);
+      saveData();
+    });
 
- function getSaveableElements() {
- return Array.from(document.querySelectorAll('[data-save]'));
- }
+    function getSaveableElements() {
+      return Array.from(document.querySelectorAll('[data-save]'));
+    }
 
- function saveData() {
- const data = {
- selectedVariant: variantSelect.value,
- fields: {}
- };
- getSaveableElements().forEach(el => {
- data.fields[el.id] = el.value;
- });
+    function saveData() {
+      const data = {
+        selectedVariant: variantSelect.value,
+        fields: {}
+      };
+      getSaveableElements().forEach(el => {
+        data.fields[el.id] = el.value;
+      });
 
- try {
- localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
- showSaved();
- } catch (err) {
- console.error('Ошибка LocalStorage:', err);
- }
- }
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        showSaved();
+      } catch (err) {
+        console.error('Ошибка LocalStorage:', err);
+      }
+    }
 
- function showSaved() {
- saveIndicator.style.opacity = '1';
- saveIndicator.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>Данные сохранены локально</span>';
- }
+    function showSaved() {
+      saveIndicator.style.opacity = '1';
+      saveIndicator.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>Данные сохранены локально</span>';
+    }
 
- function loadData() {
- try {
- const raw = localStorage.getItem(STORAGE_KEY);
- if (!raw) return;
- const data = JSON.parse(raw);
- if (data.selectedVariant && panes[data.selectedVariant]) {
- variantSelect.value = data.selectedVariant;
- switchVariant(data.selectedVariant);
- }
- if (data.fields) {
- getSaveableElements().forEach(el => {
- if (data.fields[el.id] !== undefined) {
- el.value = data.fields[el.id];
- }
- });
- }
- } catch (err) {
- console.error('Ошибка загрузки LocalStorage:', err);
- }
- }
+    function loadData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        if (data.selectedVariant && panes[data.selectedVariant]) {
+          variantSelect.value = data.selectedVariant;
+          switchVariant(data.selectedVariant);
+        }
+        if (data.fields) {
+          getSaveableElements().forEach(el => {
+            if (data.fields[el.id] !== undefined) {
+              el.value = data.fields[el.id];
+            }
+          });
+        }
+      } catch (err) {
+        console.error('Ошибка загрузки LocalStorage:', err);
+      }
+    }
 
- // Слушатели ввода с автосохранением
- getSaveableElements().forEach(el => {
- el.addEventListener('input', saveData);
- el.addEventListener('change', saveData);
- });
+    // Слушатели ввода с автосохранением
+    getSaveableElements().forEach(el => {
+      el.addEventListener('input', saveData);
+      el.addEventListener('change', saveData);
+    });
 
- // Очистка с confirm()
- document.getElementById('clearBtn').addEventListener('click', () => {
- if (confirm('Вы уверены, что хотите полностью очистить все введенные данные бланка? Это действие необратимо.')) {
- localStorage.removeItem(STORAGE_KEY);
- getSaveableElements().forEach(el => {
- el.value = '';
- });
- saveIndicator.innerHTML = '<span>Бланк очищен</span>';
- }
- });
+    // Очистка с confirm()
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      if (confirm('Вы уверены, что хотите полностью очистить все введенные данные бланка? Это действие необратимо.')) {
+        localStorage.removeItem(STORAGE_KEY);
+        getSaveableElements().forEach(el => {
+          el.value = '';
+        });
+        saveIndicator.innerHTML = '<span>Бланк очищен</span>';
+      }
+    });
 
- // Печать
- document.getElementById('printBtn').addEventListener('click', () => {
- window.print();
- });
+    // Печать
+    document.getElementById('printBtn').addEventListener('click', () => {
+      window.print();
+    });
 
- loadData();
- })();
+    loadData();
+  })();
 </script>
 
 </body>

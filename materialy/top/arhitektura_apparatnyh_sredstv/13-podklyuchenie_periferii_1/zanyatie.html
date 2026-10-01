@@ -1,707 +1,735 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
- <title>Рабочий лист студента: Практическая работа №4. Конструкция, подключение и инсталляция периферийных устройств — часть 1</title>
- <style>
- :root {
- --bg: #f8fafc;
- --card: #ffffff;
- --text: #0f172a;
- --muted: #475569;
- --line: #cbd5e1;
- --accent: #1e40af;
- --accent-soft: #eff6ff;
- --ok: #059669;
- --warn: #d97706;
- --danger: #dc2626;
- --radius: 14px;
- --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
- }
- * { box-sizing: border-box; margin: 0; padding: 0; }
- body {
- background: var(--bg);
- color: var(--text);
- font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
- line-height: 1.6;
- font-size: 15px;
- padding: 20px 14px;
- }.page {
- max-width: 980px;
- margin: 0 auto;
- }.header-card,.student-card,.task-card,.actions-card {
- background: var(--card);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 24px;
- margin-bottom: 20px;
- box-shadow: var(--shadow);
- }
- h1 {
- font-size: clamp(20px, 3.2vw, 25px);
- color: var(--accent);
- margin-bottom: 8px;
- line-height: 1.3;
- }.desc {
- color: var(--muted);
- font-size: 14.5px;
- }.student-grid {
- display: grid;
- grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
- gap: 16px;
- }
- label {
- display: block;
- font-weight: 600;
- font-size: 13.5px;
- margin-bottom: 6px;
- color: #1e293b;
- }
- input[type="text"], input[type="date"], select, textarea {
- width: 100%;
- border: 1.5px solid var(--line);
- border-radius: 8px;
- padding: 9px 12px;
- font: inherit;
- font-size: 14px;
- background: #fff;
- color: var(--text);
- outline: none;
- transition: border-color 0.2s, box-shadow 0.2s;
- }
- input:focus, select:focus, textarea:focus {
- border-color: var(--accent);
- box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.12);
- }
- textarea {
- min-height: 85px;
- resize: vertical;
- }.variant-card {
- display: none;
- animation: fadeIn 0.2s ease-in-out;
- }.variant-card.active {
- display: block;
- }
- @keyframes fadeIn {
- from { opacity: 0; transform: translateY(4px); }
- to { opacity: 1; transform: translateY(0); }
- }.variant-header {
- background: var(--accent-soft);
- border-left: 4px solid var(--accent);
- padding: 14px 18px;
- border-radius: 0 8px 8px 0;
- margin-bottom: 18px;
- }.variant-header h3 {
- font-size: 17px;
- color: var(--accent);
- margin-bottom: 4px;
- }.variant-header p {
- font-size: 14px;
- color: #334155;
- margin: 0;
- }.subcard {
- background: #f8fafc;
- border: 1px solid var(--line);
- border-radius: 10px;
- padding: 16px;
- margin-bottom: 16px;
- }.subcard h4 {
- font-size: 15.5px;
- color: #1e293b;
- margin-bottom: 10px;
- display: flex;
- align-items: center;
- gap: 8px;
- }
- table {
- width: 100%;
- border-collapse: collapse;
- margin: 12px 0;
- font-size: 13.5px;
- }
- th, td {
- border: 1px solid var(--line);
- padding: 8px 10px;
- text-align: left;
- vertical-align: top;
- }
- th {
- background: var(--accent-soft);
- color: var(--accent);
- font-weight: 600;
- }.btn {
- background: var(--accent);
- color: #fff;
- border: none;
- padding: 10px 18px;
- border-radius: 8px;
- font-weight: 600;
- font-size: 14px;
- cursor: pointer;
- transition: background 0.2s;
- margin-right: 10px;
- margin-bottom: 8px;
- }.btn:hover { background: #1d4ed8; }.btn-secondary {
- background: #e2e8f0;
- color: #334155;
- }.btn-secondary:hover { background: #cbd5e1; }.btn-danger {
- background: var(--danger);
- }.btn-danger:hover { background: #b91c1c; }.status-msg {
- display: inline-block;
- margin-left: 10px;
- font-size: 13.5px;
- font-weight: 500;
- }.status-ok { color: var(--ok); }.status-err { color: var(--danger); }.badge {
- display: inline-block;
- padding: 2px 7px;
- border-radius: 4px;
- font-size: 12px;
- font-weight: 600;
- }.badge-blue { background: #dbeafe; color: #1e40af; }.badge-green { background: #d1fae5; color: #065f46; }.badge-amber { background: #fef3c7; color: #92400e; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Рабочий лист студента: Практическая работа №4. Конструкция, подключение и инсталляция периферийных устройств — часть 1</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --ok: #059669;
+      --warn: #d97706;
+      --danger: #dc2626;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .task-card, .actions-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(20px, 3.2vw, 25px);
+      color: var(--accent);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .desc {
+      color: var(--muted);
+      font-size: 14.5px;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    input[type="text"], input[type="date"], select, textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.12);
+    }
+    textarea {
+      min-height: 85px;
+      resize: vertical;
+    }
+    .variant-card {
+      display: none;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+    .variant-card.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .variant-header {
+      background: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 18px;
+    }
+    .variant-header h3 {
+      font-size: 17px;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .variant-header p {
+      font-size: 14px;
+      color: #334155;
+      margin: 0;
+    }
+    .subcard {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .subcard h4 {
+      font-size: 15.5px;
+      color: #1e293b;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 13.5px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-right: 10px;
+      margin-bottom: 8px;
+    }
+    .btn:hover { background: #1d4ed8; }
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #334155;
+    }
+    .btn-secondary:hover { background: #cbd5e1; }
+    .btn-danger {
+      background: var(--danger);
+    }
+    .btn-danger:hover { background: #b91c1c; }
+    .status-msg {
+      display: inline-block;
+      margin-left: 10px;
+      font-size: 13.5px;
+      font-weight: 500;
+    }
+    .status-ok { color: var(--ok); }
+    .status-err { color: var(--danger); }
+    .badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .badge-green { background: #d1fae5; color: #065f46; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
 
- /* Печатная верстка без вымышленных плейсхолдеров и без обрезки полей */
- @media print {
- body {
- background: #fff;
- padding: 0;
- font-size: 10.5pt;
- color: #000;
- }.actions-card,.btn { display: none !important; }.header-card,.student-card,.task-card,.subcard {
- box-shadow: none !important;
- border: 1px solid #999 !important;
- break-inside: avoid;
- margin-bottom: 12pt;
- }.variant-card { display: none !important; }.variant-card.active { display: block !important; }
- input, select, textarea {
- border: 1px solid #666 !important;
- background: #fff !important;
- color: #000 !important;
- box-shadow: none !important;
- }
- /* Скрытие плейсхолдеров при печати */
- ::placeholder {
- color: transparent !important;
- }
- /* Рукописные аккуратные рамки для пустых полей при печати */
- textarea:empty, input[type="text"]:empty {
- min-height: 48pt;
- }
- }
- </style>
+    /* Печатная верстка без вымышленных плейсхолдеров и без обрезки полей */
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+        font-size: 10.5pt;
+        color: #000;
+      }
+      .actions-card, .btn { display: none !important; }
+      .header-card, .student-card, .task-card, .subcard {
+        box-shadow: none !important;
+        border: 1px solid #999 !important;
+        break-inside: avoid;
+        margin-bottom: 12pt;
+      }
+      .variant-card { display: none !important; }
+      .variant-card.active { display: block !important; }
+      input, select, textarea {
+        border: 1px solid #666 !important;
+        background: #fff !important;
+        color: #000 !important;
+        box-shadow: none !important;
+      }
+      /* Скрытие плейсхолдеров при печати */
+      ::placeholder {
+        color: transparent !important;
+      }
+      /* Рукописные аккуратные рамки для пустых полей при печати */
+      textarea:empty, input[type="text"]:empty {
+        min-height: 48pt;
+      }
+    }
+  </style>
 </head>
 <body>
 <div class="page">
 
- <div class="header-card">
- <h1>Рабочий лист студента: Практическая работа №4. Конструкция, подключение и инсталляция периферийных устройств — часть 1 из 3</h1>
- <p class="desc"><strong>Дисциплина:</strong> ОП.02 Архитектура аппаратных средств | <strong>Тема:</strong> Раздел 4. Практическая работа №4. Конструкция, подключение и инсталляция периферийных устройств — часть 1 из 3</p>
- </div>
+  <div class="header-card">
+    <h1>Рабочий лист студента: Практическая работа №4. Конструкция, подключение и инсталляция периферийных устройств — часть 1 из 3</h1>
+    <p class="desc"><strong>Дисциплина:</strong> ОП.02 Архитектура аппаратных средств | <strong>Тема (§2.2 с.9 программы):</strong> Раздел 4. Практическая работа №4. Конструкция, подключение и инсталляция периферийных устройств — часть 1 из 3</p>
+  </div>
 
- <div class="student-card">
- <div class="student-grid">
- <div>
- <label for="student_fio">ФИО студента:</label>
- <input type="text" id="student_fio" placeholder="">
- </div>
- <div>
- <label for="student_group">Учебная группа:</label>
- <input type="text" id="student_group" placeholder="">
- </div>
- <div>
- <label for="student_date">Дата проведения:</label>
- <input type="date" id="student_date">
- </div>
- <div>
- <label for="variant_select">Инженерный вариант:</label>
- <select id="variant_select" onchange="changeVariant(this.value)">
- <option value="1">Вариант 1: Студийный монтажный комплекс 8K</option>
- <option value="2">Вариант 2: Конференц-зал с ВКС (PTZ + Dante)</option>
- <option value="3">Вариант 3: Офисный Open Space (Hub + Daisy Chain)</option>
- <option value="4">Вариант 4: Лабораторный измерительный стенд</option>
- </select>
- </div>
- </div>
- </div>
+  <div class="student-card">
+    <div class="student-grid">
+      <div>
+        <label for="student_fio">ФИО студента:</label>
+        <input type="text" id="student_fio" placeholder="">
+      </div>
+      <div>
+        <label for="student_group">Учебная группа:</label>
+        <input type="text" id="student_group" placeholder="">
+      </div>
+      <div>
+        <label for="student_date">Дата проведения:</label>
+        <input type="date" id="student_date">
+      </div>
+      <div>
+        <label for="variant_select">Инженерный вариант:</label>
+        <select id="variant_select" onchange="changeVariant(this.value)">
+          <option value="1">Вариант 1: Студийный монтажный комплекс 8K</option>
+          <option value="2">Вариант 2: Конференц-зал с ВКС (PTZ + Dante)</option>
+          <option value="3">Вариант 3: Офисный Open Space (Hub + Daisy Chain)</option>
+          <option value="4">Вариант 4: Лабораторный измерительный стенд</option>
+        </select>
+      </div>
+    </div>
+  </div>
 
- <!-- ВАРИАНТ 1 -->
- <div class="task-card variant-card active" id="v1_card">
- <div class="variant-header">
- <span class="badge badge-blue">Вариант 1</span>
- <h3>Студийный монтажный комплекс 8K видео</h3>
- <p>Оборудование: Рабочая станция с Thunderbolt 4, док-станция TB4, профессиональный монитор 8K HDR с интерфейсом DisplayPort 2.1, внешний RAID NVMe (4 диска, шина PCIe 3.0 x4), сквозное питание USB PD EPR 100W.</p>
- </div>
+  <!-- ВАРИАНТ 1 -->
+  <div class="task-card variant-card active" id="v1_card">
+    <div class="variant-header">
+      <span class="badge badge-blue">Вариант 1</span>
+      <h3>Студийный монтажный комплекс 8K видео</h3>
+      <p>Оборудование: Рабочая станция с Thunderbolt 4, док-станция TB4, профессиональный монитор 8K HDR с интерфейсом DisplayPort 2.1, внешний RAID NVMe (4 диска, шина PCIe 3.0 x4), сквозное питание USB PD EPR 100W.</p>
+    </div>
 
- <div class="subcard">
- <h4>1. Спецификация оборудования и физические порты</h4>
- <table>
- <thead>
- <tr>
- <th>Узел системы</th>
- <th>Устройство и параметры</th>
- <th>Физический разъем</th>
- <th>Стандарт и протокол передачи</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td>Хост-компьютер</td>
- <td>Мобильная рабочая станция для видеомонтажа</td>
- <td>USB-C (Thunderbolt 4)</td>
- <td>TB4 / USB4 (40 Гбит/с, PCIe tunneling, DP Alt Mode)</td>
- </tr>
- <tr>
- <td>Док-станция</td>
- <td>Студийный концентратор TB4 с внешним БП 180W</td>
- <td>TB4 Host / DP 2.1 Out / TB4 Out</td>
- <td>Контроллер Intel Goshen Ridge (JHL8440)</td>
- </tr>
- <tr>
- <td>Монитор</td>
- <td>8K UHD (7680×4320, 60 Гц, 10-бит HDR RGB 4:4:4)</td>
- <td>DisplayPort 2.1 / USB-C</td>
- <td>UHBR10 / UHBR13.5 (до 54 Гбит/с полезной полосы)</td>
- </tr>
- <tr>
- <td>Накопитель</td>
- <td>Внешний дисковый массив NVMe RAID0 (4×2TB)</td>
- <td>Thunderbolt 4 / Type-C</td>
- <td>PCIe 3.0 x4 over Thunderbolt (до 32 Гбит/с)</td>
- </tr>
- </tbody>
- </table>
- </div>
+    <div class="subcard">
+      <h4>1. Спецификация оборудования и физические порты</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Узел системы</th>
+            <th>Устройство и параметры</th>
+            <th>Физический разъем</th>
+            <th>Стандарт и протокол передачи</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Хост-компьютер</td>
+            <td>Мобильная рабочая станция для видеомонтажа</td>
+            <td>USB-C (Thunderbolt 4)</td>
+            <td>TB4 / USB4 (40 Гбит/с, PCIe tunneling, DP Alt Mode)</td>
+          </tr>
+          <tr>
+            <td>Док-станция</td>
+            <td>Студийный концентратор TB4 с внешним БП 180W</td>
+            <td>TB4 Host / DP 2.1 Out / TB4 Out</td>
+            <td>Контроллер Intel Goshen Ridge (JHL8440)</td>
+          </tr>
+          <tr>
+            <td>Монитор</td>
+            <td>8K UHD (7680×4320, 60 Гц, 10-бит HDR RGB 4:4:4)</td>
+            <td>DisplayPort 2.1 / USB-C</td>
+            <td>UHBR10 / UHBR13.5 (до 54 Гбит/с полезной полосы)</td>
+          </tr>
+          <tr>
+            <td>Накопитель</td>
+            <td>Внешний дисковый массив NVMe RAID0 (4×2TB)</td>
+            <td>Thunderbolt 4 / Type-C</td>
+            <td>PCIe 3.0 x4 over Thunderbolt (до 32 Гбит/с)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
- <div class="subcard">
- <h4>2. Расчет пропускной способности и кабельного тракта</h4>
- <div style="margin-bottom: 12px;">
- <label for="v1_calc_bitrate">Расчет битрейта видеопотока 8K@60Hz 10-bit HDR (R = 7680 × 4320 × 30 × 60 × 1.15) и сопоставление со стандартами DP 1.4 HBR3 vs DP 2.1 UHBR:</label>
- <textarea id="v1_calc_bitrate" placeholder=""></textarea>
- </div>
- <div>
- <label for="v1_cable_spec">Обоснование типов кабелей (DP80 для DP 2.1, пассивный 40Gbps TB4 кабель) и длины линий:</label>
- <textarea id="v1_cable_spec" placeholder=""></textarea>
- </div>
- </div>
+    <div class="subcard">
+      <h4>2. Расчет пропускной способности и кабельного тракта</h4>
+      <div style="margin-bottom: 12px;">
+        <label for="v1_calc_bitrate">Расчет битрейта видеопотока 8K@60Hz 10-bit HDR (R = 7680 × 4320 × 30 × 60 × 1.15) и сопоставление со стандартами DP 1.4 HBR3 vs DP 2.1 UHBR:</label>
+        <textarea id="v1_calc_bitrate" placeholder=""></textarea>
+      </div>
+      <div>
+        <label for="v1_cable_spec">Обоснование типов кабелей (DP80 для DP 2.1, пассивный 40Gbps TB4 кабель) и длины линий:</label>
+        <textarea id="v1_cable_spec" placeholder=""></textarea>
+      </div>
+    </div>
 
- <div class="subcard">
- <h4>3. Электрический баланс питания USB Power Delivery (100W)</h4>
- <div>
- <label for="v1_power_audit">Анализ профилей питания (20V / 5A), назначение микросхемы E-Marker, падение напряжения на контактах VBUS:</label>
- <textarea id="v1_power_audit" placeholder=""></textarea>
- </div>
- </div>
+    <div class="subcard">
+      <h4>3. Электрический баланс питания USB Power Delivery (100W)</h4>
+      <div>
+        <label for="v1_power_audit">Анализ профилей питания (20V / 5A), назначение микросхемы E-Marker, падение напряжения на контактах VBUS:</label>
+        <textarea id="v1_power_audit" placeholder=""></textarea>
+      </div>
+    </div>
 
- <div class="subcard">
- <h4>4. Текстовая схема коммутации и чек-лист инженерного аудита</h4>
- <div style="margin-bottom: 12px;">
- <label for="v1_scheme">Схема кабельной трассировки (Ноутбук ↔ Док-станция ↔ Монитор / RAID):</label>
- <textarea id="v1_scheme" placeholder="" style="min-height: 100px;"></textarea>
- </div>
- <div>
- <label for="v1_checklist">Чек-лист предпусковой проверки (ESD, заземление шасси RAID, нагрев кабелей TB4):</label>
- <textarea id="v1_checklist" placeholder=""></textarea>
- </div>
- </div>
- </div>
+    <div class="subcard">
+      <h4>4. Текстовая схема коммутации и чек-лист инженерного аудита</h4>
+      <div style="margin-bottom: 12px;">
+        <label for="v1_scheme">Схема кабельной трассировки (Ноутбук ↔ Док-станция ↔ Монитор / RAID):</label>
+        <textarea id="v1_scheme" placeholder="" style="min-height: 100px;"></textarea>
+      </div>
+      <div>
+        <label for="v1_checklist">Чек-лист предпусковой проверки (ESD, заземление шасси RAID, нагрев кабелей TB4):</label>
+        <textarea id="v1_checklist" placeholder=""></textarea>
+      </div>
+    </div>
+  </div>
 
- <!-- ВАРИАНТ 2 -->
- <div class="task-card variant-card" id="v2_card">
- <div class="variant-header">
- <span class="badge badge-green">Вариант 2</span>
- <h3>Конференц-зал с видеоконференцсвязью (PTZ + Dante)</h3>
- <p>Оборудование: Поворотная PTZ-камера 4K с питанием PoE+ (IEEE 802.3at), микрофонный массив Dante (Audio over IP / USB), центральный коммутатор PoE+, дублирующие HDMI 2.0b экраны через активный сплиттер.</p>
- </div>
+  <!-- ВАРИАНТ 2 -->
+  <div class="task-card variant-card" id="v2_card">
+    <div class="variant-header">
+      <span class="badge badge-green">Вариант 2</span>
+      <h3>Конференц-зал с видеоконференцсвязью (PTZ + Dante)</h3>
+      <p>Оборудование: Поворотная PTZ-камера 4K с питанием PoE+ (IEEE 802.3at), микрофонный массив Dante (Audio over IP / USB), центральный коммутатор PoE+, дублирующие HDMI 2.0b экраны через активный сплиттер.</p>
+    </div>
 
- <div class="subcard">
- <h4>1. Спецификация сетевых и мультимедийных узлов</h4>
- <table>
- <thead>
- <tr>
- <th>Оборудование</th>
- <th>Назначение</th>
- <th>Физический разъем</th>
- <th>Стандарт интерфейса и питания</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td>PTZ-камера 4K</td>
- <td>Видеозахват с 20x оптическим зумом</td>
- <td>RJ-45 (Ethernet) + HDMI</td>
- <td>1000BASE-T, PoE+ (IEEE 802.3at, до 25.5 Вт)</td>
- </tr>
- <tr>
- <td>Микрофонный массив</td>
- <td>Потолочный массив с формированием луча</td>
- <td>RJ-45 / USB Type-B</td>
- <td>Dante (Audio over IP), PoE (802.3af, до 12.95 Вт)</td>
- </tr>
- <tr>
- <td>PoE-коммутатор</td>
- <td>Центральный сетевой свитч зала</td>
- <td>8×RJ-45 PoE+ (PSE)</td>
- <td>Суммарный бюджет PoE 130 Вт</td>
- </tr>
- <tr>
- <td>Экраны зала (2 шт.)</td>
- <td>Дублирование контента для участников</td>
- <td>HDMI Type-A</td>
- <td>HDMI 2.0b (4K@60Hz 8-bit RGB, кабель до 10 м)</td>
- </tr>
- </tbody>
- </table>
- </div>
+    <div class="subcard">
+      <h4>1. Спецификация сетевых и мультимедийных узлов</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Оборудование</th>
+            <th>Назначение</th>
+            <th>Физический разъем</th>
+            <th>Стандарт интерфейса и питания</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>PTZ-камера 4K</td>
+            <td>Видеозахват с 20x оптическим зумом</td>
+            <td>RJ-45 (Ethernet) + HDMI</td>
+            <td>1000BASE-T, PoE+ (IEEE 802.3at, до 25.5 Вт)</td>
+          </tr>
+          <tr>
+            <td>Микрофонный массив</td>
+            <td>Потолочный массив с формированием луча</td>
+            <td>RJ-45 / USB Type-B</td>
+            <td>Dante (Audio over IP), PoE (802.3af, до 12.95 Вт)</td>
+          </tr>
+          <tr>
+            <td>PoE-коммутатор</td>
+            <td>Центральный сетевой свитч зала</td>
+            <td>8×RJ-45 PoE+ (PSE)</td>
+            <td>Суммарный бюджет PoE 130 Вт</td>
+          </tr>
+          <tr>
+            <td>Экраны зала (2 шт.)</td>
+            <td>Дублирование контента для участников</td>
+            <td>HDMI Type-A</td>
+            <td>HDMI 2.0b (4K@60Hz 8-bit RGB, кабель до 10 м)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
- <div class="subcard">
- <h4>2. Расчет сетевого бюджета PoE и кабельных линий</h4>
- <div style="margin-bottom: 12px;">
- <label for="v2_calc_poe">Расчет мощности PoE (камера 25.5 Вт + микрофон 12 Вт), сопоставление со стандартами 802.3af vs 802.3at и категорией кабеля витой пары:</label>
- <textarea id="v2_calc_poe" placeholder=""></textarea>
- </div>
- <div>
- <label for="v2_hdmi_split">Анализ пропускной способности HDMI-сплиттера (14.4 Гбит/с чистой полосы), выбор активных HDMI кабелей при длине свыше 5–10 метров:</label>
- <textarea id="v2_hdmi_split" placeholder=""></textarea>
- </div>
- </div>
+    <div class="subcard">
+      <h4>2. Расчет сетевого бюджета PoE и кабельных линий</h4>
+      <div style="margin-bottom: 12px;">
+        <label for="v2_calc_poe">Расчет мощности PoE (камера 25.5 Вт + микрофон 12 Вт), сопоставление со стандартами 802.3af vs 802.3at и категорией кабеля витой пары:</label>
+        <textarea id="v2_calc_poe" placeholder=""></textarea>
+      </div>
+      <div>
+        <label for="v2_hdmi_split">Анализ пропускной способности HDMI-сплиттера (14.4 Гбит/с чистой полосы), выбор активных HDMI кабелей при длине свыше 5–10 метров:</label>
+        <textarea id="v2_hdmi_split" placeholder=""></textarea>
+      </div>
+    </div>
 
- <div class="subcard">
- <h4>3. Синхронизация Dante и задержки аудио-видео</h4>
- <div>
- <label for="v2_audio_sync">Особенности передачи несжатого звука по IP (PTP-синхронизация, QoS на коммутаторе, аналоговые выходы 3.5mm TRRS):</label>
- <textarea id="v2_audio_sync" placeholder=""></textarea>
- </div>
- </div>
+    <div class="subcard">
+      <h4>3. Синхронизация Dante и задержки аудио-видео</h4>
+      <div>
+        <label for="v2_audio_sync">Особенности передачи несжатого звука по IP (PTP-синхронизация, QoS на коммутаторе, аналоговые выходы 3.5mm TRRS):</label>
+        <textarea id="v2_audio_sync" placeholder=""></textarea>
+      </div>
+    </div>
 
- <div class="subcard">
- <h4>4. Текстовая схема коммутации и чек-лист инженерного аудита</h4>
- <div style="margin-bottom: 12px;">
- <label for="v2_scheme">Схема кабельной разводки зала (Коммутатор ↔ Камера / Микрофон ↔ ПК кодека ↔ HDMI Сплиттер ↔ Дисплеи):</label>
- <textarea id="v2_scheme" placeholder="" style="min-height: 100px;"></textarea>
- </div>
- <div>
- <label for="v2_checklist">Чек-лист предпускового аудита (категория Cat.6 медная, заземление экранированного разъема RJ-45, тест PoE питания под нагрузкой):</label>
- <textarea id="v2_checklist" placeholder=""></textarea>
- </div>
- </div>
- </div>
+    <div class="subcard">
+      <h4>4. Текстовая схема коммутации и чек-лист инженерного аудита</h4>
+      <div style="margin-bottom: 12px;">
+        <label for="v2_scheme">Схема кабельной разводки зала (Коммутатор ↔ Камера / Микрофон ↔ ПК кодека ↔ HDMI Сплиттер ↔ Дисплеи):</label>
+        <textarea id="v2_scheme" placeholder="" style="min-height: 100px;"></textarea>
+      </div>
+      <div>
+        <label for="v2_checklist">Чек-лист предпускового аудита (категория Cat.6 медная, заземление экранированного разъема RJ-45, тест PoE питания под нагрузкой):</label>
+        <textarea id="v2_checklist" placeholder=""></textarea>
+      </div>
+    </div>
+  </div>
 
- <!-- ВАРИАНТ 3 -->
- <div class="task-card variant-card" id="v3_card">
- <div class="variant-header">
- <span class="badge badge-amber">Вариант 3</span>
- <h3>Офисная зона открытого типа Open Space (Hub + Daisy Chain)</h3>
- <p>Оборудование: Ультрабук, настольный концентратор USB-C Hub с проходным питанием 65W, проводной Gigabit Ethernet, два офисных монитора QHD (2560×1440@60Hz) в цепочке Daisy Chain через DisplayPort MST.</p>
- </div>
+  <!-- ВАРИАНТ 3 -->
+  <div class="task-card variant-card" id="v3_card">
+    <div class="variant-header">
+      <span class="badge badge-amber">Вариант 3</span>
+      <h3>Офисная зона открытого типа Open Space (Hub + Daisy Chain)</h3>
+      <p>Оборудование: Ультрабук, настольный концентратор USB-C Hub с проходным питанием 65W, проводной Gigabit Ethernet, два офисных монитора QHD (2560×1440@60Hz) в цепочке Daisy Chain через DisplayPort MST.</p>
+    </div>
 
- <div class="subcard">
- <h4>1. Спецификация оборудования и портов</h4>
- <table>
- <thead>
- <tr>
- <th>Компонент</th>
- <th>Модель / Характеристики</th>
- <th>Физический разъем</th>
- <th>Протокол и режим работы</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td>Ультрабук</td>
- <td>Офисный ноутбук со встроенной графикой</td>
- <td>USB-C (DP Alt Mode)</td>
- <td>DP 1.4 HBR3 (режим 2-lane DP + USB 3.2 Gen2)</td>
- </tr>
- <tr>
- <td>USB-C Концентратор</td>
- <td>Настольный многопортовый хаб</td>
- <td>Type-C (Upstream) + DP-Out</td>
- <td>Поддержка USB PD 3.0 Pass-Through 65–100W</td>
- </tr>
- <tr>
- <td>Монитор 1 (Master)</td>
- <td>27" QHD (2560×1440@60Hz)</td>
- <td>DP-In и DP-Out</td>
- <td>Поддержка MST Daisy Chain (разветвление DP)</td>
- </tr>
- <tr>
- <td>Монитор 2 (Slave)</td>
- <td>27" QHD (2560×1440@60Hz)</td>
- <td>DP-In</td>
- <td>Конечный монитор цепочки</td>
- </tr>
- </tbody>
- </table>
- </div>
+    <div class="subcard">
+      <h4>1. Спецификация оборудования и портов</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Компонент</th>
+            <th>Модель / Характеристики</th>
+            <th>Физический разъем</th>
+            <th>Протокол и режим работы</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Ультрабук</td>
+            <td>Офисный ноутбук со встроенной графикой</td>
+            <td>USB-C (DP Alt Mode)</td>
+            <td>DP 1.4 HBR3 (режим 2-lane DP + USB 3.2 Gen2)</td>
+          </tr>
+          <tr>
+            <td>USB-C Концентратор</td>
+            <td>Настольный многопортовый хаб</td>
+            <td>Type-C (Upstream) + DP-Out</td>
+            <td>Поддержка USB PD 3.0 Pass-Through 65–100W</td>
+          </tr>
+          <tr>
+            <td>Монитор 1 (Master)</td>
+            <td>27" QHD (2560×1440@60Hz)</td>
+            <td>DP-In и DP-Out</td>
+            <td>Поддержка MST Daisy Chain (разветвление DP)</td>
+          </tr>
+          <tr>
+            <td>Монитор 2 (Slave)</td>
+            <td>27" QHD (2560×1440@60Hz)</td>
+            <td>DP-In</td>
+            <td>Конечный монитор цепочки</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
- <div class="subcard">
- <h4>2. Расчет пропускной способности DisplayPort MST в режиме 2-lane DP</h4>
- <div style="margin-bottom: 12px;">
- <label for="v3_calc_mst">Расчет суммарной полосы двух мониторов QHD@60Hz (2 × 5.63 Гбит/с ≈ 11.3 Гбит/с) и сопоставление с полосой 2-lane DP 1.4 HBR3 (12.96 Гбит/с):</label>
- <textarea id="v3_calc_mst" placeholder=""></textarea>
- </div>
- <div>
- <label for="v3_why_not_hdmi">Почему интерфейс HDMI непригоден для организации цепочки Daisy Chain (топология точка-точка, отсутствие протокола MST):</label>
- <textarea id="v3_why_not_hdmi" placeholder=""></textarea>
- </div>
- </div>
+    <div class="subcard">
+      <h4>2. Расчет пропускной способности DisplayPort MST в режиме 2-lane DP</h4>
+      <div style="margin-bottom: 12px;">
+        <label for="v3_calc_mst">Расчет суммарной полосы двух мониторов QHD@60Hz (2 × 5.63 Гбит/с ≈ 11.3 Гбит/с) и сопоставление с полосой 2-lane DP 1.4 HBR3 (12.96 Гбит/с):</label>
+        <textarea id="v3_calc_mst" placeholder=""></textarea>
+      </div>
+      <div>
+        <label for="v3_why_not_hdmi">Почему интерфейс HDMI непригоден для организации цепочки Daisy Chain (топология точка-точка, отсутствие протокола MST):</label>
+        <textarea id="v3_why_not_hdmi" placeholder=""></textarea>
+      </div>
+    </div>
 
- <div class="subcard">
- <h4>3. Баланс мощности питания USB Power Delivery (65W Pass-Through)</h4>
- <div>
- <label for="v3_power_calc">Расчет потерь мощности в хабе (потребление контроллера хаба 15 Вт: сетевой адаптер должен выдавать 80–100 Вт, чтобы до ноутбука дошло 65 Вт):</label>
- <textarea id="v3_power_calc" placeholder=""></textarea>
- </div>
- </div>
+    <div class="subcard">
+      <h4>3. Баланс мощности питания USB Power Delivery (65W Pass-Through)</h4>
+      <div>
+        <label for="v3_power_calc">Расчет потерь мощности в хабе (потребление контроллера хаба 15 Вт: сетевой адаптер должен выдавать 80–100 Вт, чтобы до ноутбука дошло 65 Вт):</label>
+        <textarea id="v3_power_calc" placeholder=""></textarea>
+      </div>
+    </div>
 
- <div class="subcard">
- <h4>4. Текстовая схема коммутации и чек-лист инженерного аудита</h4>
- <div style="margin-bottom: 12px;">
- <label for="v3_scheme">Схема кабельных линий (БП ↔ Хаб ↔ Ультрабук; Хаб ↔ Монитор 1 [DP In / DP Out] ↔ Монитор 2 [DP In]):</label>
- <textarea id="v3_scheme" placeholder="" style="min-height: 100px;"></textarea>
- </div>
- <div>
- <label for="v3_checklist">Чек-лист предпускового аудита (включение режима MST в меню монитора 1, отключение DP 1.1 режима, кабели DP-DP сертифицированные):</label>
- <textarea id="v3_checklist" placeholder=""></textarea>
- </div>
- </div>
- </div>
+    <div class="subcard">
+      <h4>4. Текстовая схема коммутации и чек-лист инженерного аудита</h4>
+      <div style="margin-bottom: 12px;">
+        <label for="v3_scheme">Схема кабельных линий (БП ↔ Хаб ↔ Ультрабук; Хаб ↔ Монитор 1 [DP In / DP Out] ↔ Монитор 2 [DP In]):</label>
+        <textarea id="v3_scheme" placeholder="" style="min-height: 100px;"></textarea>
+      </div>
+      <div>
+        <label for="v3_checklist">Чек-лист предпускового аудита (включение режима MST в меню монитора 1, отключение DP 1.1 режима, кабели DP-DP сертифицированные):</label>
+        <textarea id="v3_checklist" placeholder=""></textarea>
+      </div>
+    </div>
+  </div>
 
- <!-- ВАРИАНТ 4 -->
- <div class="task-card variant-card" id="v4_card">
- <div class="variant-header">
- <span class="badge badge-blue">Вариант 4</span>
- <h3>Лабораторный измерительный стенд (RS-232, Virtual COM, Осциллограф)</h3>
- <p>Оборудование: Промышленный ПК, цифровой двухканальный запоминающий осциллограф с шиной USB Virtual COM, микроконтроллерный стенд с интерфейсом RS-232 / UART, оптическая гальваническая развязка USB, экранированные кабели с ферритовыми кольцами.</p>
- </div>
+  <!-- ВАРИАНТ 4 -->
+  <div class="task-card variant-card" id="v4_card">
+    <div class="variant-header">
+      <span class="badge badge-blue">Вариант 4</span>
+      <h3>Лабораторный измерительный стенд (RS-232, Virtual COM, Осциллограф)</h3>
+      <p>Оборудование: Промышленный ПК, цифровой двухканальный запоминающий осциллограф с шиной USB Virtual COM, микроконтроллерный стенд с интерфейсом RS-232 / UART, оптическая гальваническая развязка USB, экранированные кабели с ферритовыми кольцами.</p>
+    </div>
 
- <div class="subcard">
- <h4>1. Спецификация измерительных узлов и сигнальных интерфейсов</h4>
- <table>
- <thead>
- <tr>
- <th>Прибор / Узел</th>
- <th>Назначение</th>
- <th>Физический разъем</th>
- <th>Уровни сигналов и защита</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td>Промышленный ПК</td>
- <td>Сбор и математическая обработка телеметрии</td>
- <td>USB Type-A, COM (DB-9M)</td>
- <td>Заземленный корпус стандарта IEC 61140</td>
- </tr>
- <tr>
- <td>Осциллограф USB</td>
- <td>Цифровая регистрация сигналов (до 100 МГц)</td>
- <td>USB Type-B</td>
- <td>Изолированный USB-порт (гальваноразвязка 2.5 кВ)</td>
- </tr>
- <tr>
- <td>Стенд МК (UART/RS-232)</td>
- <td>Отладка микроконтроллера STM32/AVR</td>
- <td>DB-9F / Клеммная колодка</td>
- <td>Уровни RS-232 (±12 В) через микросхему MAX232 / MAX3232</td>
- </tr>
- <tr>
- <td>USB-Изолятор</td>
- <td>Оптоэлектронная / емкостная изоляция шины</td>
- <td>USB Type-A In / Out</td>
- <td>Микросхема ADuM3160 / ADuM4160 (Analog Devices)</td>
- </tr>
- </tbody>
- </table>
- </div>
+    <div class="subcard">
+      <h4>1. Спецификация измерительных узлов и сигнальных интерфейсов</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Прибор / Узел</th>
+            <th>Назначение</th>
+            <th>Физический разъем</th>
+            <th>Уровни сигналов и защита</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Промышленный ПК</td>
+            <td>Сбор и математическая обработка телеметрии</td>
+            <td>USB Type-A, COM (DB-9M)</td>
+            <td>Заземленный корпус стандарта IEC 61140</td>
+          </tr>
+          <tr>
+            <td>Осциллограф USB</td>
+            <td>Цифровая регистрация сигналов (до 100 МГц)</td>
+            <td>USB Type-B</td>
+            <td>Изолированный USB-порт (гальваноразвязка 2.5 кВ)</td>
+          </tr>
+          <tr>
+            <td>Стенд МК (UART/RS-232)</td>
+            <td>Отладка микроконтроллера STM32/AVR</td>
+            <td>DB-9F / Клеммная колодка</td>
+            <td>Уровни RS-232 (±12 В) через микросхему MAX232 / MAX3232</td>
+          </tr>
+          <tr>
+            <td>USB-Изолятор</td>
+            <td>Оптоэлектронная / емкостная изоляция шины</td>
+            <td>USB Type-A In / Out</td>
+            <td>Микросхема ADuM3160 / ADuM4160 (Analog Devices)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
- <div class="subcard">
- <h4>2. Анализ гальванической развязки и устранение токовых петель (Ground Loops)</h4>
- <div style="margin-bottom: 12px;">
- <label for="v4_ground_loop">Физика возникновения паразитного уравнительного тока через экран USB-кабеля при подключении заземленного осциллографа к исследуемой цепи:</label>
- <textarea id="v4_ground_loop" placeholder=""></textarea>
- </div>
- <div>
- <label for="v4_ferrite_rule">Принцип работы ферритового фильтра (Ferrite Bead) и правила подавления синфазных помех от импульсных преобразователей:</label>
- <textarea id="v4_ferrite_rule" placeholder=""></textarea>
- </div>
- </div>
+    <div class="subcard">
+      <h4>2. Анализ гальванической развязки и устранение токовых петель (Ground Loops)</h4>
+      <div style="margin-bottom: 12px;">
+        <label for="v4_ground_loop">Физика возникновения паразитного уравнительного тока через экран USB-кабеля при подключении заземленного осциллографа к исследуемой цепи:</label>
+        <textarea id="v4_ground_loop" placeholder=""></textarea>
+      </div>
+      <div>
+        <label for="v4_ferrite_rule">Принцип работы ферритового фильтра (Ferrite Bead) и правила подавления синфазных помех от импульсных преобразователей:</label>
+        <textarea id="v4_ferrite_rule" placeholder=""></textarea>
+      </div>
+    </div>
 
- <div class="subcard">
- <h4>3. Согласование электрических уровней RS-232 и UART (USB Virtual COM)</h4>
- <div>
- <label for="v4_rs232_levels">Сравнение уровней напряжения (КМОП UART 0–3.3V vs стандарт RS-232 от -12V до +12V), риск физического выгорания портов микроконтроллера:</label>
- <textarea id="v4_rs232_levels" placeholder=""></textarea>
- </div>
- </div>
+    <div class="subcard">
+      <h4>3. Согласование электрических уровней RS-232 и UART (USB Virtual COM)</h4>
+      <div>
+        <label for="v4_rs232_levels">Сравнение уровней напряжения (КМОП UART 0–3.3V vs стандарт RS-232 от -12V до +12V), риск физического выгорания портов микроконтроллера:</label>
+        <textarea id="v4_rs232_levels" placeholder=""></textarea>
+      </div>
+    </div>
 
- <div class="subcard">
- <h4>4. Текстовая схема коммутации и чек-лист инженерного аудита</h4>
- <div style="margin-bottom: 12px;">
- <label for="v4_scheme">Схема кабельной коммутации стенда (ПК ↔ USB Изолятор ↔ Осциллограф; ПК ↔ USB-UART переходник с развязкой ↔ МК стенд ↔ Общий заземляющий контур):</label>
- <textarea id="v4_scheme" placeholder="" style="min-height: 100px;"></textarea>
- </div>
- <div>
- <label for="v4_checklist">Чек-лист предпускового аудита (проверка наличия антистатического браслета ESD 1 МОм, выравнивание потенциалов шиной PE, целостность экранов кабелей):</label>
- <textarea id="v4_checklist" placeholder=""></textarea>
- </div>
- </div>
- </div>
+    <div class="subcard">
+      <h4>4. Текстовая схема коммутации и чек-лист инженерного аудита</h4>
+      <div style="margin-bottom: 12px;">
+        <label for="v4_scheme">Схема кабельной коммутации стенда (ПК ↔ USB Изолятор ↔ Осциллограф; ПК ↔ USB-UART переходник с развязкой ↔ МК стенд ↔ Общий заземляющий контур):</label>
+        <textarea id="v4_scheme" placeholder="" style="min-height: 100px;"></textarea>
+      </div>
+      <div>
+        <label for="v4_checklist">Чек-лист предпускового аудита (проверка наличия антистатического браслета ESD 1 МОм, выравнивание потенциалов шиной PE, целостность экранов кабелей):</label>
+        <textarea id="v4_checklist" placeholder=""></textarea>
+      </div>
+    </div>
+  </div>
 
- <div class="actions-card">
- <button type="button" class="btn" onclick="saveData()">Сохранить данные</button>
- <button type="button" class="btn btn-secondary" onclick="exportData()">Экспорт JSON</button>
- <button type="button" class="btn btn-secondary" onclick="window.print()">Печать / Экспорт PDF</button>
- <button type="button" class="btn btn-danger" onclick="clearData()">Очистить форму</button>
- <span id="action_status" class="status-msg"></span>
- </div>
+  <div class="actions-card">
+    <button type="button" class="btn" onclick="saveData()">Сохранить данные</button>
+    <button type="button" class="btn btn-secondary" onclick="exportData()">Экспорт JSON</button>
+    <button type="button" class="btn btn-secondary" onclick="window.print()">Печать / Экспорт PDF</button>
+    <button type="button" class="btn btn-danger" onclick="clearData()">Очистить форму</button>
+    <span id="action_status" class="status-msg"></span>
+  </div>
 
 </div>
 
 <script>
- const STORAGE_KEY = 'top_pr4_part1_worksheet';
+  const STORAGE_KEY = 'top_pr4_part1_worksheet';
 
- function changeVariant(val) {
- for (let i = 1; i <= 4; i++) {
- const card = document.getElementById('v' + i + '_card');
- if (card) {
- if (i.toString() === val.toString()) {
- card.classList.add('active');
- } else {
- card.classList.remove('active');
- }
- }
- }
- }
+  function changeVariant(val) {
+    for (let i = 1; i <= 4; i++) {
+      const card = document.getElementById('v' + i + '_card');
+      if (card) {
+        if (i.toString() === val.toString()) {
+          card.classList.add('active');
+        } else {
+          card.classList.remove('active');
+        }
+      }
+    }
+  }
 
- function getFormData() {
- const v = document.getElementById('variant_select').value;
- const fields = {
- fio: document.getElementById('student_fio').value,
- group: document.getElementById('student_group').value,
- date: document.getElementById('student_date').value,
- variant: v,
- timestamp: new Date().toISOString()
- };
+  function getFormData() {
+    const v = document.getElementById('variant_select').value;
+    const fields = {
+      fio: document.getElementById('student_fio').value,
+      group: document.getElementById('student_group').value,
+      date: document.getElementById('student_date').value,
+      variant: v,
+      timestamp: new Date().toISOString()
+    };
 
- if (v === '1') {
- fields.v1_calc_bitrate = document.getElementById('v1_calc_bitrate').value;
- fields.v1_cable_spec = document.getElementById('v1_cable_spec').value;
- fields.v1_power_audit = document.getElementById('v1_power_audit').value;
- fields.v1_scheme = document.getElementById('v1_scheme').value;
- fields.v1_checklist = document.getElementById('v1_checklist').value;
- } else if (v === '2') {
- fields.v2_calc_poe = document.getElementById('v2_calc_poe').value;
- fields.v2_hdmi_split = document.getElementById('v2_hdmi_split').value;
- fields.v2_audio_sync = document.getElementById('v2_audio_sync').value;
- fields.v2_scheme = document.getElementById('v2_scheme').value;
- fields.v2_checklist = document.getElementById('v2_checklist').value;
- } else if (v === '3') {
- fields.v3_calc_mst = document.getElementById('v3_calc_mst').value;
- fields.v3_why_not_hdmi = document.getElementById('v3_why_not_hdmi').value;
- fields.v3_power_calc = document.getElementById('v3_power_calc').value;
- fields.v3_scheme = document.getElementById('v3_scheme').value;
- fields.v3_checklist = document.getElementById('v3_checklist').value;
- } else if (v === '4') {
- fields.v4_ground_loop = document.getElementById('v4_ground_loop').value;
- fields.v4_ferrite_rule = document.getElementById('v4_ferrite_rule').value;
- fields.v4_rs232_levels = document.getElementById('v4_rs232_levels').value;
- fields.v4_scheme = document.getElementById('v4_scheme').value;
- fields.v4_checklist = document.getElementById('v4_checklist').value;
- }
+    if (v === '1') {
+      fields.v1_calc_bitrate = document.getElementById('v1_calc_bitrate').value;
+      fields.v1_cable_spec = document.getElementById('v1_cable_spec').value;
+      fields.v1_power_audit = document.getElementById('v1_power_audit').value;
+      fields.v1_scheme = document.getElementById('v1_scheme').value;
+      fields.v1_checklist = document.getElementById('v1_checklist').value;
+    } else if (v === '2') {
+      fields.v2_calc_poe = document.getElementById('v2_calc_poe').value;
+      fields.v2_hdmi_split = document.getElementById('v2_hdmi_split').value;
+      fields.v2_audio_sync = document.getElementById('v2_audio_sync').value;
+      fields.v2_scheme = document.getElementById('v2_scheme').value;
+      fields.v2_checklist = document.getElementById('v2_checklist').value;
+    } else if (v === '3') {
+      fields.v3_calc_mst = document.getElementById('v3_calc_mst').value;
+      fields.v3_why_not_hdmi = document.getElementById('v3_why_not_hdmi').value;
+      fields.v3_power_calc = document.getElementById('v3_power_calc').value;
+      fields.v3_scheme = document.getElementById('v3_scheme').value;
+      fields.v3_checklist = document.getElementById('v3_checklist').value;
+    } else if (v === '4') {
+      fields.v4_ground_loop = document.getElementById('v4_ground_loop').value;
+      fields.v4_ferrite_rule = document.getElementById('v4_ferrite_rule').value;
+      fields.v4_rs232_levels = document.getElementById('v4_rs232_levels').value;
+      fields.v4_scheme = document.getElementById('v4_scheme').value;
+      fields.v4_checklist = document.getElementById('v4_checklist').value;
+    }
 
- return fields;
- }
+    return fields;
+  }
 
- function saveData() {
- try {
- const data = getFormData();
- localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
- showStatus('Данные успешно сохранены в localStorage!', true);
- } catch (e) {
- showStatus('Ошибка при сохранении: ' + e.message, false);
- }
- }
+  function saveData() {
+    try {
+      const data = getFormData();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      showStatus('Данные успешно сохранены в localStorage!', true);
+    } catch (e) {
+      showStatus('Ошибка при сохранении: ' + e.message, false);
+    }
+  }
 
- function loadData() {
- try {
- const raw = localStorage.getItem(STORAGE_KEY);
- if (!raw) return;
- const d = JSON.parse(raw);
- if (d.fio) document.getElementById('student_fio').value = d.fio;
- if (d.group) document.getElementById('student_group').value = d.group;
- if (d.date) document.getElementById('student_date').value = d.date;
- if (d.variant) {
- document.getElementById('variant_select').value = d.variant;
- changeVariant(d.variant);
- }
+  function loadData() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const d = JSON.parse(raw);
+      if (d.fio) document.getElementById('student_fio').value = d.fio;
+      if (d.group) document.getElementById('student_group').value = d.group;
+      if (d.date) document.getElementById('student_date').value = d.date;
+      if (d.variant) {
+        document.getElementById('variant_select').value = d.variant;
+        changeVariant(d.variant);
+      }
 
- if (d.v1_calc_bitrate) document.getElementById('v1_calc_bitrate').value = d.v1_calc_bitrate;
- if (d.v1_cable_spec) document.getElementById('v1_cable_spec').value = d.v1_cable_spec;
- if (d.v1_power_audit) document.getElementById('v1_power_audit').value = d.v1_power_audit;
- if (d.v1_scheme) document.getElementById('v1_scheme').value = d.v1_scheme;
- if (d.v1_checklist) document.getElementById('v1_checklist').value = d.v1_checklist;
+      if (d.v1_calc_bitrate) document.getElementById('v1_calc_bitrate').value = d.v1_calc_bitrate;
+      if (d.v1_cable_spec) document.getElementById('v1_cable_spec').value = d.v1_cable_spec;
+      if (d.v1_power_audit) document.getElementById('v1_power_audit').value = d.v1_power_audit;
+      if (d.v1_scheme) document.getElementById('v1_scheme').value = d.v1_scheme;
+      if (d.v1_checklist) document.getElementById('v1_checklist').value = d.v1_checklist;
 
- if (d.v2_calc_poe) document.getElementById('v2_calc_poe').value = d.v2_calc_poe;
- if (d.v2_hdmi_split) document.getElementById('v2_hdmi_split').value = d.v2_hdmi_split;
- if (d.v2_audio_sync) document.getElementById('v2_audio_sync').value = d.v2_audio_sync;
- if (d.v2_scheme) document.getElementById('v2_scheme').value = d.v2_scheme;
- if (d.v2_checklist) document.getElementById('v2_checklist').value = d.v2_checklist;
+      if (d.v2_calc_poe) document.getElementById('v2_calc_poe').value = d.v2_calc_poe;
+      if (d.v2_hdmi_split) document.getElementById('v2_hdmi_split').value = d.v2_hdmi_split;
+      if (d.v2_audio_sync) document.getElementById('v2_audio_sync').value = d.v2_audio_sync;
+      if (d.v2_scheme) document.getElementById('v2_scheme').value = d.v2_scheme;
+      if (d.v2_checklist) document.getElementById('v2_checklist').value = d.v2_checklist;
 
- if (d.v3_calc_mst) document.getElementById('v3_calc_mst').value = d.v3_calc_mst;
- if (d.v3_why_not_hdmi) document.getElementById('v3_why_not_hdmi').value = d.v3_why_not_hdmi;
- if (d.v3_power_calc) document.getElementById('v3_power_calc').value = d.v3_power_calc;
- if (d.v3_scheme) document.getElementById('v3_scheme').value = d.v3_scheme;
- if (d.v3_checklist) document.getElementById('v3_checklist').value = d.v3_checklist;
+      if (d.v3_calc_mst) document.getElementById('v3_calc_mst').value = d.v3_calc_mst;
+      if (d.v3_why_not_hdmi) document.getElementById('v3_why_not_hdmi').value = d.v3_why_not_hdmi;
+      if (d.v3_power_calc) document.getElementById('v3_power_calc').value = d.v3_power_calc;
+      if (d.v3_scheme) document.getElementById('v3_scheme').value = d.v3_scheme;
+      if (d.v3_checklist) document.getElementById('v3_checklist').value = d.v3_checklist;
 
- if (d.v4_ground_loop) document.getElementById('v4_ground_loop').value = d.v4_ground_loop;
- if (d.v4_ferrite_rule) document.getElementById('v4_ferrite_rule').value = d.v4_ferrite_rule;
- if (d.v4_rs232_levels) document.getElementById('v4_rs232_levels').value = d.v4_rs232_levels;
- if (d.v4_scheme) document.getElementById('v4_scheme').value = d.v4_scheme;
- if (d.v4_checklist) document.getElementById('v4_checklist').value = d.v4_checklist;
+      if (d.v4_ground_loop) document.getElementById('v4_ground_loop').value = d.v4_ground_loop;
+      if (d.v4_ferrite_rule) document.getElementById('v4_ferrite_rule').value = d.v4_ferrite_rule;
+      if (d.v4_rs232_levels) document.getElementById('v4_rs232_levels').value = d.v4_rs232_levels;
+      if (d.v4_scheme) document.getElementById('v4_scheme').value = d.v4_scheme;
+      if (d.v4_checklist) document.getElementById('v4_checklist').value = d.v4_checklist;
 
- } catch (e) {
- console.error(e);
- }
- }
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
- function exportData() {
- saveData();
- const raw = localStorage.getItem(STORAGE_KEY) | '{}';
- const blob = new Blob([raw], { type: 'application/json' });
- const url = URL.createObjectURL(blob);
- const a = document.createElement('a');
- a.href = url;
- a.download = 'PR4_Part1_' + (document.getElementById('student_fio').value.replace(/\s+/g, '_') | 'student') + '.json';
- a.click();
- URL.revokeObjectURL(url);
- }
+  function exportData() {
+    saveData();
+    const raw = localStorage.getItem(STORAGE_KEY) || '{}';
+    const blob = new Blob([raw], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'PR4_Part1_' + (document.getElementById('student_fio').value.replace(/\s+/g, '_') || 'student') + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
- function clearData() {
- if (confirm('Вы действительно хотите полностью очистить форму? Все введенные данные текущего варианта будут удалены.')) {
- localStorage.removeItem(STORAGE_KEY);
- const textareas = document.querySelectorAll('textarea');
- textareas.forEach(t => t.value = '');
- document.getElementById('student_fio').value = '';
- document.getElementById('student_group').value = '';
- document.getElementById('student_date').value = '';
- showStatus('Форма полностью очищена.', false);
- }
- }
+  function clearData() {
+    if (confirm('Вы действительно хотите полностью очистить форму? Все введенные данные текущего варианта будут удалены.')) {
+      localStorage.removeItem(STORAGE_KEY);
+      const textareas = document.querySelectorAll('textarea');
+      textareas.forEach(t => t.value = '');
+      document.getElementById('student_fio').value = '';
+      document.getElementById('student_group').value = '';
+      document.getElementById('student_date').value = '';
+      showStatus('Форма полностью очищена.', false);
+    }
+  }
 
- function showStatus(msg, ok) {
- const s = document.getElementById('action_status');
- s.textContent = msg;
- s.className = 'status-msg ' + (ok ? 'status-ok' : 'status-err');
- setTimeout(() => { s.textContent = ''; }, 4000);
- }
+  function showStatus(msg, ok) {
+    const s = document.getElementById('action_status');
+    s.textContent = msg;
+    s.className = 'status-msg ' + (ok ? 'status-ok' : 'status-err');
+    setTimeout(() => { s.textContent = ''; }, 4000);
+  }
 
- window.addEventListener('DOMContentLoaded', () => {
- loadData();
- if (!document.getElementById('student_date').value) {
- document.getElementById('student_date').valueAsDate = new Date();
- }
- });
+  window.addEventListener('DOMContentLoaded', () => {
+    loadData();
+    if (!document.getElementById('student_date').value) {
+      document.getElementById('student_date').valueAsDate = new Date();
+    }
+  });
 </script>
 
 </body>

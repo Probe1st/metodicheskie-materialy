@@ -1,474 +1,501 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>Домашнее задание - Реляционная модель данных: таблицы и ограничения</title>
- <style>
- :root {
- --bg: #f8fafc;
- --card-bg: #ffffff;
- --text: #0f172a;
- --text-muted: #475569;
- --border: #cbd5e1;
- --accent: #0284c7;
- --accent-hover: #0369a1;
- --accent-soft: #f0f9ff;
- }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Домашнее задание - Реляционная модель данных: таблицы и ограничения</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #cbd5e1;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --accent-soft: #f0f9ff;
+    }
 
- * {
- box-sizing: border-box;
- margin: 0;
- padding: 0;
- }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
- body {
- font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
- background-color: var(--bg);
- color: var(--text);
- line-height: 1.6;
- padding: 24px 16px;
- }.container {
- max-width: 900px;
- margin: 0 auto;
- }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px;
+    }
 
- header.hw-header {
- background: var(--card-bg);
- border: 1px solid var(--border);
- border-radius: 12px;
- padding: 24px 28px;
- margin-bottom: 24px;
- box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
- }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
 
- h1 {
- font-size: 2rem;
- font-weight: 800;
- color: var(--text);
- margin-bottom: 8px;
- }.reserve-notice {
- display: inline-block;
- background-color: #fef3c7;
- color: #92400e;
- padding: 10px 16px;
- border-radius: 8px;
- font-size: 0.95rem;
- font-weight: 600;
- margin-bottom: 14px;
- border-left: 4px solid #f59e0b;
- line-height: 1.45;
- }.instruction {
- font-size: 1rem;
- color: var(--text-muted);
- line-height: 1.5;
- }.deadline-notice {
- margin-top: 10px;
- font-size: 0.92rem;
- font-style: italic;
- color: var(--accent-hover);
- }.student-meta {
- display: grid;
- grid-template-columns: 1fr 1fr;
- gap: 16px;
- margin-top: 18px;
- padding-top: 16px;
- border-top: 1px solid var(--border);
- }.meta-field {
- display: flex;
- flex-direction: column;
- gap: 6px;
- }.meta-field label {
- font-size: 0.85rem;
- font-weight: 600;
- color: var(--text-muted);
- text-transform: uppercase;
- letter-spacing: 0.05em;
- }.meta-field input {
- padding: 8px 12px;
- border: 1px solid var(--border);
- border-radius: 6px;
- font-size: 0.95rem;
- color: var(--text);
- outline: none;
- }.meta-field input:focus {
- border-color: var(--accent);
- box-shadow: 0 0 0 2px var(--accent-soft);
- }
+    header.hw-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
 
- section.task-card {
- background: var(--card-bg);
- border: 1px solid var(--border);
- border-radius: 12px;
- padding: 24px 28px;
- margin-bottom: 24px;
- box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
- }
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
 
- h2 {
- font-size: 1.35rem;
- font-weight: 700;
- color: #0369a1;
- margin-bottom: 14px;
- border-left: 4px solid var(--accent);
- padding-left: 10px;
- }
+    .reserve-notice {
+      display: inline-block;
+      background-color: #fef3c7;
+      color: #92400e;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+      border-left: 4px solid #f59e0b;
+      line-height: 1.45;
+    }
 
- h3 {
- font-size: 1.1rem;
- font-weight: 600;
- margin: 16px 0 8px 0;
- color: #1e293b;
- }
+    .instruction {
+      font-size: 1rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
 
- p {
- margin-bottom: 12px;
- }
+    .deadline-notice {
+      margin-top: 10px;
+      font-size: 0.92rem;
+      font-style: italic;
+      color: var(--accent-hover);
+    }
 
- table.data-table {
- width: 100%;
- border-collapse: collapse;
- margin: 14px 0;
- font-size: 0.92rem;
- }
+    .student-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
 
- table.data-table th, table.data-table td {
- border: 1px solid var(--border);
- padding: 8px 12px;
- text-align: left;
- }
+    .meta-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
 
- table.data-table th {
- background-color: #f1f5f9;
- font-weight: 700;
- color: #334155;
- }.form-group {
- margin-top: 14px;
- display: flex;
- flex-direction: column;
- gap: 6px;
- }.form-group label {
- font-size: 0.9rem;
- font-weight: 600;
- color: #334155;
- }
+    .meta-field label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
 
- textarea.input-area {
- width: 100%;
- min-height: 90px;
- padding: 10px 12px;
- border: 1px solid var(--border);
- border-radius: 6px;
- font-family: inherit;
- font-size: 0.95rem;
- line-height: 1.5;
- color: var(--text);
- resize: vertical;
- outline: none;
- }
+    .meta-field input {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      color: var(--text);
+      outline: none;
+    }
 
- textarea.input-area:focus {
- border-color: var(--accent);
- box-shadow: 0 0 0 2px var(--accent-soft);
- }.actions-bar {
- display: flex;
- gap: 12px;
- margin-top: 24px;
- margin-bottom: 40px;
- }
+    .meta-field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
 
- button.btn {
- padding: 10px 20px;
- font-size: 0.95rem;
- font-weight: 600;
- border-radius: 6px;
- cursor: pointer;
- border: none;
- transition: all 0.2s ease;
- }
+    section.task-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
 
- button.btn-primary {
- background: var(--accent);
- color: #ffffff;
- }
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #0369a1;
+      margin-bottom: 14px;
+      border-left: 4px solid var(--accent);
+      padding-left: 10px;
+    }
 
- button.btn-primary:hover {
- background: var(--accent-hover);
- }
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 16px 0 8px 0;
+      color: #1e293b;
+    }
 
- button.btn-secondary {
- background: #e2e8f0;
- color: #334155;
- }
+    p {
+      margin-bottom: 12px;
+    }
 
- button.btn-secondary:hover {
- background: #cbd5e1;
- }.save-status {
- font-size: 0.9rem;
- color: #16a34a;
- align-self: center;
- display: none;
- font-weight: 600;
- }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.92rem;
+    }
 
- @media print {
- body {
- background: #ffffff;
- color: #000000;
- padding: 0;
- }.actions-bar,.reserve-notice {
- display: none !important;
- }
- section.task-card, header.hw-header {
- border: 1px solid #94a3b8;
- box-shadow: none;
- page-break-inside: avoid;
- }
- textarea.input-area {
- border: 1px solid #64748b;
- color: #000000;
- }
- }
- </style>
+    table.data-table th, table.data-table td {
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    table.data-table th {
+      background-color: #f1f5f9;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .form-group {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    textarea.input-area {
+      width: 100%;
+      min-height: 90px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: var(--text);
+      resize: vertical;
+      outline: none;
+    }
+
+    textarea.input-area:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    .actions-bar {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      margin-bottom: 40px;
+    }
+
+    button.btn {
+      padding: 10px 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    button.btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    button.btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    button.btn-secondary {
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    button.btn-secondary:hover {
+      background: #cbd5e1;
+    }
+
+    .save-status {
+      font-size: 0.9rem;
+      color: #16a34a;
+      align-self: center;
+      display: none;
+      font-weight: 600;
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+        color: #000000;
+        padding: 0;
+      }
+      .actions-bar, .reserve-notice {
+        display: none !important;
+      }
+      section.task-card, header.hw-header {
+        border: 1px solid #94a3b8;
+        box-shadow: none;
+        page-break-inside: avoid;
+      }
+      textarea.input-area {
+        border: 1px solid #64748b;
+        color: #000000;
+      }
+    }
+  </style>
 </head>
 <body>
- <div class="container">
- <header class="hw-header">
- <h1>Домашнее задание - Реляционная модель данных: таблицы и ограничения</h1>
- <div class="reserve-notice">
- Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
- </div>
- <p class="instruction">
- Данное задание является резервным дистанционным материалом. Оно направлено на закрепление понятий реляционной модели данных, практический аудит аномалий, выявление нарушений ссылочной целостности и формулирование ограничений CHECK.
- </p>
- <div class="deadline-notice">
- Срок сдачи: по согласованию с преподавателем (до начала следующего занятия по расписанию).
- </div>
+  <div class="container">
+    <header class="hw-header">
+      <h1>Домашнее задание - Реляционная модель данных: таблицы и ограничения</h1>
+      <div class="reserve-notice">
+        Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+      </div>
+      <p class="instruction">
+        Данное задание является резервным дистанционным материалом. Оно направлено на закрепление понятий реляционной модели данных, практический аудит аномалий, выявление нарушений ссылочной целостности и формулирование ограничений CHECK.
+      </p>
+      <div class="deadline-notice">
+        Срок сдачи: по согласованию с преподавателем (до начала следующего занятия по расписанию).
+      </div>
 
- <div class="student-meta">
- <div class="meta-field">
- <label for="studentFio">ФИО студента:</label>
- <input type="text" id="studentFio" placeholder="">
- </div>
- <div class="meta-field">
- <label for="studentGroup">Учебная группа:</label>
- <input type="text" id="studentGroup" placeholder="">
- </div>
- </div>
- </header>
+      <div class="student-meta">
+        <div class="meta-field">
+          <label for="studentFio">ФИО студента:</label>
+          <input type="text" id="studentFio" placeholder="">
+        </div>
+        <div class="meta-field">
+          <label for="studentGroup">Учебная группа:</label>
+          <input type="text" id="studentGroup" placeholder="">
+        </div>
+      </div>
+    </header>
 
- <!-- Задание 1 -->
- <section class="task-card">
- <h2>Задание 1. Анализ и выявление нарушений ссылочной целостности</h2>
- <p>
- Ниже представлены фрагменты содержимого двух таблиц информационной системы университета: родительской таблицы <code>Группы</code> и дочерней таблицы <code>Студенты</code>. Столбец <code>group_code</code> в таблице «Студенты» объявлен как внешний ключ (<code>FOREIGN KEY</code>), ссылающийся на столбец <code>group_code</code> таблицы «Группы».
- </p>
+    <!-- Задание 1 -->
+    <section class="task-card">
+      <h2>Задание 1. Анализ и выявление нарушений ссылочной целостности</h2>
+      <p>
+        Ниже представлены фрагменты содержимого двух таблиц информационной системы университета: родительской таблицы <code>Группы</code> и дочерней таблицы <code>Студенты</code>. Столбец <code>group_code</code> в таблице «Студенты» объявлен как внешний ключ (<code>FOREIGN KEY</code>), ссылающийся на столбец <code>group_code</code> таблицы «Группы».
+      </p>
 
- <h3>Родительская таблица: Группы (Groups)</h3>
- <table class="data-table">
- <thead>
- <tr>
- <th>group_code (PK)</th>
- <th>specialty</th>
- <th>course_num</th>
- <th>max_students</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>ИС-21</strong></td>
- <td>09.02.07 ИСиП</td>
- <td>2</td>
- <td>25</td>
- </tr>
- <tr>
- <td><strong>СА-22</strong></td>
- <td>09.02.06 СиСА</td>
- <td>2</td>
- <td>28</td>
- </tr>
- <tr>
- <td><strong>ВД-23</strong></td>
- <td>09.02.07 Веб-разработка</td>
- <td>2</td>
- <td>25</td>
- </tr>
- </tbody>
- </table>
+      <h3>Родительская таблица: Группы (Groups)</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>group_code (PK)</th>
+            <th>specialty</th>
+            <th>course_num</th>
+            <th>max_students</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>ИС-21</strong></td>
+            <td>09.02.07 ИСиП</td>
+            <td>2</td>
+            <td>25</td>
+          </tr>
+          <tr>
+            <td><strong>СА-22</strong></td>
+            <td>09.02.06 СиСА</td>
+            <td>2</td>
+            <td>28</td>
+          </tr>
+          <tr>
+            <td><strong>ВД-23</strong></td>
+            <td>09.02.07 Веб-разработка</td>
+            <td>2</td>
+            <td>25</td>
+          </tr>
+        </tbody>
+      </table>
 
- <h3>Дочерняя таблица: Студенты (Students)</h3>
- <table class="data-table">
- <thead>
- <tr>
- <th>student_id (PK)</th>
- <th>full_name</th>
- <th>group_code (FK)</th>
- <th>enrollment_year</th>
- <th>gpa</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td>101</td>
- <td>Алексеев Данил Сергеевич</td>
- <td>ИС-21</td>
- <td>2024</td>
- <td>4.5</td>
- </tr>
- <tr>
- <td>102</td>
- <td>Белова Екатерина Игоревна</td>
- <td><strong>ПМ-20</strong></td>
- <td>2024</td>
- <td>4.8</td>
- </tr>
- <tr>
- <td>103</td>
- <td>Воронов Артем Михайлович</td>
- <td>СА-22</td>
- <td>2024</td>
- <td>3.9</td>
- </tr>
- <tr>
- <td>104</td>
- <td>Григорьев Максим Андреевич</td>
- <td><strong>NULL</strong></td>
- <td>2024</td>
- <td>4.1</td>
- </tr>
- <tr>
- <td>105</td>
- <td>Дмитриева Анна Павловна</td>
- <td><strong>ЭК-25</strong></td>
- <td>2024</td>
- <td>4.7</td>
- </tr>
- <tr>
- <td>106</td>
- <td><strong>NULL</strong></td>
- <td>ИС-21</td>
- <td>2024</td>
- <td>3.6</td>
- </tr>
- </tbody>
- </table>
+      <h3>Дочерняя таблица: Студенты (Students)</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>student_id (PK)</th>
+            <th>full_name</th>
+            <th>group_code (FK)</th>
+            <th>enrollment_year</th>
+            <th>gpa</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>101</td>
+            <td>Алексеев Данил Сергеевич</td>
+            <td>ИС-21</td>
+            <td>2024</td>
+            <td>4.5</td>
+          </tr>
+          <tr>
+            <td>102</td>
+            <td>Белова Екатерина Игоревна</td>
+            <td><strong>ПМ-20</strong></td>
+            <td>2024</td>
+            <td>4.8</td>
+          </tr>
+          <tr>
+            <td>103</td>
+            <td>Воронов Артем Михайлович</td>
+            <td>СА-22</td>
+            <td>2024</td>
+            <td>3.9</td>
+          </tr>
+          <tr>
+            <td>104</td>
+            <td>Григорьев Максим Андреевич</td>
+            <td><strong>NULL</strong></td>
+            <td>2024</td>
+            <td>4.1</td>
+          </tr>
+          <tr>
+            <td>105</td>
+            <td>Дмитриева Анна Павловна</td>
+            <td><strong>ЭК-25</strong></td>
+            <td>2024</td>
+            <td>4.7</td>
+          </tr>
+          <tr>
+            <td>106</td>
+            <td><strong>NULL</strong></td>
+            <td>ИС-21</td>
+            <td>2024</td>
+            <td>3.6</td>
+          </tr>
+        </tbody>
+      </table>
 
- <div class="form-group">
- <label for="ans1">1.1. Выявите все кортежи таблицы «Студенты», нарушающие правила реляционной модели данных (целостность сущности и ссылочную целостность). Укажите конкретные строки (student_id) и обоснуйте причину нарушения:</label>
- <textarea id="ans1" class="input-area" placeholder=""></textarea>
- </div>
+      <div class="form-group">
+        <label for="ans1">1.1. Выявите все кортежи таблицы «Студенты», нарушающие правила реляционной модели данных (целостность сущности и ссылочную целостность). Укажите конкретные строки (student_id) и обоснуйте причину нарушения:</label>
+        <textarea id="ans1" class="input-area" placeholder=""></textarea>
+      </div>
 
- <div class="form-group">
- <label for="ans2">1.2. Допустимо ли значение NULL в столбце group_code для студента 104 с точки зрения чистой теории РМД Кодда? В каком практическом случае СУБД разрешит такую запись, а в каком отвергнет?</label>
- <textarea id="ans2" class="input-area" placeholder=""></textarea>
- </div>
- </section>
+      <div class="form-group">
+        <label for="ans2">1.2. Допустимо ли значение NULL в столбце group_code для студента 104 с точки зрения чистой теории РМД Кодда? В каком практическом случае СУБД разрешит такую запись, а в каком отвергнет?</label>
+        <textarea id="ans2" class="input-area" placeholder=""></textarea>
+      </div>
+    </section>
 
- <!-- Задание 2 -->
- <section class="task-card">
- <h2>Задание 2. Моделирование операций ON DELETE</h2>
- <p>
- Администратор базы данных выполняет команду удаления группы:
- <br><code>DELETE FROM groups WHERE group_code = 'СА-22';</code>
- </p>
- <div class="form-group">
- <label for="ans3">2.1. Опишите точное поведение реляционной СУБД, если для внешнего ключа задано правило <code>ON DELETE RESTRICT</code>:</label>
- <textarea id="ans3" class="input-area" placeholder=""></textarea>
- </div>
- <div class="form-group">
- <label for="ans4">2.2. Что произойдет с записью студента Воронова (student_id = 103), если внешний ключ сконфигурирован с опцией <code>ON DELETE CASCADE</code>? Почему для контингента студентов каскадное удаление является опасным?</label>
- <textarea id="ans4" class="input-area" placeholder=""></textarea>
- </div>
- </section>
+    <!-- Задание 2 -->
+    <section class="task-card">
+      <h2>Задание 2. Моделирование операций ON DELETE</h2>
+      <p>
+        Администратор базы данных выполняет команду удаления группы:
+        <br><code>DELETE FROM groups WHERE group_code = 'СА-22';</code>
+      </p>
+      <div class="form-group">
+        <label for="ans3">2.1. Опишите точное поведение реляционной СУБД, если для внешнего ключа задано правило <code>ON DELETE RESTRICT</code>:</label>
+        <textarea id="ans3" class="input-area" placeholder=""></textarea>
+      </div>
+      <div class="form-group">
+        <label for="ans4">2.2. Что произойдет с записью студента Воронова (student_id = 103), если внешний ключ сконфигурирован с опцией <code>ON DELETE CASCADE</code>? Почему для контингента студентов каскадное удаление является опасным?</label>
+        <textarea id="ans4" class="input-area" placeholder=""></textarea>
+      </div>
+    </section>
 
- <!-- Задание 3 -->
- <section class="task-card">
- <h2>Задание 3. Проектирование ограничений семантической целостности (CHECK)</h2>
- <p>
- Сформулируйте декларативные ограничения целостности (предикаты <code>CHECK</code>) для защиты информационной системы колледжа от логических ошибок:
- </p>
- <div class="form-group">
- <label for="ans5">3.1. Ограничение для таблицы «Студенты»: средний балл (gpa) должен быть строго в диапазоне от 2.0 до 5.0 включительно. Напишите фрагмент SQL-кода:</label>
- <textarea id="ans5" class="input-area" placeholder=""></textarea>
- </div>
- <div class="form-group">
- <label for="ans6">3.2. Ограничение для таблицы «Группы»: курс (course_num) должен принимать значения от 1 до 4, а максимальное число студентов (max_students) — от 10 до 35. Напишите фрагмент SQL-кода:</label>
- <textarea id="ans6" class="input-area" placeholder=""></textarea>
- </div>
- </section>
+    <!-- Задание 3 -->
+    <section class="task-card">
+      <h2>Задание 3. Проектирование ограничений семантической целостности (CHECK)</h2>
+      <p>
+        Сформулируйте декларативные ограничения целостности (предикаты <code>CHECK</code>) для защиты информационной системы колледжа от логических ошибок:
+      </p>
+      <div class="form-group">
+        <label for="ans5">3.1. Ограничение для таблицы «Студенты»: средний балл (gpa) должен быть строго в диапазоне от 2.0 до 5.0 включительно. Напишите фрагмент SQL-кода:</label>
+        <textarea id="ans5" class="input-area" placeholder=""></textarea>
+      </div>
+      <div class="form-group">
+        <label for="ans6">3.2. Ограничение для таблицы «Группы»: курс (course_num) должен принимать значения от 1 до 4, а максимальное число студентов (max_students) — от 10 до 35. Напишите фрагмент SQL-кода:</label>
+        <textarea id="ans6" class="input-area" placeholder=""></textarea>
+      </div>
+    </section>
 
- <!-- Кнопки управления -->
- <div class="actions-bar">
- <button class="btn btn-primary" id="saveBtn">Сохранить ответы</button>
- <button class="btn btn-secondary" id="printBtn">Распечатать / Экспорт в PDF</button>
- <button class="btn btn-secondary" id="clearBtn">Очистить поля</button>
- <span class="save-status" id="saveStatus">Данные сохранены в браузере!</span>
- </div>
- </div>
+    <!-- Кнопки управления -->
+    <div class="actions-bar">
+      <button class="btn btn-primary" id="saveBtn">Сохранить ответы</button>
+      <button class="btn btn-secondary" id="printBtn">Распечатать / Экспорт в PDF</button>
+      <button class="btn btn-secondary" id="clearBtn">Очистить поля</button>
+      <span class="save-status" id="saveStatus">Данные сохранены в браузере!</span>
+    </div>
+  </div>
 
- <script>
- (function() {
- const STORAGE_KEY = 'sie_db_hw07_data';
- const fields = ['studentFio', 'studentGroup', 'ans1', 'ans2', 'ans3', 'ans4', 'ans5', 'ans6'];
+  <script>
+    (function() {
+      const STORAGE_KEY = 'sie_db_hw07_data';
+      const fields = ['studentFio', 'studentGroup', 'ans1', 'ans2', 'ans3', 'ans4', 'ans5', 'ans6'];
 
- function loadData() {
- const saved = localStorage.getItem(STORAGE_KEY);
- if (!saved) return;
- try {
- const data = JSON.parse(saved);
- fields.forEach(f => {
- const el = document.getElementById(f);
- if (el && data[f] !== undefined) el.value = data[f];
- });
- } catch (e) {
- console.error('Ошибка загрузки данных', e);
- }
- }
+      function loadData() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return;
+        try {
+          const data = JSON.parse(saved);
+          fields.forEach(f => {
+            const el = document.getElementById(f);
+            if (el && data[f] !== undefined) el.value = data[f];
+          });
+        } catch (e) {
+          console.error('Ошибка загрузки данных', e);
+        }
+      }
 
- function saveData() {
- const data = {};
- fields.forEach(f => {
- const el = document.getElementById(f);
- if (el) data[f] = el.value;
- });
- localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
- const status = document.getElementById('saveStatus');
- status.style.display = 'inline';
- setTimeout(() => { status.style.display = 'none'; }, 3000);
- }
+      function saveData() {
+        const data = {};
+        fields.forEach(f => {
+          const el = document.getElementById(f);
+          if (el) data[f] = el.value;
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        const status = document.getElementById('saveStatus');
+        status.style.display = 'inline';
+        setTimeout(() => { status.style.display = 'none'; }, 3000);
+      }
 
- function clearData() {
- if (confirm('Вы уверены, что хотите очистить все введенные ответы?')) {
- localStorage.removeItem(STORAGE_KEY);
- fields.forEach(f => {
- const el = document.getElementById(f);
- if (el) el.value = '';
- });
- }
- }
+      function clearData() {
+        if (confirm('Вы уверены, что хотите очистить все введенные ответы?')) {
+          localStorage.removeItem(STORAGE_KEY);
+          fields.forEach(f => {
+            const el = document.getElementById(f);
+            if (el) el.value = '';
+          });
+        }
+      }
 
- document.getElementById('saveBtn').addEventListener('click', saveData);
- document.getElementById('clearBtn').addEventListener('click', clearData);
- document.getElementById('printBtn').addEventListener('click', () => {
- saveData();
- window.print();
- });
+      document.getElementById('saveBtn').addEventListener('click', saveData);
+      document.getElementById('clearBtn').addEventListener('click', clearData);
+      document.getElementById('printBtn').addEventListener('click', () => {
+        saveData();
+        window.print();
+      });
 
- // Автосохранение при вводе
- fields.forEach(f => {
- const el = document.getElementById(f);
- if (el) el.addEventListener('input', () => {
- const data = {};
- fields.forEach(field => {
- const fieldEl = document.getElementById(field);
- if (fieldEl) data[field] = fieldEl.value;
- });
- localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
- });
- });
+      // Автосохранение при вводе
+      fields.forEach(f => {
+        const el = document.getElementById(f);
+        if (el) el.addEventListener('input', () => {
+          const data = {};
+          fields.forEach(field => {
+            const fieldEl = document.getElementById(field);
+            if (fieldEl) data[field] = fieldEl.value;
+          });
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        });
+      });
 
- loadData();
- })();
- </script>
+      loadData();
+    })();
+  </script>
 </body>
 </html>

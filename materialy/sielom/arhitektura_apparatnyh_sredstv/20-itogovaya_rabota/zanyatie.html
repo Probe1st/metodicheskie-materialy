@@ -1,738 +1,767 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
- <title>Итоговая комплексная работа: Архитектурное проектирование и аудит ЭВМ</title>
- <style>
- :root {
- --bg: #f1f5f9;
- --card: #ffffff;
- --text: #0f172a;
- --muted: #475569;
- --line: #cbd5e1;
- --accent: #1e40af;
- --accent-soft: #eff6ff;
- --task-bg: #f8fafc;
- --border-task: #94a3b8;
- --ok: #059669;
- --warn: #d97706;
- --danger: #dc2626;
- --radius: 14px;
- --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
- }
- * { box-sizing: border-box; margin: 0; padding: 0; }
- body {
- background: var(--bg);
- color: var(--text);
- font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
- line-height: 1.6;
- font-size: 15px;
- padding: 20px 14px;
- }.page {
- max-width: 980px;
- margin: 0 auto;
- }.header-card,.student-card,.task-card,.actions-card {
- background: var(--card);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 24px;
- margin-bottom: 20px;
- box-shadow: var(--shadow);
- }
- h1 {
- font-size: clamp(22px, 3.5vw, 28px);
- color: var(--accent);
- margin-bottom: 8px;
- }.desc {
- color: var(--muted);
- font-size: 14.5px;
- line-height: 1.55;
- }.student-grid {
- display: grid;
- grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
- gap: 16px;
- }
- label {
- display: block;
- font-weight: 600;
- font-size: 13.5px;
- margin-bottom: 6px;
- color: #1e293b;
- }
- input[type="text"], input[type="date"], select, textarea {
- width: 100%;
- border: 1.5px solid var(--line);
- border-radius: 8px;
- padding: 9px 12px;
- font: inherit;
- font-size: 14px;
- background: #fff;
- color: var(--text);
- outline: none;
- transition: border-color.15s, box-shadow.15s;
- }
- input:focus, select:focus, textarea:focus {
- border-color: var(--accent);
- box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
- }
- textarea {
- min-height: 100px;
- resize: vertical;
- }.print-select-text {
- display: none;
- }.task-title {
- font-size: 18px;
- font-weight: 700;
- color: var(--accent);
- margin-bottom: 8px;
- display: flex;
- align-items: center;
- gap: 8px;
- }.badge {
- display: inline-block;
- padding: 3px 10px;
- font-size: 12px;
- font-weight: 700;
- border-radius: 999px;
- background: var(--accent-soft);
- color: var(--accent);
- border: 1px solid rgba(30, 64, 175, 0.2);
- }.badge-warn {
- background: #fef3c7;
- color: #92400e;
- border-color: rgba(217, 119, 6, 0.3);
- }.badge-ok {
- background: #dcfce7;
- color: #166534;
- border-color: rgba(22, 101, 52, 0.3);
- }.task-intro {
- font-size: 14.5px;
- color: var(--muted);
- margin-bottom: 16px;
- }.variant-box {
- background: var(--task-bg);
- border: 1px solid var(--border-task);
- border-radius: 10px;
- padding: 16px;
- margin-bottom: 18px;
- }.variant-header {
- font-weight: 700;
- font-size: 15px;
- color: var(--accent);
- margin-bottom: 8px;
- }.table-wrap {
- overflow-x: auto;
- margin-bottom: 16px;
- border: 1px solid var(--line);
- border-radius: 10px;
- }
- table {
- width: 100%;
- border-collapse: collapse;
- font-size: 13.5px;
- background: #fff;
- }
- th, td {
- border: 1px solid var(--line);
- padding: 10px 12px;
- text-align: left;
- vertical-align: top;
- }
- th {
- background: var(--accent-soft);
- color: var(--accent);
- font-weight: 700;
- }.table-input {
- width: 100%;
- border: 1px solid var(--line);
- border-radius: 6px;
- padding: 6px 8px;
- font: inherit;
- font-size: 13.5px;
- }.table-input:focus {
- border-color: var(--accent);
- outline: none;
- }.matrix-card {
- background: #f8fafc;
- border: 1.5px solid #cbd5e1;
- border-radius: var(--radius);
- padding: 20px;
- margin-bottom: 20px;
- }.btn-row {
- display: flex;
- flex-wrap: wrap;
- gap: 12px;
- align-items: center;
- margin-top: 10px;
- }
- button {
- padding: 10px 20px;
- font-size: 14.5px;
- font-weight: 600;
- border-radius: 8px;
- border: none;
- cursor: pointer;
- display: inline-flex;
- align-items: center;
- gap: 8px;
- transition: background.15s, transform.1s;
- }
- button:active {
- transform: scale(0.98);
- }.btn-primary {
- background: var(--accent);
- color: #fff;
- }.btn-primary:hover {
- background: #1d4ed8;
- }.btn-secondary {
- background: #e2e8f0;
- color: #1e293b;
- }.btn-secondary:hover {
- background: #cbd5e1;
- }.btn-danger {
- background: #fee2e2;
- color: #991b1b;
- }.btn-danger:hover {
- background: #fecaca;
- }.status-msg {
- font-size: 13.5px;
- font-weight: 500;
- }.status-saved {
- color: var(--ok);
- }
- @media print {
- body {
- background: #fff !important;
- color: #000 !important;
- padding: 0 !important;
- font-size: 10pt !important;
- }.page {
- max-width: 100% !important;
- margin: 0 !important;
- }.header-card,.student-card,.task-card,.matrix-card {
- box-shadow: none !important;
- border: 1px solid #777 !important;
- margin-bottom: 12pt !important;
- padding: 10pt !important;
- break-inside: auto !important;
- page-break-inside: auto !important;
- }.actions-card,.btn-row {
- display: none !important;
- }
- input::placeholder, textarea::placeholder {
- color: transparent !important;
- -webkit-text-fill-color: transparent !important;
- opacity: 0 !important;
- }
- select {
- display: none !important;
- }.print-select-text {
- display: block !important;
- min-height: 22px;
- border: 1px solid #777 !important;
- border-radius: 4px;
- padding: 4px 6px;
- background: #fff !important;
- }
- textarea {
- height: auto !important;
- min-height: 80px;
- overflow: visible !important;
- white-space: pre-wrap !important;
- word-break: break-word !important;
- border: 1px solid #777 !important;
- background: #fff !important;
- color: #000 !important;
- }
- input[type="text"], input[type="date"],.table-input {
- border: 1px solid #777 !important;
- background: #fff !important;
- color: #000 !important;
- }
- table {
- page-break-inside: auto;
- }
- tr {
- page-break-inside: avoid;
- page-break-after: auto;
- }
- }
- </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Итоговая комплексная работа: Архитектурное проектирование и аудит ЭВМ</title>
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #1e40af;
+      --accent-soft: #eff6ff;
+      --task-bg: #f8fafc;
+      --border-task: #94a3b8;
+      --ok: #059669;
+      --warn: #d97706;
+      --danger: #dc2626;
+      --radius: 14px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      font-size: 15px;
+      padding: 20px 14px;
+    }
+    .page {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    .header-card, .student-card, .task-card, .actions-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: clamp(22px, 3.5vw, 28px);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .desc {
+      color: var(--muted);
+      font-size: 14.5px;
+      line-height: 1.55;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+      color: #1e293b;
+    }
+    input[type="text"], input[type="date"], select, textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+    }
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    .print-select-text {
+      display: none;
+    }
+    .task-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid rgba(30, 64, 175, 0.2);
+    }
+    .badge-warn {
+      background: #fef3c7;
+      color: #92400e;
+      border-color: rgba(217, 119, 6, 0.3);
+    }
+    .badge-ok {
+      background: #dcfce7;
+      color: #166534;
+      border-color: rgba(22, 101, 52, 0.3);
+    }
+    .task-intro {
+      font-size: 14.5px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .variant-box {
+      background: var(--task-bg);
+      border: 1px solid var(--border-task);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+    .variant-header {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      margin-bottom: 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      background: #fff;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .table-input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 6px 8px;
+      font: inherit;
+      font-size: 13.5px;
+    }
+    .table-input:focus {
+      border-color: var(--accent);
+      outline: none;
+    }
+    .matrix-card {
+      background: #f8fafc;
+      border: 1.5px solid #cbd5e1;
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-top: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 14.5px;
+      font-weight: 600;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background .15s, transform .1s;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+    .btn-danger {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .btn-danger:hover {
+      background: #fecaca;
+    }
+    .status-msg {
+      font-size: 13.5px;
+      font-weight: 500;
+    }
+    .status-saved {
+      color: var(--ok);
+    }
+    @media print {
+      body {
+        background: #fff !important;
+        color: #000 !important;
+        padding: 0 !important;
+        font-size: 10pt !important;
+      }
+      .page {
+        max-width: 100% !important;
+        margin: 0 !important;
+      }
+      .header-card, .student-card, .task-card, .matrix-card {
+        box-shadow: none !important;
+        border: 1px solid #777 !important;
+        margin-bottom: 12pt !important;
+        padding: 10pt !important;
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+      }
+      .actions-card, .btn-row {
+        display: none !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+        -webkit-text-fill-color: transparent !important;
+        opacity: 0 !important;
+      }
+      select {
+        display: none !important;
+      }
+      .print-select-text {
+        display: block !important;
+        min-height: 22px;
+        border: 1px solid #777 !important;
+        border-radius: 4px;
+        padding: 4px 6px;
+        background: #fff !important;
+      }
+      textarea {
+        height: auto !important;
+        min-height: 80px;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      input[type="text"], input[type="date"], .table-input {
+        border: 1px solid #777 !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      table {
+        page-break-inside: auto;
+      }
+      tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+      }
+    }
+  </style>
 </head>
 <body>
 <div class="page">
 
- <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
- <div class="header-card">
- <h1>Практическое занятие №20: «Итоговая комплексная работа»</h1>
- <p class="desc">
- Финальный практический продукт по дисциплине «ОП.02 Архитектура аппаратных средств» (СИЭУиП). Сквозное комплексное проектирование вычислительной платформы и устранение критических аппаратных дефектов: балансировка подсистемы ЦП и памяти (FLOPS, Memory Wall), распределение линий PCIe и пропускной способности шин (DMI / интерконнект), расчет подсистемы питания ATX 3.0 и охлаждения, выявление и устранение скрытой архитектурной ошибки по 4 вариантам целевых платформ.
- </p>
- </div>
+  <!-- ШАПКА РАБОЧЕГО ЛИСТА -->
+  <div class="header-card">
+    <h1>Практическое занятие №20: «Итоговая комплексная работа»</h1>
+    <p class="desc">
+      Финальный практический продукт по дисциплине «ОП.02 Архитектура аппаратных средств» (СИЭУиП). Сквозное комплексное проектирование вычислительной платформы и устранение критических аппаратных дефектов: балансировка подсистемы ЦП и памяти (FLOPS, Memory Wall), распределение линий PCIe и пропускной способности шин (DMI / интерконнект), расчет подсистемы питания ATX 3.0 и охлаждения, выявление и устранение скрытой архитектурной ошибки по 4 вариантам целевых платформ.
+    </p>
+  </div>
 
- <!-- КАРТОЧКА СТУДЕНТА (ЧИСТЫЕ ПОЛЯ БЕЗ ВЫМЫШЛЕННЫХ ДАННЫХ) -->
- <div class="student-card">
- <div class="student-grid">
- <div>
- <label for="student_fio">ФИО обучающегося:</label>
- <input type="text" id="student_fio" placeholder="Фамилия Имя Отчество" autocomplete="off">
- </div>
- <div>
- <label for="student_group">Учебная группа:</label>
- <input type="text" id="student_group" placeholder="Введите группу" autocomplete="off">
- </div>
- <div>
- <label for="work_date">Дата выполнения:</label>
- <input type="date" id="work_date">
- </div>
- <div>
- <label for="variant_select">Вариант целевой архитектуры:</label>
- <select id="variant_select" onchange="updateVariantView()">
- <option value="1">Вариант 1: HPC Deep Learning Node (Обучение ИИ, LLM)</option>
- <option value="2">Вариант 2: HFT Server (Высокочастотный биржевой трейдинг)</option>
- <option value="3">Вариант 3: Mission-Critical DBMS (Банковский транзакционный кластер)</option>
- <option value="4">Вариант 4: CAD/CAM & VFX Workstation (Профессиональная рабочая станция)</option>
- </select>
- <div class="print-select-text" id="print_variant_text">Вариант 1: HPC Deep Learning Node</div>
- </div>
- </div>
- </div>
+  <!-- КАРТОЧКА СТУДЕНТА (ЧИСТЫЕ ПОЛЯ БЕЗ ВЫМЫШЛЕННЫХ ДАННЫХ) -->
+  <div class="student-card">
+    <div class="student-grid">
+      <div>
+        <label for="student_fio">ФИО обучающегося:</label>
+        <input type="text" id="student_fio" placeholder="Фамилия Имя Отчество" autocomplete="off">
+      </div>
+      <div>
+        <label for="student_group">Учебная группа:</label>
+        <input type="text" id="student_group" placeholder="Введите группу" autocomplete="off">
+      </div>
+      <div>
+        <label for="work_date">Дата выполнения:</label>
+        <input type="date" id="work_date">
+      </div>
+      <div>
+        <label for="variant_select">Вариант целевой архитектуры:</label>
+        <select id="variant_select" onchange="updateVariantView()">
+          <option value="1">Вариант 1: HPC Deep Learning Node (Обучение ИИ, LLM)</option>
+          <option value="2">Вариант 2: HFT Server (Высокочастотный биржевой трейдинг)</option>
+          <option value="3">Вариант 3: Mission-Critical DBMS (Банковский транзакционный кластер)</option>
+          <option value="4">Вариант 4: CAD/CAM & VFX Workstation (Профессиональная рабочая станция)</option>
+        </select>
+        <div class="print-select-text" id="print_variant_text">Вариант 1: HPC Deep Learning Node</div>
+      </div>
+    </div>
+  </div>
 
- <!-- БЛОК 1: РАСЧЕТ ПОДСИСТЕМЫ ЦП И ПАМЯТИ -->
- <div class="task-card">
- <div class="task-title">
- <span>Блок 1. Расчет подсистемы ЦП и оперативной памяти</span>
- <span class="badge">Обоснование: 2 балла</span>
- </div>
- <p class="task-intro">
- Рассчитайте теоретическую пиковую производительность процессора (R<sub>peak</sub>) и пропускную способность подсистемы памяти (BW<sub>RAM</sub>). Обоснуйте конфигурацию рангов, каналов и баланс вычислений (Memory Wall / B/F ratio).
- </p>
- 
- <div class="variant-box" id="variant_desc_1">
- <div class="variant-header" id="variant_header_title">Спецификация целевой платформы (согласно выбранному варианту):</div>
- <div id="variant_profile_text" style="font-size: 13.5px; color: var(--muted); margin-bottom: 10px;">
- Выберите вариант в шапке работы для загрузки профиля архитектуры.
- </div>
- </div>
+  <!-- БЛОК 1: РАСЧЕТ ПОДСИСТЕМЫ ЦП И ПАМЯТИ -->
+  <div class="task-card">
+    <div class="task-title">
+      <span>Блок 1. Расчет подсистемы ЦП и оперативной памяти</span>
+      <span class="badge">Обоснование: 2 балла</span>
+    </div>
+    <p class="task-intro">
+      Рассчитайте теоретическую пиковую производительность процессора (R<sub>peak</sub>) и пропускную способность подсистемы памяти (BW<sub>RAM</sub>). Обоснуйте конфигурацию рангов, каналов и баланс вычислений (Memory Wall / B/F ratio).
+    </p>
+    
+    <div class="variant-box" id="variant_desc_1">
+      <div class="variant-header" id="variant_header_title">Спецификация целевой платформы (согласно выбранному варианту):</div>
+      <div id="variant_profile_text" style="font-size: 13.5px; color: var(--muted); margin-bottom: 10px;">
+        Выберите вариант в шапке работы для загрузки профиля архитектуры.
+      </div>
+    </div>
 
- <div class="table-wrap">
- <table>
- <thead>
- <tr>
- <th style="width: 32%;">Параметр архитектуры</th>
- <th style="width: 28%;">Расчетная формула / Спецификация</th>
- <th style="width: 40%;">Значение и физическое обоснование</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>Пиковая производительность CPU (R<sub>peak</sub>)</strong></td>
- <td>R<sub>peak</sub> = N<sub>sockets</sub> × N<sub>cores</sub> × f<sub>Turbo</sub> × FLOP/такт</td>
- <td><input type="text" class="table-input" id="calc_rpeak" placeholder="TFLOPS (укажите частоту, ядра, SIMD-множитель FMA)"></td>
- </tr>
- <tr>
- <td><strong>Число каналов и режим памяти</strong></td>
- <td>N<sub>ch</sub>, DPC (DIMMs per Channel), тип (RDIMM / UDIMM)</td>
- <td><input type="text" class="table-input" id="calc_channels" placeholder="Число каналов, стандарт (напр. DDR5-4800 ECC Registered)"></td>
- </tr>
- <tr>
- <td><strong>Пропускная способность памяти (BW<sub>RAM</sub>)</strong></td>
- <td>BW = N<sub>ch</sub> × MT/s × 8 байт/с</td>
- <td><input type="text" class="table-input" id="calc_ram_bw" placeholder="ГБ/с (суммарно по всем сокетам)"></td>
- </tr>
- <tr>
- <td><strong>Абсолютная задержка (CAS Latency)</strong></td>
- <td>t<sub>latency</sub> = (tCL / f<sub>clk</sub>) × 1000 нс</td>
- <td><input type="text" class="table-input" id="calc_latency" placeholder="нс (наносекунды) при выбранном профиле таймингов"></td>
- </tr>
- </tbody>
- </table>
- </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 32%;">Параметр архитектуры</th>
+            <th style="width: 28%;">Расчетная формула / Спецификация</th>
+            <th style="width: 40%;">Значение и физическое обоснование</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Пиковая производительность CPU (R<sub>peak</sub>)</strong></td>
+            <td>R<sub>peak</sub> = N<sub>sockets</sub> × N<sub>cores</sub> × f<sub>Turbo</sub> × FLOP/такт</td>
+            <td><input type="text" class="table-input" id="calc_rpeak" placeholder="TFLOPS (укажите частоту, ядра, SIMD-множитель FMA)"></td>
+          </tr>
+          <tr>
+            <td><strong>Число каналов и режим памяти</strong></td>
+            <td>N<sub>ch</sub>, DPC (DIMMs per Channel), тип (RDIMM / UDIMM)</td>
+            <td><input type="text" class="table-input" id="calc_channels" placeholder="Число каналов, стандарт (напр. DDR5-4800 ECC Registered)"></td>
+          </tr>
+          <tr>
+            <td><strong>Пропускная способность памяти (BW<sub>RAM</sub>)</strong></td>
+            <td>BW = N<sub>ch</sub> × MT/s × 8  байт/с</td>
+            <td><input type="text" class="table-input" id="calc_ram_bw" placeholder="ГБ/с (суммарно по всем сокетам)"></td>
+          </tr>
+          <tr>
+            <td><strong>Абсолютная задержка (CAS Latency)</strong></td>
+            <td>t<sub>latency</sub> = (tCL / f<sub>clk</sub>) × 1000  нс</td>
+            <td><input type="text" class="table-input" id="calc_latency" placeholder="нс (наносекунды) при выбранном профиле таймингов"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
- <label for="ans_mem_wall">Обоснование баланса вычислительной мощности и пропускной способности памяти (преодоление Memory Wall):</label>
- <textarea id="ans_mem_wall" placeholder="Раскройте отношение пропускной способности к производительности (Bytes-per-FLOP). Достаточна ли пропускная способность памяти для непрерывной загрузки ядер? Какова роль кэш-памяти L3 / 3D V-Cache и организации каналов?"></textarea>
- </div>
+    <label for="ans_mem_wall">Обоснование баланса вычислительной мощности и пропускной способности памяти (преодоление Memory Wall):</label>
+    <textarea id="ans_mem_wall" placeholder="Раскройте отношение пропускной способности к производительности (Bytes-per-FLOP). Достаточна ли пропускная способность памяти для непрерывной загрузки ядер? Какова роль кэш-памяти L3 / 3D V-Cache и организации каналов?"></textarea>
+  </div>
 
- <!-- БЛОК 2: РАСПРЕДЕЛЕНИЕ ЛИНИЙ PCIE И ШИНЫ I/O -->
- <div class="task-card">
- <div class="task-title">
- <span>Блок 2. Распределение линий PCIe, топология шин и балансировка I/O</span>
- <span class="badge">Обоснование: 2 балла</span>
- </div>
- <p class="task-intro">
- Постройте распределение линий шины PCIe (Gen 4 / Gen 5) между устройствами платформы (GPU, NVMe, сетевые адаптеры, HBA). Исключите аппаратные узкие места переподписки шин (Oversubscription) и межчипсетного линка (DMI / интерконнект сокетов).
- </p>
+  <!-- БЛОК 2: РАСПРЕДЕЛЕНИЕ ЛИНИЙ PCIE И ШИНЫ I/O -->
+  <div class="task-card">
+    <div class="task-title">
+      <span>Блок 2. Распределение линий PCIe, топология шин и балансировка I/O</span>
+      <span class="badge">Обоснование: 2 балла</span>
+    </div>
+    <p class="task-intro">
+      Постройте распределение линий шины PCIe (Gen 4 / Gen 5) между устройствами платформы (GPU, NVMe, сетевые адаптеры, HBA). Исключите аппаратные узкие места переподписки шин (Oversubscription) и межчипсетного линка (DMI / интерконнект сокетов).
+    </p>
 
- <div class="table-wrap">
- <table>
- <thead>
- <tr>
- <th style="width: 26%;">Устройство / Контроллер</th>
- <th style="width: 22%;">Интерфейс подключения</th>
- <th style="width: 24%;">ПСП интерфейса (ГБ/с)</th>
- <th style="width: 28%;">Источник линий (CPU Socket / PCH Chipset)</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>Вычислительные ускорители / GPU</strong></td>
- <td><input type="text" class="table-input" id="pcie_dev1_slot" placeholder="напр. 4x PCIe 5.0 x16"></td>
- <td><input type="text" class="table-input" id="pcie_dev1_bw" placeholder="напр. 4x 64 (128) ГБ/с"></td>
- <td><input type="text" class="table-input" id="pcie_dev1_src" placeholder="CPU прямое подключение"></td>
- </tr>
- <tr>
- <td><strong>Высокоскоростная сеть (NIC / IB / FC)</strong></td>
- <td><input type="text" class="table-input" id="pcie_dev2_slot" placeholder="напр. PCIe 5.0 x16 (ConnectX-7 / 25GbE)"></td>
- <td><input type="text" class="table-input" id="pcie_dev2_bw" placeholder="напр. 64 / 128 ГБ/с"></td>
- <td><input type="text" class="table-input" id="pcie_dev2_src" placeholder="CPU прямое подключение"></td>
- </tr>
- <tr>
- <td><strong>Дисковая подсистема (NVMe / RAID)</strong></td>
- <td><input type="text" class="table-input" id="pcie_dev3_slot" placeholder="напр. 4x PCIe 5.0 x4 (U.2 / M.2)"></td>
- <td><input type="text" class="table-input" id="pcie_dev3_bw" placeholder="напр. 4x 16 ГБ/с"></td>
- <td><input type="text" class="table-input" id="pcie_dev3_src" placeholder="CPU MCIO / чипсет"></td>
- </tr>
- <tr>
- <td><strong>Межпроцессорный / чипсетный линк</strong></td>
- <td><input type="text" class="table-input" id="pcie_link_type" placeholder="UPI 2.0 / Infinity Fabric / DMI 4.0 x8"></td>
- <td><input type="text" class="table-input" id="pcie_link_bw" placeholder="Пропускная способность шины линка"></td>
- <td><input type="text" class="table-input" id="pcie_link_src" placeholder="Межсокетовое соединение / PCH"></td>
- </tr>
- </tbody>
- </table>
- </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 26%;">Устройство / Контроллер</th>
+            <th style="width: 22%;">Интерфейс подключения</th>
+            <th style="width: 24%;">ПСП интерфейса (ГБ/с)</th>
+            <th style="width: 28%;">Источник линий (CPU Socket / PCH Chipset)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Вычислительные ускорители / GPU</strong></td>
+            <td><input type="text" class="table-input" id="pcie_dev1_slot" placeholder="напр. 4x PCIe 5.0 x16"></td>
+            <td><input type="text" class="table-input" id="pcie_dev1_bw" placeholder="напр. 4x 64 (128) ГБ/с"></td>
+            <td><input type="text" class="table-input" id="pcie_dev1_src" placeholder="CPU прямое подключение"></td>
+          </tr>
+          <tr>
+            <td><strong>Высокоскоростная сеть (NIC / IB / FC)</strong></td>
+            <td><input type="text" class="table-input" id="pcie_dev2_slot" placeholder="напр. PCIe 5.0 x16 (ConnectX-7 / 25GbE)"></td>
+            <td><input type="text" class="table-input" id="pcie_dev2_bw" placeholder="напр. 64 / 128 ГБ/с"></td>
+            <td><input type="text" class="table-input" id="pcie_dev2_src" placeholder="CPU прямое подключение"></td>
+          </tr>
+          <tr>
+            <td><strong>Дисковая подсистема (NVMe / RAID)</strong></td>
+            <td><input type="text" class="table-input" id="pcie_dev3_slot" placeholder="напр. 4x PCIe 5.0 x4 (U.2 / M.2)"></td>
+            <td><input type="text" class="table-input" id="pcie_dev3_bw" placeholder="напр. 4x 16 ГБ/с"></td>
+            <td><input type="text" class="table-input" id="pcie_dev3_src" placeholder="CPU MCIO / чипсет"></td>
+          </tr>
+          <tr>
+            <td><strong>Межпроцессорный / чипсетный линк</strong></td>
+            <td><input type="text" class="table-input" id="pcie_link_type" placeholder="UPI 2.0 / Infinity Fabric / DMI 4.0 x8"></td>
+            <td><input type="text" class="table-input" id="pcie_link_bw" placeholder="Пропускная способность шины линка"></td>
+            <td><input type="text" class="table-input" id="pcie_link_src" placeholder="Межсокетовое соединение / PCH"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
- <label for="ans_pcie_balance">Анализ баланса шин и защита от эффекта переподписки (Oversubscription):</label>
- <textarea id="ans_pcie_balance" placeholder="Докажите отсутствие задержек на шинах ввода-вывода. Почему критические устройства не подключены через чипсет? Как решена проблема доступа сокетов к общим сетевым и дисковым ресурсам (NUMA affinity)?"></textarea>
- </div>
+    <label for="ans_pcie_balance">Анализ баланса шин и защита от эффекта переподписки (Oversubscription):</label>
+    <textarea id="ans_pcie_balance" placeholder="Докажите отсутствие задержек на шинах ввода-вывода. Почему критические устройства не подключены через чипсет? Как решена проблема доступа сокетов к общим сетевым и дисковым ресурсам (NUMA affinity)?"></textarea>
+  </div>
 
- <!-- БЛОК 3: РАСЧЕТ ПИТАНИЯ ATX И ОХЛАЖДЕНИЯ -->
- <div class="task-card">
- <div class="task-title">
- <span>Блок 3. Подсистема питания ATX и теплоотвод</span>
- <span class="badge">Обоснование: 2 балла</span>
- </div>
- <p class="task-intro">
- Рассчитайте энергобаланс платформы: номинальную долговременную мощность, пиковые импульсные скачки (Power Excursions по стандарту ATX 3.0), требуемый ток по шине +12V, выбор блока питания с коэффициентом запаса и параметры системы охлаждения.
- </p>
+  <!-- БЛОК 3: РАСЧЕТ ПИТАНИЯ ATX И ОХЛАЖДЕНИЯ -->
+  <div class="task-card">
+    <div class="task-title">
+      <span>Блок 3. Подсистема питания ATX и теплоотвод</span>
+      <span class="badge">Обоснование: 2 балла</span>
+    </div>
+    <p class="task-intro">
+      Рассчитайте энергобаланс платформы: номинальную долговременную мощность, пиковые импульсные скачки (Power Excursions по стандарту ATX 3.0), требуемый ток по шине +12V, выбор блока питания с коэффициентом запаса и параметры системы охлаждения.
+    </p>
 
- <div class="table-wrap">
- <table>
- <thead>
- <tr>
- <th style="width: 35%;">Узел системы</th>
- <th style="width: 30%;">Долговременная мощность (Вт, TDP/PL1)</th>
- <th style="width: 35%;">Пиковая кратковременная мощность (Вт, PL2/броски)</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>Центральные процессоры (CPU)</strong></td>
- <td><input type="text" class="table-input" id="pwr_cpu_nom" placeholder="Вт"></td>
- <td><input type="text" class="table-input" id="pwr_cpu_peak" placeholder="Вт"></td>
- </tr>
- <tr>
- <td><strong>Графические ускорители (GPU / FPGA)</strong></td>
- <td><input type="text" class="table-input" id="pwr_gpu_nom" placeholder="Вт"></td>
- <td><input type="text" class="table-input" id="pwr_gpu_peak" placeholder="Вт (до 200-250% ATX 3.0)"></td>
- </tr>
- <tr>
- <td><strong>ОЗУ, диски NVMe, сетевые адаптеры, PCH</strong></td>
- <td><input type="text" class="table-input" id="pwr_other_nom" placeholder="Вт"></td>
- <td><input type="text" class="table-input" id="pwr_other_peak" placeholder="Вт"></td>
- </tr>
- <tr>
- <td><strong>ИТОГО (по шине +12V) / Ток нагрузки</strong></td>
- <td><input type="text" class="table-input" id="pwr_sum_nom" placeholder="Суммарная мощность (Вт) и ток (А)"></td>
- <td><input type="text" class="table-input" id="pwr_sum_peak" placeholder="Пиковая мощность и выбор БП (Вт)"></td>
- </tr>
- </tbody>
- </table>
- </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 35%;">Узел системы</th>
+            <th style="width: 30%;">Долговременная мощность (Вт, TDP/PL1)</th>
+            <th style="width: 35%;">Пиковая кратковременная мощность (Вт, PL2/броски)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Центральные процессоры (CPU)</strong></td>
+            <td><input type="text" class="table-input" id="pwr_cpu_nom" placeholder="Вт"></td>
+            <td><input type="text" class="table-input" id="pwr_cpu_peak" placeholder="Вт"></td>
+          </tr>
+          <tr>
+            <td><strong>Графические ускорители (GPU / FPGA)</strong></td>
+            <td><input type="text" class="table-input" id="pwr_gpu_nom" placeholder="Вт"></td>
+            <td><input type="text" class="table-input" id="pwr_gpu_peak" placeholder="Вт (до 200-250% ATX 3.0)"></td>
+          </tr>
+          <tr>
+            <td><strong>ОЗУ, диски NVMe, сетевые адаптеры, PCH</strong></td>
+            <td><input type="text" class="table-input" id="pwr_other_nom" placeholder="Вт"></td>
+            <td><input type="text" class="table-input" id="pwr_other_peak" placeholder="Вт"></td>
+          </tr>
+          <tr>
+            <td><strong>ИТОГО (по шине +12V) / Ток нагрузки</strong></td>
+            <td><input type="text" class="table-input" id="pwr_sum_nom" placeholder="Суммарная мощность (Вт) и ток (А)"></td>
+            <td><input type="text" class="table-input" id="pwr_sum_peak" placeholder="Пиковая мощность и выбор БП (Вт)"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
- <label for="ans_cooling_pwr">Обоснование выбора блока питания (номинал, стандарт ATX, сертификат 80 PLUS, разъемы) и системы охлаждения:</label>
- <textarea id="ans_cooling_pwr" placeholder="Укажите выбранную мощность БП, стандарт (ATX 3.0 / PCIe 5.0 12V-2x6 или серверный CRPS N+1), запас по току шины 12V, конструкцию VRM и параметры охлаждения (CFM/LPM, температура кристалла)."></textarea>
- </div>
+    <label for="ans_cooling_pwr">Обоснование выбора блока питания (номинал, стандарт ATX, сертификат 80 PLUS, разъемы) и системы охлаждения:</label>
+    <textarea id="ans_cooling_pwr" placeholder="Укажите выбранную мощность БП, стандарт (ATX 3.0 / PCIe 5.0 12V-2x6 или серверный CRPS N+1), запас по току шины 12V, конструкцию VRM и параметры охлаждения (CFM/LPM, температура кристалла)."></textarea>
+  </div>
 
- <!-- БЛОК 4: ДИАГНОСТИКА И УСТРАНЕНИЕ КРИТИЧЕСКОГО ДЕФЕКТА -->
- <div class="task-card">
- <div class="task-title">
- <span>Блок 4. Диагностика и устранение критической аппаратной ошибки</span>
- <span class="badge badge-warn">Применение: 2 балла</span>
- </div>
- <p class="task-intro">
- Ниже приведена дефектная спецификация конфигурации по вашему варианту. Найдите скрытую критическую аппаратную ошибку (несовместимость, аппаратное узкое место, электрический или температурный сбой), обоснуйте ее последствия и предложите инженерное исправление.
- </p>
+  <!-- БЛОК 4: ДИАГНОСТИКА И УСТРАНЕНИЕ КРИТИЧЕСКОГО ДЕФЕКТА -->
+  <div class="task-card">
+    <div class="task-title">
+      <span>Блок 4. Диагностика и устранение критической аппаратной ошибки</span>
+      <span class="badge badge-warn">Применение: 2 балла</span>
+    </div>
+    <p class="task-intro">
+      Ниже приведена дефектная спецификация конфигурации по вашему варианту. Найдите скрытую критическую аппаратную ошибку (несовместимость, аппаратное узкое место, электрический или температурный сбой), обоснуйте ее последствия и предложите инженерное исправление.
+    </p>
 
- <div class="variant-box" id="defect_box">
- <div class="variant-header" style="color: var(--danger);">Исходная дефектная конфигурация:</div>
- <div id="defect_text" style="font-size: 13.5px; line-height: 1.6;">
- Загрузка дефектной спецификации...
- </div>
- </div>
+    <div class="variant-box" id="defect_box">
+      <div class="variant-header" style="color: var(--danger);">Исходная дефектная конфигурация:</div>
+      <div id="defect_text" style="font-size: 13.5px; line-height: 1.6;">
+        Загрузка дефектной спецификации...
+      </div>
+    </div>
 
- <label for="ans_defect_detect"><strong>4.1. Локализация и физико-технический анализ аппаратного дефекта:</strong></label>
- <textarea id="ans_defect_detect" placeholder="В чем заключается скрытая аппаратная ошибка? К каким физическим, схемотехническим или архитектурным последствиям она приведет (отказ старта, троттлинг, падение ПСП, деградация задержек, сбой по току OCP)?"></textarea>
+    <label for="ans_defect_detect"><strong>4.1. Локализация и физико-технический анализ аппаратного дефекта:</strong></label>
+    <textarea id="ans_defect_detect" placeholder="В чем заключается скрытая аппаратная ошибка? К каким физическим, схемотехническим или архитектурным последствиям она приведет (отказ старта, троттлинг, падение ПСП, деградация задержек, сбой по току OCP)?"></textarea>
 
- <label for="ans_defect_fix" style="margin-top: 14px;"><strong>4.2. Инженерное устранение дефекта и сравнительный расчет «до / после»:</strong></label>
- <textarea id="ans_defect_fix" placeholder="Укажите точную спецификацию заменяемых узлов, верную схему разводки линий/каналов и приведите количественное подтверждение улучшения характеристик (рост ПСП, снижение латентности, обеспечение запаса по питанию)."></textarea>
- </div>
+    <label for="ans_defect_fix" style="margin-top: 14px;"><strong>4.2. Инженерное устранение дефекта и сравнительный расчет «до / после»:</strong></label>
+    <textarea id="ans_defect_fix" placeholder="Укажите точную спецификацию заменяемых узлов, верную схему разводки линий/каналов и приведите количественное подтверждение улучшения характеристик (рост ПСП, снижение латентности, обеспечение запаса по питанию)."></textarea>
+  </div>
 
- <!-- БЛОК 5: САМОПРОВЕРКА И СИСТЕМНЫЙ АУДИТ ПРОЕКТА -->
- <div class="task-card">
- <div class="task-title">
- <span>Блок 5. Самопроверка и системный аудит проекта</span>
- <span class="badge badge-ok">Самопроверка: 2 балла</span>
- </div>
- <p class="task-intro">
- Проведите сквозную проверку согласованности всех спроектированных подсистем по контрольному листу валидации.
- </p>
+  <!-- БЛОК 5: САМОПРОВЕРКА И СИСТЕМНЫЙ АУДИТ ПРОЕКТА -->
+  <div class="task-card">
+    <div class="task-title">
+      <span>Блок 5. Самопроверка и системный аудит проекта</span>
+      <span class="badge badge-ok">Самопроверка: 2 балла</span>
+    </div>
+    <p class="task-intro">
+      Проведите сквозную проверку согласованности всех спроектированных подсистем по контрольному листу валидации.
+    </p>
 
- <div class="table-wrap">
- <table>
- <thead>
- <tr>
- <th style="width: 45%;">Контрольный инженерный критерий</th>
- <th style="width: 25%;">Статус проверки</th>
- <th style="width: 30%;">Доказательное обоснование</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>1. Баланс процессора и памяти (Memory Wall / B/F ratio)</strong></td>
- <td>
- <select class="table-input" id="chk_status_1">
- <option value="ok">Сбалансировано</option>
- <option value="bottleneck">Обнаружено узкое место</option>
- </select>
- </td>
- <td><input type="text" class="table-input" id="chk_proof_1" placeholder="Показатель ПСП / объем кэша"></td>
- </tr>
- <tr>
- <td><strong>2. Отсутствие переподписки шин PCIe и чипсета</strong></td>
- <td>
- <select class="table-input" id="chk_status_2">
- <option value="ok">Линии согласованы</option>
- <option value="bottleneck">Дефицит линий шины</option>
- </select>
- </td>
- <td><input type="text" class="table-input" id="chk_proof_2" placeholder="Баланс доступных и занятых линий"></td>
- </tr>
- <tr>
- <td><strong>3. Запас мощности БП по шине +12V (&ge; 30%) и ATX 3.0</strong></td>
- <td>
- <select class="table-input" id="chk_status_3">
- <option value="ok">Запас обеспечен</option>
- <option value="bottleneck">Риск перегрузки по току</option>
- </select>
- </td>
- <td><input type="text" class="table-input" id="chk_proof_3" placeholder="Коэффициент запаса мощности БП"></td>
- </tr>
- <tr>
- <td><strong>4. Соответствие системы охлаждения тепловыделению</strong></td>
- <td>
- <select class="table-input" id="chk_status_4">
- <option value="ok">Тепловой режим в норме</option>
- <option value="bottleneck">Риск троттлинга</option>
- </select>
- </td>
- <td><input type="text" class="table-input" id="chk_proof_4" placeholder="TDP кулера / воздушный поток CFM"></td>
- </tr>
- </tbody>
- </table>
- </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 45%;">Контрольный инженерный критерий</th>
+            <th style="width: 25%;">Статус проверки</th>
+            <th style="width: 30%;">Доказательное обоснование</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Баланс процессора и памяти (Memory Wall / B/F ratio)</strong></td>
+            <td>
+              <select class="table-input" id="chk_status_1">
+                <option value="ok">Сбалансировано</option>
+                <option value="bottleneck">Обнаружено узкое место</option>
+              </select>
+            </td>
+            <td><input type="text" class="table-input" id="chk_proof_1" placeholder="Показатель ПСП / объем кэша"></td>
+          </tr>
+          <tr>
+            <td><strong>2. Отсутствие переподписки шин PCIe и чипсета</strong></td>
+            <td>
+              <select class="table-input" id="chk_status_2">
+                <option value="ok">Линии согласованы</option>
+                <option value="bottleneck">Дефицит линий шины</option>
+              </select>
+            </td>
+            <td><input type="text" class="table-input" id="chk_proof_2" placeholder="Баланс доступных и занятых линий"></td>
+          </tr>
+          <tr>
+            <td><strong>3. Запас мощности БП по шине +12V (&ge; 30%) и ATX 3.0</strong></td>
+            <td>
+              <select class="table-input" id="chk_status_3">
+                <option value="ok">Запас обеспечен</option>
+                <option value="bottleneck">Риск перегрузки по току</option>
+              </select>
+            </td>
+            <td><input type="text" class="table-input" id="chk_proof_3" placeholder="Коэффициент запаса мощности БП"></td>
+          </tr>
+          <tr>
+            <td><strong>4. Соответствие системы охлаждения тепловыделению</strong></td>
+            <td>
+              <select class="table-input" id="chk_status_4">
+                <option value="ok">Тепловой режим в норме</option>
+                <option value="bottleneck">Риск троттлинга</option>
+              </select>
+            </td>
+            <td><input type="text" class="table-input" id="chk_proof_4" placeholder="TDP кулера / воздушный поток CFM"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
- <label for="ans_final_conclusion">Итоговый экспертный вывод о готовности архитектурного проекта к эксплуатации:</label>
- <textarea id="ans_final_conclusion" placeholder="Сформулируйте комплексное заключение об отказоустойчивости, запасе масштабируемости и эффективности спроектированной платформы для целевого класса задач."></textarea>
- </div>
+    <label for="ans_final_conclusion">Итоговый экспертный вывод о готовности архитектурного проекта к эксплуатации:</label>
+    <textarea id="ans_final_conclusion" placeholder="Сформулируйте комплексное заключение об отказоустойчивости, запасе масштабируемости и эффективности спроектированной платформы для целевого класса задач."></textarea>
+  </div>
 
- <!-- КРИТЕРИАЛЬНАЯ МАТРИЦА 10 БАЛЛОВ -->
- <div class="matrix-card">
- <h3 style="color: var(--accent); margin-bottom: 10px;">10-балльная критериальная матрица оценки итоговой работы</h3>
- <table style="font-size: 13px;">
- <thead>
- <tr>
- <th>Блок оценивания</th>
- <th style="width: 15%; text-align: center;">Макс. балл</th>
- <th>Критерии выставления баллов</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>Блок I. Обоснование архитектуры</strong> (ЦП и память, линии PCIe, питание и теплоотвод)</td>
- <td style="text-align: center; font-weight: 700; color: var(--accent);">6 баллов</td>
- <td>По 2 балла за каждый расчетный блок: точность формул R<sub>peak</sub>, ПСП памяти, отсутствие переподписки линий PCIe, корректный энергобаланс по шине 12V и запас БП.</td>
- </tr>
- <tr>
- <td><strong>Блок II. Практическое применение</strong> (Диагностика и устранение ошибки)</td>
- <td style="text-align: center; font-weight: 700; color: var(--warn);">2 балла</td>
- <td>Безошибочная локализация скрытого аппаратного дефекта конфигурации, физико-техническое обоснование отказа и доказательное решение с расчетом «до/после».</td>
- </tr>
- <tr>
- <td><strong>Блок III. Самопроверка и аудит</strong> (Чек-лист валидации и заключение)</td>
- <td style="text-align: center; font-weight: 700; color: var(--ok);">2 балла</td>
- <td>Аргументированное заполнение чек-листа проверки системных балансов (Memory Wall, PCIe lines, ATX 3.0 margin) и итоговое экспертное резюме.</td>
- </tr>
- <tr style="background: var(--accent-soft); font-weight: 700;">
- <td>ИТОГОВЫЙ МАКСИМАЛЬНЫЙ БАЛЛ</td>
- <td style="text-align: center; color: var(--accent);">10 баллов</td>
- <td>9–10 б. = «5» (отлично); 7–8 б. = «4» (хорошо); 5–6 б. = «3» (удовлетворительно); 0–4 б. = «2».</td>
- </tr>
- </tbody>
- </table>
- </div>
+  <!-- КРИТЕРИАЛЬНАЯ МАТРИЦА 10 БАЛЛОВ -->
+  <div class="matrix-card">
+    <h3 style="color: var(--accent); margin-bottom: 10px;">10-балльная критериальная матрица оценки итоговой работы</h3>
+    <table style="font-size: 13px;">
+      <thead>
+        <tr>
+          <th>Блок оценивания</th>
+          <th style="width: 15%; text-align: center;">Макс. балл</th>
+          <th>Критерии выставления баллов</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Блок I. Обоснование архитектуры</strong> (ЦП и память, линии PCIe, питание и теплоотвод)</td>
+          <td style="text-align: center; font-weight: 700; color: var(--accent);">6 баллов</td>
+          <td>По 2 балла за каждый расчетный блок: точность формул R<sub>peak</sub>, ПСП памяти, отсутствие переподписки линий PCIe, корректный энергобаланс по шине 12V и запас БП.</td>
+        </tr>
+        <tr>
+          <td><strong>Блок II. Практическое применение</strong> (Диагностика и устранение ошибки)</td>
+          <td style="text-align: center; font-weight: 700; color: var(--warn);">2 балла</td>
+          <td>Безошибочная локализация скрытого аппаратного дефекта конфигурации, физико-техническое обоснование отказа и доказательное решение с расчетом «до/после».</td>
+        </tr>
+        <tr>
+          <td><strong>Блок III. Самопроверка и аудит</strong> (Чек-лист валидации и заключение)</td>
+          <td style="text-align: center; font-weight: 700; color: var(--ok);">2 балла</td>
+          <td>Аргументированное заполнение чек-листа проверки системных балансов (Memory Wall, PCIe lines, ATX 3.0 margin) и итоговое экспертное резюме.</td>
+        </tr>
+        <tr style="background: var(--accent-soft); font-weight: 700;">
+          <td>ИТОГОВЫЙ МАКСИМАЛЬНЫЙ БАЛЛ</td>
+          <td style="text-align: center; color: var(--accent);">10 баллов</td>
+          <td>9–10 б. = «5» (отлично); 7–8 б. = «4» (хорошо); 5–6 б. = «3» (удовлетворительно); 0–4 б. = «2».</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
- <!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
- <div class="actions-card">
- <div class="btn-row">
- <button type="button" class="btn-primary" onclick="window.print()">
- 🖨️ Печать / Экспорт в PDF
- </button>
- <button type="button" class="btn-secondary" onclick="saveToStorage(true)">
- 💾 Сохранить изменения
- </button>
- <button type="button" class="btn-danger" onclick="confirmReset()">
- 🔄 Очистить форму
- </button>
- <span class="status-msg" id="status_indicator"></span>
- </div>
- <p style="font-size: 12.5px; color: var(--muted); margin-top: 10px;">
- * Данные автоматически сохраняются в вашем браузере. При экспорте в PDF плейсхолдеры и кнопки управления скрываются.
- </p>
- </div>
+  <!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
+  <div class="actions-card">
+    <div class="btn-row">
+      <button type="button" class="btn-primary" onclick="window.print()">
+        🖨️ Печать / Экспорт в PDF
+      </button>
+      <button type="button" class="btn-secondary" onclick="saveToStorage(true)">
+        💾 Сохранить изменения
+      </button>
+      <button type="button" class="btn-danger" onclick="confirmReset()">
+        🔄 Очистить форму
+      </button>
+      <span class="status-msg" id="status_indicator"></span>
+    </div>
+    <p style="font-size: 12.5px; color: var(--muted); margin-top: 10px;">
+      * Данные автоматически сохраняются в вашем браузере. При экспорте в PDF плейсхолдеры и кнопки управления скрываются.
+    </p>
+  </div>
 
 </div>
 
 <script>
- const STORAGE_KEY = 'sie_arch_hw20_final_v1';
+  const STORAGE_KEY = 'sie_arch_hw20_final_v1';
 
- const VARIANT_DATA = {
- '1': {
- title: 'Вариант 1: Узел глубокого обучения и HPC (Deep Learning Node)',
- profile: 'Целевой профиль: Обучение больших языковых моделей (LLM), тензорные операции FP16/BF16/FP64, высокий сетевой трафик AllReduce через InfiniBand. Базовая платформа: 2x AMD EPYC 9654 (96 ядер/сокет, 2.4-3.55 ГГц, 12 каналов DDR5 на сокет, 160 линий PCIe 5.0), 4x NVIDIA H100 PCIe (по 350 Вт), 2x ConnectX-7 400G InfiniBand, 4x NVMe PCIe 5.0.',
- defect: 'Дефектная спецификация: В сервер установлены 4 модуля памяти DDR5 128 ГБ на сокет (всего 8 модулей) в несимметричных слотах; 4 скоростных NVMe SSD подключены через чипсетный хаб по шине PCIe 4.0 x4; видеокарты H100 установлены в слоты, расщепляющие линии в режим PCIe 4.0 x8/x8 с сетевым адаптером InfiniBand.'
- },
- '2': {
- title: 'Вариант 2: Сервер высокочастотного трейдинга (HFT Ultra-Low Latency)',
- profile: 'Целевой профиль: Минимальная аппаратная задержка tick-to-trade, однопоточный оверклокинг, обработка биржевого сетевого трафика через FPGA (байпас ядра ОС Kernel Bypass). Базовая платформа: 1x Intel Core i9-14900KS (8 P-ядер на 6.0 ГГц фиксировано, E-ядра выключены), 2 канала DDR5 low-latency, 1x FPGA сетевая карта 25GbE Solarflare/Alveo, 1x Intel Optane SSD P5800X (3D XPoint).',
- defect: 'Дефектная спецификация: Сетевая карта FPGA 25GbE установлена в нижний слот PCIe, подключенный к чипсету Z790 через шину DMI 4.0 x8; установлены 4 модуля памяти DDR5 (2 DPC) со стандартным профилем JEDEC 4800 tCL=40; в BIOS активны энергосберегающие состояния C-States и технология Intel SpeedStep.'
- },
- '3': {
- title: 'Вариант 3: Банковский транзакционный кластер СУБД (Mission-Critical OLTP)',
- profile: 'Целевой профиль: Миллионы транзакций в секунду (TPC-C), строгие требования ACID, непрерывный ввод-вывод 4K случайных блоков (IOPs), зеркалирование памяти и максимальная надежность RAS. Базовая платформа: 4-сокетный сервер 4x Intel Xeon Platinum 8490H (60 ядер/сокет, 8 каналов DDR5/сокет, Full-Mesh UPI 2.0 16 GT/s), 64 модуля DDR5 Registered ECC, 8x NVMe Dual-Port Enterprise SSD, 4x FC 64G HBA.',
- defect: 'Дефектная спецификация: Все 8 накопителей NVMe и оба адаптера 100GbE подключены исключительно к линиям сокета CPU0; установлена десктопная память UDIMM без поддержки ECC; на материнской плате аппаратно отключены 3 из 4 линков межпроцессорной шины UPI между сокетами.'
- },
- '4': {
- title: 'Вариант 4: Профессиональная рабочая станция для CAD/CAM и VFX-рендеринга',
- profile: 'Целевой профиль: 3D-моделирование (высокая однопоточная частота), многопоточный рендеринг геометрии и GPU-рендеринг сложных сцен с текстурами объемом >48 ГБ, монтаж несжатого 8K RAW видео. Базовая платформа: 1x AMD Ryzen Threadripper PRO 7985WX (64 ядра / 128 потоков, 8 каналов DDR5, 128 линий PCIe 5.0), 2x NVIDIA RTX 6000 Ada (по 48 ГБ), аппаратный NVMe RAID (4x PCIe 5.0 x4), карта Blackmagic DeckLink 8K.',
- defect: 'Дефектная спецификация: Установлен типовой офисный блок питания ATX 2.4 мощностью 850 Вт с разветвителями Molex/SATA на 8-pin PCIe; две видео RTX 6000 Ada установлены вплотную друг к другу, при этом второй слот работает через чипсет в режиме PCIe 4.0 x4; на процессор установлен башенный кулер со стандартной десктопной подошвой сокета AM4/AM5.'
- }
- };
+  const VARIANT_DATA = {
+    '1': {
+      title: 'Вариант 1: Узел глубокого обучения и HPC (Deep Learning Node)',
+      profile: 'Целевой профиль: Обучение больших языковых моделей (LLM), тензорные операции FP16/BF16/FP64, высокий сетевой трафик AllReduce через InfiniBand. Базовая платформа: 2x AMD EPYC 9654 (96 ядер/сокет, 2.4-3.55 ГГц, 12 каналов DDR5 на сокет, 160 линий PCIe 5.0), 4x NVIDIA H100 PCIe (по 350 Вт), 2x ConnectX-7 400G InfiniBand, 4x NVMe PCIe 5.0.',
+      defect: 'Дефектная спецификация: В сервер установлены 4 модуля памяти DDR5 128 ГБ на сокет (всего 8 модулей) в несимметричных слотах; 4 скоростных NVMe SSD подключены через чипсетный хаб по шине PCIe 4.0 x4; видеокарты H100 установлены в слоты, расщепляющие линии в режим PCIe 4.0 x8/x8 с сетевым адаптером InfiniBand.'
+    },
+    '2': {
+      title: 'Вариант 2: Сервер высокочастотного трейдинга (HFT Ultra-Low Latency)',
+      profile: 'Целевой профиль: Минимальная аппаратная задержка tick-to-trade, однопоточный оверклокинг, обработка биржевого сетевого трафика через FPGA (байпас ядра ОС Kernel Bypass). Базовая платформа: 1x Intel Core i9-14900KS (8 P-ядер на 6.0 ГГц фиксировано, E-ядра выключены), 2 канала DDR5 low-latency, 1x FPGA сетевая карта 25GbE Solarflare/Alveo, 1x Intel Optane SSD P5800X (3D XPoint).',
+      defect: 'Дефектная спецификация: Сетевая карта FPGA 25GbE установлена в нижний слот PCIe, подключенный к чипсету Z790 через шину DMI 4.0 x8; установлены 4 модуля памяти DDR5 (2 DPC) со стандартным профилем JEDEC 4800 tCL=40; в BIOS активны энергосберегающие состояния C-States и технология Intel SpeedStep.'
+    },
+    '3': {
+      title: 'Вариант 3: Банковский транзакционный кластер СУБД (Mission-Critical OLTP)',
+      profile: 'Целевой профиль: Миллионы транзакций в секунду (TPC-C), строгие требования ACID, непрерывный ввод-вывод 4K случайных блоков (IOPs), зеркалирование памяти и максимальная надежность RAS. Базовая платформа: 4-сокетный сервер 4x Intel Xeon Platinum 8490H (60 ядер/сокет, 8 каналов DDR5/сокет, Full-Mesh UPI 2.0 16 GT/s), 64 модуля DDR5 Registered ECC, 8x NVMe Dual-Port Enterprise SSD, 4x FC 64G HBA.',
+      defect: 'Дефектная спецификация: Все 8 накопителей NVMe и оба адаптера 100GbE подключены исключительно к линиям сокета CPU0; установлена десктопная память UDIMM без поддержки ECC; на материнской плате аппаратно отключены 3 из 4 линков межпроцессорной шины UPI между сокетами.'
+    },
+    '4': {
+      title: 'Вариант 4: Профессиональная рабочая станция для CAD/CAM и VFX-рендеринга',
+      profile: 'Целевой профиль: 3D-моделирование (высокая однопоточная частота), многопоточный рендеринг геометрии и GPU-рендеринг сложных сцен с текстурами объемом >48 ГБ, монтаж несжатого 8K RAW видео. Базовая платформа: 1x AMD Ryzen Threadripper PRO 7985WX (64 ядра / 128 потоков, 8 каналов DDR5, 128 линий PCIe 5.0), 2x NVIDIA RTX 6000 Ada (по 48 ГБ), аппаратный NVMe RAID (4x PCIe 5.0 x4), карта Blackmagic DeckLink 8K.',
+      defect: 'Дефектная спецификация: Установлен типовой офисный блок питания ATX 2.4 мощностью 850 Вт с разветвителями Molex/SATA на 8-pin PCIe; две видео RTX 6000 Ada установлены вплотную друг к другу, при этом второй слот работает через чипсет в режиме PCIe 4.0 x4; на процессор установлен башенный кулер со стандартной десктопной подошвой сокета AM4/AM5.'
+    }
+  };
 
- const INPUT_IDS = [
- 'student_fio', 'student_group', 'work_date', 'variant_select',
- 'calc_rpeak', 'calc_channels', 'calc_ram_bw', 'calc_latency', 'ans_mem_wall',
- 'pcie_dev1_slot', 'pcie_dev1_bw', 'pcie_dev1_src',
- 'pcie_dev2_slot', 'pcie_dev2_bw', 'pcie_dev2_src',
- 'pcie_dev3_slot', 'pcie_dev3_bw', 'pcie_dev3_src',
- 'pcie_link_type', 'pcie_link_bw', 'pcie_link_src', 'ans_pcie_balance',
- 'pwr_cpu_nom', 'pwr_cpu_peak', 'pwr_gpu_nom', 'pwr_gpu_peak',
- 'pwr_other_nom', 'pwr_other_peak', 'pwr_sum_nom', 'pwr_sum_peak', 'ans_cooling_pwr',
- 'ans_defect_detect', 'ans_defect_fix',
- 'chk_status_1', 'chk_proof_1', 'chk_status_2', 'chk_proof_2',
- 'chk_status_3', 'chk_proof_3', 'chk_status_4', 'chk_proof_4',
- 'ans_final_conclusion'
- ];
+  const INPUT_IDS = [
+    'student_fio', 'student_group', 'work_date', 'variant_select',
+    'calc_rpeak', 'calc_channels', 'calc_ram_bw', 'calc_latency', 'ans_mem_wall',
+    'pcie_dev1_slot', 'pcie_dev1_bw', 'pcie_dev1_src',
+    'pcie_dev2_slot', 'pcie_dev2_bw', 'pcie_dev2_src',
+    'pcie_dev3_slot', 'pcie_dev3_bw', 'pcie_dev3_src',
+    'pcie_link_type', 'pcie_link_bw', 'pcie_link_src', 'ans_pcie_balance',
+    'pwr_cpu_nom', 'pwr_cpu_peak', 'pwr_gpu_nom', 'pwr_gpu_peak',
+    'pwr_other_nom', 'pwr_other_peak', 'pwr_sum_nom', 'pwr_sum_peak', 'ans_cooling_pwr',
+    'ans_defect_detect', 'ans_defect_fix',
+    'chk_status_1', 'chk_proof_1', 'chk_status_2', 'chk_proof_2',
+    'chk_status_3', 'chk_proof_3', 'chk_status_4', 'chk_proof_4',
+    'ans_final_conclusion'
+  ];
 
- function updateVariantView() {
- const v = document.getElementById('variant_select').value;
- const data = VARIANT_DATA[v] | VARIANT_DATA['1'];
- 
- document.getElementById('variant_header_title').textContent = data.title;
- document.getElementById('variant_profile_text').textContent = data.profile;
- document.getElementById('defect_text').textContent = data.defect;
- document.getElementById('print_variant_text').textContent = data.title;
- }
+  function updateVariantView() {
+    const v = document.getElementById('variant_select').value;
+    const data = VARIANT_DATA[v] || VARIANT_DATA['1'];
+    
+    document.getElementById('variant_header_title').textContent = data.title;
+    document.getElementById('variant_profile_text').textContent = data.profile;
+    document.getElementById('defect_text').textContent = data.defect;
+    document.getElementById('print_variant_text').textContent = data.title;
+  }
 
- function saveToStorage(notify = false) {
- const payload = {};
- INPUT_IDS.forEach(id => {
- const el = document.getElementById(id);
- if (el) payload[id] = el.value;
- });
- localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  function saveToStorage(notify = false) {
+    const payload = {};
+    INPUT_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) payload[id] = el.value;
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
 
- const status = document.getElementById('status_indicator');
- if (notify && status) {
- status.textContent = '✓ Изменения сохранены!';
- status.className = 'status-msg status-saved';
- setTimeout(() => { status.textContent = ''; }, 3000);
- }
- }
+    const status = document.getElementById('status_indicator');
+    if (notify && status) {
+      status.textContent = '✓ Изменения сохранены!';
+      status.className = 'status-msg status-saved';
+      setTimeout(() => { status.textContent = ''; }, 3000);
+    }
+  }
 
- function loadFromStorage() {
- const raw = localStorage.getItem(STORAGE_KEY);
- if (!raw) {
- updateVariantView();
- return;
- }
- try {
- const payload = JSON.parse(raw);
- INPUT_IDS.forEach(id => {
- const el = document.getElementById(id);
- if (el && payload[id] !== undefined) {
- el.value = payload[id];
- }
- });
- } catch (e) {
- console.error('Ошибка загрузки данных', e);
- }
- updateVariantView();
- }
+  function loadFromStorage() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      updateVariantView();
+      return;
+    }
+    try {
+      const payload = JSON.parse(raw);
+      INPUT_IDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && payload[id] !== undefined) {
+          el.value = payload[id];
+        }
+      });
+    } catch (e) {
+      console.error('Ошибка загрузки данных', e);
+    }
+    updateVariantView();
+  }
 
- function confirmReset() {
- if (confirm('Внимание! Все введенные данные в бланке будут удалены. Продолжить?')) {
- localStorage.removeItem(STORAGE_KEY);
- INPUT_IDS.forEach(id => {
- const el = document.getElementById(id);
- if (el) {
- if (el.tagName === 'SELECT') {
- el.selectedIndex = 0;
- } else {
- el.value = '';
- }
- }
- });
- updateVariantView();
- const status = document.getElementById('status_indicator');
- if (status) {
- status.textContent = 'Форма очищена';
- status.className = 'status-msg';
- setTimeout(() => { status.textContent = ''; }, 2500);
- }
- }
- }
+  function confirmReset() {
+    if (confirm('Внимание! Все введенные данные в бланке будут удалены. Продолжить?')) {
+      localStorage.removeItem(STORAGE_KEY);
+      INPUT_IDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          if (el.tagName === 'SELECT') {
+            el.selectedIndex = 0;
+          } else {
+            el.value = '';
+          }
+        }
+      });
+      updateVariantView();
+      const status = document.getElementById('status_indicator');
+      if (status) {
+        status.textContent = 'Форма очищена';
+        status.className = 'status-msg';
+        setTimeout(() => { status.textContent = ''; }, 2500);
+      }
+    }
+  }
 
- // Навешиваем слушатели изменений
- window.addEventListener('DOMContentLoaded', () => {
- loadFromStorage();
+  // Навешиваем слушатели изменений
+  window.addEventListener('DOMContentLoaded', () => {
+    loadFromStorage();
 
- INPUT_IDS.forEach(id => {
- const el = document.getElementById(id);
- if (el) {
- el.addEventListener('input', () => saveToStorage(false));
- el.addEventListener('change', () => saveToStorage(false));
- }
- });
+    INPUT_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => saveToStorage(false));
+        el.addEventListener('change', () => saveToStorage(false));
+      }
+    });
 
- // Обработка перед печатью для синхронизации текстового отображения select
- window.addEventListener('beforeprint', () => {
- const v = document.getElementById('variant_select').value;
- const data = VARIANT_DATA[v] | VARIANT_DATA['1'];
- document.getElementById('print_variant_text').textContent = data.title;
- });
- });
+    // Обработка перед печатью для синхронизации текстового отображения select
+    window.addEventListener('beforeprint', () => {
+      const v = document.getElementById('variant_select').value;
+      const data = VARIANT_DATA[v] || VARIANT_DATA['1'];
+      document.getElementById('print_variant_text').textContent = data.title;
+    });
+  });
 </script>
 </body>
 </html>

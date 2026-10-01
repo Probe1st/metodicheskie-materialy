@@ -1,373 +1,387 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
- <meta name="color-scheme" content="light">
- <title>Методический материал — Практическое занятие №1: ключи, объекты и проект БД, таблицы</title>
- <style>
- :root {
- --bg: #f8fafc;
- --card: #ffffff;
- --text: #0f172a;
- --muted: #475569;
- --line: #cbd5e1;
- --accent: #0284c7;
- --accent-soft: #f0f9ff;
- --accent-dark: #0369a1;
- --warn: #b45309;
- --warn-soft: #fffbeb;
- --danger: #b91c1c;
- --danger-soft: #fef2f2;
- --code-bg: #0f172a;
- --code-text: #f8fafc;
- --radius: 12px;
- --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
- }
- * { box-sizing: border-box; }
- html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
- body {
- margin: 0;
- background: var(--bg);
- color: var(--text);
- font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
- line-height: 1.65;
- font-size: 16px;
- }.page {
- width: min(100% - 32px, 960px);
- margin: 32px auto 80px;
- }.card {
- background: var(--card);
- border: 1px solid var(--line);
- border-radius: var(--radius);
- padding: 32px;
- margin-bottom: 24px;
- box-shadow: var(--shadow);
- }
- h1 {
- margin: 0 0 12px;
- font-size: clamp(24px, 4vw, 32px);
- color: var(--text);
- line-height: 1.25;
- }.lead {
- color: var(--muted);
- margin: 0;
- font-size: 16px;
- }
- h2 {
- margin: 0 0 16px;
- font-size: 21px;
- color: var(--accent);
- border-bottom: 2px solid var(--accent-soft);
- padding-bottom: 8px;
- }
- h3 {
- font-size: 18px;
- margin: 22px 0 12px;
- color: var(--text);
- }
- p, ul, ol {
- margin-top: 0;
- margin-bottom: 12px;
- }
- ul, ol {
- padding-left: 24px;
- }
- li {
- margin-bottom: 6px;
- }.callout {
- background: var(--accent-soft);
- border-left: 4px solid var(--accent);
- padding: 14px 18px;
- border-radius: 4px 8px 8px 4px;
- margin-bottom: 18px;
- }.callout-warn {
- background: var(--warn-soft);
- border-left: 4px solid var(--warn);
- padding: 14px 18px;
- border-radius: 4px 8px 8px 4px;
- margin-bottom: 18px;
- }.table-responsive {
- overflow-x: auto;
- margin: 16px 0 20px;
- border: 1px solid var(--line);
- border-radius: 8px;
- -webkit-overflow-scrolling: touch;
- }
- table.data-table {
- width: 100%;
- border-collapse: collapse;
- font-size: 14.5px;
- text-align: left;
- min-width: 600px;
- }
- table.data-table th, table.data-table td {
- border: 1px solid var(--line);
- padding: 10px 14px;
- vertical-align: top;
- }
- table.data-table th {
- background: var(--accent-soft);
- color: var(--accent-dark);
- font-weight: 600;
- }
- table.data-table tr:nth-child(even) td {
- background: #f8fafc;
- }
- pre {
- background: var(--code-bg);
- color: var(--code-text);
- padding: 16px;
- border-radius: 8px;
- overflow-x: auto;
- font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, monospace;
- font-size: 14px;
- line-height: 1.5;
- margin: 14px 0 18px;
- }
- code {
- font-family: ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
- font-size: 0.9em;
- background: #f1f5f9;
- color: #0f172a;
- padding: 2px 5px;
- border-radius: 4px;
- }
- pre code {
- background: transparent;
- color: inherit;
- padding: 0;
- }.badge {
- display: inline-block;
- padding: 3px 8px;
- border-radius: 4px;
- font-size: 12px;
- font-weight: 600;
- background: #e2e8f0;
- color: #334155;
- }.badge-accent {
- background: #e0f2fe;
- color: #0369a1;
- }.step-box {
- border: 1px solid var(--line);
- border-radius: 8px;
- padding: 16px 20px;
- margin-bottom: 16px;
- background: #ffffff;
- }.step-title {
- font-weight: 700;
- color: var(--accent-dark);
- margin-bottom: 8px;
- display: flex;
- align-items: center;
- gap: 10px;
- }
- @media (max-width: 640px) {.page { width: calc(100% - 20px); margin: 16px auto 60px; }.card { padding: 20px 16px; }
- pre { font-size: 12.5px; padding: 12px; }
- }
- @media print {
- body { background: white; color: black; font-size: 11pt; }.page { width: 100%; margin: 0; }.card { border: none; box-shadow: none; padding: 10px 0; margin-bottom: 16px; break-inside: avoid; }
- pre { background: #f8fafc; color: #000; border: 1px solid #ccc; }
- }
- </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Методический материал — Практическое занятие №1: ключи, объекты и проект БД, таблицы</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #0284c7;
+      --accent-soft: #f0f9ff;
+      --accent-dark: #0369a1;
+      --warn: #b45309;
+      --warn-soft: #fffbeb;
+      --danger: #b91c1c;
+      --danger-soft: #fef2f2;
+      --code-bg: #0f172a;
+      --code-text: #f8fafc;
+      --radius: 12px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      line-height: 1.65;
+      font-size: 16px;
+    }
+    .page {
+      width: min(100% - 32px, 960px);
+      margin: 32px auto 80px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(24px, 4vw, 32px);
+      color: var(--text);
+      line-height: 1.25;
+    }
+    .lead {
+      color: var(--muted);
+      margin: 0;
+      font-size: 16px;
+    }
+    h2 {
+      margin: 0 0 16px;
+      font-size: 21px;
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 8px;
+    }
+    h3 {
+      font-size: 18px;
+      margin: 22px 0 12px;
+      color: var(--text);
+    }
+    p, ul, ol {
+      margin-top: 0;
+      margin-bottom: 12px;
+    }
+    ul, ol {
+      padding-left: 24px;
+    }
+    li {
+      margin-bottom: 6px;
+    }
+    .callout {
+      background: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      padding: 14px 18px;
+      border-radius: 4px 8px 8px 4px;
+      margin-bottom: 18px;
+    }
+    .callout-warn {
+      background: var(--warn-soft);
+      border-left: 4px solid var(--warn);
+      padding: 14px 18px;
+      border-radius: 4px 8px 8px 4px;
+      margin-bottom: 18px;
+    }
+    .table-responsive {
+      overflow-x: auto;
+      margin: 16px 0 20px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14.5px;
+      text-align: left;
+      min-width: 600px;
+    }
+    table.data-table th, table.data-table td {
+      border: 1px solid var(--line);
+      padding: 10px 14px;
+      vertical-align: top;
+    }
+    table.data-table th {
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font-weight: 600;
+    }
+    table.data-table tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 14px 0 18px;
+    }
+    code {
+      font-family: ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
+      font-size: 0.9em;
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #e2e8f0;
+      color: #334155;
+    }
+    .badge-accent {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+    .step-box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      background: #ffffff;
+    }
+    .step-title {
+      font-weight: 700;
+      color: var(--accent-dark);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    @media (max-width: 640px) {
+      .page { width: calc(100% - 20px); margin: 16px auto 60px; }
+      .card { padding: 20px 16px; }
+      pre { font-size: 12.5px; padding: 12px; }
+    }
+    @media print {
+      body { background: white; color: black; font-size: 11pt; }
+      .page { width: 100%; margin: 0; }
+      .card { border: none; box-shadow: none; padding: 10px 0; margin-bottom: 16px; break-inside: avoid; }
+      pre { background: #f8fafc; color: #000; border: 1px solid #ccc; }
+    }
+  </style>
 </head>
 <body>
- <div class="page">
- 
- <header class="card">
- <h1>Методическое руководство для преподавателя</h1>
- <p class="lead"><strong>Дисциплина:</strong> ОП.08 Основы проектирования баз данных<br>
- <strong>Тема рабочей программы:</strong> Тема 1. Основные понятия баз данных — Практическое занятие №1: ключи, объекты и проект БД, таблицы<br>
- <strong>Вид занятия:</strong> Практическое занятие (2 академических часа)</p>
- </header>
+  <div class="page">
+    
+    <header class="card">
+      <h1>Методическое руководство для преподавателя</h1>
+      <p class="lead"><strong>Дисциплина:</strong> ОП.08 Основы проектирования баз данных<br>
+      <strong>Тема рабочей программы (§2.2 с.7):</strong> Тема 1. Основные понятия баз данных — Практическое занятие №1: ключи, объекты и проект БД, таблицы<br>
+      <strong>Вид занятия:</strong> Практическое занятие (2 академических часа)</p>
+    </header>
 
- <section class="card">
- <h2>1. Цели занятия и дидактический фокус</h2>
- <p>Основная дидактическая цель первого практического занятия дисциплины — перевести теоретические представления студентов об ER-моделировании (сущности, атрибуты, связи) в практическую плоскость <strong>проектирования физической структуры реляционных таблиц</strong> с применением механизмов реляционной целостности.</p>
- <div class="callout">
- <strong>Ключевой профессиональный навык:</strong> Обучающийся должен уметь обоснованно выбирать первичные ключи (естественные vs суррогатные), назначать типы данных с учетом диапазона значений и производительности индексов, проектировать внешние ключи с правильной каскадной политикой и реализовывать декларативные ограничения бизнес-правил (<code>NOT NULL</code>, <code>UNIQUE</code>, <code>CHECK</code>, <code>DEFAULT</code>).
- </div>
- <p>Особое внимание уделяется предотвращению типовых заблуждений начинающих разработчиков: использованию избыточных строковых типов для дат и денег, слепому навешиванию <code>ON DELETE CASCADE</code> и пренебрежению альтернативными уникальными ключами при использовании суррогатных идентификаторов.</p>
- </section>
+    <section class="card">
+      <h2>1. Цели занятия и дидактический фокус</h2>
+      <p>Основная дидактическая цель первого практического занятия дисциплины — перевести теоретические представления студентов об ER-моделировании (сущности, атрибуты, связи) в практическую плоскость <strong>проектирования физической структуры реляционных таблиц</strong> с применением механизмов реляционной целостности.</p>
+      <div class="callout">
+        <strong>Ключевой профессиональный навык:</strong> Обучающийся должен уметь обоснованно выбирать первичные ключи (естественные vs суррогатные), назначать типы данных с учетом диапазона значений и производительности индексов, проектировать внешние ключи с правильной каскадной политикой и реализовывать декларативные ограничения бизнес-правил (<code>NOT NULL</code>, <code>UNIQUE</code>, <code>CHECK</code>, <code>DEFAULT</code>).
+      </div>
+      <p>Особое внимание уделяется предотвращению типовых заблуждений начинающих разработчиков: использованию избыточных строковых типов для дат и денег, слепому навешиванию <code>ON DELETE CASCADE</code> и пренебрежению альтернативными уникальными ключами при использовании суррогатных идентификаторов.</p>
+    </section>
 
- <section class="card">
- <h2>2. Детальный хронометраж учебного занятия</h2>
- <div class="table-responsive">
- <table class="data-table">
- <thead>
- <tr>
- <th style="width: 28%;">Этап занятия</th>
- <th style="width: 18%;">Основной регламент (80 мин)</th>
- <th style="width: 18%;">Сокращенный регламент (60 мин)</th>
- <th style="width: 36%;">Содержание педагогической деятельности</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>1. Организационный момент и постановка задачи</strong></td>
- <td><span class="badge badge-accent">7 минут</span></td>
- <td><span class="badge badge-accent">5 минут</span></td>
- <td>Приветствие, проверка готовности рабочих мест. Демонстрация проблемы: «Что будет, если в таблице заказов удалить клиента, не проверив внешние ключи?». Формулирование цели занятия и критериев оценивания (4 балла).</td>
- </tr>
- <tr>
- <td><strong>2. Вводный инструктаж и разбор архитектурного эталона</strong></td>
- <td><span class="badge badge-accent">23 минуты</span></td>
- <td><span class="badge badge-accent">15 минут</span></td>
- <td>Фронтальный разбор физического проектирования: анатомия оператора <code>CREATE TABLE</code>, специфика типов данных (<code>INTEGER</code> vs <code>BIGINT</code>, <code>NUMERIC</code> vs <code>FLOAT</code>, <code>TIMESTAMP</code>), первичные ключи (<code>SERIAL</code>, <code>IDENTITY</code>, <code>UUID</code>), ограничения ссылочной целостности и каскадные опции.</td>
- </tr>
- <tr>
- <td><strong>3. Практическая работа: проектирование по вариантам</strong></td>
- <td><span class="badge badge-accent">35 минут</span></td>
- <td><span class="badge badge-accent">28 минут</span></td>
- <td>Индивидуальная самостоятельная работа студентов в интерактивном листе (<code>zanyatie.html</code>). Проектирование реляционных таблиц, выбор типов, спецификация ключей и условий <code>CHECK</code> для одной из 4 предметных областей.</td>
- </tr>
- <tr>
- <td><strong>4. Экспертная экспресс-проверка и разбор коллизий</strong></td>
- <td><span class="badge badge-accent">10 минут</span></td>
- <td><span class="badge badge-accent">8 минут</span></td>
- <td>Разбор типичных ошибок у доски: конфликт каскадного удаления в финансовых журналах, некорректная валидация временных интервалов в <code>CHECK</code>, отсутствие <code>UNIQUE</code> на естественных идентификаторах.</td>
- </tr>
- <tr>
- <td><strong>5. Подведение итогов, рефлексия, фиксация результатов</strong></td>
- <td><span class="badge badge-accent">5 минут</span></td>
- <td><span class="badge badge-accent">4 минут</span></td>
- <td>Оценка выполнения практических заданий по критериальной рубрике. Подведение итогов усвоения материала, разъяснение резервного домашнего задания.</td>
- </tr>
- </tbody>
- </table>
- </div>
- </section>
+    <section class="card">
+      <h2>2. Детальный хронометраж учебного занятия</h2>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 28%;">Этап занятия</th>
+              <th style="width: 18%;">Основной регламент (80 мин)</th>
+              <th style="width: 18%;">Сокращенный регламент (60 мин)</th>
+              <th style="width: 36%;">Содержание педагогической деятельности</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1. Организационный момент и постановка задачи</strong></td>
+              <td><span class="badge badge-accent">7 минут</span></td>
+              <td><span class="badge badge-accent">5 минут</span></td>
+              <td>Приветствие, проверка готовности рабочих мест. Демонстрация проблемы: «Что будет, если в таблице заказов удалить клиента, не проверив внешние ключи?». Формулирование цели занятия и критериев оценивания (4 балла).</td>
+            </tr>
+            <tr>
+              <td><strong>2. Вводный инструктаж и разбор архитектурного эталона</strong></td>
+              <td><span class="badge badge-accent">23 минуты</span></td>
+              <td><span class="badge badge-accent">15 минут</span></td>
+              <td>Фронтальный разбор физического проектирования: анатомия оператора <code>CREATE TABLE</code>, специфика типов данных (<code>INTEGER</code> vs <code>BIGINT</code>, <code>NUMERIC</code> vs <code>FLOAT</code>, <code>TIMESTAMP</code>), первичные ключи (<code>SERIAL</code>, <code>IDENTITY</code>, <code>UUID</code>), ограничения ссылочной целостности и каскадные опции.</td>
+            </tr>
+            <tr>
+              <td><strong>3. Практическая работа: проектирование по вариантам</strong></td>
+              <td><span class="badge badge-accent">35 минут</span></td>
+              <td><span class="badge badge-accent">28 минут</span></td>
+              <td>Индивидуальная самостоятельная работа студентов в интерактивном листе (<code>zanyatie.html</code>). Проектирование реляционных таблиц, выбор типов, спецификация ключей и условий <code>CHECK</code> для одной из 4 предметных областей.</td>
+            </tr>
+            <tr>
+              <td><strong>4. Экспертная экспресс-проверка и разбор коллизий</strong></td>
+              <td><span class="badge badge-accent">10 минут</span></td>
+              <td><span class="badge badge-accent">8 минут</span></td>
+              <td>Разбор типичных ошибок у доски: конфликт каскадного удаления в финансовых журналах, некорректная валидация временных интервалов в <code>CHECK</code>, отсутствие <code>UNIQUE</code> на естественных идентификаторах.</td>
+            </tr>
+            <tr>
+              <td><strong>5. Подведение итогов, рефлексия, фиксация результатов</strong></td>
+              <td><span class="badge badge-accent">5 минут</span></td>
+              <td><span class="badge badge-accent">4 минут</span></td>
+              <td>Оценка выполнения практических заданий по критериальной рубрике. Подведение итогов усвоения материала, разъяснение резервного домашнего задания.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
- <section class="card">
- <h2>3. Фундаментальные аспекты проектирования таблиц</h2>
+    <section class="card">
+      <h2>3. Фундаментальные аспекты проектирования таблиц</h2>
 
- <h3>3.1. Первичные ключи (Primary Key): Естественные vs Суррогатные</h3>
- <p>Первичный ключ отношения должен удовлетворять трем фундаментальным реляционным аксиомам: <strong>уникальность</strong> (отсутствие дубликатов), <strong>непустота</strong> (не допускает <code>NULL</code>) и <strong>неизменяемость</strong> (значение ключа не должно меняться на протяжении всего жизненного цикла кортежа).</p>
- 
- <div class="table-responsive">
- <table class="data-table">
- <thead>
- <tr>
- <th>Тип ключа</th>
- <th>Характеристика и примеры</th>
- <th>Преимущества</th>
- <th>Недостатки и риски</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><strong>Естественный ключ (Natural Key)</strong></td>
- <td>Формируется из реальных реквизитов объекта: ИНН, СНИЛС, VIN-код ТС, номер паспорта, ISBN книги.</td>
- <td>Не требует создания искусственных колонок; бизнес-данные сразу видны без объединения (JOIN).</td>
- <td>Бизнес-правила меняются: форматы документов могут измениться; строковые ключи медленнее индексируются и расходуют больше дискового пространства во внешних ключах.</td>
- </tr>
- <tr>
- <td><strong>Суррогатный целочисленный (SERIAL / IDENTITY)</strong></td>
- <td>Искусственное поле целочисленного типа (<code>INT</code> 4 байта, <code>BIGINT</code> 8 байт), генерируемое СУБД автоматически через последовательность (SEQUENCE).</td>
- <td>Максимальная скорость соединений таблиц; фиксированный компактный размер в B-Tree индексах; абсолютная неизменяемость.</td>
- <td>Требует обязательного создания вторичного ограничения <code>UNIQUE</code> на естественные атрибуты (иначе возникнут полные дубликаты записей).</td>
- </tr>
- <tr>
- <td><strong>Суррогатный UUID (UUIDv4 / UUIDv7)</strong></td>
- <td>128-битный глобально уникальный идентификатор (16 байт), генерируемый алгоритмически без централизованной последовательности.</td>
- <td>Позволяет безопасно генерировать ID на клиентах до записи в БД; идеален для распределенных и микросервисных систем.</td>
- <td>UUIDv4 фрагментирует B-Tree индексы из-за случайного распределения; размер 16 байт против 4/8 байт у целых чисел.</td>
- </tr>
- </tbody>
- </table>
- </div>
+      <h3>3.1. Первичные ключи (Primary Key): Естественные vs Суррогатные</h3>
+      <p>Первичный ключ отношения должен удовлетворять трем фундаментальным реляционным аксиомам: <strong>уникальность</strong> (отсутствие дубликатов), <strong>непустота</strong> (не допускает <code>NULL</code>) и <strong>неизменяемость</strong> (значение ключа не должно меняться на протяжении всего жизненного цикла кортежа).</p>
+      
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Тип ключа</th>
+              <th>Характеристика и примеры</th>
+              <th>Преимущества</th>
+              <th>Недостатки и риски</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Естественный ключ (Natural Key)</strong></td>
+              <td>Формируется из реальных реквизитов объекта: ИНН, СНИЛС, VIN-код ТС, номер паспорта, ISBN книги.</td>
+              <td>Не требует создания искусственных колонок; бизнес-данные сразу видны без объединения (JOIN).</td>
+              <td>Бизнес-правила меняются: форматы документов могут измениться; строковые ключи медленнее индексируются и расходуют больше дискового пространства во внешних ключах.</td>
+            </tr>
+            <tr>
+              <td><strong>Суррогатный целочисленный (SERIAL / IDENTITY)</strong></td>
+              <td>Искусственное поле целочисленного типа (<code>INT</code> 4 байта, <code>BIGINT</code> 8 байт), генерируемое СУБД автоматически через последовательность (SEQUENCE).</td>
+              <td>Максимальная скорость соединений таблиц; фиксированный компактный размер в B-Tree индексах; абсолютная неизменяемость.</td>
+              <td>Требует обязательного создания вторичного ограничения <code>UNIQUE</code> на естественные атрибуты (иначе возникнут полные дубликаты записей).</td>
+            </tr>
+            <tr>
+              <td><strong>Суррогатный UUID (UUIDv4 / UUIDv7)</strong></td>
+              <td>128-битный глобально уникальный идентификатор (16 байт), генерируемый алгоритмически без централизованной последовательности.</td>
+              <td>Позволяет безопасно генерировать ID на клиентах до записи в БД; идеален для распределенных и микросервисных систем.</td>
+              <td>UUIDv4 фрагментирует B-Tree индексы из-за случайного распределения; размер 16 байт против 4/8 байт у целых чисел.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
- <div class="callout-warn">
- <strong>Методическое правило СИЭУиП:</strong> Если в таблице используется суррогатный первичный ключ (например, <code>id_avto INT PRIMARY KEY</code>), естественные бизнес-идентификаторы объекта (номер кузова, госномер, email, номер паспорта) <strong>ОБЯЗАНЫ</strong> иметь ограничение <code>UNIQUE NOT NULL</code>. В противном случае СУБД допустит регистрацию двух идентичных реальных объектов с разными искусственными ID.
- </div>
+      <div class="callout-warn">
+        <strong>Методическое правило СИЭУиП:</strong> Если в таблице используется суррогатный первичный ключ (например, <code>id_avto INT PRIMARY KEY</code>), естественные бизнес-идентификаторы объекта (номер кузова, госномер, email, номер паспорта) <strong>ОБЯЗАНЫ</strong> иметь ограничение <code>UNIQUE NOT NULL</code>. В противном случае СУБД допустит регистрацию двух идентичных реальных объектов с разными искусственными ID.
+      </div>
 
- <h3>3.2. Стратегия выбора типов данных</h3>
- <ul>
- <li><strong>Целочисленные (<code>SMALLINT</code>, <code>INTEGER</code>, <code>BIGINT</code>):</strong> используются для счетчиков, внешних ключей, натуральных величин. Выбор зависит от прогнозируемого объема: <code>SMALLINT</code> (до 32 тыс. — этажи, категории), <code>INT</code> (до 2,14 млрд — сущности-справочники), <code>BIGINT</code> (до 9 × 10<sup>18</sup> — транзакционные журналы, чеки, путевые листы).</li>
- <li><strong>Строковые (<code>VARCHAR(n)</code>, <code>CHAR(n)</code>, <code>TEXT</code>):</strong> <code>CHAR(n)</code> применяется строго для строк фиксированной длины (например, VIN-код автомобиля ровно 17 символов или код валюты ISO ровно 3 символа). Для изменяемых строк всегда указывается <code>VARCHAR(n)</code> с осмысленным ограничением длины (ФИО — 50–100, email — 100). Неограниченный <code>TEXT</code> используется только для описаний и комментариев.</li>
- <li><strong>Финансовые и точные величины (<code>NUMERIC(precision, scale)</code>):</strong> Категорически запрещено использовать типы с плавающей точкой (<code>REAL</code>, <code>FLOAT</code>, <code>DOUBLE</code>) для денежных сумм, цен, тарифов и остатков топлива из-за накапливающейся ошибки округления IEEE 754. Для цен применяется <code>NUMERIC(10,2)</code> (число до 99 999 999.99 с точностью до копейки).</li>
- <li><strong>Временные типы (<code>DATE</code>, <code>TIME</code>, <code>TIMESTAMP</code>):</strong> Хранение дат в текстовом формате <code>VARCHAR(10)</code> является грубейшей ошибкой, ломающей хронологическую сортировку, сравнение интервалов и индексы. <code>DATE</code> — дата рождения, дата заезда; <code>TIMESTAMP</code> (или <code>TIMESTAMPTZ</code>) — точный момент совершения операции.</li>
- <li><strong>Логический тип (<code>BOOLEAN</code>):</strong> Применяется для флагов состояния (активен/заблокирован, в штате/уволен) вместо устаревших представлений 0/1 в <code>SMALLINT</code>.</li>
- </ul>
+      <h3>3.2. Стратегия выбора типов данных</h3>
+      <ul>
+        <li><strong>Целочисленные (<code>SMALLINT</code>, <code>INTEGER</code>, <code>BIGINT</code>):</strong> используются для счетчиков, внешних ключей, натуральных величин. Выбор зависит от прогнозируемого объема: <code>SMALLINT</code> (до 32 тыс. — этажи, категории), <code>INT</code> (до 2,14 млрд — сущности-справочники), <code>BIGINT</code> (до 9 × 10<sup>18</sup> — транзакционные журналы, чеки, путевые листы).</li>
+        <li><strong>Строковые (<code>VARCHAR(n)</code>, <code>CHAR(n)</code>, <code>TEXT</code>):</strong> <code>CHAR(n)</code> применяется строго для строк фиксированной длины (например, VIN-код автомобиля ровно 17 символов или код валюты ISO ровно 3 символа). Для изменяемых строк всегда указывается <code>VARCHAR(n)</code> с осмысленным ограничением длины (ФИО — 50–100, email — 100). Неограниченный <code>TEXT</code> используется только для описаний и комментариев.</li>
+        <li><strong>Финансовые и точные величины (<code>NUMERIC(precision, scale)</code>):</strong> Категорически запрещено использовать типы с плавающей точкой (<code>REAL</code>, <code>FLOAT</code>, <code>DOUBLE</code>) для денежных сумм, цен, тарифов и остатков топлива из-за накапливающейся ошибки округления IEEE 754. Для цен применяется <code>NUMERIC(10,2)</code> (число до 99 999 999.99 с точностью до копейки).</li>
+        <li><strong>Временные типы (<code>DATE</code>, <code>TIME</code>, <code>TIMESTAMP</code>):</strong> Хранение дат в текстовом формате <code>VARCHAR(10)</code> является грубейшей ошибкой, ломающей хронологическую сортировку, сравнение интервалов и индексы. <code>DATE</code> — дата рождения, дата заезда; <code>TIMESTAMP</code> (или <code>TIMESTAMPTZ</code>) — точный момент совершения операции.</li>
+        <li><strong>Логический тип (<code>BOOLEAN</code>):</strong> Применяется для флагов состояния (активен/заблокирован, в штате/уволен) вместо устаревших представлений 0/1 в <code>SMALLINT</code>.</li>
+      </ul>
 
- <h3>3.3. Ограничения целостности (Integrity Constraints)</h3>
- <p>Ограничения целостности гарантируют, что в базу данных физически невозможно записать логически некорректные или мусорные данные:</p>
- <ol>
- <li><code>NOT NULL</code> — запрещает отсутствие значения. Должно устанавливаться на все обязательные атрибуты сущности.</li>
- <li><code>UNIQUE</code> — гарантирует уникальность значений в пределах колонки или кортежа колонок (альтернативные ключи).</li>
- <li><code>DEFAULT</code> — автоматическое заполнение значения по умолчанию при вставке (например, <code>CURRENT_TIMESTAMP</code> или <code>TRUE</code>).</li>
- <li><code>CHECK (условие)</code> — предикатное ограничение, валидирующее значение по логическому выражению на уровне строки. Примеры:
- <pre><code>CHECK (data_vyezda > data_zaezda)
+      <h3>3.3. Ограничения целостности (Integrity Constraints)</h3>
+      <p>Ограничения целостности гарантируют, что в базу данных физически невозможно записать логически некорректные или мусорные данные:</p>
+      <ol>
+        <li><code>NOT NULL</code> — запрещает отсутствие значения. Должно устанавливаться на все обязательные атрибуты сущности.</li>
+        <li><code>UNIQUE</code> — гарантирует уникальность значений в пределах колонки или кортежа колонок (альтернативные ключи).</li>
+        <li><code>DEFAULT</code> — автоматическое заполнение значения по умолчанию при вставке (например, <code>CURRENT_TIMESTAMP</code> или <code>TRUE</code>).</li>
+        <li><code>CHECK (условие)</code> — предикатное ограничение, валидирующее значение по логическому выражению на уровне строки. Примеры:
+          <pre><code>CHECK (data_vyezda > data_zaezda)
 CHECK (kolichestvo_na_sklade >= 0)
 CHECK (status_zakaza IN ('принят', 'в_работе', 'готов', 'выдан'))
 CHECK (cena_prodazhi >= cena_zakupki)</code></pre>
- </li>
- </ol>
+        </li>
+      </ol>
 
- <h3>3.4. Внешние ключи (Foreign Key) и ссылочная целостность</h3>
- <p>Внешний ключ связывает дочернюю таблицу с родительской, гарантируя, что значение поля дочерней таблицы существует в первичном ключе родительской. Поведение при модификации или удалении родительской записи регламентируется секцией <code>ON DELETE / ON UPDATE</code>:</p>
- <div class="table-responsive">
- <table class="data-table">
- <thead>
- <tr>
- <th style="width: 25%;">Каскадное правило</th>
- <th style="width: 35%;">Механизм действия</th>
- <th style="width: 40%;">Область применения и ограничения</th>
- </tr>
- </thead>
- <tbody>
- <tr>
- <td><code>ON DELETE RESTRICT</code> / <code>NO ACTION</code></td>
- <td>Блокирует удаление родительской строки при наличии хотя бы одной связанной записи в дочерней таблице (вызывает ошибку FK violation).</td>
- <td><strong>Правило по умолчанию в промышленной разработке!</strong> Обязательно для финансовых документов, договоров, путевых листов, каталогов номенклатуры. Предотвращает случайную потерю данных.</td>
- </tr>
- <tr>
- <td><code>ON DELETE CASCADE</code></td>
- <td>Автоматически физически удаляет все дочерние записи вслед за удалением родительской строки.</td>
- <td>Допустимо строго для жестко подчиненных композиционных сущностей: строки чека в накладной, спецификация запчастей в квитанции ремонта. Опасно при ветвистых связях.</td>
- </tr>
- <tr>
- <td><code>ON DELETE SET NULL</code></td>
- <td>При удалении родительской строки внешнему ключу в дочерней таблице присваивается значение <code>NULL</code> (требует отсутствия <code>NOT NULL</code>).</td>
- <td>Используется для факультативных ассоциаций. Например: при удалении учетной записи мастера-приемщика заказ на ремонт сохраняется, а поле мастера зануляется.</td>
- </tr>
- <tr>
- <td><code>ON UPDATE CASCADE</code></td>
- <td>При изменении значения первичного ключа в родительской таблице новое значение автоматически каскадируется во все дочерние записи.</td>
- <td>Рекомендуется включать для всех внешних ключей, чтобы гарантировать синхронизацию при технологических переносах данных.</td>
- </tr>
- </tbody>
- </table>
- </div>
- </section>
+      <h3>3.4. Внешние ключи (Foreign Key) и ссылочная целостность</h3>
+      <p>Внешний ключ связывает дочернюю таблицу с родительской, гарантируя, что значение поля дочерней таблицы существует в первичном ключе родительской. Поведение при модификации или удалении родительской записи регламентируется секцией <code>ON DELETE / ON UPDATE</code>:</p>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 25%;">Каскадное правило</th>
+              <th style="width: 35%;">Механизм действия</th>
+              <th style="width: 40%;">Область применения и ограничения</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>ON DELETE RESTRICT</code> / <code>NO ACTION</code></td>
+              <td>Блокирует удаление родительской строки при наличии хотя бы одной связанной записи в дочерней таблице (вызывает ошибку FK violation).</td>
+              <td><strong>Правило по умолчанию в промышленной разработке!</strong> Обязательно для финансовых документов, договоров, путевых листов, каталогов номенклатуры. Предотвращает случайную потерю данных.</td>
+            </tr>
+            <tr>
+              <td><code>ON DELETE CASCADE</code></td>
+              <td>Автоматически физически удаляет все дочерние записи вслед за удалением родительской строки.</td>
+              <td>Допустимо строго для жестко подчиненных композиционных сущностей: строки чека в накладной, спецификация запчастей в квитанции ремонта. Опасно при ветвистых связях.</td>
+            </tr>
+            <tr>
+              <td><code>ON DELETE SET NULL</code></td>
+              <td>При удалении родительской строки внешнему ключу в дочерней таблице присваивается значение <code>NULL</code> (требует отсутствия <code>NOT NULL</code>).</td>
+              <td>Используется для факультативных ассоциаций. Например: при удалении учетной записи мастера-приемщика заказ на ремонт сохраняется, а поле мастера зануляется.</td>
+            </tr>
+            <tr>
+              <td><code>ON UPDATE CASCADE</code></td>
+              <td>При изменении значения первичного ключа в родительской таблице новое значение автоматически каскадируется во все дочерние записи.</td>
+              <td>Рекомендуется включать для всех внешних ключей, чтобы гарантировать синхронизацию при технологических переносах данных.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
- <section class="card">
- <h2>4. Педагогические приемы и разбор типичных ошибок</h2>
- <div class="step-box">
- <div class="step-title">Прием 1: «Провокационный вопрос о деструктивном каскаде»</div>
- <p>Для объяснения опасности <code>ON DELETE CASCADE</code> преподаватель моделирует ситуацию: <em>«Представьте, что менеджер автосалона решил удалить из справочника неактивную модель автомобиля. Если на связи стоит CASCADE, что произойдет? Удалятся все 200 машин автопарка, все путевые листы водителей и бухгалтерия за 5 лет! Поэтому для критичных данных мы используем RESTRICT и логическое удаление (Soft Delete через флаг is_aktivnyy)»</em>.</p>
- </div>
+    <section class="card">
+      <h2>4. Педагогические приемы и разбор типичных ошибок</h2>
+      <div class="step-box">
+        <div class="step-title">Прием 1: «Провокационный вопрос о деструктивном каскаде»</div>
+        <p>Для объяснения опасности <code>ON DELETE CASCADE</code> преподаватель моделирует ситуацию: <em>«Представьте, что менеджер автосалона решил удалить из справочника неактивную модель автомобиля. Если на связи стоит CASCADE, что произойдет? Удалятся все 200 машин автопарка, все путевые листы водителей и бухгалтерия за 5 лет! Поэтому для критичных данных мы используем RESTRICT и логическое удаление (Soft Delete через флаг is_aktivnyy)»</em>.</p>
+      </div>
 
- <div class="step-box">
- <div class="step-title">Прием 2: «Разбор коварства IEEE 754»</div>
- <p>Преподаватель запускает в консоли или демонстрирует на слайде сложение в типах с плавающей запятой: <code>0.1 + 0.2 = 0.30000000000000004</code>. После чего задает вопрос: <em>«Что скажет аудитор или налоговая, если на балансе компании из-за ошибки float потеряются или возникнут лишние копейки?»</em>. Это навсегда закрепляет применение типа <code>NUMERIC(10,2)</code> для финансов.</p>
- </div>
+      <div class="step-box">
+        <div class="step-title">Прием 2: «Разбор коварства IEEE 754»</div>
+        <p>Преподаватель запускает в консоли или демонстрирует на слайде сложение в типах с плавающей запятой: <code>0.1 + 0.2 = 0.30000000000000004</code>. После чего задает вопрос: <em>«Что скажет аудитор или налоговая, если на балансе компании из-за ошибки float потеряются или возникнут лишние копейки?»</em>. Это навсегда закрепляет применение типа <code>NUMERIC(10,2)</code> для финансов.</p>
+      </div>
 
- <div class="step-box">
- <div class="step-title">Прием 3: «Логика временной стрелы в CHECK»</div>
- <p>При проверке условий дат студенты часто пишут <code>CHECK (data_vyezda > data_zaezda)</code>, забывая о возможности нулевых значений (<code>NULL</code>) для незавершенных процессов. Преподаватель обращает внимание на предикаты с <code>IS NULL OR...</code>, объясняя трехзначную логику реляционных баз данных (TRUE, FALSE, UNKNOWN).</p>
- </div>
- </section>
+      <div class="step-box">
+        <div class="step-title">Прием 3: «Логика временной стрелы в CHECK»</div>
+        <p>При проверке условий дат студенты часто пишут <code>CHECK (data_vyezda > data_zaezda)</code>, забывая о возможности нулевых значений (<code>NULL</code>) для незавершенных процессов. Преподаватель обращает внимание на предикаты с <code>IS NULL OR ...</code>, объясняя трехзначную логику реляционных баз данных (TRUE, FALSE, UNKNOWN).</p>
+      </div>
+    </section>
 
- <section class="card">
- <h2>5. Критерии оценивания практической работы (4 балла)</h2>
- <ul>
- <li><strong>2 балла — Структура таблиц и выбор типов данных:</strong> корректное выделение всех требуемых таблиц предметной области, атомарность полей, оптимальные и ресурсоэффективные типы (<code>INTEGER</code>, <code>VARCHAR(n)</code>, <code>NUMERIC</code>, <code>TIMESTAMP</code>, <code>BOOLEAN</code>).</li>
- <li><strong>1 балл — Первичные и внешние ключи:</strong> обоснованное применение суррогатных/естественных ключей, правильное объявление внешних ключей с непротиворечивыми правилами ссылочной целостности (<code>ON DELETE RESTRICT/CASCADE/SET NULL</code>).</li>
- <li><strong>1 балл — Ограничения целостности и самопроверка:</strong> присутствие обязательных ограничений <code>NOT NULL</code>, <code>UNIQUE</code>, предикатных ограничений <code>CHECK</code> на предметную логику (диапазоны, даты, статусы), прохождение чек-листа самоконтроля.</li>
- </ul>
- </section>
+    <section class="card">
+      <h2>5. Критерии оценивания практической работы (4 балла)</h2>
+      <ul>
+        <li><strong>2 балла — Структура таблиц и выбор типов данных:</strong> корректное выделение всех требуемых таблиц предметной области, атомарность полей, оптимальные и ресурсоэффективные типы (<code>INTEGER</code>, <code>VARCHAR(n)</code>, <code>NUMERIC</code>, <code>TIMESTAMP</code>, <code>BOOLEAN</code>).</li>
+        <li><strong>1 балл — Первичные и внешние ключи:</strong> обоснованное применение суррогатных/естественных ключей, правильное объявление внешних ключей с непротиворечивыми правилами ссылочной целостности (<code>ON DELETE RESTRICT/CASCADE/SET NULL</code>).</li>
+        <li><strong>1 балл — Ограничения целостности и самопроверка:</strong> присутствие обязательных ограничений <code>NOT NULL</code>, <code>UNIQUE</code>, предикатных ограничений <code>CHECK</code> на предметную логику (диапазоны, даты, статусы), прохождение чек-листа самоконтроля.</li>
+      </ul>
+    </section>
 
- </div>
+  </div>
 </body>
 </html>
