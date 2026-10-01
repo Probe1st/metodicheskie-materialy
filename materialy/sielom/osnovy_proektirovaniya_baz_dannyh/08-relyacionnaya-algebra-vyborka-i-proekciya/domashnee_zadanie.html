@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Домашнее задание - Реляционная алгебра: выборка и проекция</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #cbd5e1;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --accent-soft: #f0f9ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header.hw-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .reserve-notice {
+      display: inline-block;
+      background-color: #fef3c7;
+      color: #92400e;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+      border-left: 4px solid #f59e0b;
+      line-height: 1.45;
+    }
+
+    .instruction {
+      font-size: 1rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .student-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .meta-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .meta-field label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .meta-field input {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      color: var(--text);
+      outline: none;
+    }
+
+    .meta-field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    section.hw-section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #0369a1;
+      margin-bottom: 14px;
+      border-left: 4px solid var(--accent);
+      padding-left: 10px;
+    }
+
+    p {
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 18px 0;
+      font-size: 0.92rem;
+    }
+
+    table.data-table th, table.data-table td {
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    table.data-table th {
+      background-color: #f1f5f9;
+      color: #334155;
+      font-weight: 700;
+    }
+
+    .formula-badge {
+      background-color: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #0369a1;
+      margin: 12px 0 16px 0;
+      display: inline-block;
+    }
+
+    .task-desc {
+      background-color: #f8fafc;
+      border-left: 3px solid #64748b;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      margin-bottom: 14px;
+      color: var(--text);
+    }
+
+    textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      color: var(--text);
+      outline: none;
+      resize: vertical;
+      min-height: 85px;
+      line-height: 1.5;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    .actions-bar {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background-color: var(--accent);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background-color: #f1f5f9;
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .btn-secondary:hover {
+      background-color: #e2e8f0;
+    }
+
+    .status-msg {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #16a34a;
+      display: none;
+    }
+
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+      }
+      .actions-bar, .status-msg {
+        display: none !important;
+      }
+      header.hw-header, section.hw-section {
+        box-shadow: none !important;
+        border: 1px solid #475569 !important;
+        page-break-inside: avoid;
+        margin-bottom: 14px !important;
+        padding: 12px 16px !important;
+      }
+      input, textarea {
+        border: 1px solid #475569 !important;
+        color: #000000 !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .student-meta {
+        grid-template-columns: 1fr;
+      }
+      body {
+        padding: 12px 8px;
+      }
+      header.hw-header, section.hw-section {
+        padding: 16px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <header class="hw-header">
+    <h1>Домашнее задание - Реляционная алгебра: выборка и проекция</h1>
+    <div class="reserve-notice">
+      Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+    </div>
+    <p class="instruction">
+      Задание предназначено для аналитического вычисления результата составного выражения реляционной алгебры над модельным отношением. Ответы сохраняются в браузере и могут быть экспортированы или распечатаны для проверки преподавателем.
+    </p>
+    <div class="student-meta">
+      <div class="meta-field">
+        <label for="hwStudentFio">ФИО студента</label>
+        <input type="text" id="hwStudentFio">
+      </div>
+      <div class="meta-field">
+        <label for="hwStudentGroup">Учебная группа</label>
+        <input type="text" id="hwStudentGroup">
+      </div>
+    </div>
+  </header>
+
+  <section class="hw-section">
+    <h2>Исходное отношение: «Курсы_Платформы» ($C$)</h2>
+    <p>В образовательной базе данных онлайн-платформы хранится отношение курсов:</p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID_курса</th>
+          <th>Название</th>
+          <th>Направление</th>
+          <th>Длительность_мес</th>
+          <th>Стоимость_руб</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>101</td>
+          <td>Проектирование баз данных</td>
+          <td>Data Engineering</td>
+          <td>4</td>
+          <td>45000</td>
+        </tr>
+        <tr>
+          <td>102</td>
+          <td>Frontend-разработка на React</td>
+          <td>Web Development</td>
+          <td>6</td>
+          <td>60000</td>
+        </tr>
+        <tr>
+          <td>103</td>
+          <td>Анализ данных в Python</td>
+          <td>Data Engineering</td>
+          <td>3</td>
+          <td>38000</td>
+        </tr>
+        <tr>
+          <td>104</td>
+          <td>Архитектура микросервисов</td>
+          <td>Backend Development</td>
+          <td>5</td>
+          <td>75000</td>
+        </tr>
+        <tr>
+          <td>105</td>
+          <td>Инженерия данных и DWH</td>
+          <td>Data Engineering</td>
+          <td>6</td>
+          <td>82000</td>
+        </tr>
+        <tr>
+          <td>106</td>
+          <td>DevOps и CI/CD пайплайны</td>
+          <td>Cloud & Infrastructure</td>
+          <td>4</td>
+          <td>52000</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="hw-section">
+    <h2>Аналитическое вычисление выражения реляционной алгебры</h2>
+    <div class="formula-badge">
+      $\mathcal{E} = \pi_{\text{Направление}}(\sigma_{\text{Длительность\_мес} \ge 4 \land \text{Стоимость\_руб} \le 70000}(C))$
+    </div>
+
+    <div class="task-desc">
+      <strong>Шаг 1. Вычисление внутренней селекции ($\sigma$):</strong><br>
+      Определите, какие кортежи отношения $C$ удовлетворяют конъюнкции условий: <code>Длительность_мес &ge; 4</code> И <code>Стоимость_руб &le; 70000</code>. Выпишите отобранные ID_курса с пояснением проверки условия по каждому кортежу.
+    </div>
+    <textarea id="hwStep1" rows="4"></textarea>
+
+    <div class="task-desc" style="margin-top: 16px;">
+      <strong>Шаг 2. Вычисление внешней проекции ($\pi$) и устранение дубликатов:</strong><br>
+      Спроецируйте полученное на шаге 1 отношение на атрибут <code>Направление</code>. Сформулируйте правило устранения дубликатов по Кодду и запишите итоговое отношение (степень и мощность).
+    </div>
+    <textarea id="hwStep2" rows="4"></textarea>
+
+    <div class="task-desc" style="margin-top: 16px;">
+      <strong>Шаг 3. Трансляция в эквивалентный SQL-запрос:</strong><br>
+      Запишите SQL-запрос, который строго реализует математическую суперпозицию $\mathcal{E}$ над таблицей <code>Courses</code>. Обоснуйте использование директивы <code>DISTINCT</code>.
+    </div>
+    <textarea id="hwStep3" rows="3"></textarea>
+
+    <div class="actions-bar">
+      <button class="btn btn-primary" id="hwSaveBtn">Сохранить решение</button>
+      <button class="btn btn-secondary" id="hwPrintBtn">Печать задания</button>
+      <button class="btn btn-secondary" id="hwClearBtn">Очистить поля</button>
+    </div>
+    <div class="status-msg" id="hwStatusMsg">Данные решения успешно сохранены в LocalStorage!</div>
+  </section>
+
+</div>
+
+<script>
+  (function() {
+    const fields = ['hwStudentFio', 'hwStudentGroup', 'hwStep1', 'hwStep2', 'hwStep3'];
+    const storageKey = 'db_hw_08_remote_answers';
+
+    function loadSaved() {
+      try {
+        const raw = localStorage.getItem(storageKey);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        fields.forEach(id => {
+          const el = document.getElementById(id);
+          if (el && data[id] !== undefined) {
+            el.value = data[id];
+          }
+        });
+      } catch (e) {
+        console.error('Ошибка чтения LocalStorage', e);
+      }
+    }
+
+    function saveAnswers() {
+      const data = {};
+      fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) data[id] = el.value;
+      });
+      localStorage.setItem(storageKey, JSON.stringify(data));
+      const msg = document.getElementById('hwStatusMsg');
+      msg.style.display = 'block';
+      setTimeout(() => { msg.style.display = 'none'; }, 3000);
+    }
+
+    function clearAnswers() {
+      if (confirm('Вы уверены, что хотите полностью очистить введенные ответы?')) {
+        fields.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.value = '';
+        });
+        localStorage.removeItem(storageKey);
+      }
+    }
+
+    document.getElementById('hwSaveBtn').addEventListener('click', saveAnswers);
+    document.getElementById('hwPrintBtn').addEventListener('click', () => window.print());
+    document.getElementById('hwClearBtn').addEventListener('click', clearAnswers);
+
+    fields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => {
+          const data = {};
+          fields.forEach(fId => {
+            const e = document.getElementById(fId);
+            if (e) data[fId] = e.value;
+          });
+          localStorage.setItem(storageKey, JSON.stringify(data));
+        });
+      }
+    });
+
+    loadSaved();
+  })();
+</script>
+
+</body>
+</html>

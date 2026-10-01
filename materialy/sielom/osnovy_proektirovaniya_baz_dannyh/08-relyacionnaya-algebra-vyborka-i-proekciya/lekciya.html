@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Конспект лекции: Реляционная алгебра: выборка и проекция</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #e2e8f0;
+      --accent: #0284c7;
+      --accent-dark: #0369a1;
+      --accent-soft: #f0f9ff;
+      --code-bg: #0f172a;
+      --code-text: #f8fafc;
+      --diagram-bg: #f1f5f9;
+      --diagram-border: #cbd5e1;
+      --highlight-select: #dcfce7;
+      --highlight-project: #e0e7ff;
+      --highlight-cross: #fef08a;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      padding: 24px 16px;
+    }
+
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+
+    header.lecture-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+    }
+
+    section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 26px 30px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--accent-dark);
+      margin-bottom: 16px;
+      border-left: 4px solid var(--accent);
+      padding-left: 12px;
+    }
+
+    h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 22px;
+      margin-bottom: 12px;
+    }
+
+    p {
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    ul, ol {
+      margin-left: 24px;
+      margin-bottom: 14px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 20px 0;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background-color: #f1f5f9;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .tbl-selected {
+      background-color: var(--highlight-select) !important;
+    }
+
+    .tbl-dropped {
+      opacity: 0.45;
+      text-decoration: line-through;
+    }
+
+    .col-projected {
+      background-color: var(--highlight-project) !important;
+      font-weight: 600;
+    }
+
+    .math-callout {
+      background-color: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      padding: 12px 18px;
+      margin: 14px 0;
+      border-radius: 6px;
+      font-size: 0.98rem;
+    }
+
+    .math-callout code {
+      font-weight: 700;
+      color: var(--accent-dark);
+    }
+
+    .diagram-box {
+      background: var(--diagram-bg);
+      border: 1px solid var(--diagram-border);
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .geometric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .geo-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .geo-card h4 {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      color: var(--accent-dark);
+    }
+
+    .geo-visual {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.82rem;
+      line-height: 1.4;
+      background: #0f172a;
+      color: #38bdf8;
+      padding: 12px;
+      border-radius: 6px;
+      text-align: left;
+      white-space: pre;
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+
+    pre {
+      background-color: var(--code-bg);
+      color: var(--code-text);
+      padding: 14px 18px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background-color: #f1f5f9;
+      color: #0369a1;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+
+    .self-test {
+      background-color: #f0fdf4;
+      border-left: 4px solid #22c55e;
+      padding: 18px 22px;
+      border-radius: 8px;
+      margin-top: 24px;
+    }
+
+    .self-test h3 {
+      color: #166534;
+      margin-top: 0;
+    }
+
+    @media (max-width: 768px) {
+      .geometric-grid {
+        grid-template-columns: 1fr;
+      }
+      body {
+        padding: 12px 8px;
+      }
+      section, header.lecture-header {
+        padding: 18px 14px;
+      }
+      table {
+        display: block;
+        overflow-x: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <header class="lecture-header">
+    <h1>Конспект лекции: Реляционная алгебра — выборка и проекция</h1>
+    <div class="subtitle">ОП.08 Основы проектирования баз данных | Тема 2. Взаимосвязи в моделях и реляционный подход к построению моделей</div>
+  </header>
+
+  <section>
+    <h2>1. Введение: что такое реляционная алгебра?</h2>
+    <p>До сих пор мы рассматривали реляционную базу данных со структурной точки зрения: как набор взаимосвязанных таблиц (отношений), состоящих из строк (кортежей) и столбцов (атрибутов), ограниченных первичными и внешними ключами. Однако база данных создается не просто для хранения, а для <strong>быстрого, надежного и точного извлечения информации</strong>.</p>
+    
+    <p>В 1970 году создатель реляционной модели Эдгар Франк Кодд (Edgar F. Codd) предложил строгий математический аппарат для манипулирования данными — <strong>реляционную алгебру (Relational Algebra)</strong>. Это процедурный язык запросов, в котором операции применяются к отношениям и порождают новые отношения.</p>
+
+    <div class="math-callout">
+      <strong>Определение реляционной алгебры:</strong><br>
+      Реляционная алгебра — это замкнутая система операций над отношениями. Входными операндами служат одно или несколько отношений, а результатом операции всегда является новое отношение.
+    </div>
+
+    <h3>Принцип реляционной замкнутости (Relational Closure)</h3>
+    <p>Свойство замкнутости — краеугольный камень теории реляционных баз данных. Оно гласит:</p>
+    <ul>
+      <li>Если на вход подается таблица (отношение), то на выходе мы гарантированно получаем <strong>снова таблицу (отношение)</strong>, а не массив указателей, не отдельное скалярное число и не дерево объектов.</li>
+      <li>Благодаря замкнутости операции можно бесконечно комбинировать, создавая <em>суперпозиции (вложенные выражения)</em>: результат первого действия немедленно становится входом для второго.</li>
+      <li>Именно реляционная замкнутость позволяет писать в SQL вложенные подзапросы и выражения <code>WITH ... AS (CTE)</code>.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>2. Геометрическая концепция унарных операций</h2>
+    <p>Две базовые операции реляционной алгебры — <strong>выборка (селекция)</strong> и <strong>проекция</strong> — являются <em>унарными</em>, то есть принимают на вход строго одно отношение $R$. Их исключительно легко запомнить через наглядную геометрическую аналогию:</p>
+
+    <div class="geometric-grid">
+      <div class="geo-card">
+        <h4>1. Селекция ($\sigma$) — Горизонтальный срез</h4>
+        <p>Вырезает из таблицы <strong>строки (кортежи)</strong>, удовлетворяющие логическому предикату. Заголовок таблицы (набор столбцов) остается неизменным.</p>
+        <div class="geo-visual">
+Исходная таблица:         Селекция sigma[Возраст > 20]:
++----+-------+-------+     +----+-------+-------+
+| ID | Имя   | Возр  |     | ID | Имя   | Возр  |
++----+-------+-------+     +----+-------+-------+
+|  1 | Анна  | 19    | --> |  2 | Борис | 22    | [строка 2]
+|  2 | Борис | 22    |     |  3 | Дарья | 21    | [строка 3]
+|  3 | Дарья | 21    |     +----+-------+-------+
++----+-------+-------+     (Горизонтальный срез!)
+        </div>
+      </div>
+
+      <div class="geo-card">
+        <h4>2. Проекция ($\pi$) — Вертикальный срез</h4>
+        <p>Вырезает из таблицы <strong>столбцы (атрибуты)</strong>. Ненужные столбцы отбрасываются, а возникающие дубликаты строк <strong>автоматически устраняются</strong>.</p>
+        <div class="geo-visual">
+Исходная таблица:         Проекция pi[Имя]:
++----+-------+-------+     +-------+
+| ID | Имя   | Город |     | Имя   |
++----+-------+-------+     +-------+
+|  1 | Анна  | Сургут|     | Анна  |
+|  2 | Борис | Москва| --> | Борис |
+|  3 | Анна  | Тюмень|     +-------+
++----+-------+-------+     (Анна схлопнулась!
+(Вертикальный срез!)       Дубликат удален!)
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>3. Операция Выборки (Селекции, $\sigma$)</h2>
+    <p>Математическое обозначение: греческая буква <strong>$\sigma$ (сигма)</strong> с индексом-предикатом $\varphi$:</p>
+    <div class="math-callout">
+      <code>$\sigma_{\varphi}(R) = \{ t \in R \mid \varphi(t) = \text{True} \}$</code>
+    </div>
+    
+    <p>Здесь:</p>
+    <ul>
+      <li>$R$ — исходное отношение.</li>
+      <li>$t$ — кортеж (строка) отношения $R$.</li>
+      <li>$\varphi$ — логический предикат (условие отбора). Может содержать атрибуты, константы, операторы сравнения ($=, \ne, &lt;, \le, &gt;, \ge$) и булевы логические операторы:
+        <ul>
+          <li>$\land$ — конъюнкция (логическое И / AND);</li>
+          <li>$\lor$ — дизъюнкция (логическое ИЛИ / OR);</li>
+          <li>$\neg$ — отрицание (логическое НЕ / NOT).</li>
+        </ul>
+      </li>
+    </ul>
+
+    <h3>Свойства выборки:</h3>
+    <ol>
+      <li><strong>Степень отношения (количество столбцов) не меняется:</strong> $\text{deg}(\sigma_\varphi(R)) = \text{deg}(R)$. Все столбцы схемы остаются на месте.</li>
+      <li><strong>Мощность отношения (количество строк) уменьшается или сохраняется:</strong> $0 \le \text{card}(\sigma_\varphi(R)) \le \text{card}(R)$.</li>
+      <li><strong>Коммутативность последовательных выборок:</strong> $\sigma_{\varphi_1}(\sigma_{\varphi_2}(R)) \equiv \sigma_{\varphi_2}(\sigma_{\varphi_1}(R)) \equiv \sigma_{\varphi_1 \land \varphi_2}(R)$.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>4. Операция Проекции ($\pi$) и устранение дубликатов</h2>
+    <p>Математическое обозначение: греческая буква <strong>$\pi$ (пи)</strong> с перечнем оставляемых атрибутов в подстрочном индексе:</p>
+    <div class="math-callout">
+      <code>$\pi_{A_1, A_2, \dots, A_k}(R) = \{ t[A_1, A_2, \dots, A_k] \mid t \in R \}$</code>
+    </div>
+
+    <h3>Закон устранения дубликатов</h3>
+    <p>Постулат теории множеств гласит: <em>множество не может содержать одинаковых элементов</em>. В исходном отношении $R$ уникальность каждой строки гарантировалась первичным ключом (например, <code>ID</code>). Но если мы проецируем таблицу на атрибуты, не включающие первичный ключ (например, только на столбец <code>Город</code>), в столбце неизбежно возникнут повторы.</p>
+    
+    <div class="math-callout">
+      <strong>Математическое правило Кодда:</strong><br>
+      Проекция обязана <strong>автоматически ликвидировать дубликаты строк</strong>. Если 50 сотрудников живут в городе Сургут, проекция на атрибут <code>Город</code> вернет строго <strong>одну</strong> строку со значением «Сургут».
+    </div>
+
+    <h3>Свойства проекции:</h3>
+    <ol>
+      <li><strong>Степень результата равна количеству спроецированных атрибутов:</strong> $\text{deg}(\pi_{A_1, \dots, A_k}(R)) = k$.</li>
+      <li><strong>Мощность результата не превышает мощности исходного отношения:</strong> $\text{card}(\pi_A(R)) \le \text{card}(R)$.</li>
+      <li><strong>Идемпотентность повторной проекции на то же подмножество:</strong> $\pi_A(\pi_{A \cup B}(R)) \equiv \pi_A(R)$.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>5. Суперпозиция операций: $\pi(\sigma(R))$ и пошаговый пример</h2>
+    <p>В реальных задачах выборка и проекция почти всегда применяются совместно: сначала мы фильтруем строки по условию, а затем оставляем только требуемые столбцы.</p>
+
+    <h3>Исходное отношение «Преподаватели» ($T$):</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>ФИО</th>
+          <th>Кафедра</th>
+          <th>Стаж</th>
+          <th>Оклад</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>Иванов А.С.</td>
+          <td>Информатика</td>
+          <td>8</td>
+          <td>65000</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Петров В.М.</td>
+          <td>Высшая математика</td>
+          <td>3</td>
+          <td>48000</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Сидорова Е.Н.</td>
+          <td>Информатика</td>
+          <td>12</td>
+          <td>82000</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Смирнов Д.К.</td>
+          <td>Информатика</td>
+          <td>6</td>
+          <td>59000</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>Козлова М.А.</td>
+          <td>Экономика</td>
+          <td>10</td>
+          <td>71000</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Задача: Вычислить выражение $\pi_{\text{Кафедра}}(\sigma_{\text{Стаж} \ge 6 \land \text{Оклад} < 80000}(T))$</h3>
+
+    <p><strong>Шаг 1. Вычисляем внутреннюю операцию — селекцию $\sigma$:</strong><br>
+    Предикат: $\text{Стаж} \ge 6$ И $\text{Оклад} < 80000$. Проверяем каждый кортеж:</p>
+    <ul>
+      <li>Кортеж 1: Иванов (Стаж 8 $\ge$ 6 — ДА, Оклад 65000 < 80000 — ДА). <strong>Подходит!</strong></li>
+      <li>Кортеж 2: Петров (Стаж 3 $\ge$ 6 — НЕТ). Не подходит.</li>
+      <li>Кортеж 3: Сидорова (Стаж 12 $\ge$ 6 — ДА, Оклад 82000 < 80000 — НЕТ). Не подходит.</li>
+      <li>Кортеж 4: Смирнов (Стаж 6 $\ge$ 6 — ДА, Оклад 59000 < 80000 — ДА). <strong>Подходит!</strong></li>
+      <li>Кортеж 5: Козлова (Стаж 10 $\ge$ 6 — ДА, Оклад 71000 < 80000 — ДА). <strong>Подходит!</strong></li>
+    </ul>
+
+    <p><em>Промежуточное отношение $T' = \sigma(T)$:</em></p>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>ФИО</th>
+          <th class="col-projected">Кафедра</th>
+          <th>Стаж</th>
+          <th>Оклад</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="tbl-selected">
+          <td>1</td>
+          <td>Иванов А.С.</td>
+          <td class="col-projected">Информатика</td>
+          <td>8</td>
+          <td>65000</td>
+        </tr>
+        <tr class="tbl-selected">
+          <td>4</td>
+          <td>Смирнов Д.К.</td>
+          <td class="col-projected">Информатика</td>
+          <td>6</td>
+          <td>59000</td>
+        </tr>
+        <tr class="tbl-selected">
+          <td>5</td>
+          <td>Козлова М.А.</td>
+          <td class="col-projected">Экономика</td>
+          <td>10</td>
+          <td>71000</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p><strong>Шаг 2. Вычисляем внешнюю операцию — проекцию $\pi_{\text{Кафедра}}$:</strong><br>
+    Вырезаем только столбец «Кафедра». Из строк Иванова и Смирнова получаем два значения «Информатика». По правилу Кодда дубликаты схлопываются!</p>
+
+    <p><em>Финальный результат $\pi_{\text{Кафедра}}(T')$:</em></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Кафедра</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Информатика</td>
+        </tr>
+        <tr>
+          <td>Экономика</td>
+        </tr>
+      </tbody>
+    </table>
+    <p><strong>Итог:</strong> Отношение степени 1 и мощности 2.</p>
+  </section>
+
+  <section>
+    <h2>6. Сопоставление с языком SQL</h2>
+    <p>В реляционных СУБД декларативным языком взаимодействия является SQL. Важно понимать, как формулы реляционной алгебры транслируются в реальные команды:</p>
+
+    <pre><code>-- Реляционная селекция: sigma_{стаж >= 6}(T)
+SELECT * 
+FROM Teachers 
+WHERE experience >= 6;
+
+-- Реляционная проекция с устранением дубликатов: pi_{department}(T)
+SELECT DISTINCT department 
+FROM Teachers;
+
+-- SQL-проекция БЕЗ устранения дубликатов (мультимножество):
+SELECT department 
+FROM Teachers;
+
+-- Суперпозиция: pi_{department}(sigma_{experience >= 6 AND salary < 80000}(T))
+SELECT DISTINCT department
+FROM Teachers
+WHERE experience >= 6 AND salary < 80000;</code></pre>
+
+    <div class="math-callout">
+      <strong>Почему в SQL проекция по умолчанию не удаляет дубликаты?</strong><br>
+      Устранение дубликатов требует от СУБД выполнения тяжелых операций: либо сортировки всего массива строк ($O(N \log N)$), либо построения хэш-таблицы в памяти ($O(N)$ памяти). Если программисту не требуется уникальность, выполнение простого <code>SELECT col FROM tbl</code> экономит вычислительные ресурсы сервера. Для получения математической проекции программист явно указывает директиву <code>DISTINCT</code>.
+    </div>
+  </section>
+
+  <section>
+    <h2>7. Обзор теоретико-множественных операций реляционной алгебры</h2>
+    <p>Помимо унарных операций, реляционная алгебра включает четыре базовые бинарные операции над парами отношений $R$ и $S$:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Операция и символ</th>
+          <th>Математическое определение</th>
+          <th>Требования и эквивалент в SQL</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Объединение ($R \cup S$)</strong></td>
+          <td>$\{ t \mid t \in R \lor t \in S \}$</td>
+          <td>Требуется совместимость по объединению (одинаковые схемы и типы). SQL: <code>UNION</code> (удаляет дубли), <code>UNION ALL</code> (с дублями).</td>
+        </tr>
+        <tr>
+          <td><strong>Пересечение ($R \cap S$)</strong></td>
+          <td>$\{ t \mid t \in R \land t \in S \}$</td>
+          <td>Требуется совместимость по объединению. SQL: <code>INTERSECT</code>.</td>
+        </tr>
+        <tr>
+          <td><strong>Разность ($R \setminus S$)</strong></td>
+          <td>$\{ t \mid t \in R \land t \notin S \}$</td>
+          <td>Отношение кортежей, которые есть в $R$, но отсутствуют в $S$. SQL: <code>EXCEPT</code> (или <code>MINUS</code> в Oracle).</td>
+        </tr>
+        <tr>
+          <td><strong>Декартово произведение ($R \times S$)</strong></td>
+          <td>$\{ t_r \circ t_s \mid t_r \in R, t_s \in S \}$</td>
+          <td>Сцепление каждой строки $R$ с каждой строкой $S$. Степень = $\text{deg}(R) + \text{deg}(S)$, мощность = $\text{card}(R) \times \text{card}(S)$. SQL: <code>CROSS JOIN</code>.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="self-test">
+    <h3>Вопросы для самопроверки</h3>
+    <ol>
+      <li>Что формулирует свойство реляционной замкнутости и почему без него невозможны подзапросы в SQL?</li>
+      <li>В чем геометрическое различие между селекцией и проекцией? Какая операция изменяет количество столбцов, а какая — количество строк?</li>
+      <li>Исходная таблица содержит 100 строк. Какова минимальная и максимальная теоретическая мощность отношения, полученного после выполнения проекции $\pi_A(R)$?</li>
+      <li>Почему в стандарте SQL операция <code>SELECT column FROM table</code> не является чистой проекцией Кодда, и какое ключевое слово делает ее таковой?</li>
+      <li>Почему выражение $\sigma_{\text{Возраст} > 25}(\pi_{\text{ФИО}}(Студенты))$ вызовет синтаксическую ошибку в реляционной СУБД?</li>
+    </ol>
+  </section>
+
+</div>
+
+</body>
+</html>

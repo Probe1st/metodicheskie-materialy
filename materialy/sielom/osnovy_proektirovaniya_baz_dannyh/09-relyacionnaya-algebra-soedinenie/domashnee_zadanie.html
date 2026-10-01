@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Домашнее задание - Реляционная алгебра: соединение</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #cbd5e1;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --accent-soft: #f0f9ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header.hw-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .reserve-notice {
+      display: inline-block;
+      background-color: #fef3c7;
+      color: #92400e;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+      border-left: 4px solid #f59e0b;
+      line-height: 1.45;
+    }
+
+    .instruction {
+      font-size: 1rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .deadline-notice {
+      margin-top: 10px;
+      font-size: 0.92rem;
+      font-style: italic;
+      color: var(--accent-hover);
+    }
+
+    .student-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .meta-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .meta-field label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .meta-field input {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      color: var(--text);
+      outline: none;
+    }
+
+    .meta-field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    section.hw-section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .task-desc {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    table.hw-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.92rem;
+    }
+
+    table.hw-table th, table.hw-table td {
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    table.hw-table th {
+      background-color: #f1f5f9;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    textarea.solution-area {
+      width: 100%;
+      min-height: 120px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: var(--text);
+      outline: none;
+      resize: vertical;
+      margin-top: 10px;
+    }
+
+    textarea.solution-area:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    .btn-save {
+      background-color: var(--accent);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn-save:hover {
+      background-color: var(--accent-hover);
+    }
+
+    .status-alert {
+      display: none;
+      margin-top: 14px;
+      padding: 10px 14px;
+      border-radius: 6px;
+      background-color: #f0fdf4;
+      border: 1px solid #86efac;
+      color: #166534;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <header class="hw-header">
+    <h1>Домашнее задание - Реляционная алгебра: соединение</h1>
+    <div class="reserve-notice">
+      Выполняйте только если преподаватель назначил это задание. Срок сдачи сообщит преподаватель.
+    </div>
+    <div class="instruction">
+      Задание предназначено для самостоятельной отработки материала обучающимися, пропустившими очное теоретическое занятие, либо в рамках резервного дистанционного контроля. Оценивание проводится по 4-балльной шкале.
+    </div>
+    <div class="deadline-notice">
+      Срок сдачи сообщит преподаватель.
+    </div>
+
+    <div class="student-meta">
+      <div class="meta-field">
+        <label for="hw_student_name">ФИО обучающегося</label>
+        <input type="text" id="hw_student_name" placeholder="Введите фамилию, имя и отчество">
+      </div>
+      <div class="meta-field">
+        <label for="hw_student_group">Учебная группа</label>
+        <input type="text" id="hw_student_group" placeholder="Например: СА-21">
+      </div>
+    </div>
+  </header>
+
+  <section class="hw-section">
+    <h2>Исходные данные для выполнения задания</h2>
+    <p class="task-desc">Даны два отношения базы данных университетского учета:</p>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 16px;">
+      <div>
+        <h4>Отношение R: Студенты</h4>
+        <table class="hw-table">
+          <thead><tr><th>ID_студента</th><th>ФИО</th><th>Специальность</th></tr></thead>
+          <tbody>
+            <tr><td>101</td><td>Алексеев М.</td><td>СА</td></tr>
+            <tr><td>102</td><td>Борисов К.</td><td>СА</td></tr>
+            <tr><td>103</td><td>Васильев Д.</td><td>ИС</td></tr>
+            <tr><td>104</td><td>Григорьев С.</td><td>ИС</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h4>Отношение S: Договоры</h4>
+        <table class="hw-table">
+          <thead><tr><th>Номер_договора</th><th>ID_студента</th><th>Форма_оплаты</th></tr></thead>
+          <tbody>
+            <tr><td>Д-801</td><td>101</td><td>Бюджет</td></tr>
+            <tr><td>Д-802</td><td>103</td><td>Коммерция</td></tr>
+            <tr><td>Д-803</td><td>105</td><td>Целевое</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p style="font-size: 0.9rem; color: var(--text-muted);">
+      Обратите внимание: студент 102 и студент 104 не имеют договоров в отношении S. Договор Д-803 оформлен на студента 105, отсутствующего в отношении R.
+    </p>
+  </section>
+
+  <section class="hw-section">
+    <h2>Задание 1. Вычисление результата естественного соединения (Natural Join) — 2 балла</h2>
+    <div class="task-desc">
+      Постройте результирующее отношение для операции естественного соединения: <code>R ⋈ S</code>.
+      <br><strong>Требования:</strong>
+      1. Определите состав атрибутов (столбцов) схемы результата. Помните о правиле исключения дублирующегося ключевого поля при Natural Join!
+      2. Перечислите все итоговые кортежи (строки).
+      3. Укажите мощность результирующего отношения (число строк) и степень (число столбцов).
+    </div>
+    <label for="hw_task1" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Ваше решение (схема, строки, мощность и степень):</label>
+    <textarea id="hw_task1" class="solution-area" placeholder="Например:&#10;Схема: (ID_студента, ФИО, Специальность, Номер_договора, Форма_оплаты)&#10;Строки:&#10;1) 101 | Алексеев М. | СА | Д-801 | Бюджет&#10;...&#10;Мощность = ... строк, Степень = ... столбцов"></textarea>
+  </section>
+
+  <section class="hw-section">
+    <h2>Задание 2. Вычисление результата левого внешнего соединения (Left Outer Join) — 1 балл</h2>
+    <div class="task-desc">
+      Постройте результирующее отношение для левого внешнего соединения: <code>R ⟕ S</code>.
+      <br><strong>Требования:</strong>
+      1. Зафиксируйте, какие именно кортежи сохраняются из левого отношения <code>R</code>.
+      2. Какие значения принимают атрибуты правого отношения <code>S</code> для студентов Борисова (102) и Григорьева (104)?
+      3. Какова практическая польза левого внешнего соединения для администрации учебного заведения?
+    </div>
+    <label for="hw_task2" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Ваше решение и практическое обоснование:</label>
+    <textarea id="hw_task2" class="solution-area" placeholder="Опишите все строки результирующего отношения с маркерами NULL и практический вывод..."></textarea>
+  </section>
+
+  <section class="hw-section">
+    <h2>Задание 3. Анализ маркера NULL и антисоединения — 1 балл</h2>
+    <div class="task-desc">
+      Ответьте на аналитические вопросы:
+      <br>1. Почему предикат <code>S.ID_студента = NULL</code> в SQL и реляционной алгебре не позволит найти студентов без договоров? Какое специальное выражение необходимо применить?
+      <br>2. Как записать операцию поиска студентов, не заключивших договор, через реляционное <strong>антисоединение</strong> (Anti-Join)? Какова будет мощность результата?
+    </div>
+    <label for="hw_task3" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Ответ на аналитические вопросы:</label>
+    <textarea id="hw_task3" class="solution-area" placeholder="Дайте развернутое объяснение трехзначной логики и операции антисоединения..."></textarea>
+  </section>
+
+  <div style="text-align: right; margin-bottom: 40px;">
+    <button type="button" class="btn-save" id="saveHwBtn">Сохранить решение локально</button>
+    <div id="hwStatusAlert" class="status-alert">Решение успешно сохранено в вашем браузере!</div>
+  </div>
+
+</div>
+
+<script>
+  (function() {
+    const STORAGE_KEY = 'hw_db_09_join_data';
+    const fields = ['hw_student_name', 'hw_student_group', 'hw_task1', 'hw_task2', 'hw_task3'];
+
+    function loadSavedData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        fields.forEach(id => {
+          const el = document.getElementById(id);
+          if (el && data[id] !== undefined) {
+            el.value = data[id];
+          }
+        });
+      } catch (e) {
+        console.error('Ошибка загрузки данных', e);
+      }
+    }
+
+    function saveData() {
+      const data = {};
+      fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) data[id] = el.value;
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      const alertBox = document.getElementById('hwStatusAlert');
+      if (alertBox) {
+        alertBox.style.display = 'block';
+        setTimeout(() => { alertBox.style.display = 'none'; }, 3000);
+      }
+    }
+
+    document.getElementById('saveHwBtn').addEventListener('click', saveData);
+    window.addEventListener('DOMContentLoaded', loadSavedData);
+  })();
+</script>
+
+</body>
+</html>

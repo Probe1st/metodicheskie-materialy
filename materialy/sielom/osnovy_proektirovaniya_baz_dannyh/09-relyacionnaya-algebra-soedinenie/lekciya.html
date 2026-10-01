@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Конспект лекции: Реляционная алгебра — Соединение</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #e2e8f0;
+      --accent: #0284c7;
+      --accent-dark: #0369a1;
+      --accent-soft: #f0f9ff;
+      --code-bg: #0f172a;
+      --code-text: #f8fafc;
+      --diagram-bg: #f1f5f9;
+      --diagram-border: #cbd5e1;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      padding: 24px 16px;
+    }
+
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+
+    header.lecture-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+    }
+
+    section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 26px 30px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--accent-dark);
+      margin-bottom: 16px;
+      border-left: 4px solid var(--accent);
+      padding-left: 12px;
+    }
+
+    h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-top: 22px;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+
+    p {
+      margin-bottom: 14px;
+    }
+
+    ul, ol {
+      margin-left: 24px;
+      margin-bottom: 14px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 20px 0;
+      font-size: 0.92rem;
+    }
+
+    table.data-table th, table.data-table td {
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    table.data-table th {
+      background-color: #f1f5f9;
+      font-weight: 600;
+      color: var(--accent-dark);
+    }
+
+    .null-cell {
+      background-color: #fee2e2;
+      color: #991b1b;
+      font-weight: 700;
+      font-style: italic;
+      text-align: center;
+    }
+
+    .highlight-cell {
+      background-color: #fef08a;
+      font-weight: 600;
+    }
+
+    .callout {
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin: 18px 0;
+      font-size: 0.95rem;
+    }
+
+    .callout-info {
+      background-color: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      color: #0369a1;
+    }
+
+    .callout-danger {
+      background-color: #fef2f2;
+      border-left: 4px solid #ef4444;
+      color: #991b1b;
+    }
+
+    .callout-success {
+      background-color: #f0fdf4;
+      border-left: 4px solid #22c55e;
+      color: #166534;
+    }
+
+    .diagram-box {
+      background: var(--diagram-bg);
+      border: 1px solid var(--diagram-border);
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .diagram-svg {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .diagram-caption {
+      margin-top: 10px;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .venn-svg {
+      display: block;
+      margin: 0 auto;
+      max-width: 320px;
+    }
+
+    .flowchart-step {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 12px 0;
+      background: #ffffff;
+      padding: 12px 18px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .step-badge {
+      background: var(--accent);
+      color: #ffffff;
+      font-weight: 700;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .step-text {
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    .code-block {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9rem;
+      overflow-x: auto;
+      margin: 14px 0;
+      line-height: 1.5;
+    }
+
+    .quiz-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 14px 0;
+    }
+
+    .quiz-q {
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .quiz-a {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <header class="lecture-header">
+    <h1>Конспект лекции: Реляционная алгебра — Соединение</h1>
+    <div class="subtitle">
+      Дисциплина: ОП.08 Основы проектирования баз данных<br>
+      Раздел: Тема 2. Взаимосвязи в моделях и реляционный подход к построению моделей (§2.2 с.7 программы)
+    </div>
+  </header>
+
+  <section>
+    <h2>1. Введение: почему соединение — центральная операция РМД</h2>
+    <p>
+      В реляционных базах данных соблюдение принципов нормализации требует декомпозиции предметной области на множество независимых таблиц-сущностей. Клиенты, заказы, товары, платежи и филиалы хранятся раздельно, чтобы исключить избыточность и аномалии данных.
+    </p>
+    <p>
+      Однако для пользователя базы данных ценность представляют не изолированные идентификаторы, а целостные информационные сводки: <em>«Какой клиент, когда, какой товар приобрел и через какой филиал банка оплатил покупку?»</em>.
+    </p>
+    <p>
+      Операция <strong>соединения (JOIN)</strong> — это математический инструмент реляционной алгебры, который восстанавливает смысловую взаимосвязь между кортежами раздельных отношений на основе логического предиката связывания.
+    </p>
+  </section>
+
+  <section>
+    <h2>2. Пошаговая блок-схема: от декартова произведения к соединению</h2>
+    <p>
+      Теоретический фундамент любого соединения — это композиция двух базовых операций: <strong>Декартова произведения (Cartesian Product, $\times$)</strong> и <strong>Селекции (Selection, $\sigma$)</strong>.
+    </p>
+    
+    <div class="flowchart-step">
+      <div class="step-badge">1</div>
+      <div class="step-text">
+        <strong>Отношения на входе:</strong> Заданы два отношения $R(A_1, \dots, A_n)$ мощностью $|R|$ и $S(B_1, \dots, B_m)$ мощностью $|S|$.
+      </div>
+    </div>
+
+    <div class="flowchart-step">
+      <div class="step-badge">2</div>
+      <div class="step-text">
+        <strong>Вычисление декартова произведения ($R \times S$):</strong> Формируется множество из всех возможных комбинаций кортежей. Мощность результата составляет $|R| \cdot |S|$, а степень (число атрибутов) — $n + m$.
+      </div>
+    </div>
+
+    <div class="flowchart-step">
+      <div class="step-badge">3</div>
+      <div class="step-text">
+        <strong>Проверка логического предиката ($\theta$):</strong> К каждой строке применяется условие связи $\theta$ (например, $R.ID\_клиента = S.Клиент\_ID$). Строки, дающие FALSE или UNKNOWN, отбрасываются.
+      </div>
+    </div>
+
+    <div class="flowchart-step">
+      <div class="step-badge">4</div>
+      <div class="step-text">
+        <strong>Проекция (для Natural Join):</strong> При естественном соединении одноименные атрибуты сливаются в один столбец, устраняя дублирование ключа.
+      </div>
+    </div>
+
+    <div class="diagram-box">
+      <svg class="diagram-svg" viewBox="0 0 760 220" width="760" height="220" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="70" width="140" height="70" rx="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+        <text x="90" y="100" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0369a1" text-anchor="middle">Отношение R</text>
+        <text x="90" y="122" font-family="sans-serif" font-size="12" fill="#475569" text-anchor="middle">|R| кортежей</text>
+
+        <rect x="20" y="150" width="140" height="50" rx="8" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/>
+        <text x="90" y="180" font-family="sans-serif" font-size="13" font-weight="bold" fill="#334155" text-anchor="middle">Отношение S</text>
+
+        <path d="M 160 105 L 230 105" stroke="#0284c7" stroke-width="2" marker-end="url(#arrow)"/>
+        <path d="M 160 175 L 210 175 L 210 125 L 230 125" stroke="#64748b" stroke-width="2" fill="none"/>
+
+        <rect x="230" y="80" width="160" height="70" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+        <text x="310" y="110" font-family="sans-serif" font-size="14" font-weight="bold" fill="#92400e" text-anchor="middle">Декартово деление</text>
+        <text x="310" y="132" font-family="sans-serif" font-size="12" fill="#78350f" text-anchor="middle">R × S (|R| × |S| строк)</text>
+
+        <path d="M 390 115 L 450 115" stroke="#d97706" stroke-width="2"/>
+
+        <polygon points="450,115 510,70 570,115 510,160" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+        <text x="510" y="112" font-family="sans-serif" font-size="12" font-weight="bold" fill="#166534" text-anchor="middle">Фильтр</text>
+        <text x="510" y="128" font-family="sans-serif" font-size="12" font-weight="bold" fill="#166534" text-anchor="middle">σ_θ</text>
+
+        <path d="M 570 115 L 630 115" stroke="#16a34a" stroke-width="2"/>
+
+        <rect x="630" y="80" width="120" height="70" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+        <text x="690" y="110" font-family="sans-serif" font-size="14" font-weight="bold" fill="#1e40af" text-anchor="middle">Результат</text>
+        <text x="690" y="132" font-family="sans-serif" font-size="12" fill="#1e3a8a" text-anchor="middle">R ⋈_θ S</text>
+
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#0284c7"/>
+          </marker>
+        </defs>
+      </svg>
+      <div class="diagram-caption">Рис 1. Концептуальный конвейер выполнения реляционного соединения через селекцию декартова произведения</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>3. Классификация типов соединения с диаграммами Венна и примерами</h2>
+    <p>Для наглядности разберем все операции на едином модельном примере двух отношений:</p>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+      <div>
+        <h4>Отношение R: Студенты</h4>
+        <table class="data-table">
+          <thead>
+            <tr><th>Студент_ID</th><th>ФИО</th><th>Группа</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>101</td><td>Иванов А.</td><td>ИС-21</td></tr>
+            <tr><td>102</td><td>Петров Б.</td><td>ИС-21</td></tr>
+            <tr><td>103</td><td>Сидоров В.</td><td>ИС-22</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h4>Отношение S: Стипендии</h4>
+        <table class="data-table">
+          <thead>
+            <tr><th>Студент_ID</th><th>Сумма_руб</th><th>Категория</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>101</td><td>4500</td><td>Академическая</td></tr>
+            <tr><td>103</td><td>7000</td><td>Повышенная</td></tr>
+            <tr><td>104</td><td>5000</td><td>Социальная</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p style="font-size: 0.9rem; color: var(--text-muted);">
+      Обратите внимание: студент 102 (Петров) не получает стипендию. А стипендия для студента 104 назначена, но сам студент еще не внесен в таблицу студентов.
+    </p>
+
+    <h3>3.1. Внутреннее / Естественное соединение (Inner / Natural Join, $\bowtie$)</h3>
+    <p>
+      Возвращает только те кортежи, для которых найдено строгое соответствие в обоих отношениях по ключу <code>Студент_ID</code>. Кортежи 102 и 104 отбрасываются.
+    </p>
+    <div class="diagram-box">
+      <svg class="venn-svg" viewBox="0 0 240 140" width="240" height="140" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <clipPath id="circle-left"><circle cx="85" cy="70" r="55"/></clipPath>
+        </defs>
+        <circle cx="85" cy="70" r="55" fill="#e2e8f0" stroke="#475569" stroke-width="2"/>
+        <circle cx="155" cy="70" r="55" fill="#e2e8f0" stroke="#475569" stroke-width="2"/>
+        <circle cx="155" cy="70" r="55" fill="#0284c7" clip-path="url(#circle-left)"/>
+        <text x="50" y="75" font-family="sans-serif" font-size="12" fill="#334155" font-weight="bold">R</text>
+        <text x="180" y="75" font-family="sans-serif" font-size="12" fill="#334155" font-weight="bold">S</text>
+        <text x="120" y="75" font-family="sans-serif" font-size="11" fill="#ffffff" font-weight="bold" text-anchor="middle">R ⋈ S</text>
+      </svg>
+      <div class="diagram-caption">Рис 2. Диаграмма Венна: Внутреннее (естественное) пересечение множеств</div>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr><th>Студент_ID</th><th>ФИО</th><th>Группа</th><th>Сумма_руб</th><th>Категория</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>101</td><td>Иванов А.</td><td>ИС-21</td><td>4500</td><td>Академическая</td></tr>
+        <tr><td>103</td><td>Сидоров В.</td><td>ИС-22</td><td>7000</td><td>Повышенная</td></tr>
+      </tbody>
+    </table>
+
+    <h3>3.2. Левое внешнее соединение (Left Outer Join, $R ⟕ S$)</h3>
+    <p>
+      Сохраняет абсолютно все строки левого отношения $R$ (Студенты). Если у студента нет стипендии (Петров, 102), поля таблицы стипендий заполняются маркером <strong>NULL</strong>.
+    </p>
+    <div class="diagram-box">
+      <svg class="venn-svg" viewBox="0 0 240 140" width="240" height="140" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="85" cy="70" r="55" fill="#0284c7" stroke="#0369a1" stroke-width="2"/>
+        <circle cx="155" cy="70" r="55" fill="#e2e8f0" stroke="#475569" stroke-width="2"/>
+        <circle cx="85" cy="70" r="55" fill="#0284c7" stroke="#0369a1" stroke-width="2"/>
+        <defs>
+          <clipPath id="circle-left2"><circle cx="85" cy="70" r="55"/></clipPath>
+        </defs>
+        <circle cx="155" cy="70" r="55" fill="#0369a1" clip-path="url(#circle-left2)"/>
+        <text x="50" y="75" font-family="sans-serif" font-size="12" fill="#ffffff" font-weight="bold">R</text>
+        <text x="180" y="75" font-family="sans-serif" font-size="12" fill="#334155" font-weight="bold">S</text>
+      </svg>
+      <div class="diagram-caption">Рис 3. Диаграмма Венна: Left Outer Join (все из R + совпадения из S)</div>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr><th>Студент_ID</th><th>ФИО</th><th>Группа</th><th>Сумма_руб</th><th>Категория</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>101</td><td>Иванов А.</td><td>ИС-21</td><td>4500</td><td>Академическая</td></tr>
+        <tr><td>102</td><td>Петров Б.</td><td>ИС-21</td><td class="null-cell">NULL</td><td class="null-cell">NULL</td></tr>
+        <tr><td>103</td><td>Сидоров В.</td><td>ИС-22</td><td>7000</td><td>Повышенная</td></tr>
+      </tbody>
+    </table>
+
+    <h3>3.3. Правое внешнее соединение (Right Outer Join, $R ⟖ S$)</h3>
+    <p>
+      Сохраняет все строки правого отношения $S$ (Стипендии). Для не привязанной стипендии 104 поля студента заполняются маркером <strong>NULL</strong>.
+    </p>
+    <table class="data-table">
+      <thead>
+        <tr><th>Студент_ID</th><th>ФИО</th><th>Группа</th><th>Сумма_руб</th><th>Категория</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>101</td><td>Иванов А.</td><td>ИС-21</td><td>4500</td><td>Академическая</td></tr>
+        <tr><td>103</td><td>Сидоров В.</td><td>ИС-22</td><td>7000</td><td>Повышенная</td></tr>
+        <tr><td>104</td><td class="null-cell">NULL</td><td class="null-cell">NULL</td><td>5000</td><td>Социальная</td></tr>
+      </tbody>
+    </table>
+
+    <h3>3.4. Полное внешнее соединение (Full Outer Join, $R ⟗ S$)</h3>
+    <p>
+      Объединение результатов левого и правого внешних соединений. Сохраняет кортежи из обоих отношений без потерь.
+    </p>
+    <div class="diagram-box">
+      <svg class="venn-svg" viewBox="0 0 240 140" width="240" height="140" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="85" cy="70" r="55" fill="#38bdf8" stroke="#0284c7" stroke-width="2"/>
+        <circle cx="155" cy="70" r="55" fill="#38bdf8" stroke="#0284c7" stroke-width="2"/>
+        <text x="50" y="75" font-family="sans-serif" font-size="12" fill="#0f172a" font-weight="bold">R</text>
+        <text x="180" y="75" font-family="sans-serif" font-size="12" fill="#0f172a" font-weight="bold">S</text>
+      </svg>
+      <div class="diagram-caption">Рис 4. Диаграмма Венна: Full Outer Join (полное объединение непарных кортежей)</div>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr><th>Студент_ID</th><th>ФИО</th><th>Группа</th><th>Сумма_руб</th><th>Категория</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>101</td><td>Иванов А.</td><td>ИС-21</td><td>4500</td><td>Академическая</td></tr>
+        <tr><td>102</td><td>Петров Б.</td><td>ИС-21</td><td class="null-cell">NULL</td><td class="null-cell">NULL</td></tr>
+        <tr><td>103</td><td>Сидоров В.</td><td>ИС-22</td><td>7000</td><td>Повышенная</td></tr>
+        <tr><td>104</td><td class="null-cell">NULL</td><td class="null-cell">NULL</td><td>5000</td><td>Социальная</td></tr>
+      </tbody>
+    </table>
+
+    <h3>3.5. Полусоединение ($R \ltimes S$) и Антисоединение ($R \rhd S$)</h3>
+    <p>
+      <strong>Полусоединение ($R \ltimes S$):</strong> извлекает кортежи $R$, у которых есть стипендия. Схема содержит <em>только атрибуты отношения R</em>:
+    </p>
+    <table class="data-table">
+      <thead>
+        <tr><th>Студент_ID</th><th>ФИО</th><th>Группа</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>101</td><td>Иванов А.</td><td>ИС-21</td></tr>
+        <tr><td>103</td><td>Сидоров В.</td><td>ИС-22</td></tr>
+      </tbody>
+    </table>
+
+    <p>
+      <strong>Антисоединение ($R \rhd S$):</strong> извлекает кортежи $R$, у которых <em>нет</em> соответствия в $S$ (студенты без стипендии). Это реляционный аналог конструкции <code>WHERE NOT EXISTS</code>:
+    </p>
+    <table class="data-table">
+      <thead>
+        <tr><th>Студент_ID</th><th>ФИО</th><th>Группа</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>102</td><td>Петров Б.</td><td>ИС-21</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>4. Проблема NULL и трехзначная логика (3VL)</h2>
+    <div class="callout callout-danger">
+      <strong>Фундаментальное правило:</strong> Значение NULL означает «неизвестно» (UNKNOWN). В связи с этим:
+      <ul>
+        <li><code>NULL = NULL</code> дает результат <strong>UNKNOWN</strong>, а не TRUE!</li>
+        <li><code>NULL <> 5</code> дает результат <strong>UNKNOWN</strong>!</li>
+        <li>В реляционной фильтрации кортеж попадает в результат только тогда, когда логическое выражение дает строго <strong>TRUE</strong>.</li>
+      </ul>
+      Именно поэтому два кортежа, содержащие NULL в ключевых атрибутах, при обычном соединении <strong>не соединятся</strong>. Для проверки отсутствия данных используется специальный предикат <code>IS NULL</code>.
+    </div>
+  </section>
+
+  <section>
+    <h2>5. Физические алгоритмы реализации соединения в СУБД</h2>
+    <p>
+      Когда СУБД получает декларативный запрос, оптимизатор выбирает один из трех физических алгоритмов:
+    </p>
+    <ul>
+      <li><strong>Nested Loop Join:</strong> Вложенный цикл. Для каждой строки таблицы $R$ СУБД ищет совпадение в таблице $S$. Если в $S$ есть B-Tree индекс по ключу соединения, сложность составляет $O(|R| \log |S|)$.</li>
+      <li><strong>Hash Join:</strong> В оперативной памяти строится хэш-таблица по ключам меньшей таблицы (Build-фаза). Затем большая таблица последовательно сканируется (Probe-фаза). Идеально для больших объемов данных при равенстве ключей.</li>
+      <li><strong>Sort Merge Join:</strong> Обе таблицы сортируются по ключу соединения, после чего параллельно сканируются курсорами. Эффективно, если данные уже физически отсортированы на диске (кластерный индекс).</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>6. Вопросы для самопроверки</h2>
+    <div class="quiz-card">
+      <div class="quiz-q">Вопрос 1: В чем ключевое отличие эквисоединения от естественного соединения?</div>
+      <div class="quiz-a">Ответ: В схеме эквисоединения сохраняются оба ключевых атрибута из обоих отношений (с дублированием). В естественном соединении одноименные атрибуты сливаются в один столбец.</div>
+    </div>
+    <div class="quiz-card">
+      <div class="quiz-q">Вопрос 2: Чему равна мощность естественного соединения двух отношений, если они не имеют общих атрибутов?</div>
+      <div class="quiz-a">Ответ: Мощность равна $|R| \cdot |S|$, так как естественное соединение при отсутствии общих атрибутов вырождается в декартово произведение.</div>
+    </div>
+    <div class="quiz-card">
+      <div class="quiz-q">Вопрос 3: Почему операция соединения по условию равенства не связывает строки, у которых ключ равен NULL?</div>
+      <div class="quiz-a">Ответ: Потому что предикат равенства <code>NULL = NULL</code> в трехзначной логике вычисляется в UNKNOWN, а операторы реляционной селекции отбирают только строки со значением TRUE.</div>
+    </div>
+    <div class="quiz-card">
+      <div class="quiz-q">Вопрос 4: Чем полусоединение (Semi-Join) отличается от обычного внутреннего соединения?</div>
+      <div class="quiz-a">Ответ: Полусоединение возвращает только атрибуты левого отношения и никогда не размножает строки левого отношения, даже если в правом отношении найдено несколько совпадающих строк.</div>
+    </div>
+  </section>
+
+</div>
+
+</body>
+</html>
