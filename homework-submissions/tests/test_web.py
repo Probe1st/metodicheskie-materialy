@@ -127,7 +127,7 @@ def test_admin_setting_past_deadline_immediately_blocks_submission(client_env):
     assert client.post("/unlock", data={"group": "ИС 25/9-1П", "password": "group-password"}).status_code == 403
 
 
-@pytest.mark.parametrize("kind", ("groups", "subjects", "topics"))
+@pytest.mark.parametrize("kind", ("groups", "subjects"))
 def test_admin_can_create_rename_and_delete_catalog_item(client_env, kind):
     client, _ = client_env
     assert client.get(f"/admin/{kind}").status_code == 403
@@ -140,11 +140,79 @@ def test_admin_can_create_rename_and_delete_catalog_item(client_env, kind):
     assert client.post(f"/admin/{kind}/{uid}/rename", data={"name": "Чужое"}).status_code == 403
     assert client.post(f"/admin/{kind}/{uid}/delete").status_code == 403
     client.post("/admin/login", data={"password": "admin-secret"})
-    assert client.post(f"/admin/{kind}", data={"name": "тест"}).status_code == 400
+    duplicate = client.post(f"/admin/{kind}", data={"name": "тест"})
+    assert duplicate.status_code == 400
+    assert duplicate.json["error"] == "name_conflict"
     assert client.post(f"/admin/{kind}/{uid}/rename", data={"name": "Переименовано"}).status_code == 200
     assert "Переименовано" in client.get(f"/admin/{kind}").get_data(as_text=True)
     assert client.post(f"/admin/{kind}/{uid}/delete").status_code == 204
     assert client.post(f"/admin/{kind}/{uid}/delete").status_code == 404
+
+
+def test_admin_topics_require_subject_and_support_single_and_bulk_mapping(client_env):
+    client, _ = client_env
+    from app.catalog_store import create_catalog_store
+    store = create_catalog_store(client.application.config)
+    source, target = store.list_subjects()[:2]
+    assert client.post("/admin/topics", data={"name": "Новая тема", "subject_id": str(source.id)}).status_code == 403
+    client.post("/admin/login", data={"password": "admin-secret"})
+    assert client.post("/admin/topics", data={"name": "Без владельца"}).status_code == 400
+    created = client.post("/admin/topics", data={"name": "Новая тема", "subject_id": str(source.id)})
+    assert created.status_code == 201
+    uid = created.json["id"]
+    assert created.json["subject_id"] == str(source.id)
+    assert client.post("/admin/topics", data={"name": "новая ТЕМА", "subject_id": str(source.id)}).status_code == 400
+    assert client.post("/admin/topics", data={"name": "Новая тема", "subject_id": str(target.id)}).status_code == 201
+    updated = client.post(f"/admin/topics/{uid}/update", data={
+        "name": "Другое название", "subject_id": str(target.id),
+    })
+    assert updated.status_code == 200
+    assert updated.json["subject_id"] == str(target.id)
+    client.post("/admin/logout")
+    assert client.post("/admin/topics/move", data={
+        "topic_ids": [uid], "subject_id": str(source.id),
+    }).status_code == 403
+    assert client.post(f"/admin/topics/{uid}/update", data={
+        "name": "Чужое", "subject_id": str(source.id),
+    }).status_code == 403
+    client.post("/admin/login", data={"password": "admin-secret"})
+    moved = client.post("/admin/topics/move", data={
+        "topic_ids": [uid], "subject_id": str(source.id),
+    })
+    assert moved.status_code == 200
+    assert moved.json["topics"][0]["subject_id"] == str(source.id)
+    assert client.post(f"/admin/topics/{uid}/delete").status_code == 204
+
+
+def test_bulk_topic_conflict_and_subject_delete_keep_catalog_unchanged(client_env):
+    client, _ = client_env
+    from app.catalog_store import create_catalog_store
+    store = create_catalog_store(client.application.config)
+    first, second = store.list_subjects()[:2]
+    client.post("/admin/login", data={"password": "admin-secret"})
+    left = client.post("/admin/topics", data={"name": "Общий заголовок", "subject_id": str(first.id)}).json["id"]
+    right = client.post("/admin/topics", data={"name": "Общий заголовок", "subject_id": str(second.id)}).json["id"]
+    before = store.snapshot()
+    conflict = client.post("/admin/topics/move", data={
+        "topic_ids": [left, right], "subject_id": str(store.snapshot().unassigned_subject_id),
+    })
+    assert conflict.status_code == 400
+    assert conflict.json["error"] == "topic_name_conflict"
+    assert "Общий заголовок" in conflict.json["names"]
+    assert store.snapshot() == before
+    other = client.post("/admin/topics", data={
+        "name": "Логические элементы. Базовые схемы", "subject_id": str(store.snapshot().unassigned_subject_id),
+    })
+    assert other.status_code == 201
+    before = store.snapshot()
+    conflict = client.post(f"/admin/subjects/{first.id}/delete")
+    assert conflict.status_code == 400
+    assert conflict.json["error"] == "topic_name_conflict"
+    assert store.snapshot() == before
+    client.post(f"/admin/topics/{other.json['id']}/delete")
+    assert client.post(f"/admin/subjects/{first.id}/delete").status_code == 204
+    assert all(topic.subject_id != first.id for topic in store.list_topics())
+    assert client.post(f"/admin/subjects/{store.snapshot().unassigned_subject_id}/delete").status_code == 400
 
 
 def test_deleted_group_removes_access_and_files_survive_recreation(client_env, tmp_path):
@@ -274,14 +342,36 @@ def test_deleted_topic_blocks_new_submission_without_deleting_previous_upload(cl
     assert list((tmp_path / "uploads").rglob("Иванов Иван Иванович 1.pdf"))
 
 
-def test_new_subject_and_topic_can_be_submitted_without_relationship(client_env):
+def test_new_subject_and_topic_require_matching_relationship(client_env, tmp_path):
     client, private_dir = client_env
     configure_group(private_dir)
+    from app.catalog_store import create_catalog_store
+    store = create_catalog_store(client.application.config)
+    other_subject = store.list_subjects()[0]
     client.post("/admin/login", data={"password": "admin-secret"})
-    assert client.post("/admin/subjects", data={"name": "Новый предмет"}).status_code == 201
-    assert client.post("/admin/topics", data={"name": "Новая тема"}).status_code == 201
-    assert client.post("/unlock", data={"group": "ИС 25/9-1П", "password": "1234"}).status_code == 204
+    subject = client.post("/admin/subjects", data={"name": "Новый предмет"}).json
+    topic = client.post("/admin/topics", data={
+        "name": "Новая тема", "subject_id": subject["id"],
+    }).json
+    client.post("/unlock", data={"group": "ИС 25/9-1П", "password": "1234"})
+
     submission = valid_submission()
-    submission["discipline"] = "Новый предмет"
-    submission["work"] = "Новая тема"
+    submission["discipline"] = subject["name"]
+    submission["work"] = topic["name"]
     assert client.post("/submit", data=submission).status_code == 201
+    original_path = next((tmp_path / "uploads").rglob("Иванов Иван Иванович 1.pdf"))
+
+    assert client.post(f"/admin/topics/{topic['id']}/update", data={
+        "name": topic["name"], "subject_id": str(other_subject.id),
+    }).status_code == 200
+    mismatched_submission = valid_submission()
+    mismatched_submission["discipline"] = subject["name"]
+    mismatched_submission["work"] = topic["name"]
+    assert client.post("/submit", data=mismatched_submission).status_code == 400
+    assert original_path.exists()
+
+    matching_submission = valid_submission()
+    matching_submission["discipline"] = other_subject.name
+    matching_submission["work"] = topic["name"]
+    assert client.post("/submit", data=matching_submission).status_code == 201
+    assert original_path.exists()

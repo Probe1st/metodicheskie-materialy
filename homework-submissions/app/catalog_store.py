@@ -13,15 +13,26 @@ class CatalogItem:
 
 
 @dataclass(frozen=True, slots=True)
+class Topic:
+    id: UUID
+    name: str
+    subject_id: UUID
+
+
+@dataclass(frozen=True, slots=True)
 class Catalog:
     groups: tuple[CatalogItem, ...]
     subjects: tuple[CatalogItem, ...]
-    topics: tuple[CatalogItem, ...]
+    topics: tuple[Topic, ...]
+    unassigned_subject_id: UUID
 
     def contains(self, group: str, subject: str, topic: str) -> bool:
-        return all(
-            any(item.name.casefold() == name.casefold() for item in items)
-            for name, items in ((group, self.groups), (subject, self.subjects), (topic, self.topics))
+        selected = next((item for item in self.subjects if item.name.casefold() == subject.casefold()), None)
+        return (
+            selected is not None
+            and any(item.name.casefold() == group.casefold() for item in self.groups)
+            and any(item.subject_id == selected.id and item.name.casefold() == topic.casefold()
+                    for item in self.topics)
         )
 
 
@@ -30,7 +41,9 @@ class CatalogItemNotFound(ValueError):
 
 
 class CatalogNameConflict(ValueError):
-    pass
+    def __init__(self, names: str | list[str]):
+        self.names = (names,) if isinstance(names, str) else tuple(dict.fromkeys(names))
+        super().__init__(", ".join(self.names))
 
 
 class CatalogStore(Protocol):
@@ -43,10 +56,11 @@ class CatalogStore(Protocol):
     def create_subject(self, name: str) -> CatalogItem: ...
     def rename_subject(self, item_id: UUID, name: str) -> CatalogItem: ...
     def delete_subject(self, item_id: UUID) -> CatalogItem: ...
-    def list_topics(self) -> tuple[CatalogItem, ...]: ...
-    def create_topic(self, name: str) -> CatalogItem: ...
-    def rename_topic(self, item_id: UUID, name: str) -> CatalogItem: ...
-    def delete_topic(self, item_id: UUID) -> CatalogItem: ...
+    def list_topics(self) -> tuple[Topic, ...]: ...
+    def create_topic(self, name: str, subject_id: UUID) -> Topic: ...
+    def update_topic(self, item_id: UUID, name: str, subject_id: UUID) -> Topic: ...
+    def move_topics(self, item_ids: tuple[UUID, ...], subject_id: UUID) -> tuple[Topic, ...]: ...
+    def delete_topic(self, item_id: UUID) -> Topic: ...
 
 
 def create_catalog_store(config: Mapping[str, object]) -> CatalogStore:

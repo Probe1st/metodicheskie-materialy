@@ -32,35 +32,95 @@
     <div class="admin-layout">
       {% include "_admin_nav.html" %}
       <section class="admin-content" aria-label="Управление разделом {{ title|lower }}">
+        {% if kind == 'topics' %}
+          <section class="panel topic-toolbar" data-unassigned-id="{{ unassigned_subject_id }}" aria-label="Сопоставление тем и предметов">
+            <button class="topic-unassigned-filter" type="button" data-topic-unassigned-filter aria-pressed="false">
+              <span>Без предмета</span>
+              <span class="topic-unassigned-filter__count" data-topic-unassigned-count aria-live="polite">{{ topics|selectattr('subject_id', 'equalto', unassigned_subject_id)|list|length }}</span>
+            </button>
+            <div class="topic-toolbar__filters">
+              <label class="field">Предмет
+                <select data-topic-filter>
+                  <option value="">Все предметы ({{ items|length }})</option>
+                  {% for subject in subjects %}
+                    <option value="{{ subject.id }}" data-label="{{ subject.name }}">{{ subject.name }} ({{ topics|selectattr('subject_id', 'equalto', subject.id)|list|length }})</option>
+                  {% endfor %}
+                </select>
+              </label>
+              <label class="field">Поиск по названию
+                <input type="search" data-topic-search placeholder="Найти тему">
+              </label>
+            </div>
+            <p class="field__hint">Выберите темы без предмета и назначьте им предмет.</p>
+          </section>
+        {% endif %}
         <form class="panel catalog-create form-stack" data-catalog-create data-kind="{{ kind }}" action="{{ url_for('admin_catalog_create', kind=kind) }}" method="post">
           <h2>Добавить {{ item_label }}</h2>
           <label class="field" for="catalog_new_name">Название
             <input id="catalog_new_name" name="name" required maxlength="200" autocomplete="off">
           </label>
+          {% if kind == 'topics' %}
+            <label class="field" for="catalog_new_subject">Предмет
+              <select id="catalog_new_subject" name="subject_id" required>
+                {% for subject in subjects %}<option value="{{ subject.id }}">{{ subject.name }}</option>{% endfor %}
+              </select>
+            </label>
+          {% endif %}
           <button class="button button--primary" type="submit">Добавить</button>
           <p class="status" data-create-status aria-live="polite"></p>
         </form>
+        {% if kind == 'topics' %}
+          <form id="topic_bulk" class="panel topic-bulk" data-topic-bulk action="{{ url_for('admin_move_topics') }}" method="post">
+            <label class="field">Куда перенести выбранные темы
+              <select name="subject_id" required>
+                {% for subject in subjects %}<option value="{{ subject.id }}">{{ subject.name }}</option>{% endfor %}
+              </select>
+            </label>
+            <button class="button button--outline" type="submit">Перенести выбранные</button>
+            <p class="status" data-topic-status aria-live="polite"></p>
+          </form>
+        {% endif %}
         <section class="catalog-list" data-catalog-list data-kind="{{ kind }}" aria-label="Список: {{ title|lower }}">
           {% for item in items %}
-            <article class="panel catalog-row" data-catalog-item data-kind="{{ kind }}" data-id="{{ item.id }}" data-name="{{ item.name }}">
+            <article class="panel catalog-row" data-catalog-item data-kind="{{ kind }}" data-id="{{ item.id }}" data-name="{{ item.name }}"{% if kind == 'topics' %} data-subject-id="{{ item.subject_id }}"{% endif %}>
               <div class="catalog-row__heading">
-                <h3 data-item-name>{{ item.name }}</h3>
-              </div>
-              <form class="catalog-rename form-stack" data-catalog-rename method="post" action="{{ url_for('admin_catalog_mutate', kind=kind, item_id=item.id, action='rename') }}">
-                <label class="field" for="name_{{ item.id }}">Новое название
-                  <input id="name_{{ item.id }}" name="name" value="{{ item.name }}" required maxlength="200" autocomplete="off">
-                </label>
-                <div class="catalog-actions">
-                  <button class="button button--outline" type="submit">Переименовать</button>
-                  <button class="button button--danger" type="button" data-delete>Удалить</button>
+                {% if kind == 'topics' %}
+                  <label class="topic-selection"><input type="checkbox" name="topic_ids" value="{{ item.id }}" form="topic_bulk" aria-label="Выбрать тему {{ item.name }}"></label>
+                {% endif %}
+                <div>
+                  <h3 data-item-name>{{ item.name }}</h3>
+                  {% if kind == 'topics' %}
+                    <p class="field__hint" data-topic-subject>{{ subjects|selectattr('id', 'equalto', item.subject_id)|map(attribute='name')|first }}</p>
+                  {% endif %}
                 </div>
-              </form>
+              </div>
+              {% if kind == 'subjects' and item.id == unassigned_subject_id %}
+                <p class="field__hint">Системный предмет для тем, ожидающих распределения.</p>
+              {% else %}
+                <form class="catalog-rename form-stack" data-catalog-rename method="post" action="{{ url_for('admin_catalog_mutate', kind=kind, item_id=item.id, action='update' if kind == 'topics' else 'rename') }}">
+                  <label class="field" for="name_{{ item.id }}">Новое название
+                    <input id="name_{{ item.id }}" name="name" value="{{ item.name }}" required maxlength="200" autocomplete="off">
+                  </label>
+                  {% if kind == 'topics' %}
+                    <label class="field" for="subject_{{ item.id }}">Предмет
+                      <select id="subject_{{ item.id }}" name="subject_id" required>
+                        {% for subject in subjects %}<option value="{{ subject.id }}" {% if subject.id == item.subject_id %}selected{% endif %}>{{ subject.name }}</option>{% endfor %}
+                      </select>
+                    </label>
+                  {% endif %}
+                  <div class="catalog-actions">
+                    <button class="button button--outline" type="submit">Сохранить</button>
+                    <button class="button button--danger" type="button" data-delete>Удалить</button>
+                  </div>
+                </form>
+              {% endif %}
               <p class="catalog-status status" aria-live="polite"></p>
             </article>
           {% else %}
             <p class="empty-state" data-catalog-empty>Пока нет элементов. Добавьте первый в форме выше.</p>
           {% endfor %}
         </section>
+        {% if kind == 'topics' %}<p class="empty-state" data-topic-filter-empty hidden>По этому запросу тем нет.</p>{% endif %}
       </section>
     </div>
   </main>
