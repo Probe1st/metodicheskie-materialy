@@ -328,7 +328,7 @@ const strictPattern = /^\d{10}$/;
 strictPattern.test("1234567890");          // TRUE (строго 10 цифр)
 strictPattern.test("мусор 1234567890");    // FALSE (отклонено)</code></pre>
         <div class="card">
-          <p><strong>Популярные маски:</strong> ИНН юрлица: <code>/^\d{10}$/</code> | БИК банка: <code>/^04\d{7}$/</code> | ОГРН: <code>/^\d{13}$/</code> | Email: <code>/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/</code></p>
+          <p><strong>Популярные маски:</strong> ИНН юрлица: <code>/^\d{10}/</code> | БИК банка: <code>/<sup>04</sup>d{7}/</code> | ОГРН: <code>/^\d{13}/</code> | Email: <code>/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/</code></p>
         </div>
       </div>
 
@@ -377,7 +377,7 @@ SELECT * FROM users WHERE login = 'admin' --' AND pass = '...'
         <div class="grid-2">
           <div class="card">
             <h3>1. Фаза PREPARE (Разбор запроса)</h3>
-            <p>СУБД парсит SQL-текст с плейсхолдерами <code>$1, $2</code>, строит дерево синтаксического разбора (AST) и компилирует план. На этом шаге структура запроса зафиксирована навсегда.</p>
+            <p>СУБД парсит SQL-текст с плейсхолдерами <code>1,2</code>, строит дерево синтаксического разбора (AST) и компилирует план. На этом шаге структура запроса зафиксирована навсегда.</p>
           </div>
           <div class="card">
             <h3>2. Фаза EXECUTE (Передача данных)</h3>
@@ -386,7 +386,7 @@ SELECT * FROM users WHERE login = 'admin' --' AND pass = '...'
         </div>
         <pre><code>-- Протокол PostgreSQL Prepared Statements:
 PREPARE auth_stmt (text, text) AS
-  SELECT id, full_name FROM users WHERE login = $1 AND pass_hash = $2;
+  SELECT id, full_name FROM users WHERE login = 1 AND pass<sub>hash</sub> =2;
 
 EXECUTE auth_stmt('admin' OR 1=1 --', 'hash123'); -- Ищет буквального юзера с таким именем!</code></pre>
       </div>
@@ -415,16 +415,14 @@ EXECUTE auth_stmt('admin' OR 1=1 --', 'hash123'); -- Ищет буквально
       <div class="slide" id="slide-9">
         <h2>8. Триггеры бизнес-логики: проверка остатков перед записью</h2>
         <p>Когда условия зависят от данных других таблиц, декларативного CHECK недостаточно:</p>
-        <pre><code>CREATE OR REPLACE FUNCTION trg_verify_stock() RETURNS TRIGGER AS $$
-BEGIN
+        <pre><code>CREATE OR REPLACE FUNCTION trg_verify_stock() RETURNS TRIGGER AS <div class="formula">BEGIN
   -- Блокируем складской остаток от конкурентных изменений
-  IF (SELECT stock_qty FROM products WHERE id = NEW.product_id FOR UPDATE) &lt; NEW.quantity THEN
+  IF (SELECT stock<sub>qty</sub> FROM products WHERE id = NEW.product<sub>id</sub> FOR UPDATE) &lt; NEW.quantity THEN
     RAISE EXCEPTION 'Товар отсутствует на складе в требуемом количестве!'
-      USING ERRCODE = 'check_violation';
+      USING ERRCODE = 'check<sub>violation</sub>';
   END IF;
   RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+END;</div> LANGUAGE plpgsql;
 
 CREATE TRIGGER check_stock_before_order
 BEFORE INSERT ON order_items

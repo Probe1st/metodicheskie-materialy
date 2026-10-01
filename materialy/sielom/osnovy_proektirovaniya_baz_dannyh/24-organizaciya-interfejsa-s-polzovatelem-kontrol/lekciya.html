@@ -246,7 +246,7 @@
 |  - Санитизация строк        |
 |  - Аутентификация / Сессия  |
 +-----------------------------+
-       | Формирование Prepared Statement с плейсхолдерами ($1, $2, ...)
+       | Формирование Prepared Statement с плейсхолдерами (1,2, ...)
        v
 +-----------------------------+
 | 3. ПАРАМЕТРИЗОВАННЫЙ ЗАПРОС | ---> Защита от SQL Injection: СУБД скомпилировала AST,
@@ -384,7 +384,7 @@ goodRegex.test("Мой ИНН 1234567890");          // FALSE (отклонен�
           <tr>
             <td><strong>Мобильный телефон РФ</strong></td>
             <td>Формат с кодом страны +7 и 10 цифрами номера</td>
-            <td><code>^\+7\d{10}$</code> или с маской <code>^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$</code></td>
+            <td><code>^\+7\d{10}</code> или с маской <code>^\+7 \(d{3}\) d{3}-d{2}-d{2}</code></td>
           </tr>
           <tr>
             <td><strong>Адрес электронной почты (Email)</strong></td>
@@ -429,13 +429,13 @@ function validateInn10(inn) {
         Параметризованный запрос разделяет выполнение на два независимых этапа:
       </p>
       <ol>
-        <li><strong>Компиляция (PREPARE):</strong> СУБД компилирует запрос с маркерами параметров (плейсхолдерами <code>$1, $2</code>) в бинарное дерево синтаксического разбора (AST — Abstract Syntax Tree). Структура запроса жестко фиксируется в памяти.</li>
+        <li><strong>Компиляция (PREPARE):</strong> СУБД компилирует запрос с маркерами параметров (плейсхолдерами <code>1,2</code>) в бинарное дерево синтаксического разбора (AST — Abstract Syntax Tree). Структура запроса жестко фиксируется в памяти.</li>
         <li><strong>Исполнение (EXECUTE):</strong> Значения параметров передаются отдельно по протоколу передачи данных. Интерпретатор СУБД обрабатывает их строго как константные литералы соответствующего типа (строка, число, дата). Даже если параметр содержит символы <code>' ; -- DROP TABLE</code>, они не могут выйти за рамки строкового значения и не могут быть выполнены как код!</li>
       </ol>
       <pre><code>-- Как параметризация выглядит на уровне протокола PostgreSQL:
 -- Шаг 1: Подготовка запроса с типами параметров
 PREPARE find_user (text, text) AS
-    SELECT id, email, full_name FROM users WHERE login = $1 AND password_hash = $2;
+    SELECT id, email, full_name FROM users WHERE login = 1 AND password<sub>hash</sub> =2;
 
 -- Шаг 2: Безопасное выполнение с любыми специальными символами
 EXECUTE find_user('admin\' OR 1=1 --', 'secret_hash_value');
@@ -451,30 +451,28 @@ EXECUTE find_user('admin\' OR 1=1 --', 'secret_hash_value');
 
       <h3>5.1. Пример серверного триггера проверки остатка товара (PostgreSQL)</h3>
       <pre><code>CREATE OR REPLACE FUNCTION check_stock_availability()
-RETURNS TRIGGER AS $$
-DECLARE
-    current_stock INT;
+RETURNS TRIGGER AS <div class="formula">DECLARE
+    current<sub>stock</sub> INT;
 BEGIN
     -- Блокируем строку товара для предотвращения параллельного изменения остатка
-    SELECT stock_quantity INTO current_stock
-    FROM warehouse_products
-    WHERE product_id = NEW.product_id
+    SELECT stock<sub>quantity</sub> INTO current<sub>stock</sub>
+    FROM warehouse<sub>products</sub>
+    WHERE product<sub>id</sub> = NEW.product<sub>id</sub>
     FOR UPDATE;
 
-    IF current_stock &lt; NEW.quantity THEN
+    IF current<sub>stock</sub> &lt; NEW.quantity THEN
         RAISE EXCEPTION 'Недостаточно товара на складе: запрошено %, в наличии %',
-            NEW.quantity, current_stock
-            USING ERRCODE = 'check_violation';
+            NEW.quantity, current<sub>stock</sub>
+            USING ERRCODE = 'check<sub>violation</sub>';
     END IF;
 
     -- Автоматически уменьшаем складской остаток
-    UPDATE warehouse_products
-    SET stock_quantity = stock_quantity - NEW.quantity
-    WHERE product_id = NEW.product_id;
+    UPDATE warehouse<sub>products</sub>
+    SET stock<sub>quantity</sub> = stock<sub>quantity</sub> - NEW.quantity
+    WHERE product<sub>id</sub> = NEW.product<sub>id</sub>;
 
     RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+END;</div> LANGUAGE plpgsql;
 
 CREATE TRIGGER trg_check_stock
 BEFORE INSERT ON order_items

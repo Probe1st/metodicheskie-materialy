@@ -246,7 +246,7 @@ ORDER BY category_id ASC, rating DESC, price ASC;</code></pre>
       <h3>2.4. Физический алгоритм сортировки: External Merge Sort и work_mem</h3>
       <p>Когда СУБД получает команду на сортировку массива кортежей, планировщик оценивает объем данных и доступную оперативную память, выделяемую процессу (параметр <code>work_mem</code> в PostgreSQL или <code>sort_buffer_size</code> в MySQL).</p>
       <ol>
-        <li><strong>In-Memory Sort (Quicksort / Top-N Heapsort):</strong> Если весь набор данных (или только ключи с указателями на строки — tuple pointers) умещается в <code>work_mem</code>, СУБД применяет быструю сортировку в ОЗУ. При наличии <code>LIMIT k</code> применяется алгоритм Top-N Heapsort с кучей размера $k$, что дает сложность $O(N \log k)$ без сортировки всей таблицы.</li>
+        <li><strong>In-Memory Sort (Quicksort / Top-N Heapsort):</strong> Если весь набор данных (или только ключи с указателями на строки — tuple pointers) умещается в <code>work_mem</code>, СУБД применяет быструю сортировку в ОЗУ. При наличии <code>LIMIT k</code> применяется алгоритм Top-N Heapsort с кучей размера k, что дает сложность O(N log k) без сортировки всей таблицы.</li>
         <li><strong>External Merge Sort (Внешняя сортировка слиянием):</strong> Если объем данных превышает <code>work_mem</code>:
           <ul>
             <li><strong>Фаза 1 (Run Generation):</strong> Данные порциями считываются в память, сортируются в пределах <code>work_mem</code> и сбрасываются во временные файлы на диск в виде отсортированных серий (Runs).</li>
@@ -260,9 +260,9 @@ ORDER BY category_id ASC, rating DESC, price ASC;</code></pre>
       <p>Реализация постраничного вывода (Pagination) — классическая задача веб-разработки и проектирования БД.</p>
       <ul>
         <li><strong>Смещение (Offset Pagination):</strong> <code>SELECT * FROM items ORDER BY id LIMIT 20 OFFSET 100000;</code><br>
-        <strong>Проблема:</strong> СУБД вынуждена прочитать и отсортировать все 100 020 строк, отбросить первые 100 000 и вернуть последние 20. Сложность составляет $O(N)$, где $N = \text{OFFSET} + \text{LIMIT}$. При росте номера страницы сервер перегружается I/O операциями. Кроме того, при вставке новой строки между запросами пользователь видит дубликаты на стыке страниц.</li>
-        <li><strong>Курсорная пагинация (Keyset / Seek Method):</strong> <code>SELECT * FROM items WHERE (created_at, id) &lt; ($last_created, $last_id) ORDER BY created_at DESC, id DESC LIMIT 20;</code><br>
-        <strong>Преимущество:</strong> Поиск точки старта выполняется по B-Tree индексу за время $O(\log N)$, после чего извлекаются ровно 20 строк. Сложность константна независимо от глубины страниц ($O(1)$ относительно глубины пагинации).</li>
+        <strong>Проблема:</strong> СУБД вынуждена прочитать и отсортировать все 100 020 строк, отбросить первые 100 000 и вернуть последние 20. Сложность составляет O(N), где N = OFFSET + LIMIT. При росте номера страницы сервер перегружается I/O операциями. Кроме того, при вставке новой строки между запросами пользователь видит дубликаты на стыке страниц.</li>
+        <li><strong>Курсорная пагинация (Keyset / Seek Method):</strong> <code>SELECT * FROM items WHERE (created_at, id) &lt; (last<sub>created</sub>,last_id) ORDER BY created_at DESC, id DESC LIMIT 20;</code><br>
+        <strong>Преимущество:</strong> Поиск точки старта выполняется по B-Tree индексу за время O(log N), после чего извлекаются ровно 20 строк. Сложность константна независимо от глубины страниц (O(1) относительно глубины пагинации).</li>
       </ul>
 
       <h3>2.6. Индексная поддержка предикатной фильтрации и сортировки</h3>

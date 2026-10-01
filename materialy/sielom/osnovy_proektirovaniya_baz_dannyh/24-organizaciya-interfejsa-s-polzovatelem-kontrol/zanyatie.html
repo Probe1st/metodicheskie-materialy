@@ -530,17 +530,15 @@ SQLSTATE: 23505</code></pre>
 
         <h3>Часть 2. Серверный триггер остатков и перехват исключения P0001</h3>
         <p>Два покупателя одновременно нажали кнопку «Купить» на последнюю единицу товара на складе. В СУБД сработал серверный триггер:</p>
-        <pre><code>CREATE OR REPLACE FUNCTION trg_check_inventory() RETURNS TRIGGER AS $$
-DECLARE v_stock INT;
+        <pre><code>CREATE OR REPLACE FUNCTION trg_check_inventory() RETURNS TRIGGER AS <div class="formula">DECLARE v<sub>stock</sub> INT;
 BEGIN
-    SELECT stock_quantity INTO v_stock FROM warehouse WHERE product_id = NEW.product_id FOR UPDATE;
-    IF v_stock &lt; NEW.quantity THEN
-        RAISE EXCEPTION 'OUT_OF_STOCK: Недостаточно товара на складе' USING ERRCODE = 'P0001';
+    SELECT stock<sub>quantity</sub> INTO v<sub>stock</sub> FROM warehouse WHERE product<sub>id</sub> = NEW.product<sub>id</sub> FOR UPDATE;
+    IF v<sub>stock</sub> &lt; NEW.quantity THEN
+        RAISE EXCEPTION 'OUT<sub>OF</sub><sub>STOCK</sub>: Недостаточно товара на складе' USING ERRCODE = 'P0001';
     END IF;
-    UPDATE warehouse SET stock_quantity = stock_quantity - NEW.quantity WHERE product_id = NEW.product_id;
+    UPDATE warehouse SET stock<sub>quantity</sub> = stock<sub>quantity</sub> - NEW.quantity WHERE product<sub>id</sub> = NEW.product<sub>id</sub>;
     RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;</code></pre>
+END;</div> LANGUAGE plpgsql;</code></pre>
         <ol>
           <li>Как ядро СУБД обработает одновременную покупку благодаря <code>FOR UPDATE</code>? Что произойдет со вторым покупателем?</li>
           <li>Спроектируйте перехватчик исключения <code>SQLSTATE P0001</code> на бэкенде: какое дружественное сообщение увидит второй покупатель на экране оформления заказа?</li>
@@ -606,7 +604,7 @@ SQLSTATE: 23P01</code></pre>
         </div>
 
         <h3>Часть 3. Защита от инъекций и самопроверка</h3>
-        <p>Сформулируйте параметризованный запрос для вставки бронирования с приведением типов <code>$1::int, daterange($2::date, $3::date, '[)')</code> и обоснуйте его надежность.</p>
+        <p>Сформулируйте параметризованный запрос для вставки бронирования с приведением типов <code>1::int, daterange(2::date, $3::date, '[)')</code> и обоснуйте его надежность.</p>
         <div class="question-block">
           <label class="question-label" for="v4_ans3">Ваш ответ по параметризованному запросу бронирования:</label>
           <textarea id="v4_ans3" class="answer-area"></textarea>
