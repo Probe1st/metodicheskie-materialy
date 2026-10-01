@@ -1,400 +1,385 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="color-scheme" content="light">
-  <title>Теоретический конспект: Значения и ограничения поля (CHECK, IN, RegEx)</title>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --line: #cbd5e1;
-      --accent: #0284c7;
-      --accent-soft: #f0f9ff;
-      --accent-dark: #0369a1;
-      --warn: #b45309;
-      --warn-soft: #fffbeb;
-      --danger: #b91c1c;
-      --danger-soft: #fef2f2;
-      --success: #15803d;
-      --success-soft: #f0fdf4;
-      --code-bg: #0f172a;
-      --code-text: #f8fafc;
-      --radius: 12px;
-      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-    }
-    * { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      line-height: 1.6;
-      padding: 24px 16px;
-    }
-    .wrapper {
-      max-width: 980px;
-      margin: 0 auto;
-    }
-    header.lecture-header {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 32px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow);
-    }
-    .badge {
-      display: inline-block;
-      padding: 4px 12px;
-      background: var(--accent-soft);
-      color: var(--accent-dark);
-      font-weight: 700;
-      font-size: 0.85rem;
-      border-radius: 999px;
-      margin-bottom: 12px;
-      border: 1px solid rgba(2, 132, 199, 0.2);
-    }
-    h1 {
-      margin: 0 0 12px;
-      font-size: 1.85rem;
-      color: var(--accent-dark);
-      line-height: 1.3;
-    }
-    p.lead {
-      color: var(--muted);
-      margin: 0;
-      font-size: 1.05rem;
-    }
-    section.card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 28px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow);
-    }
-    h2 {
-      margin-top: 0;
-      font-size: 1.45rem;
-      color: var(--accent-dark);
-      border-bottom: 2px solid var(--accent-soft);
-      padding-bottom: 8px;
-      margin-bottom: 18px;
-    }
-    h3 {
-      font-size: 1.15rem;
-      color: var(--text);
-      margin: 22px 0 10px;
-    }
-    p, li {
-      font-size: 0.96rem;
-      color: var(--text);
-    }
-    ul, ol {
-      padding-left: 24px;
-      margin-bottom: 16px;
-    }
-    li { margin-bottom: 8px; }
-    pre {
-      background: var(--code-bg);
-      color: var(--code-text);
-      padding: 16px;
-      border-radius: 8px;
-      overflow-x: auto;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size: 0.88rem;
-      line-height: 1.5;
-      margin: 14px 0 20px;
-    }
-    code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size: 0.88em;
-      background: #e2e8f0;
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-    pre code {
-      background: transparent;
-      padding: 0;
-      color: inherit;
-    }
-    .callout {
-      padding: 16px 20px;
-      border-radius: 8px;
-      margin: 18px 0;
-      border-left: 4px solid;
-    }
-    .callout-info {
-      background: var(--accent-soft);
-      border-color: var(--accent);
-    }
-    .callout-warn {
-      background: var(--warn-soft);
-      border-color: var(--warn);
-    }
-    .callout-danger {
-      background: var(--danger-soft);
-      border-color: var(--danger);
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 16px 0 20px;
-      font-size: 0.92rem;
-    }
-    th, td {
-      border: 1px solid var(--line);
-      padding: 10px 14px;
-      text-align: left;
-      vertical-align: top;
-    }
-    th {
-      background: #f1f5f9;
-      font-weight: 700;
-      color: var(--accent-dark);
-    }
-    .nav-local {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 24px;
-    }
-    .nav-local a {
-      text-decoration: none;
-      font-size: 0.88rem;
-      font-weight: 600;
-      padding: 6px 14px;
-      background: var(--card);
-      color: var(--accent-dark);
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      transition: all 0.2s;
-    }
-    .nav-local a:hover {
-      background: var(--accent-soft);
-      border-color: var(--accent);
-    }
-    .quiz-box {
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 16px 20px;
-      margin-top: 14px;
-    }
-    .quiz-question {
-      font-weight: 700;
-      color: var(--accent-dark);
-      margin-bottom: 6px;
-    }
-    @media (max-width: 640px) {
-      header.lecture-header, section.card { padding: 20px 16px; }
-      h1 { font-size: 1.45rem; }
-    }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+ <meta name="color-scheme" content="light">
+ <title>Теоретический конспект: Значения и ограничения поля (CHECK, IN, RegEx)</title>
+ <style>
+ :root {
+ --bg: #f8fafc;
+ --card: #ffffff;
+ --text: #0f172a;
+ --muted: #475569;
+ --line: #cbd5e1;
+ --accent: #0284c7;
+ --accent-soft: #f0f9ff;
+ --accent-dark: #0369a1;
+ --warn: #b45309;
+ --warn-soft: #fffbeb;
+ --danger: #b91c1c;
+ --danger-soft: #fef2f2;
+ --success: #15803d;
+ --success-soft: #f0fdf4;
+ --code-bg: #0f172a;
+ --code-text: #f8fafc;
+ --radius: 12px;
+ --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+ }
+ * { box-sizing: border-box; }
+ html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+ body {
+ margin: 0;
+ background: var(--bg);
+ color: var(--text);
+ font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+ line-height: 1.6;
+ padding: 24px 16px;
+ }.wrapper {
+ max-width: 980px;
+ margin: 0 auto;
+ }
+ header.lecture-header {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 32px;
+ margin-bottom: 24px;
+ box-shadow: var(--shadow);
+ }.badge {
+ display: inline-block;
+ padding: 4px 12px;
+ background: var(--accent-soft);
+ color: var(--accent-dark);
+ font-weight: 700;
+ font-size: 0.85rem;
+ border-radius: 999px;
+ margin-bottom: 12px;
+ border: 1px solid rgba(2, 132, 199, 0.2);
+ }
+ h1 {
+ margin: 0 0 12px;
+ font-size: 1.85rem;
+ color: var(--accent-dark);
+ line-height: 1.3;
+ }
+ p.lead {
+ color: var(--muted);
+ margin: 0;
+ font-size: 1.05rem;
+ }
+ section.card {
+ background: var(--card);
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ padding: 28px;
+ margin-bottom: 24px;
+ box-shadow: var(--shadow);
+ }
+ h2 {
+ margin-top: 0;
+ font-size: 1.45rem;
+ color: var(--accent-dark);
+ border-bottom: 2px solid var(--accent-soft);
+ padding-bottom: 8px;
+ margin-bottom: 18px;
+ }
+ h3 {
+ font-size: 1.15rem;
+ color: var(--text);
+ margin: 22px 0 10px;
+ }
+ p, li {
+ font-size: 0.96rem;
+ color: var(--text);
+ }
+ ul, ol {
+ padding-left: 24px;
+ margin-bottom: 16px;
+ }
+ li { margin-bottom: 8px; }
+ pre {
+ background: var(--code-bg);
+ color: var(--code-text);
+ padding: 16px;
+ border-radius: 8px;
+ overflow-x: auto;
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+ font-size: 0.88rem;
+ line-height: 1.5;
+ margin: 14px 0 20px;
+ }
+ code {
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+ font-size: 0.88em;
+ background: #e2e8f0;
+ padding: 2px 6px;
+ border-radius: 4px;
+ }
+ pre code {
+ background: transparent;
+ padding: 0;
+ color: inherit;
+ }.callout {
+ padding: 16px 20px;
+ border-radius: 8px;
+ margin: 18px 0;
+ border-left: 4px solid;
+ }.callout-info {
+ background: var(--accent-soft);
+ border-color: var(--accent);
+ }.callout-warn {
+ background: var(--warn-soft);
+ border-color: var(--warn);
+ }.callout-danger {
+ background: var(--danger-soft);
+ border-color: var(--danger);
+ }
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ margin: 16px 0 20px;
+ font-size: 0.92rem;
+ }
+ th, td {
+ border: 1px solid var(--line);
+ padding: 10px 14px;
+ text-align: left;
+ vertical-align: top;
+ }
+ th {
+ background: #f1f5f9;
+ font-weight: 700;
+ color: var(--accent-dark);
+ }.nav-local {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 10px;
+ margin-bottom: 24px;
+ }.nav-local a {
+ text-decoration: none;
+ font-size: 0.88rem;
+ font-weight: 600;
+ padding: 6px 14px;
+ background: var(--card);
+ color: var(--accent-dark);
+ border: 1px solid var(--line);
+ border-radius: 6px;
+ transition: all 0.2s;
+ }.nav-local a:hover {
+ background: var(--accent-soft);
+ border-color: var(--accent);
+ }.quiz-box {
+ background: #f8fafc;
+ border: 1px solid var(--line);
+ border-radius: 8px;
+ padding: 16px 20px;
+ margin-top: 14px;
+ }.quiz-question {
+ font-weight: 700;
+ color: var(--accent-dark);
+ margin-bottom: 6px;
+ }
+ @media (max-width: 640px) {
+ header.lecture-header, section.card { padding: 20px 16px; }
+ h1 { font-size: 1.45rem; }
+ }
+ </style>
 </head>
 <body>
-  <div class="wrapper">
-    <div class="nav-local">
-      <a href="metodicheskiy_material.html">Методичка</a>
-      <a href="prezentaciya.html">Презентация</a>
-      <a href="zanyatie.html">Рабочий лист</a>
-      <a href="tehnologicheskaya_karta.html">Технологическая карта</a>
-      <a href="konspekt.html">Сценарий</a>
-      <a href="domashnee_zadanie.html">Домашнее задание</a>
-    </div>
+ <div class="wrapper">
+ <div class="nav-local">
+ <a href="metodicheskiy_material.html">Методичка</a>
+ <a href="prezentaciya.html">Презентация</a>
+ <a href="zanyatie.html">Рабочий лист</a>
+ <a href="tehnologicheskaya_karta.html">Технологическая карта</a>
+ <a href="konspekt.html">Сценарий</a>
+ <a href="domashnee_zadanie.html">Домашнее задание</a>
+ </div>
 
-    <header class="lecture-header">
-      <span class="badge">Теоретический конспект к ПЗ №12</span>
-      <h1>Значения и ограничения поля (CHECK, IN, RegEx)</h1>
-      <p class="lead">Каталог синтаксических конструкций целостности данных, правила сопоставления с регулярными выражениями и обработка исключений ядра СУБД</p>
-    </header>
+ <header class="lecture-header">
+ <span class="badge">Теоретический конспект к ПЗ №12</span>
+ <h1>Значения и ограничения поля (CHECK, IN, RegEx)</h1>
+ <p class="lead">Каталог синтаксических конструкций целостности данных, правила сопоставления с регулярными выражениями и обработка исключений ядра СУБД</p>
+ </header>
 
-    <section class="card">
-      <h2>1. Доменная целостность данных в реляционной модели</h2>
-      <p>В реляционной теории Эдгара Кодда под <strong>доменом</strong> (Domain) понимается семантически осмысленное множество допустимых значений конкретного атрибута сущности. Базовых типов данных (таких как <code>INTEGER</code>, <code>NUMERIC</code> или <code>VARCHAR</code>) недостаточно для гарантии бизнес-корректности:</p>
-      <ul>
-        <li>Числовой тип <code>INT</code> допускает отрицательные значения (-100 лет, -500 рублей оклада);</li>
-        <li>Строковый тип <code>VARCHAR(100)</code> позволяет записать любую бессмысленную строку вместо адреса электронной почты или ИНН;</li>
-        <li>Дата <code>DATE</code> позволяет указать дату закрытия договора раньше даты его открытия.</li>
-      </ul>
-      <p>Для предотвращения сохранения некорректных данных стандарт ANSI SQL и СУБД PostgreSQL предоставляют механизм ограничений <strong>CHECK</strong>.</p>
-    </section>
+ <section class="card">
+ <h2>1. Доменная целостность данных в реляционной модели</h2>
+ <p>В реляционной теории Эдгара Кодда под <strong>доменом</strong> (Domain) понимается семантически осмысленное множество допустимых значений конкретного атрибута сущности. Базовых типов данных (таких как <code>INTEGER</code>, <code>NUMERIC</code> или <code>VARCHAR</code>) недостаточно для гарантии бизнес-корректности:</p>
+ <ul>
+ <li>Числовой тип <code>INT</code> допускает отрицательные значения (-100 лет, -500 рублей оклада);</li>
+ <li>Строковый тип <code>VARCHAR(100)</code> позволяет записать любую бессмысленную строку вместо адреса электронной почты или ИНН;</li>
+ <li>Дата <code>DATE</code> позволяет указать дату закрытия договора раньше даты его открытия.</li>
+ </ul>
+ <p>Для предотвращения сохранения некорректных данных стандарт ANSI SQL и СУБД PostgreSQL предоставляют механизм ограничений <strong>CHECK</strong>.</p>
+ </section>
 
-    <section class="card">
-      <h2>2. Каталог синтаксиса ограничений CHECK</h2>
+ <section class="card">
+ <h2>2. Каталог синтаксиса ограничений CHECK</h2>
 
-      <h3>2.1. Ограничение на уровне столбца (Column Constraint)</h3>
-      <p>Объявляется непосредственно при описании поля таблицы. Может содержать ссылки только на значение этого конкретного столбца:</p>
-      <pre><code>CREATE TABLE products (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name VARCHAR(120) NOT NULL,
-    price NUMERIC(10, 2) NOT NULL CHECK (price > 0),
-    stock_qty INT NOT NULL CHECK (stock_qty >= 0)
-);</code></pre>
+ <h3>2.1. Ограничение на уровне столбца (Column Constraint)</h3>
+ <p>Объявляется непосредственно при описании поля таблицы. Может содержать ссылки только на значение этого конкретного столбца:</p>
+ <pre><code>CREATE TABLE products (
+ id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+ name VARCHAR(120) NOT NULL,
+ price NUMERIC(10, 2) NOT NULL CHECK (price > 0),
+ stock_qty INT NOT NULL CHECK (stock_qty >= 0));</code></pre>
 
-      <h3>2.2. Ограничение на уровне таблицы (Table Constraint)</h3>
-      <p>Объявляется отдельной строкой таблицы через ключевые слова <code>CONSTRAINT имя CHECK (условие)</code>. Преимущества явного табличного ограничения:</p>
-      <ol>
-        <li><strong>Явное системное имя:</strong> в логах ошибок и диагностических сообщениях выводится читаемое имя (например, <code>chk_products_price</code> вместо системного <code>products_price_check</code>);</li>
-        <li><strong>Межколоночные проверки:</strong> возможность сопоставлять значения нескольких столбцов одной строки;</li>
-        <li><strong>Удобство миграции:</strong> легко удалять или отключать через <code>ALTER TABLE tbl DROP CONSTRAINT chk_name;</code>.</li>
-      </ol>
-      <pre><code>CREATE TABLE lease_contracts (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    contract_num VARCHAR(50) NOT NULL,
-    start_date DATE NOT NULL,
-    end_date DATE NOT NULL,
-    deposit_amount NUMERIC(10, 2) NOT NULL,
-    monthly_rate NUMERIC(10, 2) NOT NULL,
-    CONSTRAINT chk_lease_dates CHECK (end_date > start_date),
-    CONSTRAINT chk_lease_deposit CHECK (deposit_amount >= monthly_rate)
-);</code></pre>
+ <h3>2.2. Ограничение на уровне таблицы (Table Constraint)</h3>
+ <p>Объявляется отдельной строкой таблицы через ключевые слова <code>CONSTRAINT имя CHECK (условие)</code>. Преимущества явного табличного ограничения:</p>
+ <ol>
+ <li><strong>Явное системное имя:</strong> в логах ошибок и диагностических сообщениях выводится читаемое имя (например, <code>chk_products_price</code> вместо системного <code>products_price_check</code>);</li>
+ <li><strong>Межколоночные проверки:</strong> возможность сопоставлять значения нескольких столбцов одной строки;</li>
+ <li><strong>Удобство миграции:</strong> легко удалять или отключать через <code>ALTER TABLE tbl DROP CONSTRAINT chk_name;</code>.</li>
+ </ol>
+ <pre><code>CREATE TABLE lease_contracts (
+ id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+ contract_num VARCHAR(50) NOT NULL,
+ start_date DATE NOT NULL,
+ end_date DATE NOT NULL,
+ deposit_amount NUMERIC(10, 2) NOT NULL,
+ monthly_rate NUMERIC(10, 2) NOT NULL,
+ CONSTRAINT chk_lease_dates CHECK (end_date > start_date),
+ CONSTRAINT chk_lease_deposit CHECK (deposit_amount >= monthly_rate));</code></pre>
 
-      <h3>2.3. Добавление и валидация ограничений на существующей таблице</h3>
-      <p>В высоконагруженных промышленных базах данных создание ограничения CHECK на миллионных таблицах блокирует запись. Для безопасного добавления применяется двухфазный подход:</p>
-      <pre><code>-- Фаза 1: добавление ограничения без сканирования существующих данных (мгновенно):
+ <h3>2.3. Добавление и валидация ограничений на существующей таблице</h3>
+ <p>В высоконагруженных промышленных базах данных создание ограничения CHECK на миллионных таблицах блокирует запись. Для безопасного добавления применяется двухфазный подход:</p>
+ <pre><code>-- Фаза 1: добавление ограничения без сканирования существующих данных (мгновенно):
 ALTER TABLE lease_contracts
 ADD CONSTRAINT chk_lease_rate CHECK (monthly_rate > 0) NOT VALID;
 
 -- Фаза 2: валидация существующих строк без эксклюзивной блокировки записи:
 ALTER TABLE lease_contracts VALIDATE CONSTRAINT chk_lease_rate;</code></pre>
-    </section>
+ </section>
 
-    <section class="card">
-      <h2>3. Списки дискретных допустимых значений (Оператор IN)</h2>
-      <p>Если бизнес-логика требует ограничения атрибута конечным набором состояний (статусная модель, категории, валюты), применяется оператор <code>IN</code>:</p>
-      <pre><code>CREATE TABLE orders (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    customer_id BIGINT NOT NULL,
-    order_status VARCHAR(20) NOT NULL,
-    currency VARCHAR(3) NOT NULL,
-    CONSTRAINT chk_order_status CHECK (order_status IN ('NEW', 'PAID', 'SHIPPED', 'CANCELLED')),
-    CONSTRAINT chk_order_currency CHECK (currency IN ('RUB', 'USD', 'EUR', 'CNY'))
-);</code></pre>
-      
-      <div class="callout callout-info">
-        <strong>CHECK (status IN (...)) или CREATE TYPE ... AS ENUM?</strong><br>
-        Перечисления ENUM создаются в системном каталоге базы данных. Добавление нового значения в ENUM в PostgreSQL возможно, но удаление или изменение порядка значений крайне затруднительно. Ограничение <code>CHECK (status IN (...))</code> значительно гибче в сопровождении: его можно изменить простой командой <code>ALTER TABLE</code>.
-      </div>
-    </section>
+ <section class="card">
+ <h2>3. Списки дискретных допустимых значений (Оператор IN)</h2>
+ <p>Если бизнес-логика требует ограничения атрибута конечным набором состояний (статусная модель, категории, валюты), применяется оператор <code>IN</code>:</p>
+ <pre><code>CREATE TABLE orders (
+ id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+ customer_id BIGINT NOT NULL,
+ order_status VARCHAR(20) NOT NULL,
+ currency VARCHAR(3) NOT NULL,
+ CONSTRAINT chk_order_status CHECK (order_status IN ('NEW', 'PAID', 'SHIPPED', 'CANCELLED')),
+ CONSTRAINT chk_order_currency CHECK (currency IN ('RUB', 'USD', 'EUR', 'CNY')));</code></pre>
+ 
+ <div class="callout callout-info">
+ <strong>CHECK (status IN (...)) или CREATE TYPE... AS ENUM?</strong><br>
+ Перечисления ENUM создаются в системном каталоге базы данных. Добавление нового значения в ENUM в PostgreSQL возможно, но удаление или изменение порядка значений крайне затруднительно. Ограничение <code>CHECK (status IN (...))</code> значительно гибче в сопровождении: его можно изменить простой командой <code>ALTER TABLE</code>.
+ </div>
+ </section>
 
-    <section class="card">
-      <h2>4. Валидация строковых форматов с помощью регулярных выражений (POSIX RegEx)</h2>
-      <p>PostgreSQL предоставляет мощный аппарат сопоставления строк с регулярными выражениями:</p>
-      
-      <table>
-        <thead>
-          <tr>
-            <th style="width: 20%;">Оператор</th>
-            <th style="width: 35%;">Назначение</th>
-            <th style="width: 45%;">Пример использования</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code>~</code></td>
-            <td>Соответствие шаблону (с учётом регистра)</td>
-            <td><code>code ~ '^[A-Z]{3}-[0-9]{4}$'</code></td>
-          </tr>
-          <tr>
-            <td><code>~*</code></td>
-            <td>Соответствие шаблону (без учёта регистра)</td>
-            <td><code>email ~* '^[a-z0-9._]+@[a-z0-9.-]+\.[a-z]{2,}$'</code></td>
-          </tr>
-          <tr>
-            <td><code>!~</code></td>
-            <td>Не соответствует шаблону (с учётом регистра)</td>
-            <td><code>login !~ '[^a-zA-Z0-9_]'</code></td>
-          </tr>
-          <tr>
-            <td><code>!~*</code></td>
-            <td>Не соответствует шаблону (без учёта регистра)</td>
-            <td><code>note !~* '(запрещено|ошибка)'</code></td>
-          </tr>
-        </tbody>
-      </table>
+ <section class="card">
+ <h2>4. Валидация строковых форматов с помощью регулярных выражений (POSIX RegEx)</h2>
+ <p>PostgreSQL предоставляет мощный аппарат сопоставления строк с регулярными выражениями:</p>
+ 
+ <table>
+ <thead>
+ <tr>
+ <th style="width: 20%;">Оператор</th>
+ <th style="width: 35%;">Назначение</th>
+ <th style="width: 45%;">Пример использования</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><code>~</code></td>
+ <td>Соответствие шаблону (с учётом регистра)</td>
+ <td><code>code ~ '^[A-Z]{3}-[0-9]{4}$'</code></td>
+ </tr>
+ <tr>
+ <td><code>~*</code></td>
+ <td>Соответствие шаблону (без учёта регистра)</td>
+ <td><code>email ~* '^[a-z0-9._]+@[a-z0-9.-]+\.[a-z]{2,}$'</code></td>
+ </tr>
+ <tr>
+ <td><code>!~</code></td>
+ <td>Не соответствует шаблону (с учётом регистра)</td>
+ <td><code>login !~ '[^a-zA-Z0-9_]'</code></td>
+ </tr>
+ <tr>
+ <td><code>!~*</code></td>
+ <td>Не соответствует шаблону (без учёта регистра)</td>
+ <td><code>note !~* '(запрещено|ошибка)'</code></td>
+ </tr>
+ </tbody>
+ </table>
 
-      <h3>Правила составления шаблонов валидации:</h3>
-      <ol>
-        <li><strong>Якоря начала <code>^</code> и конца <code>$</code>:</strong> обязательны! Без них шаблон <code>[0-9]{3}</code> совпадет со строкой <code>"АБВ123ГДЕ"</code>, так как ищет подстроку в любом месте.</li>
-        <li><strong>СНИЛС (11 цифр с разделителями):</strong> <code>^[0-9]{3}-[0-9]{3}-[0-9]{3} [0-9]{2}$</code></li>
-        <li><strong>Номер телефона РФ:</strong> <code>^\+7[0-9]{10}$</code></li>
-        <li><strong>Email:</strong> <code>^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$</code></li>
-      </ol>
-    </section>
+ <h3>Правила составления шаблонов валидации:</h3>
+ <ol>
+ <li><strong>Якоря начала <code>^</code> и конца <code>$</code>:</strong> обязательны! Без них шаблон <code>[0-9]{3}</code> совпадет со строкой <code>"АБВ123ГДЕ"</code>, так как ищет подстроку в любом месте.</li>
+ <li><strong>СНИЛС (11 цифр с разделителями):</strong> <code>^[0-9]{3}-[0-9]{3}-[0-9]{3} [0-9]{2}$</code></li>
+ <li><strong>Номер телефона РФ:</strong> <code>^\+7[0-9]{10}$</code></li>
+ <li><strong>Email:</strong> <code>^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$</code></li>
+ </ol>
+ </section>
 
-    <section class="card">
-      <h2>5. Трёхзначная логика SQL и поведение NULL в ограничениях CHECK</h2>
-      <p>Один из самых коварных нюансов SQL — трёхзначная логика истинности (Three-Valued Logic, 3VL): логическое выражение может принимать значения <strong>TRUE</strong>, <strong>FALSE</strong> или <strong>UNKNOWN</strong>.</p>
-      
-      <div class="callout callout-warn">
-        <strong>Фундаментальное правило работы CHECK:</strong><br>
-        Ограничение <code>CHECK</code> отклоняет строку (генерирует ошибку) <strong>ТОЛЬКО ТОГДА</strong>, когда выражение вычисляется в строгое <code>FALSE</code>. Если выражение вернуло <code>UNKNOWN</code> (что происходит при сравнении с <code>NULL</code>), строка <strong>СЧИТАЕТСЯ КОРРЕКТНОЙ</strong> и успешно записывается в таблицу!
-      </div>
+ <section class="card">
+ <h2>5. Трёхзначная логика SQL и поведение NULL в ограничениях CHECK</h2>
+ <p>Один из самых коварных нюансов SQL — трёхзначная логика истинности (Three-Valued Logic, 3VL): логическое выражение может принимать значения <strong>TRUE</strong>, <strong>FALSE</strong> или <strong>UNKNOWN</strong>.</p>
+ 
+ <div class="callout callout-warn">
+ <strong>Фундаментальное правило работы CHECK:</strong><br>
+ Ограничение <code>CHECK</code> отклоняет строку (генерирует ошибку) <strong>ТОЛЬКО ТОГДА</strong>, когда выражение вычисляется в строгое <code>FALSE</code>. Если выражение вернуло <code>UNKNOWN</code> (что происходит при сравнении с <code>NULL</code>), строка <strong>СЧИТАЕТСЯ КОРРЕКТНОЙ</strong> и успешно записывается в таблицу!
+ </div>
 
-      <pre><code>-- Пример неожиданного поведения:
+ <pre><code>-- Пример неожиданного поведения:
 CREATE TABLE students (
-    id BIGINT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    age INT CHECK (age >= 18) -- Заметьте: нет NOT NULL!
-);
+ id BIGINT PRIMARY KEY,
+ name VARCHAR(100) NOT NULL,
+ age INT CHECK (age >= 18) -- Заметьте: нет NOT NULL!);
 
 -- Этот запрос УСПЕШНО выполнится!
 -- Потому что (NULL >= 18) -> UNKNOWN. А UNKNOWN не равно FALSE!
 INSERT INTO students (id, name, age) VALUES (1, 'Иван', NULL);</code></pre>
 
-      <p><strong>Инженерное правило:</strong> если значение обязано существовать и удовлетворять диапазону, столбец обязан иметь директиву <code>NOT NULL</code> наряду с <code>CHECK</code>: <code>age INT NOT NULL CHECK (age >= 18)</code>.</p>
-    </section>
+ <p><strong>Инженерное правило:</strong> если значение обязано существовать и удовлетворять диапазону, столбец обязан иметь директиву <code>NOT NULL</code> наряду с <code>CHECK</code>: <code>age INT NOT NULL CHECK (age >= 18)</code>.</p>
+ </section>
 
-    <section class="card">
-      <h2>6. Обработка системных исключений целостности данных</h2>
-      <p>При попытке вставки или обновления строки, нарушающей предикат CHECK, ядро СУБД возвращает ошибку:</p>
-      <ul>
-        <li><strong>Код исключения (SQLSTATE):</strong> <code>23514</code>;</li>
-        <li><strong>Имя класса ошибки:</strong> <code>check_violation</code>;</li>
-        <li><strong>Сообщение:</strong> <code>ERROR: new row for relation "..." violates check constraint "..."</code>.</li>
-      </ul>
+ <section class="card">
+ <h2>6. Обработка системных исключений целостности данных</h2>
+ <p>При попытке вставки или обновления строки, нарушающей предикат CHECK, ядро СУБД возвращает ошибку:</p>
+ <ul>
+ <li><strong>Код исключения (SQLSTATE):</strong> <code>23514</code>;</li>
+ <li><strong>Имя класса ошибки:</strong> <code>check_violation</code>;</li>
+ <li><strong>Сообщение:</strong> <code>ERROR: new row for relation "..." violates check constraint "..."</code>.</li>
+ </ul>
 
-      <p>Пример безопасного перехвата в процедурном коде (PL/pgSQL):</p>
-      <pre><code>CREATE OR REPLACE FUNCTION register_employee(p_name TEXT, p_salary NUMERIC) 
+ <p>Пример безопасного перехвата в процедурном коде (PL/pgSQL):</p>
+ <pre><code>CREATE OR REPLACE FUNCTION register_employee(p_name TEXT, p_salary NUMERIC) 
 RETURNS VOID AS $$
 BEGIN
-    INSERT INTO employees (full_name, salary) VALUES (p_name, p_salary);
+ INSERT INTO employees (full_name, salary) VALUES (p_name, p_salary);
 EXCEPTION
-    WHEN check_violation THEN
-        RAISE EXCEPTION 'Бизнес-ошибка: размер оклада % руб. не удовлетворяет нормативам!', p_salary;
+ WHEN check_violation THEN
+ RAISE EXCEPTION 'Бизнес-ошибка: размер оклада % руб. не удовлетворяет нормативам!', p_salary;
 END;
 $$ LANGUAGE plpgsql;</code></pre>
-    </section>
+ </section>
 
-    <section class="card">
-      <h2>7. Вопросы и задания для самопроверки</h2>
-      
-      <div class="quiz-box">
-        <div class="quiz-question">1. В чем синтаксическое различие между ограничением CHECK на уровне столбца и на уровне таблицы?</div>
-        <p><em>Ответ:</em> Ограничение на уровне столбца может проверять только значение самого этого столбца. Ограничение на уровне таблицы может связывать логическим условием несколько различных столбцов одной строки (например, <code>end_date > start_date</code>).</p>
-      </div>
+ <section class="card">
+ <h2>7. Вопросы и задания для самопроверки</h2>
+ 
+ <div class="quiz-box">
+ <div class="quiz-question">1. В чем синтаксическое различие между ограничением CHECK на уровне столбца и на уровне таблицы?</div>
+ <p><em>Ответ:</em> Ограничение на уровне столбца может проверять только значение самого этого столбца. Ограничение на уровне таблицы может связывать логическим условием несколько различных столбцов одной строки (например, <code>end_date > start_date</code>).</p>
+ </div>
 
-      <div class="quiz-box">
-        <div class="quiz-question">2. Почему предикат CHECK (discount < total) пропустит запись, если значение discount равно NULL?</div>
-        <p><em>Ответ:</em> В стандарте SQL любая операция сравнения с NULL возвращает значение UNKNOWN. Ограничение CHECK генерирует ошибку только при строгом FALSE. Чтобы запретить такое поведение, для поля discount необходимо явно указать NOT NULL либо дополнить условие: <code>CHECK (discount IS NOT NULL AND discount < total)</code>.</p>
-      </div>
+ <div class="quiz-box">
+ <div class="quiz-question">2. Почему предикат CHECK (discount < total) пропустит запись, если значение discount равно NULL?</div>
+ <p><em>Ответ:</em> В стандарте SQL любая операция сравнения с NULL возвращает значение UNKNOWN. Ограничение CHECK генерирует ошибку только при строгом FALSE. Чтобы запретить такое поведение, для поля discount необходимо явно указать NOT NULL либо дополнить условие: <code>CHECK (discount IS NOT NULL AND discount < total)</code>.</p>
+ </div>
 
-      <div class="quiz-box">
-        <div class="quiz-question">3. Какую роль выполняют метасимволы ^ и $ в регулярных выражениях валидации полей?</div>
-        <p><em>Ответ:</em> Метасимвол <code>^</code> привязывает шаблон к началу строки, а <code>$</code> — к ее концу. Без них регулярное выражение ищет подстроку в любом месте текста, что позволяет пользователю ввести мусорные символы до и после валидного фрагмента.</p>
-      </div>
+ <div class="quiz-box">
+ <div class="quiz-question">3. Какую роль выполняют метасимволы ^ и $ в регулярных выражениях валидации полей?</div>
+ <p><em>Ответ:</em> Метасимвол <code>^</code> привязывает шаблон к началу строки, а <code>$</code> — к ее концу. Без них регулярное выражение ищет подстроку в любом месте текста, что позволяет пользователю ввести мусорные символы до и после валидного фрагмента.</p>
+ </div>
 
-      <div class="quiz-box">
-        <div class="quiz-question">4. Какой стандартный пятисимвольный код ошибки SQLSTATE возвращает PostgreSQL при нарушении CHECK?</div>
-        <p><em>Ответ:</em> Код ошибки <code>23514</code> (класс 23 — нарушение ограничений целостности, подкласс 514 — check_violation).</p>
-      </div>
-    </section>
-  </div>
+ <div class="quiz-box">
+ <div class="quiz-question">4. Какой стандартный пятисимвольный код ошибки SQLSTATE возвращает PostgreSQL при нарушении CHECK?</div>
+ <p><em>Ответ:</em> Код ошибки <code>23514</code> (класс 23 — нарушение ограничений целостности, подкласс 514 — check_violation).</p>
+ </div>
+ </section>
+ </div>
 </body>
 </html>
