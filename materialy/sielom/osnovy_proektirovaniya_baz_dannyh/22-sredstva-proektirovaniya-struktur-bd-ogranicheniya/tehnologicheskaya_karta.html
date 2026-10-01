@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Технологическая карта занятия: Средства проектирования структур БД: ограничения</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #e2e8f0;
+      --accent: #0284c7;
+      --accent-dark: #0369a1;
+      --accent-soft: #f0f9ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      padding: 24px 16px;
+    }
+
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+
+    header.tk-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+    }
+
+    section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--accent-dark);
+      margin-bottom: 16px;
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 8px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .meta-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .meta-val {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    table.tk-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 0.95rem;
+    }
+
+    table.tk-table th, table.tk-table td {
+      border: 1px solid var(--border);
+      padding: 12px 14px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    table.tk-table th {
+      background-color: #f1f5f9;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    table.tk-table tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    .badge-stage {
+      display: inline-block;
+      padding: 3px 8px;
+      background-color: var(--accent-soft);
+      color: var(--accent-dark);
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      margin-bottom: 4px;
+    }
+
+    ul {
+      margin-left: 18px;
+      margin-top: 4px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    @media (max-width: 768px) {
+      body { padding: 12px 8px; }
+      header.tk-header, section { padding: 16px; }
+      table.tk-table { display: block; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="tk-header">
+      <h1>Технологическая карта учебного занятия</h1>
+      <div class="subtitle">Средства проектирования структур БД: ограничения (Занятие №22)</div>
+    </header>
+
+    <section>
+      <h2>Паспорт учебного занятия</h2>
+      <div class="meta-grid">
+        <div class="meta-item">
+          <span class="meta-label">Дисциплина</span>
+          <span class="meta-val">ОП.08 Основы проектирования баз данных</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Специальность</span>
+          <span class="meta-val">09.02.06 Сетевое и системное администрирование</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Тематический раздел</span>
+          <span class="meta-val">Тема 4. Проектирование структур баз данных (§2.2 с.7–8 программы)</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Тема занятия</span>
+          <span class="meta-val">Средства проектирования структур БД: ограничения (Занятие №22)</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Регламент времени</span>
+          <span class="meta-val">2 академических часа (80 минут основной / 60 минут сокращенный)</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Используемые педагогические технологии</span>
+          <span class="meta-val">Информационно-коммуникационные технологии, технология проблемного обучения, кейс-метод, развивающее обучение</span>
+        </div>
+        <div class="meta-item" style="grid-column: 1 / -1;">
+          <span class="meta-label">Цель занятия</span>
+          <span class="meta-val">Сформировать у обучающихся теоретические знания и проектировочные умения в области построения декларативных ограничений целостности реляционных баз данных: освоение доменных ограничений (DOMAIN), составных предикатов CHECK с регулярными выражениями POSIX regex (~), ограничений исключения EXCLUDE USING gist с интервальными типами (tsrange, daterange) для предотвращения коллизий бронирования и овербукинга, а также механизмов отложенных ограничений DEFERRABLE INITIALLY DEFERRED/IMMEDIATE для обеспечения ссылочной целостности в циклических схемах.</span>
+        </div>
+        <div class="meta-item" style="grid-column: 1 / -1;">
+          <span class="meta-label">Дидактические средства</span>
+          <span class="meta-val">Интерактивная презентация (15 слайдов с веб-комиксом Bobby Tables), интерактивный рабочий лист студента zanyatie.html (4 варианта проектирования сложных ограничений), теоретический конспект lekciya.html, методическое руководство metodicheskiy_material.html, критериальная рубрика .rubrika.md, мультимедийный проектор.</span>
+        </div>
+        <div class="meta-item" style="grid-column: 1 / -1;">
+          <span class="meta-label">Формируемые компетенции</span>
+          <span class="meta-val">ОК 01, ОК 02, ОК 04, ОК 07, ПК 1.1, ПК 1.2, ПК 1.5</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Структура занятия — Основной регламент (80 минут)</h2>
+      <table class="tk-table">
+        <thead>
+          <tr>
+            <th style="width: 20%;">Этап и хронометраж</th>
+            <th style="width: 40%;">Деятельность преподавателя</th>
+            <th style="width: 40%;">Деятельность студентов</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <span class="badge-stage">Этап 1</span><br>
+              <strong>Организационный момент и мотивация</strong><br>
+              <em>5 минут</em>
+            </td>
+            <td>
+              <ul>
+                <li>Приветствует обучающихся, отмечает явку, проверяет рабочую готовность браузеров и ПК.</li>
+                <li>Формулирует мотивационный кейс: сбой бронирования конференц-зала в корпоративной системе, когда два топ-менеджера забронировали зал на одно время из-за параллельных транзакций (Race Condition).</li>
+                <li>Озвучивает тему занятия, дидактическую цель и регламент работы.</li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>Приветствуют преподавателя, занимают рабочие места.</li>
+                <li>Осмысливают проблему неэффективности наивных клиентских проверок <code>SELECT COUNT(*)</code> перед вставкой.</li>
+                <li>Фиксируют тему занятия в конспектах.</li>
+              </ul>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <span class="badge-stage">Этап 2</span><br>
+              <strong>Актуализация опорных знаний</strong><br>
+              <em>8 минут</em>
+            </td>
+            <td>
+              <ul>
+                <li>Проводит фронтальный экспресс-опрос по классификации ограничений целостности (PRIMARY KEY, UNIQUE, FOREIGN KEY, NOT NULL, CHECK).</li>
+                <li>Уточняет разницу между первичным и уникальным ключом, а также семантику NULL в проверках уникальности.</li>
+                <li>Задает проблемный вопрос: может ли стандартный B-Tree индекс и ограничение UNIQUE защитить от наложения двух временных интервалов бронирования?</li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>Отвечают на вопросы с места, воспроизводят определения первичных и внешних ключей.</li>
+                <li>Анализируют вопрос о временных интервалах и делают вывод, что UNIQUE проверяет равенство моментов, но бессилен против частичного перекрытия отрезков времени.</li>
+              </ul>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <span class="badge-stage">Этап 3</span><br>
+              <strong>Сообщение новых теоретических знаний</strong><br>
+              <em>35 минут</em>
+            </td>
+            <td>
+              <ul>
+                <li>Демонстрирует интерактивную презентацию (слайды 2–14).</li>
+                <li>Раскрывает трехуровневую пирамиду ограничений: домены (CREATE DOMAIN) и предикаты CHECK.</li>
+                <li>Объясняет синтаксис POSIX regex (операторы <code>~</code>, <code>~*</code>, <code>!~</code>, <code>!~*</code>) и показывает критичность якорей <code>^</code> и <code>$</code>.</li>
+                <li>Разбирает трехзначную логику SQL (TRUE, FALSE, UNKNOWN) в предикатах CHECK при наличии NULL.</li>
+                <li>Вводит интервальные типы (<code>tsrange</code>, <code>daterange</code>) и оператор пересечения <code>&amp;&amp;</code>.</li>
+                <li>Формулирует синтаксис <code>EXCLUDE USING gist</code> с расширением <code>btree_gist</code>.</li>
+                <li>Объясняет проблему «курицы и яйца» при циклических внешних ключах и алгоритм отложенной проверки через <code>DEFERRABLE INITIALLY DEFERRED/IMMEDIATE</code>.</li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>Слушают преподавателя, анализируют слайды презентации, ведут конспектирование ключевых терминов и синтаксических конструкций DDL.</li>
+                <li>Участвуют в диалоге: анализируют примеры регулярных выражений для валидации СНИЛС, паспорта и артикула SKU.</li>
+                <li>Разбирают временную диаграмму перекрытия слотов бронирования.</li>
+              </ul>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <span class="badge-stage">Этап 4</span><br>
+              <strong>Демонстрация сквозного инженерного кейса</strong><br>
+              <em>12 минут</em>
+            </td>
+            <td>
+              <ul>
+                <li>На проекторе в терминале psql демонстрирует два сквозных инженерных эталона:
+                  <ol>
+                    <li>Создание таблицы с <code>EXCLUDE USING gist</code> и попытку параллельной вставки конфликтующего интервала (вызов ошибки <code>exclusion_violation</code>).</li>
+                    <li>Создание циклической схемы «Отель — Номер-люкс» с внешним ключом <code>DEFERRABLE INITIALLY DEFERRED</code> и успешную вставку в рамках <code>BEGIN...COMMIT</code>.</li>
+                  </ol>
+                </li>
+                <li>Демонстрирует выявление логического тупика при конфликте каскадного удаления <code>ON DELETE SET NULL</code> и поля <code>NOT NULL</code>.</li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>Следят за выполнением SQL-команд на экране, фиксируют реакцию СУБД на конфликтные данные.</li>
+                <li>Задают уточняющие вопросы по поведению транзакции в случае сбоя отложенного ключа в момент COMMIT.</li>
+              </ul>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <span class="badge-stage">Этап 5</span><br>
+              <strong>Первичное закрепление и экспресс-практикум</strong><br>
+              <em>14 минут</em>
+            </td>
+            <td>
+              <ul>
+                <li>Инструктирует обучающихся по выполнению заданий в интерактивном рабочем листе <code>zanyatie.html</code>.</li>
+                <li>Распределяет студентов по 4 вариантам:
+                  <ul>
+                    <li><em>Вариант 1:</em> Система бронирования конференц-залов (EXCLUDE gist tsrange, CHECK).</li>
+                    <li><em>Вариант 2:</em> Регистрация в банковском портале (СНИЛС regex, паспорт, совершеннолетие).</li>
+                    <li><em>Вариант 3:</em> Отели и гостиницы (циклический FK DEFERRABLE INITIALLY DEFERRED).</li>
+                    <li><em>Вариант 4:</em> Электронный магазин (CHECK скидки, процент 0..90, артикул SKU).</li>
+                  </ul>
+                </li>
+                <li>Осуществляет индивидуальное консультирование, контролирует правильность написания регулярных выражений и структуры ограничений.</li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>Открывают рабочий лист <code>zanyatie.html</code>, заполняют ФИО и группу, выбирают назначенный вариант.</li>
+                <li>Разрабатывают DDL-спецификацию ограничений целостности, конструируют предикаты и проверяют их на непротиворечивость.</li>
+                <li>Сохраняют результаты в браузере (LocalStorage) и подготавливают ответы.</li>
+              </ul>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <span class="badge-stage">Этап 6</span><br>
+              <strong>Подведение итогов, рефлексия и домашнее задание</strong><br>
+              <em>6 минут</em>
+            </td>
+            <td>
+              <ul>
+                <li>Организует экспресс-разбор типичных студенческих ошибок (забытые якоря в regex, отсутствие btree_gist при EXCLUDE).</li>
+                <li>Демонстрирует слайд 15 с веб-комиксом Bobby Tables (xkcd #327), проводя параллель между ограничениями целостности и защитой БД от искажения.</li>
+                <li>Озвучивает критерии оценки по 4-балльной рубрике.</li>
+                <li>Дает инструктаж по резервному домашнему заданию <code>domashnee_zadanie.html</code>.</li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>Участвуют в рефлексивном разборе, сопоставляют свои решения с эталонами.</li>
+                <li>Фиксируют информацию о домашнем задании и критериях проверки.</li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Структура занятия — Сокращенный регламент (60 минут)</h2>
+      <table class="tk-table">
+        <thead>
+          <tr>
+            <th style="width: 20%;">Этап и хронометраж</th>
+            <th style="width: 40%;">Деятельность преподавателя</th>
+            <th style="width: 40%;">Деятельность студентов</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <span class="badge-stage">Этап 1</span><br>
+              <strong>Организационный момент и мотивация</strong><br>
+              <em>3 минуты</em>
+            </td>
+            <td>
+              <ul>
+                <li>Приветствует обучающихся, отмечает присутствующих.</li>
+                <li>Кратко ставит проблему овербукинга и объявляет тему занятия.</li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>Готовятся к занятию, настраивают рабочее пространство.</li>
+              </ul>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <span class="badge-stage">Этап 2</span><br>
+              <strong>Актуализация опорных знаний</strong><br>
+              <em>5 минут</em>
+            </td>
+            <td>
+              <ul>
+                <li>Проводит блиц-опрос: CHECK, UNIQUE, FOREIGN KEY, логика NULL.</li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>Кратко с места формулируют ответы.</li>
+              </ul>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <span class="badge-stage">Этап 3</span><br>
+              <strong>Сообщение новых теоретических знаний</strong><br>
+              <em>27 минут</em>
+            </td>
+            <td>
+              <ul>
+                <li>Излагает ключевые теоретические блоки в концентрированном виде:
+                  <ul>
+                    <li>Предикаты CHECK с POSIX regex (якоря <code>^...$</code>);</li>
+                    <li>Интервалы <code>tsrange</code> и <code>EXCLUDE USING gist</code>;</li>
+                    <li>Циклические связи и <code>DEFERRABLE INITIALLY DEFERRED</code>.</li>
+                  </ul>
+                </li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>Конспектируют базовые синтаксические шаблоны DDL-ограничений.</li>
+              </ul>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <span class="badge-stage">Этап 4</span><br>
+              <strong>Демонстрация сквозного инженерного кейса</strong><br>
+              <em>10 минут</em>
+            </td>
+            <td>
+              <ul>
+                <li>Демонстрирует готовый скрипт с ограничением EXCLUDE на tsrange и транзакцию вставки с отложенным FK.</li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>Анализируют поведение СУБД при исключениях целостности.</li>
+              </ul>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <span class="badge-stage">Этап 5</span><br>
+              <strong>Первичное закрепление и экспресс-практикум</strong><br>
+              <em>11 минут</em>
+            </td>
+            <td>
+              <ul>
+                <li>Координирует работу студентов в <code>zanyatie.html</code> по ключевым заданиям варианта.</li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>Составляют DDL-ограничения для назначенного варианта.</li>
+              </ul>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <span class="badge-stage">Этап 6</span><br>
+              <strong>Подведение итогов, рефлексия и домашнее задание</strong><br>
+              <em>4 минуты</em>
+            </td>
+            <td>
+              <ul>
+                <li>Подводит итоги, демонстрирует мем со слайда 15, объясняет регламент ДЗ.</li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>Фиксируют результаты рефлексии и требования к домашнему заданию.</li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+</body>
+</html>

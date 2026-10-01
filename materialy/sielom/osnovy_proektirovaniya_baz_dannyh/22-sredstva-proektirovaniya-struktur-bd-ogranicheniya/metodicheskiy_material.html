@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Методический материал — Средства проектирования структур БД: ограничения</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #0284c7;
+      --accent-soft: #f0f9ff;
+      --accent-dark: #0369a1;
+      --warn: #b45309;
+      --warn-soft: #fffbeb;
+      --danger: #b91c1c;
+      --danger-soft: #fef2f2;
+      --success: #15803d;
+      --success-soft: #f0fdf4;
+      --code-bg: #0f172a;
+      --code-text: #f8fafc;
+      --radius: 12px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      line-height: 1.65;
+      font-size: 16px;
+    }
+    .page {
+      width: min(100% - 32px, 980px);
+      margin: 32px auto 80px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(24px, 4vw, 32px);
+      color: var(--text);
+      line-height: 1.25;
+    }
+    .lead {
+      color: var(--muted);
+      margin: 0;
+      font-size: 16px;
+    }
+    h2 {
+      margin: 0 0 16px;
+      font-size: 21px;
+      color: var(--accent-dark);
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 8px;
+    }
+    h3 {
+      font-size: 18px;
+      margin: 22px 0 12px;
+      color: var(--text);
+    }
+    h4 {
+      font-size: 16px;
+      margin: 16px 0 8px;
+      color: var(--accent-dark);
+    }
+    p, ul, ol {
+      margin-top: 0;
+      margin-bottom: 12px;
+    }
+    ul, ol {
+      padding-left: 24px;
+    }
+    li {
+      margin-bottom: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 20px;
+      font-size: 15px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 14px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #f1f5f9;
+      color: var(--text);
+      font-weight: 600;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge-blue { background: var(--accent-soft); color: var(--accent-dark); border: 1px solid #bae6fd; }
+    .badge-amber { background: var(--warn-soft); color: var(--warn); border: 1px solid #fde68a; }
+    .badge-green { background: var(--success-soft); color: var(--success); border: 1px solid #bbf7d0; }
+    .badge-red { background: var(--danger-soft); color: var(--danger); border: 1px solid #fecaca; }
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: var(--accent-soft);
+      padding: 16px 20px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      margin: 16px 0;
+    }
+    .callout-warn {
+      border-left-color: var(--warn);
+      background: var(--warn-soft);
+    }
+    .callout-danger {
+      border-left-color: var(--danger);
+      background: var(--danger-soft);
+    }
+    pre, code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 14px;
+    }
+    code {
+      background: #e2e8f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 16px 0;
+      line-height: 1.45;
+    }
+    pre code {
+      background: transparent;
+      padding: 0;
+      color: inherit;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 16px 0;
+    }
+    @media (max-width: 768px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .page { width: calc(100% - 24px); margin: 16px auto; }
+      .card { padding: 20px; }
+      table { display: block; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="card">
+      <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+        <span class="badge badge-blue">ОП.08 Основы проектирования баз данных</span>
+        <span class="badge badge-blue">Тема 4. Проектирование структур баз данных</span>
+        <span class="badge badge-amber">Занятие №22</span>
+      </div>
+      <h1>Методическое руководство для преподавателя</h1>
+      <p class="lead">Тема: <strong>Средства проектирования структур БД: ограничения</strong> (§2.2 с.7–8 учебной программы). Вид занятия: Урок с объяснением теории. 2 академических часа.</p>
+    </div>
+
+    <div class="card">
+      <h2>1. Дидактическая концепция и целеполагание</h2>
+      <p>Ограничения целостности (Data Integrity Constraints) — это фундаментальный каркас реляционной модели, гарантирующий корректность данных на физическом и логическом уровне независимо от клиентского программного обеспечения. На занятии 22 студенты переходят от абстрактной нормализации к практическому инструментарию декларативной целостности современных промышленных СУБД (PostgreSQL / ANSI SQL-92/99/2011).</p>
+      
+      <div class="callout">
+        <strong>Ключевая дидактическая цель:</strong> сформировать устойчивые профессиональные навыки проектирования многоуровневой системы ограничений целостности (доменные ограничения, составные CHECK-предикаты со сложными регулярными выражениями POSIX regex, ограничения взаимного исключения интервалов EXCLUDE USING gist, а также управление транзакционной отложенностью внешних ключей DEFERRABLE при взаимно циклических ссылках).
+      </div>
+
+      <h3>Дидактические задачи:</h3>
+      <ul>
+        <li><strong>Обучающие:</strong>
+          <ul>
+            <li>Изучить классификацию ограничений целостности: ограничения атрибутов/доменов (DOMAIN), кортежей (CHECK), таблиц (PRIMARY KEY, UNIQUE) и связей (FOREIGN KEY).</li>
+            <li>Освоить синтаксис и семантику расширенных предикатов <code>CHECK</code> с применением POSIX регулярных выражений (операторы <code>~</code>, <code>~*</code>, <code>!~</code>, <code>!~*</code>).</li>
+            <li>Разобрать математическую модель интервальных типов (<code>tsrange</code>, <code>daterange</code>, <code>numrange</code>) и проектирование ограничений взаимного исключения <code>EXCLUDE USING gist</code> с оператором пересечения <code>&amp;&amp;</code> для предотвращения овербукинга и конфликтов расписания.</li>
+            <li>Изучить жизненный цикл транзакции и механику отложенной проверки внешних ключей <code>DEFERRABLE INITIALLY DEFERRED / IMMEDIATE</code> при циклических графах зависимостей (проблема «курицы и яйца»).</li>
+          </ul>
+        </li>
+        <li><strong>Развивающие:</strong> развить алгоритмическое мышление, системный подход к превентивной защите данных от логических коллизий и способность выявлять взаимно противоречивые предикаты еще на этапе проектирования схемы.</li>
+        <li><strong>Воспитательные:</strong> воспитать культуру инженерной строгости (defense-in-depth), осознание недопустимости делегирования базовой целостности клиентским интерфейсам и ответственность за надежность хранения критически важных данных.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>2. Детальный хронометраж учебного занятия</h2>
+      <p>Материал спроектирован для двух вариантов регламента: основного (80 минут) и сокращенного (60 минут).</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25%;">Этап занятия</th>
+            <th style="width: 15%;">Основной регламент (80 мин)</th>
+            <th style="width: 15%;">Сокращенный регламент (60 мин)</th>
+            <th style="width: 45%;">Методическое содержание и акценты внимания</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Оргмомент и мотивационный кейс</strong></td>
+            <td>5 минут</td>
+            <td>3 минуты</td>
+            <td>Приветствие, проверка готовности. Разбор инцидента: двойное бронирование VIP-переговорной в крупной корпорации из-за наивной проверки <code>SELECT COUNT(*) WHERE ...</code> в веб-приложении при параллельных транзакциях. Формулировка проблемы: почему проверки на бэкенде недостаточно?</td>
+          </tr>
+          <tr>
+            <td><strong>2. Актуализация опорных знаний</strong></td>
+            <td>8 минут</td>
+            <td>5 минут</td>
+            <td>Блиц-опрос: понятие целостности сущностей (Entity Integrity), ссылочной целостности (Referential Integrity), разница между первичным и уникальным ключом, поведение <code>NULL</code> при уникальности.</td>
+          </tr>
+          <tr>
+            <td><strong>3. Изложение нового материала</strong></td>
+            <td>35 минут</td>
+            <td>27 минут</td>
+            <td>
+              Пошаговое раскрытие четырех ключевых тем:<br>
+              1) Домены и CHECK с regex (~);<br>
+              2) Интервальные типы и EXCLUDE USING gist (tsrange, &amp;&amp;);<br>
+              3) Циклические ссылки и отложенные FK (DEFERRABLE);<br>
+              4) Логические коллизии и противоречия предикатов.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>4. Разбор эталонного сквозного кейса</strong></td>
+            <td>12 минут</td>
+            <td>10 минут</td>
+            <td>Преподаватель в реальном времени демонстрирует на проекторе выполнение DDL-скрипта с созданием расширения btree_gist, таблицы бронирования с EXCLUDE и проверку параллельной вставки конфликтующего интервала, а также создание циклической пары таблиц Отель-Номер через DEFERRABLE.</td>
+          </tr>
+          <tr>
+            <td><strong>5. Первичное закрепление (рабочий лист)</strong></td>
+            <td>14 минут</td>
+            <td>11 минут</td>
+            <td>Самостоятельная работа студентов в интерактивном рабочем листе <code>zanyatie.html</code> по 4 вариантам. Анализ требований, составление DDL-ограничений, поиск логических ошибок. Преподаватель выступает тьютором.</td>
+          </tr>
+          <tr>
+            <td><strong>6. Подведение итогов, рефлексия, ДЗ</strong></td>
+            <td>6 минут</td>
+            <td>4 минуты</td>
+            <td>Анализ типичных ошибок, демонстрация тематического мема (Слайд 15), выставление предварительных баллов по 4-балльной рубрике, инструктаж по резервному заданию <code>domashnee_zadanie.html</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>3. Архитектура системы ограничений целостности СУБД</h2>
+      <p>Современная реляционная СУБД реализует трехуровневую пирамиду декларативной защиты:</p>
+      
+      <div class="grid-2">
+        <div style="background: #f1f5f9; padding: 16px; border-radius: 8px;">
+          <h4>1. Уровень доменов и типов (CREATE DOMAIN)</h4>
+          <p>Домен представляет собой пользовательский тип данных на базе стандартного с навешенным инвариантом CHECK. Позволяет повторно использовать строгие правила валидации:</p>
+          <pre><code>CREATE DOMAIN email_type AS VARCHAR(255)
+CHECK (VALUE ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$');
+
+CREATE DOMAIN snils_type AS CHAR(14)
+CHECK (VALUE ~ '^\d{3}-\d{3}-\d{3} \d{2}$');</code></pre>
+        </div>
+
+        <div style="background: #f1f5f9; padding: 16px; border-radius: 8px;">
+          <h4>2. Уровень кортежей (CHECK со сложной логикой)</h4>
+          <p>Предикаты CHECK вычисляются для каждой вставляемой или модифицируемой строки. Могут сопоставлять несколько столбцов одного кортежа:</p>
+          <pre><code>ALTER TABLE contract
+  ADD CONSTRAINT chk_contract_dates
+  CHECK (end_date IS NULL OR end_date >= start_date);
+
+ALTER TABLE products
+  ADD CONSTRAINT chk_pricing
+  CHECK (discount_price IS NULL OR discount_price &lt; base_price);</code></pre>
+        </div>
+      </div>
+
+      <h3>3.1. Регулярные выражения в CHECK-ограничениях (POSIX regex)</h3>
+      <p>В стандарте SQL и PostgreSQL поддерживаются операторы сопоставления с регулярными выражениями:</p>
+      <ul>
+        <li><code>~</code> — совпадение с регулярным выражением с учетом регистра;</li>
+        <li><code>~*</code> — совпадение без учета регистра;</li>
+        <li><code>!~</code> — не совпадает (с учетом регистра);</li>
+        <li><code>!~*</code> — не совпадает (без учета регистра).</li>
+      </ul>
+      <div class="callout callout-warn">
+        <strong>Методическое предостережение:</strong> Студенты часто забывают якоря начала (<code>^</code>) и конца (<code>$</code>) строки. Без них выражение <code>VALUE ~ '\d{3}'</code> пропустит строку <code>'ABC123XYZ'</code>, что разрушает строгость формата!
+      </div>
+
+      <h3>3.2. Ограничения исключения: EXCLUDE USING gist</h3>
+      <p>Классический <code>UNIQUE</code> проверяет равенство значений: <code>a = b</code>. Однако реальные бизнес-процессы оперируют интервалами (время бронирования, периоды проживания, диапазоны портов, геометрические фигуры). Непересечение интервалов выражается оператором перекрытия <code>&amp;&amp;</code>, который невозможно реализовать через обычный B-Tree UNIQUE.</p>
+      
+      <p>Для решения этой задачи PostgreSQL предоставляет <strong>ограничения исключения (EXCLUDE)</strong> на базе обобщенных поисковых деревьев (GiST):</p>
+      <pre><code>-- 1. Подключение расширения для поддержки оператора = в GiST
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+
+-- 2. Таблица бронирования конференц-залов
+CREATE TABLE meeting_room_bookings (
+    booking_id BIGSERIAL PRIMARY KEY,
+    room_id INT NOT NULL,
+    slot TSRANGE NOT NULL,
+    booked_by VARCHAR(100) NOT NULL,
+    CONSTRAINT chk_slot_bounds CHECK (lower(slot) &lt; upper(slot)),
+    CONSTRAINT exc_no_overlap EXCLUDE USING gist (
+        room_id WITH =,
+        slot WITH &amp;&amp;
+    )
+);</code></pre>
+      <p><strong>Механизм работы:</strong> СУБД гарантирует, что для любых двух строк таблицы с одинаковым <code>room_id</code> их интервалы <code>slot</code> НЕ будут пересекаться (<code>slot1 &amp;&amp; slot2</code> вернет FALSE). Попытка параллельной вставки конфликтующей брони блокируется на уровне ядра СУБД с ошибкой <code>exclusion_violation (23P01)</code>, устраняя проблему Race Condition без ручных блокировок <code>LOCK TABLE</code>.</p>
+
+      <h3>3.3. Циклические внешние ключи и отложенные ограничения (DEFERRABLE)</h3>
+      <p>В архитектуре баз данных нередко возникает циклическая зависимость 1:1 или 1:N:</p>
+      <ul>
+        <li>Отель содержит множество номеров: <code>rooms.hotel_id REFERENCES hotels(id)</code>.</li>
+        <li>Отель имеет один флагманский президентский люкс: <code>hotels.presidential_suite_id REFERENCES rooms(id)</code>.</li>
+      </ul>
+      <p>Если оба внешних ключа являются строгими (<code>NOT NULL</code>), возникает парадокс блокировки: мы не можем создать отель, так как еще не создан номер-люкс; но мы не можем создать номер-люкс, так как еще не создан отель!</p>
+
+      <div class="callout">
+        <strong>Решение через DEFERRABLE:</strong>
+        <pre><code>ALTER TABLE hotels
+  ADD CONSTRAINT fk_hotel_suite
+  FOREIGN KEY (presidential_suite_id) REFERENCES rooms(id)
+  DEFERRABLE INITIALLY DEFERRED;
+
+-- Бесконфликтная вставка в рамках одной транзакции:
+BEGIN;
+  INSERT INTO hotels (id, name, presidential_suite_id) VALUES (1, 'Grand Palace', 101);
+  INSERT INTO rooms (id, hotel_id, room_number) VALUES (101, 1, 'Suite 101');
+COMMIT; -- Проверка FK выполняется СТРОГО в момент COMMIT!</code></pre>
+      </div>
+
+      <p><strong>Режимы отложенности:</strong></p>
+      <ul>
+        <li><code>NOT DEFERRABLE</code> (по умолчанию) — проверка выполняется немедленно после выполнения каждого DML-оператора.</li>
+        <li><code>DEFERRABLE INITIALLY IMMEDIATE</code> — ограничение может быть отложено, но по умолчанию проверяется после каждого оператора. Переключается в отложенный режим командой <code>SET CONSTRAINTS fk_name DEFERRED;</code> внутри транзакции.</li>
+        <li><code>DEFERRABLE INITIALLY DEFERRED</code> — проверка автоматически откладывается до фиксации транзакции (<code>COMMIT</code>). Если к моменту COMMIT целостность нарушена, транзакция откатывается (<code>ROLLBACK</code>).</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>4. Типовые ошибки студентов и методы их предупреждения</h2>
+      
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25%;">Типовая ошибка</th>
+            <th style="width: 35%;">В чем проявляется дефект</th>
+            <th style="width: 40%;">Педагогический прием устранения</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Логическое противоречие предикатов</strong></td>
+            <td>Студент задает взаимоисключающие условия: например, <code>CHECK (age &lt; 18 AND age &gt;= 21)</code> или <code>CHECK (price &gt; 1000 AND discount_price &gt; price)</code> при бизнес-требовании скидочной цены ниже базовой. В результате ни одна строка не может быть вставлена.</td>
+            <td>Использовать метод крайних точек и диаграммы Эйлера-Венна. Попросить студента подставить конкретное тестовое число (например, age = 19) и вычислить булево значение предиката.</td>
+          </tr>
+          <tr>
+            <td><strong>2. Отсутствие btree_gist при EXCLUDE</strong></td>
+            <td>Студент пишет <code>EXCLUDE USING gist (room_id WITH =, slot WITH &amp;&amp;)</code> в PostgreSQL без активации расширения и получает ошибку <code>data type integer has no default operator class for access method gist</code>.</td>
+            <td>Объяснить, что GiST «из коробки» умеет индексировать только геометрические и интервальные типы. Для поддержки скалярных равенств (<code>=</code>) требуется расширение <code>CREATE EXTENSION btree_gist</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>3. Забытые якоря в RegEx</strong></td>
+            <td>Студент пишет <code>CHECK (passport ~ '\d{4}')</code>. В базу успешно записываются строки вида <code>'серия 12345678'</code>, так как подстрока найдена.</td>
+            <td>Продемонстрировать на проекторе разницу между поиском подстроки и строгим сопоставлением всего значения: всегда требовать <code>^</code> в начале и <code>$</code> в конце шаблона.</td>
+          </tr>
+          <tr>
+            <td><strong>4. Непонимание работы с NULL в CHECK</strong></td>
+            <td>Студент полагает, что если поле равно <code>NULL</code>, условие <code>CHECK (discount &lt; 50)</code> вернет FALSE и отклонит строку.</td>
+            <td>Разобрать трехзначную логику SQL (TRUE, FALSE, UNKNOWN). Напомнить: ограничение CHECK отклоняет строку <strong>только тогда, когда предикат вычисляется в FALSE</strong>. Если предикат вычисляется в UNKNOWN (из-за NULL), строка принимается! Для запрета NULL обязателен <code>NOT NULL</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>5. Попытка повесить DEFERRABLE на CHECK</strong></td>
+            <td>Студент объявляет <code>CHECK (...) DEFERRABLE</code> в стандартной СУБД.</td>
+            <td>Пояснить стандарт SQL: предикаты CHECK проверяются построчно в момент выполнения DML. Откладывать до конца транзакции допускается только внешние ключи (FOREIGN KEY) и уникальные ограничения (UNIQUE / PRIMARY KEY).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>5. Педагогические приемы и методические рекомендации</h2>
+      <ol>
+        <li><strong>Прием «Ломаем базу данных в прямом эфире»:</strong> на этапе демонстрации преподаватель намеренно запускает два терминала psql и пытается вставить накладывающиеся брони в таблицу без EXCLUDE (успех, возникает коллизия) и в таблицу с EXCLUDE (мгновенная блокировка второй транзакции). Визуальный эффект ошибки <code>exclusion_violation</code> создает сильнейший эмоциональный якорь.</li>
+        <li><strong>Прием «Судебный эксперт схемы»:</strong> предложить студентам выступить в роли независимого аудитора, проверяющего чужой DDL-код. Студенты должны найти «скрытые мины» (логические тупики, бесконечные циклы блокировок, пропущенные якоря regex).</li>
+        <li><strong>Дифференциация заданий:</strong>
+          <ul>
+            <li><em>Вариант 1 (Залы и EXCLUDE):</em> акцент на временную геометрию и интервалы tsrange.</li>
+            <li><em>Вариант 2 (Банковский портал и regex):</em> акцент на государственные стандарты (СНИЛС, серия/номер паспорта) и дату совершеннолетия.</li>
+            <li><em>Вариант 3 (Отели и DEFERRABLE):</em> архитектурная дилемма циклических зависимостей и транзакционный контекст.</li>
+            <li><em>Вариант 4 (Электронный магазин):</em> составные предикаты скидок, артикулов SKU и ценовых диапазонов.</li>
+          </ul>
+        </li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h2>6. Критерии оценивания практической деятельности (4-балльная шкала)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Баллы</th>
+            <th>Критерий</th>
+            <th>Дескриптор выполнения</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>2 балла</strong></td>
+            <td>Спецификация ограничений CHECK / EXCLUDE</td>
+            <td>Синтаксически безупречный DDL. Корректные регулярные выражения с якорями <code>^...$</code>. Безошибочное конструирование интервального ограничения <code>EXCLUDE USING gist</code> с типами данных и операторами. Учтена трехзначная логика SQL и значения NULL.</td>
+          </tr>
+          <tr>
+            <td><strong>1 балл</strong></td>
+            <td>Отложенные ограничения DEFERRABLE</td>
+            <td>Корректно спроектирован циклический внешний ключ. Обоснован выбор режима <code>INITIALLY DEFERRED</code> или <code>INITIALLY IMMEDIATE</code>. Понята механика вставки взаимосвязанных сущностей внутри транзакции <code>BEGIN...COMMIT</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>1 балл</strong></td>
+            <td>Выявление конфликтов и самопроверка</td>
+            <td>Студент нашел потенциальные логические противоречия в спецификации, обосновал невозможность использования наивных проверок и ответил на все контрольные вопросы самопроверки.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>
