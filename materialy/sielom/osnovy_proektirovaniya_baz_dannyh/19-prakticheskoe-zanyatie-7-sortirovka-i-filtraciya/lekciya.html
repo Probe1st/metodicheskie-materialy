@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Теоретический конспект — Практическое занятие №7: сортировка и фильтрация</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --accent: #0284c7;
+      --accent-soft: #f0f9ff;
+      --accent-dark: #0369a1;
+      --success: #15803d;
+      --success-soft: #f0fdf4;
+      --warn: #b45309;
+      --warn-soft: #fffbeb;
+      --danger: #b91c1c;
+      --danger-soft: #fef2f2;
+      --code-bg: #0f172a;
+      --code-text: #f8fafc;
+      --radius: 12px;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      line-height: 1.65;
+      font-size: 16px;
+    }
+    .page {
+      width: min(100% - 32px, 960px);
+      margin: 32px auto 80px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(24px, 4vw, 32px);
+      color: var(--text);
+      line-height: 1.25;
+    }
+    .lead {
+      color: var(--muted);
+      margin: 0;
+      font-size: 16px;
+    }
+    h2 {
+      margin: 0 0 16px;
+      font-size: 21px;
+      color: var(--accent-dark);
+      border-bottom: 2px solid var(--accent-soft);
+      padding-bottom: 8px;
+    }
+    h3 {
+      font-size: 18px;
+      margin: 22px 0 12px;
+      color: var(--text);
+    }
+    p, ul, ol {
+      margin: 0 0 16px;
+    }
+    ul, ol {
+      padding-left: 24px;
+    }
+    li {
+      margin-bottom: 8px;
+    }
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: var(--accent-soft);
+      padding: 16px 20px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 20px;
+    }
+    .callout-warn {
+      border-left-color: var(--warn);
+      background: var(--warn-soft);
+    }
+    .callout-success {
+      border-left-color: var(--success);
+      background: var(--success-soft);
+    }
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 0 0 16px;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9em;
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+    .diagram-box {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 16px 0 20px;
+      font-family: ui-monospace, monospace;
+      font-size: 13.5px;
+      line-height: 1.45;
+      overflow-x: auto;
+    }
+    .diagram-title {
+      font-weight: 700;
+      color: var(--accent-dark);
+      margin-bottom: 12px;
+      font-family: system-ui, sans-serif;
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 20px;
+      font-size: 14.5px;
+    }
+    table.data-table th, table.data-table td {
+      border: 1px solid var(--line);
+      padding: 8px 12px;
+      text-align: left;
+    }
+    table.data-table th {
+      background: #f1f5f9;
+      font-weight: 700;
+    }
+    .quiz-item {
+      background: #fdfefe;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 14px;
+    }
+    .quiz-question {
+      font-weight: 700;
+      color: var(--accent-dark);
+      margin-bottom: 8px;
+    }
+    @media (max-width: 640px) {
+      .card { padding: 20px 16px; }
+      table.data-table { font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="card">
+      <h1>Теоретический конспект: сортировка и фильтрация данных в СУБД</h1>
+      <p class="lead">Тема 3. Этапы проектирования баз данных — Практическое занятие №7</p>
+    </div>
+
+    <!-- Раздел 1. Введение в упорядочивание данных -->
+    <div class="card">
+      <h2>1. Реляционная природа порядка и предложение ORDER BY</h2>
+      <p>В реляционной алгебре Эдгара Кодда отношение (relation) математически строго определяется как <strong>подмножество декартова произведения доменов</strong>, то есть неупорядоченное множество кортежей. В реляционной таблице физический порядок строк на дисковых страницах кучи (Heap Pages) является недетерминированным и подвержен случайным факторам (порядок параллельной вставки, повторное использование блоков после <code>DELETE</code>, фоновая очистка <code>VACUUM</code>).</p>
+      
+      <div class="callout">
+        <strong>Аксиома реляционного порядка:</strong> Если в SQL-запросе отсутствует явное предложение <code>ORDER BY</code>, клиентское приложение не имеет права делать никаких предположений о порядке следования строк в результирующем наборе.
+      </div>
+
+      <h3>Синтаксис расширенного предложения ORDER BY</h3>
+      <p>Спецификация ANSI SQL определяет следующую структуру секции упорядочивания:</p>
+      <pre><code>SELECT &lt;список_полей&gt;
+FROM &lt;источник_данных&gt;
+[WHERE &lt;предикаты_фильтрации&gt;]
+ORDER BY &lt;выражение_1&gt; [ASC | DESC] [NULLS FIRST | NULLS LAST]
+       [, &lt;выражение_2&gt; [ASC | DESC] [NULLS FIRST | NULLS LAST] ...];</code></pre>
+      <p>При многоуровневой сортировке сравнение кортежей выполняется по правилу лексикографического порядка: сначала по выражению 1; если значения равны — по выражению 2; и так далее до разрешения коллизии.</p>
+    </div>
+
+    <!-- Раздел 2. Специфика NULL и Collation -->
+    <div class="card">
+      <h2>2. Поведение NULL-значений и языковые правила сопоставления (Collation)</h2>
+      
+      <h3>2.1. Неопределенность NULL и явные директивы NULLS FIRST / NULLS LAST</h3>
+      <p>Поскольку <code>NULL</code> обозначает отсутствие значения, он не может быть строго сравнен с константами (результат <code>5 &gt; NULL</code> есть <code>UNKNOWN</code>). Стандарт SQL возлагает позиционирование <code>NULL</code> на движок СУБД, предоставляя явные директивы:</p>
+      
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Директива</th>
+            <th>Позиция NULL в выборке</th>
+            <th>Типовое применение в бизнес-логике</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>NULLS LAST</code></td>
+            <td>Всегда в самом конце результирующего списка</td>
+            <td>Сортировка товаров по рейтингу от 5 до 1: товары без отзывов (<code>rating IS NULL</code>) выводятся в конце, а не на первых позициях.</td>
+          </tr>
+          <tr>
+            <td><code>NULLS FIRST</code></td>
+            <td>Всегда в самом начале результирующего списка</td>
+            <td>Мониторинг авиарейсов: срочные рейсы с неназначенным гейтом (<code>gate IS NULL</code>) выводятся вверху табло диспетчера.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>2.2. Collation: кодовые таблицы и локализованная сортировка</h3>
+      <p>Строковые поля (VARCHAR, TEXT) сортируются на основе таблицы сопоставления (Collation). Разница между бинарным порядком (C/POSIX) и естественным языковым порядком (Natural Sort):</p>
+      <div class="diagram-box">
+        <div class="diagram-title">Сравнение Collation при упорядочивании кириллицы:</div>
+1. Collation "C" (бинарный код Unicode UTF-8):
+   [ 'Ёлка' (код 0x0401) ]  -->  [ 'Арбуз' (0x0410) ]  -->  [ 'Яблоко' (0x042F) ]  -->  [ 'аист' (0x0430) ]
+   (Ошибка: буква 'Ё' выпадает перед буквой 'А', заглавные отделены от строчных).
+
+2. Collation "ru_RU.UTF-8" (ICU локаль русского языка):
+   [ 'аист' / 'Арбуз' ]  -->  [ 'Ель' ]  -->  [ 'Ёлка' ]  -->  [ 'Яблоко' ]
+   (Корректно: буква 'Ё' следует строго за буквой 'Е', регистр не разрывает алфавитный ряд).
+      </div>
+      <p>Синтаксис явного указания локали в запросе: <code>ORDER BY student_last_name COLLATE "ru_RU" ASC</code>.</p>
+    </div>
+
+    <!-- Раздел 3. Алгоритмическая физика: External Merge Sort -->
+    <div class="card">
+      <h2>3. Физические алгоритмы сортировки в СУБД: Quicksort и External Merge Sort</h2>
+      <p>Когда СУБД встречает узел плана <code>Sort</code>, оптимизатор принимает решение о выделении памяти на основе параметра процесса (например, <code>work_mem</code> в PostgreSQL, по умолчанию 4 MB):</p>
+
+      <div class="diagram-box">
+        <div class="diagram-title">Пошаговая схема алгоритма External Merge Sort (Внешняя сортировка слиянием):</div>
++---------------------------------------------------------------------------------------------------+
+| 1. ВХОДНОЙ ПОТОК: Таблица 200 МБ (не помещается в оперативную память work_mem = 16 МБ)            |
++---------------------------------------------------------------------------------------------------+
+                                                  |
+                                                  v
++---------------------------------------------------------------------------------------------------+
+| ФАЗА 1: Генерация серий (Run Generation)                                                          |
+| - Считывается блок данных объемом work_mem (16 МБ)                                                |
+| - Сортируется в ОЗУ с помощью In-Memory Quicksort                                                 |
+| - Записывается во временный файл на диске как Run 1 (16 МБ отсортированных кортежей)              |
+| - Повторяется до исчерпания таблицы: Run 1, Run 2, Run 3 ... Run 13 на SSD/диске                  |
++---------------------------------------------------------------------------------------------------+
+                                                  |
+                                                  v
++---------------------------------------------------------------------------------------------------+
+| ФАЗА 2: Многопутевое слияние (Multi-way K-Run Merge Pass)                                         |
+| - В память загружаются первые страницы каждого Run-файла (буферы чтения)                         |
+| - Min-Heap (турнирное дерево) выбирает наименьший элемент среди K серий                           |
+| - Наименьший кортеж направляется в выходной поток / буфер записи                                  |
+| - Опустевшие страницы Run-файлов подгружаются с диска по мере продвижения указателей               |
++---------------------------------------------------------------------------------------------------+
+                                                  |
+                                                  v
++---------------------------------------------------------------------------------------------------+
+| ВЫХОД: Полностью отсортированный результирующий набор кортежей (Sort Method: external merge Disk) |
++---------------------------------------------------------------------------------------------------+
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>Влияние на дисковую подсистему:</strong> Сортировка на диске генерирует интенсивный I/O трафик во временных табличных пространствах. Чтобы исключить сброс на диск, администраторы настраивают <code>SET work_mem = '64MB';</code> для конкретной сессии аналитического запроса либо создают специализированный B-Tree индекс, возвращающий строки в готовом порядке без выполнения операции <code>Sort</code>.
+      </div>
+    </div>
+
+    <!-- Раздел 4. Пагинация и фильтрация -->
+    <div class="card">
+      <h2>4. Постраничная навигация (Пагинация): LIMIT / OFFSET vs Keyset Cursor</h2>
+      
+      <h3>4.1. Проблема классического смещения OFFSET</h3>
+      <p>Запрос <code>SELECT * FROM ledger ORDER BY id ASC LIMIT 20 OFFSET 500000;</code> заставляет СУБД физически просканировать и отсортировать 500 020 кортежей, после чего 500 000 строк отбрасываются. Вычислительная сложность $O(N)$ делает запрос медленнее с каждой следующей страницей.</p>
+
+      <h3>4.2. Метод Keyset (Seek Method)</h3>
+      <p>Основан на запоминании последнего значения ключа предыдущей страницы:</p>
+      <pre><code>-- Запрос первой страницы:
+SELECT id, contract_number, signed_date 
+FROM contracts 
+WHERE payout_sum > 500000 
+ORDER BY signed_date DESC, id DESC 
+LIMIT 20;
+
+-- Запрос следующей страницы (Keyset Pagination):
+SELECT id, contract_number, signed_date 
+FROM contracts 
+WHERE payout_sum > 500000 
+  AND (signed_date, id) &lt; ('2026-03-31', 48912) 
+ORDER BY signed_date DESC, id DESC 
+LIMIT 20;</code></pre>
+      <p>Используя B-Tree индекс по <code>(signed_date, id)</code>, СУБД мгновенно переходит к нужной ветке дерева за время $O(\log N)$ и читает ровно 20 кортежей.</p>
+    </div>
+
+    <!-- Раздел 5. Вопросы для самопроверки -->
+    <div class="card">
+      <h2>5. Вопросы для самопроверки</h2>
+      
+      <div class="quiz-item">
+        <div class="quiz-question">1. Почему результат запроса без предложения ORDER BY считается математически недетерминированным?</div>
+        <p>Потому что реляционная модель рассматривает отношение как неупорядоченное множество. СУБД вправе считывать блоки из кучи в произвольном порядке (особенно при многопоточном сканировании Parallel Seq Scan или после операций UPDATE/VACUUM).</p>
+      </div>
+
+      <div class="quiz-item">
+        <div class="quiz-question">2. В чем разница в поведении NULL по умолчанию между PostgreSQL и MySQL при сортировке по возрастанию (ASC)?</div>
+        <p>В PostgreSQL по умолчанию <code>NULL</code> считается наибольшим возможным значением, поэтому при <code>ASC</code> попадает в конец (NULLS LAST). В MySQL <code>NULL</code> трактуется как наименьшее значение, поэтому при <code>ASC</code> выводится в начале.</p>
+      </div>
+
+      <div class="quiz-item">
+        <div class="quiz-question">3. При каких условиях СУБД переключается с алгоритма In-Memory Quicksort на External Merge Sort?</div>
+        <p>Когда объем сортируемого набора данных (ключей и строк) превышает размер оперативной памяти, выделенной процессу параметром конфигурации (<code>work_mem</code> в PostgreSQL или <code>sort_buffer_size</code> в MySQL).</p>
+      </div>
+
+      <div class="quiz-item">
+        <div class="quiz-question">4. Почему пагинация на основе конструкции OFFSET 1000000 LIMIT 20 опасна для высоконагруженной СУБД?</div>
+        <p>Потому что планировщик обязан физически прочитать и отбросить 1 000 000 строк. При Keyset пагинации поиск точки отсчета выполняется по индексу за $O(\log N)$ с чтением всего 20 строк.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

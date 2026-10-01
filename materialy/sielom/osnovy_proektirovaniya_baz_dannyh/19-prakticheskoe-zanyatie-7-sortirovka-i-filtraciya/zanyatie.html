@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Рабочий лист: Практическое занятие №7: сортировка и фильтрация</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #cbd5e1;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --accent-soft: #f0f9ff;
+      --danger: #ef4444;
+      --danger-soft: #fee2e2;
+      --success: #10b981;
+      --success-soft: #dcfce7;
+      --warn: #f59e0b;
+      --warn-soft: #fef3c7;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px;
+      min-width: 320px;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    header.task-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+      word-break: break-word;
+    }
+
+    .meta-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .student-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .info-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .info-group label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .info-group input {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      color: var(--text);
+      outline: none;
+      background: #ffffff;
+    }
+
+    .info-group input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    /* Селектор вариантов */
+    .variant-selector-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .variant-tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .v-tab-btn {
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #f1f5f9;
+      color: var(--text);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .v-tab-btn:hover {
+      background: #e2e8f0;
+    }
+
+    .v-tab-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    .v-content {
+      display: none;
+    }
+
+    .v-content.active {
+      display: block;
+    }
+
+    section.task-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 16px 0 8px;
+    }
+
+    p, ul, ol {
+      margin-bottom: 14px;
+      font-size: 0.98rem;
+    }
+
+    ul, ol {
+      padding-left: 22px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    pre, code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+    }
+
+    code {
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 14px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 12px 0 16px;
+      line-height: 1.45;
+    }
+
+    pre code { background: transparent; color: inherit; padding: 0; }
+
+    textarea.answer-area {
+      width: 100%;
+      min-height: 100px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: ui-monospace, monospace;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: var(--text);
+      resize: vertical;
+      background: #ffffff;
+      outline: none;
+      margin-top: 8px;
+    }
+
+    textarea.answer-area:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    .print-mirror {
+      display: none;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: ui-monospace, monospace;
+      font-size: 13.5px;
+      padding: 10px;
+      border: 1px solid #94a3b8;
+      border-radius: 6px;
+      background: #fafafa;
+      margin-top: 8px;
+      min-height: 40px;
+    }
+
+    .action-panel {
+      position: sticky;
+      bottom: 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      z-index: 50;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary { background-color: var(--accent); color: #ffffff; }
+    .btn-primary:hover { background-color: var(--accent-hover); }
+    .btn-secondary { background-color: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background-color: #e2e8f0; }
+    .btn-danger { background-color: #fef2f2; color: var(--danger); border: 1px solid #fca5a5; }
+    .btn-danger:hover { background-color: #fee2e2; }
+
+    .status-msg {
+      font-size: 0.9rem;
+      color: var(--success);
+      font-weight: 600;
+      display: none;
+    }
+
+    .rubric-box {
+      background: #f8fafc;
+      border-left: 4px solid var(--accent);
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 16px;
+      font-size: 0.92rem;
+    }
+
+    .rubric-box strong { color: var(--accent); }
+
+    @media (max-width: 640px) {
+      body { padding: 12px 8px; }
+      header.task-header, section.task-card, .variant-selector-box { padding: 16px 14px; }
+      h1 { font-size: 1.35rem; }
+      .student-info { grid-template-columns: 1fr; }
+      .action-panel { flex-direction: column; align-items: stretch; }
+      .btn { width: 100%; justify-content: center; }
+    }
+
+    @media print {
+      body { background: #ffffff; color: #000000; padding: 0; }
+      .container { max-width: 100%; margin: 0; }
+      .action-panel, .variant-selector-box { display: none !important; }
+      .v-content { display: none !important; }
+      .v-content.active { display: block !important; }
+      header.task-header, section.task-card {
+        border: 1px solid #000000;
+        box-shadow: none;
+        page-break-inside: avoid;
+        margin-bottom: 14px;
+        padding: 14px;
+      }
+      textarea.answer-area {
+        display: none !important;
+      }
+      .print-mirror {
+        display: block !important;
+        border: 1px solid #000000;
+        background: transparent;
+        color: #000000;
+      }
+      input {
+        border: 1px solid #000000 !important;
+        background: transparent !important;
+        color: #000000 !important;
+      }
+      input::placeholder, textarea::placeholder {
+        color: transparent !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="task-header">
+      <h1>Практическое занятие №7: сортировка и фильтрация</h1>
+      <div class="meta-subtitle">Дисциплина: ОП.08 Основы проектирования баз данных | Тема 3. Этапы проектирования баз данных</div>
+      
+      <div class="rubric-box">
+        <strong>Критерии оценивания (4 балла):</strong>
+        <br>• Часть 1. Построение корректных предикатов фильтрации WHERE (2 балла).
+        <br>• Часть 2. Многоуровневая сортировка ORDER BY и позиционирование NULL (1 балл).
+        <br>• Часть 3. Оптимизация пагинации (Keyset Cursor), правила Collation и самопроверка (1 балл).
+      </div>
+
+      <div class="student-info">
+        <div class="info-group">
+          <label for="student_name">Фамилия, Имя студента</label>
+          <input type="text" id="student_name" autocomplete="off">
+        </div>
+        <div class="info-group">
+          <label for="student_group">Учебная группа</label>
+          <input type="text" id="student_group" autocomplete="off">
+        </div>
+      </div>
+    </header>
+
+    <!-- Переключатель вариантов -->
+    <div class="variant-selector-box">
+      <div style="font-weight: 700; margin-bottom: 10px; font-size: 0.95rem; text-transform: uppercase; color: var(--text-muted);">
+        Выберите ваш практический сценарий (вариант):
+      </div>
+      <div class="variant-tabs">
+        <button type="button" class="v-tab-btn active" data-v="v1">Вариант 1: Каталог интернет-магазина</button>
+        <button type="button" class="v-tab-btn" data-v="v2">Вариант 2: База авиарейсов аэропорта</button>
+        <button type="button" class="v-tab-btn" data-v="v3">Вариант 3: Реестр договоров страховой компании</button>
+        <button type="button" class="v-tab-btn" data-v="v4">Вариант 4: Электронный журнал оценок колледжа</button>
+      </div>
+    </div>
+
+    <!-- ВАРИАНТ 1 -->
+    <div class="v-content active" id="content-v1">
+      <section class="task-card">
+        <h2>Сценарий 1. Каталог интернет-магазина электроники</h2>
+        <p><strong>Предметная область:</strong> Таблица <code>Products</code> содержит 3 500 000 товаров: <code>id</code> (BIGINT, PK), <code>category_id</code> (INT), <code>title</code> (VARCHAR), <code>price</code> (NUMERIC(10,2)), <code>stock_quantity</code> (INT), <code>rating</code> (NUMERIC(2,1), NULL), <code>is_active</code> (BOOLEAN).</p>
+        
+        <h3>Задание 1.1. Комплексный запрос фильтрации, сортировки и пагинации (2 балла)</h3>
+        <p>Сформируйте SQL-запрос для вывода первой страницы каталога (ровно 20 товаров):</p>
+        <ul>
+          <li>Товар активен (<code>is_active = TRUE</code>) и имеется на складе (<code>stock_quantity &gt; 0</code>);</li>
+          <li>Диапазон цен: от 15 000 до 120 000 рублей включительно;</li>
+          <li>Многоуровневая сортировка: Категория (<code>category_id</code>) по возрастанию (ASC), Рейтинг (<code>rating</code>) по убыванию (DESC) с <strong>явным позиционированием NULLS LAST</strong> (товары без рейтинга в конце), Цена (<code>price</code>) по возрастанию (ASC), детерминирующий суффикс по <code>id</code> ASC;</li>
+          <li>Пагинация: ограничение первой страницы (LIMIT 20).</li>
+        </ul>
+        <label for="v1_ans_sql"><strong>Ваш SQL-запрос:</strong></label>
+        <textarea id="v1_ans_sql" class="answer-area" spellcheck="false"></textarea>
+        <div id="v1_ans_sql_mirror" class="print-mirror"></div>
+
+        <h3>Задание 1.2. Обоснование NULLS LAST и детерминизма (1 балл)</h3>
+        <p>Объясните, почему при сортировке <code>rating DESC</code> в PostgreSQL критически необходимо указывать <code>NULLS LAST</code>, и зачем в конце списка полей добавлен <code>id ASC</code>.</p>
+        <label for="v1_ans_null"><strong>Ваше объяснение:</strong></label>
+        <textarea id="v1_ans_null" class="answer-area" spellcheck="false"></textarea>
+        <div id="v1_ans_null_mirror" class="print-mirror"></div>
+
+        <h3>Задание 1.3. Оптимизация пагинации и индекс ESR (1 балл)</h3>
+        <p>1) Предложите DDL-команду создания составного B-Tree индекса по правилу ESR (Equality &rarr; Sort &rarr; Range), устраняющего сброс на диск <code>external merge Disk</code>.<br>
+        2) Напишите запрос для 2-й страницы с использованием Keyset-пагинации, если последний товар 1-й страницы имел <code>category_id=5, rating=4.8, price=45000, id=10421</code>.</p>
+        <label for="v1_ans_opt"><strong>Ваше решение:</strong></label>
+        <textarea id="v1_ans_opt" class="answer-area" spellcheck="false"></textarea>
+        <div id="v1_ans_opt_mirror" class="print-mirror"></div>
+      </section>
+    </div>
+
+    <!-- ВАРИАНТ 2 -->
+    <div class="v-content" id="content-v2">
+      <section class="task-card">
+        <h2>Сценарий 2. База авиарейсов международного аэропорта</h2>
+        <p><strong>Предметная область:</strong> Таблица <code>Flights</code>: <code>flight_id</code> (BIGINT, PK), <code>flight_number</code> (VARCHAR(10)), <code>departure_time</code> (TIMESTAMP), <code>destination</code> (VARCHAR(100)), <code>terminal</code> (CHAR(1)), <code>gate</code> (VARCHAR(5), NULL), <code>status</code> (VARCHAR(20)) &mdash; ('ON_TIME', 'DELAYED', 'CANCELLED', 'BOARDING').</p>
+        
+        <h3>Задание 2.1. Комплексный запрос табло вылета (2 балла)</h3>
+        <p>Сформируйте SQL-запрос для оперативного табло диспетчера на ближайшие 12 часов:</p>
+        <ul>
+          <li>Фильтрация: рейсы со статусом <code>'ON_TIME'</code> или <code>'DELAYED'</code>;</li>
+          <li>Время вылета строго в интервале от <code>'2026-10-01 08:00:00'</code> до <code>'2026-10-01 20:00:00'</code> (SARGable предикат);</li>
+          <li>Сортировка: Время_вылета (<code>departure_time</code>) по возрастанию (ASC), Номер_терминала (<code>terminal</code>) по возрастанию;</li>
+          <li>Корректный вывод отмененных или экстренных рейсов с неназначенным гейтом (<code>gate IS NULL</code>): гейт должен быть указан с <code>NULLS FIRST</code> на случай оперативного мониторинга нераспределенных стоянок; завершение детерминирующим полем <code>flight_id ASC</code>;</li>
+          <li>Ограничение выборки: первые 30 рейсов.</li>
+        </ul>
+        <label for="v2_ans_sql"><strong>Ваш SQL-запрос:</strong></label>
+        <textarea id="v2_ans_sql" class="answer-area" spellcheck="false"></textarea>
+        <div id="v2_ans_sql_mirror" class="print-mirror"></div>
+
+        <h3>Задание 2.2. Анализ поведения NULLS FIRST и трехзначной логики (1 балл)</h3>
+        <p>Опишите, чем грозит диспетчеру аэропорта запрос без явного указания <code>NULLS FIRST</code> при сортировке по гейту в различных СУБД (PostgreSQL vs MySQL). Как трехзначная логика SQL влияет на отбор записей, если добавить условие <code>WHERE gate != 'A1'</code>?</p>
+        <label for="v2_ans_null"><strong>Ваше объяснение:</strong></label>
+        <textarea id="v2_ans_null" class="answer-area" spellcheck="false"></textarea>
+        <div id="v2_ans_null_mirror" class="print-mirror"></div>
+
+        <h3>Задание 2.3. Индексное покрытие и частичный индекс (1 балл)</h3>
+        <p>1) Спроектируйте частичный индекс (Partial Index) для оперативного табло, учитывая, что завершенные рейсы составляют 95% таблицы.<br>
+        2) Как переход на Keyset-пагинацию защитит табло от сдвига строк (дубликатов рейсов) при постоянном добавлении новых записей?</p>
+        <label for="v2_ans_opt"><strong>Ваше решение:</strong></label>
+        <textarea id="v2_ans_opt" class="answer-area" spellcheck="false"></textarea>
+        <div id="v2_ans_opt_mirror" class="print-mirror"></div>
+      </section>
+    </div>
+
+    <!-- ВАРИАНТ 3 -->
+    <div class="v-content" id="content-v3">
+      <section class="task-card">
+        <h2>Сценарий 3. Реестр договоров страховой компании</h2>
+        <p><strong>Предметная область:</strong> Таблица <code>InsuranceContracts</code>: <code>contract_id</code> (BIGINT, PK), <code>policy_number</code> (VARCHAR(30)), <code>region_code</code> (VARCHAR(10)), <code>sign_date</code> (DATE), <code>total_payout</code> (NUMERIC(15,2)), <code>premium_sum</code> (NUMERIC(15,2)), <code>loss_ratio</code> (NUMERIC(5,2), NULL), <code>branch_id</code> (INT).</p>
+        
+        <h3>Задание 3.1. Запрос реестра крупных убытков за квартал (2 балла)</h3>
+        <p>Сформируйте SQL-запрос для аудита убыточности филиалов:</p>
+        <ul>
+          <li>Фильтрация: договоры заключены за 1-й квартал 2026 года (с <code>2026-01-01</code> по <code>2026-03-31</code> включительно, без использования функций над колонкой даты);</li>
+          <li>Сумма выплат строго превышает 500 000 рублей (<code>total_payout &gt; 500000</code>);</li>
+          <li>Многоуровневая сортировка: Регион (<code>region_code</code>) по возрастанию (ASC), Убыточность (<code>loss_ratio</code>) по убыванию (DESC) с <strong>NULLS LAST</strong>, детерминирующий суффикс <code>contract_id ASC</code>;</li>
+          <li>Ограничение выборки: 25 договоров первой страницы.</li>
+        </ul>
+        <label for="v3_ans_sql"><strong>Ваш SQL-запрос:</strong></label>
+        <textarea id="v3_ans_sql" class="answer-area" spellcheck="false"></textarea>
+        <div id="v3_ans_sql_mirror" class="print-mirror"></div>
+
+        <h3>Задание 3.2. Алгоритмический анализ: Quicksort vs External Merge Sort (1 балл)</h3>
+        <p>В таблице 5 000 000 договоров. При выполнении запроса в плане <code>EXPLAIN ANALYZE</code> зафиксировано: <code>Sort Method: external merge Disk: 48MB</code>. Объясните физику происходящего: почему СУБД сбросила серии на диск, как связаны параметр <code>work_mem</code> и временные файлы, и как это устранить.</p>
+        <label for="v3_ans_null"><strong>Ваш анализ:</strong></label>
+        <textarea id="v3_ans_null" class="answer-area" spellcheck="false"></textarea>
+        <div id="v3_ans_null_mirror" class="print-mirror"></div>
+
+        <h3>Задание 3.3. Составной индекс и курсорная пагинация (1 балл)</h3>
+        <p>1) Напишите <code>CREATE INDEX</code> составного индекса для данного отчета по правилу ESR.<br>
+        2) Напишите запрос второй страницы реестра через Keyset (последняя строка 1-й страницы: <code>region_code='RU-KHM', loss_ratio=3.45, contract_id=89104</code>).</p>
+        <label for="v3_ans_opt"><strong>Ваше решение:</strong></label>
+        <textarea id="v3_ans_opt" class="answer-area" spellcheck="false"></textarea>
+        <div id="v3_ans_opt_mirror" class="print-mirror"></div>
+      </section>
+    </div>
+
+    <!-- ВАРИАНТ 4 -->
+    <div class="v-content" id="content-v4">
+      <section class="task-card">
+        <h2>Сценарий 4. Электронный журнал оценок колледжа</h2>
+        <p><strong>Предметная область:</strong> Таблица <code>StudentGrades</code>: <code>record_id</code> (BIGINT, PK), <code>student_id</code> (INT), <code>last_name</code> (VARCHAR(60)), <code>first_name</code> (VARCHAR(60)), <code>group_code</code> (VARCHAR(20)), <code>debts_count</code> (INT), <code>gpa</code> (NUMERIC(3,2), NULL), <code>is_expelled</code> (BOOLEAN).</p>
+        
+        <h3>Задание 4.1. Ведомость академических задолженностей (2 балла)</h3>
+        <p>Сформируйте SQL-запрос для деканата для анализа неуспевающих студентов группы:</p>
+        <ul>
+          <li>Студент не отчислен (<code>is_expelled = FALSE</code>) и числится в группе <code>'СА-201'</code>;</li>
+          <li>Имеются академические задолженности (<code>debts_count &gt; 0</code>);</li>
+          <li>Многоуровневая сортировка: Фамилия студента (<code>last_name</code>) по возрастанию (ASC) с <strong>явным указанием русской локали Collation <code>COLLATE "ru_RU"</code></strong>, Средний балл (<code>gpa</code>) по убыванию (DESC) с явным позиционированием <code>NULLS LAST</code>, детерминирующий суффикс <code>record_id ASC</code>;</li>
+          <li>Ограничение выборки: 30 записей первой страницы.</li>
+        </ul>
+        <label for="v4_ans_sql"><strong>Ваш SQL-запрос:</strong></label>
+        <textarea id="v4_ans_sql" class="answer-area" spellcheck="false"></textarea>
+        <div id="v4_ans_sql_mirror" class="print-mirror"></div>
+
+        <h3>Задание 4.2. Анализ Collation и позиционирования буквы «Ё» (1 балл)</h3>
+        <p>Объясните, почему при стандартном бинарном сопоставлении <code>COLLATE "C"</code> студент с фамилией «Ёлкин» окажется в самом начале ведомости перед «Абрамовым». Как локаль <code>ru_RU</code> решает эту проблему?</p>
+        <label for="v4_ans_null"><strong>Ваше объяснение:</strong></label>
+        <textarea id="v4_ans_null" class="answer-area" spellcheck="false"></textarea>
+        <div id="v4_ans_null_mirror" class="print-mirror"></div>
+
+        <h3>Задание 4.3. Оптимизация индексами и блок самопроверки (1 балл)</h3>
+        <p>1) Напишите <code>CREATE INDEX</code> для оптимизации ведомости деканата с учетом Collation.<br>
+        2) Блиц-самопроверка: почему условие <code>WHERE lower(group_code) = 'са-201'</code> заблокирует использование созданного B-Tree индекса?</p>
+        <label for="v4_ans_opt"><strong>Ваше решение:</strong></label>
+        <textarea id="v4_ans_opt" class="answer-area" spellcheck="false"></textarea>
+        <div id="v4_ans_opt_mirror" class="print-mirror"></div>
+      </section>
+    </div>
+
+    <!-- Плавающая панель действий -->
+    <div class="action-panel">
+      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <button type="button" class="btn btn-primary" id="saveBtn">Сохранить черновик</button>
+        <button type="button" class="btn btn-secondary" id="printBtn">Печать / Экспорт в PDF</button>
+        <button type="button" class="btn btn-danger" id="clearBtn">Очистить ответы</button>
+      </div>
+      <span class="status-msg" id="statusMsg">Все изменения сохранены в браузере</span>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const STORAGE_KEY = 'sielom_db_lesson19_worksheet_v1';
+      const inputs = [
+        'student_name',
+        'student_group',
+        'v1_ans_sql', 'v1_ans_null', 'v1_ans_opt',
+        'v2_ans_sql', 'v2_ans_null', 'v2_ans_opt',
+        'v3_ans_sql', 'v3_ans_null', 'v3_ans_opt',
+        'v4_ans_sql', 'v4_ans_null', 'v4_ans_opt'
+      ];
+
+      function syncMirrors() {
+        inputs.forEach(id => {
+          if (id.startsWith('v')) {
+            const area = document.getElementById(id);
+            const mirror = document.getElementById(id + '_mirror');
+            if (area && mirror) {
+              mirror.textContent = area.value || '(Ответ не введен)';
+            }
+          }
+        });
+      }
+
+      function loadData() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const data = JSON.parse(raw);
+            inputs.forEach(id => {
+              const el = document.getElementById(id);
+              if (el && data[id] !== undefined) {
+                el.value = data[id];
+              }
+            });
+            if (data._activeTab) {
+              switchTab(data._activeTab);
+            }
+          }
+        } catch (e) {
+          console.error('Ошибка загрузки данных:', e);
+        }
+        syncMirrors();
+      }
+
+      function saveData() {
+        try {
+          const data = {};
+          inputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) data[id] = el.value;
+          });
+          const activeBtn = document.querySelector('.v-tab-btn.active');
+          if (activeBtn) {
+            data._activeTab = activeBtn.getAttribute('data-v');
+          }
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+          syncMirrors();
+          showStatus('Все данные сохранены локально!');
+        } catch (e) {
+          console.error('Ошибка сохранения данных:', e);
+          showStatus('Ошибка сохранения!', true);
+        }
+      }
+
+      function showStatus(text, isError) {
+        const msg = document.getElementById('statusMsg');
+        msg.textContent = text;
+        msg.style.color = isError ? 'var(--danger)' : 'var(--success)';
+        msg.style.display = 'inline-block';
+        setTimeout(() => {
+          msg.style.display = 'none';
+        }, 3500);
+      }
+
+      function switchTab(targetId) {
+        document.querySelectorAll('.v-tab-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-v') === targetId);
+        });
+        document.querySelectorAll('.v-content').forEach(content => {
+          content.classList.toggle('active', content.id === 'content-' + targetId);
+        });
+      }
+
+      document.querySelectorAll('.v-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.getAttribute('data-v');
+          switchTab(target);
+          saveData();
+        });
+      });
+
+      document.getElementById('saveBtn').addEventListener('click', saveData);
+
+      document.getElementById('printBtn').addEventListener('click', () => {
+        saveData();
+        window.print();
+      });
+
+      document.getElementById('clearBtn').addEventListener('click', () => {
+        if (confirm('Вы уверены, что хотите удалить все введенные ответы? Это действие необратимо.')) {
+          localStorage.removeItem(STORAGE_KEY);
+          inputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+          });
+          syncMirrors();
+          showStatus('Все поля очищены');
+        }
+      });
+
+      inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', syncMirrors);
+          el.addEventListener('change', saveData);
+        }
+      });
+
+      window.addEventListener('DOMContentLoaded', loadData);
+    })();
+  </script>
+</body>
+</html>
