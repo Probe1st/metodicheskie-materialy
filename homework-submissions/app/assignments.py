@@ -1,5 +1,6 @@
 from __future__ import annotations
-
+from collections.abc import Generator
+from contextlib import contextmanager
 import re
 import sqlite3
 from dataclasses import dataclass
@@ -80,21 +81,21 @@ class AssignmentStore:
                 ON class_assignments(group_name, subject_id, lesson_date)
                 """
             )
-            conn.execute(
-                """
-                CREATE INDEX IF NOT EXISTS idx_assignments_group_date
-                ON class_assignments(group_name, lesson_date, pair_number)
-                """
-            )
             conn.commit()
 
         self.path.chmod(0o600)
 
-    def _connect(self) -> sqlite3.Connection:
-        conn = sqlite3.connect(self.path)
+    @contextmanager
+    def _connect(self) -> Generator[sqlite3.Connection, None, None]:
+        conn = sqlite3.connect(self.path, timeout=5.0)
         conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA foreign_keys = ON")
-        return conn
+        try:
+            conn.execute("PRAGMA foreign_keys = ON")
+            conn.execute("PRAGMA journal_mode = WAL")
+            conn.execute("PRAGMA busy_timeout = 5000")
+            yield conn
+        finally:
+            conn.close()
 
     def _row_to_assignment(self, row: sqlite3.Row) -> Assignment:
         return Assignment(
@@ -241,6 +242,32 @@ class AssignmentStore:
                 (group_name.strip(), str(subject_id)),
             ).fetchall()
             return tuple(self._row_to_assignment(r) for r in rows)
+
+    def list_all(self) -> tuple[Assignment, ...]:
+        with self._connect() as conn:
+            rows = conn.execute(
+                """
+                SELECT * FROM class_assignments
+                ORDER BY lesson_date DESC, pair_number ASC
+                """
+            ).fetchall()
+            return tuple(self._row_to_assignment(r) for r in rows)
+
+    def delete_subject(self, subject_id: UUID) -> None:
+        with self._connect() as conn:
+            conn.execute(
+                "DELETE FROM class_assignments WHERE subject_id = ?",
+                (str(subject_id),),
+            )
+            conn.commit()
+
+    def delete_topic(self, topic_id: UUID) -> None:
+        with self._connect() as conn:
+            conn.execute(
+                "DELETE FROM class_assignments WHERE topic_id = ?",
+                (str(topic_id),),
+            )
+            conn.commit()
 
     def rename_group(self, old_name: str, new_name: str) -> None:
         with self._connect() as conn:

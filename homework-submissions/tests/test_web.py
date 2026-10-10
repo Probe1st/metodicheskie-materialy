@@ -612,3 +612,139 @@ def test_student_topic_select_preserves_clean_topic_name_and_backward_compatibil
     submit_res = client.post("/submit", data=sub_data)
     assert submit_res.status_code == 201
     assert list((tmp_path / "uploads").rglob("Иванов Иван Иванович 1.pdf"))
+
+
+def test_admin_assignments_page_authenticated(client_env):
+    from app.catalog_store import create_catalog_store
+    client, _ = client_env
+    client.post("/admin/login", data={"password": "admin-secret"})
+
+    resp = client.get("/admin/assignments")
+    assert resp.status_code == 200
+    html = resp.get_data(as_text=True)
+    assert "Занятия и пары" in html
+    assert "Учебная группа" in html
+    assert "Дисциплина" in html
+
+    catalog = create_catalog_store(client.application.config).snapshot()
+    for group in catalog.groups:
+        assert group.name in html
+    for subject in catalog.subjects:
+        assert subject.name in html
+
+    # Calling with empty group also returns 200 cleanly
+    resp_empty_group = client.get("/admin/assignments?group=")
+    assert resp_empty_group.status_code == 200
+
+
+def test_admin_assignments_catalog_validation(client_env):
+    from uuid import uuid4
+    from app.catalog_store import create_catalog_store
+    client, _ = client_env
+    client.post("/admin/login", data={"password": "admin-secret"})
+
+    catalog = create_catalog_store(client.application.config).snapshot()
+    subject1 = catalog.subjects[0]
+    topic1 = next(t for t in catalog.topics if t.subject_id == subject1.id)
+    subject2 = catalog.subjects[1]
+    topic2 = next(t for t in catalog.topics if t.subject_id == subject2.id)
+    valid_group = catalog.groups[0].name
+
+    # 1. Non-existent group (400)
+    resp = client.post(
+        "/admin/assignments",
+        data={
+            "group_name": "Несуществующая группа",
+            "subject_id": str(subject1.id),
+            "topic_id": str(topic1.id),
+            "lesson_date": "2026-10-15",
+            "pair_number": "1",
+        },
+    )
+    assert resp.status_code == 400
+
+    # 2. Non-existent subject (400)
+    resp = client.post(
+        "/admin/assignments",
+        data={
+            "group_name": valid_group,
+            "subject_id": str(uuid4()),
+            "topic_id": str(topic1.id),
+            "lesson_date": "2026-10-15",
+            "pair_number": "1",
+        },
+    )
+    assert resp.status_code == 400
+
+    # 3. Mismatched topic_id not belonging to subject_id (400)
+    resp = client.post(
+        "/admin/assignments",
+        data={
+            "group_name": valid_group,
+            "subject_id": str(subject1.id),
+            "topic_id": str(topic2.id),
+            "lesson_date": "2026-10-15",
+            "pair_number": "1",
+        },
+    )
+    assert resp.status_code == 400
+
+    # 4. Create a valid assignment
+    create_resp = client.post(
+        "/admin/assignments",
+        data={
+            "group_name": valid_group,
+            "subject_id": str(subject1.id),
+            "topic_id": str(topic1.id),
+            "lesson_date": "2026-10-15",
+            "pair_number": "1",
+        },
+    )
+    assert create_resp.status_code == 201
+    assignment_id = create_resp.json["id"]
+
+    # 5. Mismatched topic_id on update (400)
+    update_resp = client.post(
+        f"/admin/assignments/{assignment_id}/update",
+        data={
+            "topic_id": str(topic2.id),
+            "lesson_date": "2026-10-15",
+            "pair_number": "2",
+        },
+    )
+    assert update_resp.status_code == 400
+
+
+def test_subject_and_topic_delete_cascades_to_assignments(client_env):
+    from uuid import UUID
+    from app.assignments import AssignmentStore
+    from app.catalog_store import create_catalog_store
+    client, private_dir = client_env
+    client.post("/admin/login", data={"password": "admin-secret"})
+
+    catalog = create_catalog_store(client.application.config).snapshot()
+    group = catalog.groups[0]
+    subject = catalog.subjects[0]
+    topic = next(t for t in catalog.topics if t.subject_id == subject.id)
+
+    # 1. Create assignment for topic, then delete topic
+    store = AssignmentStore(private_dir / "access.sqlite3")
+    item = store.create(group.name, subject.id, topic.id, "2026-10-15", 1)
+    assert store.get(item.id) is not None
+
+    del_topic_resp = client.post(f"/admin/topics/{topic.id}/delete")
+    assert del_topic_resp.status_code == 204
+    assert store.get(item.id) is None
+
+    # 2. Create subject and assignment, then delete subject
+    new_subj_resp = client.post("/admin/subjects", data={"name": "Предмет под снос"})
+    assert new_subj_resp.status_code == 201
+    new_subj_id = UUID(new_subj_resp.json["id"])
+
+    # Associate an assignment with new_subj_id
+    item2 = store.create(group.name, new_subj_id, UUID("00000000-0000-0000-0000-000000000001"), "2026-10-16", 1)
+    assert store.get(item2.id) is not None
+
+    del_subj_resp = client.post(f"/admin/subjects/{new_subj_id}/delete")
+    assert del_subj_resp.status_code == 204
+    assert store.get(item2.id) is None

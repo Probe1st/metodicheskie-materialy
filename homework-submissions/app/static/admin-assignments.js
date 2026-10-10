@@ -140,6 +140,8 @@ document.addEventListener('DOMContentLoaded', () => {
       editBtn.addEventListener('click', () => {
         editForm.hidden = false;
         editBtn.hidden = true;
+        const firstField = editForm.querySelector('input:not([type="hidden"]), select');
+        if (firstField) firstField.focus();
       });
     }
 
@@ -150,6 +152,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (editStatus) {
           editStatus.textContent = '';
           delete editStatus.dataset.state;
+        }
+        if (editBtn) editBtn.focus();
+      });
+    }
+
+    if (editForm) {
+      editForm.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && cancelBtn) {
+          cancelBtn.click();
         }
       });
     }

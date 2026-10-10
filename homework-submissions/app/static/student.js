@@ -93,10 +93,11 @@ function updateTopics() {
   const selectedSubjectId = discipline.selectedOptions[0]?.dataset.subjectId;
   let availableTopics = [];
 
-  if (groupAssignments.length > 0) {
-    const assignedForSubject = groupAssignments.filter(
-      (a) => a.subject_id === selectedSubjectId
-    );
+  const assignedForSubject = groupAssignments.length > 0
+    ? groupAssignments.filter((a) => a.subject_id === selectedSubjectId)
+    : [];
+
+  if (assignedForSubject.length > 0) {
     availableTopics = assignedForSubject.map((a) => {
       const opt = document.createElement('option');
       opt.value = a.topic_name;
@@ -118,9 +119,7 @@ function updateTopics() {
   topicHint.hidden = hasTopics;
   topicHint.textContent = hasTopics
     ? ''
-    : (groupAssignments.length > 0
-        ? 'Для вашей группы по данному предмету ещё нет назначенных занятий.'
-        : 'Для выбранного предмета нет доступных тем.');
+    : 'Для выбранного предмета нет доступных тем.';
   submitButton.disabled = !hasTopics;
 }
 

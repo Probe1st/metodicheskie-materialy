@@ -182,3 +182,89 @@ def test_rename_and_delete_group_cascades(store: AssignmentStore) -> None:
 
     store.delete_group("ИС 25-Новая")
     assert len(store.list_for_group("ИС 25-Новая")) == 0
+
+
+def test_list_all_ordering(store: AssignmentStore) -> None:
+    s1 = uuid4()
+    s2 = uuid4()
+    t1 = uuid4()
+    t2 = uuid4()
+
+    store.create("Группа A", s1, t1, "2026-10-10", 2)
+    store.create("Группа B", s2, t2, "2026-10-14", 2)
+    store.create("Группа A", s1, t2, "2026-10-14", 1)
+    store.create("Группа B", s2, t1, "2026-10-12", 4)
+
+    all_items = store.list_all()
+    assert len(all_items) == 4
+    assert [(x.lesson_date, x.pair_number, x.group_name) for x in all_items] == [
+        ("2026-10-14", 1, "Группа A"),
+        ("2026-10-14", 2, "Группа B"),
+        ("2026-10-12", 4, "Группа B"),
+        ("2026-10-10", 2, "Группа A"),
+    ]
+
+
+def test_delete_subject_cascades(store: AssignmentStore) -> None:
+    s1 = uuid4()
+    s2 = uuid4()
+    t1 = uuid4()
+    t2 = uuid4()
+
+    store.create("Группа A", s1, t1, "2026-10-14", 1)
+    store.create("Группа B", s1, t2, "2026-10-14", 2)
+    store.create("Группа A", s2, t1, "2026-10-14", 3)
+
+    assert len(store.list_all()) == 3
+    store.delete_subject(s1)
+    remaining = store.list_all()
+    assert len(remaining) == 1
+    assert remaining[0].subject_id == s2
+
+    # Idempotent
+    store.delete_subject(uuid4())
+    assert len(store.list_all()) == 1
+
+
+def test_delete_topic_cascades(store: AssignmentStore) -> None:
+    s = uuid4()
+    t1 = uuid4()
+    t2 = uuid4()
+
+    store.create("Группа A", s, t1, "2026-10-14", 1)
+    store.create("Группа B", s, t1, "2026-10-14", 2)
+    store.create("Группа A", s, t2, "2026-10-14", 3)
+
+    assert len(store.list_all()) == 3
+    store.delete_topic(t1)
+    remaining = store.list_all()
+    assert len(remaining) == 1
+    assert remaining[0].topic_id == t2
+
+    # Idempotent
+    store.delete_topic(uuid4())
+    assert len(store.list_all()) == 1
+
+
+def test_no_database_connection_resource_warnings(tmp_path: Path) -> None:
+    import warnings
+
+    db_path = tmp_path / ".private" / "test_warnings.sqlite3"
+    test_store = AssignmentStore(db_path)
+    s = uuid4()
+    t = uuid4()
+
+    with warnings.catch_warnings(record=True) as recorded:
+        warnings.simplefilter("always", ResourceWarning)
+        item = test_store.create("Группа 1", s, t, "2026-10-14", 1)
+        test_store.get(item.id)
+        test_store.update(item.id, "2026-10-15", 2, t)
+        test_store.list_all()
+        test_store.list_for_group("Группа 1")
+        test_store.list_for_group_and_subject("Группа 1", s)
+        test_store.delete_topic(t)
+        test_store.delete_subject(s)
+        test_store.delete(item.id)
+
+    db_warnings = [w for w in recorded if issubclass(w.category, ResourceWarning) and "database" in str(w.message).lower()]
+    assert db_warnings == []

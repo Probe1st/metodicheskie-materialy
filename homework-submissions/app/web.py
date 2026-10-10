@@ -307,6 +307,10 @@ def create_app(config=None):
                     access.delete_group(old.name)
                     assignment_store().delete_group(old.name)
                 getattr(catalog_store, f"delete_{singular}")(uid)
+                if kind == "subjects" and action == "delete":
+                    assignment_store().delete_subject(uid)
+                elif kind == "topics" and action == "delete":
+                    assignment_store().delete_topic(uid)
             except CatalogItemNotFound:
                 abort(404)
             except CatalogNameConflict as error:
@@ -443,6 +447,15 @@ def create_app(config=None):
             abort(400)
 
         with group_state_lock():
+            snapshot = catalog()
+            if group_name not in {g.name for g in snapshot.groups}:
+                abort(400)
+            if not any(s.id == subject_id for s in snapshot.subjects):
+                abort(400)
+            topic = next((t for t in snapshot.topics if t.id == topic_id), None)
+            if topic is None or topic.subject_id != subject_id:
+                abort(400)
+
             store = assignment_store()
             try:
                 item = store.create(group_name, subject_id, topic_id, lesson_date, pair_number)
@@ -476,6 +489,14 @@ def create_app(config=None):
 
         with group_state_lock():
             store = assignment_store()
+            existing = store.get(uid)
+            if existing is None:
+                abort(404)
+            snapshot = catalog()
+            topic = next((t for t in snapshot.topics if t.id == topic_id), None)
+            if topic is None or topic.subject_id != existing.subject_id:
+                abort(400)
+
             try:
                 item = store.update(uid, lesson_date, pair_number, topic_id)
             except AssignmentConflictError as err:
