@@ -66,7 +66,7 @@ document.querySelectorAll('.group-form').forEach((form) => {
       setStatus(status, 'success', 'Настройки группы сохранены.');
       updateGroupState(form);
     } catch {
-      setStatus(status, 'error', 'Ошибка сохранения настроек.');
+      setStatus(status, 'error', 'Не удалось сохранить настройки. Проверьте соединение и попробуйте ещё раз.');
     } finally {
       setBusy(form, false, 'Сохранить');
     }
