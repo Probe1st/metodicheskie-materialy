@@ -24,6 +24,16 @@ function updateGroupState(form) {
 
 const loginForm = document.querySelector('#admin_login');
 if (loginForm) {
+  const password = loginForm.querySelector('[name="password"]');
+  const passwordToggle = loginForm.querySelector('.password-toggle');
+
+  passwordToggle.addEventListener('click', () => {
+    const isVisible = password.type === 'password';
+    password.type = isVisible ? 'text' : 'password';
+    passwordToggle.setAttribute('aria-pressed', String(isVisible));
+    passwordToggle.setAttribute('aria-label', isVisible ? 'Скрыть пароль' : 'Показать пароль');
+    passwordToggle.textContent = isVisible ? 'Скрыть пароль' : 'Показать пароль';
+  });
   const status = document.querySelector('#admin_login_status');
 
   loginForm.addEventListener('submit', async (event) => {
