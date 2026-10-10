@@ -75,8 +75,10 @@ function setBusy(form, busy, label) {
   button.textContent = label;
 }
 
+let groupAssignments = [];
 
 function resetAccess() {
+  groupAssignments = [];
   selectedGroup.value = '';
   groupDisplay.textContent = '';
   accessSummary.hidden = true;
@@ -89,15 +91,36 @@ function resetAccess() {
 }
 function updateTopics() {
   const selectedSubjectId = discipline.selectedOptions[0]?.dataset.subjectId;
-  const availableTopics = topicOptions
-    .filter((option) => option.dataset.subjectId === selectedSubjectId)
-    .map((option) => option.cloneNode(true));
+  let availableTopics = [];
+
+  if (groupAssignments.length > 0) {
+    const assignedForSubject = groupAssignments.filter(
+      (a) => a.subject_id === selectedSubjectId
+    );
+    availableTopics = assignedForSubject.map((a) => {
+      const opt = document.createElement('option');
+      opt.value = a.topic_name;
+      opt.dataset.subjectId = a.subject_id;
+      opt.dataset.assignmentId = a.id;
+      opt.textContent = a.label;
+      return opt;
+    });
+  } else {
+    availableTopics = topicOptions
+      .filter((option) => option.dataset.subjectId === selectedSubjectId)
+      .map((option) => option.cloneNode(true));
+  }
+
   work.replaceChildren(topicPlaceholder.cloneNode(true), ...availableTopics);
 
   const hasTopics = availableTopics.length > 0;
   work.disabled = !hasTopics;
   topicHint.hidden = hasTopics;
-  topicHint.textContent = hasTopics ? '' : 'Для выбранного предмета нет доступных тем.';
+  topicHint.textContent = hasTopics
+    ? ''
+    : (groupAssignments.length > 0
+        ? 'Для вашей группы по данному предмету ещё нет назначенных занятий.'
+        : 'Для выбранного предмета нет доступных тем.');
   submitButton.disabled = !hasTopics;
 }
 
@@ -148,8 +171,17 @@ unlockForm.addEventListener('submit', async (event) => {
   setStatus(unlockStatus, 'working', 'Проверяем доступ…');
 
   try {
-    const response = await fetch('/unlock', { method: 'POST', body: formData });
+    const response = await fetch('/unlock', {
+      method: 'POST',
+      body: formData,
+      headers: { 'Accept': 'application/json' },
+    });
     if (!response.ok) throw new Error('denied');
+
+    if (response.status === 200) {
+      const data = await response.json();
+      groupAssignments = data.assignments || [];
+    }
 
     selectedGroup.value = formData.get('group');
     groupDisplay.textContent = selectedGroup.value;
@@ -158,6 +190,7 @@ unlockForm.addEventListener('submit', async (event) => {
     submitForm.hidden = false;
     showActiveStep(1);
     setStatus(unlockStatus, '', '');
+    updateTopics();
     discipline.focus();
   } catch {
     setStatus(unlockStatus, 'error', 'Доступ к приёму работ закрыт или пароль неверен.');

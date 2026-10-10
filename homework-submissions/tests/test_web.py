@@ -578,3 +578,37 @@ def test_group_rename_and_delete_cascades_to_assignments(client_env):
 
     # Assignment was deleted
     assert len(store.list_for_group("ИС 25-Новая")) == 0
+
+
+def test_student_topic_select_preserves_clean_topic_name_and_backward_compatibility(client_env, tmp_path):
+    client, private_dir = client_env
+    configure_group(private_dir)
+    from app.assignments import AssignmentStore
+    from app.catalog_store import create_catalog_store
+    catalog = create_catalog_store(client.application.config).snapshot()
+    subject = catalog.subjects[0]
+    topic = next(t for t in catalog.topics if t.subject_id == subject.id and t.name == "Логические элементы. Базовые схемы")
+
+    store = AssignmentStore(private_dir / "access.sqlite3")
+    store.create("ИС 25/9-1П", subject.id, topic.id, "2026-10-14", 2)
+
+    # Unlock via JSON
+    unlock_res = client.post(
+        "/unlock",
+        data={"group": "ИС 25/9-1П", "password": "1234"},
+        headers={"Accept": "application/json"},
+    )
+    assert unlock_res.status_code == 200
+    assignment = unlock_res.json["assignments"][0]
+
+    # Verify that clean topic name is submitted and accepted
+    sub_data = {
+        "group": "ИС 25/9-1П",
+        "discipline": subject.name,
+        "work": assignment["topic_name"],  # Clean topic name
+        "student_name": "Иванов Иван Иванович",
+        "file": (BytesIO(b"%PDF-1.4 test content"), "homework.pdf"),
+    }
+    submit_res = client.post("/submit", data=sub_data)
+    assert submit_res.status_code == 201
+    assert list((tmp_path / "uploads").rglob("Иванов Иван Иванович 1.pdf"))
