@@ -11,8 +11,21 @@ from flask import Flask, abort, jsonify, redirect, render_template, request, ses
 from werkzeug.exceptions import RequestEntityTooLarge
 
 from .access import AccessStore
+from .assignments import (
+    AssignmentConflictError,
+    AssignmentNotFoundError,
+    AssignmentStore,
+    AssignmentValidationError,
+)
 from .catalog_store import CatalogItemNotFound, CatalogNameConflict, create_catalog_store
 from .storage import destination_directory, write_upload
+
+
+def _format_date_short(iso_date: str) -> str:
+    parts = iso_date.split("-")
+    if len(parts) == 3:
+        return f"{parts[2]}.{parts[1]}"
+    return iso_date
 
 
 def _parse_deadline_input(value: str) -> datetime | None:
@@ -70,6 +83,10 @@ def create_app(config=None):
         db_path = Path(app.config["PRIVATE_DATA_DIR"]) / "access.sqlite3"
         return AccessStore(db_path, (item.name for item in catalog().groups))
 
+
+    def assignment_store() -> AssignmentStore:
+        db_path = Path(app.config["PRIVATE_DATA_DIR"]) / "access.sqlite3"
+        return AssignmentStore(db_path)
     def is_admin() -> bool:
         return bool(session.get("admin"))
 
@@ -110,7 +127,66 @@ def create_app(config=None):
             session["student_group"] = group
             session["student_group_id"] = str(item.id)
             session["student_access_version"] = version
+
+            assigned = assignment_store().list_for_group(group)
+            snapshot = catalog()
+            subject_map = {s.id: s.name for s in snapshot.subjects}
+            topic_map = {t.id: t.name for t in snapshot.topics}
+            assignments_data = [
+                {
+                    "id": str(a.id),
+                    "subject_id": str(a.subject_id),
+                    "subject_name": subject_map.get(a.subject_id, ""),
+                    "topic_id": str(a.topic_id),
+                    "topic_name": topic_map.get(a.topic_id, ""),
+                    "lesson_date": a.lesson_date,
+                    "pair_number": a.pair_number,
+                    "label": f"{_format_date_short(a.lesson_date)}, пара {a.pair_number} — {topic_map.get(a.topic_id, '')}",
+                }
+                for a in assigned
+                if a.subject_id in subject_map and a.topic_id in topic_map
+            ]
+
+        wants_json = (
+            request.headers.get("Accept") == "application/json"
+            or "application/json" in request.headers.get("Accept", "")
+            or (request.accept_mimetypes.accept_json and not request.accept_mimetypes.accept_html)
+        )
+        if wants_json:
+            return jsonify(status="ok", group=group, assignments=assignments_data), 200
         return ("", 204)
+
+    @app.get("/student/assignments")
+    def student_assignments():
+        session_group = session.get("student_group")
+        session_version = session.get("student_access_version")
+        if not session_group or session_version is None:
+            abort(403)
+
+        with group_state_lock():
+            if not access_store().permits(session_group, int(session_version)):
+                abort(403)
+
+            assigned = assignment_store().list_for_group(session_group)
+            snapshot = catalog()
+            subject_map = {s.id: s.name for s in snapshot.subjects}
+            topic_map = {t.id: t.name for t in snapshot.topics}
+            assignments_data = [
+                {
+                    "id": str(a.id),
+                    "subject_id": str(a.subject_id),
+                    "subject_name": subject_map.get(a.subject_id, ""),
+                    "topic_id": str(a.topic_id),
+                    "topic_name": topic_map.get(a.topic_id, ""),
+                    "lesson_date": a.lesson_date,
+                    "pair_number": a.pair_number,
+                    "label": f"{_format_date_short(a.lesson_date)}, пара {a.pair_number} — {topic_map.get(a.topic_id, '')}",
+                }
+                for a in assigned
+                if a.subject_id in subject_map and a.topic_id in topic_map
+            ]
+
+        return jsonify(status="ok", group=session_group, assignments=assignments_data), 200
 
     @app.post("/submit")
     def submit():
@@ -225,10 +301,16 @@ def create_app(config=None):
                     item = getattr(catalog_store, f"rename_{singular}")(uid, request.form.get("name", ""))
                     if access:
                         access.rename_group(old.name, item.name)
+                        assignment_store().rename_group(old.name, item.name)
                     return jsonify(id=str(item.id), name=item.name)
                 if access:
                     access.delete_group(old.name)
+                    assignment_store().delete_group(old.name)
                 getattr(catalog_store, f"delete_{singular}")(uid)
+                if kind == "subjects" and action == "delete":
+                    assignment_store().delete_subject(uid)
+                elif kind == "topics" and action == "delete":
+                    assignment_store().delete_topic(uid)
             except CatalogItemNotFound:
                 abort(404)
             except CatalogNameConflict as error:
@@ -289,6 +371,160 @@ def create_app(config=None):
             if not group or group not in (item.name for item in catalog().groups):
                 abort(400)
             access_store().configure(group, password, is_open, deadline)
+        return ("", 204)
+
+    @app.get("/admin/assignments")
+    def admin_assignments_page():
+        if not is_admin():
+            abort(403)
+        snapshot = catalog()
+        selected_group = request.args.get("group", "").strip()
+        if not selected_group and snapshot.groups:
+            selected_group = snapshot.groups[0].name
+
+        selected_subject_id = None
+        raw_subj = request.args.get("subject_id", "").strip()
+        if raw_subj:
+            try:
+                selected_subject_id = UUID(raw_subj)
+            except ValueError:
+                pass
+
+        store = assignment_store()
+        if selected_group and selected_subject_id:
+            assignments = store.list_for_group_and_subject(selected_group, selected_subject_id)
+        elif selected_group:
+            assignments = store.list_for_group(selected_group)
+        else:
+            assignments = store.list_all()
+
+        subject_map = {s.id: s.name for s in snapshot.subjects}
+        topic_map = {t.id: t.name for t in snapshot.topics}
+
+        items = [
+            {
+                "id": str(a.id),
+                "lesson_date": a.lesson_date,
+                "lesson_date_formatted": f"{a.lesson_date.split('-')[2]}.{a.lesson_date.split('-')[1]}.{a.lesson_date.split('-')[0]}",
+                "pair_number": a.pair_number,
+                "subject_id": str(a.subject_id),
+                "subject_name": subject_map.get(a.subject_id, ""),
+                "topic_id": str(a.topic_id),
+                "topic_name": topic_map.get(a.topic_id, ""),
+            }
+            for a in assignments
+        ]
+
+        unique_subjects_count = len({a.subject_id for a in assignments})
+
+        return render_template(
+            "admin_assignments.html",
+            section="assignments",
+            groups=snapshot.groups,
+            subjects=snapshot.subjects,
+            topics=snapshot.topics,
+            selected_group=selected_group,
+            selected_subject_id=str(selected_subject_id) if selected_subject_id else "",
+            assignments=items,
+            unique_subjects_count=unique_subjects_count,
+        )
+
+    @app.post("/admin/assignments")
+    def admin_create_assignment():
+        if not is_admin():
+            abort(403)
+        group_name = request.form.get("group_name", "").strip()
+        raw_subject = request.form.get("subject_id", "").strip()
+        raw_topic = request.form.get("topic_id", "").strip()
+        lesson_date = request.form.get("lesson_date", "").strip()
+        raw_pair = request.form.get("pair_number", "").strip()
+
+        try:
+            subject_id = UUID(raw_subject)
+            topic_id = UUID(raw_topic)
+            pair_number = int(raw_pair)
+        except (ValueError, TypeError):
+            abort(400)
+
+        with group_state_lock():
+            snapshot = catalog()
+            if group_name not in {g.name for g in snapshot.groups}:
+                abort(400)
+            if not any(s.id == subject_id for s in snapshot.subjects):
+                abort(400)
+            topic = next((t for t in snapshot.topics if t.id == topic_id), None)
+            if topic is None or topic.subject_id != subject_id:
+                abort(400)
+
+            store = assignment_store()
+            try:
+                item = store.create(group_name, subject_id, topic_id, lesson_date, pair_number)
+            except AssignmentConflictError as err:
+                return jsonify(error="assignment_conflict", message=str(err)), 409
+            except AssignmentValidationError as err:
+                return jsonify(error="validation_error", message=str(err)), 400
+
+        return jsonify(
+            status="created",
+            id=str(item.id),
+            group_name=item.group_name,
+            subject_id=str(item.subject_id),
+            topic_id=str(item.topic_id),
+            lesson_date=item.lesson_date,
+            pair_number=item.pair_number,
+        ), 201
+
+    @app.post("/admin/assignments/<assignment_id>/update")
+    def admin_update_assignment(assignment_id):
+        if not is_admin():
+            abort(403)
+        try:
+            uid = UUID(assignment_id)
+            topic_id = UUID(request.form.get("topic_id", ""))
+            pair_number = int(request.form.get("pair_number", ""))
+        except (ValueError, TypeError):
+            abort(400)
+
+        lesson_date = request.form.get("lesson_date", "").strip()
+
+        with group_state_lock():
+            store = assignment_store()
+            existing = store.get(uid)
+            if existing is None:
+                abort(404)
+            snapshot = catalog()
+            topic = next((t for t in snapshot.topics if t.id == topic_id), None)
+            if topic is None or topic.subject_id != existing.subject_id:
+                abort(400)
+
+            try:
+                item = store.update(uid, lesson_date, pair_number, topic_id)
+            except AssignmentConflictError as err:
+                return jsonify(error="assignment_conflict", message=str(err)), 409
+            except AssignmentNotFoundError:
+                abort(404)
+            except AssignmentValidationError as err:
+                return jsonify(error="validation_error", message=str(err)), 400
+
+        return jsonify(
+            status="ok",
+            id=str(item.id),
+            lesson_date=item.lesson_date,
+            pair_number=item.pair_number,
+            topic_id=str(item.topic_id),
+        ), 200
+
+    @app.post("/admin/assignments/<assignment_id>/delete")
+    def admin_delete_assignment(assignment_id):
+        if not is_admin():
+            abort(403)
+        try:
+            uid = UUID(assignment_id)
+        except ValueError:
+            abort(400)
+
+        with group_state_lock():
+            assignment_store().delete(uid)
         return ("", 204)
 
     @app.errorhandler(RequestEntityTooLarge)

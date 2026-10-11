@@ -53,6 +53,7 @@ function makeRow(kind, item) {
     selection.append(checkbox);
     heading.append(selection);
   }
+
   const title = document.createElement('h3');
   title.dataset.itemName = '';
   title.textContent = item.name;
@@ -67,6 +68,19 @@ function makeRow(kind, item) {
     heading.append(titleWrap);
   } else {
     heading.append(title);
+  }
+
+  const status = document.createElement('p');
+  status.className = 'catalog-status status';
+  status.dataset.createStatus = '';
+  status.setAttribute('aria-live', 'polite');
+
+  if (kind === 'subjects' && item.id === catalogList.dataset.unassignedId) {
+    const specialNotice = document.createElement('p');
+    specialNotice.className = 'field__hint';
+    specialNotice.textContent = 'Системный предмет для тем, ожидающих распределения. Его нельзя переименовать или удалить.';
+    row.append(heading, specialNotice, status);
+    return row;
   }
 
   const form = document.createElement('form');
@@ -112,21 +126,18 @@ function makeRow(kind, item) {
 
   const actions = document.createElement('div');
   actions.className = 'catalog-actions';
-  const renameButton = document.createElement('button');
-  renameButton.className = 'button button--outline';
-  renameButton.type = 'submit';
-  renameButton.textContent = kind === 'topics' ? 'Сохранить' : 'Переименовать';
+  const saveButton = document.createElement('button');
+  saveButton.className = 'button button--outline';
+  saveButton.type = 'submit';
+  saveButton.textContent = 'Сохранить';
   const deleteButton = document.createElement('button');
   deleteButton.className = 'button button--danger';
   deleteButton.type = 'button';
   deleteButton.dataset.delete = '';
   deleteButton.textContent = 'Удалить';
-  actions.append(renameButton, deleteButton);
+  actions.append(saveButton, deleteButton);
   form.append(actions);
 
-  const status = document.createElement('p');
-  status.className = 'catalog-status status';
-  status.setAttribute('aria-live', 'polite');
   row.append(heading, form, status);
   return row;
 }
@@ -144,7 +155,8 @@ function topicControls() {
   const empty = document.querySelector('[data-topic-filter-empty]');
   const unassignedFilter = document.querySelector('[data-topic-unassigned-filter]');
   const unassignedCount = document.querySelector('[data-topic-unassigned-count]');
-  if (!toolbar || !list || !filter || !search || !empty || !unassignedFilter || !unassignedCount) return null;
+  const selectionCount = document.querySelector('[data-topic-selection-count]');
+  if (!toolbar || !list || !filter || !search || !empty || !unassignedFilter || !unassignedCount || !selectionCount) return null;
 
   const refresh = ({ clearHiddenSelection = false } = {}) => {
     const rows = [...list.querySelectorAll('[data-catalog-item]')];
@@ -173,9 +185,14 @@ function topicControls() {
     unassignedCount.textContent = String(counts.get(unassignedId) || 0);
     unassignedFilter.setAttribute('aria-pressed', String(filter.value === unassignedId));
     empty.hidden = rows.length === 0 || visible !== 0;
+    const selectedVisible = list.querySelectorAll('[data-catalog-item]:not([hidden]) input[name="topic_ids"]:checked').length;
+    selectionCount.textContent = `Выбрано ${selectedVisible} из ${visible} видимых тем.`;
   };
   filter.addEventListener('change', () => refresh({ clearHiddenSelection: true }));
   search.addEventListener('input', () => refresh({ clearHiddenSelection: true }));
+  list.addEventListener('change', (event) => {
+    if (event.target.matches('input[name="topic_ids"]')) refresh();
+  });
   unassignedFilter.addEventListener('click', () => {
     filter.value = toolbar.dataset.unassignedId;
     refresh({ clearHiddenSelection: true });
@@ -244,7 +261,7 @@ if (catalogList) {
     } catch {
       showStatus(status, 'error', 'Не удалось связаться с сервером. Попробуйте ещё раз.');
     } finally {
-      setFormBusy(form, false, isTopic ? 'Сохранить' : 'Переименовать');
+      setFormBusy(form, false, 'Сохранить');
     }
   });
 
@@ -271,7 +288,7 @@ if (catalogList) {
         const empty = document.createElement('p');
         empty.className = 'empty-state';
         empty.dataset.catalogEmpty = '';
-        empty.textContent = 'Пока нет элементов. Добавьте первый в форме выше.';
+        empty.textContent = 'Пока нет элементов. Добавьте первый в форме создания.';
         catalogList.append(empty);
       }
       topicUI?.refresh();

@@ -28,13 +28,14 @@
       <p class="lead">Управляйте паролями, сроками и открытием приёма работ.</p>
     </section>
     <div class="admin-layout">
+      {% set section = "access" %}
       {% include "_admin_nav.html" %}
       <section class="admin-content" aria-label="Настройки доступа групп">
         {% set open_count = groups | selectattr('is_open') | list | length %}
         {% set closed_count = groups | length - open_count %}
-        <section class="summary-list" aria-label="Сводка групп">
-          <article class="summary-card"><strong id="open_count">{{ open_count }}</strong>Приём открыт</article>
-          <article class="summary-card"><strong id="closed_count">{{ closed_count }}</strong>Приём закрыт</article>
+        <section class="summary-list" aria-label="Сводка по состоянию приёма">
+          <article class="summary-card"><strong id="open_count">{{ open_count }}</strong><span>групп с открытым приёмом</span></article>
+          <article class="summary-card"><strong id="closed_count">{{ closed_count }}</strong><span>групп с закрытым приёмом</span></article>
         </section>
         <section class="group-grid" aria-label="Настройки групп">
           {% for item in groups %}
@@ -58,11 +59,11 @@
                 </label>
                 <label class="field">Срок закрытия
                   <input type="datetime-local" name="closes_at" value="{{ item.closes_at }}">
-                  <span class="field__hint">Оставьте пустым, чтобы не закрывать приём автоматически.</span>
+                  <span class="field__hint">Укажите местное время. Пустое поле означает, что приём не закроется автоматически.</span>
                 </label>
                 <label class="field">Новый пароль
                   <input type="password" name="password" placeholder="Оставить текущий" autocomplete="new-password">
-                  <span class="field__hint">После сохранения пароль нельзя посмотреть.</span>
+                  <span class="field__hint">Оставьте поле пустым, чтобы сохранить текущий пароль. Сохранённый пароль нельзя посмотреть.</span>
                 </label>
                 <div class="group-actions">
                   <button class="button button--primary" type="submit">Сохранить</button>
@@ -71,7 +72,7 @@
               </form>
             </article>
           {% else %}
-            <p class="empty-state">В каталоге пока нет групп. Добавьте группу в разделе «Группы».</p>
+            <p class="empty-state">Групп пока нет. <a href="{{ url_for('admin_catalog_page', kind='groups') }}">Создайте первую группу в каталоге.</a></p>
           {% endfor %}
         </section>
       </section>
