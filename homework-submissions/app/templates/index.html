@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Сдача заданий</title>
+  <meta name="theme-color" content="#0f172a">
+  <title>Сдача заданий — Учебный портал</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
@@ -20,27 +21,53 @@
   <main class="page-shell student-layout">
     <section class="student-layout__intro" aria-labelledby="page_title">
       <p class="eyebrow">Загрузка домашней работы</p>
-      <h1 id="page_title">Сдать работу.<br>Без лишнего.</h1>
-      <p class="lead">Подтвердите доступ своей группы, заполните данные и загрузите готовый файл.</p>
+      <h1 id="page_title">Сдать работу —<br>просто и понятно</h1>
+      <p class="lead">Подтвердите доступ своей группы, укажите данные задания и прикрепите готовый файл.</p>
+      <div class="student-guidance">
+        <h2>Как отправить работу</h2>
+        <ol class="instruction-list">
+          <li><strong>Подтвердите группу.</strong> Выберите свою группу и введите пароль преподавателя.</li>
+          <li><strong>Заполните данные.</strong> Укажите предмет, тему и фамилию с именем.</li>
+          <li><strong>Прикрепите файл.</strong> Проверьте выбранный документ и отправьте его на проверку.</li>
+        </ol>
+        <aside class="submission-tip">
+          <strong>Перед отправкой</strong>
+          <p>Убедитесь, что файл открывается и содержит вашу работу. Максимальный размер — {{ limit }} ГБ.</p>
+        </aside>
+      </div>
     </section>
 
     <section class="panel form-card" aria-label="Форма сдачи работы">
-      <form id="unlock" class="form-stack" method="post" action="{{ url_for('unlock') }}">
-        <div>
-          <p class="eyebrow">Шаг 1 из 2</p>
-          <h2>Подтвердите группу</h2>
+      <div class="student-stepper" aria-label="Шаги отправки работы">
+        <div class="student-step student-step--active">
+          <span class="student-step__number" aria-hidden="true">1</span>
+          <span>Шаг 1: Подтвердите доступ группы</span>
         </div>
-        <label class="field">Группа
-          <select name="group" required>
+        <div class="student-step">
+          <span class="student-step__number" aria-hidden="true">2</span>
+          <span>Шаг 2: Расскажите о работе</span>
+        </div>
+      </div>
+
+      <form id="unlock" class="form-stack" method="post" action="{{ url_for('unlock') }}">
+        <div class="form-heading">
+          <p class="eyebrow">Шаг 1 из 2</p>
+          <h2>Подтвердите доступ группы</h2>
+          <p>Для начала выберите группу и введите пароль доступа.</p>
+        </div>
+        <label class="field" for="group">
+          Группа
+          <select id="group" name="group" required>
             {% for group in catalog.groups %}
-              <option>{{ group.name }}</option>
+              <option value="{{ group.name }}">{{ group.name }}</option>
             {% endfor %}
           </select>
         </label>
-        <label class="field">Пароль группы
-          <input name="password" type="password" required autocomplete="current-password">
+        <label class="field" for="group_password">
+          Пароль группы
+          <input id="group_password" name="password" type="password" required autocomplete="current-password">
         </label>
-        <button class="button button--primary" type="submit">Открыть форму</button>
+        <button class="button button--primary" type="submit">Подтвердить доступ</button>
         <p class="status" id="unlock_status" aria-live="polite"></p>
       </form>
 
@@ -54,40 +81,50 @@
 
       <form id="submit" class="form-stack" method="post" action="{{ url_for('submit') }}" enctype="multipart/form-data" hidden>
         <input id="selected_group" name="group" type="hidden">
-        <div>
+        <div class="form-heading">
           <p class="eyebrow">Шаг 2 из 2</p>
           <h2>Расскажите о работе</h2>
+          <p>Выберите предмет и тему, затем прикрепите файл с выполненным заданием.</p>
         </div>
         <section class="form-section" aria-label="Данные работы">
-          <label class="field">Дисциплина
+          <label class="field" for="discipline">
+            Дисциплина
             <select id="discipline" name="discipline" required>
               {% for subject in catalog.subjects %}
-                <option data-subject-id="{{ subject.id }}">{{ subject.name }}</option>
+                <option value="{{ subject.name }}" data-subject-id="{{ subject.id }}">{{ subject.name }}</option>
               {% endfor %}
             </select>
           </label>
-          <label class="field">Тема работы
+          <label class="field" for="work">
+            Тема работы
             <select id="work" name="work" required>
               <option value="">Выберите тему</option>
               {% for topic in catalog.topics %}
-                <option data-subject-id="{{ topic.subject_id }}">{{ topic.name }}</option>
+                <option value="{{ topic.name }}" data-subject-id="{{ topic.subject_id }}">{{ topic.name }}</option>
               {% endfor %}
             </select>
             <span class="field__hint" id="topic_hint" hidden></span>
           </label>
-          <label class="field">ФИО
-            <input name="student_name" required autocomplete="name">
+          <label class="field" for="student_name">
+            ФИО
+            <input id="student_name" name="student_name" required autocomplete="name" placeholder="Например, Иванов Иван">
           </label>
         </section>
         <section class="form-section" aria-label="Файл работы">
-          <label class="file-picker">
-            <span class="file-picker__title">Выберите файл</span>
-            <span class="file-picker__detail" id="file_name">Файл до {{ limit }} ГБ</span>
-            <input id="file" name="file" type="file" required>
-          </label>
+          <label class="field" for="file">Файл с работой</label>
+          <div class="file-picker" id="file_dropzone">
+            <input id="file" name="file" type="file" required aria-describedby="file_name file_limit">
+            <svg class="file-picker__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+              <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 15.5v3A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="file-picker__title">Перетащите файл сюда или нажмите, чтобы выбрать</span>
+            <span class="file-picker__detail" id="file_name">Файл не выбран</span>
+            <span class="field__hint" id="file_limit">Максимальный размер: {{ limit }} ГБ</span>
+            <button class="button button--outline file-picker__remove" id="clear_file" type="button" hidden>Удалить файл</button>
+          </div>
         </section>
         <button class="button button--primary" type="submit">Отправить работу</button>
-        <p class="status" id="submit_status" aria-live="polite"></p>
+        <p class="status" id="submit_status" aria-live="polite" role="status"></p>
       </form>
     </section>
   </main>

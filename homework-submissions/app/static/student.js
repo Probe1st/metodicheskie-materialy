@@ -1,3 +1,14 @@
+const stepperSteps = Array.from(document.querySelectorAll('.student-step'));
+function showActiveStep(activeIndex) {
+  stepperSteps.forEach((step, index) => {
+    step.classList.toggle('student-step--active', index === activeIndex);
+    if (index === activeIndex) step.setAttribute('aria-current', 'step');
+    else step.removeAttribute('aria-current');
+  });
+}
+
+showActiveStep(0);
+
 const unlockForm = document.querySelector('#unlock');
 const submitForm = document.querySelector('#submit');
 const unlockStatus = document.querySelector('#unlock_status');
@@ -17,6 +28,42 @@ const topicOptions = Array.from(work.options)
   .filter((option) => option.dataset.subjectId)
   .map((option) => option.cloneNode(true));
 
+const dropzone = document.querySelector('#file_dropzone');
+const clearFile = document.querySelector('#clear_file');
+
+function resetFilePreview() {
+  file.value = '';
+  fileName.textContent = 'Файл не выбран';
+  clearFile.hidden = true;
+  dropzone.classList.remove('is-dragging');
+}
+
+function formatFileSize(bytes) {
+  if (bytes < 1024 * 1024) {
+    return `${Math.max(1, Math.round(bytes / 1024))} КБ`;
+  }
+  return `${(bytes / (1024 * 1024)).toFixed(1)} МБ`;
+}
+
+function showSelectedFile(selectedFile) {
+  const maxBytes = window.submissionLimit * 1024 * 1024 * 1024;
+  if (selectedFile.size > maxBytes) {
+    resetFilePreview();
+    setStatus(submitStatus, 'error', `Файл превышает допустимый размер ${window.submissionLimit} ГБ. Выберите файл меньшего размера.`);
+    return false;
+  }
+  fileName.textContent = `${selectedFile.name} · ${formatFileSize(selectedFile.size)}`;
+  clearFile.hidden = false;
+  setStatus(submitStatus, '', '');
+  return true;
+}
+
+function acceptDroppedFile(selectedFile) {
+  const transfer = new DataTransfer();
+  transfer.items.add(selectedFile);
+  file.files = transfer.files;
+  showSelectedFile(selectedFile);
+}
 function setStatus(element, state, message) {
   element.dataset.state = state;
   element.textContent = message;
@@ -28,8 +75,10 @@ function setBusy(form, busy, label) {
   button.textContent = label;
 }
 
+let groupAssignments = [];
 
 function resetAccess() {
+  groupAssignments = [];
   selectedGroup.value = '';
   groupDisplay.textContent = '';
   accessSummary.hidden = true;
@@ -37,28 +86,81 @@ function resetAccess() {
   unlockForm.hidden = false;
   unlockForm.querySelector('[name="password"]').value = '';
   unlockForm.querySelector('[name="password"]').focus();
+  showActiveStep(0);
+  setBusy(unlockForm, false, 'Подтвердить доступ');
 }
 function updateTopics() {
   const selectedSubjectId = discipline.selectedOptions[0]?.dataset.subjectId;
-  const availableTopics = topicOptions
-    .filter((option) => option.dataset.subjectId === selectedSubjectId)
-    .map((option) => option.cloneNode(true));
+  let availableTopics = [];
+
+  const assignedForSubject = groupAssignments.length > 0
+    ? groupAssignments.filter((a) => a.subject_id === selectedSubjectId)
+    : [];
+
+  if (assignedForSubject.length > 0) {
+    availableTopics = assignedForSubject.map((a) => {
+      const opt = document.createElement('option');
+      opt.value = a.topic_name;
+      opt.dataset.subjectId = a.subject_id;
+      opt.dataset.assignmentId = a.id;
+      opt.textContent = a.label;
+      return opt;
+    });
+  } else {
+    availableTopics = topicOptions
+      .filter((option) => option.dataset.subjectId === selectedSubjectId)
+      .map((option) => option.cloneNode(true));
+  }
+
   work.replaceChildren(topicPlaceholder.cloneNode(true), ...availableTopics);
 
   const hasTopics = availableTopics.length > 0;
   work.disabled = !hasTopics;
   topicHint.hidden = hasTopics;
-  topicHint.textContent = hasTopics ? '' : 'Для выбранного предмета нет доступных тем.';
+  topicHint.textContent = hasTopics
+    ? ''
+    : 'Для выбранного предмета нет доступных тем.';
   submitButton.disabled = !hasTopics;
 }
 
 discipline.addEventListener('change', () => updateTopics());
 updateTopics();
+submitButton.disabled = work.disabled;
 
 
 file.addEventListener('change', () => {
-  fileName.textContent = file.files[0] ? file.files[0].name : `Файл до ${window.submissionLimit} ГБ`;
+  if (file.files[0]) showSelectedFile(file.files[0]);
+  else resetFilePreview();
 });
+
+clearFile.addEventListener('click', () => {
+  resetFilePreview();
+  file.focus();
+});
+
+['dragenter', 'dragover'].forEach((eventName) => {
+  dropzone.addEventListener(eventName, (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    dropzone.classList.add('is-dragging');
+  });
+});
+
+['dragleave', 'dragend'].forEach((eventName) => {
+  dropzone.addEventListener(eventName, (event) => {
+    event.preventDefault();
+    if (!dropzone.contains(event.relatedTarget)) dropzone.classList.remove('is-dragging');
+  });
+});
+
+dropzone.addEventListener('drop', (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  dropzone.classList.remove('is-dragging');
+  const droppedFile = event.dataTransfer?.files[0];
+  if (droppedFile) acceptDroppedFile(droppedFile);
+});
+
 changeGroup.addEventListener('click', resetAccess);
 
 unlockForm.addEventListener('submit', async (event) => {
@@ -68,25 +170,40 @@ unlockForm.addEventListener('submit', async (event) => {
   setStatus(unlockStatus, 'working', 'Проверяем доступ…');
 
   try {
-    const response = await fetch('/unlock', { method: 'POST', body: formData });
+    const response = await fetch('/unlock', {
+      method: 'POST',
+      body: formData,
+      headers: { 'Accept': 'application/json' },
+    });
     if (!response.ok) throw new Error('denied');
+
+    if (response.status === 200) {
+      const data = await response.json();
+      groupAssignments = data.assignments || [];
+    }
 
     selectedGroup.value = formData.get('group');
     groupDisplay.textContent = selectedGroup.value;
     unlockForm.hidden = true;
     accessSummary.hidden = false;
     submitForm.hidden = false;
+    showActiveStep(1);
     setStatus(unlockStatus, '', '');
+    updateTopics();
     discipline.focus();
   } catch {
     setStatus(unlockStatus, 'error', 'Доступ к приёму работ закрыт или пароль неверен.');
   } finally {
-    setBusy(unlockForm, false, 'Открыть форму');
+    setBusy(unlockForm, false, 'Подтвердить доступ');
   }
 });
 
 submitForm.addEventListener('submit', async (event) => {
   event.preventDefault();
+  const selectedFile = file.files[0];
+  if (selectedFile && !showSelectedFile(selectedFile)) return;
+  if (work.disabled) return;
+
   setBusy(submitForm, true, 'Отправляем…');
   setStatus(submitStatus, 'working', 'Загружаем файл…');
 
