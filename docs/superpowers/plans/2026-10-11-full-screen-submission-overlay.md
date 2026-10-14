@@ -43,7 +43,7 @@
   - Animations: `@keyframes spin`, `@keyframes overlayFadeIn`, `@keyframes overlayCardPop`.
   - Reduced-motion overrides in `@media (prefers-reduced-motion: reduce)`.
 
-- [ ] **Step 1: Verify baseline pytest tests pass**
+- [x] **Step 1: Verify baseline pytest tests pass**
 
 Run:
 ```bash
@@ -54,7 +54,7 @@ Expected output:
 ============================== 72 passed in ... ==============================
 ```
 
-- [ ] **Step 2: Add semantic overlay tokens to light and dark themes in `styles.css`**
+- [x] **Step 2: Add semantic overlay tokens to light and dark themes in `styles.css`**
 
 In `homework-submissions/app/static/styles.css`:
 1. In `:root, [data-theme="light"]` (around line 85), append:
@@ -94,7 +94,7 @@ In `homework-submissions/app/static/styles.css`:
     --color-overlay-spinner-head: var(--primitive-dark-indigo-700);
 ```
 
-- [ ] **Step 3: Add overlay layout, card, spinner, and badge styles to `styles.css`**
+- [x] **Step 3: Add overlay layout, card, spinner, and badge styles to `styles.css`**
 
 Add the following rules immediately before the responsive `@media (min-width: 375px)` section (around line 355):
 
@@ -246,7 +246,7 @@ Add the following rules immediately before the responsive `@media (min-width: 37
 }
 ```
 
-- [ ] **Step 4: Update reduced-motion media query in `styles.css`**
+- [x] **Step 4: Update reduced-motion media query in `styles.css`**
 
 In `@media (prefers-reduced-motion: reduce)` at the end of `styles.css`, append:
 ```css
@@ -260,7 +260,7 @@ In `@media (prefers-reduced-motion: reduce)` at the end of `styles.css`, append:
   }
 ```
 
-- [ ] **Step 5: Run tests and verify CSS file integrity**
+- [x] **Step 5: Run tests and verify CSS file integrity**
 
 Run:
 ```bash
@@ -271,7 +271,7 @@ Expected output:
 ============================== 72 passed in ... ==============================
 ```
 
-- [ ] **Step 6: Commit CSS styles**
+- [x] **Step 6: Commit CSS styles**
 
 Run:
 ```bash
@@ -295,7 +295,7 @@ git commit -m "feat(css): add styles and tokens for full-screen submission overl
   - Success view `#overlay_success` with checkmark SVG, `#overlay_success_title`, `#overlay_filename`, and button `#overlay_reset_button`.
   - Error view `#overlay_error` with alert SVG, `#overlay_error_title`, `#overlay_error_message`, and button `#overlay_retry_button`.
 
-- [ ] **Step 1: Write a failing test in `tests/test_web.py`**
+- [x] **Step 1: Write a failing test in `tests/test_web.py`**
 
 Append to `homework-submissions/tests/test_web.py`:
 ```python
@@ -330,7 +330,7 @@ def test_student_index_renders_submission_overlay_dialog(client_env):
     assert "Попробовать снова" in html
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run:
 ```bash
@@ -341,7 +341,7 @@ Expected output:
 FAILED tests/test_web.py::test_student_index_renders_submission_overlay_dialog - assert 'id="submission_overlay"' in html
 ```
 
-- [ ] **Step 3: Add `#submission_overlay` markup to `homework-submissions/app/templates/index.html`**
+- [x] **Step 3: Add `#submission_overlay` markup to `homework-submissions/app/templates/index.html`**
 
 In `homework-submissions/app/templates/index.html`, insert the overlay markup right after `</main>` and before `<script>` (around line 131):
 
@@ -405,7 +405,7 @@ In `homework-submissions/app/templates/index.html`, insert the overlay markup ri
   </div>
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run:
 ```bash
@@ -416,7 +416,7 @@ Expected output:
 PASSED tests/test_web.py::test_student_index_renders_submission_overlay_dialog
 ```
 
-- [ ] **Step 5: Run full test suite**
+- [x] **Step 5: Run full test suite**
 
 Run:
 ```bash
@@ -427,7 +427,7 @@ Expected output:
 ============================== 73 passed in ... ==============================
 ```
 
-- [ ] **Step 6: Commit template markup and test**
+- [x] **Step 6: Commit template markup and test**
 
 Run:
 ```bash
@@ -454,7 +454,7 @@ git commit -m "feat(html): add submission overlay modal dialog markup to student
   - Retry listener on `#overlay_retry_button` hiding overlay and keeping all form inputs and file intact.
   - Keyboard trap and `Escape` key containment within `submissionOverlay`.
 
-- [ ] **Step 1: Declare overlay elements and state transition helpers in `student.js`**
+- [x] **Step 1: Declare overlay elements and state transition helpers in `student.js`**
 
 In `homework-submissions/app/static/student.js`, add around line 33 (after `clearFile` declaration):
 
@@ -490,7 +490,7 @@ function hideOverlay() {
 }
 ```
 
-- [ ] **Step 2: Replace `submitForm` submit event listener with overlay lifecycle logic**
+- [x] **Step 2: Replace `submitForm` submit event listener with overlay lifecycle logic**
 
 In `homework-submissions/app/static/student.js`, replace the existing `submitForm.addEventListener('submit', ...)` block (around line 201) with:
 
@@ -561,7 +561,7 @@ submitForm.addEventListener('submit', async (event) => {
 });
 ```
 
-- [ ] **Step 3: Add event listeners for reset, retry, and keyboard focus trapping**
+- [x] **Step 3: Add event listeners for reset, retry, and keyboard focus trapping**
 
 Immediately following the `submitForm` listener, append:
 
@@ -619,7 +619,7 @@ if (submissionOverlay) {
 }
 ```
 
-- [ ] **Step 4: Verify script syntax and run pytest test suite**
+- [x] **Step 4: Verify script syntax and run pytest test suite**
 
 Run:
 ```bash
@@ -631,7 +631,7 @@ Expected output:
 ============================== 73 passed in ... ==============================
 ```
 
-- [ ] **Step 5: Commit client-side script changes**
+- [x] **Step 5: Commit client-side script changes**
 
 Run:
 ```bash
@@ -650,7 +650,7 @@ git commit -m "feat(js): implement overlay lifecycle, double-click prevention, a
 - Consumes: Completed implementations from Tasks 1, 2, and 3.
 - Produces: Verified full regression pass, push to branch `feat/subject-topic-ownership` updating PR #5.
 
-- [ ] **Step 1: Run complete pytest test suite**
+- [x] **Step 1: Run complete pytest test suite**
 
 Run:
 ```bash
@@ -661,7 +661,7 @@ Expected output:
 ============================== 73 passed in ... ==============================
 ```
 
-- [ ] **Step 2: Audit codebase for placeholders or TODOs**
+- [x] **Step 2: Audit codebase for placeholders or TODOs**
 
 Run:
 ```bash
@@ -670,7 +670,7 @@ git grep -i -E "TODO|FIXME|TBD|placeholder" -- "homework-submissions/app/" "docs
 Expected output:
 Only genuine UI placeholders (e.g. `placeholder="Например, Иванов Иван"`, `topicPlaceholder`) and no developer TODO comments.
 
-- [ ] **Step 3: Push changes to remote to update PR #5**
+- [x] **Step 3: Push changes to remote to update PR #5**
 
 Run:
 ```bash
