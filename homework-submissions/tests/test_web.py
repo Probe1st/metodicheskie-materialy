@@ -748,3 +748,44 @@ def test_subject_and_topic_delete_cascades_to_assignments(client_env):
     del_subj_resp = client.post(f"/admin/subjects/{new_subj_id}/delete")
     assert del_subj_resp.status_code == 204
     assert store.get(item2.id) is None
+
+
+def test_index_contains_accessible_submission_overlay(client_env):
+    client, _ = client_env
+    response = client.get("/")
+    assert response.status_code == 200
+    html = response.get_data(as_text=True)
+    assert 'id="submission_overlay"' in html
+    assert 'role="dialog"' in html
+    assert 'aria-modal="true"' in html
+    assert 'tabindex="-1"' in html
+    assert 'id="overlay_loading"' in html
+    assert 'id="overlay_success"' in html
+    assert 'id="overlay_success_title"' in html
+    assert 'id="overlay_error"' in html
+    assert 'id="overlay_error_title"' in html
+    assert 'role="alert"' in html
+    assert 'aria-live="assertive"' in html
+    assert 'id="overlay_filename"' in html
+    assert 'id="overlay_reset_button"' in html
+    assert 'id="overlay_retry_button"' in html
+
+
+def test_submit_handles_http_errors_and_returns_status(client_env, tmp_path):
+    client, private_dir = client_env
+    configure_group(private_dir)
+
+    # 1. Upload without group authorization returns 403
+    unauth_resp = client.post("/submit", data=valid_submission())
+    assert unauth_resp.status_code == 403
+
+    # 2. Unlock group and submit valid upload returns 201 with filename in JSON payload
+    unlock_response = client.post("/unlock", data={"group": "ИС 25/9-1П", "password": "1234"})
+    assert unlock_response.status_code == 204
+
+    submit_response = client.post("/submit", data=valid_submission())
+    assert submit_response.status_code == 201
+    assert submit_response.is_json
+    data = submit_response.get_json()
+    assert "filename" in data
+    assert data["filename"] == "Иванов Иван Иванович 1.pdf"

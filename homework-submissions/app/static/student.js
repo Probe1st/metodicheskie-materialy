@@ -30,7 +30,59 @@ const topicOptions = Array.from(work.options)
 
 const dropzone = document.querySelector('#file_dropzone');
 const clearFile = document.querySelector('#clear_file');
+const studentName = document.querySelector('#student_name');
 
+const submissionOverlay = document.querySelector('#submission_overlay');
+const overlayLoading = document.querySelector('#overlay_loading');
+const overlaySuccess = document.querySelector('#overlay_success');
+const overlayError = document.querySelector('#overlay_error');
+const overlayFilename = document.querySelector('#overlay_filename');
+const overlayErrorMessage = document.querySelector('#overlay_error_message');
+const overlayResetButton = document.querySelector('#overlay_reset_button');
+const overlayRetryButton = document.querySelector('#overlay_retry_button');
+let isSubmitting = false;
+const titleMap = {
+  loading: 'overlay_title',
+  success: 'overlay_success_title',
+  error: 'overlay_error_title',
+};
+
+function showOverlay(state) {
+  if (!submissionOverlay) return;
+  submissionOverlay.hidden = false;
+  document.body.style.overflow = 'hidden';
+
+  if (titleMap[state]) {
+    submissionOverlay.setAttribute('aria-labelledby', titleMap[state]);
+  }
+  if (state === 'error') {
+    submissionOverlay.setAttribute('aria-describedby', 'overlay_error_message');
+  } else {
+    submissionOverlay.removeAttribute('aria-describedby');
+  }
+
+  if (overlayLoading) overlayLoading.hidden = state !== 'loading';
+  if (overlaySuccess) overlaySuccess.hidden = state !== 'success';
+  if (overlayError) overlayError.hidden = state !== 'error';
+
+  if (state === 'loading') {
+    submissionOverlay.focus();
+  } else if (state === 'success') {
+    if (overlayResetButton) overlayResetButton.focus();
+  } else if (state === 'error') {
+    if (overlayRetryButton) overlayRetryButton.focus();
+  }
+}
+
+function hideOverlay() {
+  if (!submissionOverlay) return;
+  submissionOverlay.hidden = true;
+  document.body.style.overflow = '';
+  submissionOverlay.removeAttribute('aria-describedby');
+  if (overlayLoading) overlayLoading.hidden = true;
+  if (overlaySuccess) overlaySuccess.hidden = true;
+  if (overlayError) overlayError.hidden = true;
+}
 function resetFilePreview() {
   file.value = '';
   fileName.textContent = 'Файл не выбран';
@@ -200,23 +252,145 @@ unlockForm.addEventListener('submit', async (event) => {
 
 submitForm.addEventListener('submit', async (event) => {
   event.preventDefault();
-  const selectedFile = file.files[0];
-  if (selectedFile && !showSelectedFile(selectedFile)) return;
-  if (work.disabled) return;
+  if (isSubmitting) return;
 
+  const selectedFile = file.files[0];
+  if (!selectedFile) {
+    setStatus(submitStatus, 'error', 'Прикрепите файл с выполненной работой.');
+    file.focus();
+    return;
+  }
+  if (!showSelectedFile(selectedFile)) return;
+  if (work.disabled || !work.value) {
+    setStatus(submitStatus, 'error', 'Выберите тему работы.');
+    work.focus();
+    return;
+  }
+  if (studentName && !studentName.value.trim()) {
+    setStatus(submitStatus, 'error', 'Укажите ФИО студента.');
+    studentName.focus();
+    return;
+  }
+
+  isSubmitting = true;
+  showOverlay('loading');
   setBusy(submitForm, true, 'Отправляем…');
   setStatus(submitStatus, 'working', 'Загружаем файл…');
 
   try {
-    const response = await fetch('/submit', { method: 'POST', body: new FormData(submitForm) });
-    if (!response.ok) throw new Error('failed');
+    const signal = typeof AbortSignal.timeout === 'function'
+      ? AbortSignal.timeout(600000)
+      : (() => {
+          const controller = new AbortController();
+          setTimeout(() => controller.abort(), 600000);
+          return controller.signal;
+        })();
 
-    const { filename } = await response.json();
-    setStatus(submitStatus, 'success', `Работа принята: ${filename}`);
-  } catch {
-    setStatus(submitStatus, 'error', 'Ошибка отправки: проверьте статус приёма и поля формы.');
-  } finally {
+    const response = await fetch('/submit', {
+      method: 'POST',
+      body: new FormData(submitForm),
+      signal,
+    });
+
+    if (!response.ok) {
+      if (response.status === 413) {
+        throw new Error('Размер файла превышает допустимый лимит сервера.');
+      } else if (response.status === 403) {
+        throw new Error('Приём работ для данной группы закрыт или дедлайн истёк.');
+      } else if (response.status === 400) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || 'Неверные параметры отправки или неподдерживаемый файл.');
+      } else if (response.status === 500) {
+        throw new Error('Внутренняя ошибка сервера при сохранении работы.');
+      } else {
+        throw new Error('Не удалось отправить работу. Проверьте соединение.');
+      }
+    }
+
+    const data = await response.json().catch(() => ({}));
+    const confirmedName = data.filename || (selectedFile && selectedFile.name) || 'Файл принят';
+    if (overlayFilename) overlayFilename.textContent = confirmedName;
+    showOverlay('success');
+    setStatus(submitStatus, 'success', 'Работа принята: ' + confirmedName);
+  } catch (err) {
+    isSubmitting = false;
+    const msg = err.name === 'TimeoutError'
+      ? 'Время ожидания загрузки файла истекло. Проверьте сеть.'
+      : (err.message || 'Ошибка отправки: проверьте статус приёма и поля формы.');
+    if (overlayErrorMessage) overlayErrorMessage.textContent = msg;
+    showOverlay('error');
+    setStatus(submitStatus, 'error', msg);
     setBusy(submitForm, false, 'Отправить работу');
     submitButton.disabled = work.disabled;
+  }
+});
+
+if (overlayResetButton) {
+  overlayResetButton.addEventListener('click', () => {
+    isSubmitting = false;
+    hideOverlay();
+    file.value = '';
+    resetFilePreview();
+    setStatus(submitStatus, '', '');
+    updateTopics();
+    discipline.focus();
+    setBusy(submitForm, false, 'Отправить работу');
+    submitButton.disabled = work.disabled;
+  });
+}
+
+if (overlayRetryButton) {
+  overlayRetryButton.addEventListener('click', () => {
+    isSubmitting = false;
+    hideOverlay();
+    setBusy(submitForm, false, 'Отправить работу');
+    submitButton.disabled = work.disabled;
+    if (submitButton && !submitButton.disabled) {
+      submitButton.focus();
+    } else {
+      file.focus();
+    }
+  });
+}
+
+document.addEventListener('keydown', (event) => {
+  if (!submissionOverlay || submissionOverlay.hidden) return;
+
+  if (event.key === 'Escape') {
+    if (overlayError && !overlayError.hidden) {
+      if (overlayRetryButton) overlayRetryButton.click();
+    } else {
+      event.preventDefault();
+    }
+    return;
+  }
+
+  if (event.key === 'Tab') {
+    const focusable = submissionOverlay.querySelectorAll(
+      'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    const visibleFocusable = Array.from(focusable).filter(
+      (el) => !el.closest('[hidden]')
+    );
+
+    if (visibleFocusable.length === 0) {
+      event.preventDefault();
+      return;
+    }
+
+    const first = visibleFocusable[0];
+    const last = visibleFocusable[visibleFocusable.length - 1];
+
+    if (event.shiftKey) {
+      if (document.activeElement === first || !submissionOverlay.contains(document.activeElement)) {
+        event.preventDefault();
+        last.focus();
+      }
+    } else {
+      if (document.activeElement === last || !submissionOverlay.contains(document.activeElement)) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
   }
 });
