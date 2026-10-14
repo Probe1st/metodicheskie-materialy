@@ -30,7 +30,43 @@ const topicOptions = Array.from(work.options)
 
 const dropzone = document.querySelector('#file_dropzone');
 const clearFile = document.querySelector('#clear_file');
+const studentName = document.querySelector('#student_name');
 
+const submissionOverlay = document.querySelector('#submission_overlay');
+const overlayLoading = document.querySelector('#overlay_loading');
+const overlaySuccess = document.querySelector('#overlay_success');
+const overlayError = document.querySelector('#overlay_error');
+const overlayFilename = document.querySelector('#overlay_filename');
+const overlayErrorMessage = document.querySelector('#overlay_error_message');
+const overlayResetButton = document.querySelector('#overlay_reset_button');
+const overlayRetryButton = document.querySelector('#overlay_retry_button');
+
+function showOverlay(state) {
+  if (!submissionOverlay) return;
+  submissionOverlay.hidden = false;
+  document.body.style.overflow = 'hidden';
+
+  if (overlayLoading) overlayLoading.hidden = state !== 'loading';
+  if (overlaySuccess) overlaySuccess.hidden = state !== 'success';
+  if (overlayError) overlayError.hidden = state !== 'error';
+
+  if (state === 'success') {
+    if (overlayResetButton) overlayResetButton.focus();
+  } else if (state === 'error') {
+    if (overlayRetryButton) overlayRetryButton.focus();
+  }
+}
+
+function hideOverlay() {
+  if (!submissionOverlay) return;
+  submissionOverlay.hidden = true;
+  document.body.style.overflow = '';
+  if (overlayLoading) overlayLoading.hidden = true;
+  if (overlaySuccess) overlaySuccess.hidden = true;
+  if (overlayError) overlayError.hidden = true;
+}
+
+const setOverlayState = showOverlay;
 function resetFilePreview() {
   file.value = '';
   fileName.textContent = 'Файл не выбран';
@@ -201,9 +237,24 @@ unlockForm.addEventListener('submit', async (event) => {
 submitForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   const selectedFile = file.files[0];
-  if (selectedFile && !showSelectedFile(selectedFile)) return;
-  if (work.disabled) return;
+  if (!selectedFile) {
+    setStatus(submitStatus, 'error', 'Прикрепите файл с выполненной работой.');
+    file.focus();
+    return;
+  }
+  if (!showSelectedFile(selectedFile)) return;
+  if (work.disabled || !work.value) {
+    setStatus(submitStatus, 'error', 'Выберите тему работы.');
+    work.focus();
+    return;
+  }
+  if (studentName && !studentName.value.trim()) {
+    setStatus(submitStatus, 'error', 'Укажите ФИО студента.');
+    studentName.focus();
+    return;
+  }
 
+  showOverlay('loading');
   setBusy(submitForm, true, 'Отправляем…');
   setStatus(submitStatus, 'working', 'Загружаем файл…');
 
@@ -212,11 +263,78 @@ submitForm.addEventListener('submit', async (event) => {
     if (!response.ok) throw new Error('failed');
 
     const { filename } = await response.json();
-    setStatus(submitStatus, 'success', `Работа принята: ${filename}`);
+    if (overlayFilename) overlayFilename.textContent = filename;
+    showOverlay('success');
+    setStatus(submitStatus, 'success', 'Работа принята: ' + filename);
   } catch {
-    setStatus(submitStatus, 'error', 'Ошибка отправки: проверьте статус приёма и поля формы.');
+    const errorMessage = 'Ошибка отправки: проверьте статус приёма и поля формы.';
+    if (overlayErrorMessage) overlayErrorMessage.textContent = errorMessage;
+    showOverlay('error');
+    setStatus(submitStatus, 'error', errorMessage);
   } finally {
     setBusy(submitForm, false, 'Отправить работу');
     submitButton.disabled = work.disabled;
+  }
+});
+
+if (overlayResetButton) {
+  overlayResetButton.addEventListener('click', () => {
+    hideOverlay();
+    file.value = '';
+    resetFilePreview();
+    setStatus(submitStatus, '', '');
+    updateTopics();
+    discipline.focus();
+  });
+}
+
+if (overlayRetryButton) {
+  overlayRetryButton.addEventListener('click', () => {
+    hideOverlay();
+    if (submitButton && !submitButton.disabled) {
+      submitButton.focus();
+    } else {
+      file.focus();
+    }
+  });
+}
+
+document.addEventListener('keydown', (event) => {
+  if (!submissionOverlay || submissionOverlay.hidden) return;
+
+  if (event.key === 'Escape') {
+    if (overlayError && !overlayError.hidden) {
+      if (overlayRetryButton) overlayRetryButton.click();
+    }
+    return;
+  }
+
+  if (event.key === 'Tab') {
+    const focusable = submissionOverlay.querySelectorAll(
+      'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    const visibleFocusable = Array.from(focusable).filter(
+      (el) => !el.closest('[hidden]')
+    );
+
+    if (visibleFocusable.length === 0) {
+      event.preventDefault();
+      return;
+    }
+
+    const first = visibleFocusable[0];
+    const last = visibleFocusable[visibleFocusable.length - 1];
+
+    if (event.shiftKey) {
+      if (document.activeElement === first || !submissionOverlay.contains(document.activeElement)) {
+        event.preventDefault();
+        last.focus();
+      }
+    } else {
+      if (document.activeElement === last || !submissionOverlay.contains(document.activeElement)) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
   }
 });
