@@ -748,3 +748,19 @@ def test_subject_and_topic_delete_cascades_to_assignments(client_env):
     del_subj_resp = client.post(f"/admin/subjects/{new_subj_id}/delete")
     assert del_subj_resp.status_code == 204
     assert store.get(item2.id) is None
+
+
+def test_index_contains_accessible_submission_overlay(client_env):
+    client, _ = client_env
+    response = client.get("/")
+    assert response.status_code == 200
+    html = response.get_data(as_text=True)
+    assert 'id="submission_overlay"' in html
+    assert 'role="dialog"' in html
+    assert 'aria-modal="true"' in html
+    assert 'id="overlay_loading"' in html
+    assert 'id="overlay_success"' in html
+    assert 'id="overlay_error"' in html
+    assert 'id="overlay_filename"' in html
+    assert 'id="overlay_reset_button"' in html
+    assert 'id="overlay_retry_button"' in html
