@@ -7,9 +7,12 @@ from threading import Event, Thread
 from uuid import UUID
 
 import pytest
-
 from app import json_catalog
-from app.catalog_store import CatalogItemNotFound, CatalogNameConflict, create_catalog_store
+from app.catalog_store import (
+    CatalogItemNotFound,
+    CatalogNameConflict,
+    create_catalog_store,
+)
 
 
 @pytest.fixture
@@ -88,7 +91,7 @@ def test_topic_update_and_bulk_move_preserve_ids_and_reject_conflicts_atomically
 
 
 def test_deleting_subject_moves_topics_or_rejects_conflict_without_changes(store):
-    subject_a, subject_b, fallback = store.snapshot().subjects
+    subject_a, _subject_b, fallback = store.snapshot().subjects
     conflict = store.create_topic('Тема А', fallback.id)
     before = store.snapshot()
     with pytest.raises(CatalogNameConflict):
@@ -184,7 +187,7 @@ def test_concurrent_migration_reader_uses_persisted_uuids(store, monkeypatch):
     def take_snapshot():
         try:
             snapshots.put(store.snapshot())
-        except Exception as error:
+        except (OSError, ValueError, KeyError) as error:
             snapshots.put(error)
 
     monkeypatch.setattr(store, '_read', pause_after_initial_read)

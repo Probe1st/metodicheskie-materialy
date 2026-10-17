@@ -104,6 +104,10 @@ def create_app(config=None):
             return jsonify(error="topic_name_conflict", names=error.names), 400
         return jsonify(error="name_conflict"), 400
 
+    @app.get("/favicon.ico")
+    def favicon():
+        return app.send_static_file("favicon.ico")
+
     @app.get("/")
     def index():
         return render_template("index.html", catalog=catalog(), limit=app.config["MAX_UPLOAD_GB"])

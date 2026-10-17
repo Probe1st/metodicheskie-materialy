@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import sqlite3
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Iterable
 
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -164,10 +164,7 @@ class AccessStore:
             return False
 
         deadline = _parse_iso_utc(row["closes_at_utc"])
-        if deadline and current_time >= deadline:
-            return False
-
-        return True
+        return not (deadline and current_time >= deadline)
 
     def groups(self) -> tuple[GroupAccess, ...]:
         with self._connect() as conn:

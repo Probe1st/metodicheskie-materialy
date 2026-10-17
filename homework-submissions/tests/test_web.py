@@ -1,7 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor
-from threading import Event
 from io import BytesIO
 from pathlib import Path
+from threading import Event
 
 import pytest
 from app.access import AccessStore
@@ -452,6 +452,7 @@ def test_admin_assignments_requires_admin_auth(client_env):
 
 def test_admin_assignments_crud_and_conflict(client_env):
     from uuid import UUID
+
     from app.assignments import AssignmentStore
     from app.catalog_store import create_catalog_store
     client, private_dir = client_env
@@ -639,6 +640,7 @@ def test_admin_assignments_page_authenticated(client_env):
 
 def test_admin_assignments_catalog_validation(client_env):
     from uuid import uuid4
+
     from app.catalog_store import create_catalog_store
     client, _ = client_env
     client.post("/admin/login", data={"password": "admin-secret"})
@@ -717,6 +719,7 @@ def test_admin_assignments_catalog_validation(client_env):
 
 def test_subject_and_topic_delete_cascades_to_assignments(client_env):
     from uuid import UUID
+
     from app.assignments import AssignmentStore
     from app.catalog_store import create_catalog_store
     client, private_dir = client_env
@@ -789,3 +792,40 @@ def test_submit_handles_http_errors_and_returns_status(client_env, tmp_path):
     data = submit_response.get_json()
     assert "filename" in data
     assert data["filename"] == "Иванов Иван Иванович 1.pdf"
+
+
+def test_favicon_and_logo_assets_served(client_env):
+    client, _ = client_env
+    fav_resp = client.get("/favicon.ico")
+    assert fav_resp.status_code == 200
+    assert "image/" in fav_resp.content_type
+
+    logo_resp = client.get("/static/logo.svg")
+    assert logo_resp.status_code == 200
+    assert "svg" in logo_resp.content_type
+
+
+def test_brand_logo_rendered_in_templates(client_env):
+    client, _ = client_env
+    index_html = client.get("/").get_data(as_text=True)
+    assert 'class="brand__logo"' in index_html
+    assert 'logo.svg' in index_html
+    assert 'favicon.svg' in index_html
+
+    admin_html = client.get("/admin").get_data(as_text=True)
+    assert 'class="brand__logo"' in admin_html
+    assert 'logo.svg' in admin_html
+    assert 'favicon.svg' in admin_html
+
+    client.post("/admin/login", data={"password": "admin-secret"})
+    catalog_html = client.get("/admin/groups").get_data(as_text=True)
+    assert 'class="brand__logo"' in catalog_html
+    assert 'logo.svg' in catalog_html
+
+    access_html = client.get("/admin/access").get_data(as_text=True)
+    assert 'class="brand__logo"' in access_html
+    assert 'logo.svg' in access_html
+
+    assignments_html = client.get("/admin/assignments").get_data(as_text=True)
+    assert 'class="brand__logo"' in assignments_html
+    assert 'logo.svg' in assignments_html

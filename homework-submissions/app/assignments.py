@@ -1,8 +1,9 @@
 from __future__ import annotations
-from collections.abc import Generator
-from contextlib import contextmanager
+
 import re
 import sqlite3
+from collections.abc import Generator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
