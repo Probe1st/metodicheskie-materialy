@@ -8,6 +8,11 @@ def test_storage_uses_safe_folder_and_attempt_numbers(tmp_path: Path) -> None:
     directory = destination_directory(tmp_path, "ИС 25/9-1П", "Архитектура", "Работа")
     first = write_upload(BytesIO(b"one"), "answer.tar.gz", "Иванов Иван Иванович", directory)
     second = write_upload(BytesIO(b"two"), "answer.pdf", "Иванов Иван Иванович", directory)
-    assert directory.name == "ИС 25／9-1П-Архитектура-Работа"
+    assert directory == tmp_path / "ИС 25／9-1П" / "Архитектура" / "Работа"
+    assert directory.is_dir()
+    assert (tmp_path / "ИС 25／9-1П").is_dir()
+    assert (tmp_path / "ИС 25／9-1П" / "Архитектура").is_dir()
     assert first.name == "Иванов Иван Иванович 1.tar.gz"
     assert second.name == "Иванов Иван Иванович 2.pdf"
+    assert first.exists()
+    assert second.exists()

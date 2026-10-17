@@ -792,6 +792,15 @@ def test_submit_handles_http_errors_and_returns_status(client_env, tmp_path):
     data = submit_response.get_json()
     assert "filename" in data
     assert data["filename"] == "Иванов Иван Иванович 1.pdf"
+    saved_file = (
+        tmp_path
+        / "uploads"
+        / "ИС 25／9-1П"
+        / "Архитектура аппаратных средств"
+        / "Логические элементы. Базовые схемы"
+        / "Иванов Иван Иванович 1.pdf"
+    )
+    assert saved_file.is_file()
 
 
 def test_favicon_and_logo_assets_served(client_env):

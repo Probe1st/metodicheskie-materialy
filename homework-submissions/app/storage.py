@@ -17,7 +17,7 @@ def clean(value: str) -> str:
 
 
 def destination_directory(root: Path, group: str, discipline: str, work: str) -> Path:
-    result = root / "-".join(map(clean, (group, discipline, work)))
+    result = root / clean(group) / clean(discipline) / clean(work)
     result.mkdir(parents=True, exist_ok=True)
     return result
 
