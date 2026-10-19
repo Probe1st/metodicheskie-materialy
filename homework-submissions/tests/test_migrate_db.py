@@ -20,10 +20,14 @@ from tools.migrate_db import (
 
 @pytest.fixture
 def catalog_file() -> Path:
-    # Use real catalog if it exists
-    real_catalog = Path("homework-submissions/catalog.json")
-    if real_catalog.is_file():
-        return real_catalog
+    candidates = [
+        Path("catalog.json"),
+        Path("homework-submissions/catalog.json"),
+        Path(__file__).resolve().parents[1] / "catalog.json",
+    ]
+    for c in candidates:
+        if c.is_file():
+            return c
     raise FileNotFoundError("catalog.json not found")
 
 
