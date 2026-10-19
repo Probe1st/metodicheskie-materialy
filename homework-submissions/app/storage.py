@@ -26,7 +26,12 @@ def write_upload(source: BinaryIO, original_filename: str, student_name: str, di
     suffix = "".join(Path(original_filename).suffixes)
     name = clean(student_name)
     for attempt in range(1, 1_000_000):
-        if any(directory.glob(f"{name} {attempt}.*")) or (directory / f"{name} {attempt}").exists():
+        if (
+            any(directory.glob(f"{name} {attempt}.*"))
+            or any(directory.glob(f"+{name} {attempt}.*"))
+            or (directory / f"{name} {attempt}").exists()
+            or (directory / f"+{name} {attempt}").exists()
+        ):
             continue
         path = directory / f"{name} {attempt}{suffix}"
         try:

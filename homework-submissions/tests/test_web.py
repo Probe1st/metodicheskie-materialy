@@ -838,3 +838,45 @@ def test_brand_logo_rendered_in_templates(client_env):
     assignments_html = client.get("/admin/assignments").get_data(as_text=True)
     assert 'class="brand__logo"' in assignments_html
     assert 'logo.svg' in assignments_html
+
+
+def test_upload_mb_configuration_and_frontend_limit(tmp_path: Path):
+    catalog_path = tmp_path / "catalog.json"
+    catalog_path.write_bytes((Path(__file__).resolve().parents[1] / "catalog.json").read_bytes())
+    app = create_app({
+        "TESTING": True,
+        "SECRET_KEY": "secret",
+        "STORAGE_ROOT": tmp_path / "uploads",
+        "CATALOG_PATH": catalog_path,
+        "MAX_UPLOAD_MB": 250,
+    })
+    assert app.config["MAX_CONTENT_LENGTH"] == 250 * 1024 * 1024
+    assert app.config["LIMIT_LABEL"] == "250 МБ"
+
+    client = app.test_client()
+    html = client.get("/").get_data(as_text=True)
+    assert "Максимальный размер — 250 МБ." in html
+    assert "window.submissionMaxBytes = 262144000;" in html
+    assert "window.submissionLimit = " in html
+    assert "250" in html
+
+
+def test_upload_gb_configuration_and_frontend_limit(tmp_path: Path):
+    catalog_path = tmp_path / "catalog.json"
+    catalog_path.write_bytes((Path(__file__).resolve().parents[1] / "catalog.json").read_bytes())
+    app = create_app({
+        "TESTING": True,
+        "SECRET_KEY": "secret",
+        "STORAGE_ROOT": tmp_path / "uploads",
+        "CATALOG_PATH": catalog_path,
+        "MAX_UPLOAD_GB": 2,
+    })
+    assert app.config["MAX_CONTENT_LENGTH"] == 2 * 1024 * 1024 * 1024
+    assert app.config["LIMIT_LABEL"] == "2 ГБ"
+
+    client = app.test_client()
+    html = client.get("/").get_data(as_text=True)
+    assert "Максимальный размер — 2 ГБ." in html
+    assert "window.submissionMaxBytes = 2147483648;" in html
+    assert "window.submissionLimit = " in html
+    assert "2" in html

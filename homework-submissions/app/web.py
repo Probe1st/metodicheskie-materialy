@@ -52,7 +52,6 @@ def create_app(config=None):
     app.config.from_mapping(
         SECRET_KEY=os.getenv("SECRET_KEY", "dev-secret"),
         ADMIN_PASSWORD=os.getenv("ADMIN_PASSWORD", ""),
-        MAX_UPLOAD_GB=int(os.getenv("MAX_UPLOAD_GB", "1")),
         PRIVATE_DATA_DIR=Path(os.getenv("PRIVATE_DATA_DIR", ".private")),
         STORAGE_ROOT=Path("storage"),
         CATALOG_PATH=Path("catalog.json"),
@@ -61,7 +60,29 @@ def create_app(config=None):
     if config:
         app.config.update(config)
 
-    app.config["MAX_CONTENT_LENGTH"] = app.config["MAX_UPLOAD_GB"] * 1024**3
+    upload_mb = app.config.get("MAX_UPLOAD_MB")
+    if upload_mb is None and "MAX_UPLOAD_MB" in os.environ:
+        upload_mb = int(os.environ["MAX_UPLOAD_MB"])
+
+    upload_gb = app.config.get("MAX_UPLOAD_GB")
+    if upload_gb is None and "MAX_UPLOAD_GB" in os.environ:
+        upload_gb = int(os.environ["MAX_UPLOAD_GB"])
+
+    if upload_mb is not None:
+        upload_mb = int(upload_mb)
+        app.config["MAX_UPLOAD_MB"] = upload_mb
+        app.config["MAX_CONTENT_LENGTH"] = upload_mb * 1024 * 1024
+        app.config["LIMIT_LABEL"] = f"{upload_mb} МБ"
+    elif upload_gb is not None:
+        upload_gb = int(upload_gb)
+        app.config["MAX_UPLOAD_GB"] = upload_gb
+        app.config["MAX_CONTENT_LENGTH"] = upload_gb * 1024 * 1024 * 1024
+        app.config["LIMIT_LABEL"] = f"{upload_gb} ГБ"
+    else:
+        max_upload_mb = int(os.getenv("MAX_UPLOAD_MB", "200"))
+        app.config["MAX_UPLOAD_MB"] = max_upload_mb
+        app.config["MAX_CONTENT_LENGTH"] = max_upload_mb * 1024 * 1024
+        app.config["LIMIT_LABEL"] = f"{max_upload_mb} МБ"
     catalog_store = create_catalog_store(app.config)
 
     @contextmanager
@@ -110,7 +131,12 @@ def create_app(config=None):
 
     @app.get("/")
     def index():
-        return render_template("index.html", catalog=catalog(), limit=app.config["MAX_UPLOAD_GB"])
+        return render_template(
+            "index.html",
+            catalog=catalog(),
+            limit=app.config.get("LIMIT_LABEL", "200 МБ"),
+            max_bytes=app.config.get("MAX_CONTENT_LENGTH", 200 * 1024 * 1024),
+        )
 
     @app.post("/unlock")
     def unlock():

@@ -98,10 +98,14 @@ function formatFileSize(bytes) {
 }
 
 function showSelectedFile(selectedFile) {
-  const maxBytes = window.submissionLimit * 1024 * 1024 * 1024;
-  if (selectedFile.size > maxBytes) {
+  const maxBytes = window.submissionMaxBytes || (typeof window.submissionLimit === 'number' ? window.submissionLimit * 1024 * 1024 * 1024 : 0);
+  if (maxBytes && selectedFile.size > maxBytes) {
     resetFilePreview();
-    setStatus(submitStatus, 'error', `Файл превышает допустимый размер ${window.submissionLimit} ГБ. Выберите файл меньшего размера.`);
+    let limitLabel = window.submissionLimit || 'допустимый предел';
+    if (typeof limitLabel === 'number') {
+      limitLabel = `${limitLabel} ГБ`;
+    }
+    setStatus(submitStatus, 'error', `Файл превышает допустимый размер ${limitLabel}. Выберите файл меньшего размера.`);
     return false;
   }
   fileName.textContent = `${selectedFile.name} · ${formatFileSize(selectedFile.size)}`;
