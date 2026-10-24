@@ -7,7 +7,11 @@ set -euo pipefail
 # ==============================================================================
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-if [[ -d "${SCRIPT_DIR}/homework-submissions" ]]; then
+if [[ -n "${APP_DIR:-}" ]]; then
+    APP_DIR="$(cd "${APP_DIR}" && pwd)"
+elif [[ -f "./wsgi.py" ]]; then
+    APP_DIR="$(pwd)"
+elif [[ -d "${SCRIPT_DIR}/homework-submissions" ]]; then
     APP_DIR="${SCRIPT_DIR}/homework-submissions"
 else
     APP_DIR="${SCRIPT_DIR}"
@@ -31,17 +35,49 @@ else
     echo "❌ Ошибка: gunicorn не найден в виртуальном окружении (.venv/bin/gunicorn)" >&2
     exit 1
 fi
+PYTHON_BIN="${GUNICORN%/gunicorn}/python"
+if [[ ! -x "${PYTHON_BIN}" ]]; then
+    PYTHON_BIN="$(command -v python3 || command -v python || true)"
+fi
 
 get_pid() {
     if [[ -f "${PID_FILE}" ]]; then
-        cat "${PID_FILE}" 2>/dev/null || true
+        local raw_pid
+        raw_pid="$(head -n 1 "${PID_FILE}" 2>/dev/null | tr -d '[:space:]' || true)"
+        if [[ "${raw_pid}" =~ ^[0-9]+$ ]] && [[ "${raw_pid}" -gt 1 ]]; then
+            echo "${raw_pid}"
+        fi
     fi
+}
+
+is_owned_process() {
+    local pid="${1:-}"
+    [[ "${pid}" =~ ^[0-9]+$ ]] && [[ "${pid}" -gt 1 ]] || return 1
+    kill -0 "${pid}" 2>/dev/null || return 1
+
+    if [[ -r "/proc/${pid}/status" ]] && grep -q '^State:[[:space:]]*Z' "/proc/${pid}/status" 2>/dev/null; then
+        return 1
+    fi
+
+    local proc_cwd real_app_dir
+    proc_cwd="$(readlink -f "/proc/${pid}/cwd" 2>/dev/null || true)"
+    real_app_dir="$(readlink -f "${APP_DIR}" 2>/dev/null || true)"
+    [[ -n "${proc_cwd}" && -n "${real_app_dir}" && "${proc_cwd}" == "${real_app_dir}" ]] || return 1
+
+    if [[ -r "/proc/${pid}/cmdline" ]]; then
+        tr '\0' ' ' < "/proc/${pid}/cmdline" 2>/dev/null | grep -q -E "gunicorn.*wsgi:app|wsgi:app" || return 1
+    elif ps -p "${pid}" -o args= 2>/dev/null | grep -q -E "gunicorn.*wsgi:app|wsgi:app"; then
+        return 0
+    else
+        return 1
+    fi
+    return 0
 }
 
 is_running() {
     local pid
     pid="$(get_pid)"
-    if [[ -n "${pid}" ]] && kill -0 "${pid}" 2>/dev/null; then
+    if [[ -n "${pid}" ]] && is_owned_process "${pid}"; then
         return 0
     fi
     return 1
@@ -56,8 +92,35 @@ start_app() {
         return 0
     fi
 
+    # Проверка, свободен ли bind адрес/порт перед запуском
+    if [[ -x "${PYTHON_BIN}" ]]; then
+        if ! "${PYTHON_BIN}" -c '
+import socket, sys
+host = sys.argv[1]
+port = int(sys.argv[2])
+s = socket.socket(socket.AF_INET if ":" not in host else socket.AF_INET6, socket.SOCK_STREAM)
+try:
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind((host, port))
+except Exception:
+    sys.exit(1)
+finally:
+    s.close()
+' "${HOST}" "${PORT}" 2>/dev/null; then
+            echo "❌ Ошибка: Адрес ${HOST}:${PORT} уже занят другим процессом." >&2
+            return 1
+        fi
+    fi
+
     echo "🚀 Запуск приложения..."
     cd "${APP_DIR}"
+
+    # Очистка устаревшего PID-файла, если он остался от мертвого процесса
+    local stale_pid
+    stale_pid="$(get_pid)"
+    if [[ -n "${stale_pid}" ]] && ! is_owned_process "${stale_pid}"; then
+        rm -f "${PID_FILE}"
+    fi
 
     # Запуск Gunicorn в фоновом режиме
     nohup "${GUNICORN}" \
@@ -67,35 +130,70 @@ start_app() {
         --access-logfile - \
         --error-logfile - \
         wsgi:app >> "${LOG_FILE}" 2>&1 &
+    local started_pid=$!
 
-    # Ожидание готовности сервера (до 10 секунд)
+    local probe_host="${HOST}"
+    if [[ "${probe_host}" == "0.0.0.0" ]]; then
+        probe_host="127.0.0.1"
+    elif [[ "${probe_host}" == "::" ]]; then
+        probe_host="[::1]"
+    elif [[ "${probe_host}" == *:* && "${probe_host}" != \[*\] ]]; then
+        probe_host="[${probe_host}]"
+    fi
+    local health_url="http://${probe_host}:${PORT}/"
+
+    local ready=0
     local waited=0
-    while ! is_running && [[ ${waited} -lt 10 ]]; do
+    while [[ ${waited} -lt 20 ]]; do
         sleep 0.5
         waited=$((waited + 1))
-    done
 
-    # Дополнительная проверка ответа порта
-    local check_success=0
-    for _ in {1..10}; do
-        if curl -s -o /dev/null -m 1 "http://${HOST}:${PORT}/" 2>/dev/null; then
-            check_success=1
+        if ! is_owned_process "${started_pid}"; then
+            echo "❌ Ошибка: процесс Gunicorn завершился сбоем при запуске." >&2
             break
         fi
-        sleep 0.5
+
+        local current_pid
+        current_pid="$(get_pid)"
+        if [[ "${current_pid}" != "${started_pid}" ]]; then
+            continue
+        fi
+
+        local http_code
+        http_code="$(curl -s -o /dev/null -w "%{http_code}" -m 1 "${health_url}" 2>/dev/null || echo "000")"
+        if [[ "${http_code}" == "200" ]]; then
+            if is_owned_process "${started_pid}"; then
+                ready=1
+                break
+            fi
+        fi
     done
 
-    if [[ ${check_success} -eq 1 ]]; then
-        local pid
-        pid="$(get_pid)"
+    if [[ ${ready} -eq 1 ]]; then
         echo "✅ Приложение успешно запущено!"
-        echo "   PID: ${pid}"
+        echo "   PID: ${started_pid}"
         echo "   Студенческий портал: http://${HOST}:${PORT}/"
         echo "   Панель преподавателя: http://${HOST}:${PORT}/admin"
         echo "   Логи: ${LOG_FILE}"
+        return 0
     else
-        echo "⚠️  Процесс запущен, но HTTP-проверка не ответила вовремя."
-        echo "   Проверьте логи: ${LOG_FILE}"
+        echo "❌ Ошибка: Не удалось запустить приложение (таймаут готовности или сбой процесса)." >&2
+        echo "   Проверьте логи: ${LOG_FILE}" >&2
+        if is_owned_process "${started_pid}"; then
+            kill -TERM "${started_pid}" 2>/dev/null || true
+            local cleanup_waited=0
+            while is_owned_process "${started_pid}" && [[ ${cleanup_waited} -lt 6 ]]; do
+                sleep 0.5
+                cleanup_waited=$((cleanup_waited + 1))
+            done
+            if is_owned_process "${started_pid}"; then
+                kill -KILL "${started_pid}" 2>/dev/null || true
+            fi
+        fi
+        if [[ "$(get_pid)" == "${started_pid}" ]]; then
+            rm -f "${PID_FILE}"
+        fi
+        return 1
     fi
 }
 
@@ -103,21 +201,11 @@ stop_app() {
     local pid
     pid="$(get_pid)"
 
-    if [[ -z "${pid}" ]] || ! kill -0 "${pid}" 2>/dev/null; then
-        # Проверим, не слушает ли кто-то ещё этот порт
-        local port_pids
-        port_pids="$(ss -tlnp 2>/dev/null | grep ":${PORT} " | grep -o 'pid=[0-9]*' | cut -d= -f2 || true)"
-        if [[ -n "${port_pids}" ]]; then
-            echo "🛑 Остановка процессов на порту ${PORT} (PID: ${port_pids})..."
-            for p in ${port_pids}; do
-                kill -TERM "${p}" 2>/dev/null || true
-            done
+    if [[ -z "${pid}" ]] || ! is_owned_process "${pid}"; then
+        if [[ -f "${PID_FILE}" ]]; then
             rm -f "${PID_FILE}"
-            echo "✅ Процессы на порту ${PORT} остановлены."
-            return 0
         fi
-        echo "ℹ️  Приложение не запущено."
-        rm -f "${PID_FILE}"
+        echo "ℹ️  Отслеживаемое приложение не запущено."
         return 0
     fi
 
@@ -125,18 +213,29 @@ stop_app() {
     kill -TERM "${pid}" 2>/dev/null || true
 
     local waited=0
-    while kill -0 "${pid}" 2>/dev/null && [[ ${waited} -lt 10 ]]; do
+    while is_owned_process "${pid}" && [[ ${waited} -lt 20 ]]; do
         sleep 0.5
         waited=$((waited + 1))
     done
 
-    if kill -0 "${pid}" 2>/dev/null; then
+    if is_owned_process "${pid}"; then
         echo "⚠️  Принудительное завершение (SIGKILL)..."
         kill -KILL "${pid}" 2>/dev/null || true
+        local kill_waited=0
+        while is_owned_process "${pid}" && [[ ${kill_waited} -lt 10 ]]; do
+            sleep 0.5
+            kill_waited=$((kill_waited + 1))
+        done
+    fi
+
+    if is_owned_process "${pid}"; then
+        echo "❌ Ошибка: Не удалось завершить процесс ${pid}." >&2
+        return 1
     fi
 
     rm -f "${PID_FILE}"
     echo "✅ Приложение остановлено."
+    return 0
 }
 
 status_app() {
@@ -179,7 +278,7 @@ case "${1:-}" in
         stop_app
         ;;
     restart)
-        stop_app
+        stop_app || exit 1
         sleep 1
         start_app
         ;;

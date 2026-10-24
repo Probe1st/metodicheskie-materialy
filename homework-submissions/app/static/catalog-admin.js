@@ -25,9 +25,11 @@ async function errorMessage(response) {
 }
 
 function subjectOptions() {
-  const select = document.querySelector('[data-topic-filter]') || document.querySelector('#catalog_new_subject');
+  const select = document.querySelector('#catalog_new_subject');
   if (!select) return [];
-  return [...select.options].map((option) => ({ id: option.value, name: option.textContent }));
+  return [...select.options]
+    .filter((option) => Boolean(option.value))
+    .map((option) => ({ id: option.value, name: option.textContent.trim() }));
 }
 
 function makeRow(kind, item) {
@@ -195,7 +197,10 @@ function topicControls() {
     const rows = [...list.querySelectorAll('[data-catalog-item]')];
     const subjectId = filter ? filter.value : '';
     const term = search ? search.value.trim().toLowerCase() : '';
-    const unassignedOnly = unassignedButton?.getAttribute('aria-pressed') === 'true';
+
+    if (unassignedButton) {
+      unassignedButton.setAttribute('aria-pressed', String(Boolean(unassignedId && subjectId === unassignedId)));
+    }
 
     let visibleCount = 0;
     let unassignedTotal = 0;
@@ -205,10 +210,9 @@ function topicControls() {
       const rowName = (row.dataset.name || '').toLowerCase();
       if (rowSubject === unassignedId) unassignedTotal += 1;
 
-      const matchesUnassigned = !unassignedOnly || rowSubject === unassignedId;
       const matchesSubject = !subjectId || rowSubject === subjectId;
       const matchesSearch = !term || rowName.includes(term);
-      const isVisible = matchesUnassigned && matchesSubject && matchesSearch;
+      const isVisible = matchesSubject && matchesSearch;
 
       row.hidden = !isVisible;
       if (isVisible) visibleCount += 1;
@@ -226,8 +230,12 @@ function topicControls() {
   filter?.addEventListener('change', refresh);
   search?.addEventListener('input', refresh);
   unassignedButton?.addEventListener('click', () => {
-    const active = unassignedButton.getAttribute('aria-pressed') === 'true';
-    unassignedButton.setAttribute('aria-pressed', String(!active));
+    if (!filter) return;
+    if (filter.value === unassignedId) {
+      filter.value = '';
+    } else {
+      filter.value = unassignedId;
+    }
     refresh();
   });
   list.addEventListener('change', (event) => {
