@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Доступы групп — панель преподавателя</title>
+  <title>Доступы групп — Панель преподавателя</title>
   <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
   <link rel="alternate icon" href="{{ url_for('favicon') }}">
   <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
@@ -12,40 +12,66 @@
 <body>
   <header class="site-header">
     <div class="site-header__inner">
-      <a class="brand" href="{{ url_for('index') }}">
+      <a class="brand" href="{{ url_for('index') }}" aria-label="На главную">
         <img class="brand__logo" src="{{ url_for('static', filename='logo.svg') }}" alt="" width="32" height="32">
         <span>Учебный портал</span>
       </a>
       <div class="header-actions">
-        <span class="header-label">Панель преподавателя</span>
-        <a class="button button--quiet" href="{{ url_for('index') }}">К сдаче заданий</a>
+        <span class="header-label">Кабинет преподавателя</span>
+        <a class="button button--quiet" href="{{ url_for('index') }}">
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 12l-4-4 4-4"/></svg>
+          <span>К сдаче заданий</span>
+        </a>
         <form method="post" action="{{ url_for('admin_logout') }}">
           <button class="button button--quiet" type="submit">Выйти</button>
         </form>
       </div>
     </div>
   </header>
+
   <main class="page-shell">
     <section class="admin-hero" aria-labelledby="admin_title">
       <div>
         <p class="eyebrow">Панель преподавателя</p>
         <h1 id="admin_title">Доступы групп</h1>
       </div>
-      <p class="lead">Управляйте паролями, сроками и открытием приёма работ.</p>
+      <p class="lead">Управляйте паролями, сроками сдачи и открытием приёма работ для каждой учебной группы.</p>
     </section>
+
     <div class="admin-layout">
       {% set section = "access" %}
       {% include "_admin_nav.html" %}
+
       <section class="admin-content" aria-label="Настройки доступа групп">
         {% set open_count = groups | selectattr('is_open') | list | length %}
         {% set closed_count = groups | length - open_count %}
+        
         <section class="summary-list" aria-label="Сводка по состоянию приёма">
-          <article class="summary-card"><strong id="open_count">{{ open_count }}</strong><span>групп с открытым приёмом</span></article>
-          <article class="summary-card"><strong id="closed_count">{{ closed_count }}</strong><span>групп с закрытым приёмом</span></article>
+          <article class="summary-card">
+            <strong id="open_count">{{ open_count }}</strong>
+            <span>групп с открытым приёмом</span>
+          </article>
+          <article class="summary-card">
+            <strong id="closed_count">{{ closed_count }}</strong>
+            <span>групп с закрытым приёмом</span>
+          </article>
         </section>
+
+        <!-- Search & Filter Controls -->
+        <section class="panel" style="padding: var(--space-4); margin-bottom: var(--space-6); display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between;" aria-label="Поиск и фильтр групп">
+          <div style="flex: 1 1 16rem; max-width: 24rem;">
+            <input type="search" id="group_search" placeholder="Поиск по названию группы..." aria-label="Поиск по названию группы">
+          </div>
+          <div style="display: flex; gap: var(--space-2);" role="group" aria-label="Фильтр по статусу приёма">
+            <button type="button" class="button button--outline" data-group-filter="all" aria-pressed="true">Все ({{ groups|length }})</button>
+            <button type="button" class="button button--outline" data-group-filter="open" aria-pressed="false">Открыт</button>
+            <button type="button" class="button button--outline" data-group-filter="closed" aria-pressed="false">Закрыт</button>
+          </div>
+        </section>
+
         <section class="group-grid" aria-label="Настройки групп">
           {% for item in groups %}
-            <article class="panel group-card">
+            <article class="panel group-card" data-group-name="{{ item.group }}">
               <div class="group-card__heading">
                 <div>
                   <p class="eyebrow">Учебная группа</p>
@@ -61,18 +87,20 @@
                 <input type="hidden" name="group" value="{{ item.group }}">
                 <label class="switch">
                   <input type="checkbox" name="is_open" value="1" {% if item.is_open %}checked{% endif %}>
-                  Принимать новые работы
+                  <span>Принимать новые работы</span>
                 </label>
-                <label class="field">Срок закрытия
+                <label class="field">
+                  Срок закрытия
                   <input type="datetime-local" name="closes_at" value="{{ item.closes_at }}">
-                  <span class="field__hint">Укажите местное время. Пустое поле означает, что приём не закроется автоматически.</span>
+                  <span class="field__hint">Местное время. Пустое поле — приём не закрывается автоматически.</span>
                 </label>
-                <label class="field">Новый пароль
+                <label class="field">
+                  Новый пароль
                   <input type="password" name="password" placeholder="Оставить текущий" autocomplete="new-password">
-                  <span class="field__hint">Оставьте поле пустым, чтобы сохранить текущий пароль. Сохранённый пароль нельзя посмотреть.</span>
+                  <span class="field__hint">Оставьте пустым, чтобы сохранить текущий пароль.</span>
                 </label>
-                <div class="group-actions">
-                  <button class="button button--primary" type="submit">Сохранить</button>
+                <div class="group-actions" style="margin-top: var(--space-2);">
+                  <button class="button button--primary" type="submit" style="width: 100%;">Сохранить настройки</button>
                 </div>
                 <p class="group-status status" aria-live="polite"></p>
               </form>
@@ -84,6 +112,7 @@
       </section>
     </div>
   </main>
+
   <script src="{{ url_for('static', filename='admin.js') }}" defer></script>
 </body>
 </html>
