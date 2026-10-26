@@ -18,8 +18,14 @@ function updateGroupState(form) {
   chip.textContent = isOpen ? 'Приём открыт' : 'Приём закрыт';
 
   const openCount = document.querySelectorAll('.chip--open').length;
-  document.querySelector('#open_count').textContent = openCount;
-  document.querySelector('#closed_count').textContent = document.querySelectorAll('.chip').length - openCount;
+  const openCountEl = document.querySelector('#open_count');
+  const closedCountEl = document.querySelector('#closed_count');
+  if (openCountEl) openCountEl.textContent = openCount;
+  if (closedCountEl) closedCountEl.textContent = document.querySelectorAll('.chip').length - openCount;
+
+  if (typeof filterGroupCards === 'function') {
+    filterGroupCards();
+  }
 }
 
 const loginForm = document.querySelector('#admin_login');
@@ -68,7 +74,42 @@ document.querySelectorAll('.group-form').forEach((form) => {
     } catch {
       setStatus(status, 'error', 'Не удалось сохранить настройки. Проверьте соединение и попробуйте ещё раз.');
     } finally {
-      setBusy(form, false, 'Сохранить');
+      setBusy(form, false, 'Сохранить настройки');
     }
   });
 });
+
+const groupSearch = document.querySelector('#group_search');
+const groupFilterButtons = document.querySelectorAll('[data-group-filter]');
+let currentGroupFilter = 'all';
+
+function filterGroupCards() {
+  const query = (groupSearch ? groupSearch.value.trim().toLowerCase() : '');
+  document.querySelectorAll('.group-card').forEach((card) => {
+    const name = (card.dataset.groupName || card.querySelector('h3')?.textContent || '').toLowerCase();
+    const isOpen = card.querySelector('.chip--open') !== null;
+    const matchesQuery = !query || name.includes(query);
+    const matchesFilter =
+      currentGroupFilter === 'all' ||
+      (currentGroupFilter === 'open' && isOpen) ||
+      (currentGroupFilter === 'closed' && !isOpen);
+    card.hidden = !(matchesQuery && matchesFilter);
+  });
+}
+
+if (groupSearch) {
+  groupSearch.addEventListener('input', filterGroupCards);
+}
+
+if (groupFilterButtons.length) {
+  groupFilterButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      groupFilterButtons.forEach((b) => {
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.setAttribute('aria-pressed', 'true');
+      currentGroupFilter = btn.dataset.groupFilter;
+      filterGroupCards();
+    });
+  });
+}

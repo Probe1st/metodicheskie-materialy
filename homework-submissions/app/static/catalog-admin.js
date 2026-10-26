@@ -25,9 +25,11 @@ async function errorMessage(response) {
 }
 
 function subjectOptions() {
-  const select = document.querySelector('[data-catalog-create] select[name="subject_id"]');
+  const select = document.querySelector('#catalog_new_subject');
   if (!select) return [];
-  return [...select.options].map((option) => ({ id: option.value, name: option.textContent }));
+  return [...select.options]
+    .filter((option) => Boolean(option.value))
+    .map((option) => ({ id: option.value, name: option.textContent.trim() }));
 }
 
 function makeRow(kind, item) {
@@ -54,40 +56,70 @@ function makeRow(kind, item) {
     heading.append(selection);
   }
 
+  const titleWrap = document.createElement('div');
+  titleWrap.style.flex = '1 1 auto';
   const title = document.createElement('h3');
   title.dataset.itemName = '';
   title.textContent = item.name;
+  titleWrap.append(title);
+
   if (kind === 'topics') {
-    const titleWrap = document.createElement('div');
     const subjectName = subjectOptions().find((subject) => subject.id === item.subject_id)?.name || '';
     const subject = document.createElement('p');
     subject.className = 'field__hint';
     subject.dataset.topicSubject = '';
     subject.textContent = subjectName;
-    titleWrap.append(title, subject);
-    heading.append(titleWrap);
-  } else {
-    heading.append(title);
+    titleWrap.append(subject);
   }
+  heading.append(titleWrap);
 
   const status = document.createElement('p');
   status.className = 'catalog-status status';
   status.dataset.createStatus = '';
   status.setAttribute('aria-live', 'polite');
 
+  const headingActions = document.createElement('div');
+  headingActions.className = 'catalog-actions';
+  headingActions.style.marginLeft = 'auto';
+  const toggleEditButton = document.createElement('button');
+  toggleEditButton.className = 'button button--outline';
+  toggleEditButton.type = 'button';
+  toggleEditButton.textContent = 'Редактировать';
+  const deleteButton = document.createElement('button');
+  deleteButton.className = 'button button--danger';
+  deleteButton.type = 'button';
+  deleteButton.textContent = 'Удалить';
+
   if (kind === 'subjects' && item.id === catalogList.dataset.unassignedId) {
+    toggleEditButton.disabled = true;
+    toggleEditButton.title = 'Системный предмет нельзя изменить';
+
+    deleteButton.disabled = true;
+    deleteButton.title = 'Системный предмет нельзя удалить';
+
     const specialNotice = document.createElement('p');
     specialNotice.className = 'field__hint';
+    specialNotice.style.color = 'var(--color-warning)';
     specialNotice.textContent = 'Системный предмет для тем, ожидающих распределения. Его нельзя переименовать или удалить.';
-    row.append(heading, specialNotice, status);
+    titleWrap.append(specialNotice);
+
+    headingActions.append(toggleEditButton, deleteButton);
+    heading.append(headingActions);
+    row.append(heading, status);
     return row;
   }
 
+  toggleEditButton.dataset.toggleEdit = '';
+  deleteButton.dataset.delete = '';
+  headingActions.append(toggleEditButton, deleteButton);
+  heading.append(headingActions);
   const form = document.createElement('form');
   form.className = 'catalog-rename form-stack';
   form.dataset.catalogRename = '';
   form.method = 'post';
   form.action = `/admin/${encodeURIComponent(kind)}/${encodeURIComponent(item.id)}/${kind === 'topics' ? 'update' : 'rename'}`;
+  form.hidden = true;
+
   const label = document.createElement('label');
   label.className = 'field';
   const inputId = `catalog_name_${item.id}`;
@@ -127,15 +159,15 @@ function makeRow(kind, item) {
   const actions = document.createElement('div');
   actions.className = 'catalog-actions';
   const saveButton = document.createElement('button');
-  saveButton.className = 'button button--outline';
+  saveButton.className = 'button button--primary';
   saveButton.type = 'submit';
   saveButton.textContent = 'Сохранить';
-  const deleteButton = document.createElement('button');
-  deleteButton.className = 'button button--danger';
-  deleteButton.type = 'button';
-  deleteButton.dataset.delete = '';
-  deleteButton.textContent = 'Удалить';
-  actions.append(saveButton, deleteButton);
+  const cancelEditButton = document.createElement('button');
+  cancelEditButton.className = 'button button--outline';
+  cancelEditButton.type = 'button';
+  cancelEditButton.dataset.toggleEdit = '';
+  cancelEditButton.textContent = 'Отмена';
+  actions.append(saveButton, cancelEditButton);
   form.append(actions);
 
   row.append(heading, form, status);
@@ -152,52 +184,65 @@ function topicControls() {
   const list = document.querySelector('[data-catalog-list][data-kind="topics"]');
   const filter = document.querySelector('[data-topic-filter]');
   const search = document.querySelector('[data-topic-search]');
-  const empty = document.querySelector('[data-topic-filter-empty]');
-  const unassignedFilter = document.querySelector('[data-topic-unassigned-filter]');
+  const unassignedButton = document.querySelector('[data-topic-unassigned-filter]');
   const unassignedCount = document.querySelector('[data-topic-unassigned-count]');
-  const selectionCount = document.querySelector('[data-topic-selection-count]');
-  if (!toolbar || !list || !filter || !search || !empty || !unassignedFilter || !unassignedCount || !selectionCount) return null;
+  const bulkSelection = document.querySelector('[data-topic-selection-count]');
+  const emptyFilter = document.querySelector('[data-topic-filter-empty]');
 
-  const refresh = ({ clearHiddenSelection = false } = {}) => {
+  if (!toolbar || !list) return null;
+
+  const unassignedId = toolbar.dataset.unassignedId;
+
+  function refresh() {
     const rows = [...list.querySelectorAll('[data-catalog-item]')];
-    const query = search.value.trim().toLocaleLowerCase();
-    let visible = 0;
-    const counts = new Map();
+    const subjectId = filter ? filter.value : '';
+    const term = search ? search.value.trim().toLowerCase() : '';
+
+    if (unassignedButton) {
+      unassignedButton.setAttribute('aria-pressed', String(Boolean(unassignedId && subjectId === unassignedId)));
+    }
+
+    let visibleCount = 0;
+    let unassignedTotal = 0;
+
     rows.forEach((row) => {
-      counts.set(row.dataset.subjectId, (counts.get(row.dataset.subjectId) || 0) + 1);
-      const matches = (!filter.value || row.dataset.subjectId === filter.value)
-        && row.dataset.name.toLocaleLowerCase().includes(query);
-      if (clearHiddenSelection && !matches) {
-        row.querySelector('input[name="topic_ids"]').checked = false;
-      }
-      row.hidden = !matches;
-      if (matches) visible += 1;
+      const rowSubject = row.dataset.subjectId;
+      const rowName = (row.dataset.name || '').toLowerCase();
+      if (rowSubject === unassignedId) unassignedTotal += 1;
+
+      const matchesSubject = !subjectId || rowSubject === subjectId;
+      const matchesSearch = !term || rowName.includes(term);
+      const isVisible = matchesSubject && matchesSearch;
+
+      row.hidden = !isVisible;
+      if (isVisible) visibleCount += 1;
     });
-    [...filter.options].forEach((option) => {
-      if (!option.value) option.textContent = `Все предметы (${rows.length})`;
-      else {
-        const label = option.dataset.label || option.textContent.replace(/\s+\(\d+\)$/, '');
-        option.dataset.label = label;
-        option.textContent = `${label} (${counts.get(option.value) || 0})`;
-      }
-    });
-    const unassignedId = toolbar.dataset.unassignedId;
-    unassignedCount.textContent = String(counts.get(unassignedId) || 0);
-    unassignedFilter.setAttribute('aria-pressed', String(filter.value === unassignedId));
-    empty.hidden = rows.length === 0 || visible !== 0;
-    const selectedVisible = list.querySelectorAll('[data-catalog-item]:not([hidden]) input[name="topic_ids"]:checked').length;
-    selectionCount.textContent = `Выбрано ${selectedVisible} из ${visible} видимых тем.`;
-  };
-  filter.addEventListener('change', () => refresh({ clearHiddenSelection: true }));
-  search.addEventListener('input', () => refresh({ clearHiddenSelection: true }));
+
+    if (unassignedCount) unassignedCount.textContent = String(unassignedTotal);
+    if (emptyFilter) emptyFilter.hidden = visibleCount > 0 || rows.length === 0;
+
+    const checkedVisible = list.querySelectorAll('[data-catalog-item]:not([hidden]) input[name="topic_ids"]:checked').length;
+    if (bulkSelection) {
+      bulkSelection.textContent = `Выбрано ${checkedVisible} из ${visibleCount} видимых тем.`;
+    }
+  }
+
+  filter?.addEventListener('change', refresh);
+  search?.addEventListener('input', refresh);
+  unassignedButton?.addEventListener('click', () => {
+    if (!filter) return;
+    if (filter.value === unassignedId) {
+      filter.value = '';
+    } else {
+      filter.value = unassignedId;
+    }
+    refresh();
+  });
   list.addEventListener('change', (event) => {
     if (event.target.matches('input[name="topic_ids"]')) refresh();
   });
-  unassignedFilter.addEventListener('click', () => {
-    filter.value = toolbar.dataset.unassignedId;
-    refresh({ clearHiddenSelection: true });
-  });
-  return { toolbar, list, refresh };
+
+  return { refresh, list };
 }
 
 const topicUI = topicControls();
@@ -205,13 +250,14 @@ const createForm = document.querySelector('[data-catalog-create]');
 const catalogList = document.querySelector('[data-catalog-list]');
 
 if (createForm && catalogList) {
-  const kind = createForm.dataset.kind;
   const status = createForm.querySelector('[data-create-status]');
+  const kind = createForm.dataset.kind;
 
   createForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     setFormBusy(createForm, true, 'Добавляем…');
-    showStatus(status, 'working', 'Добавление…');
+    showStatus(status, 'working', 'Создание…');
+
     try {
       const response = await fetch(createForm.action, { method: 'POST', body: new FormData(createForm) });
       if (!response.ok) {
@@ -221,8 +267,8 @@ if (createForm && catalogList) {
       const item = await response.json();
       insertRow(catalogList, makeRow(kind, item));
       createForm.reset();
+      showStatus(status, 'success', 'Успешно добавлено.');
       topicUI?.refresh();
-      showStatus(status, 'success', `Добавлено: ${item.name}.`);
     } catch {
       showStatus(status, 'error', 'Не удалось связаться с сервером. Попробуйте ещё раз.');
     } finally {
@@ -257,6 +303,9 @@ if (catalogList) {
         row.querySelector('input[name="topic_ids"]').setAttribute('aria-label', `Выбрать тему ${item.name}`);
         topicUI?.refresh();
       }
+      form.hidden = true;
+      const mainToggleBtn = row.querySelector('.catalog-row__heading [data-toggle-edit]');
+      if (mainToggleBtn) mainToggleBtn.textContent = 'Редактировать';
       showStatus(status, 'success', isTopic ? 'Тема обновлена.' : `Название изменено на «${item.name}».`);
     } catch {
       showStatus(status, 'error', 'Не удалось связаться с сервером. Попробуйте ещё раз.');
@@ -266,6 +315,20 @@ if (catalogList) {
   });
 
   catalogList.addEventListener('click', async (event) => {
+    const toggleBtn = event.target.closest('[data-toggle-edit]');
+    if (toggleBtn) {
+      const row = toggleBtn.closest('[data-catalog-item]');
+      const form = row.querySelector('[data-catalog-rename]');
+      if (form) {
+        form.hidden = !form.hidden;
+        const mainToggleBtn = row.querySelector('.catalog-row__heading [data-toggle-edit]');
+        if (mainToggleBtn) {
+          mainToggleBtn.textContent = form.hidden ? 'Редактировать' : 'Закрыть';
+        }
+      }
+      return;
+    }
+
     const button = event.target.closest('[data-delete]');
     if (!button) return;
     const row = button.closest('[data-catalog-item]');
@@ -274,7 +337,7 @@ if (catalogList) {
 
     const status = row.querySelector('.catalog-status');
     const form = row.querySelector('[data-catalog-rename]');
-    const controls = [...form.querySelectorAll('button, input, select')];
+    const controls = [...(form ? form.querySelectorAll('button, input, select') : []), ...row.querySelectorAll('button')];
     controls.forEach((control) => { control.disabled = true; });
     showStatus(status, 'working', 'Удаление…');
     try {

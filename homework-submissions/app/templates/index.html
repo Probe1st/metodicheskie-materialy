@@ -13,13 +13,16 @@
 <body>
   <header class="site-header">
     <div class="site-header__inner">
-      <a class="brand" href="{{ url_for('index') }}">
+      <a class="brand" href="{{ url_for('index') }}" aria-label="На главную">
         <img class="brand__logo" src="{{ url_for('static', filename='logo.svg') }}" alt="" width="32" height="32">
         <span>Учебный портал</span>
       </a>
       <div class="header-actions">
         <span class="header-label">Приём заданий</span>
-        <a class="button button--quiet" href="{{ url_for('admin_dashboard') }}">Панель преподавателя</a>
+        <a class="button button--quiet" href="{{ url_for('admin_dashboard') }}">
+          <span>Панель преподавателя</span>
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 12l4-4-4-4"/></svg>
+        </a>
       </div>
     </div>
   </header>
@@ -29,6 +32,7 @@
       <p class="eyebrow">Загрузка домашней работы</p>
       <h1 id="page_title">Сдать работу —<br>просто и понятно</h1>
       <p class="lead">Подтвердите доступ своей группы, укажите данные задания и прикрепите готовый файл.</p>
+      
       <div class="student-guidance">
         <h2>Как отправить работу</h2>
         <ol class="instruction-list">
@@ -55,6 +59,7 @@
         </div>
       </div>
 
+      <!-- Step 1: Unlock form -->
       <form id="unlock" class="form-stack" method="post" action="{{ url_for('unlock') }}">
         <div class="form-heading">
           <p class="eyebrow">Шаг 1 из 2</p>
@@ -71,12 +76,13 @@
         </label>
         <label class="field" for="group_password">
           Пароль группы
-          <input id="group_password" name="password" type="password" required autocomplete="current-password">
+          <input id="group_password" name="password" type="password" required autocomplete="current-password" placeholder="Введите пароль">
         </label>
         <button class="button button--primary" type="submit">Подтвердить доступ</button>
         <p class="status" id="unlock_status" aria-live="polite"></p>
       </form>
 
+      <!-- Active group badge (shown when unlocked) -->
       <div class="access-summary" id="access_summary" hidden>
         <div>
           <p class="eyebrow">Доступ подтверждён</p>
@@ -85,6 +91,7 @@
         <button class="button button--outline" id="change_group" type="button">Сменить группу</button>
       </div>
 
+      <!-- Step 2: Submission form -->
       <form id="submit" class="form-stack" method="post" action="{{ url_for('submit') }}" enctype="multipart/form-data" hidden>
         <input id="selected_group" name="group" type="hidden">
         <div class="form-heading">
@@ -125,7 +132,7 @@
             </svg>
             <span class="file-picker__title">Перетащите файл сюда или нажмите, чтобы выбрать</span>
             <span class="file-picker__detail" id="file_name">Файл не выбран</span>
-            <span class="field__hint" id="file_limit">Максимальный размер: {{ limit }} ГБ</span>
+            <span class="field__hint" id="file_limit">Максимальный размер: {{ limit }}</span>
             <button class="button button--outline file-picker__remove" id="clear_file" type="button" hidden>Удалить файл</button>
           </div>
         </section>
@@ -134,6 +141,7 @@
       </form>
     </section>
   </main>
+
   <!-- Full-screen submission overlay -->
   <div id="submission_overlay" class="submission-overlay" role="dialog" aria-modal="true" aria-labelledby="overlay_title" tabindex="-1" hidden>
     <div class="submission-overlay__card">

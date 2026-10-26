@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Занятия и пары — панель преподавателя</title>
+  <title>Занятия и пары — Панель преподавателя</title>
   <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
   <link rel="alternate icon" href="{{ url_for('favicon') }}">
   <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
@@ -12,26 +12,30 @@
 <body>
   <header class="site-header">
     <div class="site-header__inner">
-      <a class="brand" href="{{ url_for('index') }}">
+      <a class="brand" href="{{ url_for('index') }}" aria-label="На главную">
         <img class="brand__logo" src="{{ url_for('static', filename='logo.svg') }}" alt="" width="32" height="32">
         <span>Учебный портал</span>
       </a>
       <div class="header-actions">
-        <span class="header-label">Панель преподавателя</span>
-        <a class="button button--quiet" href="{{ url_for('index') }}">К сдаче заданий</a>
+        <span class="header-label">Кабинет преподавателя</span>
+        <a class="button button--quiet" href="{{ url_for('index') }}">
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 12l-4-4 4-4"/></svg>
+          <span>К сдаче заданий</span>
+        </a>
         <form method="post" action="{{ url_for('admin_logout') }}">
           <button class="button button--quiet" type="submit">Выйти</button>
         </form>
       </div>
     </div>
   </header>
+
   <main class="page-shell">
     <section class="admin-hero" aria-labelledby="admin_title">
       <div>
         <p class="eyebrow">Панель преподавателя</p>
         <h1 id="admin_title">Занятия и пары</h1>
       </div>
-      <p class="lead">Планируйте расписание тем по датам и учебным парам для каждой группы.</p>
+      <p class="lead">Планируйте расписание тем по учебным датам и парам для каждой учебной группы.</p>
     </section>
 
     <div class="admin-layout">
@@ -39,6 +43,7 @@
       {% include "_admin_nav.html" %}
 
       <section class="admin-content" aria-label="Расписание занятий">
+        <!-- Filter Toolbar -->
         <section class="panel filter-toolbar" aria-label="Фильтры расписания">
           <form id="filter_form" class="filter-grid" method="get" action="{{ url_for('admin_assignments_page') }}">
             <label class="field">Учебная группа
@@ -59,6 +64,7 @@
           </form>
         </section>
 
+        <!-- Metrics -->
         <section class="summary-list" aria-label="Сводка расписания">
           <article class="summary-card">
             <strong id="assigned_count">{{ assignments|length }}</strong>
@@ -71,8 +77,12 @@
         </section>
 
         <div class="catalog-workspace">
+          <!-- Creation Form (Left / Sticky) -->
           <form id="assignment_create_form" class="panel catalog-create form-stack" method="post" action="{{ url_for('admin_create_assignment') }}">
-            <h2>Запланировать пару</h2>
+            <div class="form-heading">
+              <p class="eyebrow">Новая пара</p>
+              <h2>Запланировать пару</h2>
+            </div>
             <input type="hidden" name="group_name" value="{{ selected_group }}">
 
             <label class="field" for="assignment_subject">Дисциплина
@@ -96,7 +106,7 @@
             </label>
 
             <div class="field">
-              <label>Номер пары (1..6)</label>
+              <label>Номер пары</label>
               <div class="pair-selector" role="radiogroup" aria-label="Выбор номера пары">
                 {% for p in range(1, 7) %}
                   <label class="pair-button">
@@ -107,13 +117,21 @@
               </div>
             </div>
 
-            <button class="button button--primary" type="submit">Назначить на пару</button>
+            <button class="button button--primary" type="submit" style="margin-top: var(--space-2);">Назначить на пару</button>
             <p id="create_status" class="status" aria-live="polite"></p>
           </form>
 
+          <!-- Assignments Journal (Right) -->
           <section class="assignment-journal" aria-label="Список назначенных занятий">
             {% if assignments|length == 0 %}
-              <p class="empty-state">Для выбранной группы пока не назначено ни одной пары. Заполните форму слева, чтобы запланировать занятие.</p>
+              <div class="empty-state">
+                <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-inline: auto; margin-bottom: var(--space-2); opacity: 0.6;" aria-hidden="true">
+                  <rect x="3" y="4" width="18" height="17" rx="2"/>
+                  <path d="M3 9h18M8 2v4M16 2v4"/>
+                </svg>
+                <p>Для выбранной группы пока не назначено ни одной пары.</p>
+                <span class="field__hint">Заполните форму слева, чтобы назначить занятие на конкретную дату и пару.</span>
+              </div>
             {% else %}
               <div class="catalog-list" data-assignment-list>
                 {% for item in assignments %}
@@ -121,7 +139,7 @@
                     <div class="catalog-row__heading">
                       <div class="assignment-meta">
                         <span class="chip chip--open date-badge">{{ item.lesson_date_formatted }}</span>
-                        <span class="chip chip--pair pair-chip">Пара {{ item.pair_number }}</span>
+                        <span class="chip chip--pair pair-chip">{{ item.pair_number }} пара</span>
                       </div>
                       <div class="assignment-details">
                         <p class="eyebrow">{{ item.subject_name }}</p>
@@ -133,6 +151,7 @@
                       <button class="button button--danger" type="button" data-action="delete">Удалить</button>
                     </div>
 
+                    <!-- Inline Edit Form -->
                     <form id="assignment_edit_{{ item.id }}" class="assignment-edit-form form-stack" method="post" action="/admin/assignments/{{ item.id }}/update" hidden>
                       <div class="edit-grid">
                         <label class="field">Дата

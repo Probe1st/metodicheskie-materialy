@@ -12,13 +12,16 @@
 <body>
   <header class="site-header">
     <div class="site-header__inner">
-      <a class="brand" href="{{ url_for('index') }}">
+      <a class="brand" href="{{ url_for('index') }}" aria-label="На главную">
         <img class="brand__logo" src="{{ url_for('static', filename='logo.svg') }}" alt="" width="32" height="32">
         <span>Учебный портал</span>
       </a>
       <div class="header-actions">
-        <span class="header-label">{% if authenticated %}Обзор{% else %}Панель преподавателя{% endif %}</span>
-        <a class="button button--quiet" href="{{ url_for('index') }}">К сдаче заданий</a>
+        <span class="header-label">{% if authenticated %}Кабинет преподавателя{% else %}Панель преподавателя{% endif %}</span>
+        <a class="button button--quiet" href="{{ url_for('index') }}">
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 12l-4-4 4-4"/></svg>
+          <span>К сдаче заданий</span>
+        </a>
         {% if authenticated %}
           <form method="post" action="{{ url_for('admin_logout') }}">
             <button class="button button--quiet" type="submit">Выйти</button>
@@ -34,7 +37,7 @@
         <div class="admin-login-intro">
           <p class="eyebrow">Безопасный доступ</p>
           <h1 id="admin_title">Панель преподавателя</h1>
-          <p class="lead">Управляйте доступом групп и учебными справочниками в одном месте.</p>
+          <p class="lead">Управляйте доступом групп, расписанием занятий и учебными каталогами в едином защищённом пространстве.</p>
         </div>
         <section class="panel form-card admin-login-card" aria-label="Вход в панель преподавателя">
           <form id="admin_login" class="form-stack" method="post" action="{{ url_for('admin_login') }}">
@@ -45,7 +48,7 @@
             </div>
             <label class="field" for="admin_password">
               Мастер-пароль администратора
-              <input id="admin_password" name="password" type="password" required autocomplete="current-password">
+              <input id="admin_password" name="password" type="password" required autocomplete="current-password" placeholder="Введите мастер-пароль">
             </label>
             <button class="button button--outline password-toggle" type="button" aria-label="Показать пароль" aria-pressed="false">Показать пароль</button>
             <button class="button button--primary" type="submit">Войти в панель</button>
@@ -59,7 +62,7 @@
           <p class="eyebrow">Рабочее пространство преподавателя</p>
           <h1 id="admin_title">Панель управления</h1>
         </div>
-        <p class="lead">Настраивайте приём работ и поддерживайте учебные справочники в актуальном состоянии.</p>
+        <p class="lead">Настраивайте приём работ, планируйте занятия по парам и поддерживайте каталоги в актуальном состоянии.</p>
       </section>
 
       <div class="admin-layout">
@@ -69,7 +72,7 @@
           <div class="admin-topline">
             <div>
               <h2>Обзор</h2>
-              <p class="lead">Основные инструменты для работы с приёмом и каталогами.</p>
+              <p class="lead">Основные инструменты для управления приёмом работ, расписанием и каталогами.</p>
             </div>
           </div>
           <div class="summary-list" aria-label="Состав панели управления">
@@ -82,7 +85,12 @@
             <a class="panel admin-link" href="{{ url_for('admin_access') }}">
               <span class="eyebrow">Приём работ</span>
               <strong>Доступы групп</strong>
-              <span>Настройте пароли, сроки и состояние приёма.</span>
+              <span>Настройте пароли, сроки и состояние приёма заданий.</span>
+            </a>
+            <a class="panel admin-link" href="{{ url_for('admin_assignments_page') }}">
+              <span class="eyebrow">Расписание</span>
+              <strong>Занятия и пары</strong>
+              <span>Планируйте расписание тем по учебным парам для групп.</span>
             </a>
             <a class="panel admin-link" href="{{ url_for('admin_catalog_page', kind='groups') }}">
               <span class="eyebrow">Каталог</span>
