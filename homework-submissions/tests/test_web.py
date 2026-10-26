@@ -11,8 +11,11 @@ from app.web import create_app
 @pytest.fixture
 def client_env(tmp_path: Path):
     private_dir = tmp_path / ".private"
+    source = Path(__file__).resolve().parents[1] / "catalog.json"
+    if not source.is_file():
+        source = source.with_name("catalog.example.json")
     catalog_path = tmp_path / "catalog.json"
-    catalog_path.write_bytes((Path(__file__).resolve().parents[1] / "catalog.json").read_bytes())
+    catalog_path.write_bytes(source.read_bytes())
     app = create_app({
         "TESTING": True,
         "SECRET_KEY": "secret",
@@ -841,8 +844,11 @@ def test_brand_logo_rendered_in_templates(client_env):
 
 
 def test_upload_mb_configuration_and_frontend_limit(tmp_path: Path):
+    source = Path(__file__).resolve().parents[1] / "catalog.json"
+    if not source.is_file():
+        source = source.with_name("catalog.example.json")
     catalog_path = tmp_path / "catalog.json"
-    catalog_path.write_bytes((Path(__file__).resolve().parents[1] / "catalog.json").read_bytes())
+    catalog_path.write_bytes(source.read_bytes())
     app = create_app({
         "TESTING": True,
         "SECRET_KEY": "secret",
@@ -862,8 +868,11 @@ def test_upload_mb_configuration_and_frontend_limit(tmp_path: Path):
 
 
 def test_upload_gb_configuration_and_frontend_limit(tmp_path: Path):
+    source = Path(__file__).resolve().parents[1] / "catalog.json"
+    if not source.is_file():
+        source = source.with_name("catalog.example.json")
     catalog_path = tmp_path / "catalog.json"
-    catalog_path.write_bytes((Path(__file__).resolve().parents[1] / "catalog.json").read_bytes())
+    catalog_path.write_bytes(source.read_bytes())
     app = create_app({
         "TESTING": True,
         "SECRET_KEY": "secret",

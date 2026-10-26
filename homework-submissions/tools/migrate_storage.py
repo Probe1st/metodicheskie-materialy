@@ -48,6 +48,10 @@ def get_default_catalog_path() -> Path:
     for candidate in candidates:
         if candidate.is_file():
             return candidate
+    for candidate in candidates:
+        example = candidate.with_name("catalog.example.json")
+        if example.is_file():
+            return example
     return candidates[0]
 
 

@@ -56,6 +56,12 @@ class JsonCatalogStore:
         return subject['id']
 
     def _read(self):
+        if not self.path.is_file():
+            example = self.path.with_name("catalog.example.json")
+            if example.is_file():
+                self.path.parent.mkdir(parents=True, exist_ok=True)
+                import shutil
+                shutil.copyfile(example, self.path)
         data = json.loads(self.path.read_text(encoding='utf-8'))
         if not isinstance(data, dict):
             raise ValueError('Catalog must be a JSON object')
@@ -130,13 +136,18 @@ class JsonCatalogStore:
         return data
 
     def _source_is_legacy(self):
+        if not self.path.is_file():
+            example = self.path.with_name("catalog.example.json")
+            if example.is_file():
+                self.path.parent.mkdir(parents=True, exist_ok=True)
+                import shutil
+                shutil.copyfile(example, self.path)
         source = json.loads(self.path.read_text(encoding='utf-8'))
         if not isinstance(source, dict):
             raise ValueError('Catalog must be a JSON object')
         if 'version' in source and (type(source['version']) is not int or source['version'] not in (2, 3)):
             raise ValueError(f"Unsupported catalog version: {source['version']}")
         return source.get('version') != 3
-
     def _save(self, data):
         fd, name = tempfile.mkstemp(prefix='.catalog-', suffix='.tmp', dir=self.path.parent)
         try:
