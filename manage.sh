@@ -7,12 +7,12 @@ set -euo pipefail
 # ==============================================================================
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(readlink -f "${SCRIPT_DIR}" 2>/dev/null || echo "${SCRIPT_DIR}")"
+
 if [[ -n "${APP_DIR:-}" ]]; then
-    APP_DIR="$(cd "${APP_DIR}" && pwd)"
-elif [[ -f "./wsgi.py" ]]; then
-    APP_DIR="$(pwd)"
+    APP_DIR="$(readlink -f "${APP_DIR}" 2>/dev/null || (cd "${APP_DIR}" 2>/dev/null && pwd))"
 elif [[ -d "${SCRIPT_DIR}/homework-submissions" ]]; then
-    APP_DIR="${SCRIPT_DIR}/homework-submissions"
+    APP_DIR="$(readlink -f "${SCRIPT_DIR}/homework-submissions")"
 else
     APP_DIR="${SCRIPT_DIR}"
 fi
@@ -42,17 +42,40 @@ fi
 
 get_pid() {
     if [[ -f "${PID_FILE}" ]]; then
-        local raw_pid
-        raw_pid="$(head -n 1 "${PID_FILE}" 2>/dev/null | tr -d '[:space:]' || true)"
-        if [[ "${raw_pid}" =~ ^[0-9]+$ ]] && [[ "${raw_pid}" -gt 1 ]]; then
-            echo "${raw_pid}"
+        local content
+        content="$(cat "${PID_FILE}" 2>/dev/null || true)"
+        if [[ "${content}" =~ ^[[:space:]]*([0-9]+)[[:space:]]*$ ]]; then
+            local raw_pid="${BASH_REMATCH[1]}"
+            local pid_max=4194304
+            if [[ -r "/proc/sys/kernel/pid_max" ]]; then
+                local read_max
+                read_max="$(cat /proc/sys/kernel/pid_max 2>/dev/null || true)"
+                if [[ "${read_max}" =~ ^[0-9]+$ ]]; then
+                    pid_max="${read_max}"
+                fi
+            fi
+            if [[ ${#raw_pid} -le 10 ]] && (( raw_pid > 1 && raw_pid <= pid_max )); then
+                echo "${raw_pid}"
+            fi
         fi
     fi
 }
 
 is_owned_process() {
     local pid="${1:-}"
-    [[ "${pid}" =~ ^[0-9]+$ ]] && [[ "${pid}" -gt 1 ]] || return 1
+    [[ "${pid}" =~ ^[0-9]+$ ]] || return 1
+    local pid_max=4194304
+    if [[ -r "/proc/sys/kernel/pid_max" ]]; then
+        local read_max
+        read_max="$(cat /proc/sys/kernel/pid_max 2>/dev/null || true)"
+        if [[ "${read_max}" =~ ^[0-9]+$ ]]; then
+            pid_max="${read_max}"
+        fi
+    fi
+    if [[ ${#pid} -gt 10 ]] || (( pid <= 1 || pid > pid_max )); then
+        return 1
+    fi
+
     kill -0 "${pid}" 2>/dev/null || return 1
 
     if [[ -r "/proc/${pid}/status" ]] && grep -q '^State:[[:space:]]*Z' "/proc/${pid}/status" 2>/dev/null; then
@@ -64,11 +87,98 @@ is_owned_process() {
     real_app_dir="$(readlink -f "${APP_DIR}" 2>/dev/null || true)"
     [[ -n "${proc_cwd}" && -n "${real_app_dir}" && "${proc_cwd}" == "${real_app_dir}" ]] || return 1
 
-    if [[ -r "/proc/${pid}/cmdline" ]]; then
-        tr '\0' ' ' < "/proc/${pid}/cmdline" 2>/dev/null | grep -q -E "gunicorn.*wsgi:app|wsgi:app" || return 1
-    elif ps -p "${pid}" -o args= 2>/dev/null | grep -q -E "gunicorn.*wsgi:app|wsgi:app"; then
+    [[ -r "/proc/${pid}/cmdline" ]] || return 1
+
+    local cmd_args=()
+    while IFS= read -r -d '' arg; do
+        cmd_args+=("${arg}")
+    done < "/proc/${pid}/cmdline"
+
+    [[ ${#cmd_args[@]} -gt 0 ]] || return 1
+
+    local has_gunicorn=0
+    local has_wsgi_app=0
+    local has_matching_pidfile=0
+
+    local real_gunicorn
+    real_gunicorn="$(readlink -f "${GUNICORN}" 2>/dev/null || true)"
+    local real_pid_file
+    real_pid_file="$(readlink -f "${PID_FILE}" 2>/dev/null || true)"
+    local expected_pid_base
+    expected_pid_base="$(basename "${PID_FILE}")"
+
+    local i
+    for (( i=0; i<${#cmd_args[@]}; i++ )); do
+        local a="${cmd_args[i]}"
+        local a_base
+        a_base="$(basename "${a}" 2>/dev/null || true)"
+
+        if [[ "${a_base}" == "gunicorn" ]]; then
+            has_gunicorn=1
+        elif [[ -n "${real_gunicorn}" ]]; then
+            local a_real
+            a_real="$(readlink -f "${a}" 2>/dev/null || true)"
+            if [[ -n "${a_real}" && "${a_real}" == "${real_gunicorn}" ]]; then
+                has_gunicorn=1
+            fi
+        fi
+
+        if [[ "${a}" == "wsgi:app" ]]; then
+            has_wsgi_app=1
+        fi
+
+        if [[ "${a}" == "--pid" || "${a}" == "-p" ]]; then
+            if (( i + 1 < ${#cmd_args[@]} )); then
+                local next_arg="${cmd_args[i+1]}"
+                local next_real
+                next_real="$(readlink -f "${next_arg}" 2>/dev/null || true)"
+                local next_base
+                next_base="$(basename "${next_arg}" 2>/dev/null || true)"
+                if [[ ( -n "${real_pid_file}" && "${next_real}" == "${real_pid_file}" ) || "${next_base}" == "${expected_pid_base}" ]]; then
+                    has_matching_pidfile=1
+                fi
+            fi
+        elif [[ "${a}" == --pid=* ]]; then
+            local val="${a#--pid=}"
+            local val_real
+            val_real="$(readlink -f "${val}" 2>/dev/null || true)"
+            local val_base
+            val_base="$(basename "${val}" 2>/dev/null || true)"
+            if [[ ( -n "${real_pid_file}" && "${val_real}" == "${real_pid_file}" ) || "${val_base}" == "${expected_pid_base}" ]]; then
+                has_matching_pidfile=1
+            fi
+        fi
+    done
+
+    [[ ${has_gunicorn} -eq 1 && ${has_wsgi_app} -eq 1 && ${has_matching_pidfile} -eq 1 ]] || return 1
+
+    return 0
+}
+
+terminate_owned_process() {
+    local target_pid="${1:-}"
+    if [[ -z "${target_pid}" ]] || ! is_owned_process "${target_pid}"; then
         return 0
-    else
+    fi
+
+    kill -TERM "${target_pid}" 2>/dev/null || true
+
+    local waited=0
+    while is_owned_process "${target_pid}" && [[ ${waited} -lt 10 ]]; do
+        sleep 0.5
+        waited=$((waited + 1))
+    done
+
+    if is_owned_process "${target_pid}"; then
+        kill -KILL "${target_pid}" 2>/dev/null || true
+        local kill_waited=0
+        while is_owned_process "${target_pid}" && [[ ${kill_waited} -lt 10 ]]; do
+            sleep 0.5
+            kill_waited=$((kill_waited + 1))
+        done
+    fi
+
+    if is_owned_process "${target_pid}"; then
         return 1
     fi
     return 0
@@ -179,20 +289,20 @@ finally:
     else
         echo "❌ Ошибка: Не удалось запустить приложение (таймаут готовности или сбой процесса)." >&2
         echo "   Проверьте логи: ${LOG_FILE}" >&2
+
         if is_owned_process "${started_pid}"; then
-            kill -TERM "${started_pid}" 2>/dev/null || true
-            local cleanup_waited=0
-            while is_owned_process "${started_pid}" && [[ ${cleanup_waited} -lt 6 ]]; do
-                sleep 0.5
-                cleanup_waited=$((cleanup_waited + 1))
-            done
-            if is_owned_process "${started_pid}"; then
-                kill -KILL "${started_pid}" 2>/dev/null || true
+            if ! terminate_owned_process "${started_pid}"; then
+                echo "⚠️  Внимание: не удалось завершить процесс ${started_pid} после сбоя запуска." >&2
             fi
         fi
-        if [[ "$(get_pid)" == "${started_pid}" ]]; then
-            rm -f "${PID_FILE}"
+
+        if ! is_owned_process "${started_pid}"; then
+            wait "${started_pid}" 2>/dev/null || true
+            if [[ "$(get_pid)" == "${started_pid}" ]]; then
+                rm -f "${PID_FILE}"
+            fi
         fi
+
         return 1
     fi
 }
@@ -210,25 +320,7 @@ stop_app() {
     fi
 
     echo "🛑 Остановка приложения (PID: ${pid})..."
-    kill -TERM "${pid}" 2>/dev/null || true
-
-    local waited=0
-    while is_owned_process "${pid}" && [[ ${waited} -lt 20 ]]; do
-        sleep 0.5
-        waited=$((waited + 1))
-    done
-
-    if is_owned_process "${pid}"; then
-        echo "⚠️  Принудительное завершение (SIGKILL)..."
-        kill -KILL "${pid}" 2>/dev/null || true
-        local kill_waited=0
-        while is_owned_process "${pid}" && [[ ${kill_waited} -lt 10 ]]; do
-            sleep 0.5
-            kill_waited=$((kill_waited + 1))
-        done
-    fi
-
-    if is_owned_process "${pid}"; then
+    if ! terminate_owned_process "${pid}"; then
         echo "❌ Ошибка: Не удалось завершить процесс ${pid}." >&2
         return 1
     fi
