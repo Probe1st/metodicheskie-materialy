@@ -11,8 +11,6 @@ SCRIPT_DIR="$(readlink -f "${SCRIPT_DIR}" 2>/dev/null || echo "${SCRIPT_DIR}")"
 
 if [[ -n "${APP_DIR:-}" ]]; then
     APP_DIR="$(readlink -f "${APP_DIR}" 2>/dev/null || (cd "${APP_DIR}" 2>/dev/null && pwd))"
-elif [[ -d "${SCRIPT_DIR}/homework-submissions" ]]; then
-    APP_DIR="$(readlink -f "${SCRIPT_DIR}/homework-submissions")"
 else
     APP_DIR="${SCRIPT_DIR}"
 fi
@@ -27,8 +25,8 @@ if [[ -x "${APP_DIR}/.venv/bin/gunicorn" ]]; then
     GUNICORN="${APP_DIR}/.venv/bin/gunicorn"
 elif [[ -x "${SCRIPT_DIR}/.venv/bin/gunicorn" ]]; then
     GUNICORN="${SCRIPT_DIR}/.venv/bin/gunicorn"
-elif git rev-parse --git-common-dir >/dev/null 2>&1 && [[ -x "$(cd "$(git rev-parse --git-common-dir)/.." && pwd)/homework-submissions/.venv/bin/gunicorn" ]]; then
-    GUNICORN="$(cd "$(git rev-parse --git-common-dir)/.." && pwd)/homework-submissions/.venv/bin/gunicorn"
+elif git rev-parse --git-common-dir >/dev/null 2>&1 && [[ -x "$(cd "$(git rev-parse --git-common-dir)/.." && pwd)/.venv/bin/gunicorn" ]]; then
+    GUNICORN="$(cd "$(git rev-parse --git-common-dir)/.." && pwd)/.venv/bin/gunicorn"
 elif command -v gunicorn >/dev/null 2>&1; then
     GUNICORN="$(command -v gunicorn)"
 else
