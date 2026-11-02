@@ -99,7 +99,10 @@
                 </select>
               </label>
             {% endif %}
-            <button class="button button--primary" type="submit" style="margin-top: var(--space-2);">Добавить</button>
+            <button class="button button--primary" type="submit" name="action_type" value="create" style="margin-top: var(--space-2);">Добавить</button>
+            {% if kind == 'topics' %}
+              <button class="button button--outline" type="submit" name="action_type" value="create_and_edit_task" style="margin-top: var(--space-1);">Создать тему и заполнить задание</button>
+            {% endif %}
             <p class="status" data-create-status aria-live="polite"></p>
           </form>
 
@@ -124,6 +127,9 @@
                       <button class="button button--outline" type="button" disabled title="Системный предмет нельзя изменить">Редактировать</button>
                       <button class="button button--danger" type="button" disabled title="Системный предмет нельзя удалить">Удалить</button>
                     {% else %}
+                      {% if kind == 'topics' %}
+                        <a class="button button--outline" href="/admin/topics/{{ item.id }}/task">Задание темы</a>
+                      {% endif %}
                       <button class="button button--outline" type="button" data-toggle-edit>Редактировать</button>
                       <button class="button button--danger" type="button" data-delete>Удалить</button>
                     {% endif %}
@@ -159,6 +165,8 @@
       </section>
     </div>
   </main>
+  {% include '_app_dialog.html' %}
+  <script src="{{ url_for('static', filename='app-dialog.js') }}"></script>
   <script src="{{ url_for('static', filename='catalog-admin.js') }}" defer></script>
 </body>
 </html>

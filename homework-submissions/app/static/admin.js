@@ -17,11 +17,6 @@ function updateGroupState(form) {
   chip.className = `chip ${isOpen ? 'chip--open' : 'chip--closed'}`;
   chip.textContent = isOpen ? 'Приём открыт' : 'Приём закрыт';
 
-  const openCount = document.querySelectorAll('.chip--open').length;
-  const openCountEl = document.querySelector('#open_count');
-  const closedCountEl = document.querySelector('#closed_count');
-  if (openCountEl) openCountEl.textContent = openCount;
-  if (closedCountEl) closedCountEl.textContent = document.querySelectorAll('.chip').length - openCount;
 
   if (typeof filterGroupCards === 'function') {
     filterGroupCards();

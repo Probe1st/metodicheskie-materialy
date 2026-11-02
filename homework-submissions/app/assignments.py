@@ -98,6 +98,11 @@ class AssignmentStore:
         finally:
             conn.close()
 
+    @contextmanager
+    def connect(self) -> Generator[sqlite3.Connection, None, None]:
+        with self._connect() as conn:
+            yield conn
+
     def _row_to_assignment(self, row: sqlite3.Row) -> Assignment:
         return Assignment(
             id=UUID(row["id"]),
@@ -117,6 +122,7 @@ class AssignmentStore:
         topic_id: UUID,
         lesson_date: str,
         pair_number: int,
+        conn: sqlite3.Connection | None = None,
     ) -> Assignment:
         if not isinstance(group_name, str) or not group_name.strip():
             raise AssignmentValidationError("group_name cannot be empty.")
@@ -127,9 +133,9 @@ class AssignmentStore:
         assignment_id = uuid4()
         now_iso = datetime.now(UTC).isoformat()
 
-        with self._connect() as conn:
+        def _do_insert(c: sqlite3.Connection):
             try:
-                conn.execute(
+                c.execute(
                     """
                     INSERT INTO class_assignments (
                         id, group_name, subject_id, topic_id, lesson_date, pair_number, created_at, updated_at
@@ -146,13 +152,20 @@ class AssignmentStore:
                         now_iso,
                     ),
                 )
-                conn.commit()
             except sqlite3.IntegrityError as err:
                 raise AssignmentConflictError(
                     f"Пара {valid_pair} на дату {valid_date} для группы {cleaned_group} уже занята."
                 ) from err
 
-        item = self.get(assignment_id)
+        if conn is not None:
+            _do_insert(conn)
+            item = self.get(assignment_id, conn=conn)
+        else:
+            with self._connect() as local_conn:
+                _do_insert(local_conn)
+                local_conn.commit()
+            item = self.get(assignment_id)
+
         assert item is not None
         return item
 
@@ -162,13 +175,14 @@ class AssignmentStore:
         lesson_date: str,
         pair_number: int,
         topic_id: UUID,
+        conn: sqlite3.Connection | None = None,
     ) -> Assignment:
         valid_date = _validate_lesson_date(lesson_date)
         valid_pair = _validate_pair_number(pair_number)
         now_iso = datetime.now(UTC).isoformat()
 
-        with self._connect() as conn:
-            row = conn.execute(
+        def _do_update(c: sqlite3.Connection):
+            row = c.execute(
                 "SELECT group_name FROM class_assignments WHERE id = ?",
                 (str(assignment_id),),
             ).fetchone()
@@ -176,7 +190,7 @@ class AssignmentStore:
                 raise AssignmentNotFoundError(f"Assignment {assignment_id} not found.")
 
             try:
-                conn.execute(
+                c.execute(
                     """
                     UPDATE class_assignments
                     SET lesson_date = ?, pair_number = ?, topic_id = ?, updated_at = ?
@@ -190,27 +204,47 @@ class AssignmentStore:
                         str(assignment_id),
                     ),
                 )
-                conn.commit()
             except sqlite3.IntegrityError as err:
                 raise AssignmentConflictError(
                     f"Пара {valid_pair} на дату {valid_date} уже занята."
                 ) from err
 
-        item = self.get(assignment_id)
+        if conn is not None:
+            _do_update(conn)
+            item = self.get(assignment_id, conn=conn)
+        else:
+            with self._connect() as local_conn:
+                _do_update(local_conn)
+                local_conn.commit()
+            item = self.get(assignment_id)
+
         assert item is not None
         return item
 
-    def delete(self, assignment_id: UUID) -> None:
-        with self._connect() as conn:
+    def delete(self, assignment_id: UUID, conn: sqlite3.Connection | None = None) -> None:
+        if conn is not None:
             conn.execute(
                 "DELETE FROM class_assignments WHERE id = ?",
                 (str(assignment_id),),
             )
-            conn.commit()
+        else:
+            with self._connect() as local_conn:
+                local_conn.execute(
+                    "DELETE FROM class_assignments WHERE id = ?",
+                    (str(assignment_id),),
+                )
+                local_conn.commit()
 
-    def get(self, assignment_id: UUID) -> Assignment | None:
-        with self._connect() as conn:
+    def get(self, assignment_id: UUID, conn: sqlite3.Connection | None = None) -> Assignment | None:
+        if conn is not None:
             row = conn.execute(
+                "SELECT * FROM class_assignments WHERE id = ?",
+                (str(assignment_id),),
+            ).fetchone()
+            return self._row_to_assignment(row) if row else None
+
+        with self._connect() as local_conn:
+            row = local_conn.execute(
                 "SELECT * FROM class_assignments WHERE id = ?",
                 (str(assignment_id),),
             ).fetchone()
@@ -218,6 +252,35 @@ class AssignmentStore:
                 return None
             return self._row_to_assignment(row)
 
+    def get_ids_for_topic(self, topic_id: UUID, conn: sqlite3.Connection | None = None) -> tuple[UUID, ...]:
+        sql = "SELECT id FROM class_assignments WHERE topic_id = ?"
+        params = (str(topic_id),)
+        if conn is not None:
+            rows = conn.execute(sql, params).fetchall()
+            return tuple(UUID(r["id"]) for r in rows)
+        with self._connect() as local_conn:
+            rows = local_conn.execute(sql, params).fetchall()
+            return tuple(UUID(r["id"]) for r in rows)
+
+    def get_ids_for_subject(self, subject_id: UUID, conn: sqlite3.Connection | None = None) -> tuple[UUID, ...]:
+        sql = "SELECT id FROM class_assignments WHERE subject_id = ?"
+        params = (str(subject_id),)
+        if conn is not None:
+            rows = conn.execute(sql, params).fetchall()
+            return tuple(UUID(r["id"]) for r in rows)
+        with self._connect() as local_conn:
+            rows = local_conn.execute(sql, params).fetchall()
+            return tuple(UUID(r["id"]) for r in rows)
+
+    def get_ids_for_group(self, group_name: str, conn: sqlite3.Connection | None = None) -> tuple[UUID, ...]:
+        sql = "SELECT id FROM class_assignments WHERE group_name = ?"
+        params = (group_name.strip(),)
+        if conn is not None:
+            rows = conn.execute(sql, params).fetchall()
+            return tuple(UUID(r["id"]) for r in rows)
+        with self._connect() as local_conn:
+            rows = local_conn.execute(sql, params).fetchall()
+            return tuple(UUID(r["id"]) for r in rows)
     def list_for_group(self, group_name: str) -> tuple[Assignment, ...]:
         with self._connect() as conn:
             rows = conn.execute(

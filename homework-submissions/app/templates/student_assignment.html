@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f172a">
+  <title>{{ topic.name }} — Занятие и задание</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+  <link rel="alternate icon" href="{{ url_for('favicon') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="{{ url_for('index') }}" aria-label="На главную">
+        <img class="brand__logo" src="{{ url_for('static', filename='logo.svg') }}" alt="" width="32" height="32">
+        <span>Учебный портал</span>
+      </a>
+      <div class="header-actions">
+        <span class="header-label">{{ group_name }}</span>
+        <a class="button button--quiet" href="{{ return_url }}">
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 12l-4-4 4-4"/></svg>
+          <span>К списку занятий</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <div class="student-assignment-view">
+      <!-- Assignment Hero -->
+      <section class="panel task-card form-stack" aria-labelledby="lesson_title">
+        <div class="assignment-meta">
+          <span class="date-badge">{{ lesson_date_formatted }}</span>
+          <span class="chip--pair">{{ assignment.pair_number }} пара</span>
+          <span class="chip chip--neutral">{{ group_name }}</span>
+        </div>
+        <div class="assignment-details">
+          <p class="eyebrow">{{ subject.name }}</p>
+          <h1 id="lesson_title" style="margin-top: var(--space-1); margin-bottom: var(--space-2); font-size: var(--type-2xl); line-height: 1.25;">
+            {{ topic.name }}
+          </h1>
+        </div>
+        <div>
+          <a href="#submit_section" class="button button--primary" style="display: inline-flex; align-items: center; gap: var(--space-2);">
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l-6 6-3-3"/></svg>
+            <span>Сдать работу</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- Task Content Card -->
+      <section class="panel task-card form-stack" aria-label="Задание к занятию">
+        <div class="form-heading">
+          <p class="eyebrow">Задание к занятию</p>
+          <h2>Описание задания</h2>
+        </div>
+
+        {% if rendered_description %}
+          <article class="task-prose {% if description_format == 'txt' %}task-prose--txt{% endif %}">
+            {{ rendered_description|safe }}
+          </article>
+        {% else %}
+          <div class="empty-state">
+            <p>Задание к этой паре не добавлено.</p>
+            <span class="field__hint">Вы всё равно можете сдать выполненную работу преподавателю в форме ниже.</span>
+          </div>
+        {% endif %}
+      </section>
+
+      <!-- Attachment Card (if present) -->
+      {% if attachment %}
+        <section class="panel task-card form-stack" aria-label="Материалы к занятию">
+          <div class="form-heading">
+            <p class="eyebrow">Материалы</p>
+            <h2>Прикреплённый файл</h2>
+          </div>
+          <div class="attachment-card">
+            <div class="attachment-meta">
+              <svg class="attachment-icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              <div>
+                <span class="attachment-name">{{ attachment.original_name }}</span>
+                <span class="attachment-size">({{ attachment_size_formatted }})</span>
+              </div>
+            </div>
+            <div class="attachment-actions">
+              <a href="/student/assignments/{{ assignment.id }}/attachment" class="button button--primary" download>Скачать файл</a>
+            </div>
+          </div>
+        </section>
+      {% endif %}
+
+      <!-- Submission Section -->
+      <section id="submit_section" class="panel form-card form-stack" aria-label="Форма сдачи работы">
+        <div class="form-heading">
+          <p class="eyebrow">Сдача работы</p>
+          <h2>Отправить выполненное задание</h2>
+          <p class="field__hint">
+            Группа <strong>{{ group_name }}</strong> &bull; Предмет: <strong>{{ subject.name }}</strong> &bull; Тема: <strong>{{ topic.name }}</strong>
+          </p>
+        </div>
+
+        <form id="submit" class="form-stack" method="post" action="{{ url_for('submit') }}" enctype="multipart/form-data">
+          <input type="hidden" id="selected_group" name="group" value="{{ group_name }}">
+          <input type="hidden" name="discipline" value="{{ subject.name }}">
+          <input type="hidden" name="work" value="{{ topic.name }}">
+
+          <section class="form-section" aria-label="Данные студента">
+            <label class="field" for="student_name">
+              ФИО студента
+              <input id="student_name" name="student_name" required autocomplete="name" placeholder="Например, Иванов Иван Иванович">
+            </label>
+          </section>
+
+          <section class="form-section" aria-label="Файл с работой">
+            <label class="field" for="file">Файл с работой</label>
+            <div class="file-picker" id="file_dropzone">
+              <input id="file" name="file" type="file" required aria-describedby="file_name file_limit">
+              <svg class="file-picker__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+                <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 15.5v3A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="file-picker__title">Перетащите файл сюда или нажмите, чтобы выбрать</span>
+              <span class="file-picker__detail" id="file_name">Файл не выбран</span>
+              <span class="field__hint" id="file_limit">Максимальный размер: {{ limit }}</span>
+              <button class="button button--outline file-picker__remove" id="clear_file" type="button" hidden>Удалить файл</button>
+            </div>
+          </section>
+
+          <button class="button button--primary" type="submit" style="align-self: flex-start; margin-top: var(--space-2);">Отправить работу</button>
+          <p class="status" id="submit_status" aria-live="polite" role="status"></p>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <!-- Full-screen submission overlay -->
+  <div id="submission_overlay" class="submission-overlay" role="dialog" aria-modal="true" aria-labelledby="overlay_title" tabindex="-1" hidden>
+    <div class="submission-overlay__card">
+      <!-- State 1: Loading -->
+      <div id="overlay_loading" class="submission-overlay__view" role="status" aria-live="polite">
+        <div class="submission-overlay__icon-wrap">
+          <svg class="submission-overlay__spinner" viewBox="0 0 48 48" fill="none" aria-hidden="true" focusable="false">
+            <circle class="submission-overlay__spinner-track" cx="24" cy="24" r="20" stroke="currentColor" stroke-width="4" />
+            <path class="submission-overlay__spinner-head" d="M24 4a20 20 0 0 1 20 20" stroke="currentColor" stroke-width="4" stroke-linecap="round" />
+          </svg>
+        </div>
+        <h2 id="overlay_title" class="submission-overlay__title">Отправляем работу...</h2>
+        <p class="submission-overlay__lead">Пожалуйста, подождите, файл загружается на сервер...</p>
+      </div>
+
+      <!-- State 2: Success -->
+      <div id="overlay_success" class="submission-overlay__view" role="status" aria-live="polite" hidden>
+        <div class="submission-overlay__icon-wrap submission-overlay__icon-wrap--success">
+          <svg class="submission-overlay__icon submission-overlay__icon--success" viewBox="0 0 48 48" fill="none" aria-hidden="true" focusable="false">
+            <path d="M12 24l8 8 16-16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <h2 id="overlay_success_title" class="submission-overlay__title">Работа успешно отправлена!</h2>
+        <p class="submission-overlay__lead">Файл принят сервером и сохранён.</p>
+        <div class="submission-overlay__badge">
+          <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor" aria-hidden="true" focusable="false">
+            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+          </svg>
+          <span id="overlay_filename"></span>
+        </div>
+        <div class="submission-overlay__actions">
+          <button type="button" class="button button--primary submission-overlay__button" id="overlay_reset_button">Сдать ещё одну работу</button>
+          <a href="{{ return_url }}" class="button button--outline submission-overlay__button" style="text-decoration: none;">К списку занятий</a>
+        </div>
+      </div>
+
+      <!-- State 3: Error -->
+      <div id="overlay_error" class="submission-overlay__view" role="alert" aria-live="assertive" hidden>
+        <div class="submission-overlay__icon-wrap submission-overlay__icon-wrap--error">
+          <svg class="submission-overlay__icon submission-overlay__icon--error" viewBox="0 0 48 48" fill="none" aria-hidden="true" focusable="false">
+            <circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="3" />
+            <path d="M24 14v14M24 34h.01" stroke="currentColor" stroke-width="4" stroke-linecap="round" />
+          </svg>
+        </div>
+        <h2 id="overlay_error_title" class="submission-overlay__title">Не удалось отправить работу</h2>
+        <p class="submission-overlay__lead submission-overlay__lead--error" id="overlay_error_message">Произошла ошибка при отправке файла.</p>
+        <div class="submission-overlay__actions">
+          <button type="button" class="button button--primary submission-overlay__button" id="overlay_retry_button">Попробовать снова</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.submissionLimit = {{ limit|tojson }};
+    window.submissionMaxBytes = {{ max_bytes|tojson }};
+  </script>
+  <script src="{{ url_for('static', filename='student.js') }}" defer></script>
+</body>
+</html>

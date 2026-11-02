@@ -64,63 +64,22 @@
           </form>
         </section>
 
-        <!-- Metrics -->
-        <section class="summary-list" aria-label="Сводка расписания">
-          <article class="summary-card">
-            <strong id="assigned_count">{{ assignments|length }}</strong>
-            <span>занятий запланировано</span>
-          </article>
-          <article class="summary-card">
-            <strong>{{ unique_subjects_count }}</strong>
-            <span>активных дисциплин</span>
-          </article>
-        </section>
 
         <div class="catalog-workspace">
-          <!-- Creation Form (Left / Sticky) -->
-          <form id="assignment_create_form" class="panel catalog-create form-stack" method="post" action="{{ url_for('admin_create_assignment') }}">
+          <!-- Create Action Panel (Left / Sticky) -->
+          <div class="panel catalog-create form-stack">
             <div class="form-heading">
-              <p class="eyebrow">Новая пара</p>
+              <p class="eyebrow">Новое занятие</p>
               <h2>Запланировать пару</h2>
             </div>
-            <input type="hidden" name="group_name" value="{{ selected_group }}">
-
-            <label class="field" for="assignment_subject">Дисциплина
-              <select id="assignment_subject" name="subject_id" required>
-                {% for s in subjects %}
-                  <option value="{{ s.id }}" {% if s.id|string == selected_subject_id %}selected{% endif %}>{{ s.name }}</option>
-                {% endfor %}
-              </select>
-            </label>
-
-            <label class="field" for="assignment_topic">Тема занятия
-              <select id="assignment_topic" name="topic_id" required>
-                {% for t in topics %}
-                  <option value="{{ t.id }}" data-subject-id="{{ t.subject_id }}">{{ t.name }}</option>
-                {% endfor %}
-              </select>
-            </label>
-
-            <label class="field" for="assignment_date">Дата занятия
-              <input id="assignment_date" name="lesson_date" type="date" required>
-            </label>
-
-            <div class="field">
-              <label>Номер пары</label>
-              <div class="pair-selector" role="radiogroup" aria-label="Выбор номера пары">
-                {% for p in range(1, 7) %}
-                  <label class="pair-button">
-                    <input type="radio" name="pair_number" value="{{ p }}" {% if p == 1 %}checked{% endif %}>
-                    <span>{{ p }} пара</span>
-                  </label>
-                {% endfor %}
-              </div>
-            </div>
-
-            <button class="button button--primary" type="submit" style="margin-top: var(--space-2);">Назначить на пару</button>
-            <p id="create_status" class="status" aria-live="polite"></p>
-          </form>
-
+            <p class="field__hint">
+              Создайте пару в расписании для группы <strong>{{ selected_group }}</strong>, задайте описание в формате HTML, Markdown или TXT и прикрепите материалы.
+            </p>
+            <a class="button button--primary" href="{{ url_for('admin_new_assignment_page') }}?group={{ selected_group }}{% if selected_subject_id %}&subject_id={{ selected_subject_id }}{% endif %}" style="margin-top: var(--space-2); text-align: center; text-decoration: none;">
+              <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-right: var(--space-1);"><path d="M8 3v10M3 8h10"/></svg>
+              <span>Создать занятие</span>
+            </a>
+          </div>
           <!-- Assignments Journal (Right) -->
           <section class="assignment-journal" aria-label="Список назначенных занятий">
             {% if assignments|length == 0 %}
@@ -147,41 +106,9 @@
                       </div>
                     </div>
                     <div class="catalog-actions">
-                      <button class="button button--outline" type="button" data-action="edit">Редактировать</button>
+                      <a class="button button--outline" href="/admin/assignments/{{ item.id }}/edit">Редактировать</a>
                       <button class="button button--danger" type="button" data-action="delete">Удалить</button>
                     </div>
-
-                    <!-- Inline Edit Form -->
-                    <form id="assignment_edit_{{ item.id }}" class="assignment-edit-form form-stack" method="post" action="/admin/assignments/{{ item.id }}/update" hidden>
-                      <div class="edit-grid">
-                        <label class="field">Дата
-                          <input type="date" name="lesson_date" value="{{ item.lesson_date }}" required>
-                        </label>
-                        <label class="field">Пара
-                          <select name="pair_number" required>
-                            {% for p in range(1, 7) %}
-                              <option value="{{ p }}" {% if p == item.pair_number %}selected{% endif %}>{{ p }} пара</option>
-                            {% endfor %}
-                          </select>
-                        </label>
-                        <label class="field">Тема
-                          <select name="topic_id" required data-subject-id="{{ item.subject_id }}">
-                            {% for t in topics %}
-                              {% if t.subject_id|string == item.subject_id %}
-                                <option value="{{ t.id }}" data-subject-id="{{ t.subject_id }}" {% if t.id|string == item.topic_id %}selected{% endif %}>{{ t.name }}</option>
-                              {% else %}
-                                <option value="{{ t.id }}" data-subject-id="{{ t.subject_id }}" {% if t.id|string == item.topic_id %}selected{% endif %} hidden disabled>{{ t.name }}</option>
-                              {% endif %}
-                            {% endfor %}
-                          </select>
-                        </label>
-                      </div>
-                      <div class="catalog-actions">
-                        <button class="button button--primary" type="submit">Сохранить</button>
-                        <button class="button button--outline" type="button" data-action="cancel">Отмена</button>
-                      </div>
-                      <p class="status edit-status" aria-live="polite"></p>
-                    </form>
                   </article>
                 {% endfor %}
               </div>
@@ -191,6 +118,8 @@
       </section>
     </div>
   </main>
+  {% include '_app_dialog.html' %}
+  <script src="{{ url_for('static', filename='app-dialog.js') }}"></script>
   <script src="{{ url_for('static', filename='admin-assignments.js') }}"></script>
 </body>
 </html>
