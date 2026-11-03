@@ -1,3 +1,20 @@
+function restoreFocus(focusTrigger) {
+  if (!focusTrigger || !(focusTrigger instanceof HTMLElement) || !focusTrigger.isConnected) {
+    return;
+  }
+  if (focusTrigger.matches(':disabled')) {
+    return;
+  }
+  if (document.querySelector('#app_dialog[open]')) {
+    return;
+  }
+  const active = document.activeElement;
+  const inClosedDialog = active && active.closest && active.closest('#app_dialog:not([open])');
+  if (!active || active === document.body || inClosedDialog) {
+    focusTrigger.focus();
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.assignment-card').forEach((card) => {
     const deleteBtn = card.querySelector('[data-action="delete"]');
@@ -5,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (deleteBtn) {
       deleteBtn.addEventListener('click', async () => {
+        const focusTrigger = document.activeElement;
         const topicTitle = card.querySelector('h3')?.textContent || '';
         deleteBtn.disabled = true;
         try {
@@ -37,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } finally {
           if (card.isConnected) {
             deleteBtn.disabled = false;
+            restoreFocus(focusTrigger);
           }
         }
       });

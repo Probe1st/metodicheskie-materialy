@@ -20,12 +20,16 @@ def test_txt_rendering():
     rendered = render_task(raw, "txt")
     assert "<script>" not in rendered
     assert "&lt;script&gt;" in rendered
-    assert "<br>" in rendered
+    assert "<br>" not in rendered
     assert '<a href="https://example.com/test"' in rendered
     assert 'rel="noopener noreferrer"' in rendered
-    assert rendered.endswith("test.</a><br>\nLine 3: done") is False
     assert "Line 3: done" in rendered
 
+    # Test preserving LF, CRLF, CR, empty lines, and leading spaces
+    multiline = "Строка 1\r\nСтрока 2\r\n\r\n  Строка 4\r  Строка 5"
+    res = render_task(multiline, "txt")
+    assert "<br>" not in res
+    assert res == "Строка 1\nСтрока 2\n\n  Строка 4\n  Строка 5"
 
 def test_md_rendering_basic_and_tables():
     md = """# Заголовок

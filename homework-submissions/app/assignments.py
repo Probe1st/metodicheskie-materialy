@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 import sqlite3
-from collections.abc import Generator
+from collections.abc import Generator, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -317,21 +317,33 @@ class AssignmentStore:
             ).fetchall()
             return tuple(self._row_to_assignment(r) for r in rows)
 
-    def delete_subject(self, subject_id: UUID) -> None:
-        with self._connect() as conn:
+    def delete_subject(self, subject_id: UUID, conn: sqlite3.Connection | None = None) -> None:
+        if conn is not None:
             conn.execute(
                 "DELETE FROM class_assignments WHERE subject_id = ?",
                 (str(subject_id),),
             )
-            conn.commit()
+        else:
+            with self._connect() as local_conn:
+                local_conn.execute(
+                    "DELETE FROM class_assignments WHERE subject_id = ?",
+                    (str(subject_id),),
+                )
+                local_conn.commit()
 
-    def delete_topic(self, topic_id: UUID) -> None:
-        with self._connect() as conn:
+    def delete_topic(self, topic_id: UUID, conn: sqlite3.Connection | None = None) -> None:
+        if conn is not None:
             conn.execute(
                 "DELETE FROM class_assignments WHERE topic_id = ?",
                 (str(topic_id),),
             )
-            conn.commit()
+        else:
+            with self._connect() as local_conn:
+                local_conn.execute(
+                    "DELETE FROM class_assignments WHERE topic_id = ?",
+                    (str(topic_id),),
+                )
+                local_conn.commit()
 
     def rename_group(self, old_name: str, new_name: str) -> None:
         with self._connect() as conn:
@@ -341,10 +353,41 @@ class AssignmentStore:
             )
             conn.commit()
 
-    def delete_group(self, name: str) -> None:
-        with self._connect() as conn:
+    def delete_group(self, name: str, conn: sqlite3.Connection | None = None) -> None:
+        if conn is not None:
             conn.execute(
                 "DELETE FROM class_assignments WHERE group_name = ?",
                 (name.strip(),),
             )
-            conn.commit()
+        else:
+            with self._connect() as local_conn:
+                local_conn.execute(
+                    "DELETE FROM class_assignments WHERE group_name = ?",
+                    (name.strip(),),
+                )
+                local_conn.commit()
+
+    def reassign_subject_for_topics(
+        self,
+        topic_ids: Sequence[UUID],
+        new_subject_id: UUID,
+        conn: sqlite3.Connection | None = None,
+    ) -> int:
+        if not topic_ids:
+            return 0
+        str_ids = [str(uid) for uid in topic_ids]
+        placeholders = ",".join("?" for _ in str_ids)
+        now_iso = datetime.now(UTC).isoformat()
+        sql = f"""
+            UPDATE class_assignments
+            SET subject_id = ?, updated_at = ?
+            WHERE topic_id IN ({placeholders})
+        """
+        params = [str(new_subject_id), now_iso, *str_ids]
+        if conn is not None:
+            cur = conn.execute(sql, params)
+            return cur.rowcount
+        with self._connect() as local_conn:
+            cur = local_conn.execute(sql, params)
+            local_conn.commit()
+            return cur.rowcount

@@ -239,7 +239,7 @@ class TaskContentStore:
         description_format: str,
         attachment_id: UUID | None,
         conn: sqlite3.Connection | None = None,
-    ) -> TaskContent:
+    ) -> tuple[TaskContent, list[UUID]]:
         if owner_kind not in VALID_OWNER_KINDS:
             raise TaskContentValidationError(f"Invalid owner_kind: {owner_kind!r}. Expected 'topic' or 'lesson'.")
         if description_format not in VALID_DESCRIPTION_FORMATS:
@@ -306,24 +306,21 @@ class TaskContentStore:
 
         if conn is not None:
             item, orphaned = _execute(conn)
-            # Physical files removed after commit by caller or caller can rely on _cleanup_files
-            for orphan_id in orphaned:
-                self.discard_attachment_file(orphan_id)
-            return item
+            return item, orphaned
         else:
             with self._connect() as local_conn:
                 item, orphaned = _execute(local_conn)
                 local_conn.commit()
             for orphan_id in orphaned:
                 self.discard_attachment_file(orphan_id)
-            return item
+            return item, []
 
     def delete_content(
         self,
         owner_kind: str,
         owner_id: UUID,
         conn: sqlite3.Connection | None = None,
-    ) -> None:
+    ) -> list[UUID]:
         if owner_kind not in VALID_OWNER_KINDS:
             raise TaskContentValidationError(f"Invalid owner_kind: {owner_kind!r}")
 
@@ -354,23 +351,23 @@ class TaskContentStore:
 
         if conn is not None:
             orphaned = _execute(conn)
-            for orphan_id in orphaned:
-                self.discard_attachment_file(orphan_id)
+            return orphaned
         else:
             with self._connect() as local_conn:
                 orphaned = _execute(local_conn)
                 local_conn.commit()
             for orphan_id in orphaned:
                 self.discard_attachment_file(orphan_id)
+            return []
 
     def delete_contents_for_owners(
         self,
         owner_kind: str,
         owner_ids: Sequence[UUID],
         conn: sqlite3.Connection | None = None,
-    ) -> None:
+    ) -> list[UUID]:
         if not owner_ids:
-            return
+            return []
         if owner_kind not in VALID_OWNER_KINDS:
             raise TaskContentValidationError(f"Invalid owner_kind: {owner_kind!r}")
 
@@ -401,11 +398,11 @@ class TaskContentStore:
 
         if conn is not None:
             orphaned = _execute(conn)
-            for orphan_id in orphaned:
-                self.discard_attachment_file(orphan_id)
+            return orphaned
         else:
             with self._connect() as local_conn:
                 orphaned = _execute(local_conn)
                 local_conn.commit()
             for orphan_id in orphaned:
                 self.discard_attachment_file(orphan_id)
+            return []

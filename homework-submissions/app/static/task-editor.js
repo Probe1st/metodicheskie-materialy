@@ -46,6 +46,87 @@ document.addEventListener('DOMContentLoaded', () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
   }
 
+  function restoreFocus(focusTrigger) {
+    if (!focusTrigger || !(focusTrigger instanceof HTMLElement) || !focusTrigger.isConnected) {
+      return;
+    }
+    if (focusTrigger.matches(':disabled')) {
+      return;
+    }
+    if (document.querySelector('#app_dialog[open]')) {
+      return;
+    }
+    const active = document.activeElement;
+    const inClosedDialog = active && active.closest && active.closest('#app_dialog:not([open])');
+    if (!active || active === document.body || inClosedDialog) {
+      focusTrigger.focus();
+    }
+  }
+
+  let currentAttachment = null;
+  const initialAttId = (attachmentIdInput?.value || '').trim();
+  if (initialAttId) {
+    const name = attachmentNameDisplay ? attachmentNameDisplay.textContent.trim() : '';
+    const size = attachmentSizeDisplay ? attachmentSizeDisplay.textContent.trim() : '';
+    const dlHref = downloadLink ? downloadLink.getAttribute('href') : `/admin/tasks/attachments/${initialAttId}`;
+    currentAttachment = {
+      id: initialAttId,
+      name,
+      sizeFormatted: size,
+      downloadUrl: dlHref,
+      source: 'initial',
+      topicId: null,
+    };
+  }
+
+  function updateAttachmentUI() {
+    if (currentAttachment) {
+      if (attachmentNameDisplay) attachmentNameDisplay.textContent = currentAttachment.name;
+      if (attachmentSizeDisplay) attachmentSizeDisplay.textContent = currentAttachment.sizeFormatted;
+      if (downloadLink) {
+        if (currentAttachment.downloadUrl) {
+          downloadLink.href = currentAttachment.downloadUrl;
+          downloadLink.style.display = '';
+        } else {
+          downloadLink.removeAttribute('href');
+          downloadLink.style.display = 'none';
+        }
+      }
+      if (attachmentCurrentCard) attachmentCurrentCard.style.display = 'flex';
+      if (fileInput && fileInput.files && fileInput.files.length > 0) {
+        if (attachmentUploadBlock) attachmentUploadBlock.style.display = 'block';
+        if (cancelUploadBtn) cancelUploadBtn.style.display = 'inline-block';
+      } else {
+        if (attachmentUploadBlock) attachmentUploadBlock.style.display = 'none';
+        if (cancelUploadBtn) cancelUploadBtn.style.display = 'none';
+      }
+    } else {
+      if (downloadLink) {
+        downloadLink.removeAttribute('href');
+        downloadLink.style.display = 'none';
+      }
+      if (attachmentCurrentCard) attachmentCurrentCard.style.display = 'none';
+      if (attachmentUploadBlock) attachmentUploadBlock.style.display = 'block';
+      if (cancelUploadBtn) cancelUploadBtn.style.display = 'none';
+    }
+  }
+
+  function checkTopicAttachmentValidity() {
+    if (!topicSelect) return;
+    if (currentAttachment && currentAttachment.source === 'topic') {
+      if (currentAttachment.topicId !== topicSelect.value) {
+        currentAttachment = null;
+        attachmentIdInput.value = '';
+        removeAttachmentInput.value = '0';
+        updateAttachmentUI();
+        if (copyNotice) {
+          copyNotice.style.color = 'var(--primitive-amber-600)';
+          copyNotice.textContent = 'Вложение темы сброшено при смене темы. Выберите файл или нажмите «Взять задание темы».';
+        }
+      }
+    }
+  }
+
   // Filter topics by selected subject
   function filterTopics() {
     if (!subjectSelect || !topicSelect) return;
@@ -74,14 +155,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  if (topicSelect) {
+    topicSelect.addEventListener('change', () => {
+      markDirty();
+      checkTopicAttachmentValidity();
+    });
+  }
+
   if (subjectSelect) {
     subjectSelect.addEventListener('change', () => {
       markDirty();
       filterTopics();
+      checkTopicAttachmentValidity();
     });
     filterTopics();
   }
-
   // Tabs: Editor vs Preview
   if (tabEditorBtn && tabPreviewBtn) {
     tabEditorBtn.addEventListener('click', () => {
@@ -138,31 +226,32 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Apply topic task data to form
-  function applyTopicTask(data) {
+  function applyTopicTask(data, appliedTopicId) {
     descTextarea.value = data.description || '';
     const fmtRadio = form.querySelector(`input[name="description_format"][value="${data.description_format || 'txt'}"]`);
     if (fmtRadio) fmtRadio.checked = true;
 
+    if (fileInput) fileInput.value = '';
+
     if (data.attachment) {
+      currentAttachment = {
+        id: data.attachment.id,
+        name: data.attachment.original_name,
+        sizeFormatted: data.attachment.size_bytes ? `(${formatBytes(data.attachment.size_bytes)})` : '',
+        downloadUrl: `/admin/tasks/attachments/${data.attachment.id}`,
+        source: 'topic',
+        topicId: appliedTopicId,
+      };
       attachmentIdInput.value = data.attachment.id;
       removeAttachmentInput.value = '0';
-      if (attachmentNameDisplay) attachmentNameDisplay.textContent = data.attachment.original_name;
-      if (attachmentSizeDisplay) attachmentSizeDisplay.textContent = `(${formatBytes(data.attachment.size_bytes)})`;
-      if (downloadLink) downloadLink.href = `/admin/tasks/attachments/${data.attachment.id}`;
-
-      if (attachmentCurrentCard) attachmentCurrentCard.style.display = 'flex';
-      if (attachmentUploadBlock) attachmentUploadBlock.style.display = 'none';
-      if (fileInput) fileInput.value = '';
-      if (cancelUploadBtn) cancelUploadBtn.style.display = 'none';
     } else {
+      currentAttachment = null;
       attachmentIdInput.value = '';
       removeAttachmentInput.value = '0';
-      if (attachmentCurrentCard) attachmentCurrentCard.style.display = 'none';
-      if (attachmentUploadBlock) attachmentUploadBlock.style.display = 'block';
-      if (fileInput) fileInput.value = '';
     }
-
+    updateAttachmentUI();
     markDirty();
+
     if (copyNotice) {
       copyNotice.style.color = 'var(--primitive-emerald-600)';
       copyNotice.textContent = 'Задание темы скопировано!';
@@ -173,6 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // "Взять задание темы"
   if (copyTopicBtn && topicSelect) {
     copyTopicBtn.addEventListener('click', async () => {
+      const focusTrigger = document.activeElement;
       const topicId = topicSelect.value;
       const topicName = topicSelect.options[topicSelect.selectedIndex]?.text?.trim() || '';
       if (!topicId) {
@@ -217,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const hasExistingContent = Boolean(
           descTextarea.value.trim() ||
           attachmentIdInput.value ||
-          (attachmentCurrentCard && attachmentCurrentCard.style.display !== 'none') ||
+          currentAttachment ||
           (fileInput && fileInput.files && fileInput.files.length > 0)
         );
 
@@ -241,7 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
 
-        applyTopicTask(data);
+        applyTopicTask(data, topicId);
       } catch (err) {
         if (copyNotice) {
           copyNotice.style.color = 'var(--primitive-ruby-600)';
@@ -249,6 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } finally {
         copyTopicBtn.disabled = false;
+        restoreFocus(focusTrigger);
       }
     });
   }
@@ -258,7 +349,9 @@ document.addEventListener('DOMContentLoaded', () => {
     replaceAttachmentBtn.addEventListener('click', () => {
       markDirty();
       if (attachmentUploadBlock) attachmentUploadBlock.style.display = 'block';
-      if (cancelUploadBtn) cancelUploadBtn.style.display = 'inline-block';
+      if (cancelUploadBtn) {
+        cancelUploadBtn.style.display = currentAttachment ? 'inline-block' : 'none';
+      }
       if (fileInput) fileInput.focus();
     });
   }
@@ -266,23 +359,25 @@ document.addEventListener('DOMContentLoaded', () => {
   if (cancelUploadBtn) {
     cancelUploadBtn.addEventListener('click', () => {
       if (fileInput) fileInput.value = '';
-      if (attachmentCurrentCard && attachmentIdInput.value) {
-        attachmentUploadBlock.style.display = 'none';
-        cancelUploadBtn.style.display = 'none';
+      if (currentAttachment) {
+        attachmentIdInput.value = currentAttachment.id;
+        removeAttachmentInput.value = '0';
+      } else {
+        attachmentIdInput.value = '';
         removeAttachmentInput.value = '0';
       }
+      updateAttachmentUI();
     });
   }
 
   if (deleteAttachmentBtn) {
     deleteAttachmentBtn.addEventListener('click', () => {
       markDirty();
-      removeAttachmentInput.value = '1';
+      currentAttachment = null;
       attachmentIdInput.value = '';
+      removeAttachmentInput.value = '1';
       if (fileInput) fileInput.value = '';
-      if (attachmentCurrentCard) attachmentCurrentCard.style.display = 'none';
-      if (attachmentUploadBlock) attachmentUploadBlock.style.display = 'block';
-      if (cancelUploadBtn) cancelUploadBtn.style.display = 'none';
+      updateAttachmentUI();
     });
   }
 
@@ -292,6 +387,9 @@ document.addEventListener('DOMContentLoaded', () => {
         markDirty();
         removeAttachmentInput.value = '0';
         attachmentIdInput.value = '';
+        if (currentAttachment && cancelUploadBtn) {
+          cancelUploadBtn.style.display = 'inline-block';
+        }
       }
     });
   }
@@ -330,6 +428,37 @@ document.addEventListener('DOMContentLoaded', () => {
       window.location.assign(destination);
     }
   });
+  // Intercept logout form when dirty
+  const logoutForm = document.querySelector('#admin_logout');
+  let pendingLogout = false;
+  if (logoutForm) {
+    logoutForm.addEventListener('submit', async (e) => {
+      if (isSubmitting || pendingLogout) {
+        e.preventDefault();
+        return;
+      }
+      if (!isDirty) {
+        return;
+      }
+      e.preventDefault();
+      pendingLogout = true;
+      try {
+        const confirmed = await AppDialog.confirm({
+          title: 'Несохранённые изменения',
+          message: 'Есть несохранённые изменения. Вы действительно хотите выйти?',
+          confirmLabel: 'Выйти',
+          danger: true,
+        });
+        if (confirmed) {
+          isDirty = false;
+          HTMLFormElement.prototype.submit.call(logoutForm);
+        }
+      } finally {
+        pendingLogout = false;
+      }
+    });
+  }
+
 
   // Form submission via fetch
   form.addEventListener('submit', async (e) => {

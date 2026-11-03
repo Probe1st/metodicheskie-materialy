@@ -469,6 +469,7 @@ def create_app(config=None):
             try:
                 if action == "update":
                     item = catalog_store.update_topic(uid, request.form.get("name", ""), form_uuid("subject_id"))
+                    assignment_store().reassign_subject_for_topics([item.id], item.subject_id)
                     return jsonify(topic_json(item))
                 if action == "rename":
                     item = getattr(catalog_store, f"rename_{singular}")(uid, request.form.get("name", ""))
@@ -477,23 +478,48 @@ def create_app(config=None):
                         assignment_store().rename_group(old.name, item.name)
                     return jsonify(id=str(item.id), name=item.name)
                 if kind == "groups" and action == "delete":
-                    lesson_ids = assignment_store().get_ids_for_group(old.name)
-                    task_content_store().delete_contents_for_owners("lesson", lesson_ids)
+                    getattr(catalog_store, f"delete_{singular}")(uid)
+                    as_store = assignment_store()
+                    tc_store = task_content_store()
+                    orphans_to_discard = []
+                    with as_store.connect() as conn:
+                        lesson_ids = as_store.get_ids_for_group(old.name, conn=conn)
+                        orphans = tc_store.delete_contents_for_owners("lesson", lesson_ids, conn=conn)
+                        orphans_to_discard.extend(orphans)
+                        as_store.delete_group(old.name, conn=conn)
+                        conn.commit()
                     if access:
                         access.delete_group(old.name)
-                    assignment_store().delete_group(old.name)
+                    for orphan_id in orphans_to_discard:
+                        tc_store.discard_attachment_file(orphan_id)
                 elif kind == "subjects" and action == "delete":
-                    topic_ids = [t.id for t in catalog().topics if t.subject_id == uid]
-                    lesson_ids = assignment_store().get_ids_for_subject(uid)
-                    task_content_store().delete_contents_for_owners("lesson", lesson_ids)
-                    task_content_store().delete_contents_for_owners("topic", topic_ids)
-                    assignment_store().delete_subject(uid)
+                    getattr(catalog_store, f"delete_{singular}")(uid)
+                    as_store = assignment_store()
+                    tc_store = task_content_store()
+                    orphans_to_discard = []
+                    with as_store.connect() as conn:
+                        lesson_ids = as_store.get_ids_for_subject(uid, conn=conn)
+                        orphans = tc_store.delete_contents_for_owners("lesson", lesson_ids, conn=conn)
+                        orphans_to_discard.extend(orphans)
+                        as_store.delete_subject(uid, conn=conn)
+                        conn.commit()
+                    for orphan_id in orphans_to_discard:
+                        tc_store.discard_attachment_file(orphan_id)
                 elif kind == "topics" and action == "delete":
-                    lesson_ids = assignment_store().get_ids_for_topic(uid)
-                    task_content_store().delete_contents_for_owners("lesson", lesson_ids)
-                    task_content_store().delete_content("topic", uid)
-                    assignment_store().delete_topic(uid)
-                getattr(catalog_store, f"delete_{singular}")(uid)
+                    getattr(catalog_store, f"delete_{singular}")(uid)
+                    as_store = assignment_store()
+                    tc_store = task_content_store()
+                    orphans_to_discard = []
+                    with as_store.connect() as conn:
+                        lesson_ids = as_store.get_ids_for_topic(uid, conn=conn)
+                        orphans_lesson = tc_store.delete_contents_for_owners("lesson", lesson_ids, conn=conn)
+                        orphans_topic = tc_store.delete_content("topic", uid, conn=conn)
+                        orphans_to_discard.extend(orphans_lesson)
+                        orphans_to_discard.extend(orphans_topic)
+                        as_store.delete_topic(uid, conn=conn)
+                        conn.commit()
+                    for orphan_id in set(orphans_to_discard):
+                        tc_store.discard_attachment_file(orphan_id)
             except CatalogItemNotFound:
                 abort(404)
             except CatalogNameConflict as error:
@@ -510,7 +536,10 @@ def create_app(config=None):
         item_ids = request.form.getlist("topic_ids")
         try:
             ids = tuple(UUID(value) for value in item_ids)
-            moved = catalog_store.move_topics(ids, form_uuid("subject_id"))
+            target_subject_id = form_uuid("subject_id")
+            moved = catalog_store.move_topics(ids, target_subject_id)
+            if moved:
+                assignment_store().reassign_subject_for_topics([item.id for item in moved], target_subject_id)
         except CatalogItemNotFound:
             abort(404)
         except CatalogNameConflict as error:
@@ -769,12 +798,14 @@ def create_app(config=None):
                 abort(400)
 
             as_store = assignment_store()
+            orphans_to_discard = []
             try:
                 with as_store.connect() as conn:
                     item = as_store.create(group_name, subject_id, topic_id, lesson_date, pair_number, conn=conn)
                     if staged_att:
                         tc_store.register_attachment(staged_att[0], staged_att[1], staged_att[2], conn=conn)
-                    tc_store.set_content("lesson", item.id, description, description_format, final_att_id, conn=conn)
+                    _, orphans = tc_store.set_content("lesson", item.id, description, description_format, final_att_id, conn=conn)
+                    orphans_to_discard.extend(orphans)
                     conn.commit()
             except AssignmentConflictError as err:
                 if staged_att:
@@ -788,6 +819,9 @@ def create_app(config=None):
                 if staged_att:
                     tc_store.discard_attachment_file(staged_att[0])
                 raise
+
+            for orphan_id in orphans_to_discard:
+                tc_store.discard_attachment_file(orphan_id)
 
         redirect_url = url_for("admin_assignments_page", group=item.group_name, subject_id=str(item.subject_id))
         return jsonify(
@@ -871,12 +905,14 @@ def create_app(config=None):
                     tc_store.discard_attachment_file(staged_att[0])
                 abort(400)
 
+            orphans_to_discard = []
             try:
                 with as_store.connect() as conn:
                     item = as_store.update(uid, lesson_date, pair_number, topic_id, conn=conn)
                     if staged_att:
                         tc_store.register_attachment(staged_att[0], staged_att[1], staged_att[2], conn=conn)
-                    tc_store.set_content("lesson", uid, description, description_format, final_att_id, conn=conn)
+                    _, orphans = tc_store.set_content("lesson", uid, description, description_format, final_att_id, conn=conn)
+                    orphans_to_discard.extend(orphans)
                     conn.commit()
             except AssignmentConflictError as err:
                 if staged_att:
@@ -894,6 +930,9 @@ def create_app(config=None):
                 if staged_att:
                     tc_store.discard_attachment_file(staged_att[0])
                 raise
+
+            for orphan_id in orphans_to_discard:
+                tc_store.discard_attachment_file(orphan_id)
 
         redirect_url = url_for("admin_assignments_page", group=existing.group_name, subject_id=str(existing.subject_id))
         return jsonify(
@@ -917,10 +956,14 @@ def create_app(config=None):
         with group_state_lock():
             as_store = assignment_store()
             tc_store = task_content_store()
+            orphans_to_discard = []
             with as_store.connect() as conn:
-                tc_store.delete_content("lesson", uid, conn=conn)
+                orphans = tc_store.delete_content("lesson", uid, conn=conn)
+                orphans_to_discard.extend(orphans)
                 as_store.delete(uid, conn=conn)
                 conn.commit()
+            for orphan_id in orphans_to_discard:
+                tc_store.discard_attachment_file(orphan_id)
         return ("", 204)
 
     @app.get("/admin/topics/<topic_id>/task")
@@ -1027,15 +1070,20 @@ def create_app(config=None):
             final_att_id = None
 
         try:
+            orphans_to_discard = []
             with tc_store._connect() as conn:
                 if staged_att:
                     tc_store.register_attachment(staged_att[0], staged_att[1], staged_att[2], conn=conn)
-                tc_store.set_content("topic", uid, description, description_format, final_att_id, conn=conn)
+                _, orphans = tc_store.set_content("topic", uid, description, description_format, final_att_id, conn=conn)
+                orphans_to_discard.extend(orphans)
                 conn.commit()
         except Exception:
             if staged_att:
                 tc_store.discard_attachment_file(staged_att[0])
             raise
+
+        for orphan_id in orphans_to_discard:
+            tc_store.discard_attachment_file(orphan_id)
 
         if (request.accept_mimetypes.accept_json and not request.accept_mimetypes.accept_html) or request.is_json:
             return jsonify(status="ok", redirect_url=url_for("admin_catalog_page", kind="topics")), 200

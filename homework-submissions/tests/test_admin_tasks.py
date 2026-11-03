@@ -264,3 +264,154 @@ def test_atomic_conflict_discards_staged_upload(client_env):
     # Verify no new physical file remained on disk!
     files_after = set(att_dir.iterdir()) if att_dir.is_dir() else set()
     assert files_after == files_before
+
+def test_rejected_subject_deletion_preserves_data_and_cascade_cleanup(client_env):
+    from app.assignments import AssignmentStore
+    from app.task_content import TaskContentStore
+
+    client, private_dir = client_env
+    client.post("/admin/login", data={"password": "admin-secret"})
+
+    as_store = AssignmentStore(private_dir / "access.sqlite3")
+    tc_store = TaskContentStore(private_dir / "access.sqlite3", private_dir / "task-attachments")
+
+    catalog = create_catalog_store(client.application.config).snapshot()
+    group = catalog.groups[0].name
+    unassigned_id = catalog.unassigned_subject_id
+
+    # 1. Create a subject under test
+    resp_s = client.post("/admin/subjects", data={"name": "Предмет Конфликт"})
+    assert resp_s.status_code == 201
+    subj_id = resp_s.json["id"]
+
+    # 2. In unassigned_subject_id, create topic "Дубликат"
+    resp_top_un = client.post(
+        "/admin/topics",
+        data={"name": "Дубликат", "subject_id": str(unassigned_id)},
+    )
+    assert resp_top_un.status_code == 201
+    unassigned_topic_id = resp_top_un.json["id"]
+
+    # 3. Under subj_id, create topic "Дубликат"
+    resp_top_subj = client.post(
+        "/admin/topics",
+        data={"name": "Дубликат", "subject_id": subj_id},
+    )
+    assert resp_top_subj.status_code == 201
+    conflict_topic_id = resp_top_subj.json["id"]
+
+    # 4. Attach template file to the topic task
+    topic_bytes = b"Topic template unique content 112233"
+    resp_topic_task = client.post(
+        f"/admin/topics/{conflict_topic_id}/task",
+        data={
+            "description": "Topic assignment task",
+            "description_format": "txt",
+            "attachment": (io.BytesIO(topic_bytes), "topic_file.txt"),
+        },
+        content_type="multipart/form-data",
+    )
+    assert resp_topic_task.status_code in (200, 302)
+    tc_topic = tc_store.get("topic", conflict_topic_id)
+    assert tc_topic is not None and tc_topic.attachment_id is not None
+    topic_att_id = tc_topic.attachment_id
+    topic_att_path = tc_store.get_attachment_path(topic_att_id)
+    assert topic_att_path.is_file()
+    assert topic_att_path.read_bytes() == topic_bytes
+
+    # 5. Create an assignment for this topic with its OWN separate file
+    lesson_bytes = b"Lesson unique separate file content 445566"
+    resp_lesson = client.post(
+        "/admin/assignments",
+        data={
+            "group_name": group,
+            "subject_id": subj_id,
+            "topic_id": conflict_topic_id,
+            "lesson_date": "2026-11-10",
+            "pair_number": "1",
+            "description": "Lesson 1 assignment",
+            "description_format": "txt",
+            "attachment": (io.BytesIO(lesson_bytes), "lesson_file.txt"),
+        },
+        content_type="multipart/form-data",
+    )
+    assert resp_lesson.status_code == 201
+    assign_id = resp_lesson.json["id"]
+    tc_lesson = tc_store.get("lesson", assign_id)
+    assert tc_lesson is not None and tc_lesson.attachment_id is not None
+    lesson_att_id = tc_lesson.attachment_id
+    lesson_att_path = tc_store.get_attachment_path(lesson_att_id)
+    assert lesson_att_path.is_file()
+    assert lesson_att_path.read_bytes() == lesson_bytes
+
+    # 6. Attempt deleting the subject -> must return 400 with topic_name_conflict because
+    # moving topic "Дубликат" to "Без предмета" causes a name conflict!
+    del_resp = client.post(f"/admin/subjects/{subj_id}/delete")
+    assert del_resp.status_code == 400
+    assert del_resp.json["error"] == "topic_name_conflict"
+    assert del_resp.json["names"] == ["Дубликат"]
+    # Verification: catalog, assignment, task contents, metadata, and exact file bytes are INTACT!
+    assert as_store.get(assign_id) is not None
+    assert tc_store.get("lesson", assign_id) is not None
+    assert tc_store.get("topic", conflict_topic_id) is not None
+    assert lesson_att_path.is_file()
+    assert lesson_att_path.read_bytes() == lesson_bytes
+    assert topic_att_path.is_file()
+    assert topic_att_path.read_bytes() == topic_bytes
+
+    # 7. Resolve conflict by renaming unassigned topic
+    rename_resp = client.post(
+        f"/admin/topics/{unassigned_topic_id}/update",
+        data={"name": "Неконфликтная тема", "subject_id": str(unassigned_id)},
+    )
+    assert rename_resp.status_code == 200
+
+    # 8. Add a second assignment that SHARES the topic's attachment file
+    resp_lesson_shared = client.post(
+        "/admin/assignments",
+        data={
+            "group_name": group,
+            "subject_id": subj_id,
+            "topic_id": conflict_topic_id,
+            "lesson_date": "2026-11-10",
+            "pair_number": "2",
+            "description": "Lesson 2 sharing topic file",
+            "description_format": "txt",
+            "attachment_id": str(topic_att_id),
+        },
+        content_type="multipart/form-data",
+    )
+    assert resp_lesson_shared.status_code == 201
+    assign_shared_id = resp_lesson_shared.json["id"]
+
+    # 9. Now delete the subject -> 204 success!
+    del_success = client.post(f"/admin/subjects/{subj_id}/delete")
+    assert del_success.status_code == 204
+
+    # Verification after successful delete:
+    # - Both assignments are deleted
+    assert as_store.get(assign_id) is None
+    assert as_store.get(assign_shared_id) is None
+    assert tc_store.get("lesson", assign_id) is None
+    assert tc_store.get("lesson", assign_shared_id) is None
+
+    # - Unique lesson attachment file is deleted from disk and DB
+    assert not lesson_att_path.is_file()
+    assert tc_store.get_attachment(lesson_att_id) is None
+
+    # - Shared/topic attachment file is NOT deleted (still exists on disk and in DB)!
+    assert topic_att_path.is_file()
+    assert topic_att_path.read_bytes() == topic_bytes
+    assert tc_store.get_attachment(topic_att_id) is not None
+
+    # - Topic itself and its task template are preserved under "Без предмета"
+    cat_after = create_catalog_store(client.application.config).snapshot()
+    preserved_topic = next((t for t in cat_after.topics if str(t.id) == conflict_topic_id), None)
+    assert preserved_topic is not None
+    assert preserved_topic.subject_id == unassigned_id
+    assert tc_store.get("topic", conflict_topic_id) is not None
+
+    # - Downloading the preserved topic attachment works
+    dl_resp = client.get(f"/admin/tasks/attachments/{topic_att_id}")
+    assert dl_resp.status_code == 200
+    assert dl_resp.data == topic_bytes

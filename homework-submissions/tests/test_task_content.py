@@ -29,13 +29,14 @@ def test_task_store_permissions(tmp_path: Path):
 
 def test_set_and_get_content(task_store: TaskContentStore):
     topic_id = uuid4()
-    item = task_store.set_content(
+    item, orphans = task_store.set_content(
         owner_kind="topic",
         owner_id=topic_id,
         description="# Задание темы",
         description_format="md",
         attachment_id=None,
     )
+    assert orphans == []
     assert item.owner_kind == "topic"
     assert item.owner_id == topic_id
     assert item.description == "# Задание темы"
@@ -76,7 +77,7 @@ def test_save_attachment_and_link(task_store: TaskContentStore):
     assert stat.S_IMODE(file_path.stat().st_mode) == 0o600
 
     topic_id = uuid4()
-    content = task_store.set_content(
+    content, _ = task_store.set_content(
         owner_kind="topic",
         owner_id=topic_id,
         description="See attached",
@@ -208,3 +209,99 @@ def test_shared_transaction_with_assignment_store(tmp_path: Path):
 
     # Verify pair 2 was rolled back
     assert len(as_store.list_for_group("ИС 24/9-1")) == 1
+
+def test_external_transaction_rollback_and_commit_cleanup(task_store: TaskContentStore):
+    data_orig = b"original file bytes 12345"
+    att_orig = task_store.save_attachment("orig.txt", data_orig)
+    path_orig = task_store.get_attachment_path(att_orig.id)
+    owner_id = uuid4()
+    task_store.set_content("lesson", owner_id, "Initial desc", "txt", att_orig.id)
+    assert path_orig.is_file()
+
+    # 1. Test set_content rollback preserves file, metadata and content
+    data_new = b"new file bytes 67890"
+    with task_store._connect() as conn:
+        att_new = task_store.save_attachment("new.txt", data_new, conn=conn)
+        updated_item, orphans = task_store.set_content(
+            "lesson", owner_id, "Updated desc", "txt", att_new.id, conn=conn
+        )
+        assert orphans == [att_orig.id]
+        # Rollback!
+        conn.rollback()
+        # Caller would discard uncommitted staged new attachment
+        task_store.discard_attachment_file(att_new.id)
+
+    assert path_orig.is_file()
+    assert path_orig.read_bytes() == data_orig
+    assert task_store.get_attachment(att_orig.id) is not None
+    assert task_store.get("lesson", owner_id).description == "Initial desc"
+    assert task_store.get("lesson", owner_id).attachment_id == att_orig.id
+
+    # 2. Test set_content commit leaves file until caller discards
+    with task_store._connect() as conn:
+        att_new2 = task_store.save_attachment("new2.txt", data_new, conn=conn)
+        _, orphans2 = task_store.set_content(
+            "lesson", owner_id, "Updated desc 2", "txt", att_new2.id, conn=conn
+        )
+        assert orphans2 == [att_orig.id]
+        conn.commit()
+
+    # Before caller explicitly unlinks, file is still on disk!
+    assert path_orig.is_file()
+    # Now caller cleans up returned orphans
+    for o_id in orphans2:
+        task_store.discard_attachment_file(o_id)
+    assert not path_orig.is_file()
+    assert task_store.get_attachment(att_orig.id) is None
+
+    # 3. Test delete_content rollback preserves file, metadata and content
+    path_new2 = task_store.get_attachment_path(att_new2.id)
+    assert path_new2.is_file()
+    with task_store._connect() as conn:
+        orphans_del = task_store.delete_content("lesson", owner_id, conn=conn)
+        assert orphans_del == [att_new2.id]
+        conn.rollback()
+
+    assert path_new2.is_file()
+    assert path_new2.read_bytes() == data_new
+    assert task_store.get_attachment(att_new2.id) is not None
+    assert task_store.get("lesson", owner_id) is not None
+
+    # 4. Test delete_content commit leaves file until explicit discard
+    with task_store._connect() as conn:
+        orphans_del2 = task_store.delete_content("lesson", owner_id, conn=conn)
+        assert orphans_del2 == [att_new2.id]
+        conn.commit()
+    assert path_new2.is_file()
+    for o_id in orphans_del2:
+        task_store.discard_attachment_file(o_id)
+    assert not path_new2.is_file()
+    assert task_store.get_attachment(att_new2.id) is None
+
+    # 5. Test delete_contents_for_owners rollback and commit
+    att_multi = task_store.save_attachment("multi.txt", b"multi bytes")
+    path_multi = task_store.get_attachment_path(att_multi.id)
+    m1 = uuid4()
+    m2 = uuid4()
+    task_store.set_content("lesson", m1, "M1", "txt", att_multi.id)
+    task_store.set_content("lesson", m2, "M2", "txt", att_multi.id)
+
+    # Rollback
+    with task_store._connect() as conn:
+        orphans_multi = task_store.delete_contents_for_owners("lesson", [m1, m2], conn=conn)
+        assert orphans_multi == [att_multi.id]
+        conn.rollback()
+    assert path_multi.is_file()
+    assert task_store.get("lesson", m1) is not None
+    assert task_store.get_attachment(att_multi.id) is not None
+
+    # Commit
+    with task_store._connect() as conn:
+        orphans_multi2 = task_store.delete_contents_for_owners("lesson", [m1, m2], conn=conn)
+        assert orphans_multi2 == [att_multi.id]
+        conn.commit()
+    assert path_multi.is_file()
+    for o_id in orphans_multi2:
+        task_store.discard_attachment_file(o_id)
+    assert not path_multi.is_file()
+    assert task_store.get_attachment(att_multi.id) is None

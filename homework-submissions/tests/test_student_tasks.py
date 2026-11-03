@@ -226,3 +226,148 @@ def test_student_can_submit_from_assignment_page(client_env, tmp_path):
     saved = list((tmp_path / "uploads").rglob("Сидоров Петр Алексеевич 1.pdf"))
     assert len(saved) == 1
     assert saved[0].read_bytes() == b"answer PDF bytes"
+
+def test_topic_move_and_update_reassigns_assignments_and_allows_submit(client_env, tmp_path):
+    from uuid import UUID
+    from tests.conftest import configure_group
+    from app.assignments import AssignmentStore
+
+    client, private_dir = client_env
+    as_store = AssignmentStore(private_dir / "access.sqlite3")
+    group_name = "ИС 25/9-1П"
+    configure_group(private_dir, group=group_name, password="1234", is_open=True)
+
+    # Admin login and setup subjects
+    client.post("/admin/login", data={"password": "admin-secret"})
+    resp_s1 = client.post("/admin/subjects", data={"name": "Исходный Предмет"})
+    assert resp_s1.status_code == 201
+    s1_id = resp_s1.json["id"]
+
+    resp_s2 = client.post("/admin/subjects", data={"name": "Целевой Предмет"})
+    assert resp_s2.status_code == 201
+    s2_id = resp_s2.json["id"]
+
+    # Topic for bulk move
+    resp_t1 = client.post("/admin/topics", data={"name": "Тема Для Переноса", "subject_id": s1_id})
+    assert resp_t1.status_code == 201
+    t1_id = resp_t1.json["id"]
+
+    # Existing topic in s2 to test conflict prevention
+    resp_conflict = client.post("/admin/topics", data={"name": "Занятое Имя", "subject_id": s2_id})
+    assert resp_conflict.status_code == 201
+
+    # Create assignment for t1 under s1
+    r_a1 = client.post("/admin/assignments", data={
+        "group_name": group_name,
+        "subject_id": s1_id,
+        "topic_id": t1_id,
+        "lesson_date": "2026-11-20",
+        "pair_number": "1",
+    })
+    assert r_a1.status_code == 201
+    a1_id = r_a1.json["id"]
+    assert as_store.get(UUID(a1_id)).subject_id == UUID(s1_id)
+
+    # --- CASE 1: BULK MOVE ---
+    # 1. Conflict move attempt
+    # Rename t1 to "Занятое Имя" under s1 first
+    r_ren = client.post(f"/admin/topics/{t1_id}/update", data={"name": "Занятое Имя", "subject_id": s1_id})
+    assert r_ren.status_code == 200
+    # Try moving to s2 where "Занятое Имя" already exists -> 400 topic_name_conflict
+    r_conf = client.post("/admin/topics/move", data={"topic_ids": [t1_id], "subject_id": s2_id})
+    assert r_conf.status_code == 400
+    # Assignment subject_id unchanged
+    assert as_store.get(UUID(a1_id)).subject_id == UUID(s1_id)
+
+    # Rename back to unique name
+    r_ren_back = client.post(f"/admin/topics/{t1_id}/update", data={"name": "Тема Для Переноса", "subject_id": s1_id})
+    assert r_ren_back.status_code == 200
+
+    # 2. Successful bulk move
+    r_move = client.post("/admin/topics/move", data={"topic_ids": [t1_id], "subject_id": s2_id})
+    assert r_move.status_code == 200
+
+    # Assignment subject_id updated in DB!
+    assert as_store.get(UUID(a1_id)).subject_id == UUID(s2_id)
+
+    # 3. Student view and submit
+    client.post("/unlock", data={"group": group_name, "password": "1234"})
+    page1 = client.get(f"/student/assignments/{a1_id}")
+    assert page1.status_code == 200
+    html1 = page1.get_data(as_text=True)
+    assert 'value="Целевой Предмет"' in html1
+    assert 'value="Тема Для Переноса"' in html1
+
+    sub1_resp = client.post("/submit", data={
+        "group": group_name,
+        "discipline": "Целевой Предмет",
+        "work": "Тема Для Переноса",
+        "student_name": "Иванов Иван",
+        "file": (io.BytesIO(b"answer bytes"), "solution.pdf"),
+    })
+    assert sub1_resp.status_code == 201
+
+    # 4. Teacher update of the same assignment succeeds (200, not 400)
+    up1_resp = client.post(f"/admin/assignments/{a1_id}/update", data={
+        "lesson_date": "2026-11-21",
+        "pair_number": "2",
+        "topic_id": t1_id,
+        "description": "Новое описание",
+        "description_format": "txt",
+    })
+    assert up1_resp.status_code == 200
+
+    # --- CASE 2: TOPIC UPDATE ---
+    # Topic for update method
+    resp_t2 = client.post("/admin/topics", data={"name": "Тема Для Апдейта", "subject_id": s1_id})
+    assert resp_t2.status_code == 201
+    t2_id = resp_t2.json["id"]
+
+    r_a2 = client.post("/admin/assignments", data={
+        "group_name": group_name,
+        "subject_id": s1_id,
+        "topic_id": t2_id,
+        "lesson_date": "2026-11-22",
+        "pair_number": "1",
+    })
+    assert r_a2.status_code == 201
+    a2_id = r_a2.json["id"]
+    assert as_store.get(UUID(a2_id)).subject_id == UUID(s1_id)
+
+    # 1. Update with conflict attempt
+    r_conf2 = client.post(f"/admin/topics/{t2_id}/update", data={"name": "Занятое Имя", "subject_id": s2_id})
+    assert r_conf2.status_code == 400
+    assert as_store.get(UUID(a2_id)).subject_id == UUID(s1_id)
+
+    # 2. Successful topic update changing subject
+    r_up2 = client.post(f"/admin/topics/{t2_id}/update", data={"name": "Тема Для Апдейта", "subject_id": s2_id})
+    assert r_up2.status_code == 200
+
+    # Assignment subject_id updated in DB!
+    assert as_store.get(UUID(a2_id)).subject_id == UUID(s2_id)
+
+    # 3. Student view and submit
+    page2 = client.get(f"/student/assignments/{a2_id}")
+    assert page2.status_code == 200
+    html2 = page2.get_data(as_text=True)
+    assert 'value="Целевой Предмет"' in html2
+    assert 'value="Тема Для Апдейта"' in html2
+
+    sub2_resp = client.post("/submit", data={
+        "group": group_name,
+        "discipline": "Целевой Предмет",
+        "work": "Тема Для Апдейта",
+        "student_name": "Петров Петр",
+        "file": (io.BytesIO(b"answer bytes 2"), "solution2.pdf"),
+    })
+    assert sub2_resp.status_code == 201
+
+    # 4. Teacher update of the same assignment succeeds (200, not 400)
+    up2_resp = client.post(f"/admin/assignments/{a2_id}/update", data={
+        "lesson_date": "2026-11-23",
+        "pair_number": "3",
+        "topic_id": t2_id,
+        "description": "Обновлено через update",
+        "description_format": "txt",
+    })
+    assert up2_resp.status_code == 200

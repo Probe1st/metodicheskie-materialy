@@ -79,10 +79,10 @@ def render_task(description: str, description_format: str) -> str:
 
     fmt = description_format.lower().strip()
     if fmt == "txt":
-        escaped = html.escape(description)
+        normalized = description.replace("\r\n", "\n").replace("\r", "\n")
+        escaped = html.escape(normalized)
         autolinked = _autolink_text_fragments(escaped)
-        with_breaks = autolinked.replace("\r\n", "\n").replace("\r", "\n").replace("\n", "<br>\n")
-        return sanitize_html(with_breaks)
+        return sanitize_html(autolinked)
     elif fmt == "md":
         rendered = _markdown_renderer.render(description)
         autolinked = _autolink_text_fragments(rendered)

@@ -1,3 +1,20 @@
+function restoreFocus(focusTrigger) {
+  if (!focusTrigger || !(focusTrigger instanceof HTMLElement) || !focusTrigger.isConnected) {
+    return;
+  }
+  if (focusTrigger.matches(':disabled')) {
+    return;
+  }
+  if (document.querySelector('#app_dialog[open]')) {
+    return;
+  }
+  const active = document.activeElement;
+  const inClosedDialog = active && active.closest && active.closest('#app_dialog:not([open])');
+  if (!active || active === document.body || inClosedDialog) {
+    focusTrigger.focus();
+  }
+}
+
 function showStatus(element, state, message) {
   element.dataset.state = state;
   element.textContent = message;
@@ -342,6 +359,7 @@ if (catalogList) {
 
     const button = event.target.closest('[data-delete]');
     if (!button || button.disabled) return;
+    const focusTrigger = document.activeElement;
     button.disabled = true;
     const row = button.closest('[data-catalog-item]');
     const name = row.dataset.name;
@@ -358,7 +376,10 @@ if (catalogList) {
       confirmed = false;
     }
     if (!confirmed) {
-      if (row.isConnected) button.disabled = false;
+      if (row.isConnected) {
+        button.disabled = false;
+        restoreFocus(focusTrigger);
+      }
       return;
     }
     const status = row.querySelector('.catalog-status');
@@ -384,7 +405,10 @@ if (catalogList) {
     } catch {
       showStatus(status, 'error', 'Не удалось связаться с сервером. Попробуйте ещё раз.');
     } finally {
-      controls.forEach((control) => { control.disabled = false; });
+      if (row.isConnected) {
+        controls.forEach((control) => { control.disabled = false; });
+        restoreFocus(focusTrigger);
+      }
     }
   });
 }
