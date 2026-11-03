@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>Панель преподавателя — Учебный портал</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+  <link rel="alternate icon" href="{{ url_for('favicon') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="{{ url_for('index') }}" aria-label="На главную">
+        <img class="brand__logo" src="{{ url_for('static', filename='logo.svg') }}" alt="" width="32" height="32">
+        <span>Учебный портал</span>
+      </a>
+      <div class="header-actions">
+        <span class="header-label">{% if authenticated %}Кабинет преподавателя{% else %}Панель преподавателя{% endif %}</span>
+        <a class="button button--quiet" href="{{ url_for('index') }}">
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 12l-4-4 4-4"/></svg>
+          <span>К сдаче заданий</span>
+        </a>
+        {% if authenticated %}
+          <form method="post" action="{{ url_for('admin_logout') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="button button--quiet" type="submit">Выйти</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    {% if not authenticated %}
+      <section class="admin-login-layout" aria-labelledby="admin_title">
+        <div class="admin-login-intro">
+          <p class="eyebrow">Безопасный доступ</p>
+          <h1 id="admin_title">Панель преподавателя</h1>
+          <p class="lead">Управляйте доступом групп, расписанием занятий и учебными каталогами в едином защищённом пространстве.</p>
+        </div>
+        <section class="panel form-card admin-login-card" aria-label="Вход в панель преподавателя">
+          <form id="admin_login" class="form-stack" method="post" action="{{ url_for('admin_login') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-heading">
+              <p class="eyebrow">Только для преподавателя</p>
+              <h2>Войти в панель</h2>
+              <p>Введите мастер-пароль для продолжения.</p>
+            </div>
+            <label class="field" for="admin_password">
+              Мастер-пароль администратора
+              <input id="admin_password" name="password" type="password" required autocomplete="current-password" placeholder="Введите мастер-пароль">
+            </label>
+            <button class="button button--outline password-toggle" type="button" aria-label="Показать пароль" aria-pressed="false">Показать пароль</button>
+            <button class="button button--primary" type="submit">Войти в панель</button>
+            <p class="status" id="admin_login_status" aria-live="polite" role="status"></p>
+          </form>
+        </section>
+      </section>
+    {% else %}
+      <section class="admin-hero" aria-labelledby="admin_title">
+        <div>
+          <p class="eyebrow">Рабочее пространство преподавателя</p>
+          <h1 id="admin_title">Панель управления</h1>
+        </div>
+        <p class="lead">Настраивайте приём работ, планируйте занятия по парам и поддерживайте каталоги в актуальном состоянии.</p>
+      </section>
+
+      <div class="admin-layout">
+        {% set section = "overview" %}
+        {% include "_admin_nav.html" %}
+        <section class="admin-content" aria-label="Обзор панели">
+          <div class="admin-topline">
+            <div>
+              <h2>Обзор</h2>
+              <p class="lead">Основные инструменты для управления приёмом работ, расписанием и каталогами.</p>
+            </div>
+          </div>
+          <div class="summary-list" aria-label="Состав панели управления">
+            <article class="summary-card"><strong>3</strong><span>учебных каталога</span></article>
+            <article class="summary-card"><strong>5</strong><span>разделов панели</span></article>
+            <article class="summary-card"><strong>1</strong><span>единое рабочее пространство</span></article>
+          </div>
+          <h2>Быстрый переход</h2>
+          <div class="admin-links">
+            <a class="panel admin-link" href="{{ url_for('admin_access') }}">
+              <span class="eyebrow">Приём работ</span>
+              <strong>Доступы групп</strong>
+              <span>Настройте пароли, сроки и состояние приёма заданий.</span>
+            </a>
+            <a class="panel admin-link" href="{{ url_for('admin_assignments_page') }}">
+              <span class="eyebrow">Расписание</span>
+              <strong>Занятия и пары</strong>
+              <span>Планируйте расписание тем по учебным парам для групп.</span>
+            </a>
+            <a class="panel admin-link" href="{{ url_for('admin_catalog_page', kind='groups') }}">
+              <span class="eyebrow">Каталог</span>
+              <strong>Группы</strong>
+              <span>Создавайте и редактируйте учебные группы.</span>
+            </a>
+            <a class="panel admin-link" href="{{ url_for('admin_catalog_page', kind='subjects') }}">
+              <span class="eyebrow">Каталог</span>
+              <strong>Предметы</strong>
+              <span>Поддерживайте список учебных дисциплин.</span>
+            </a>
+            <a class="panel admin-link" href="{{ url_for('admin_catalog_page', kind='topics') }}">
+              <span class="eyebrow">Каталог</span>
+              <strong>Темы</strong>
+              <span>Управляйте темами и связывайте их с предметами.</span>
+            </a>
+          </div>
+        </section>
+      </div>
+    {% endif %}
+  </main>
+
+  <script src="{{ url_for('static', filename='admin.js') }}" defer></script>
+</body>
+</html>
