@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page_title }} — Панель преподавателя</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+  <link rel="alternate icon" href="{{ url_for('favicon') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="{{ url_for('index') }}" aria-label="На главную">
+        <img class="brand__logo" src="{{ url_for('static', filename='logo.svg') }}" alt="" width="32" height="32">
+        <span>Учебный портал</span>
+      </a>
+      <div class="header-actions">
+        <span class="header-label">Кабинет преподавателя</span>
+        <a class="button button--quiet" href="{{ url_for('index') }}">
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 12l-4-4 4-4"/></svg>
+          <span>К сдаче заданий</span>
+        </a>
+        <form id="admin_logout" method="post" action="{{ url_for('admin_logout') }}">
+          <button class="button button--quiet" type="submit">Выйти</button>
+        </form>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <section class="admin-hero" aria-labelledby="editor_title">
+      <div>
+        <p class="eyebrow">{{ hero_eyebrow }}</p>
+        <h1 id="editor_title">{{ page_title }}</h1>
+      </div>
+      <p class="lead">{{ hero_lead }}</p>
+    </section>
+
+    <div class="admin-layout">
+      {% include "_admin_nav.html" %}
+
+      <section class="admin-content" aria-label="Редактор задания">
+        <form id="task_editor_form" class="task-editor-layout" method="post" action="{{ form_action }}" enctype="multipart/form-data">
+          {% if mode == 'topic' %}
+            <section class="panel task-card form-stack">
+              <div class="form-heading">
+                <p class="eyebrow">Заготовка задания к теме</p>
+                <h2>{{ topic.name }}</h2>
+                <p class="field__hint">Предмет: <strong>{{ subject.name }}</strong></p>
+                <p class="field__hint">
+                  Это заготовленное задание по умолчанию. При создании занятия преподаватель сможет скопировать его в конкретную пару. Отмена оставляет тему без задания.
+                </p>
+              </div>
+            </section>
+          {% else %}
+            <!-- Schedule Parameters -->
+            <section class="panel task-card form-stack">
+              <div class="form-heading">
+                <p class="eyebrow">Параметры расписания</p>
+                <h2>Данные занятия</h2>
+              </div>
+
+              {% if mode == 'edit_lesson' %}
+                <input type="hidden" name="group_name" value="{{ assignment.group_name }}">
+                <div class="field">
+                  <span class="field__label">Учебная группа</span>
+                  <p><strong>{{ assignment.group_name }}</strong></p>
+                </div>
+                <div class="field">
+                  <span class="field__label">Предмет</span>
+                  <p><strong>{{ subject.name }}</strong></p>
+                </div>
+              {% else %}
+                <label class="field" for="group_select">Учебная группа
+                  <select id="group_select" name="group_name" required>
+                    {% for g in groups %}
+                      <option value="{{ g.name }}" {% if g.name == selected_group %}selected{% endif %}>{{ g.name }}</option>
+                    {% endfor %}
+                  </select>
+                </label>
+
+                <label class="field" for="subject_select">Предмет
+                  <select id="subject_select" name="subject_id" required>
+                    {% for s in subjects %}
+                      <option value="{{ s.id }}" {% if s.id|string == selected_subject_id %}selected{% endif %}>{{ s.name }}</option>
+                    {% endfor %}
+                  </select>
+                </label>
+              {% endif %}
+
+              <div class="form-stack">
+                <label class="field" for="topic_select">Тема занятия
+                  <select id="topic_select" name="topic_id" required>
+                    {% for t in topics %}
+                      <option value="{{ t.id }}" data-subject-id="{{ t.subject_id }}" {% if (mode == 'edit_lesson' and t.id == assignment.topic_id) or (mode == 'new_lesson' and t.id|string == selected_topic_id) %}selected{% endif %}>{{ t.name }}</option>
+                    {% endfor %}
+                  </select>
+                </label>
+                <div style="display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap;">
+                  <button type="button" id="copy_topic_task_btn" class="button button--outline">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    <span>Взять задание темы</span>
+                  </button>
+                  <span id="copy_topic_notice" class="field__hint" aria-live="polite"></span>
+                </div>
+              </div>
+
+              <div class="filter-grid" style="margin-top: var(--space-2);">
+                <label class="field" for="assignment_date">Дата занятия
+                  <input id="assignment_date" name="lesson_date" type="date" value="{{ assignment.lesson_date if mode == 'edit_lesson' else selected_date }}" required>
+                </label>
+
+                <div class="field">
+                  <label>Номер пары</label>
+                  <div class="pair-selector" role="radiogroup" aria-label="Выбор номера пары">
+                    {% for p in range(1, 7) %}
+                      <label class="pair-button">
+                        <input type="radio" name="pair_number" value="{{ p }}" {% if (mode == 'edit_lesson' and p == assignment.pair_number) or (mode == 'new_lesson' and p == selected_pair) %}checked{% endif %}>
+                        <span>{{ p }} пара</span>
+                      </label>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </section>
+          {% endif %}
+
+          <!-- Task Content Section -->
+          <section class="panel task-card form-stack">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: var(--space-3);">
+              <div class="form-heading" style="margin-bottom: 0;">
+                <p class="eyebrow">Содержимое задания</p>
+                <h2>Описание и материалы</h2>
+              </div>
+
+              <!-- Format Switcher -->
+              <div class="task-format-group">
+                <span class="field__hint" style="font-weight: 600; color: var(--color-text);">Формат:</span>
+                <div class="task-format-pills" role="radiogroup" aria-label="Формат описания">
+                  {% set active_fmt = task_content.description_format if task_content else 'txt' %}
+                  <label class="task-format-pill">
+                    <input type="radio" name="description_format" value="txt" {% if active_fmt == 'txt' %}checked{% endif %}>
+                    <span>.txt</span>
+                  </label>
+                  <label class="task-format-pill">
+                    <input type="radio" name="description_format" value="md" {% if active_fmt == 'md' %}checked{% endif %}>
+                    <span>.md</span>
+                  </label>
+                  <label class="task-format-pill">
+                    <input type="radio" name="description_format" value="html" {% if active_fmt == 'html' %}checked{% endif %}>
+                    <span>.html</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tabs: Editor / Preview -->
+            <div class="task-editor-tabs" role="tablist">
+              <button type="button" class="task-tab-btn is-active" id="tab_editor_btn" role="tab" aria-selected="true" aria-controls="pane_editor">Редактор</button>
+              <button type="button" class="task-tab-btn" id="tab_preview_btn" role="tab" aria-selected="false" aria-controls="pane_preview">Предпросмотр</button>
+            </div>
+
+            <!-- Editor Pane -->
+            <div id="pane_editor" role="tabpanel" aria-labelledby="tab_editor_btn">
+              <textarea id="task_description" name="description" class="task-textarea" rows="14" placeholder="Введите текст задания к занятию...">{{ task_content.description if task_content else '' }}</textarea>
+              <p class="field__hint" style="margin-top: var(--space-2);">
+                Поддерживаются заголовки, списки, ссылки, таблицы и цитаты. Ссылки на веб-страницы становятся кликабельными автоматически.
+              </p>
+            </div>
+
+            <!-- Preview Pane -->
+            <div id="pane_preview" class="task-preview-pane task-prose" role="tabpanel" aria-labelledby="tab_preview_btn" hidden>
+              <div id="task_preview_content">
+                <p class="field__hint">Загрузка предпросмотра...</p>
+              </div>
+            </div>
+
+            <!-- Attachment Section -->
+            <div class="field" style="margin-top: var(--space-4);">
+              <label class="field__label">Прикреплённый файл</label>
+              <input type="hidden" name="attachment_id" id="attachment_id_input" value="{{ task_content.attachment_id if (task_content and task_content.attachment_id) else '' }}">
+              <input type="hidden" name="remove_attachment" id="remove_attachment_input" value="0">
+
+              <!-- Current Attachment Card -->
+              <div id="attachment_current_card" class="attachment-card" {% if not attachment %}style="display: none;"{% endif %}>
+                <div class="attachment-meta">
+                  <svg class="attachment-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                  <div>
+                    <span class="attachment-name" id="attachment_name_display">{{ attachment.original_name if attachment else '' }}</span>
+                    <span class="attachment-size" id="attachment_size_display">{% if attachment %}({{ attachment_size_formatted }}){% endif %}</span>
+                  </div>
+                </div>
+                <div class="attachment-actions">
+                  <a {% if attachment %}href="/admin/tasks/attachments/{{ attachment.id }}"{% else %}style="display: none;"{% endif %} class="button button--outline" id="download_attachment_link" target="_blank" rel="noopener noreferrer">Скачать</a>
+                  <button type="button" class="button button--outline" id="replace_attachment_btn">Заменить файл</button>
+                  <button type="button" class="button button--danger" id="delete_attachment_btn">Удалить</button>
+                </div>
+              </div>
+
+              <!-- Upload New File Block -->
+              <div id="attachment_upload_block" {% if attachment %}style="display: none; margin-top: var(--space-2);"{% else %}style="margin-top: var(--space-2);"{% endif %}>
+                <input type="file" name="attachment" id="task_file_input">
+                <span class="field__hint" style="margin-top: var(--space-1);">Необязательный файл (PDF, архив, документ, код и т.д.). Максимальный размер: {{ limit_label }}</span>
+                <button type="button" class="button button--outline" id="cancel_upload_btn" style="display: none; margin-top: var(--space-2);">Оставить текущий файл</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Bottom Actions -->
+          <div class="catalog-actions">
+            <button class="button button--primary" type="submit" id="save_btn">Сохранить</button>
+            <a class="button button--outline" href="{{ cancel_url }}" id="cancel_btn">Отмена</a>
+          </div>
+          <p id="editor_status" class="status" aria-live="polite"></p>
+        </form>
+      </section>
+    </div>
+
+  </main>
+
+  {% include '_app_dialog.html' %}
+  <script src="{{ url_for('static', filename='app-dialog.js') }}"></script>
+  <script src="{{ url_for('static', filename='task-editor.js') }}"></script>
+</body>
+</html>

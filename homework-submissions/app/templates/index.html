@@ -27,119 +27,110 @@
     </div>
   </header>
 
-  <main class="page-shell student-layout">
-    <section class="student-layout__intro" aria-labelledby="page_title">
-      <p class="eyebrow">Загрузка домашней работы</p>
-      <h1 id="page_title">Сдать работу —<br>просто и понятно</h1>
-      <p class="lead">Подтвердите доступ своей группы, укажите данные задания и прикрепите готовый файл.</p>
-      
-      <div class="student-guidance">
-        <h2>Как отправить работу</h2>
-        <ol class="instruction-list">
-          <li><strong>Подтвердите группу.</strong> Выберите свою группу и введите пароль преподавателя.</li>
-          <li><strong>Заполните данные.</strong> Укажите предмет, тему и фамилию с именем.</li>
-          <li><strong>Прикрепите файл.</strong> Проверьте выбранный документ и отправьте его на проверку.</li>
-        </ol>
-        <aside class="submission-tip">
-          <strong>Перед отправкой</strong>
-          <p>Убедитесь, что файл открывается и содержит вашу работу. Максимальный размер — {{ limit }}.</p>
-        </aside>
-      </div>
-    </section>
+  <main class="page-shell">
+    <!-- View 1: When NOT unlocked (Clean 2-column layout) -->
+    <div id="student_unlock_view" class="student-layout">
+      <section class="student-layout__intro" aria-labelledby="page_title">
+        <p class="eyebrow">Загрузка домашней работы</p>
+        <h1 id="page_title">Сдать работу —<br>просто и понятно</h1>
+        <p class="lead">Подтвердите доступ своей группы, изучите расписание и задания и прикрепите готовые файлы.</p>
+        
+        <div class="student-guidance">
+          <h2>Как отправить работу</h2>
+          <ol class="instruction-list">
+            <li><strong>Подтвердите группу.</strong> Выберите свою группу и введите пароль преподавателя.</li>
+            <li><strong>Выберите занятие.</strong> Найдите нужную тему или дату и ознакомьтесь с заданием.</li>
+            <li><strong>Отправьте файл.</strong> Прикрепите выполненную работу преподавателю прямо на странице занятия.</li>
+          </ol>
+          <aside class="submission-tip">
+            <strong>Перед отправкой</strong>
+            <p>Убедитесь, что файл открывается и содержит вашу работу. Максимальный размер — {{ limit }}.</p>
+          </aside>
+        </div>
+      </section>
 
-    <section class="panel form-card" aria-label="Форма сдачи работы">
-      <div class="student-stepper" aria-label="Шаги отправки работы">
-        <div class="student-step student-step--active">
-          <span class="student-step__number" aria-hidden="true">1</span>
-          <span>Шаг 1: Подтвердите доступ группы</span>
-        </div>
-        <div class="student-step">
-          <span class="student-step__number" aria-hidden="true">2</span>
-          <span>Шаг 2: Расскажите о работе</span>
-        </div>
-      </div>
-
-      <!-- Step 1: Unlock form -->
-      <form id="unlock" class="form-stack" method="post" action="{{ url_for('unlock') }}">
-        <div class="form-heading">
-          <p class="eyebrow">Шаг 1 из 2</p>
-          <h2>Подтвердите доступ группы</h2>
-          <p>Для начала выберите группу и введите пароль доступа.</p>
-        </div>
-        <label class="field" for="group">
-          Группа
-          <select id="group" name="group" required>
-            {% for group in catalog.groups %}
-              <option value="{{ group.name }}">{{ group.name }}</option>
-            {% endfor %}
-          </select>
-        </label>
-        <label class="field" for="group_password">
-          Пароль группы
-          <input id="group_password" name="password" type="password" required autocomplete="current-password" placeholder="Введите пароль">
-        </label>
-        <button class="button button--primary" type="submit">Подтвердить доступ</button>
-        <p class="status" id="unlock_status" aria-live="polite"></p>
-      </form>
-
-      <!-- Active group badge (shown when unlocked) -->
-      <div class="access-summary" id="access_summary" hidden>
-        <div>
-          <p class="eyebrow">Доступ подтверждён</p>
-          <strong id="group_display"></strong>
-        </div>
-        <button class="button button--outline" id="change_group" type="button">Сменить группу</button>
-      </div>
-
-      <!-- Step 2: Submission form -->
-      <form id="submit" class="form-stack" method="post" action="{{ url_for('submit') }}" enctype="multipart/form-data" hidden>
-        <input id="selected_group" name="group" type="hidden">
-        <div class="form-heading">
-          <p class="eyebrow">Шаг 2 из 2</p>
-          <h2>Расскажите о работе</h2>
-          <p>Выберите предмет и тему, затем прикрепите файл с выполненным заданием.</p>
-        </div>
-        <section class="form-section" aria-label="Данные работы">
-          <label class="field" for="discipline">
-            Дисциплина
-            <select id="discipline" name="discipline" required>
-              {% for subject in catalog.subjects %}
-                <option value="{{ subject.name }}" data-subject-id="{{ subject.id }}">{{ subject.name }}</option>
-              {% endfor %}
-            </select>
-          </label>
-          <label class="field" for="work">
-            Тема работы
-            <select id="work" name="work" required>
-              <option value="">Выберите тему</option>
-              {% for topic in catalog.topics %}
-                <option value="{{ topic.name }}" data-subject-id="{{ topic.subject_id }}">{{ topic.name }}</option>
-              {% endfor %}
-            </select>
-            <span class="field__hint" id="topic_hint" hidden></span>
-          </label>
-          <label class="field" for="student_name">
-            ФИО
-            <input id="student_name" name="student_name" required autocomplete="name" placeholder="Например, Иванов Иван">
-          </label>
-        </section>
-        <section class="form-section" aria-label="Файл работы">
-          <label class="field" for="file">Файл с работой</label>
-          <div class="file-picker" id="file_dropzone">
-            <input id="file" name="file" type="file" required aria-describedby="file_name file_limit">
-            <svg class="file-picker__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-              <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 15.5v3A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span class="file-picker__title">Перетащите файл сюда или нажмите, чтобы выбрать</span>
-            <span class="file-picker__detail" id="file_name">Файл не выбран</span>
-            <span class="field__hint" id="file_limit">Максимальный размер: {{ limit }}</span>
-            <button class="button button--outline file-picker__remove" id="clear_file" type="button" hidden>Удалить файл</button>
+      <section class="panel form-card" aria-label="Форма входа">
+        <form id="unlock" class="form-stack" method="post" action="{{ url_for('unlock') }}">
+          <div class="form-heading">
+            <p class="eyebrow">Шаг 1 из 2</p>
+            <h2>Подтвердите доступ группы</h2>
+            <p>Для начала выберите группу и введите пароль доступа.</p>
           </div>
-        </section>
-        <button class="button button--primary" type="submit">Отправить работу</button>
-        <p class="status" id="submit_status" aria-live="polite" role="status"></p>
-      </form>
-    </section>
+          <label class="field" for="group">
+            Группа
+            <select id="group" name="group" required>
+              {% for group in catalog.groups %}
+                <option value="{{ group.name }}">{{ group.name }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label class="field" for="group_password">
+            Пароль группы
+            <input id="group_password" name="password" type="password" required autocomplete="current-password" placeholder="Введите пароль">
+          </label>
+          <button class="button button--primary" type="submit" style="margin-top: var(--space-2);">Подтвердить доступ</button>
+          <p class="status" id="unlock_status" aria-live="polite"></p>
+        </form>
+
+        <!-- Hidden submit form for fallback / direct test compatibility -->
+        <form id="submit" class="form-stack" method="post" action="{{ url_for('submit') }}" enctype="multipart/form-data" hidden>
+          <input id="selected_group" name="group" type="hidden">
+          <input id="discipline" name="discipline" type="hidden">
+          <input id="work" name="work" type="hidden">
+          <input id="student_name" name="student_name" type="hidden">
+          <input id="file" name="file" type="file" hidden>
+        </form>
+      </section>
+    </div>
+
+    <!-- View 2: When UNLOCKED (Full-width student workspace) -->
+    <div id="student_workspace_view" class="student-workspace" hidden>
+      <!-- Hero & Group Access Summary -->
+      <section class="admin-hero" aria-labelledby="student_page_title">
+        <div class="student-workspace-header">
+          <div>
+            <p class="eyebrow">Студенческий портал</p>
+            <h1 id="student_page_title">Занятия и задания</h1>
+            <p class="lead">Расписание занятий, темы, описания заданий и приём выполненных работ для вашей группы.</p>
+          </div>
+          <div class="access-summary" id="access_summary" style="margin: 0;">
+            <div>
+              <p class="eyebrow">Учебная группа</p>
+              <strong id="group_display"></strong>
+            </div>
+            <button class="button button--outline" id="change_group" type="button">Сменить группу</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Filter Toolbar -->
+      <section class="panel filter-toolbar" aria-label="Фильтры занятий">
+        <div class="filter-grid">
+          <label class="field" for="lessons_search">Поиск по названию
+            <input type="search" id="lessons_search" placeholder="Предмет или тема..." autocomplete="off">
+          </label>
+          <label class="field" for="lessons_subject_filter">Дисциплина
+            <select id="lessons_subject_filter">
+              <option value="">Все дисциплины</option>
+              {% for subject in catalog.subjects %}
+                <option value="{{ subject.id }}">{{ subject.name }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label class="field" for="lessons_date_filter">Дата занятия
+            <input type="date" id="lessons_date_filter">
+          </label>
+          <div style="display: flex; align-items: flex-end;">
+            <button type="button" class="button button--outline" id="lessons_reset_filter_btn" style="width: 100%;">Сбросить</button>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- Lessons List -->
+      <section id="student_lessons_list" class="assignment-journal" aria-label="Список занятий"></section>
+      <div id="student_lessons_empty" class="empty-state" hidden></div>
+    </div>
   </main>
 
   <!-- Full-screen submission overlay -->
@@ -193,11 +184,11 @@
       </div>
     </div>
   </div>
-
   <script>
     window.submissionLimit = {{ limit|tojson }};
     window.submissionMaxBytes = {{ max_bytes|tojson }};
   </script>
+  <script src="{{ url_for('static', filename='student-lessons.js') }}" defer></script>
   <script src="{{ url_for('static', filename='student.js') }}" defer></script>
 </body>
 </html>
