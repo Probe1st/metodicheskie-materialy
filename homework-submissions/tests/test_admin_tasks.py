@@ -1,5 +1,5 @@
 import io
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from app.catalog_store import create_catalog_store
 
@@ -190,6 +190,97 @@ def test_copy_topic_task_to_lesson_and_file_sharing(client_env):
     # The topic still has topic_att_id, so topic file MUST still exist!
     assert client.get(f"/admin/tasks/attachments/{topic_att_id}").status_code == 200
 
+
+
+def test_copy_topic_attachment_switch_topic_and_save_assignment(client_env):
+    from app.task_content import TaskContentStore
+
+    client, private_dir = client_env
+    client.post("/admin/login", data={"password": "admin-secret"})
+    catalog = create_catalog_store(client.application.config).snapshot()
+    group = catalog.groups[0].name
+    subject = catalog.subjects[0]
+    subject_topics = [t for t in catalog.topics if t.subject_id == subject.id]
+    assert len(subject_topics) >= 2, "Need at least 2 topics for this test"
+    topic_a, topic_b = subject_topics[0], subject_topics[1]
+
+    # 1. Setup topic A with task content and an attachment
+    file_bytes_a = b"Topic A attachment material"
+    res_a = client.post(
+        f"/admin/topics/{topic_a.id}/task",
+        data={
+            "description": "Topic A task text",
+            "description_format": "txt",
+            "attachment": (io.BytesIO(file_bytes_a), "topic_a.txt"),
+        },
+        content_type="multipart/form-data",
+    )
+    assert res_a.status_code in (200, 302)
+
+    topic_a_data = client.get(f"/admin/topics/{topic_a.id}/task", headers={"Accept": "application/json"}).json
+    topic_a_att_id = topic_a_data["attachment"]["id"]
+
+    # 2. Creating an assignment for Topic B using Topic A's copied attachment succeeds (201)
+    create_resp = client.post(
+        "/admin/assignments",
+        data={
+            "group_name": group,
+            "subject_id": str(subject.id),
+            "topic_id": str(topic_b.id),
+            "lesson_date": "2026-10-22",
+            "pair_number": "1",
+            "description": "Copied from topic A, but assignment is for topic B",
+            "description_format": "txt",
+            "attachment_id": topic_a_att_id,
+        },
+    )
+    assert create_resp.status_code == 201
+    lesson_id = create_resp.json["id"]
+
+    # Verify lesson content has the attachment
+    tc_store = TaskContentStore(
+        private_dir / "access.sqlite3",
+        private_dir / "task-attachments",
+    )
+    lesson_content = tc_store.get("lesson", UUID(lesson_id))
+    assert lesson_content is not None
+    assert str(lesson_content.attachment_id) == topic_a_att_id
+
+    # Verify attachment is downloadable
+    dl_resp = client.get(f"/admin/tasks/attachments/{topic_a_att_id}")
+    assert dl_resp.status_code == 200
+    assert dl_resp.data == file_bytes_a
+
+    # 3. Updating an assignment to another topic while retaining copied attachment succeeds (200)
+    update_resp = client.post(
+        f"/admin/assignments/{lesson_id}/update",
+        data={
+            "topic_id": str(topic_a.id),
+            "lesson_date": "2026-10-22",
+            "pair_number": "1",
+            "description": "Switched topic back to A while keeping attachment",
+            "description_format": "txt",
+            "attachment_id": topic_a_att_id,
+        },
+    )
+    assert update_resp.status_code == 200
+    lesson_content_updated = tc_store.get("lesson", UUID(lesson_id))
+    assert str(lesson_content_updated.attachment_id) == topic_a_att_id
+
+    # 4. Updating with unknown/fake attachment returns 400
+    fake_att = str(uuid4())
+    bad_update = client.post(
+        f"/admin/assignments/{lesson_id}/update",
+        data={
+            "topic_id": str(topic_b.id),
+            "lesson_date": "2026-10-22",
+            "pair_number": "1",
+            "description": "Bad update",
+            "description_format": "txt",
+            "attachment_id": fake_att,
+        },
+    )
+    assert bad_update.status_code == 400
 
 def test_conflicting_attachment_commands_rejected(client_env):
     client, _ = client_env

@@ -111,22 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function checkTopicAttachmentValidity() {
-    if (!topicSelect) return;
-    if (currentAttachment && currentAttachment.source === 'topic') {
-      if (currentAttachment.topicId !== topicSelect.value) {
-        currentAttachment = null;
-        attachmentIdInput.value = '';
-        removeAttachmentInput.value = '0';
-        updateAttachmentUI();
-        if (copyNotice) {
-          copyNotice.style.color = 'var(--primitive-amber-600)';
-          copyNotice.textContent = 'Вложение темы сброшено при смене темы. Выберите файл или нажмите «Взять задание темы».';
-        }
-      }
-    }
-  }
-
   // Filter topics by selected subject
   function filterTopics() {
     if (!subjectSelect || !topicSelect) return;
@@ -158,7 +142,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (topicSelect) {
     topicSelect.addEventListener('change', () => {
       markDirty();
-      checkTopicAttachmentValidity();
     });
   }
 
@@ -166,7 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
     subjectSelect.addEventListener('change', () => {
       markDirty();
       filterTopics();
-      checkTopicAttachmentValidity();
     });
     filterTopics();
   }
@@ -397,6 +379,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // Track changes across form inputs
   form.addEventListener('input', () => markDirty());
   form.addEventListener('change', () => markDirty());
+
+  window.addEventListener('beforeunload', (event) => {
+    if (isDirty && !isSubmitting) {
+      event.preventDefault();
+      event.returnValue = '';
+    }
+  });
 
   // Intercept navigation links when form is dirty
   document.addEventListener('click', async (e) => {

@@ -756,8 +756,6 @@ def create_app(config=None):
             abort(400)
 
         tc_store = task_content_store()
-        topic_task = tc_store.get("topic", topic_id)
-        allowed_topic_att = topic_task.attachment_id if topic_task else None
 
         staged_att = None
         if has_new_file:
@@ -775,7 +773,8 @@ def create_app(config=None):
                 req_att = UUID(raw_att_id)
             except ValueError:
                 abort(400)
-            if req_att != allowed_topic_att:
+            att = tc_store.get_attachment(req_att)
+            if att is None or not tc_store.get_attachment_path(req_att).is_file():
                 abort(400)
             final_att_id = req_att
         else:
@@ -861,13 +860,6 @@ def create_app(config=None):
             abort(400)
 
         tc_store = task_content_store()
-        current_task = tc_store.get("lesson", uid)
-        topic_task = tc_store.get("topic", topic_id)
-        allowed_att_ids = set()
-        if current_task and current_task.attachment_id:
-            allowed_att_ids.add(current_task.attachment_id)
-        if topic_task and topic_task.attachment_id:
-            allowed_att_ids.add(topic_task.attachment_id)
 
         staged_att = None
         if has_new_file:
@@ -885,7 +877,8 @@ def create_app(config=None):
                 req_att = UUID(raw_att_id)
             except ValueError:
                 abort(400)
-            if req_att not in allowed_att_ids:
+            att = tc_store.get_attachment(req_att)
+            if att is None or not tc_store.get_attachment_path(req_att).is_file():
                 abort(400)
             final_att_id = req_att
         else:
