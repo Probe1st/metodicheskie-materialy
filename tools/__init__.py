@@ -1,1 +1,1 @@
-# Tools package for homework-submissions migration and maintenance scripts.
+# Tools package for platform migration and maintenance scripts.

@@ -8,6 +8,11 @@ function setBusy(form, busy, label) {
   button.disabled = busy;
   button.textContent = label;
 }
+function getCsrfToken() {
+  const meta = document.querySelector('meta[name="csrf-token"]');
+  return meta ? meta.getAttribute('content') : '';
+}
+
 
 function updateGroupState(form) {
   const card = form.closest('.group-card');
@@ -47,12 +52,23 @@ if (loginForm) {
     setBusy(loginForm, true, 'Входим…');
     setStatus(status, 'working', 'Проверяем пароль…');
 
+    const headers = { 'Accept': 'application/json' };
+    const csrfToken = getCsrfToken();
+    if (csrfToken) headers['X-CSRFToken'] = csrfToken;
+
     try {
-      const response = await fetch('/admin/login', { method: 'POST', body: new FormData(loginForm) });
-      if (!response.ok) throw new Error('denied');
+      const response = await fetch('/admin/login', { method: 'POST', body: new FormData(loginForm), headers });
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        if (errData.error === 'csrf_error') {
+          throw new Error(errData.message || 'Сессия устарела. Обновите страницу и повторите действие.');
+        }
+        throw new Error('denied');
+      }
       window.location.reload();
-    } catch {
-      setStatus(status, 'error', 'Неверный мастер-пароль.');
+    } catch (err) {
+      const msg = (err && err.message && err.message !== 'denied') ? err.message : 'Неверный мастер-пароль.';
+      setStatus(status, 'error', msg);
       setBusy(loginForm, false, 'Войти в панель');
     }
   });
@@ -66,13 +82,24 @@ document.querySelectorAll('.group-form').forEach((form) => {
     setBusy(form, true, 'Сохраняем…');
     setStatus(status, 'working', 'Сохранение…');
 
+    const headers = { 'Accept': 'application/json' };
+    const csrfToken = getCsrfToken();
+    if (csrfToken) headers['X-CSRFToken'] = csrfToken;
+
     try {
-      const response = await fetch('/admin/access', { method: 'POST', body: new FormData(form) });
-      if (!response.ok) throw new Error('failed');
+      const response = await fetch('/admin/access', { method: 'POST', body: new FormData(form), headers });
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        if (errData.error === 'csrf_error') {
+          throw new Error(errData.message || 'Сессия устарела. Обновите страницу и повторите действие.');
+        }
+        throw new Error('failed');
+      }
       setStatus(status, 'success', 'Настройки группы сохранены.');
       updateGroupState(form);
-    } catch {
-      setStatus(status, 'error', 'Не удалось сохранить настройки. Проверьте соединение и попробуйте ещё раз.');
+    } catch (err) {
+      const msg = (err && err.message && err.message !== 'failed') ? err.message : 'Не удалось сохранить настройки. Проверьте соединение и попробуйте ещё раз.';
+      setStatus(status, 'error', msg);
     } finally {
       setBusy(form, false, 'Сохранить настройки');
     }

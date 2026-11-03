@@ -524,13 +524,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         default=False,
         help="Simulate migration without modifying files",
     )
-    parser.add_argument(
+    mode_group = parser.add_mutually_exclusive_group()
+    mode_group.add_argument(
         "--execute",
         action="store_true",
         default=False,
         help="Actually perform the directory and file moves",
     )
-    parser.add_argument(
+    mode_group.add_argument(
         "--rollback",
         action="store_true",
         default=False,
@@ -544,6 +545,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
 
     args = parser.parse_args(argv)
+    if args.execute and args.dry_run:
+        parser.error("--execute cannot be combined with --dry-run")
 
     storage_dir = (args.storage_dir or get_default_storage_dir()).resolve()
     catalog_path = (args.catalog or get_default_catalog_path()).resolve()

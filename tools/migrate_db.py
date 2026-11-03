@@ -135,6 +135,12 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
     conn.executescript(SCHEMA_SQL)
     conn.commit()
 
+def _historical_assignment_id(item: HistoricalLesson) -> str:
+    return str(uuid.uuid5(
+        uuid.NAMESPACE_URL,
+        f"urn:assignment:{item.group_name}:{item.lesson_date}:{item.pair_number}",
+    ))
+
 
 def resolve_assignments(
     catalog_path_or_data: Path | dict,
@@ -184,12 +190,7 @@ def resolve_assignments(
                 f"Topic {item.topic_name!r} not found under subject {item.subject_name!r} (id: {subject_id})"
             )
 
-        assignment_id = str(
-            uuid.uuid5(
-                uuid.NAMESPACE_URL,
-                f"urn:assignment:{item.group_name}:{item.lesson_date}:{item.pair_number}",
-            )
-        )
+        assignment_id = _historical_assignment_id(item)
         timestamp = f"{item.lesson_date}T00:00:00+00:00"
 
         resolved.append({
@@ -313,28 +314,34 @@ def rollback_db_migration(
     dry_run: bool = False,
 ) -> dict:
     if not db_path.is_file():
-        return {
+        res = {
             "status": "skipped",
             "reason": f"Database file does not exist: {db_path}",
             "deleted": 0,
         }
+        if dry_run:
+            res.update({"mode": "dry-run", "would_delete": 0})
+        return res
 
     with connect_db(db_path) as conn:
         table_check = conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND name='class_assignments';"
         ).fetchone()
         if not table_check:
-            return {
+            res = {
                 "status": "skipped",
                 "reason": "Table class_assignments does not exist",
                 "deleted": 0,
             }
+            if dry_run:
+                res.update({"mode": "dry-run", "would_delete": 0})
+            return res
 
         matching_rows = 0
         for item in lessons:
             row = conn.execute(
-                "SELECT id FROM class_assignments WHERE group_name = ? AND lesson_date = ? AND pair_number = ?;",
-                (item.group_name, item.lesson_date, item.pair_number),
+                "SELECT id FROM class_assignments WHERE group_name = ? AND lesson_date = ? AND pair_number = ? AND id = ?;",
+                (item.group_name, item.lesson_date, item.pair_number, _historical_assignment_id(item)),
             ).fetchone()
             if row:
                 matching_rows += 1
@@ -348,8 +355,8 @@ def rollback_db_migration(
         deleted_count = 0
         for item in lessons:
             cur = conn.execute(
-                "DELETE FROM class_assignments WHERE group_name = ? AND lesson_date = ? AND pair_number = ?;",
-                (item.group_name, item.lesson_date, item.pair_number),
+                "DELETE FROM class_assignments WHERE group_name = ? AND lesson_date = ? AND pair_number = ? AND id = ?;",
+                (item.group_name, item.lesson_date, item.pair_number, _historical_assignment_id(item)),
             )
             deleted_count += cur.rowcount
         conn.commit()
@@ -382,13 +389,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         default=False,
         help="Simulate database migration without modifying database",
     )
-    parser.add_argument(
+    mode_group = parser.add_mutually_exclusive_group()
+    mode_group.add_argument(
         "--execute",
         action="store_true",
         default=False,
         help="Perform schema creation and seed assignments",
     )
-    parser.add_argument(
+    mode_group.add_argument(
         "--rollback",
         action="store_true",
         default=False,
@@ -396,6 +404,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
 
     args = parser.parse_args(argv)
+    if args.execute and args.dry_run:
+        parser.error("--execute cannot be combined with --dry-run")
+
 
     db_path = (args.db or get_default_db_path()).resolve()
     catalog_path = (args.catalog or get_default_catalog_path()).resolve()
@@ -448,7 +459,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         print("\nRolling back database migration...")
         try:
             result = rollback_db_migration(db_path, dry_run=args.dry_run)
-            if args.dry_run:
+            if result.get("status") == "skipped":
+                prefix = "[DRY RUN] " if args.dry_run else ""
+                print(f"{prefix}Skipped rollback: {result['reason']}")
+            elif args.dry_run:
                 print(f"[DRY RUN] Would delete {result['would_delete']} historical assignments.")
             else:
                 print(f"Successfully rolled back: {result['deleted']} assignments removed.")

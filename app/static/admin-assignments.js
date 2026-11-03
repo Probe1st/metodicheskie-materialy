@@ -1,4 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
+function getCsrfToken() {
+  const meta = document.querySelector('meta[name="csrf-token"]');
+  return meta ? meta.getAttribute('content') : '';
+}
+
   const subjectSelect = document.querySelector('#assignment_subject');
   const topicSelect = document.querySelector('#assignment_topic');
   const dateInput = document.querySelector('#assignment_date');
@@ -86,10 +91,15 @@ document.addEventListener('DOMContentLoaded', () => {
         createStatus.textContent = 'Сохраняем...';
       }
 
+      const headers = { 'Accept': 'application/json' };
+      const csrfToken = getCsrfToken();
+      if (csrfToken) headers['X-CSRFToken'] = csrfToken;
+
       try {
         const res = await fetch(createForm.action, {
           method: 'POST',
           body: new FormData(createForm),
+          headers,
         });
         if (res.status === 409) {
           const body = await res.json().catch(() => ({}));
@@ -101,6 +111,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (!res.ok) {
           const body = await res.json().catch(() => ({}));
+          if (body.error === 'csrf_error') {
+            throw new Error(body.message || 'Сессия устарела. Обновите страницу и повторите действие.');
+          }
           throw new Error(body.message || 'Ошибка сохранения');
         }
 
@@ -175,10 +188,15 @@ document.addEventListener('DOMContentLoaded', () => {
           editStatus.textContent = 'Обновляем...';
         }
 
+        const headers = { 'Accept': 'application/json' };
+        const csrfToken = getCsrfToken();
+        if (csrfToken) headers['X-CSRFToken'] = csrfToken;
+
         try {
           const res = await fetch(editForm.action, {
             method: 'POST',
             body: new FormData(editForm),
+            headers,
           });
           if (res.status === 409) {
             const body = await res.json().catch(() => ({}));
@@ -190,6 +208,9 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           if (!res.ok) {
             const body = await res.json().catch(() => ({}));
+            if (body.error === 'csrf_error') {
+              throw new Error(body.message || 'Сессия устарела. Обновите страницу и повторите действие.');
+            }
             throw new Error(body.message || 'Ошибка обновления');
           }
 
@@ -231,11 +252,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const topicTitle = card.querySelector('h3')?.textContent || '';
         if (!confirm(`Удалить занятие «${topicTitle}»?`)) return;
 
+        const headers = { 'Accept': 'application/json' };
+        const csrfToken = getCsrfToken();
+        if (csrfToken) headers['X-CSRFToken'] = csrfToken;
+
         try {
           const res = await fetch(`/admin/assignments/${cardId}/delete`, {
             method: 'POST',
+            headers,
           });
-          if (!res.ok) throw new Error('Delete failed');
+          if (!res.ok) {
+            const body = await res.json().catch(() => ({}));
+            if (body.error === 'csrf_error') {
+              throw new Error(body.message || 'Сессия устарела. Обновите страницу и повторите действие.');
+            }
+            throw new Error('Delete failed');
+          }
           card.remove();
           const countEl = document.querySelector('#assigned_count');
           if (countEl) {
@@ -251,8 +283,8 @@ document.addEventListener('DOMContentLoaded', () => {
               journal.innerHTML = '<p class="empty-state">Для выбранной группы пока не назначено ни одной пары. Заполните форму слева, чтобы запланировать занятие.</p>';
             }
           }
-        } catch {
-          alert('Не удалось удалить занятие.');
+        } catch (err) {
+          alert(err.message || 'Не удалось удалить занятие.');
         }
       });
     }

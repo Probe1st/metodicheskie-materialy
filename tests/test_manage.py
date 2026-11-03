@@ -43,6 +43,66 @@ def is_pid_alive_and_not_zombie(pid):
     return True
 
 
+def get_process_starttime(pid):
+    stat_file = Path(f"/proc/{pid}/stat")
+    if not stat_file.exists():
+        return None
+    try:
+        content = stat_file.read_text(encoding="utf-8")
+        after_comm = content.rsplit(")", 1)[-1].strip()
+        tokens = after_comm.split()
+        if len(tokens) >= 20:
+            return int(tokens[19])
+    except (OSError, ValueError, IndexError):
+        pass
+    return None
+
+
+def is_identity_alive(pid, starttime):
+    if not is_pid_alive_and_not_zombie(pid):
+        return False
+    return get_process_starttime(pid) == starttime
+
+
+def format_process_diagnostics(pid):
+    try:
+        stat_file = Path(f"/proc/{pid}/stat")
+        stat_text = stat_file.read_text(encoding="utf-8") if stat_file.exists() else "missing"
+        cmdline_file = Path(f"/proc/{pid}/cmdline")
+        cmdline_text = (
+            cmdline_file.read_bytes().replace(b"\x00", b" ").decode("utf-8", "replace")
+            if cmdline_file.exists()
+            else "missing"
+        )
+        return f"PID {pid}: stat=({stat_text.strip()}), cmdline=({cmdline_text.strip()})"
+    except Exception as e:
+        return f"PID {pid}: error reading info: {e}"
+
+
+def assert_no_leaked_processes(app_dir, observed_identities):
+    leaked = []
+    for pid, st in observed_identities:
+        if is_identity_alive(pid, st):
+            leaked.append(format_process_diagnostics(pid))
+    real_app_dir = app_dir.resolve()
+    if Path("/proc").exists():
+        for entry in Path("/proc").iterdir():
+            if entry.name.isdigit():
+                pid = int(entry.name)
+                try:
+                    cwd_link = Path(f"/proc/{pid}/cwd")
+                    if cwd_link.exists() and cwd_link.resolve() == real_app_dir:
+                        cmdline_file = Path(f"/proc/{pid}/cmdline")
+                        if cmdline_file.exists() and b"gunicorn" in cmdline_file.read_bytes():
+                            if is_pid_alive_and_not_zombie(pid):
+                                diag = format_process_diagnostics(pid)
+                                if diag not in leaked:
+                                    leaked.append(diag)
+                except OSError:
+                    pass
+    assert not leaked, f"Processes leaked after startup failure: {leaked}"
+
+
 def get_worker_pids(master_pid):
     workers = set()
     children_file = Path(f"/proc/{master_pid}/task/{master_pid}/children")
@@ -384,24 +444,48 @@ def test_start_fails_when_app_crashes_on_import(isolated_env):
     (app_dir / "wsgi.py").write_text("this is a syntax error and will crash import\n", encoding="utf-8")
     env = clean_env({"PORT": str(port), "HOST": "127.0.0.1", "APP_DIR": str(app_dir)})
 
-    res = subprocess.run(
+    pid_file = app_dir / ".gunicorn.pid"
+    proc = subprocess.Popen(
         [str(manage_sh), "start"],
         cwd=str(app_dir),
         env=env,
-        capture_output=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         text=True,
-        check=False,
-        timeout=60,
     )
-    assert res.returncode != 0
-    assert "Не удалось запустить приложение" in res.stderr or "завершился сбоем" in res.stderr
-    assert not (app_dir / ".gunicorn.pid").exists()
+    observed_identities = set()
+    t0 = time.monotonic()
+    while proc.poll() is None:
+        if pid_file.exists():
+            try:
+                content = pid_file.read_text().strip()
+                if content.isdigit():
+                    m_pid = int(content)
+                    m_st = get_process_starttime(m_pid)
+                    if m_st is not None:
+                        observed_identities.add((m_pid, m_st))
+                    for w_pid in get_worker_pids(m_pid):
+                        w_st = get_process_starttime(w_pid)
+                        if w_st is not None:
+                            observed_identities.add((w_pid, w_st))
+            except OSError:
+                pass
+        time.sleep(0.05)
+        if time.monotonic() - t0 > 65:
+            proc.kill()
+            break
 
-    # Порт должен быть свободен для bind
+    stdout, stderr = proc.communicate(timeout=10)
+    assert proc.returncode != 0
+    assert "Не удалось запустить приложение" in stderr or "завершился сбоем" in stderr
+    assert not pid_file.exists()
+    assert_no_leaked_processes(app_dir, observed_identities)
+
+    # Порт должен быть свободен для bind и listen
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.bind(("127.0.0.1", port))
-
-
+        s.listen(1)
 def test_start_fails_when_app_returns_http_500(isolated_env):
     app_dir = isolated_env["app_dir"]
     manage_sh = isolated_env["manage_sh"]
@@ -416,24 +500,47 @@ def test_start_fails_when_app_returns_http_500(isolated_env):
     env = clean_env({"PORT": str(port), "HOST": "127.0.0.1", "APP_DIR": str(app_dir)})
     pid_file = app_dir / ".gunicorn.pid"
 
-    res = subprocess.run(
+    proc = subprocess.Popen(
         [str(manage_sh), "start"],
         cwd=str(app_dir),
         env=env,
-        capture_output=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         text=True,
-        check=False,
-        timeout=60,
     )
-    assert res.returncode != 0
-    assert "Не удалось запустить приложение" in res.stderr
+    observed_identities = set()
+    t0 = time.monotonic()
+    while proc.poll() is None:
+        if pid_file.exists():
+            try:
+                content = pid_file.read_text().strip()
+                if content.isdigit():
+                    m_pid = int(content)
+                    m_st = get_process_starttime(m_pid)
+                    if m_st is not None:
+                        observed_identities.add((m_pid, m_st))
+                    for w_pid in get_worker_pids(m_pid):
+                        w_st = get_process_starttime(w_pid)
+                        if w_st is not None:
+                            observed_identities.add((w_pid, w_st))
+            except OSError:
+                pass
+        time.sleep(0.05)
+        if time.monotonic() - t0 > 65:
+            proc.kill()
+            break
+
+    stdout, stderr = proc.communicate(timeout=10)
+    assert proc.returncode != 0
+    assert "Не удалось запустить приложение" in stderr
     assert not pid_file.exists()
+    assert_no_leaked_processes(app_dir, observed_identities)
 
     # Порт должен быть полностью свободен
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.bind(("127.0.0.1", port))
-
-
+        s.listen(1)
 def test_lifecycle_success_with_worker_cleanup(isolated_env):
     app_dir = isolated_env["app_dir"]
     manage_sh = isolated_env["manage_sh"]
@@ -573,3 +680,99 @@ def test_lifecycle_success_with_worker_cleanup(isolated_env):
                 except OSError:
                     pass
         pid_file.unlink(missing_ok=True)
+
+
+def test_force_stop_terminates_orphaned_workers(isolated_env, tmp_path):
+    import signal
+    app_dir = isolated_env["app_dir"]
+    manage_sh = isolated_env["manage_sh"]
+    port = find_free_port()
+    env = clean_env({"PORT": str(port), "HOST": "127.0.0.1", "APP_DIR": str(app_dir)})
+    pid_file = app_dir / ".gunicorn.pid"
+
+    (app_dir / "wsgi.py").write_text(
+        "import signal\n"
+        "signal.signal(signal.SIGTERM, signal.SIG_IGN)\n"
+        "def app(environ, start_response):\n"
+        "    start_response('200 OK', [('Content-Type', 'text/plain')])\n"
+        "    return [b'OK']\n",
+        encoding="utf-8",
+    )
+
+    other_dir = tmp_path / "control_dir"
+    other_dir.mkdir()
+    control_proc = subprocess.Popen(
+        [sys.executable, "-c", "import time; time.sleep(60)"],
+        cwd=str(other_dir),
+    )
+
+    master_pid = None
+    worker_pids = []
+    recorded_identities = []
+
+    try:
+        res = subprocess.run(
+            [str(manage_sh), "start"],
+            cwd=str(app_dir),
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=60,
+        )
+        assert res.returncode == 0
+        assert pid_file.exists()
+        master_pid = int(pid_file.read_text().strip())
+        master_st = get_process_starttime(master_pid)
+        assert master_st is not None
+        recorded_identities.append((master_pid, master_st))
+
+        for _ in range(25):
+            worker_pids = get_worker_pids(master_pid)
+            if len(worker_pids) >= 2:
+                break
+            time.sleep(0.2)
+        assert len(worker_pids) >= 2, f"Expected >= 2 workers, got {worker_pids}"
+
+        for w in worker_pids:
+            w_st = get_process_starttime(w)
+            assert w_st is not None
+            recorded_identities.append((w, w_st))
+
+        # Send SIGSTOP to master
+        os.kill(master_pid, signal.SIGSTOP)
+
+        res_stop = subprocess.run(
+            [str(manage_sh), "stop"],
+            cwd=str(app_dir),
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=60,
+        )
+        assert res_stop.returncode == 0
+        assert not pid_file.exists()
+
+        # Check that both master and workers are terminated
+        for pid, st in recorded_identities:
+            assert not is_identity_alive(pid, st), (
+                f"Process {pid} survived force stop! Diagnostics: {format_process_diagnostics(pid)}"
+            )
+
+        # Control process in other dir must survive
+        assert control_proc.poll() is None
+    finally:
+        for pid, _ in recorded_identities:
+            try:
+                os.kill(pid, signal.SIGCONT)
+            except OSError:
+                pass
+            try:
+                os.kill(pid, signal.SIGKILL)
+            except OSError:
+                pass
+        if control_proc.poll() is None:
+            control_proc.kill()
+            control_proc.wait()
+

@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>{% if kind == 'groups' %}Группы{% elif kind == 'subjects' %}Предметы{% else %}Темы{% endif %} — Панель преподавателя</title>
   <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
   <link rel="alternate icon" href="{{ url_for('favicon') }}">
@@ -23,6 +24,7 @@
           <span>К сдаче заданий</span>
         </a>
         <form method="post" action="{{ url_for('admin_logout') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button class="button button--quiet" type="submit">Выйти</button>
         </form>
       </div>
@@ -71,6 +73,7 @@
 
           <!-- Bulk Move Toolbar for Topics -->
           <form id="topic_bulk" class="panel topic-bulk" data-topic-bulk action="{{ url_for('admin_move_topics') }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <label class="field">Куда перенести выбранные темы
               <select name="subject_id" required>
                 {% for subject in subjects %}<option value="{{ subject.id }}">{{ subject.name }}</option>{% endfor %}
@@ -85,6 +88,7 @@
         <div class="catalog-workspace">
           <!-- Creation Form (Left / Sticky) -->
           <form class="panel catalog-create form-stack" data-catalog-create data-kind="{{ kind }}" action="{{ url_for('admin_catalog_create', kind=kind) }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-heading">
               <p class="eyebrow">Добавление</p>
               <h2>Добавить {{ item_label }}</h2>
@@ -132,6 +136,7 @@
 
                 {% if not (kind == 'subjects' and item.id == unassigned_subject_id) %}
                   <form class="catalog-rename form-stack" data-catalog-rename method="post" action="{{ url_for('admin_catalog_mutate', kind=kind, item_id=item.id, action='update' if kind == 'topics' else 'rename') }}" hidden>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <label class="field" for="name_{{ item.id }}">Новое название
                       <input id="name_{{ item.id }}" name="name" value="{{ item.name }}" required maxlength="200" autocomplete="off">
                     </label>

@@ -8,6 +8,11 @@ function showActiveStep(activeIndex) {
 }
 
 showActiveStep(0);
+function getCsrfToken() {
+  const meta = document.querySelector('meta[name="csrf-token"]');
+  return meta ? meta.getAttribute('content') : '';
+}
+
 
 const unlockForm = document.querySelector('#unlock');
 const submitForm = document.querySelector('#submit');
@@ -225,13 +230,23 @@ unlockForm.addEventListener('submit', async (event) => {
   setBusy(unlockForm, true, 'Проверяем доступ…');
   setStatus(unlockStatus, 'working', 'Проверяем доступ…');
 
+  const headers = { 'Accept': 'application/json' };
+  const csrfToken = getCsrfToken();
+  if (csrfToken) headers['X-CSRFToken'] = csrfToken;
+
   try {
     const response = await fetch('/unlock', {
       method: 'POST',
       body: formData,
-      headers: { 'Accept': 'application/json' },
+      headers,
     });
-    if (!response.ok) throw new Error('denied');
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      if (errData.error === 'csrf_error') {
+        throw new Error(errData.message || 'Сессия устарела. Обновите страницу и повторите действие.');
+      }
+      throw new Error('denied');
+    }
 
     if (response.status === 200) {
       const data = await response.json();
@@ -247,8 +262,11 @@ unlockForm.addEventListener('submit', async (event) => {
     setStatus(unlockStatus, '', '');
     updateTopics();
     discipline.focus();
-  } catch {
-    setStatus(unlockStatus, 'error', 'Доступ к приёму работ закрыт или пароль неверен.');
+  } catch (err) {
+    const msg = (err && err.message && err.message !== 'denied')
+      ? err.message
+      : 'Доступ к приёму работ закрыт или пароль неверен.';
+    setStatus(unlockStatus, 'error', msg);
   } finally {
     setBusy(unlockForm, false, 'Подтвердить доступ');
   }
@@ -290,9 +308,14 @@ submitForm.addEventListener('submit', async (event) => {
           return controller.signal;
         })();
 
+    const headers = { 'Accept': 'application/json' };
+    const csrfToken = getCsrfToken();
+    if (csrfToken) headers['X-CSRFToken'] = csrfToken;
+
     const response = await fetch('/submit', {
       method: 'POST',
       body: new FormData(submitForm),
+      headers,
       signal,
     });
 
@@ -303,7 +326,12 @@ submitForm.addEventListener('submit', async (event) => {
         throw new Error('Приём работ для данной группы закрыт или дедлайн истёк.');
       } else if (response.status === 400) {
         const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || 'Неверные параметры отправки или неподдерживаемый файл.');
+        if (errData.error === 'csrf_error') {
+          throw new Error(errData.message || 'Сессия устарела. Обновите страницу и повторите действие.');
+        } else if (errData.error === 'file_type_not_allowed') {
+          throw new Error(errData.message || 'Недопустимый формат файла.');
+        }
+        throw new Error(errData.message || errData.error || 'Неверные параметры отправки или неподдерживаемый файл.');
       } else if (response.status === 500) {
         throw new Error('Внутренняя ошибка сервера при сохранении работы.');
       } else {

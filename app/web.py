@@ -7,7 +7,8 @@ from contextlib import contextmanager, nullcontext
 from datetime import UTC, datetime
 from pathlib import Path
 from uuid import UUID
-from flask import Flask, abort, jsonify, redirect, render_template, request, session, url_for
+from flask import Flask, Response, abort, jsonify, redirect, render_template, request, session, url_for
+from flask_wtf.csrf import CSRFError, CSRFProtect
 from werkzeug.exceptions import RequestEntityTooLarge
 
 from .access import AccessStore
@@ -18,7 +19,13 @@ from .assignments import (
     AssignmentValidationError,
 )
 from .catalog_store import CatalogItemNotFound, CatalogNameConflict, create_catalog_store
-from .storage import destination_directory, write_upload
+from .storage import (
+    DEFAULT_ALLOWED_UPLOAD_EXTENSIONS,
+    destination_directory,
+    normalize_upload_extensions,
+    validated_upload_suffix,
+    write_upload,
+)
 
 
 def _format_date_short(iso_date: str) -> str:
@@ -47,18 +54,68 @@ def _format_local_input(value: datetime | None) -> str:
     return local_dt.strftime("%Y-%m-%dT%H:%M")
 
 
+def _validate_secret_key(value: object) -> None:
+    error_msg = "SECRET_KEY must be a non-placeholder secret of at least 32 bytes"
+    if not isinstance(value, (str, bytes)):
+        raise RuntimeError(error_msg)
+
+    if isinstance(value, str):
+        stripped = value.strip().casefold()
+        if not stripped or stripped in ("dev-secret", "replace-with-a-long-random-secret"):
+            raise RuntimeError(error_msg)
+        if len(value.encode("utf-8")) < 32:
+            raise RuntimeError(error_msg)
+    else:
+        stripped_b = value.strip().lower()
+        if not stripped_b or stripped_b in (b"dev-secret", b"replace-with-a-long-random-secret"):
+            raise RuntimeError(error_msg)
+        if len(value) < 32:
+            raise RuntimeError(error_msg)
+
+
 def create_app(config=None):
     app = Flask(__name__)
     app.config.from_mapping(
-        SECRET_KEY=os.getenv("SECRET_KEY", "dev-secret"),
+        SECRET_KEY=os.getenv("SECRET_KEY"),
         ADMIN_PASSWORD=os.getenv("ADMIN_PASSWORD", ""),
         PRIVATE_DATA_DIR=Path(os.getenv("PRIVATE_DATA_DIR", ".private")),
         STORAGE_ROOT=Path("storage"),
         CATALOG_PATH=Path("catalog.json"),
         CATALOG_PROVIDER=os.getenv("CATALOG_PROVIDER", "json"),
+        SESSION_COOKIE_HTTPONLY=True,
+        SESSION_COOKIE_SAMESITE="Lax",
     )
     if config:
         app.config.update(config)
+
+    _validate_secret_key(app.config.get("SECRET_KEY"))
+
+    allowed_ext_raw = None
+    if "ALLOWED_UPLOAD_EXTENSIONS" in app.config:
+        allowed_ext_raw = app.config["ALLOWED_UPLOAD_EXTENSIONS"]
+    elif "ALLOWED_UPLOAD_EXTENSIONS" in os.environ:
+        allowed_ext_raw = os.environ["ALLOWED_UPLOAD_EXTENSIONS"]
+    else:
+        allowed_ext_raw = DEFAULT_ALLOWED_UPLOAD_EXTENSIONS
+
+    app.config["ALLOWED_UPLOAD_EXTENSIONS"] = normalize_upload_extensions(allowed_ext_raw)
+    app.config.setdefault("WTF_CSRF_METHODS", {"POST", "PUT", "PATCH", "DELETE"})
+    app.config.setdefault("WTF_CSRF_TIME_LIMIT", 3600)
+    if "SESSION_COOKIE_HTTPONLY" not in (config or {}):
+        app.config["SESSION_COOKIE_HTTPONLY"] = True
+    if "SESSION_COOKIE_SAMESITE" not in (config or {}):
+        app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+    CSRFProtect(app)
+
+    @app.errorhandler(CSRFError)
+    def handle_csrf_error(e):
+        message = "Сессия устарела. Обновите страницу и повторите действие."
+        accept = request.headers.get("Accept", "")
+        is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+        if "application/json" in accept or request.is_json or is_ajax:
+            return jsonify({"error": "csrf_error", "message": message}), 400
+        return Response(message, status=400, mimetype="text/plain; charset=utf-8")
+
 
     upload_mb = app.config.get("MAX_UPLOAD_MB")
     if upload_mb is None and "MAX_UPLOAD_MB" in os.environ:
@@ -136,6 +193,7 @@ def create_app(config=None):
             catalog=catalog(),
             limit=app.config.get("LIMIT_LABEL", "200 МБ"),
             max_bytes=app.config.get("MAX_CONTENT_LENGTH", 200 * 1024 * 1024),
+            allowed_extensions=sorted(app.config["ALLOWED_UPLOAD_EXTENSIONS"]),
         )
 
     @app.post("/unlock")
@@ -246,8 +304,19 @@ def create_app(config=None):
             if not access_store().permits(session_group, int(session_version)):
                 abort(403)
 
+        try:
+            validated_upload_suffix(file.filename, app.config["ALLOWED_UPLOAD_EXTENSIONS"])
+        except ValueError:
+            return jsonify({"error": "file_type_not_allowed", "message": "Недопустимый формат файла."}), 400
+
         directory = destination_directory(Path(app.config["STORAGE_ROOT"]), group, discipline, work)
-        saved = write_upload(file.stream, file.filename, student, directory)
+        saved = write_upload(
+            file.stream,
+            file.filename,
+            student,
+            directory,
+            allowed_extensions=app.config["ALLOWED_UPLOAD_EXTENSIONS"],
+        )
         return jsonify(filename=saved.name), 201
 
     @app.get("/admin")

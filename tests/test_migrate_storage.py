@@ -257,6 +257,16 @@ def test_cli_flags(tmp_path: Path, sample_catalog: Path):
     legacy_dir.mkdir(parents=True)
     (legacy_dir / "test.py").write_text("pass", encoding="utf-8")
 
+    # Default preview (no mode flags)
+    code_default = main([
+        "--storage-dir", str(storage_dir),
+        "--catalog", str(sample_catalog),
+        "--manifest", str(manifest_path),
+    ])
+    assert code_default == 0
+    assert not manifest_path.exists()
+    assert legacy_dir.exists()
+
     # Test dry run CLI
     code_dry = main([
         "--storage-dir", str(storage_dir),
@@ -266,6 +276,7 @@ def test_cli_flags(tmp_path: Path, sample_catalog: Path):
     ])
     assert code_dry == 0
     assert not manifest_path.exists()
+    assert legacy_dir.exists()
 
     # Test execute CLI
     code_exec = main([
@@ -276,7 +287,43 @@ def test_cli_flags(tmp_path: Path, sample_catalog: Path):
     ])
     assert code_exec == 0
     assert manifest_path.exists()
+    manifest_bytes = manifest_path.read_bytes()
+    migrated_file = storage_dir / "ИС 25／9-3В" / "Архитектура аппаратных средств" / "Виды памяти" / "test.py"
+    assert migrated_file.exists()
+    assert not legacy_dir.exists()
 
+    # Test rollback dry-run CLI (both orders): files and manifest unchanged
+    storage_snapshot_before = {
+        p.relative_to(storage_dir): p.read_bytes() if p.is_file() else None
+        for p in storage_dir.rglob("*")
+    }
+    code_rb_dry1 = main([
+        "--storage-dir", str(storage_dir),
+        "--catalog", str(sample_catalog),
+        "--manifest", str(manifest_path),
+        "--rollback",
+        "--dry-run",
+    ])
+    assert code_rb_dry1 == 0
+    assert manifest_path.read_bytes() == manifest_bytes
+    assert {
+        p.relative_to(storage_dir): p.read_bytes() if p.is_file() else None
+        for p in storage_dir.rglob("*")
+    } == storage_snapshot_before
+
+    code_rb_dry2 = main([
+        "--storage-dir", str(storage_dir),
+        "--catalog", str(sample_catalog),
+        "--manifest", str(manifest_path),
+        "--dry-run",
+        "--rollback",
+    ])
+    assert code_rb_dry2 == 0
+    assert manifest_path.read_bytes() == manifest_bytes
+    assert {
+        p.relative_to(storage_dir): p.read_bytes() if p.is_file() else None
+        for p in storage_dir.rglob("*")
+    } == storage_snapshot_before
     # Test rollback CLI
     code_rb = main([
         "--storage-dir", str(storage_dir),
@@ -286,3 +333,104 @@ def test_cli_flags(tmp_path: Path, sample_catalog: Path):
     ])
     assert code_rb == 0
     assert legacy_dir.exists()
+    assert (legacy_dir / "test.py").read_text(encoding="utf-8") == "pass"
+
+
+CONFLICTING_CLI_FLAGS = [
+    ["--execute", "--dry-run"],
+    ["--dry-run", "--execute"],
+    ["--execute", "--rollback"],
+    ["--rollback", "--execute"],
+    ["--execute", "--rollback", "--dry-run"],
+    ["--execute", "--dry-run", "--rollback"],
+    ["--rollback", "--execute", "--dry-run"],
+    ["--rollback", "--dry-run", "--execute"],
+    ["--dry-run", "--execute", "--rollback"],
+    ["--dry-run", "--rollback", "--execute"],
+]
+
+
+@pytest.mark.parametrize("conflict_flags", CONFLICTING_CLI_FLAGS)
+def test_cli_conflicting_flags_storage_unmigrated(
+    tmp_path: Path, sample_catalog: Path, conflict_flags: list[str], capsys: pytest.CaptureFixture
+):
+    storage_dir = tmp_path / "storage"
+    storage_dir.mkdir()
+    manifest_path = tmp_path / "manifest.json"
+
+    legacy_dir = storage_dir / "ИС 25／9-3В-Архитектура аппаратных средств-Виды памяти"
+    legacy_dir.mkdir(parents=True)
+    sentinel_file = legacy_dir / "sentinel.py"
+    sentinel_content = b"sentinel content \x00\x01\x02 42"
+    sentinel_file.write_bytes(sentinel_content)
+
+    storage_snapshot_before = {
+        p.relative_to(storage_dir): p.read_bytes() if p.is_file() else None
+        for p in storage_dir.rglob("*")
+    }
+
+    with pytest.raises(SystemExit) as exc_info:
+        main([
+            "--storage-dir", str(storage_dir),
+            "--catalog", str(sample_catalog),
+            "--manifest", str(manifest_path),
+            *conflict_flags,
+        ])
+    assert exc_info.value.code == 2
+    assert not manifest_path.exists()
+    captured = capsys.readouterr()
+    assert "error:" in captured.err.lower()
+    assert ("--execute cannot be combined with --dry-run" in captured.err) or ("not allowed with argument" in captured.err)
+    assert {
+        p.relative_to(storage_dir): p.read_bytes() if p.is_file() else None
+        for p in storage_dir.rglob("*")
+    } == storage_snapshot_before
+
+@pytest.mark.parametrize("conflict_flags", CONFLICTING_CLI_FLAGS)
+def test_cli_conflicting_flags_storage_already_migrated(
+    tmp_path: Path, sample_catalog: Path, conflict_flags: list[str], capsys: pytest.CaptureFixture
+):
+    storage_dir = tmp_path / "storage"
+    storage_dir.mkdir()
+    manifest_path = tmp_path / "manifest.json"
+
+    legacy_dir = storage_dir / "ИС 25／9-3В-Архитектура аппаратных средств-Виды памяти"
+    legacy_dir.mkdir(parents=True)
+    sentinel_file = legacy_dir / "test.py"
+    sentinel_file.write_text("migrated-payload", encoding="utf-8")
+
+    # Execute first
+    ret = main([
+        "--storage-dir", str(storage_dir),
+        "--catalog", str(sample_catalog),
+        "--manifest", str(manifest_path),
+        "--execute",
+    ])
+    assert ret == 0
+    assert manifest_path.exists()
+    manifest_bytes = manifest_path.read_bytes()
+    migrated_file = storage_dir / "ИС 25／9-3В" / "Архитектура аппаратных средств" / "Виды памяти" / "test.py"
+    assert migrated_file.exists()
+
+    storage_snapshot_before = {
+        p.relative_to(storage_dir): p.read_bytes() if p.is_file() else None
+        for p in storage_dir.rglob("*")
+    }
+
+    with pytest.raises(SystemExit) as exc_info:
+        main([
+            "--storage-dir", str(storage_dir),
+            "--catalog", str(sample_catalog),
+            "--manifest", str(manifest_path),
+            *conflict_flags,
+        ])
+    assert exc_info.value.code == 2
+    captured = capsys.readouterr()
+    assert "error:" in captured.err.lower()
+    assert ("not allowed with argument" in captured.err) or ("--execute cannot be combined with --dry-run" in captured.err)
+    # Neither execute nor rollback happened: manifest and storage tree unchanged
+    assert manifest_path.read_bytes() == manifest_bytes
+    assert {
+        p.relative_to(storage_dir): p.read_bytes() if p.is_file() else None
+        for p in storage_dir.rglob("*")
+    } == storage_snapshot_before

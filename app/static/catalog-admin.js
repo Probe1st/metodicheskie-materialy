@@ -8,6 +8,11 @@ function setFormBusy(form, busy, buttonLabel) {
   button.disabled = busy;
   if (buttonLabel) button.textContent = buttonLabel;
 }
+function getCsrfToken() {
+  const meta = document.querySelector('meta[name="csrf-token"]');
+  return meta ? meta.getAttribute('content') : '';
+}
+
 
 async function errorMessage(response) {
   let payload = {};
@@ -15,6 +20,9 @@ async function errorMessage(response) {
     payload = await response.json();
   } catch {
     // Non-JSON errors use the standard status message below.
+  }
+  if (payload.error === 'csrf_error') {
+    return payload.message || 'Сессия устарела. Обновите страницу и повторите действие.';
   }
   if (Array.isArray(payload.names) && payload.names.length) {
     return `Нельзя выполнить действие: конфликтуют темы «${payload.names.join('», «')}».`;
@@ -258,8 +266,12 @@ if (createForm && catalogList) {
     setFormBusy(createForm, true, 'Добавляем…');
     showStatus(status, 'working', 'Создание…');
 
+    const headers = { 'Accept': 'application/json' };
+    const csrfToken = getCsrfToken();
+    if (csrfToken) headers['X-CSRFToken'] = csrfToken;
+
     try {
-      const response = await fetch(createForm.action, { method: 'POST', body: new FormData(createForm) });
+      const response = await fetch(createForm.action, { method: 'POST', body: new FormData(createForm), headers });
       if (!response.ok) {
         showStatus(status, 'error', await errorMessage(response));
         return;
@@ -287,8 +299,12 @@ if (catalogList) {
     const isTopic = row.dataset.kind === 'topics';
     setFormBusy(form, true, 'Сохраняем…');
     showStatus(status, 'working', isTopic ? 'Сохранение…' : 'Переименование…');
+    const headers = { 'Accept': 'application/json' };
+    const csrfToken = getCsrfToken();
+    if (csrfToken) headers['X-CSRFToken'] = csrfToken;
+
     try {
-      const response = await fetch(form.action, { method: 'POST', body: new FormData(form) });
+      const response = await fetch(form.action, { method: 'POST', body: new FormData(form), headers });
       if (!response.ok) {
         showStatus(status, 'error', await errorMessage(response));
         return;
@@ -340,8 +356,12 @@ if (catalogList) {
     const controls = [...(form ? form.querySelectorAll('button, input, select') : []), ...row.querySelectorAll('button')];
     controls.forEach((control) => { control.disabled = true; });
     showStatus(status, 'working', 'Удаление…');
+    const headers = { 'Accept': 'application/json' };
+    const csrfToken = getCsrfToken();
+    if (csrfToken) headers['X-CSRFToken'] = csrfToken;
+
     try {
-      const response = await fetch(`/admin/${encodeURIComponent(row.dataset.kind)}/${encodeURIComponent(row.dataset.id)}/delete`, { method: 'POST' });
+      const response = await fetch(`/admin/${encodeURIComponent(row.dataset.kind)}/${encodeURIComponent(row.dataset.id)}/delete`, { method: 'POST', headers });
       if (!response.ok) {
         showStatus(status, 'error', await errorMessage(response));
         return;
@@ -379,7 +399,10 @@ if (topicUI) {
       const formData = new FormData(bulkForm);
       formData.delete('topic_ids');
       selected.forEach((checkbox) => formData.append('topic_ids', checkbox.value));
-      const response = await fetch(bulkForm.action, { method: 'POST', body: formData });
+      const headers = { 'Accept': 'application/json' };
+      const csrfToken = getCsrfToken();
+      if (csrfToken) headers['X-CSRFToken'] = csrfToken;
+      const response = await fetch(bulkForm.action, { method: 'POST', body: formData, headers });
       if (!response.ok) {
         showStatus(status, 'error', await errorMessage(response));
         return;
