@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ==============================================================================
-# Скрипт управления приложением homework-submissions
+# Скрипт управления платформой сдачи заданий
 # Команды: start | stop | restart | status | logs
 # ==============================================================================
 
@@ -11,8 +11,6 @@ SCRIPT_DIR="$(readlink -f "${SCRIPT_DIR}" 2>/dev/null || echo "${SCRIPT_DIR}")"
 
 if [[ -n "${APP_DIR:-}" ]]; then
     APP_DIR="$(readlink -f "${APP_DIR}" 2>/dev/null || (cd "${APP_DIR}" 2>/dev/null && pwd))"
-elif [[ -d "${SCRIPT_DIR}/homework-submissions" ]]; then
-    APP_DIR="$(readlink -f "${SCRIPT_DIR}/homework-submissions")"
 else
     APP_DIR="${SCRIPT_DIR}"
 fi
@@ -27,8 +25,8 @@ if [[ -x "${APP_DIR}/.venv/bin/gunicorn" ]]; then
     GUNICORN="${APP_DIR}/.venv/bin/gunicorn"
 elif [[ -x "${SCRIPT_DIR}/.venv/bin/gunicorn" ]]; then
     GUNICORN="${SCRIPT_DIR}/.venv/bin/gunicorn"
-elif git rev-parse --git-common-dir >/dev/null 2>&1 && [[ -x "$(cd "$(git rev-parse --git-common-dir)/.." && pwd)/homework-submissions/.venv/bin/gunicorn" ]]; then
-    GUNICORN="$(cd "$(git rev-parse --git-common-dir)/.." && pwd)/homework-submissions/.venv/bin/gunicorn"
+elif git rev-parse --git-common-dir >/dev/null 2>&1 && [[ -x "$(cd "$(git rev-parse --git-common-dir)/.." && pwd)/.venv/bin/gunicorn" ]]; then
+    GUNICORN="$(cd "$(git rev-parse --git-common-dir)/.." && pwd)/.venv/bin/gunicorn"
 elif command -v gunicorn >/dev/null 2>&1; then
     GUNICORN="$(command -v gunicorn)"
 else
@@ -155,32 +153,186 @@ is_owned_process() {
     return 0
 }
 
+process_start_time() {
+    local pid="${1:-}"
+    [[ "${pid}" =~ ^[0-9]+$ ]] || return 1
+    [[ -r "/proc/${pid}/stat" ]] || return 1
+
+    local stat_content
+    stat_content="$(cat "/proc/${pid}/stat" 2>/dev/null || true)"
+    [[ -n "${stat_content}" ]] || return 1
+
+    local after_comm="${stat_content##*)}"
+    [[ -n "${after_comm}" ]] || return 1
+
+    local tokens=()
+    read -r -a tokens <<< "${after_comm}"
+    if (( ${#tokens[@]} > 19 )); then
+        local st="${tokens[19]}"
+        if [[ "${st}" =~ ^[0-9]+$ ]]; then
+            echo "${st}"
+            return 0
+        fi
+    fi
+    return 1
+}
+
+is_tracked_process() {
+    local pid="${1:-}"
+    local expected_stime="${2:-}"
+    [[ "${pid}" =~ ^[0-9]+$ ]] || return 1
+    [[ "${expected_stime}" =~ ^[0-9]+$ ]] || return 1
+
+    kill -0 "${pid}" 2>/dev/null || return 1
+
+    if [[ -r "/proc/${pid}/status" ]] && grep -q '^State:[[:space:]]*Z' "/proc/${pid}/status" 2>/dev/null; then
+        return 1
+    fi
+
+    local current_stime
+    current_stime="$(process_start_time "${pid}")" || return 1
+    [[ "${current_stime}" == "${expected_stime}" ]] || return 1
+
+    local proc_cwd real_app_dir
+    proc_cwd="$(readlink -f "/proc/${pid}/cwd" 2>/dev/null || true)"
+    real_app_dir="$(readlink -f "${APP_DIR}" 2>/dev/null || true)"
+    [[ -n "${proc_cwd}" && -n "${real_app_dir}" && "${proc_cwd}" == "${real_app_dir}" ]] || return 1
+
+    return 0
+}
+
 terminate_owned_process() {
     local target_pid="${1:-}"
     if [[ -z "${target_pid}" ]] || ! is_owned_process "${target_pid}"; then
         return 0
     fi
 
-    kill -TERM "${target_pid}" 2>/dev/null || true
+    local master_stime
+    master_stime="$(process_start_time "${target_pid}")" || return 1
+
+    declare -A tracked_workers=()
+
+    collect_master_children() {
+        local m_pid="${1:-}"
+        local children_file="/proc/${m_pid}/task/${m_pid}/children"
+        if [[ -r "${children_file}" ]]; then
+            local child_pid
+            for child_pid in $(cat "${children_file}" 2>/dev/null || true); do
+                if [[ "${child_pid}" =~ ^[0-9]+$ ]] && (( child_pid > 1 )); then
+                    local child_cwd real_app_dir
+                    child_cwd="$(readlink -f "/proc/${child_pid}/cwd" 2>/dev/null || true)"
+                    real_app_dir="$(readlink -f "${APP_DIR}" 2>/dev/null || true)"
+                    if [[ -n "${child_cwd}" && -n "${real_app_dir}" && "${child_cwd}" == "${real_app_dir}" ]]; then
+                        local child_stime
+                        if child_stime="$(process_start_time "${child_pid}")"; then
+                            tracked_workers["${child_pid}"]="${child_stime}"
+                        fi
+                    fi
+                fi
+            done
+        fi
+    }
+
+    collect_master_children "${target_pid}"
+
+    # Graceful TERM to master if identity and ownership match
+    if is_owned_process "${target_pid}" && [[ "$(process_start_time "${target_pid}")" == "${master_stime}" ]]; then
+        kill -TERM "${target_pid}" 2>/dev/null || true
+    fi
 
     local waited=0
-    while is_owned_process "${target_pid}" && [[ ${waited} -lt 10 ]]; do
+    while is_owned_process "${target_pid}" && [[ "$(process_start_time "${target_pid}")" == "${master_stime}" ]] && [[ ${waited} -lt 10 ]]; do
+        collect_master_children "${target_pid}"
         sleep 0.5
         waited=$((waited + 1))
     done
 
-    if is_owned_process "${target_pid}"; then
+    # KILL master if still alive
+    if is_owned_process "${target_pid}" && [[ "$(process_start_time "${target_pid}")" == "${master_stime}" ]]; then
+        collect_master_children "${target_pid}"
         kill -KILL "${target_pid}" 2>/dev/null || true
         local kill_waited=0
-        while is_owned_process "${target_pid}" && [[ ${kill_waited} -lt 10 ]]; do
+        while is_owned_process "${target_pid}" && [[ "$(process_start_time "${target_pid}")" == "${master_stime}" ]] && [[ ${kill_waited} -lt 10 ]]; do
             sleep 0.5
             kill_waited=$((kill_waited + 1))
         done
     fi
 
-    if is_owned_process "${target_pid}"; then
-        return 1
+    # After master path, terminate remaining tracked workers
+    local w_pid
+    for w_pid in "${!tracked_workers[@]}"; do
+        local w_stime="${tracked_workers[${w_pid}]}"
+        if is_tracked_process "${w_pid}" "${w_stime}"; then
+            kill -TERM "${w_pid}" 2>/dev/null || true
+        fi
+    done
+
+    local w_waited=0
+    while [[ ${w_waited} -lt 10 ]]; do
+        local any_alive=0
+        for w_pid in "${!tracked_workers[@]}"; do
+            local w_stime="${tracked_workers[${w_pid}]}"
+            if is_tracked_process "${w_pid}" "${w_stime}"; then
+                any_alive=1
+                break
+            fi
+        done
+        [[ ${any_alive} -eq 0 ]] && break
+        sleep 0.5
+        w_waited=$((w_waited + 1))
+    done
+
+    # KILL any surviving tracked workers
+    for w_pid in "${!tracked_workers[@]}"; do
+        local w_stime="${tracked_workers[${w_pid}]}"
+        if is_tracked_process "${w_pid}" "${w_stime}"; then
+            kill -KILL "${w_pid}" 2>/dev/null || true
+        fi
+    done
+
+    local w_kill_waited=0
+    while [[ ${w_kill_waited} -lt 10 ]]; do
+        local any_alive=0
+        for w_pid in "${!tracked_workers[@]}"; do
+            local w_stime="${tracked_workers[${w_pid}]}"
+            if is_tracked_process "${w_pid}" "${w_stime}"; then
+                any_alive=1
+                break
+            fi
+        done
+        [[ ${any_alive} -eq 0 ]] && break
+        sleep 0.5
+        w_kill_waited=$((w_kill_waited + 1))
+    done
+
+    # Final check: master and all tracked workers must not be running
+    if kill -0 "${target_pid}" 2>/dev/null; then
+        if ! grep -q '^State:[[:space:]]*Z' "/proc/${target_pid}/status" 2>/dev/null; then
+            local current_mstime
+            if ! current_mstime="$(process_start_time "${target_pid}")"; then
+                return 1
+            fi
+            if [[ "${current_mstime}" == "${master_stime}" ]]; then
+                return 1
+            fi
+        fi
     fi
+
+    for w_pid in "${!tracked_workers[@]}"; do
+        local w_stime="${tracked_workers[${w_pid}]}"
+        if kill -0 "${w_pid}" 2>/dev/null; then
+            if ! grep -q '^State:[[:space:]]*Z' "/proc/${w_pid}/status" 2>/dev/null; then
+                local current_wstime
+                if ! current_wstime="$(process_start_time "${w_pid}")"; then
+                    return 1
+                fi
+                if [[ "${current_wstime}" == "${w_stime}" ]]; then
+                    return 1
+                fi
+            fi
+        fi
+    done
+
     return 0
 }
 

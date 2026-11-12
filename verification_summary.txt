@@ -1,0 +1,78 @@
+================================================================================
+             FULL VERIFICATION SUMMARY FOR PR #8 REMARKS
+================================================================================
+Timestamp:       2026-11-03T16:43:04.270202+00:00
+Overall Status:  PASSED
+Total Duration:  324.07s
+Python Path:     /home/probe/orca/workspaces/Разработка методического материала/перенос-на-докер/.venv/bin/python
+--------------------------------------------------------------------------------
+
+[GATE 1] Full Pytest Suite
+  - Command:        PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest tests -p no:cacheprovider
+  - Result:         PASSED
+  - Tests Passed:   320
+  - Pytest Time:    45.63s (wall time: 45.99s)
+
+[GATE 2] Stress Test (Flake & Resource Leak Resistance)
+  - Target Loops:   20
+  - Completed:      20/20
+  - Total Time:     270.35s (avg: 13.52s/iter)
+  - Result:         PASSED (Zero flakes, zero process/port leaks)
+
+[GATE 3] Negative Socket Control
+  - Port Tested:    41781
+  - Conflict Proof: Raised OSError errno 98 (EADDRINUSE)
+  - Error Message:  [Errno 98] Address already in use
+  - Closure Proof:  Socket A closed -> Socket B bound and listened immediately (SUCCESS)
+  - Result:         PASSED
+
+[GATE 4] Real DB CLI Smoke
+  - Seed Custom ID: custom-historical-slot-001
+  - Execute:        25 inserted, 1 skipped (rc=0)
+  - Rollback Dry:   25 would_delete (rc=0)
+  - Rollback Exec:  25 deleted (rc=0)
+  - Seed Invariant: Full tuple of custom_id is 100% identical to original seed
+  - Repeat Rollback:0 deleted (rc=0)
+  - Nonexistent DB: Exit 0, skipped reason logged, zero mutations
+  - No Table DB:    Exit 0, skipped reason logged, zero mutations
+  - Conflict Flags: Exit 2, error logged, data in DB completely unchanged
+  - Result:         PASSED
+
+[GATE 5] Real Storage CLI Smoke
+  - Legacy Dir:     ИС 25／9-3В-Архитектура аппаратных средств-Виды памяти
+  - Initial SHA256: 58a44735ffdfa6b14977516ad6e6e642d477999cd361537028f2d6b99e07ad68
+  - Conflict Flags: Exit 2, data unchanged, no manifest created
+  - Execute Migr:   Hierarchical layout created, manifest recorded (rc=0)
+  - Rollback Dry:   would restore 1 files, tree untouched (rc=0)
+  - Rollback Exec:  Legacy directory restored, manifest removed (rc=0)
+  - Restored SHA256:58a44735ffdfa6b14977516ad6e6e642d477999cd361537028f2d6b99e07ad68 (100% IDENTICAL)
+  - Result:         PASSED
+
+[GATE 6] Real manage.sh Server Lifecycle Smoke
+  - Directory:      Isolated path with spaces ('root with spaces')
+  - Port:           58965
+  - Start:          rc=0, Master PID=1095734
+  - Status Check:   rc=0, HTTP Health: 200 OK verified
+  - Idempotent:     rc=0, Master PID preserved unchanged
+  - Restart:        rc=0, Master PID changed (1095734 -> 1096369), old PID dead
+  - Stop:           rc=0, PID file removed, master and all 2 workers terminated
+  - Safety:         Stop guaranteed in finally block, secrets/cookies masked
+  - Result:         PASSED
+
+[GATE 7] Real Browser / HTTP Smoke
+  - Port:           49005
+  - Admin CRUD:     Login (204) -> Create group (201) -> Rename group (200) -> Delete group (204)
+  - Bulk Move:      Moved 2 topics to new subject (200)
+  - Assignments:    Create (201) -> Update date/pair (200) -> Delete (204)
+  - Student Access: Configure group -> Unlock with password (200)
+  - Valid Upload:   Submitted .pdf -> 201, saved on disk as 'Тестировщиков Тест Тестович 1.pdf'
+  - Disallowed Up:  Submitted .exe -> 400 'file_type_not_allowed', zero .exe files on disk
+  - Feedback Text:  'Недопустимый формат файла.'
+  - Missing CSRF:   400 csrf_error ('Сессия устарела. Обновите страницу и повторите действие.')
+  - Tampered CSRF:  400 csrf_error
+  - Foreign CSRF:   400 csrf_error
+  - Result:         PASSED
+
+================================================================================
+                       ALL 7 GATES PASSED (100% SUCCESS)
+================================================================================
