@@ -70,9 +70,9 @@
         </div>
         <label class="field" for="group">
           Группа
-          <select id="group" name="group" required>
+          <select id="group" name="group_id" required>
             {% for group in catalog.groups %}
-              <option value="{{ group.name }}">{{ group.name }}</option>
+              <option value="{{ group.id }}">{{ group.name }}</option>
             {% endfor %}
           </select>
         </label>
@@ -96,7 +96,7 @@
       <!-- Step 2: Submission form -->
       <form id="submit" class="form-stack" method="post" action="{{ url_for('submit') }}" enctype="multipart/form-data" hidden>
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input id="selected_group" name="group" type="hidden">
+        <input id="selected_group" name="group_id" type="hidden">
         <div class="form-heading">
           <p class="eyebrow">Шаг 2 из 2</p>
           <h2>Расскажите о работе</h2>
@@ -105,26 +105,39 @@
         <section class="form-section" aria-label="Данные работы">
           <label class="field" for="discipline">
             Дисциплина
-            <select id="discipline" name="discipline" required>
+            <select id="discipline" name="discipline">
+              <option value="">Все дисциплины</option>
               {% for subject in catalog.subjects %}
-                <option value="{{ subject.name }}" data-subject-id="{{ subject.id }}">{{ subject.name }}</option>
+                <option value="{{ subject.id }}">{{ subject.name }}</option>
               {% endfor %}
             </select>
           </label>
-          <label class="field" for="work">
-            Тема работы
-            <select id="work" name="work" required>
-              <option value="">Выберите тему</option>
-              {% for topic in catalog.topics %}
-                <option value="{{ topic.name }}" data-subject-id="{{ topic.subject_id }}">{{ topic.name }}</option>
-              {% endfor %}
+          <label class="field" for="assignment_id">
+            Тема занятия
+            <select id="assignment_id" name="assignment_id" required>
+              <option value="">Выберите занятие</option>
             </select>
             <span class="field__hint" id="topic_hint" hidden></span>
           </label>
-          <label class="field" for="student_name">
-            ФИО
-            <input id="student_name" name="student_name" required autocomplete="name" placeholder="Например, Иванов Иван">
-          </label>
+          <div class="field" id="student_selection_field">
+            <label for="student_id">Студент</label>
+            <div style="display: flex; gap: var(--space-2); align-items: center;">
+              <select id="student_id" name="student_id" required style="flex: 1;">
+                <option value="">Выберите себя из списка</option>
+              </select>
+              <button type="button" class="button button--outline" id="toggle_new_student_btn" style="white-space: nowrap;">Меня нет в списке</button>
+            </div>
+            <div id="new_student_panel" class="panel" style="margin-top: var(--space-2); padding: var(--space-3);" hidden>
+              <label class="field" for="new_student_input">ФИО нового студента
+                <input id="new_student_input" type="text" placeholder="Например: Иванов Иван" autocomplete="name">
+              </label>
+              <div style="display: flex; gap: var(--space-2); margin-top: var(--space-2);">
+                <button type="button" class="button button--primary" id="save_student_btn">Добавить и выбрать</button>
+                <button type="button" class="button button--outline" id="cancel_student_btn">Отмена</button>
+              </div>
+              <p class="status" id="new_student_status" aria-live="polite" style="margin-top: var(--space-2);"></p>
+            </div>
+          </div>
         </section>
         <section class="form-section" aria-label="Файл работы">
           <label class="field" for="file">Файл с работой</label>
@@ -201,6 +214,7 @@
   <script>
     window.submissionLimit = {{ limit|tojson }};
     window.submissionMaxBytes = {{ max_bytes|tojson }};
+    window.allowedUploadExtensions = {{ allowed_extensions|tojson }};
   </script>
   <script src="{{ url_for('static', filename='student.js') }}" defer></script>
 </body>

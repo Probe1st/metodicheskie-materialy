@@ -18,24 +18,29 @@ const unlockForm = document.querySelector('#unlock');
 const submitForm = document.querySelector('#submit');
 const unlockStatus = document.querySelector('#unlock_status');
 const submitStatus = document.querySelector('#submit_status');
+
 const discipline = document.querySelector('#discipline');
-const work = document.querySelector('#work');
+const assignmentSelect = document.querySelector('#assignment_id');
 const topicHint = document.querySelector('#topic_hint');
 const submitButton = submitForm.querySelector('button[type="submit"]');
+
 const selectedGroup = document.querySelector('#selected_group');
 const groupDisplay = document.querySelector('#group_display');
 const accessSummary = document.querySelector('#access_summary');
 const changeGroup = document.querySelector('#change_group');
+
+const studentSelect = document.querySelector('#student_id');
+const toggleNewStudentBtn = document.querySelector('#toggle_new_student_btn');
+const newStudentPanel = document.querySelector('#new_student_panel');
+const newStudentInput = document.querySelector('#new_student_input');
+const saveStudentBtn = document.querySelector('#save_student_btn');
+const cancelStudentBtn = document.querySelector('#cancel_student_btn');
+const newStudentStatus = document.querySelector('#new_student_status');
+
 const file = document.querySelector('#file');
 const fileName = document.querySelector('#file_name');
-const topicPlaceholder = work.options[0].cloneNode(true);
-const topicOptions = Array.from(work.options)
-  .filter((option) => option.dataset.subjectId)
-  .map((option) => option.cloneNode(true));
-
 const dropzone = document.querySelector('#file_dropzone');
 const clearFile = document.querySelector('#clear_file');
-const studentName = document.querySelector('#student_name');
 
 const submissionOverlay = document.querySelector('#submission_overlay');
 const overlayLoading = document.querySelector('#overlay_loading');
@@ -45,7 +50,11 @@ const overlayFilename = document.querySelector('#overlay_filename');
 const overlayErrorMessage = document.querySelector('#overlay_error_message');
 const overlayResetButton = document.querySelector('#overlay_reset_button');
 const overlayRetryButton = document.querySelector('#overlay_retry_button');
+
 let isSubmitting = false;
+let groupAssignments = [];
+let groupStudents = [];
+
 const titleMap = {
   loading: 'overlay_title',
   success: 'overlay_success_title',
@@ -88,6 +97,7 @@ function hideOverlay() {
   if (overlaySuccess) overlaySuccess.hidden = true;
   if (overlayError) overlayError.hidden = true;
 }
+
 function resetFilePreview() {
   file.value = '';
   fileName.textContent = 'Файл не выбран';
@@ -125,79 +135,167 @@ function acceptDroppedFile(selectedFile) {
   file.files = transfer.files;
   showSelectedFile(selectedFile);
 }
+
 function setStatus(element, state, message) {
+  if (!element) return;
   element.dataset.state = state;
   element.textContent = message;
 }
 
 function setBusy(form, busy, label) {
   const button = form.querySelector('button[type="submit"]');
-  button.disabled = busy;
-  button.textContent = label;
+  if (button) {
+    button.disabled = busy;
+    button.textContent = label;
+  }
 }
-
-let groupAssignments = [];
 
 function resetAccess() {
   groupAssignments = [];
+  groupStudents = [];
   selectedGroup.value = '';
   groupDisplay.textContent = '';
   accessSummary.hidden = true;
   submitForm.hidden = true;
   unlockForm.hidden = false;
-  unlockForm.querySelector('[name="password"]').value = '';
-  unlockForm.querySelector('[name="password"]').focus();
+  const pwInput = unlockForm.querySelector('[name="password"]');
+  if (pwInput) {
+    pwInput.value = '';
+    pwInput.focus();
+  }
   showActiveStep(0);
   setBusy(unlockForm, false, 'Подтвердить доступ');
 }
-function updateTopics() {
-  const selectedSubjectId = discipline.selectedOptions[0]?.dataset.subjectId;
-  let availableTopics = [];
 
-  const assignedForSubject = groupAssignments.length > 0
-    ? groupAssignments.filter((a) => a.subject_id === selectedSubjectId)
-    : [];
-
-  if (assignedForSubject.length > 0) {
-    availableTopics = assignedForSubject.map((a) => {
-      const opt = document.createElement('option');
-      opt.value = a.topic_name;
-      opt.dataset.subjectId = a.subject_id;
-      opt.dataset.assignmentId = a.id;
-      opt.textContent = a.label;
-      return opt;
-    });
-  } else {
-    availableTopics = topicOptions
-      .filter((option) => option.dataset.subjectId === selectedSubjectId)
-      .map((option) => option.cloneNode(true));
+function updateAssignments() {
+  const selectedSubjectId = discipline.value;
+  let available = groupAssignments;
+  if (selectedSubjectId) {
+    available = groupAssignments.filter((a) => a.subject_id === selectedSubjectId);
   }
 
-  work.replaceChildren(topicPlaceholder.cloneNode(true), ...availableTopics);
+  assignmentSelect.replaceChildren();
+  const defaultOption = document.createElement('option');
+  defaultOption.value = '';
+  defaultOption.textContent = available.length > 0 ? 'Выберите занятие' : 'Нет доступных заданий';
+  assignmentSelect.appendChild(defaultOption);
 
-  const hasTopics = availableTopics.length > 0;
-  work.disabled = !hasTopics;
-  topicHint.hidden = hasTopics;
-  topicHint.textContent = hasTopics
-    ? ''
-    : 'Для выбранного предмета нет доступных тем.';
-  submitButton.disabled = !hasTopics;
+  available.forEach((a) => {
+    const opt = document.createElement('option');
+    opt.value = a.id;
+    opt.dataset.subjectId = a.subject_id;
+    opt.dataset.topicId = a.topic_id;
+    opt.textContent = a.label || `${a.lesson_date}, пара ${a.pair_number} — ${a.topic_name}`;
+    assignmentSelect.appendChild(opt);
+  });
+
+  const hasItems = available.length > 0;
+  assignmentSelect.disabled = !hasItems;
+  if (topicHint) {
+    topicHint.hidden = hasItems;
+    topicHint.textContent = hasItems ? '' : 'Для выбранного предмета нет доступных пар/тем.';
+  }
+  submitButton.disabled = !hasItems;
 }
 
-discipline.addEventListener('change', () => updateTopics());
-updateTopics();
-submitButton.disabled = work.disabled;
+function updateStudentsList() {
+  studentSelect.replaceChildren();
+  const defaultOption = document.createElement('option');
+  defaultOption.value = '';
+  defaultOption.textContent = groupStudents.length > 0 ? 'Выберите себя из списка' : 'Список пуст — добавьте себя';
+  studentSelect.appendChild(defaultOption);
 
+  groupStudents.forEach((s) => {
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = s.display_name;
+    studentSelect.appendChild(opt);
+  });
+}
 
-file.addEventListener('change', () => {
-  if (file.files[0]) showSelectedFile(file.files[0]);
-  else resetFilePreview();
-});
+if (discipline) {
+  discipline.addEventListener('change', updateAssignments);
+}
 
-clearFile.addEventListener('click', () => {
-  resetFilePreview();
-  file.focus();
-});
+if (toggleNewStudentBtn) {
+  toggleNewStudentBtn.addEventListener('click', () => {
+    if (newStudentPanel) {
+      newStudentPanel.hidden = !newStudentPanel.hidden;
+      if (!newStudentPanel.hidden && newStudentInput) {
+        newStudentInput.focus();
+      }
+    }
+  });
+}
+
+if (cancelStudentBtn) {
+  cancelStudentBtn.addEventListener('click', () => {
+    if (newStudentPanel) {
+      newStudentPanel.hidden = true;
+      if (newStudentInput) newStudentInput.value = '';
+      setStatus(newStudentStatus, '', '');
+    }
+  });
+}
+
+if (saveStudentBtn) {
+  saveStudentBtn.addEventListener('click', async () => {
+    const name = newStudentInput ? newStudentInput.value.trim() : '';
+    if (!name) {
+      setStatus(newStudentStatus, 'error', 'Введите ФИО студента.');
+      if (newStudentInput) newStudentInput.focus();
+      return;
+    }
+
+    setStatus(newStudentStatus, 'working', 'Добавляем…');
+    try {
+      const res = await fetch('/student/students', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          ...(getCsrfToken() ? { 'X-CSRFToken': getCsrfToken() } : {}),
+        },
+        body: JSON.stringify({ display_name: name }),
+      });
+
+      if (!res.ok) {
+        if (res.status === 403) {
+          resetAccess();
+          throw new Error('Доступ группы истёк или был отозван. Подтвердите пароль снова.');
+        }
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Ошибка при добавлении студента.');
+      }
+
+      const created = await res.json();
+      groupStudents.push(created);
+      groupStudents.sort((a, b) => a.display_name.localeCompare(b.display_name));
+      updateStudentsList();
+      studentSelect.value = created.id;
+
+      if (newStudentPanel) newStudentPanel.hidden = true;
+      if (newStudentInput) newStudentInput.value = '';
+      setStatus(newStudentStatus, '', '');
+    } catch (err) {
+      setStatus(newStudentStatus, 'error', err.message);
+    }
+  });
+}
+
+if (file) {
+  file.addEventListener('change', () => {
+    if (file.files[0]) showSelectedFile(file.files[0]);
+    else resetFilePreview();
+  });
+}
+
+if (clearFile) {
+  clearFile.addEventListener('click', () => {
+    resetFilePreview();
+    file.focus();
+  });
+}
 
 ['dragenter', 'dragover'].forEach((eventName) => {
   dropzone.addEventListener(eventName, (event) => {
@@ -248,20 +346,20 @@ unlockForm.addEventListener('submit', async (event) => {
       throw new Error('denied');
     }
 
-    if (response.status === 200) {
-      const data = await response.json();
-      groupAssignments = data.assignments || [];
-    }
+    const data = await response.json();
+    groupAssignments = data.assignments || [];
+    groupStudents = data.students || [];
 
-    selectedGroup.value = formData.get('group');
-    groupDisplay.textContent = selectedGroup.value;
+    selectedGroup.value = data.group_id;
+    groupDisplay.textContent = data.group_name || formData.get('group_id');
     unlockForm.hidden = true;
     accessSummary.hidden = false;
     submitForm.hidden = false;
     showActiveStep(1);
     setStatus(unlockStatus, '', '');
-    updateTopics();
-    discipline.focus();
+    updateAssignments();
+    updateStudentsList();
+    if (assignmentSelect) assignmentSelect.focus();
   } catch (err) {
     const msg = (err && err.message && err.message !== 'denied')
       ? err.message
@@ -283,14 +381,15 @@ submitForm.addEventListener('submit', async (event) => {
     return;
   }
   if (!showSelectedFile(selectedFile)) return;
-  if (work.disabled || !work.value) {
-    setStatus(submitStatus, 'error', 'Выберите тему работы.');
-    work.focus();
+
+  if (!assignmentSelect.value) {
+    setStatus(submitStatus, 'error', 'Выберите тему занятия.');
+    assignmentSelect.focus();
     return;
   }
-  if (studentName && !studentName.value.trim()) {
-    setStatus(submitStatus, 'error', 'Укажите ФИО студента.');
-    studentName.focus();
+  if (!studentSelect.value) {
+    setStatus(submitStatus, 'error', 'Выберите или добавьте студента.');
+    studentSelect.focus();
     return;
   }
 
@@ -323,6 +422,7 @@ submitForm.addEventListener('submit', async (event) => {
       if (response.status === 413) {
         throw new Error('Размер файла превышает допустимый лимит сервера.');
       } else if (response.status === 403) {
+        resetAccess();
         throw new Error('Приём работ для данной группы закрыт или дедлайн истёк.');
       } else if (response.status === 400) {
         const errData = await response.json().catch(() => ({}));
@@ -340,8 +440,9 @@ submitForm.addEventListener('submit', async (event) => {
     }
 
     const data = await response.json().catch(() => ({}));
-    const confirmedName = data.filename || (selectedFile && selectedFile.name) || 'Файл принят';
-    if (overlayFilename) overlayFilename.textContent = confirmedName;
+    const confirmedName = data.filename || selectedFile.name;
+    const attemptText = data.attempt_number ? ` (попытка №${data.attempt_number})` : '';
+    if (overlayFilename) overlayFilename.textContent = confirmedName + attemptText;
     showOverlay('success');
     setStatus(submitStatus, 'success', 'Работа принята: ' + confirmedName);
   } catch (err) {
@@ -353,7 +454,6 @@ submitForm.addEventListener('submit', async (event) => {
     showOverlay('error');
     setStatus(submitStatus, 'error', msg);
     setBusy(submitForm, false, 'Отправить работу');
-    submitButton.disabled = work.disabled;
   }
 });
 
@@ -364,10 +464,8 @@ if (overlayResetButton) {
     file.value = '';
     resetFilePreview();
     setStatus(submitStatus, '', '');
-    updateTopics();
-    discipline.focus();
+    updateAssignments();
     setBusy(submitForm, false, 'Отправить работу');
-    submitButton.disabled = work.disabled;
   });
 }
 
@@ -376,7 +474,6 @@ if (overlayRetryButton) {
     isSubmitting = false;
     hideOverlay();
     setBusy(submitForm, false, 'Отправить работу');
-    submitButton.disabled = work.disabled;
     if (submitButton && !submitButton.disabled) {
       submitButton.focus();
     } else {

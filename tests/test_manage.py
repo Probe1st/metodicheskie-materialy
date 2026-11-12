@@ -11,8 +11,12 @@ from pathlib import Path
 import pytest
 
 MANAGE_SH_SRC = Path(__file__).resolve().parents[1] / "manage.sh"
-VENV_GUNICORN = Path(__file__).resolve().parents[1] / ".venv" / "bin" / "gunicorn"
-
+_local_venv_gunicorn = Path(__file__).resolve().parents[1] / ".venv" / "bin" / "gunicorn"
+if _local_venv_gunicorn.exists():
+    VENV_GUNICORN = _local_venv_gunicorn
+else:
+    _found_gunicorn = shutil.which("gunicorn")
+    VENV_GUNICORN = Path(_found_gunicorn) if _found_gunicorn else _local_venv_gunicorn
 
 def find_free_port():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -147,10 +151,15 @@ def isolated_env(tmp_path):
         encoding="utf-8",
     )
 
-    venv_link = app_dir / ".venv"
     if VENV_GUNICORN.exists():
-        venv_link.symlink_to(VENV_GUNICORN.parent.parent)
-
+        bin_dir = app_dir / ".venv" / "bin"
+        bin_dir.mkdir(parents=True, exist_ok=True)
+        g_link = bin_dir / "gunicorn"
+        if not g_link.exists():
+            g_link.symlink_to(VENV_GUNICORN)
+        p_link = bin_dir / "python"
+        if not p_link.exists():
+            p_link.symlink_to(sys.executable)
     return {
         "root_dir": root_dir,
         "app_dir": app_dir,
@@ -776,3 +785,58 @@ def test_force_stop_terminates_orphaned_workers(isolated_env, tmp_path):
             control_proc.kill()
             control_proc.wait()
 
+
+def test_migrate_v2_command(isolated_env):
+    app_dir = isolated_env["app_dir"]
+    manage_sh = isolated_env["manage_sh"]
+    port = find_free_port()
+    env = clean_env({"PORT": str(port), "HOST": "127.0.0.1", "APP_DIR": str(app_dir)})
+    pid_file = app_dir / ".gunicorn.pid"
+
+    # Mock tools.migrate_v2 module in isolated app_dir
+    tools_dir = app_dir / "tools"
+    tools_dir.mkdir(parents=True, exist_ok=True)
+    (tools_dir / "__init__.py").touch()
+    (tools_dir / "migrate_v2.py").write_text(
+        "import sys\n"
+        "if __name__ == '__main__':\n"
+        "    print('tools.migrate_v2 args:', sys.argv[1:])\n"
+        "    sys.exit(0)\n",
+        encoding="utf-8",
+    )
+
+    # 1. Start application first
+    start_res = subprocess.run(
+        [str(manage_sh), "start"],
+        cwd=str(app_dir),
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=30,
+    )
+    assert start_res.returncode == 0
+    assert pid_file.exists()
+    old_pid = int(pid_file.read_text().strip())
+
+    # 2. Run migrate-v2 with arguments (e.g. --help)
+    mig_res = subprocess.run(
+        [str(manage_sh), "migrate-v2", "--help"],
+        cwd=str(app_dir),
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=30,
+    )
+
+    # 3. migrate-v2 must stop the running application before migrating
+    assert not is_pid_alive_and_not_zombie(old_pid)
+    assert not pid_file.exists()
+
+    # 4. migrate-v2 runs tools.migrate_v2 apply --offline "$@"
+    assert mig_res.returncode == 0
+    assert "tools.migrate_v2 args: ['apply', '--offline', '--help']" in mig_res.stdout
+
+    # 5. Application is not automatically restarted after migrate-v2
+    assert not pid_file.exists()

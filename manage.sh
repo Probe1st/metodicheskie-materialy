@@ -108,10 +108,11 @@ is_owned_process() {
     local i
     for (( i=0; i<${#cmd_args[@]}; i++ )); do
         local a="${cmd_args[i]}"
+        [[ -n "${a}" ]] || continue
         local a_base
         a_base="$(basename "${a}" 2>/dev/null || true)"
 
-        if [[ "${a_base}" == "gunicorn" ]]; then
+        if [[ "${a_base}" == "gunicorn" || "${a}" == *"gunicorn: master"* || "${a}" == *"gunicorn: worker"* ]]; then
             has_gunicorn=1
         elif [[ -n "${real_gunicorn}" ]]; then
             local a_real
@@ -121,7 +122,7 @@ is_owned_process() {
             fi
         fi
 
-        if [[ "${a}" == "wsgi:app" ]]; then
+        if [[ "${a}" == "wsgi:app" || "${a}" == *"[wsgi:app]"* ]]; then
             has_wsgi_app=1
         fi
 
@@ -147,6 +148,12 @@ is_owned_process() {
             fi
         fi
     done
+
+    if [[ ${has_gunicorn} -eq 1 && ${has_wsgi_app} -eq 1 ]]; then
+        if [[ -f "${PID_FILE}" ]] && [[ "$(cat "${PID_FILE}" 2>/dev/null || true)" == "${pid}" ]]; then
+            has_matching_pidfile=1
+        fi
+    fi
 
     [[ ${has_gunicorn} -eq 1 && ${has_wsgi_app} -eq 1 && ${has_matching_pidfile} -eq 1 ]] || return 1
 
@@ -447,12 +454,38 @@ finally:
                 echo "⚠️  Внимание: не удалось завершить процесс ${started_pid} после сбоя запуска." >&2
             fi
         fi
+        if kill -0 "${started_pid}" 2>/dev/null; then
+            kill -KILL "${started_pid}" 2>/dev/null || true
+            sleep 0.1
+        fi
+        wait "${started_pid}" 2>/dev/null || true
+        if [[ "$(get_pid)" == "${started_pid}" ]]; then
+            rm -f "${PID_FILE}"
+        fi
 
-        if ! is_owned_process "${started_pid}"; then
-            wait "${started_pid}" 2>/dev/null || true
-            if [[ "$(get_pid)" == "${started_pid}" ]]; then
-                rm -f "${PID_FILE}"
-            fi
+        # Wait until port is fully released
+        if [[ -x "${PYTHON_BIN}" ]]; then
+            local port_waited=0
+            while [[ ${port_waited} -lt 25 ]]; do
+                if "${PYTHON_BIN}" -c '
+import socket, sys
+host = sys.argv[1]
+port = int(sys.argv[2])
+s = socket.socket(socket.AF_INET if ":" not in host else socket.AF_INET6, socket.SOCK_STREAM)
+try:
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind((host, port))
+    sys.exit(0)
+except Exception:
+    sys.exit(1)
+finally:
+    s.close()
+' "${HOST}" "${PORT}" 2>/dev/null; then
+                    break
+                fi
+                sleep 0.2
+                port_waited=$((port_waited + 1))
+            done
         fi
 
         return 1
@@ -532,15 +565,21 @@ case "${1:-}" in
     logs)
         show_logs
         ;;
+    migrate-v2)
+        stop_app || exit 1
+        shift
+        (cd "${APP_DIR}" && "${PYTHON_BIN}" -m tools.migrate_v2 apply --offline "$@")
+        ;;
     *)
-        echo "Использование: $0 {start|stop|restart|status|logs}"
+        echo "Использование: $0 {start|stop|restart|status|logs|migrate-v2}"
         echo ""
         echo "Команды:"
-        echo "  start    - запустить приложение в фоновом режиме"
-        echo "  stop     - остановить приложение"
-        echo "  restart  - перезапустить приложение"
-        echo "  status   - проверить статус работы"
-        echo "  logs     - показать последние записи логов"
+        echo "  start       - запустить приложение в фоновом режиме"
+        echo "  stop        - остановить приложение"
+        echo "  restart     - перезапустить приложение"
+        echo "  status      - проверить статус работы"
+        echo "  logs        - показать последние записи логов"
+        echo "  migrate-v2  - применить миграцию на схему SQLite v2 в оффлайн-режиме"
         exit 1
         ;;
 esac

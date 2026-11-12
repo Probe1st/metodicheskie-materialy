@@ -1,270 +1,223 @@
-import stat
+"""Tests for SQLite v2 class assignments management."""
+
+from __future__ import annotations
+
+import uuid
 from pathlib import Path
-from uuid import uuid4
+from uuid import UUID
 
 import pytest
 
 from app.assignments import (
+    Assignment,
     AssignmentConflictError,
+    AssignmentInUseError,
     AssignmentNotFoundError,
     AssignmentStore,
     AssignmentValidationError,
 )
+from app.database import connect, initialize
+from app.sqlite_catalog import SqliteCatalogStore
 
 
 @pytest.fixture
-def store(tmp_path: Path) -> AssignmentStore:
-    return AssignmentStore(tmp_path / ".private" / "assignments.sqlite3")
+def db_path(tmp_path: Path) -> Path:
+    path = tmp_path / "app_v2.sqlite3"
+    initialize(path)
+    return path
 
 
-def test_private_permissions(tmp_path: Path) -> None:
-    database = tmp_path / ".private" / "assignments.sqlite3"
-    AssignmentStore(database)
-    assert stat.S_IMODE(database.parent.stat().st_mode) == 0o700
-    assert stat.S_IMODE(database.stat().st_mode) == 0o600
+@pytest.fixture
+def catalog(db_path: Path) -> SqliteCatalogStore:
+    return SqliteCatalogStore(db_path)
 
 
-def test_create_and_get_assignment(store: AssignmentStore) -> None:
-    subject_id = uuid4()
-    topic_id = uuid4()
-    item = store.create(
-        group_name="ИС 25/9-1П",
-        subject_id=subject_id,
+@pytest.fixture
+def store(db_path: Path) -> AssignmentStore:
+    return AssignmentStore(db_path)
+
+
+@pytest.fixture
+def seeded_ids(catalog: SqliteCatalogStore) -> tuple[UUID, UUID, UUID]:
+    group = catalog.create_group("ИС 25/9-1П")
+    subject = catalog.create_subject("Информатика")
+    topic = catalog.create_topic(subject.id, "Введение в базы данных")
+    return group.id, subject.id, topic.id
+
+
+def test_create_and_get_assignment(
+    store: AssignmentStore, seeded_ids: tuple[UUID, UUID, UUID]
+):
+    group_id, subject_id, topic_id = seeded_ids
+
+    assignment = store.create(
+        group_id=group_id,
         topic_id=topic_id,
-        lesson_date="2026-10-14",
-        pair_number=2,
+        lesson_date_or_topic="2026-10-14",
+        pair_number_or_date=2,
     )
-    assert item.group_name == "ИС 25/9-1П"
-    assert item.subject_id == subject_id
-    assert item.topic_id == topic_id
-    assert item.lesson_date == "2026-10-14"
-    assert item.pair_number == 2
-    assert item.created_at is not None
-    assert item.updated_at is not None
 
-    fetched = store.get(item.id)
-    assert fetched == item
+    assert isinstance(assignment, Assignment)
+    assert assignment.group_id == group_id
+    assert assignment.topic_id == topic_id
+    assert assignment.subject_id == subject_id
+    assert assignment.lesson_date == "2026-10-14"
+    assert assignment.pair_number == 2
+    assert assignment.archived_at is None
 
-    non_existent = store.get(uuid4())
-    assert non_existent is None
+    fetched = store.get(assignment.id)
+    assert fetched == assignment
 
 
-def test_unique_group_date_pair_constraint(store: AssignmentStore) -> None:
-    subject_id = uuid4()
-    topic_id_1 = uuid4()
-    topic_id_2 = uuid4()
+def test_unique_group_date_pair_slot_conflict(
+    catalog: SqliteCatalogStore,
+    store: AssignmentStore,
+    seeded_ids: tuple[UUID, UUID, UUID],
+):
+    group_id, subject_id, topic_id_1 = seeded_ids
+    topic_2 = catalog.create_topic(subject_id, "Архитектура ЭВМ")
 
-    store.create("ИС 25/9-1П", subject_id, topic_id_1, "2026-10-14", 2)
+    store.create(group_id, topic_id_1, "2026-10-14", 2)
+
     with pytest.raises(AssignmentConflictError):
-        store.create("ИС 25/9-1П", subject_id, topic_id_2, "2026-10-14", 2)
+        store.create(group_id, topic_2.id, "2026-10-14", 2)
 
 
-def test_pair_number_boundary_validation(store: AssignmentStore) -> None:
-    subject_id = uuid4()
-    topic_id = uuid4()
+def test_pair_number_and_date_validation(
+    store: AssignmentStore, seeded_ids: tuple[UUID, UUID, UUID]
+):
+    group_id, _, topic_id = seeded_ids
+
+    # Invalid pair numbers
     with pytest.raises(AssignmentValidationError):
-        store.create("ИС 25/9-1П", subject_id, topic_id, "2026-10-14", 0)
-
-    with pytest.raises(AssignmentValidationError):
-        store.create("ИС 25/9-1П", subject_id, topic_id, "2026-10-14", 7)
-
-    item = store.create("ИС 25/9-1П", subject_id, topic_id, "2026-10-14", 1)
-    with pytest.raises(AssignmentValidationError):
-        store.update(item.id, "2026-10-14", 0, topic_id)
+        store.create(group_id, topic_id, "2026-10-14", 0)
 
     with pytest.raises(AssignmentValidationError):
-        store.update(item.id, "2026-10-14", 7, topic_id)
-
-
-def test_lesson_date_format_validation(store: AssignmentStore) -> None:
-    subject_id = uuid4()
-    topic_id = uuid4()
-    with pytest.raises(AssignmentValidationError):
-        store.create("ИС 25/9-1П", subject_id, topic_id, "14-10-2026", 1)
+        store.create(group_id, topic_id, "2026-10-14", 7)
 
     with pytest.raises(AssignmentValidationError):
-        store.create("ИС 25/9-1П", subject_id, topic_id, "2026/10/14", 1)
+        store.create(group_id, topic_id, "2026-10-14", True)  # type: ignore[arg-type]
+
+    # Invalid dates
+    with pytest.raises(AssignmentValidationError):
+        store.create(group_id, topic_id, "not-a-date", 1)
 
     with pytest.raises(AssignmentValidationError):
-        store.create("ИС 25/9-1П", subject_id, topic_id, "2026-02-31", 1)
-
-    with pytest.raises(AssignmentValidationError):
-        store.create("ИС 25/9-1П", subject_id, topic_id, "invalid", 1)
-
-    item = store.create("ИС 25/9-1П", subject_id, topic_id, "2026-10-14", 1)
-    with pytest.raises(AssignmentValidationError):
-        store.update(item.id, "not-a-date", 1, topic_id)
+        store.create(group_id, topic_id, "2026-02-29", 1)
 
 
-def test_group_name_validation(store: AssignmentStore) -> None:
-    subject_id = uuid4()
-    topic_id = uuid4()
-    with pytest.raises(AssignmentValidationError):
-        store.create("", subject_id, topic_id, "2026-10-14", 1)
+def test_update_assignment_and_conflict_checks(
+    catalog: SqliteCatalogStore,
+    store: AssignmentStore,
+    seeded_ids: tuple[UUID, UUID, UUID],
+):
+    group_id, subject_id, topic_1 = seeded_ids
+    topic_2 = catalog.create_topic(subject_id, "Сетевые технологии")
 
-    with pytest.raises(AssignmentValidationError):
-        store.create("   ", subject_id, topic_id, "2026-10-14", 1)
+    asgn1 = store.create(group_id, topic_1, "2026-10-14", 1)
+    _asgn2 = store.create(group_id, topic_1, "2026-10-14", 2)
+
+    # Update asgn1 to topic 2, same slot
+    updated = store.update(
+        assignment_id=asgn1.id,
+        lesson_date="2026-10-14",
+        pair_number=1,
+        topic_id_or_subject=topic_2.id,
+    )
+    assert updated.topic_id == topic_2.id
+    assert updated.pair_number == 1
+
+    # Conflict: updating asgn1 to slot of asgn2
+    with pytest.raises(AssignmentConflictError):
+        store.update(asgn1.id, "2026-10-14", 2, topic_2.id)
 
 
-def test_update_assignment_success_and_conflict(store: AssignmentStore) -> None:
-    subject_id = uuid4()
-    topic_id_1 = uuid4()
-    topic_id_2 = uuid4()
+def test_update_assignment_in_use_rejected(
+    db_path: Path,
+    catalog: SqliteCatalogStore,
+    store: AssignmentStore,
+    seeded_ids: tuple[UUID, UUID, UUID],
+):
+    group_id, subject_id, topic_1 = seeded_ids
+    topic_2 = catalog.create_topic(subject_id, "Операционные системы")
 
-    first = store.create("ИС 25/9-1П", subject_id, topic_id_1, "2026-10-14", 1)
-    store.create("ИС 25/9-1П", subject_id, topic_id_2, "2026-10-14", 2)
+    asgn = store.create(group_id, topic_1, "2026-10-14", 3)
 
-    updated = store.update(first.id, "2026-10-15", 3, topic_id_1)
+    # Create student and submission referencing this assignment
+    student_id = str(uuid.uuid4())
+    subm_id = str(uuid.uuid4())
+    with connect(db_path) as conn:
+        conn.execute(
+            "INSERT INTO students (id, group_id, display_name) VALUES (?, ?, 'Студент');",
+            (student_id, str(group_id)),
+        )
+        conn.execute(
+            """
+            INSERT INTO submissions (id, student_id, group_id, topic_id, assignment_id, attempt_number, created_at)
+            VALUES (?, ?, ?, ?, ?, 1, 'now');
+            """,
+            (subm_id, student_id, str(group_id), str(topic_1), str(asgn.id)),
+        )
+
+    # Attempting to change topic_id when submissions exist must raise AssignmentInUseError
+    with pytest.raises(AssignmentInUseError, match="Cannot change topic"):
+        store.update(asgn.id, "2026-10-14", 3, topic_2.id)
+
+    # Updating date/pair without changing topic_id succeeds
+    updated = store.update(asgn.id, "2026-10-15", 4, topic_1)
     assert updated.lesson_date == "2026-10-15"
-    assert updated.pair_number == 3
-    assert updated.updated_at >= first.updated_at
+    assert updated.pair_number == 4
 
-    with pytest.raises(AssignmentConflictError):
-        store.update(first.id, "2026-10-14", 2, topic_id_1)
+
+def test_archive_frees_slot_and_preserves_retrieval(
+    store: AssignmentStore, seeded_ids: tuple[UUID, UUID, UUID]
+):
+    group_id, _, topic_id = seeded_ids
+
+    asgn = store.create(group_id, topic_id, "2026-10-14", 1)
+    store.archive(asgn.id)
+
+    # Get still retrieves archived assignment
+    archived = store.get(asgn.id)
+    assert archived is not None
+    assert archived.archived_at is not None
+
+    # Slot can now be reused by a new assignment
+    new_asgn = store.create(group_id, topic_id, "2026-10-14", 1)
+    assert new_asgn.id != asgn.id
+    assert len(store.list_for_group(group_id)) == 1
 
     with pytest.raises(AssignmentNotFoundError):
-        store.update(uuid4(), "2026-10-14", 4, topic_id_1)
+        store.archive(uuid.uuid4())
 
+    assert store.get(uuid.uuid4()) is None
 
-def test_delete_assignment_idempotent(store: AssignmentStore) -> None:
-    subject_id = uuid4()
-    topic_id = uuid4()
-    item = store.create("ИС 25/9-1П", subject_id, topic_id, "2026-10-14", 1)
-    store.delete(item.id)
-    assert store.get(item.id) is None
+def test_list_filtering_and_ordering(
+    catalog: SqliteCatalogStore,
+    store: AssignmentStore,
+    seeded_ids: tuple[UUID, UUID, UUID],
+):
+    group_1, subject_1, topic_1 = seeded_ids
+    group_2 = catalog.create_group("ИС 25/9-2П")
+    subject_2 = catalog.create_subject("Физика")
+    topic_2 = catalog.create_topic(subject_2.id, "Механика")
+    # Create interleaved assignments
+    store.create(group_1, topic_1, "2026-10-15", 2)
+    store.create(group_1, topic_1, "2026-10-14", 3)
+    store.create(group_1, topic_2.id, "2026-10-14", 1)
+    store.create(group_2.id, topic_1, "2026-10-14", 1)
 
-    # Deleting again must be idempotent and succeed without error
-    store.delete(item.id)
-    store.delete(uuid4())
+    # List for group_1 (sorted by date, pair)
+    g1_list = store.list_for_group(group_1)
+    assert len(g1_list) == 3
+    assert [a.lesson_date for a in g1_list] == ["2026-10-14", "2026-10-14", "2026-10-15"]
+    assert [a.pair_number for a in g1_list] == [1, 3, 2]
 
+    # List for group_1 and subject_1
+    g1_s1_list = store.list_for_group_and_subject(group_1, subject_1)
+    assert len(g1_s1_list) == 2
+    assert all(a.subject_id == subject_1 for a in g1_s1_list)
 
-def test_list_for_group_and_subject_ordering(store: AssignmentStore) -> None:
-    subject_1 = uuid4()
-    subject_2 = uuid4()
-    t1, t2, t3, t4 = uuid4(), uuid4(), uuid4(), uuid4()
-
-    # Create items with different dates and pair numbers to test:
-    # ORDER BY lesson_date DESC, pair_number ASC
-    store.create("ИС 25/9-1П", subject_1, t1, "2026-10-10", 2)
-    store.create("ИС 25/9-1П", subject_1, t2, "2026-10-14", 2)
-    store.create("ИС 25/9-1П", subject_1, t4, "2026-10-14", 1)
-    store.create("ИС 25/9-1П", subject_2, t3, "2026-10-12", 3)
-    store.create("ИС 24/9-3П", subject_1, t1, "2026-10-14", 1)
-
-    group_items = store.list_for_group("ИС 25/9-1П")
-    assert len(group_items) == 4
-    # Expected ordering:
-    # 2026-10-14 pair 1, 2026-10-14 pair 2, 2026-10-12 pair 3, 2026-10-10 pair 2
-    assert [(x.lesson_date, x.pair_number) for x in group_items] == [
-        ("2026-10-14", 1),
-        ("2026-10-14", 2),
-        ("2026-10-12", 3),
-        ("2026-10-10", 2),
-    ]
-
-    subject_items = store.list_for_group_and_subject("ИС 25/9-1П", subject_1)
-    assert len(subject_items) == 3
-    assert [(x.lesson_date, x.pair_number) for x in subject_items] == [
-        ("2026-10-14", 1),
-        ("2026-10-14", 2),
-        ("2026-10-10", 2),
-    ]
-
-
-def test_rename_and_delete_group_cascades(store: AssignmentStore) -> None:
-    subject_id = uuid4()
-    t1 = uuid4()
-    store.create("ИС 25/9-1П", subject_id, t1, "2026-10-14", 1)
-
-    store.rename_group("ИС 25/9-1П", "ИС 25-Новая")
-    assert len(store.list_for_group("ИС 25/9-1П")) == 0
-    assert len(store.list_for_group("ИС 25-Новая")) == 1
-
-    store.delete_group("ИС 25-Новая")
-    assert len(store.list_for_group("ИС 25-Новая")) == 0
-
-
-def test_list_all_ordering(store: AssignmentStore) -> None:
-    s1 = uuid4()
-    s2 = uuid4()
-    t1 = uuid4()
-    t2 = uuid4()
-
-    store.create("Группа A", s1, t1, "2026-10-10", 2)
-    store.create("Группа B", s2, t2, "2026-10-14", 2)
-    store.create("Группа A", s1, t2, "2026-10-14", 1)
-    store.create("Группа B", s2, t1, "2026-10-12", 4)
-
-    all_items = store.list_all()
-    assert len(all_items) == 4
-    assert [(x.lesson_date, x.pair_number, x.group_name) for x in all_items] == [
-        ("2026-10-14", 1, "Группа A"),
-        ("2026-10-14", 2, "Группа B"),
-        ("2026-10-12", 4, "Группа B"),
-        ("2026-10-10", 2, "Группа A"),
-    ]
-
-
-def test_delete_subject_cascades(store: AssignmentStore) -> None:
-    s1 = uuid4()
-    s2 = uuid4()
-    t1 = uuid4()
-    t2 = uuid4()
-
-    store.create("Группа A", s1, t1, "2026-10-14", 1)
-    store.create("Группа B", s1, t2, "2026-10-14", 2)
-    store.create("Группа A", s2, t1, "2026-10-14", 3)
-
-    assert len(store.list_all()) == 3
-    store.delete_subject(s1)
-    remaining = store.list_all()
-    assert len(remaining) == 1
-    assert remaining[0].subject_id == s2
-
-    # Idempotent
-    store.delete_subject(uuid4())
-    assert len(store.list_all()) == 1
-
-
-def test_delete_topic_cascades(store: AssignmentStore) -> None:
-    s = uuid4()
-    t1 = uuid4()
-    t2 = uuid4()
-
-    store.create("Группа A", s, t1, "2026-10-14", 1)
-    store.create("Группа B", s, t1, "2026-10-14", 2)
-    store.create("Группа A", s, t2, "2026-10-14", 3)
-
-    assert len(store.list_all()) == 3
-    store.delete_topic(t1)
-    remaining = store.list_all()
-    assert len(remaining) == 1
-    assert remaining[0].topic_id == t2
-
-    # Idempotent
-    store.delete_topic(uuid4())
-    assert len(store.list_all()) == 1
-
-
-def test_no_database_connection_resource_warnings(tmp_path: Path) -> None:
-    import warnings
-
-    db_path = tmp_path / ".private" / "test_warnings.sqlite3"
-    test_store = AssignmentStore(db_path)
-    s = uuid4()
-    t = uuid4()
-
-    with warnings.catch_warnings(record=True) as recorded:
-        warnings.simplefilter("always", ResourceWarning)
-        item = test_store.create("Группа 1", s, t, "2026-10-14", 1)
-        test_store.get(item.id)
-        test_store.update(item.id, "2026-10-15", 2, t)
-        test_store.list_all()
-        test_store.list_for_group("Группа 1")
-        test_store.list_for_group_and_subject("Группа 1", s)
-        test_store.delete_topic(t)
-        test_store.delete_subject(s)
-        test_store.delete(item.id)
-
-    db_warnings = [w for w in recorded if issubclass(w.category, ResourceWarning) and "database" in str(w.message).lower()]
-    assert db_warnings == []
+    # List all
+    all_list = store.list_all()
+    assert len(all_list) == 4

@@ -96,19 +96,19 @@ function makeRow(kind, item) {
   const deleteButton = document.createElement('button');
   deleteButton.className = 'button button--danger';
   deleteButton.type = 'button';
-  deleteButton.textContent = 'Удалить';
+  deleteButton.textContent = 'Архивировать';
 
   if (kind === 'subjects' && item.id === catalogList.dataset.unassignedId) {
     toggleEditButton.disabled = true;
     toggleEditButton.title = 'Системный предмет нельзя изменить';
 
     deleteButton.disabled = true;
-    deleteButton.title = 'Системный предмет нельзя удалить';
+    deleteButton.title = 'Системный предмет нельзя архивировать';
 
     const specialNotice = document.createElement('p');
     specialNotice.className = 'field__hint';
     specialNotice.style.color = 'var(--color-warning)';
-    specialNotice.textContent = 'Системный предмет для тем, ожидающих распределения. Его нельзя переименовать или удалить.';
+    specialNotice.textContent = 'Системный предмет для тем, ожидающих распределения. Его нельзя переименовать или архивировать.';
     titleWrap.append(specialNotice);
 
     headingActions.append(toggleEditButton, deleteButton);
@@ -118,7 +118,7 @@ function makeRow(kind, item) {
   }
 
   toggleEditButton.dataset.toggleEdit = '';
-  deleteButton.dataset.delete = '';
+  deleteButton.dataset.archive = '';
   headingActions.append(toggleEditButton, deleteButton);
   heading.append(headingActions);
   const form = document.createElement('form');
@@ -345,23 +345,23 @@ if (catalogList) {
       return;
     }
 
-    const button = event.target.closest('[data-delete]');
+    const button = event.target.closest('[data-archive]') || event.target.closest('[data-delete]');
     if (!button) return;
     const row = button.closest('[data-catalog-item]');
     const name = row.dataset.name;
-    if (!window.confirm(`Удалить «${name}»? Это действие нельзя отменить.`)) return;
+    if (!window.confirm(`Архивировать «${name}»?`)) return;
 
     const status = row.querySelector('.catalog-status');
     const form = row.querySelector('[data-catalog-rename]');
     const controls = [...(form ? form.querySelectorAll('button, input, select') : []), ...row.querySelectorAll('button')];
     controls.forEach((control) => { control.disabled = true; });
-    showStatus(status, 'working', 'Удаление…');
+    showStatus(status, 'working', 'Архивация…');
     const headers = { 'Accept': 'application/json' };
     const csrfToken = getCsrfToken();
     if (csrfToken) headers['X-CSRFToken'] = csrfToken;
 
     try {
-      const response = await fetch(`/admin/${encodeURIComponent(row.dataset.kind)}/${encodeURIComponent(row.dataset.id)}/delete`, { method: 'POST', headers });
+      const response = await fetch(`/admin/${encodeURIComponent(row.dataset.kind)}/${encodeURIComponent(row.dataset.id)}/archive`, { method: 'POST', headers });
       if (!response.ok) {
         showStatus(status, 'error', await errorMessage(response));
         return;

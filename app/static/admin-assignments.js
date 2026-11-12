@@ -135,7 +135,7 @@ function getCsrfToken() {
 
   document.querySelectorAll('.assignment-card').forEach((card) => {
     const editBtn = card.querySelector('[data-action="edit"]');
-    const deleteBtn = card.querySelector('[data-action="delete"]');
+    const archiveBtn = card.querySelector('[data-action="archive"]') || card.querySelector('[data-action="delete"]');
     const cancelBtn = card.querySelector('[data-action="cancel"]');
     const editForm = card.querySelector('.assignment-edit-form');
     const editStatus = card.querySelector('.edit-status');
@@ -247,17 +247,17 @@ function getCsrfToken() {
       });
     }
 
-    if (deleteBtn) {
-      deleteBtn.addEventListener('click', async () => {
+    if (archiveBtn) {
+      archiveBtn.addEventListener('click', async () => {
         const topicTitle = card.querySelector('h3')?.textContent || '';
-        if (!confirm(`Удалить занятие «${topicTitle}»?`)) return;
+        if (!confirm(`Архивировать занятие «${topicTitle}»?`)) return;
 
         const headers = { 'Accept': 'application/json' };
         const csrfToken = getCsrfToken();
         if (csrfToken) headers['X-CSRFToken'] = csrfToken;
 
         try {
-          const res = await fetch(`/admin/assignments/${cardId}/delete`, {
+          const res = await fetch(`/admin/assignments/${cardId}/archive`, {
             method: 'POST',
             headers,
           });
@@ -284,7 +284,7 @@ function getCsrfToken() {
             }
           }
         } catch (err) {
-          alert(err.message || 'Не удалось удалить занятие.');
+          alert(err.message || 'Не удалось архивировать занятие.');
         }
       });
     }
