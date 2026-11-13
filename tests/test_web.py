@@ -463,7 +463,7 @@ def test_secret_key_validation_invalid_values_fail_closed(tmp_path: Path, invali
     if invalid_key is not None:
         cfg["SECRET_KEY"] = invalid_key
 
-    with pytest.raises(RuntimeError) as exc_info:
+    with pytest.raises((RuntimeError, TypeError)) as exc_info:
         create_app(cfg)
 
     msg = str(exc_info.value)

@@ -1,15 +1,17 @@
 CREATE TABLE groups (
  id TEXT NOT NULL PRIMARY KEY, name TEXT NOT NULL,
- name_key TEXT NOT NULL UNIQUE, archived_at TEXT
+ name_key TEXT NOT NULL, archived_at TEXT
 );
+CREATE UNIQUE INDEX idx_groups_active_name ON groups(name_key) WHERE archived_at IS NULL;
 CREATE TABLE subjects (
  id TEXT NOT NULL PRIMARY KEY, name TEXT NOT NULL,
- name_key TEXT NOT NULL UNIQUE,
+ name_key TEXT NOT NULL,
  is_system INTEGER NOT NULL DEFAULT 0 CHECK(is_system IN (0,1)),
  archived_at TEXT,
  CHECK(is_system=0 OR archived_at IS NULL)
 );
 CREATE UNIQUE INDEX one_system_subject ON subjects(is_system) WHERE is_system=1;
+CREATE UNIQUE INDEX idx_subjects_active_name ON subjects(name_key) WHERE archived_at IS NULL;
 CREATE TABLE topics (
  id TEXT NOT NULL PRIMARY KEY,
  subject_id TEXT NOT NULL REFERENCES subjects(id) ON DELETE RESTRICT ON UPDATE RESTRICT,

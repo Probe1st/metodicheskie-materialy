@@ -103,6 +103,7 @@ class AccessStore:
         iso_closes_at = utc_closes_at.isoformat() if utc_closes_at else None
 
         with connect(self.db_path) as conn:
+            conn.execute("BEGIN IMMEDIATE;")
             row = conn.execute(
                 "SELECT password_hash, version FROM group_access WHERE group_id = ?;",
                 (str(u),),
@@ -117,22 +118,22 @@ class AccessStore:
             else:
                 new_hash = generate_password_hash(actual_password)
 
-            new_version = int(row["version"]) + 1
-            conn.execute(
+            cur = conn.execute(
                 """
                 UPDATE group_access
-                SET is_open = ?, password_hash = ?, closes_at_utc = ?, version = ?
-                WHERE group_id = ?;
+                SET is_open = ?, password_hash = ?, closes_at_utc = ?, version = version + 1
+                WHERE group_id = ?
+                RETURNING version;
                 """,
                 (
                     1 if actual_is_open else 0,
                     new_hash,
                     iso_closes_at,
-                    new_version,
                     str(u),
                 ),
             )
-
+            ret_row = cur.fetchone()
+            new_version = int(ret_row["version"]) if ret_row else int(row["version"]) + 1
         return GroupAccess(
             group_id=u,
             is_open=actual_is_open,

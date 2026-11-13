@@ -23,7 +23,7 @@ def normalize_upload_extensions(value: str | Collection[str]) -> frozenset[str]:
     elif isinstance(value, Collection):
         items = list(value)
     else:
-        raise RuntimeError("Invalid upload extension configuration")
+        raise TypeError("Invalid upload extension configuration")
 
     if not items:
         raise RuntimeError("Invalid upload extension configuration")
@@ -31,7 +31,7 @@ def normalize_upload_extensions(value: str | Collection[str]) -> frozenset[str]:
     result: set[str] = set()
     for raw_item in items:
         if not isinstance(raw_item, str):
-            raise RuntimeError("Invalid upload extension configuration")
+            raise TypeError("Invalid upload extension configuration")
         if not raw_item or not raw_item.strip():
             raise RuntimeError("Invalid upload extension configuration")
         if any(unicodedata.category(c).startswith("C") for c in raw_item):
@@ -57,7 +57,7 @@ def validated_upload_suffix(
     allowed_extensions: Collection[str] = DEFAULT_ALLOWED_UPLOAD_EXTENSIONS,
 ) -> str:
     if not isinstance(filename, str):
-        raise ValueError("file extension is not allowed")
+        raise TypeError("file extension is not allowed")
 
     cleaned = filename.replace("\\", "/").rstrip("/")
     basename = cleaned.rsplit("/", 1)[-1] if "/" in cleaned else cleaned

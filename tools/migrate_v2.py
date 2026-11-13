@@ -25,6 +25,8 @@ from app.database import (
     initialize,
     normalize_name_key,
     validate,
+    validate_lesson_date,
+    validate_pair_number,
 )
 from tools.legacy_catalog import (
     LegacyCatalogData,
@@ -245,10 +247,27 @@ def resolve_file_location(
 
     # Build clean name maps
     clean_groups = {clean_path_component(g.name): g.id for g in catalog.groups}
+    clean_subjects = {clean_path_component(s.name): s.id for s in catalog.subjects}
     clean_topics_by_name = {clean_path_component(t.name): t.id for t in catalog.topics}
 
     # 2. Hierarchical: storage / group / subject / topic / file
-    if len(dir_parts) >= 3:
+    if len(dir_parts) == 3:
+        grp_name = clean_path_component(dir_parts[0])
+        subj_name = clean_path_component(dir_parts[1])
+        topic_name = clean_path_component(dir_parts[2])
+        if grp_name in clean_groups and subj_name in clean_subjects:
+            gid = clean_groups[grp_name]
+            sid = clean_subjects[subj_name]
+            matching_topics = [
+                t for t in catalog.topics
+                if clean_path_component(t.name) == topic_name and t.subject_id == sid
+            ]
+            if len(matching_topics) == 1:
+                return gid, matching_topics[0].id
+            return None, None
+        return None, None
+
+    if len(dir_parts) > 3:
         grp_name = clean_path_component(dir_parts[0])
         topic_name = clean_path_component(dir_parts[-1])
         if grp_name in clean_groups and topic_name in clean_topics_by_name:
@@ -260,7 +279,6 @@ def resolve_file_location(
         topic_name = clean_path_component(dir_parts[1])
         if grp_name in clean_groups and topic_name in clean_topics_by_name:
             return clean_groups[grp_name], clean_topics_by_name[topic_name]
-
     # 4. Flat legacy layout: storage / clean_group-clean_subject-clean_work / file
     if len(dir_parts) == 1:
         dname = dir_parts[0]
@@ -545,49 +563,127 @@ def apply_migration(
     if mapping.get("version") != 1:
         raise ValueError(f"Unsupported mapping version: {mapping.get('version')}")
 
+    allowed_mapping_keys = {
+        "version",
+        "generated_at",
+        "entities",
+        "legacy_groups",
+        "students",
+        "files",
+        "catalog_overrides",
+        "assignments",
+        "issues",
+    }
+    unknown_top_keys = set(mapping.keys()) - allowed_mapping_keys
+    if unknown_top_keys:
+        raise ValueError(f"Unknown top-level key(s) in mapping.json: {unknown_top_keys}")
+
+    allowed_file_keys = {
+        "student_id",
+        "group_id",
+        "topic_id",
+        "attempt_number",
+        "assignment_id",
+        "non_submission_reason",
+    }
+    mapping_files = mapping.get("files", {})
+    for fpath, finfo in mapping_files.items():
+        if not isinstance(finfo, dict):
+            raise TypeError(f"File mapping entry for {fpath!r} must be an object")
+        unknown_file_keys = set(finfo.keys()) - allowed_file_keys
+        if unknown_file_keys:
+            raise ValueError(f"Unknown file key(s) in mapping for {fpath!r}: {unknown_file_keys}")
+        if "non_submission_reason" in finfo:
+            reason = finfo["non_submission_reason"]
+            if not isinstance(reason, str) or not reason.strip():
+                raise ValueError(f"File {fpath!r} has invalid non_submission_reason: must be non-empty string")
+            if finfo.get("student_id") is not None:
+                raise ValueError(f"File {fpath!r} with non_submission_reason cannot have submission fields")
+
     legacy_backup_db = run_dir / "access.sqlite3"
     legacy_has_db = legacy_backup_db.is_file()
 
     with staging_conn:
+        parsed_cat = parse_legacy_catalog(catalog_path)
         entities = mapping.get("entities", {})
-        groups = entities.get("groups", [])
-        subjects = entities.get("subjects", [])
-        topics = entities.get("topics", [])
+
+        groups_map: dict[str, dict[str, Any]] = {
+            str(g.id): {"id": str(g.id), "name": g.name, "archived_at": None}
+            for g in parsed_cat.groups
+        }
+        for g in entities.get("groups", []):
+            gid = str(UUID(str(g["id"])))
+            groups_map[gid] = {
+                "id": gid,
+                "name": str(g["name"]).strip(),
+                "archived_at": g.get("archived_at"),
+            }
+        groups = list(groups_map.values())
+
+        subjects_map: dict[str, dict[str, Any]] = {
+            str(s.id): {"id": str(s.id), "name": s.name, "is_system": 1 if s.is_system else 0, "archived_at": None}
+            for s in parsed_cat.subjects
+        }
+        for s in entities.get("subjects", []):
+            sid = str(UUID(str(s["id"])))
+            subjects_map[sid] = {
+                "id": sid,
+                "name": str(s["name"]).strip(),
+                "is_system": 1 if s.get("is_system") else 0,
+                "archived_at": s.get("archived_at"),
+            }
+        subjects = list(subjects_map.values())
+
+        topics_map: dict[str, dict[str, Any]] = {
+            str(t.id): {"id": str(t.id), "name": t.name, "subject_id": str(t.subject_id), "archived_at": None}
+            for t in parsed_cat.topics
+        }
+        for t in entities.get("topics", []):
+            tid = str(UUID(str(t["id"])))
+            topics_map[tid] = {
+                "id": tid,
+                "name": str(t["name"]).strip(),
+                "subject_id": str(UUID(str(t["subject_id"]))),
+                "archived_at": t.get("archived_at"),
+            }
+        topics = list(topics_map.values())
 
         for g in groups:
-            gid = str(UUID(str(g["id"])))
-            gname = str(g["name"]).strip()
+            gid = g["id"]
+            gname = g["name"]
+            archived_at = g.get("archived_at")
             staging_conn.execute(
-                "INSERT INTO groups (id, name, name_key, archived_at) VALUES (?, ?, ?, NULL)",
-                (gid, gname, normalize_name_key(gname)),
+                "INSERT INTO groups (id, name, name_key, archived_at) VALUES (?, ?, ?, ?)",
+                (gid, gname, normalize_name_key(gname), archived_at),
             )
 
         for s in subjects:
-            sid = str(UUID(str(s["id"])))
-            sname = str(s["name"]).strip()
-            is_sys = 1 if s.get("is_system") else 0
+            sid = s["id"]
+            sname = s["name"]
+            is_sys = s.get("is_system", 0)
+            archived_at = s.get("archived_at")
             staging_conn.execute(
-                "INSERT INTO subjects (id, name, name_key, is_system, archived_at) VALUES (?, ?, ?, ?, NULL)",
-                (sid, sname, normalize_name_key(sname), is_sys),
+                "INSERT INTO subjects (id, name, name_key, is_system, archived_at) VALUES (?, ?, ?, ?, ?)",
+                (sid, sname, normalize_name_key(sname), is_sys, archived_at),
             )
 
         for t in topics:
-            tid = str(UUID(str(t["id"])))
-            tname = str(t["name"]).strip()
-            tsub_id = str(UUID(str(t["subject_id"])))
+            tid = t["id"]
+            tname = t["name"]
+            tsub_id = t["subject_id"]
+            archived_at = t.get("archived_at")
             staging_conn.execute(
-                "INSERT INTO topics (id, subject_id, name, name_key, archived_at) VALUES (?, ?, ?, ?, NULL)",
-                (tid, tsub_id, tname, normalize_name_key(tname)),
+                "INSERT INTO topics (id, subject_id, name, name_key, archived_at) VALUES (?, ?, ?, ?, ?)",
+                (tid, tsub_id, tname, normalize_name_key(tname), archived_at),
             )
 
         imported_groups_access = set()
-        name_to_gid = {normalize_name_key(g["name"]): str(UUID(str(g["id"]))) for g in groups}
+        name_to_gid = {normalize_name_key(g["name"]): g["id"] for g in groups}
         legacy_groups_map = {
             normalize_name_key(k): str(UUID(str(v)))
             for k, v in mapping.get("legacy_groups", {}).items()
         }
         name_to_gid.update(legacy_groups_map)
-
         if legacy_has_db:
             legacy_conn = sqlite3.connect(legacy_backup_db)
             legacy_conn.row_factory = sqlite3.Row
@@ -638,6 +734,8 @@ def apply_migration(
                         if not gid:
                             continue
                     tid = str(UUID(str(row["topic_id"])))
+                    lesson_date = validate_lesson_date(row["lesson_date"])
+                    pair_number = validate_pair_number(row["pair_number"])
                     created_at = row["created_at"]
                     updated_at = row["updated_at"]
                     staging_conn.execute(
@@ -645,7 +743,7 @@ def apply_migration(
                         INSERT INTO class_assignments (id, group_id, topic_id, lesson_date, pair_number, created_at, updated_at, archived_at)
                         VALUES (?, ?, ?, ?, ?, ?, ?, NULL)
                         """,
-                        (aid, gid, tid, row["lesson_date"], row["pair_number"], created_at, updated_at),
+                        (aid, gid, tid, lesson_date, pair_number, created_at, updated_at),
                     )
             legacy_conn.close()
 

@@ -174,12 +174,12 @@ def _parse_v2(data: dict) -> LegacyCatalogData:
     for t in data.get("topics", []):
         if isinstance(t, dict):
             name = str(t.get("name", "")).strip()
-            tid = UUID(str(t["id"])) if "id" in t else deterministic_uuid("topic", normalize_name_key(name))
             sub_id = UUID(str(t["subject_id"])) if "subject_id" in t else unassigned_subject_id
+            tid = UUID(str(t["id"])) if "id" in t else deterministic_uuid("topic", f"{sub_id}:{normalize_name_key(name)}")
         else:
             name = str(t).strip()
-            tid = deterministic_uuid("topic", normalize_name_key(name))
             sub_id = unassigned_subject_id
+            tid = deterministic_uuid("topic", f"{sub_id}:{normalize_name_key(name)}")
         if tid not in seen_topics:
             seen_topics.add(tid)
             topics.append(LegacyTopic(id=tid, name=name, subject_id=sub_id))
@@ -231,12 +231,11 @@ def _parse_v1(data: dict) -> LegacyCatalogData:
                     tid = (
                         UUID(str(t["id"]))
                         if isinstance(t, dict) and "id" in t
-                        else deterministic_uuid("topic", normalize_name_key(tname))
+                        else deterministic_uuid("topic", f"{sid}:{normalize_name_key(tname)}")
                     )
                     if tid not in seen_topics:
                         seen_topics.add(tid)
                         topics.append(LegacyTopic(id=tid, name=tname, subject_id=sid))
-
     if unassigned_subject_id is None:
         unassigned_subject_id = deterministic_uuid("subject", "без предмета")
         subjects.append(LegacySubject(id=unassigned_subject_id, name="Без предмета", is_system=True))

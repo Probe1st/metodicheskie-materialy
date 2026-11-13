@@ -97,7 +97,7 @@ def test_normalize_upload_extensions_valid_collections() -> None:
     ],
 )
 def test_normalize_upload_extensions_invalid(invalid_input) -> None:
-    with pytest.raises(RuntimeError, match="Invalid upload extension configuration"):
+    with pytest.raises((RuntimeError, TypeError), match="Invalid upload extension configuration"):
         normalize_upload_extensions(invalid_input)
 
 

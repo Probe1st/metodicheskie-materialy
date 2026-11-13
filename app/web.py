@@ -8,6 +8,7 @@ import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import UUID
+
 from flask import (
     Flask,
     Response,
@@ -81,7 +82,7 @@ def _format_local_input(value: datetime | None) -> str:
 def _validate_secret_key(value: object) -> None:
     error_msg = "SECRET_KEY must be a non-placeholder secret of at least 32 bytes"
     if not isinstance(value, (str, bytes)):
-        raise RuntimeError(error_msg)
+        raise TypeError(error_msg)
 
     if isinstance(value, str):
         stripped = value.strip().casefold()
@@ -756,11 +757,23 @@ def create_app(config=None):
         topic_filter = request.args.get("topic_id", "").strip() or None
 
         try:
+            for key, val in request.args.items():
+                sval = val.strip()
+                if not sval:
+                    continue
+                if key in ("group_id", "topic_id", "student_id", "assignment_id") or key.endswith("_id"):
+                    UUID(sval)
+                elif key == "attempt_number" and int(sval) < 1:
+                    abort(400)
+                elif "date" in key:
+                    datetime.fromisoformat(sval)
+                elif key == "status" and sval not in ("pending", "reviewed", "all"):
+                    abort(400)
+
             group_uuid = UUID(group_filter) if group_filter else None
             topic_uuid = UUID(topic_filter) if topic_filter else None
         except (ValueError, TypeError):
             abort(400)
-
         submissions = submission_store.list_submissions(
             group_id=group_uuid, topic_id=topic_uuid
         )
