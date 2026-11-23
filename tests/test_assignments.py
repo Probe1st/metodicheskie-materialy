@@ -268,3 +268,53 @@ def test_no_database_connection_resource_warnings(tmp_path: Path) -> None:
 
     db_warnings = [w for w in recorded if issubclass(w.category, ResourceWarning) and "database" in str(w.message).lower()]
     assert db_warnings == []
+
+def test_reassign_subject_for_topics(store: AssignmentStore) -> None:
+    sub_old = uuid4()
+    sub_new = uuid4()
+    sub_other = uuid4()
+
+    t1 = uuid4()
+    t2 = uuid4()
+    t_untouched = uuid4()
+
+    # Create assignments:
+    # a1 for t1, a2 for t2, a3 for t1, a_other for t_untouched
+    a1 = store.create("Группа 1", sub_old, t1, "2026-10-14", 1)
+    a2 = store.create("Группа 1", sub_old, t2, "2026-10-14", 2)
+    a3 = store.create("Группа 2", sub_old, t1, "2026-10-15", 1)
+    a_other = store.create("Группа 1", sub_other, t_untouched, "2026-10-14", 3)
+
+    # 1. Empty topic_ids returns 0
+    assert store.reassign_subject_for_topics([], sub_new) == 0
+
+    # 2. Rollback with external conn
+    with store.connect() as conn:
+        count = store.reassign_subject_for_topics([t1], sub_new, conn=conn)
+        assert count == 2
+        conn.rollback()
+
+    assert store.get(a1.id).subject_id == sub_old
+    assert store.get(a3.id).subject_id == sub_old
+
+    # 3. Successful mass reassign
+    updated_count = store.reassign_subject_for_topics([t1, t2], sub_new)
+    assert updated_count == 3
+
+    # Verify reassigned
+    res_a1 = store.get(a1.id)
+    res_a2 = store.get(a2.id)
+    res_a3 = store.get(a3.id)
+    assert res_a1.subject_id == sub_new
+    assert res_a2.subject_id == sub_new
+    assert res_a3.subject_id == sub_new
+    # Group, date, pair, topic_id untouched
+    assert res_a1.group_name == "Группа 1"
+    assert res_a1.lesson_date == "2026-10-14"
+    assert res_a1.pair_number == 1
+    assert res_a1.topic_id == t1
+
+    # Verify untouched
+    res_other = store.get(a_other.id)
+    assert res_other.subject_id == sub_other
+    assert res_other.topic_id == t_untouched
