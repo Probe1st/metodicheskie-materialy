@@ -139,19 +139,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function clearCopiedAttachmentForChangedTopic() {
+    if (currentAttachment?.source !== 'topic' || currentAttachment.topicId === topicSelect?.value) {
+      return;
+    }
+    currentAttachment = null;
+    attachmentIdInput.value = '';
+    removeAttachmentInput.value = '0';
+    updateAttachmentUI();
+    if (copyNotice) {
+      copyNotice.textContent = 'Вложение скопированного задания сброшено при смене темы.';
+    }
+  }
+
   if (topicSelect) {
     topicSelect.addEventListener('change', () => {
       markDirty();
-      if (currentAttachment?.source === 'topic' && currentAttachment.topicId !== topicSelect.value) {
-        currentAttachment = null;
-        attachmentIdInput.value = '';
-        removeAttachmentInput.value = '0';
-        if (fileInput) fileInput.value = '';
-        updateAttachmentUI();
-        if (copyNotice) {
-          copyNotice.textContent = 'Вложение скопированного задания сброшено при смене темы.';
-        }
-      }
+      clearCopiedAttachmentForChangedTopic();
     });
   }
 
@@ -159,6 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
     subjectSelect.addEventListener('change', () => {
       markDirty();
       filterTopics();
+      clearCopiedAttachmentForChangedTopic();
     });
     filterTopics();
   }

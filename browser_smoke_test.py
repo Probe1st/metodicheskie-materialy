@@ -218,7 +218,11 @@ async def run_smoke_test():
             assert copied_attachment_id
             download_link = admin_page.locator("#download_attachment_link")
             assert await download_link.is_visible()
-            assert (await download_link.get_attribute("href")).endswith(copied_attachment_id)
+            download_href = await download_link.get_attribute("href")
+            assert download_href.endswith(copied_attachment_id)
+            download_response = await admin_page.request.get(f"{base_url}{download_href}")
+            assert download_response.status == 200
+            assert await download_response.body() == template_file.read_bytes()
 
             replacement_file = temp_parent / "replacement.pdf"
             replacement_file.write_bytes(b"replacement attachment")
@@ -241,16 +245,34 @@ async def run_smoke_test():
             assert await admin_page.locator("#task_description").input_value() == unsaved_description
 
             topic_options = admin_page.locator("#topic_select option:not(:disabled)")
-            if await topic_options.count() > 1:
-                original_topic_id = await admin_page.locator("#topic_select").input_value()
-                alternate_topic_id = await topic_options.nth(1).get_attribute("value")
-                if alternate_topic_id != original_topic_id:
-                    await admin_page.locator("#topic_select").select_option(alternate_topic_id)
-                    assert await attachment_id_input.input_value() == ""
-                    await admin_page.locator("#topic_select").select_option(original_topic_id)
-                    await copy_topic_button.click()
-                    await admin_page.locator("#app_dialog_accept").click()
-                    await admin_page.wait_for_function("document.activeElement?.id === 'copy_topic_task_btn'")
+            assert await topic_options.count() > 1, "Need two topics in the selected subject"
+            original_topic_id = await admin_page.locator("#topic_select").input_value()
+            alternate_topic_id = await topic_options.nth(1).get_attribute("value")
+            assert alternate_topic_id != original_topic_id
+            await admin_page.locator("#replace_attachment_btn").click()
+            await admin_page.locator("#task_file_input").set_input_files(str(replacement_file))
+            await admin_page.locator("#topic_select").select_option(alternate_topic_id)
+            assert await attachment_id_input.input_value() == ""
+            assert (await admin_page.locator("#task_file_input").input_value()).endswith("replacement.pdf")
+
+            selected_subject_id = await admin_page.locator("#subject_select").input_value()
+            other_subject_option = admin_page.locator(f'#subject_select option:not([value="{selected_subject_id}"])').first
+            assert await other_subject_option.count() == 1, "Need another subject to verify automatic topic filtering"
+            other_subject_id = await other_subject_option.get_attribute("value")
+            await admin_page.locator("#task_file_input").set_input_files([])
+            await admin_page.locator("#subject_select").select_option(other_subject_id)
+            await admin_page.locator("#subject_select").select_option(selected_subject_id)
+            await copy_topic_button.click()
+            await admin_page.locator("#app_dialog_accept").click()
+            await admin_page.wait_for_function("document.activeElement?.id === 'copy_topic_task_btn'")
+            assert await attachment_id_input.input_value()
+            await admin_page.locator("#subject_select").select_option(other_subject_id)
+            assert await attachment_id_input.input_value() == ""
+            assert not await admin_page.locator("#task_file_input").input_value()
+            await admin_page.locator("#subject_select").select_option(selected_subject_id)
+            await copy_topic_button.click()
+            await admin_page.locator("#app_dialog_accept").click()
+            await admin_page.wait_for_function("document.activeElement?.id === 'copy_topic_task_btn'")
             await admin_page.locator("#task_description").fill("Smoke test assignment")
             await admin_page.locator("#save_btn").click()
             await admin_page.wait_for_load_state("domcontentloaded")
