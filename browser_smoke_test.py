@@ -162,6 +162,7 @@ async def run_smoke_test():
 
             # 4. Delete it (bodyless delete)
             await renamed_row.locator("[data-delete]").click()
+            await admin_page.locator("#app_dialog_accept").click()
             await renamed_row.wait_for(state="detached", timeout=5000)
             print(f"Admin Step 4: Deleted group '{renamed_group_name}' (bodyless delete verified)")
 
@@ -190,26 +191,76 @@ async def run_smoke_test():
             print(f"Admin Step 5: Bulk move topics completed ({status_text})")
 
             # 6. Go to /admin/assignments: create an assignment for a group. Update it. Delete it.
+            await admin_page.goto(f"{base_url}/admin/assignments/new")
+            template_topic_id = await admin_page.locator("#topic_select").input_value()
+            template_file = temp_parent / "topic_template.pdf"
+            template_file.write_bytes(b"topic template attachment")
+            await admin_page.goto(f"{base_url}/admin/topics/{template_topic_id}/task")
+            await admin_page.locator("#task_description").fill("Reusable topic template")
+            await admin_page.locator("#task_file_input").set_input_files(str(template_file))
+            await admin_page.locator("#save_btn").click()
+            await admin_page.wait_for_url("**/admin/topics")
+
             await admin_page.goto(f"{base_url}/admin/assignments")
-            await admin_page.wait_for_selector("#assignment_create_form")
+            await admin_page.get_by_role("link", name="Создать занятие").click()
+            await admin_page.wait_for_selector("#task_editor_form")
+            await admin_page.locator("#assignment_date").fill("2026-11-25")
+            await admin_page.locator('.pair-button:has(input[value="2"])').click()
+            copy_topic_button = admin_page.locator("#copy_topic_task_btn")
+            await copy_topic_button.click()
+            await admin_page.locator("#app_dialog_cancel").click()
+            await admin_page.wait_for_function("document.activeElement?.id === 'copy_topic_task_btn'")
+            await copy_topic_button.click()
+            await admin_page.locator("#app_dialog_accept").click()
+            await admin_page.wait_for_function("document.activeElement?.id === 'copy_topic_task_btn'")
+            attachment_id_input = admin_page.locator("#attachment_id_input")
+            copied_attachment_id = await attachment_id_input.input_value()
+            assert copied_attachment_id
+            download_link = admin_page.locator("#download_attachment_link")
+            assert await download_link.is_visible()
+            assert (await download_link.get_attribute("href")).endswith(copied_attachment_id)
 
-            # Create an assignment
-            await admin_page.locator('.pair-button:has-text("2 пара")').click()
-            await admin_page.click('#assignment_create_form button[type="submit"]')
+            replacement_file = temp_parent / "replacement.pdf"
+            replacement_file.write_bytes(b"replacement attachment")
+            await admin_page.locator("#replace_attachment_btn").click()
+            await admin_page.locator("#task_file_input").set_input_files(str(replacement_file))
+            await admin_page.locator("#cancel_upload_btn").click()
+            assert await attachment_id_input.input_value() == copied_attachment_id
+            assert await admin_page.locator("#task_file_input").input_value() == ""
 
-            # Wait for reload
+            beforeunload_prevented = await admin_page.evaluate("""() => {
+              const event = new Event('beforeunload', { cancelable: true });
+              window.dispatchEvent(event);
+              return event.defaultPrevented;
+            }""")
+            assert beforeunload_prevented
+
+            topic_options = admin_page.locator("#topic_select option:not(:disabled)")
+            if await topic_options.count() > 1:
+                original_topic_id = await admin_page.locator("#topic_select").input_value()
+                alternate_topic_id = await topic_options.nth(1).get_attribute("value")
+                if alternate_topic_id != original_topic_id:
+                    await admin_page.locator("#topic_select").select_option(alternate_topic_id)
+                    assert await attachment_id_input.input_value() == ""
+                    await admin_page.locator("#topic_select").select_option(original_topic_id)
+                    await copy_topic_button.click()
+                    await admin_page.locator("#app_dialog_accept").click()
+                    await admin_page.wait_for_function("document.activeElement?.id === 'copy_topic_task_btn'")
+            await admin_page.locator("#task_description").fill("Smoke test assignment")
+            await admin_page.locator("#save_btn").click()
+            await admin_page.wait_for_load_state("domcontentloaded")
+
             assignment_card = admin_page.locator(".assignment-card").first
             await assignment_card.wait_for(timeout=5000)
             print("Admin Step 6a: Created assignment")
 
             # Update it
-            await assignment_card.locator('[data-action="edit"]').click()
-            edit_form = assignment_card.locator(".assignment-edit-form")
-            await edit_form.wait_for(state="visible")
-            await edit_form.locator('select[name="pair_number"]').select_option("3")
-            await edit_form.locator('button[type="submit"]').click()
+            await assignment_card.get_by_role("link", name="Редактировать").click()
+            await admin_page.wait_for_selector("#task_editor_form")
+            await admin_page.locator('.pair-button:has(input[value="3"])').click()
+            await admin_page.locator("#save_btn").click()
+            await admin_page.wait_for_load_state("domcontentloaded")
 
-            # Wait for reload and verify update
             updated_card = admin_page.locator(".assignment-card").first
             await updated_card.wait_for(timeout=5000)
             await admin_page.wait_for_selector(".pair-chip:has-text('3 пара')", timeout=5000)
@@ -222,17 +273,22 @@ async def run_smoke_test():
 
             # Delete it
             await updated_card.locator('[data-action="delete"]').click()
+            await admin_page.locator("#app_dialog_accept").click()
             await updated_card.wait_for(state="detached", timeout=5000)
             print("Admin Step 6c: Deleted assignment")
 
             # Re-create an assignment for group "ИС 25/9-1П" so student can see it when unlocking
-            await admin_page.fill("#assignment_date", "2026-11-25")
-            await admin_page.locator('.pair-button:has-text("1 пара")').click()
-            await admin_page.click('#assignment_create_form button[type="submit"]')
+            await admin_page.get_by_role("link", name="Создать занятие").click()
+            await admin_page.wait_for_selector("#task_editor_form")
+            await admin_page.locator("#assignment_date").fill("2026-11-25")
+            await admin_page.locator('.pair-button:has(input[value="1"])').click()
+            await admin_page.locator("#save_btn").click()
+            await admin_page.wait_for_load_state("domcontentloaded")
+            await admin_page.locator(".assignment-card").first.wait_for(timeout=5000)
             print("Admin Step 6d: Created scheduled assignment for student group")
 
             # 7. Go to /admin/access: configure group with password "1234" and open access.
-            await admin_page.goto(f"{base_url}/admin/access")
+            await admin_page.goto(f"{base_url}/admin/access", wait_until="domcontentloaded")
             await admin_page.wait_for_selector('.group-card[data-group-name="ИС 25/9-1П"]')
             group_card = admin_page.locator('.group-card[data-group-name="ИС 25/9-1П"]')
 
@@ -268,17 +324,17 @@ async def run_smoke_test():
             await student_page.fill("#group_password", "1234")
             await student_page.click('#unlock button[type="submit"]')
 
-            # 2. Verify assignments loaded and step 2 unlocked.
-            await student_page.wait_for_selector("#submit:not([hidden])", timeout=5000)
+            # 2. Verify the lessons workspace loaded and open an assignment.
+            await student_page.wait_for_selector("#student_workspace_view:not([hidden])", timeout=5000)
             assert await student_page.is_hidden("#unlock")
             assert await student_page.is_visible("#access_summary")
             display_text = await student_page.locator("#group_display").text_content() or ""
             assert "ИС 25/9-1П" in display_text
-
-            # Check that assignments / topics loaded
-            work_options = await student_page.locator("#work option").all()
-            assert len(work_options) > 1
-            print("Student Steps 1 & 2: Group unlocked, step 2 active, assignments loaded")
+            lesson_card = student_page.locator("#student_lessons_list .assignment-card").first
+            await lesson_card.wait_for(timeout=5000)
+            await lesson_card.get_by_role("link", name="Открыть занятие").click()
+            await student_page.wait_for_selector("#submit")
+            print("Student Steps 1 & 2: Group unlocked, lessons loaded, assignment opened")
 
             # 3. Submit valid .pdf file -> observe success overlay/status, verify HTTP 201 and file saved on disk.
             valid_pdf_path = temp_parent / "valid_solution.pdf"
@@ -286,7 +342,6 @@ async def run_smoke_test():
             valid_pdf_path.write_bytes(valid_pdf_content)
 
             await student_page.fill("#student_name", "Смирнов Алексей Петрович")
-            await student_page.select_option("#work", index=1)
             await student_page.set_input_files("#file", str(valid_pdf_path))
 
             async with student_page.expect_response(lambda r: "/submit" in r.url and r.request.method == "POST") as resp_info:
@@ -320,7 +375,6 @@ async def run_smoke_test():
             invalid_exe_path.write_bytes(b"MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00")
 
             await student_page.fill("#student_name", "Смирнов Алексей Петрович")
-            await student_page.select_option("#work", index=1)
             await student_page.set_input_files("#file", str(invalid_exe_path))
 
             async with student_page.expect_response(lambda r: "/submit" in r.url and r.request.method == "POST") as resp_info:

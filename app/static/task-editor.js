@@ -142,6 +142,16 @@ document.addEventListener('DOMContentLoaded', () => {
   if (topicSelect) {
     topicSelect.addEventListener('change', () => {
       markDirty();
+      if (currentAttachment?.source === 'topic' && currentAttachment.topicId !== topicSelect.value) {
+        currentAttachment = null;
+        attachmentIdInput.value = '';
+        removeAttachmentInput.value = '0';
+        if (fileInput) fileInput.value = '';
+        updateAttachmentUI();
+        if (copyNotice) {
+          copyNotice.textContent = 'Вложение скопированного задания сброшено при смене темы.';
+        }
+      }
     });
   }
 
