@@ -260,7 +260,16 @@ async def run_smoke_test():
             assert await other_subject_option.count() == 1, "Need another subject to verify automatic topic filtering"
             other_subject_id = await other_subject_option.get_attribute("value")
             await admin_page.locator("#task_file_input").set_input_files([])
+            await admin_page.locator("#topic_select").select_option(original_topic_id)
+            await copy_topic_button.click()
+            await admin_page.locator("#app_dialog_accept").click()
+            await admin_page.wait_for_function("document.activeElement?.id === 'copy_topic_task_btn'")
+            await admin_page.locator("#replace_attachment_btn").click()
+            await admin_page.locator("#task_file_input").set_input_files(str(replacement_file))
             await admin_page.locator("#subject_select").select_option(other_subject_id)
+            assert await attachment_id_input.input_value() == ""
+            assert (await admin_page.locator("#task_file_input").input_value()).endswith("replacement.pdf")
+            await admin_page.locator("#task_file_input").set_input_files([])
             await admin_page.locator("#subject_select").select_option(selected_subject_id)
             await copy_topic_button.click()
             await admin_page.locator("#app_dialog_accept").click()
@@ -273,17 +282,25 @@ async def run_smoke_test():
             await copy_topic_button.click()
             await admin_page.locator("#app_dialog_accept").click()
             await admin_page.wait_for_function("document.activeElement?.id === 'copy_topic_task_btn'")
+            alternate_topic_name = await admin_page.locator(f'#topic_select option[value="{alternate_topic_id}"]').text_content()
+            await admin_page.locator("#topic_select").select_option(alternate_topic_id)
+            assert await attachment_id_input.input_value() == ""
+            assert not await admin_page.locator("#task_file_input").input_value()
             await admin_page.locator("#task_description").fill("Smoke test assignment")
             await admin_page.locator("#save_btn").click()
             await admin_page.wait_for_load_state("domcontentloaded")
 
             assignment_card = admin_page.locator(".assignment-card").first
             await assignment_card.wait_for(timeout=5000)
+            assert await assignment_card.locator("h3").text_content() == alternate_topic_name
             print("Admin Step 6a: Created assignment")
 
             # Update it
             await assignment_card.get_by_role("link", name="Редактировать").click()
             await admin_page.wait_for_selector("#task_editor_form")
+            assert await admin_page.locator("#topic_select").input_value() == alternate_topic_id
+            assert await admin_page.locator("#attachment_id_input").input_value() == ""
+            assert not await admin_page.locator("#download_attachment_link").is_visible()
             await admin_page.locator('.pair-button:has(input[value="3"])').click()
             await admin_page.locator("#save_btn").click()
             await admin_page.wait_for_load_state("domcontentloaded")
