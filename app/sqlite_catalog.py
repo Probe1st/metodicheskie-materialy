@@ -475,7 +475,7 @@ class SqliteCatalogStore(CatalogStore):
 
             placeholders = ",".join("?" for _ in topic_uuids)
             moving_rows = conn.execute(
-                f"SELECT id, subject_id, name, name_key FROM topics WHERE id IN ({placeholders});",
+                f"SELECT id, subject_id, name, name_key, archived_at FROM topics WHERE id IN ({placeholders});",
                 [str(u) for u in topic_uuids],
             ).fetchall()
             found_ids = {r["id"] for r in moving_rows}
@@ -483,6 +483,12 @@ class SqliteCatalogStore(CatalogStore):
             for u in topic_uuids:
                 if str(u) not in found_ids:
                     raise CatalogNotFoundError(f"Topic {u} not found")
+
+            for r in moving_rows:
+                if r["archived_at"] is not None:
+                    raise CatalogOperationForbiddenError(
+                        f"Cannot move archived topic {r['id']}"
+                    )
 
             moving_keys = [r["name_key"] for r in moving_rows]
             if len(moving_keys) != len(set(moving_keys)):

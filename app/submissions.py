@@ -457,10 +457,33 @@ class SubmissionStore:
         except (sqlite3.Error, OSError):
             return False
 
+    def count_submissions(
+        self,
+        group_id: UUID | str | None = None,
+        topic_id: UUID | str | None = None,
+    ) -> int:
+        conditions: list[str] = []
+        params: list[Any] = []
+
+        if group_id is not None:
+            conditions.append("group_id = ?")
+            params.append(str(UUID(str(group_id))))
+        if topic_id is not None:
+            conditions.append("topic_id = ?")
+            params.append(str(UUID(str(topic_id))))
+
+        where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+        query = f"SELECT COUNT(*) FROM submissions {where_clause};"
+
+        with connect(self.db_path) as conn:
+            return int(conn.execute(query, params).fetchone()[0])
+
     def list_submissions(
         self,
         group_id: UUID | str | None = None,
         topic_id: UUID | str | None = None,
+        limit: int | None = None,
+        offset: int | None = None,
     ) -> list[SubmissionDetail]:
         conditions: list[str] = []
         params: list[Any] = []
@@ -473,6 +496,15 @@ class SubmissionStore:
             params.append(str(UUID(str(topic_id))))
 
         where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+
+        pagination_clause = ""
+        if limit is not None:
+            pagination_clause += " LIMIT ?"
+            params.append(int(limit))
+            if offset is not None:
+                pagination_clause += " OFFSET ?"
+                params.append(int(offset))
+
         query = f"""
         SELECT
             s.id, s.student_id, s.group_id, s.topic_id, s.assignment_id,
@@ -494,6 +526,7 @@ class SubmissionStore:
         JOIN submission_files sf ON sf.submission_id = s.id
         {where_clause}
         ORDER BY s.created_at DESC, s.id DESC
+        {pagination_clause}
         """
 
         with connect(self.db_path) as conn:

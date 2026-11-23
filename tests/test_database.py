@@ -567,12 +567,28 @@ def test_schema_checks_and_field_constraints(tmp_path: Path):
                 (str(uuid.uuid4()), g1_id, t1_id),
             )
 
-        # Lesson date GLOB format check
+        # Lesson date format and calendar validity checks
         with pytest.raises(sqlite3.IntegrityError):
             conn.execute(
                 """
                 INSERT INTO class_assignments (id, group_id, topic_id, lesson_date, pair_number, created_at, updated_at)
                 VALUES (?, ?, ?, '03-11-2026', 1, 'now', 'now');
+                """,
+                (str(uuid.uuid4()), g1_id, t1_id),
+            )
+        with pytest.raises(sqlite3.IntegrityError):
+            conn.execute(
+                """
+                INSERT INTO class_assignments (id, group_id, topic_id, lesson_date, pair_number, created_at, updated_at)
+                VALUES (?, ?, ?, 'abcd-ef-gh', 1, 'now', 'now');
+                """,
+                (str(uuid.uuid4()), g1_id, t1_id),
+            )
+        with pytest.raises(sqlite3.IntegrityError):
+            conn.execute(
+                """
+                INSERT INTO class_assignments (id, group_id, topic_id, lesson_date, pair_number, created_at, updated_at)
+                VALUES (?, ?, ?, '2026-02-30', 1, 'now', 'now');
                 """,
                 (str(uuid.uuid4()), g1_id, t1_id),
             )

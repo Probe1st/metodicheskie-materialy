@@ -1,6 +1,8 @@
 import sys
-import pytest
 from pathlib import Path
+
+import pytest
+
 repo_dir = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(repo_dir))
 
@@ -16,9 +18,8 @@ class CSRFTokenParser(HTMLParser):
         attrs_dict = dict(attrs)
         if tag == "meta" and attrs_dict.get("name") == "csrf-token":
             self.token = attrs_dict.get("content")
-        elif tag == "input" and attrs_dict.get("name") == "csrf_token":
-            if not self.token:
-                self.token = attrs_dict.get("value")
+        elif tag == "input" and attrs_dict.get("name") == "csrf_token" and not self.token:
+            self.token = attrs_dict.get("value")
 
 
 def get_csrf_token(client, page="/"):

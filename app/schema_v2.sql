@@ -29,11 +29,16 @@ CREATE TABLE students (
  display_name TEXT NOT NULL CHECK(length(trim(display_name))>0), archived_at TEXT,
  UNIQUE(id,group_id)
 );
+CREATE INDEX idx_students_group ON students(group_id, archived_at, display_name);
 CREATE TABLE class_assignments (
  id TEXT NOT NULL PRIMARY KEY,
  group_id TEXT NOT NULL REFERENCES groups(id) ON DELETE RESTRICT ON UPDATE RESTRICT,
  topic_id TEXT NOT NULL REFERENCES topics(id) ON DELETE RESTRICT ON UPDATE RESTRICT,
- lesson_date TEXT NOT NULL CHECK(lesson_date GLOB '????-??-??'),
+ lesson_date TEXT NOT NULL CHECK(
+   lesson_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
+   AND date(lesson_date) IS NOT NULL
+   AND date(lesson_date) = lesson_date
+ ),
  pair_number INTEGER NOT NULL CHECK(pair_number BETWEEN 1 AND 6),
  created_at TEXT NOT NULL, updated_at TEXT NOT NULL, archived_at TEXT,
  UNIQUE(id,group_id,topic_id)
@@ -54,6 +59,8 @@ CREATE TABLE submissions (
  FOREIGN KEY(assignment_id,group_id,topic_id) REFERENCES class_assignments(id,group_id,topic_id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 CREATE INDEX submissions_group_topic ON submissions(group_id,topic_id,created_at);
+CREATE INDEX idx_submissions_assignment ON submissions(assignment_id) WHERE assignment_id IS NOT NULL;
+CREATE INDEX idx_submissions_created ON submissions(created_at DESC, id DESC);
 CREATE TABLE submission_files (
  id TEXT NOT NULL PRIMARY KEY,
  submission_id TEXT NOT NULL UNIQUE REFERENCES submissions(id) ON DELETE RESTRICT ON UPDATE RESTRICT,

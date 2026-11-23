@@ -23,14 +23,8 @@ from tests.audit.support import (
 )
 
 
-def test_cli_standard_mapping_empty_entities_fails(audit_env: AuditEnv) -> None:
-    """MIG-03-01: Running CLI apply with standard mapping (empty entities: {}) fails with exit code 1.
-
-    Audit finding: In the standard contract, mapping.entities is empty by default, and apply must import
-    groups/subjects/topics from catalog snapshot. In current tools.migrate_v2, apply only reads
-    mapping['entities'], so empty entities results in sqlite3.IntegrityError: FOREIGN KEY constraint failed
-    when inserting students.
-    """
+def test_cli_standard_mapping_empty_entities_succeeds(audit_env: AuditEnv) -> None:
+    """MIG-03-01 / REST-03-02: Running CLI apply with standard mapping (empty entities: {}) succeeds and imports catalog snapshot."""
     cat_file = audit_env.source / "catalog.json"
     cat_file.write_text(json.dumps(create_legacy_v3_catalog()), encoding="utf-8")
 
@@ -69,10 +63,12 @@ def test_cli_standard_mapping_empty_entities_fails(audit_env: AuditEnv) -> None:
         cwd=audit_env.root,
     )
 
-    # Invariant: CLI apply fails with non-zero exit code due to FK failure
-    assert proc.returncode != 0
-    assert not target_db.exists(), "Target database must not be published on migration failure"
-    assert "IntegrityError" in proc.stderr or "FOREIGN KEY constraint failed" in proc.stderr
+    # Invariant: CLI apply succeeds and imports catalog graph from catalog snapshot
+    assert proc.returncode == 0, f"Expected returncode 0, got {proc.returncode}. Stderr: {proc.stderr}"
+    assert target_db.is_file(), "Target database must be published on success"
+    with connect(target_db) as conn:
+        groups_count = conn.execute("SELECT COUNT(*) FROM groups;").fetchone()[0]
+        assert groups_count >= 2, "Groups from catalog snapshot were not imported"
 
 
 def test_cli_full_roundtrip_with_populated_entities(audit_env: AuditEnv) -> None:
@@ -310,7 +306,7 @@ def test_cli_safety_and_rerun_guarantees(audit_env: AuditEnv) -> None:
     assert target_db.stat().st_mtime_ns == target_stat_before.st_mtime_ns
 
     # 2. Repeated restore: destination already exists -> must fail
-    manifest_path = list(audit_env.backup.glob("**/manifest.json"))[0]
+    manifest_path = next(iter(audit_env.backup.glob("**/manifest.json")))
     dest_dir = audit_env.root / "destination"
     run_cli(
         [

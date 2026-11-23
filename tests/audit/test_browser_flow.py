@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+
 playwright_api = pytest.importorskip("playwright.sync_api")
 sync_playwright = playwright_api.sync_playwright
 from werkzeug.serving import make_server

@@ -302,3 +302,9 @@ def test_move_topics_rejects_missing_or_archived(store: SqliteCatalogStore):
     # Non-existent target
     with pytest.raises(CatalogNotFoundError):
         store.move_topics([t.id], uuid.uuid4())
+
+    # Moving archived topic is forbidden
+    store.archive_topic(t.id)
+    sub2 = store.create_subject("Предмет 2")
+    with pytest.raises(CatalogOperationForbiddenError):
+        store.move_topics([t.id], sub2.id)

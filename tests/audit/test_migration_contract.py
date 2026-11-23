@@ -23,6 +23,32 @@ from uuid import UUID
 import pytest
 
 from app.database import connect, normalize_name_key
+from tests.audit.conftest import AuditEnv
+from tests.audit.support import (
+    G1_ID,
+    G1_NAME,
+    G2_ID,
+    G2_NAME,
+    S1_ID,
+    S1_NAME,
+    S2_ID,
+    S2_NAME,
+    STUDENT1_ID,
+    SYSTEM_UNASSIGNED_SUBJECT_ID,
+    SYSTEM_UNASSIGNED_SUBJECT_NAME,
+    T1_ID,
+    T1_NAME,
+    T2_ID,
+    T2_NAME,
+    T_FREE_ID,
+    T_FREE_NAME,
+    create_legacy_v1_catalog,
+    create_legacy_v2_catalog,
+    create_legacy_v3_catalog,
+    create_synthetic_storage_files,
+    create_test_mapping,
+    run_cli,
+)
 from tools.legacy_catalog import (
     LegacyCatalogData,
     deterministic_uuid,
@@ -35,37 +61,6 @@ from tools.migrate_v2 import (
     parse_submission_filename,
     resolve_file_location,
 )
-from tests.audit.conftest import AuditEnv
-from tests.audit.support import (
-    G1_ID,
-    G1_NAME,
-    G2_ID,
-    G2_NAME,
-    S1_ID,
-    S1_NAME,
-    S2_ID,
-    S2_NAME,
-    STUDENT1_ID,
-    STUDENT1_NAME,
-    STUDENT2_ID,
-    STUDENT2_NAME,
-    SYSTEM_UNASSIGNED_SUBJECT_ID,
-    SYSTEM_UNASSIGNED_SUBJECT_NAME,
-    T1_ID,
-    T1_NAME,
-    T2_ID,
-    T2_NAME,
-    T_FREE_ID,
-    T_FREE_NAME,
-    _create_minimal_zip,
-    create_legacy_v1_catalog,
-    create_legacy_v2_catalog,
-    create_legacy_v3_catalog,
-    create_synthetic_storage_files,
-    create_test_mapping,
-    run_cli,
-)
-
 
 # ==============================================================================
 # MIG-01: Analyze Edge Cases & Path Formats

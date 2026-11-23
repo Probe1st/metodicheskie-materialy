@@ -854,23 +854,21 @@ def test_db_06_02_validate_lesson_date(
         with pytest.raises(exc_type, match=match_str):
             validate_lesson_date(date_str)
 
-    # Document SQLite DDL vs application discrepancy:
-    # SQLite DDL uses: CHECK(lesson_date GLOB '????-??-??')
-    # This permits syntactically matching invalid dates like '2026-02-30' in SQLite DDL,
-    # relying on Python application validation layer for Gregorian calendar correctness.
+    # SQLite DDL strictly enforces Gregorian calendar dates via:
+    # CHECK(lesson_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]' AND date(lesson_date) IS NOT NULL AND date(lesson_date) = lesson_date)
+    # Reject syntactically matching invalid calendar dates like '2026-02-30' in SQLite DDL directly:
     if date_str == "2026-02-30":
         db_path = audit_env.populate_canonical()
         with connect(db_path) as conn:
-            # DDL GLOB accepts '2026-02-30'
             ca_id = str(canonical_uuid("ddl_glob_test"))
-            conn.execute(
-                """
-                INSERT INTO class_assignments (id, group_id, topic_id, lesson_date, pair_number, created_at, updated_at)
-                VALUES (?, ?, ?, '2026-02-30', 4, '2026-03-01T00:00:00Z', '2026-03-01T00:00:00Z');
-                """,
-                (ca_id, str(G1_ID), str(T1_ID)),
-            )
-            assert conn.execute("SELECT count(*) FROM class_assignments WHERE id = ?;", (ca_id,)).fetchone()[0] == 1
+            with pytest.raises(sqlite3.IntegrityError):
+                conn.execute(
+                    """
+                    INSERT INTO class_assignments (id, group_id, topic_id, lesson_date, pair_number, created_at, updated_at)
+                    VALUES (?, ?, ?, '2026-02-30', 4, '2026-03-01T00:00:00Z', '2026-03-01T00:00:00Z');
+                    """,
+                    (ca_id, str(G1_ID), str(T1_ID)),
+                )
 
 
 @pytest.mark.parametrize(

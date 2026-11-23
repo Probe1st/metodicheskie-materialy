@@ -5,10 +5,8 @@ from __future__ import annotations
 import time
 from io import BytesIO
 from pathlib import Path
-from uuid import UUID
 
 import pytest
-from flask.testing import FlaskClient
 
 from app.access import AccessStore
 from app.assignments import AssignmentStore
@@ -112,7 +110,6 @@ def test_index_page_renders_catalog(client_env):
 def test_student_submit_requires_group_authorization(client_env):
     client = client_env["client"]
     group1 = client_env["group1"]
-    topic = client_env["topic"]
     assignment = client_env["assignment"]
 
     res = client.post("/submit", data={
@@ -127,7 +124,6 @@ def test_student_submit_requires_group_authorization(client_env):
 def test_student_can_upload_only_after_unlocking(client_env):
     client = client_env["client"]
     group1 = client_env["group1"]
-    topic = client_env["topic"]
     assignment = client_env["assignment"]
 
     unlock_res = client.post("/unlock", json={"group_id": str(group1.id), "password": "1234"})
@@ -153,7 +149,6 @@ def test_upload_denied_when_session_group_differs(client_env):
     client = client_env["client"]
     group1 = client_env["group1"]
     group2 = client_env["group2"]
-    topic = client_env["topic"]
     assignment = client_env["assignment"]
 
     client.post("/unlock", json={"group_id": str(group1.id), "password": "1234"})

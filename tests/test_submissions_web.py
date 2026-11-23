@@ -13,6 +13,7 @@ from app.access import AccessStore
 from app.assignments import AssignmentStore
 from app.database import initialize
 from app.sqlite_catalog import SqliteCatalogStore
+from app.submissions import SubmissionStore
 from app.web import create_app
 
 
@@ -255,3 +256,42 @@ def test_admin_submissions_list_download_and_review(app_env):
     )
     assert rev_form.status_code == 303
     assert f"group_id={group.id}" in rev_form.headers["Location"]
+
+
+def test_admin_submissions_pagination(app_env):
+    client = app_env["client"]
+    group = app_env["group"]
+    sub_store = SubmissionStore(app_env["db_path"], app_env["storage_root"])
+    assignment = app_env["assignment"]
+
+    # Login as admin
+    client.post("/admin/login", data={"password": "admin-password"})
+
+    access = AccessStore(app_env["db_path"]).get(group.id)
+    version = access.version if access else 1
+
+    # Create 3 submissions
+    for i in range(1, 4):
+        st = sub_store.create_student(group.id, f"Студент {i}")
+        sub_store.submit(
+            group_id=group.id,
+            student_id=st.id,
+            assignment_id=assignment.id,
+            source=BytesIO(f"content {i}".encode()),
+            original_filename=f"doc{i}.pdf",
+            access_version=version,
+        )
+
+    # Page 1 with per_page=2
+    res_p1 = client.get(f"/admin/submissions?page=1&per_page=2&group_id={group.id}")
+    assert res_p1.status_code == 200
+    html_p1 = res_p1.get_data(as_text=True)
+    assert "Показано 2 из 3" in html_p1
+    assert "Следующая →" in html_p1
+
+    # Page 2 with per_page=2
+    res_p2 = client.get(f"/admin/submissions?page=2&per_page=2&group_id={group.id}")
+    assert res_p2.status_code == 200
+    html_p2 = res_p2.get_data(as_text=True)
+    assert "Показано 1 из 3" in html_p2
+    assert "← Предыдущая" in html_p2

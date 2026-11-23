@@ -72,7 +72,7 @@
 
         <section class="summary-list" aria-label="Сводка по сданным работам">
           <article class="summary-card">
-            <strong>{{ submissions|length }}</strong>
+            <strong>{{ total_count if total_count is defined else submissions|length }}</strong>
             <span>всего сдано работ</span>
           </article>
           <article class="summary-card">
@@ -152,6 +152,21 @@
               </tbody>
             </table>
           </section>
+          {% if total_count and total_count > per_page %}
+            <nav class="pagination" aria-label="Страницы сданных работ" style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--space-4);">
+              <div>
+                Показано {{ submissions|length }} из {{ total_count }} (страница {{ page }})
+              </div>
+              <div style="display: flex; gap: var(--space-2);">
+                {% if page > 1 %}
+                  <a class="button button--outline button--sm" href="{{ url_for('admin_submissions_page', group_id=selected_group_id or None, topic_id=selected_topic_id or None, page=page-1, per_page=per_page) }}">← Предыдущая</a>
+                {% endif %}
+                {% if (page * per_page) < total_count %}
+                  <a class="button button--outline button--sm" href="{{ url_for('admin_submissions_page', group_id=selected_group_id or None, topic_id=selected_topic_id or None, page=page+1, per_page=per_page) }}">Следующая →</a>
+                {% endif %}
+              </div>
+            </nav>
+          {% endif %}
         {% endif %}
       </section>
     </div>

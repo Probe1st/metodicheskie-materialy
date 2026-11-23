@@ -28,6 +28,7 @@ from app.assignments import AssignmentStore
 from app.database import connect, initialize, normalize_name_key
 from app.submissions import SubmissionStore
 
+
 @dataclass
 class ScaleDataset:
     db_path: Path
@@ -338,12 +339,12 @@ def test_explain_query_plan_indexes(scale_env: ScaleDataset) -> None:
             "Documented finding: filtering submissions by topic alone requires skip-scan or SCAN submissions"
         )
 
-    # 4. Architectural Finding: Query 3 (students for group) performs full table scan because students has no index on group_id
+    # 4. Verified: Query 3 (students for group) utilizes idx_students_group covering index
     with connect(scale_env.db_path) as conn:
         q3_sql, q3_params = query_map["Query 3: students roster for group"]
         plan3 = conn.execute(f"EXPLAIN QUERY PLAN {q3_sql}", q3_params).fetchall()
-        assert any("SCAN students" in r[3] for r in plan3), (
-            "Documented finding: students roster query performs SCAN students due to missing group_id index"
+        assert any("idx_students_group" in r[3] or "USING INDEX" in r[3] for r in plan3), (
+            "Students roster query must utilize idx_students_group index"
         )
 
     # 5. Architectural Finding: Query 4 (groups active list) performs full table scan
@@ -461,7 +462,7 @@ def test_write_lock_contention_and_busy_timeout(scale_env: ScaleDataset) -> None
                 conn.commit()
             t_wait = (time.perf_counter() - t0) * 1000.0
             thread2_wait_duration.append(t_wait)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             thread2_error.append(e)
         finally:
             writer2_finished.set()

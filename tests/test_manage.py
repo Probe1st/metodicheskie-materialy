@@ -79,7 +79,7 @@ def format_process_diagnostics(pid):
             else "missing"
         )
         return f"PID {pid}: stat=({stat_text.strip()}), cmdline=({cmdline_text.strip()})"
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         return f"PID {pid}: error reading info: {e}"
 
 
@@ -97,11 +97,14 @@ def assert_no_leaked_processes(app_dir, observed_identities):
                     cwd_link = Path(f"/proc/{pid}/cwd")
                     if cwd_link.exists() and cwd_link.resolve() == real_app_dir:
                         cmdline_file = Path(f"/proc/{pid}/cmdline")
-                        if cmdline_file.exists() and b"gunicorn" in cmdline_file.read_bytes():
-                            if is_pid_alive_and_not_zombie(pid):
-                                diag = format_process_diagnostics(pid)
-                                if diag not in leaked:
-                                    leaked.append(diag)
+                        if (
+                            cmdline_file.exists()
+                            and b"gunicorn" in cmdline_file.read_bytes()
+                            and is_pid_alive_and_not_zombie(pid)
+                        ):
+                            diag = format_process_diagnostics(pid)
+                            if diag not in leaked:
+                                leaked.append(diag)
                 except OSError:
                     pass
     assert not leaked, f"Processes leaked after startup failure: {leaked}"
@@ -484,7 +487,7 @@ def test_start_fails_when_app_crashes_on_import(isolated_env):
             proc.kill()
             break
 
-    stdout, stderr = proc.communicate(timeout=10)
+    _stdout, stderr = proc.communicate(timeout=10)
     assert proc.returncode != 0
     assert "Не удалось запустить приложение" in stderr or "завершился сбоем" in stderr
     assert not pid_file.exists()
@@ -539,7 +542,7 @@ def test_start_fails_when_app_returns_http_500(isolated_env):
             proc.kill()
             break
 
-    stdout, stderr = proc.communicate(timeout=10)
+    _stdout, stderr = proc.communicate(timeout=10)
     assert proc.returncode != 0
     assert "Не удалось запустить приложение" in stderr
     assert not pid_file.exists()

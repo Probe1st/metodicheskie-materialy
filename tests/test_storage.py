@@ -335,7 +335,7 @@ def test_write_upload_partial_file_cleanup_on_copy_failure(tmp_path: Path) -> No
             if not self._read_any:
                 self._read_any = True
                 return self._data[:10]
-            raise IOError("Simulated network/disk error during copy")
+            raise OSError("Simulated network/disk error during copy")
 
     stream = FailingStream(b"A" * 1024)
     with pytest.raises(IOError, match="Simulated network/disk error during copy"):

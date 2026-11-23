@@ -168,7 +168,10 @@ def create_app(config=None):
         db_path = Path(os.getenv("DATABASE_PATH", str(private_dir / "app_v2.sqlite3")))
     db_path = Path(db_path)
     if not db_path.is_absolute():
-        db_path = private_dir / db_path
+        try:
+            db_path.relative_to(private_dir)
+        except ValueError:
+            db_path = private_dir / db_path
     app.config["DATABASE_PATH"] = db_path
 
     storage_root = app.config.get("STORAGE_ROOT")
@@ -763,7 +766,7 @@ def create_app(config=None):
                     continue
                 if key in ("group_id", "topic_id", "student_id", "assignment_id") or key.endswith("_id"):
                     UUID(sval)
-                elif key == "attempt_number" and int(sval) < 1:
+                elif key in ("page", "per_page", "attempt_number") and int(sval) < 1:
                     abort(400)
                 elif "date" in key:
                     datetime.fromisoformat(sval)
@@ -774,7 +777,21 @@ def create_app(config=None):
             topic_uuid = UUID(topic_filter) if topic_filter else None
         except (ValueError, TypeError):
             abort(400)
+
+        limit = None
+        offset = None
+        page = 1
+        per_page = 50
+        if "page" in request.args or "per_page" in request.args:
+            page = max(1, int(request.args.get("page", "1")))
+            per_page = min(500, max(1, int(request.args.get("per_page", "50"))))
+            limit = per_page
+            offset = (page - 1) * per_page
+
         submissions = submission_store.list_submissions(
+            group_id=group_uuid, topic_id=topic_uuid, limit=limit, offset=offset
+        )
+        total_count = submission_store.count_submissions(
             group_id=group_uuid, topic_id=topic_uuid
         )
 
@@ -789,6 +806,9 @@ def create_app(config=None):
             topics=all_topics,
             selected_group_id=str(group_uuid) if group_uuid else "",
             selected_topic_id=str(topic_uuid) if topic_uuid else "",
+            page=page,
+            per_page=per_page,
+            total_count=total_count,
         )
 
     @app.get("/admin/submissions/<submission_id>/download")

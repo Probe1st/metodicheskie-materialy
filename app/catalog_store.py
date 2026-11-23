@@ -163,7 +163,10 @@ def create_catalog_store(config: Mapping[str, object]) -> CatalogStore:
     db_path = Path(str(config["DATABASE_PATH"]))
     if not db_path.is_absolute():
         private_dir = Path(str(config.get("PRIVATE_DATA_DIR", ".private")))
-        db_path = private_dir / db_path
+        try:
+            db_path.relative_to(private_dir)
+        except ValueError:
+            db_path = private_dir / db_path
     from .sqlite_catalog import SqliteCatalogStore
 
     return SqliteCatalogStore(db_path)

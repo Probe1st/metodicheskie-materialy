@@ -46,19 +46,7 @@ def test_cfg_01_default_path_resolution(tmp_path: Path) -> None:
 
 
 def test_cfg_01_relative_path_resolution_and_double_prefix() -> None:
-    """CFG-01-01: Relative path resolution replicating .env.example.
-
-    .env.example specifies:
-        PRIVATE_DATA_DIR=.private
-        DATABASE_PATH=.private/app_v2.sqlite3
-    In app/web.py lines 110-120:
-        private_dir = Path(".private")
-        db_path = Path(".private/app_v2.sqlite3")
-        if not db_path.is_absolute():
-            db_path = private_dir / db_path
-    Because db_path is relative, web.py prepends private_dir, resulting in
-    '.private/.private/app_v2.sqlite3' (duplicate prefix finding).
-    """
+    """CFG-01-01: Relative path resolution replicating .env.example resolves cleanly without duplicate prefix."""
     config = {
         "PRIVATE_DATA_DIR": ".private",
         "DATABASE_PATH": ".private/app_v2.sqlite3",
@@ -67,13 +55,17 @@ def test_cfg_01_relative_path_resolution_and_double_prefix() -> None:
     db_path = Path(config["DATABASE_PATH"])
 
     if not db_path.is_absolute():
-        resolved_db_path = private_dir / db_path
+        try:
+            db_path.relative_to(private_dir)
+            resolved_db_path = db_path
+        except ValueError:
+            resolved_db_path = private_dir / db_path
     else:
         resolved_db_path = db_path
 
-    # Document the duplicate prefix behavior
-    assert resolved_db_path.as_posix() == ".private/.private/app_v2.sqlite3", (
-        f"Expected duplicate prefix '.private/.private/app_v2.sqlite3', got {resolved_db_path.as_posix()}"
+    # Idempotent prefix resolution: avoids '.private/.private/app_v2.sqlite3'
+    assert resolved_db_path.as_posix() == ".private/app_v2.sqlite3", (
+        f"Expected '.private/app_v2.sqlite3', got {resolved_db_path.as_posix()}"
     )
 
     # Same check for create_catalog_store
@@ -82,7 +74,7 @@ def test_cfg_01_relative_path_resolution_and_double_prefix() -> None:
         "DATABASE_PATH": ".private/app_v2.sqlite3",
     })
     # SqliteCatalogStore exposes database_path attribute
-    assert getattr(store, "database_path").as_posix() == ".private/.private/app_v2.sqlite3"
+    assert store.database_path.as_posix() == ".private/app_v2.sqlite3"
 
 def test_cfg_01_absolute_paths_respected_literally(tmp_path: Path) -> None:
     """CFG-01-01: Absolute paths for DATABASE_PATH and STORAGE_ROOT are used literally without prepending PRIVATE_DATA_DIR."""
@@ -189,7 +181,7 @@ def test_cfg_02_manage_status_and_stale_pid(manage_sandbox: Path) -> None:
     pid_file.write_text(f"{stale_pid}\n", encoding="utf-8")
 
     # manage.sh status should recognize process is not running
-    proc_stale = subprocess.run(
+    subprocess.run(
         [str(manage_sh), "status"],
         cwd=manage_sandbox,
         env={**os.environ, "APP_DIR": str(app_dir)},
@@ -199,7 +191,7 @@ def test_cfg_02_manage_status_and_stale_pid(manage_sandbox: Path) -> None:
     )
 
     # manage.sh stop should clean the stale PID file
-    proc_stop = subprocess.run(
+    subprocess.run(
         [str(manage_sh), "stop"],
         cwd=manage_sandbox,
         env={**os.environ, "APP_DIR": str(app_dir)},
