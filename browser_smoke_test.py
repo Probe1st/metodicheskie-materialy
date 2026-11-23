@@ -234,6 +234,11 @@ async def run_smoke_test():
               return event.defaultPrevented;
             }""")
             assert beforeunload_prevented
+            unsaved_description = await admin_page.locator("#task_description").input_value()
+            await admin_page.locator("#admin_logout button[type='submit']").click()
+            await admin_page.locator("#app_dialog_cancel").click()
+            assert await admin_page.locator("#task_editor_form").is_visible()
+            assert await admin_page.locator("#task_description").input_value() == unsaved_description
 
             topic_options = admin_page.locator("#topic_select option:not(:disabled)")
             if await topic_options.count() > 1:
