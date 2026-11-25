@@ -1,3 +1,20 @@
+function restoreFocus(focusTrigger) {
+  if (!focusTrigger || !(focusTrigger instanceof HTMLElement) || !focusTrigger.isConnected) {
+    return;
+  }
+  if (focusTrigger.matches(':disabled')) {
+    return;
+  }
+  if (document.querySelector('#app_dialog[open]')) {
+    return;
+  }
+  const active = document.activeElement;
+  const inClosedDialog = active && active.closest && active.closest('#app_dialog:not([open])');
+  if (!active || active === document.body || inClosedDialog) {
+    focusTrigger.focus();
+  }
+}
+
 function showStatus(element, state, message) {
   element.dataset.state = state;
   element.textContent = message;
@@ -89,6 +106,13 @@ function makeRow(kind, item) {
   const headingActions = document.createElement('div');
   headingActions.className = 'catalog-actions';
   headingActions.style.marginLeft = 'auto';
+  if (kind === 'topics') {
+    const taskLink = document.createElement('a');
+    taskLink.className = 'button button--outline';
+    taskLink.href = `/admin/topics/${item.id}/task`;
+    taskLink.textContent = 'Задание темы';
+    headingActions.append(taskLink);
+  }
   const toggleEditButton = document.createElement('button');
   toggleEditButton.className = 'button button--outline';
   toggleEditButton.type = 'button';
@@ -97,7 +121,6 @@ function makeRow(kind, item) {
   deleteButton.className = 'button button--danger';
   deleteButton.type = 'button';
   deleteButton.textContent = 'Архивировать';
-
   if (kind === 'subjects' && item.id === catalogList.dataset.unassignedId) {
     toggleEditButton.disabled = true;
     toggleEditButton.title = 'Системный предмет нельзя изменить';
@@ -263,6 +286,7 @@ if (createForm && catalogList) {
 
   createForm.addEventListener('submit', async (event) => {
     event.preventDefault();
+    const submitterVal = event.submitter?.value;
     setFormBusy(createForm, true, 'Добавляем…');
     showStatus(status, 'working', 'Создание…');
 
@@ -277,6 +301,10 @@ if (createForm && catalogList) {
         return;
       }
       const item = await response.json();
+      if (kind === 'topics' && submitterVal === 'create_and_edit_task') {
+        window.location.href = `/admin/topics/${item.id}/task`;
+        return;
+      }
       insertRow(catalogList, makeRow(kind, item));
       createForm.reset();
       showStatus(status, 'success', 'Успешно добавлено.');
@@ -346,11 +374,38 @@ if (catalogList) {
     }
 
     const button = event.target.closest('[data-archive]') || event.target.closest('[data-delete]');
-    if (!button) return;
+    if (!button || button.disabled) return;
+    const focusTrigger = document.activeElement;
+    button.disabled = true;
     const row = button.closest('[data-catalog-item]');
     const name = row.dataset.name;
-    if (!window.confirm(`Архивировать «${name}»?`)) return;
-
+    let confirmed = false;
+    try {
+      if (typeof AppDialog !== 'undefined' && AppDialog.confirm) {
+        confirmed = await AppDialog.confirm({
+          title: 'Архивация элемента каталога',
+          message: `Архивировать «${name}»?`,
+          hint: 'Элемент будет перемещен в архив.',
+          confirmLabel: 'Архивировать',
+          danger: true,
+        });
+      } else {
+        confirmed = window.confirm(`Архивировать «${name}»?`);
+      }
+    } catch {
+      confirmed = false;
+    }
+    if (!confirmed) {
+      if (row.isConnected) {
+        button.disabled = false;
+        if (typeof restoreFocus === 'function') {
+          restoreFocus(focusTrigger);
+        } else if (focusTrigger) {
+          focusTrigger.focus();
+        }
+      }
+      return;
+    }
     const status = row.querySelector('.catalog-status');
     const form = row.querySelector('[data-catalog-rename]');
     const controls = [...(form ? form.querySelectorAll('button, input, select') : []), ...row.querySelectorAll('button')];
@@ -378,7 +433,10 @@ if (catalogList) {
     } catch {
       showStatus(status, 'error', 'Не удалось связаться с сервером. Попробуйте ещё раз.');
     } finally {
-      controls.forEach((control) => { control.disabled = false; });
+      if (row.isConnected) {
+        controls.forEach((control) => { control.disabled = false; });
+        restoreFocus(focusTrigger);
+      }
     }
   });
 }

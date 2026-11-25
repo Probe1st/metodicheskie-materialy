@@ -2,13 +2,27 @@
 
 from __future__ import annotations
 
+import sqlite3
 import uuid
+from collections.abc import Callable, Generator, Sequence
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import TypeVar
 from uuid import UUID
 
 from .database import connect, validate_lesson_date, validate_pair_number
+
+T = TypeVar("T")
+
+_ASSIGNMENT_SELECT = """
+SELECT ca.id, ca.group_id, ca.topic_id, t.subject_id, g.name AS group_name,
+       ca.lesson_date, ca.pair_number, ca.created_at, ca.updated_at, ca.archived_at
+FROM class_assignments ca
+JOIN topics t ON t.id = ca.topic_id
+JOIN groups g ON g.id = ca.group_id
+"""
 
 
 @dataclass(frozen=True, slots=True)
@@ -22,6 +36,7 @@ class Assignment:
     created_at: datetime
     updated_at: datetime
     archived_at: datetime | None = None
+    group_name: str | None = None
 
 
 class AssignmentInUseError(ValueError):
@@ -61,18 +76,36 @@ class AssignmentStore:
     def _now_iso() -> str:
         return datetime.now(timezone.utc).isoformat()
 
+    @contextmanager
+    def connect(self) -> Generator[sqlite3.Connection, None, None]:
+        """Open a managed SQLite connection for multi-store atomic operations."""
+        with connect(self.db_path) as conn:
+            yield conn
+
+    def _with_conn(
+        self,
+        conn: sqlite3.Connection | None,
+        fn: Callable[[sqlite3.Connection], T],
+    ) -> T:
+        if conn is not None:
+            return fn(conn)
+        with connect(self.db_path) as local_conn:
+            return fn(local_conn)
+
     @classmethod
-    def _row_to_assignment(cls, row: object) -> Assignment:
+    def _row_to_assignment(cls, row: sqlite3.Row) -> Assignment:
+        keys = row.keys()
         return Assignment(
-            id=UUID(row["id"]),  # type: ignore[index]
-            group_id=UUID(row["group_id"]),  # type: ignore[index]
-            topic_id=UUID(row["topic_id"]),  # type: ignore[index]
-            subject_id=UUID(row["subject_id"]),  # type: ignore[index]
-            lesson_date=row["lesson_date"],  # type: ignore[index]
-            pair_number=int(row["pair_number"]),  # type: ignore[index]
-            created_at=_parse_datetime(row["created_at"]) or datetime.now(timezone.utc),  # type: ignore[index]
-            updated_at=_parse_datetime(row["updated_at"]) or datetime.now(timezone.utc),  # type: ignore[index]
-            archived_at=_parse_datetime(row["archived_at"]),  # type: ignore[index]
+            id=UUID(row["id"]),
+            group_id=UUID(row["group_id"]),
+            topic_id=UUID(row["topic_id"]),
+            subject_id=UUID(row["subject_id"]),
+            lesson_date=row["lesson_date"],
+            pair_number=int(row["pair_number"]),
+            created_at=_parse_datetime(row["created_at"]) or datetime.now(timezone.utc),
+            updated_at=_parse_datetime(row["updated_at"]) or datetime.now(timezone.utc),
+            archived_at=_parse_datetime(row["archived_at"]),
+            group_name=row["group_name"] if "group_name" in keys else None,
         )
 
     def create(
@@ -82,6 +115,7 @@ class AssignmentStore:
         lesson_date_or_topic: str | UUID,
         pair_number_or_date: int | str,
         pair_number: int | None = None,
+        conn: sqlite3.Connection | None = None,
     ) -> Assignment:
         # Handle 5-arg signature (group_id, subject_id, topic_id, lesson_date, pair_number)
         if pair_number is not None:
@@ -107,16 +141,17 @@ class AssignmentStore:
         now_iso = self._now_iso()
         new_id = uuid.uuid4()
 
-        with connect(self.db_path) as conn:
-            grp = conn.execute(
-                "SELECT id, archived_at FROM groups WHERE id = ?;", (str(grp_uuid),)
+        def _execute(c: sqlite3.Connection) -> Assignment:
+            grp = c.execute(
+                "SELECT id, name, archived_at FROM groups WHERE id = ?;",
+                (str(grp_uuid),),
             ).fetchone()
             if not grp:
                 raise AssignmentNotFoundError(f"Group {grp_uuid} not found")
             if grp["archived_at"] is not None:
                 raise AssignmentValidationError(f"Group {grp_uuid} is archived")
 
-            top = conn.execute(
+            top = c.execute(
                 "SELECT id, subject_id, archived_at FROM topics WHERE id = ?;",
                 (str(actual_topic_id),),
             ).fetchone()
@@ -127,7 +162,7 @@ class AssignmentStore:
 
             subject_uuid = UUID(top["subject_id"])
 
-            conflict = conn.execute(
+            conflict = c.execute(
                 """
                 SELECT id FROM class_assignments
                 WHERE group_id = ? AND lesson_date = ? AND pair_number = ? AND archived_at IS NULL;
@@ -139,7 +174,7 @@ class AssignmentStore:
                     f"Active assignment already exists for ({grp_uuid}, {valid_date}, {valid_pair})"
                 )
 
-            conn.execute(
+            c.execute(
                 """
                 INSERT INTO class_assignments (id, group_id, topic_id, lesson_date, pair_number, created_at, updated_at, archived_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, NULL);
@@ -155,18 +190,21 @@ class AssignmentStore:
                 ),
             )
 
-        now_dt = _parse_datetime(now_iso) or datetime.now(timezone.utc)
-        return Assignment(
-            id=new_id,
-            group_id=grp_uuid,
-            topic_id=actual_topic_id,
-            subject_id=subject_uuid,
-            lesson_date=valid_date,
-            pair_number=valid_pair,
-            created_at=now_dt,
-            updated_at=now_dt,
-            archived_at=None,
-        )
+            now_dt = _parse_datetime(now_iso) or datetime.now(timezone.utc)
+            return Assignment(
+                id=new_id,
+                group_id=grp_uuid,
+                topic_id=actual_topic_id,
+                subject_id=subject_uuid,
+                lesson_date=valid_date,
+                pair_number=valid_pair,
+                created_at=now_dt,
+                updated_at=now_dt,
+                archived_at=None,
+                group_name=grp["name"],
+            )
+
+        return self._with_conn(conn, _execute)
 
     def update(
         self,
@@ -175,6 +213,7 @@ class AssignmentStore:
         pair_number: int,
         topic_id_or_subject: UUID | str,
         topic_id: UUID | str | None = None,
+        conn: sqlite3.Connection | None = None,
     ) -> Assignment:
         # Support both (assignment_id, lesson_date, pair_number, topic_id)
         # and 5-arg (assignment_id, lesson_date, pair_number, subject_id, topic_id)
@@ -196,13 +235,15 @@ class AssignmentStore:
         asgn_uuid = self._to_uuid(assignment_id)
         now_iso = self._now_iso()
 
-        with connect(self.db_path) as conn:
-            cur = conn.execute(
+        def _execute(c: sqlite3.Connection) -> Assignment:
+            cur = c.execute(
                 """
                 SELECT ca.id, ca.group_id, ca.topic_id, ca.lesson_date, ca.pair_number,
-                       ca.created_at, ca.updated_at, ca.archived_at, t.subject_id
+                       ca.created_at, ca.updated_at, ca.archived_at,
+                       t.subject_id, g.name AS group_name
                 FROM class_assignments ca
                 JOIN topics t ON t.id = ca.topic_id
+                JOIN groups g ON g.id = ca.group_id
                 WHERE ca.id = ?;
                 """,
                 (str(asgn_uuid),),
@@ -212,7 +253,7 @@ class AssignmentStore:
 
             # Check if topic_id changed
             if str(actual_topic_id) != cur["topic_id"]:
-                sub_count = conn.execute(
+                sub_count = c.execute(
                     "SELECT COUNT(*) FROM submissions WHERE assignment_id = ?;",
                     (str(asgn_uuid),),
                 ).fetchone()[0]
@@ -221,7 +262,7 @@ class AssignmentStore:
                         "Cannot change topic of assignment with submissions"
                     )
 
-                new_top = conn.execute(
+                new_top = c.execute(
                     "SELECT id, subject_id, archived_at FROM topics WHERE id = ?;",
                     (str(actual_topic_id),),
                 ).fetchone()
@@ -234,7 +275,7 @@ class AssignmentStore:
                 subject_uuid = UUID(cur["subject_id"])
 
             group_id_str = cur["group_id"]
-            conflict = conn.execute(
+            conflict = c.execute(
                 """
                 SELECT id FROM class_assignments
                 WHERE group_id = ? AND lesson_date = ? AND pair_number = ? AND id != ? AND archived_at IS NULL;
@@ -246,7 +287,7 @@ class AssignmentStore:
                     f"Active assignment already exists for slot ({group_id_str}, {valid_date}, {valid_pair})"
                 )
 
-            conn.execute(
+            c.execute(
                 """
                 UPDATE class_assignments
                 SET lesson_date = ?, pair_number = ?, topic_id = ?, updated_at = ?
@@ -261,22 +302,26 @@ class AssignmentStore:
                 ),
             )
 
-        return Assignment(
-            id=asgn_uuid,
-            group_id=UUID(group_id_str),
-            topic_id=actual_topic_id,
-            subject_id=subject_uuid,
-            lesson_date=valid_date,
-            pair_number=valid_pair,
-            created_at=_parse_datetime(cur["created_at"]) or datetime.now(timezone.utc),
-            updated_at=_parse_datetime(now_iso) or datetime.now(timezone.utc),
-            archived_at=_parse_datetime(cur["archived_at"]),
-        )
+            return Assignment(
+                id=asgn_uuid,
+                group_id=UUID(group_id_str),
+                topic_id=actual_topic_id,
+                subject_id=subject_uuid,
+                lesson_date=valid_date,
+                pair_number=valid_pair,
+                created_at=_parse_datetime(cur["created_at"]) or datetime.now(timezone.utc),
+                updated_at=_parse_datetime(now_iso) or datetime.now(timezone.utc),
+                archived_at=_parse_datetime(cur["archived_at"]),
+                group_name=cur["group_name"],
+            )
 
-    def archive(self, assignment_id: UUID | str) -> None:
+        return self._with_conn(conn, _execute)
+
+    def archive(self, assignment_id: UUID | str, conn: sqlite3.Connection | None = None) -> None:
         u = self._to_uuid(assignment_id)
-        with connect(self.db_path) as conn:
-            row = conn.execute(
+
+        def _execute(c: sqlite3.Connection) -> None:
+            row = c.execute(
                 "SELECT id, archived_at FROM class_assignments WHERE id = ?;",
                 (str(u),),
             ).fetchone()
@@ -285,39 +330,65 @@ class AssignmentStore:
 
             if row["archived_at"] is None:
                 now_iso = self._now_iso()
-                conn.execute(
+                c.execute(
                     "UPDATE class_assignments SET archived_at = ? WHERE id = ?;",
                     (now_iso, str(u)),
                 )
 
+        self._with_conn(conn, _execute)
+
     delete = archive
 
-    def get(self, assignment_id: UUID | str) -> Assignment | None:
+    def get(self, assignment_id: UUID | str, conn: sqlite3.Connection | None = None) -> Assignment | None:
         u = self._to_uuid(assignment_id)
-        with connect(self.db_path) as conn:
-            row = conn.execute(
-                """
-                SELECT ca.id, ca.group_id, ca.topic_id, t.subject_id, ca.lesson_date,
-                       ca.pair_number, ca.created_at, ca.updated_at, ca.archived_at
-                FROM class_assignments ca
-                JOIN topics t ON t.id = ca.topic_id
-                WHERE ca.id = ?;
-                """,
+
+        def _execute(c: sqlite3.Connection) -> Assignment | None:
+            row = c.execute(
+                f"{_ASSIGNMENT_SELECT} WHERE ca.id = ?;",
                 (str(u),),
             ).fetchone()
-            if not row:
-                return None
-            return self._row_to_assignment(row)
+            return self._row_to_assignment(row) if row else None
+
+        return self._with_conn(conn, _execute)
+
+    def get_ids_for_topic(
+        self, topic_id: UUID | str, conn: sqlite3.Connection | None = None
+    ) -> tuple[UUID, ...]:
+        tu = self._to_uuid(topic_id)
+        sql = "SELECT id FROM class_assignments WHERE topic_id = ? AND archived_at IS NULL;"
+        return self._with_conn(
+            conn, lambda c: tuple(UUID(r["id"]) for r in c.execute(sql, (str(tu),)).fetchall())
+        )
+
+    def get_ids_for_subject(
+        self, subject_id: UUID | str, conn: sqlite3.Connection | None = None
+    ) -> tuple[UUID, ...]:
+        su = self._to_uuid(subject_id)
+        sql = """
+        SELECT ca.id
+        FROM class_assignments ca
+        JOIN topics t ON t.id = ca.topic_id
+        WHERE t.subject_id = ? AND ca.archived_at IS NULL;
+        """
+        return self._with_conn(
+            conn, lambda c: tuple(UUID(r["id"]) for r in c.execute(sql, (str(su),)).fetchall())
+        )
+
+    def get_ids_for_group(
+        self, group_id: UUID | str, conn: sqlite3.Connection | None = None
+    ) -> tuple[UUID, ...]:
+        gu = self._to_uuid(group_id)
+        sql = "SELECT id FROM class_assignments WHERE group_id = ? AND archived_at IS NULL;"
+        return self._with_conn(
+            conn, lambda c: tuple(UUID(r["id"]) for r in c.execute(sql, (str(gu),)).fetchall())
+        )
 
     def list_for_group(self, group_id: UUID | str) -> list[Assignment]:
         u = self._to_uuid(group_id)
         with connect(self.db_path) as conn:
             rows = conn.execute(
-                """
-                SELECT ca.id, ca.group_id, ca.topic_id, t.subject_id, ca.lesson_date,
-                       ca.pair_number, ca.created_at, ca.updated_at, ca.archived_at
-                FROM class_assignments ca
-                JOIN topics t ON t.id = ca.topic_id
+                f"""
+                {_ASSIGNMENT_SELECT}
                 WHERE ca.group_id = ? AND ca.archived_at IS NULL
                 ORDER BY ca.lesson_date ASC, ca.pair_number ASC;
                 """,
@@ -332,11 +403,8 @@ class AssignmentStore:
         su = self._to_uuid(subject_id)
         with connect(self.db_path) as conn:
             rows = conn.execute(
-                """
-                SELECT ca.id, ca.group_id, ca.topic_id, t.subject_id, ca.lesson_date,
-                       ca.pair_number, ca.created_at, ca.updated_at, ca.archived_at
-                FROM class_assignments ca
-                JOIN topics t ON t.id = ca.topic_id
+                f"""
+                {_ASSIGNMENT_SELECT}
                 WHERE ca.group_id = ? AND t.subject_id = ? AND ca.archived_at IS NULL
                 ORDER BY ca.lesson_date ASC, ca.pair_number ASC;
                 """,
@@ -347,13 +415,24 @@ class AssignmentStore:
     def list_all(self) -> list[Assignment]:
         with connect(self.db_path) as conn:
             rows = conn.execute(
-                """
-                SELECT ca.id, ca.group_id, ca.topic_id, t.subject_id, ca.lesson_date,
-                       ca.pair_number, ca.created_at, ca.updated_at, ca.archived_at
-                FROM class_assignments ca
-                JOIN topics t ON t.id = ca.topic_id
+                f"""
+                {_ASSIGNMENT_SELECT}
                 WHERE ca.archived_at IS NULL
                 ORDER BY ca.lesson_date ASC, ca.pair_number ASC;
                 """
             ).fetchall()
             return [self._row_to_assignment(r) for r in rows]
+
+    def reassign_subject_for_topics(
+        self,
+        topic_ids: Sequence[UUID],
+        new_subject_id: UUID,
+        conn: sqlite3.Connection | None = None,
+    ) -> int:
+        """Compatibility helper: in SQLite v2 subject_id lives on topics, not class_assignments."""
+        if not topic_ids:
+            return 0
+        str_ids = [str(uid) for uid in topic_ids]
+        placeholders = ",".join("?" for _ in str_ids)
+        sql = f"SELECT COUNT(*) FROM class_assignments WHERE topic_id IN ({placeholders});"
+        return int(self._with_conn(conn, lambda c: c.execute(sql, str_ids).fetchone()[0]))

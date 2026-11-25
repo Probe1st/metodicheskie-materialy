@@ -394,6 +394,14 @@ class SqliteCatalogStore(CatalogStore):
         return Topic(new_id, sub_uuid, cleaned_name)
 
     def rename_topic(self, item_id: UUID | str, new_name: str) -> Topic:
+        return self.update_topic(item_id, new_name, subject_id=None)
+
+    def update_topic(
+        self,
+        item_id: UUID | str,
+        new_name: str,
+        subject_id: UUID | str | None = None,
+    ) -> Topic:
         u = self._to_uuid(item_id)
         try:
             name_key = normalize_name_key(new_name)
@@ -401,6 +409,8 @@ class SqliteCatalogStore(CatalogStore):
             raise CatalogValidationError(str(e)) from e
 
         cleaned_name = new_name.strip()
+        target_sub_uuid = self._to_uuid(subject_id) if subject_id is not None else None
+
         with connect(self.database_path) as conn:
             row = conn.execute(
                 "SELECT id, subject_id, name, archived_at FROM topics WHERE id = ?;",
@@ -411,17 +421,30 @@ class SqliteCatalogStore(CatalogStore):
             if row["archived_at"] is not None:
                 raise CatalogOperationForbiddenError("Cannot rename archived topic")
 
+            final_sub_uuid = target_sub_uuid or UUID(row["subject_id"])
+            if str(final_sub_uuid) != row["subject_id"]:
+                subj = conn.execute(
+                    "SELECT id, archived_at FROM subjects WHERE id = ?;",
+                    (str(final_sub_uuid),),
+                ).fetchone()
+                if not subj:
+                    raise CatalogNotFoundError(f"Subject {final_sub_uuid} not found")
+                if subj["archived_at"] is not None:
+                    raise CatalogOperationForbiddenError(
+                        "Cannot move topic to archived subject"
+                    )
+
             try:
                 conn.execute(
-                    "UPDATE topics SET name = ?, name_key = ? WHERE id = ?;",
-                    (cleaned_name, name_key, str(u)),
+                    "UPDATE topics SET name = ?, name_key = ?, subject_id = ? WHERE id = ?;",
+                    (cleaned_name, name_key, str(final_sub_uuid), str(u)),
                 )
             except sqlite3.IntegrityError as e:
                 raise CatalogConflictError(
-                    f"Topic '{cleaned_name}' already exists in subject"
+                    [cleaned_name]
                 ) from e
 
-        return Topic(u, UUID(row["subject_id"]), cleaned_name)
+        return Topic(u, final_sub_uuid, cleaned_name)
 
     def archive_topic(self, item_id: UUID | str) -> Topic:
         u = self._to_uuid(item_id)

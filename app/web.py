@@ -7,7 +7,7 @@ import os
 import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from flask import (
     Flask,
@@ -38,7 +38,13 @@ from .catalog_store import (
     CatalogOperationForbiddenError,
     CatalogValidationError,
 )
-from .database import DatabaseError, DatabaseValidationError, validate
+from .database import (
+    DatabaseError,
+    DatabaseValidationError,
+    connect,
+    normalize_name_key,
+    validate,
+)
 from .sqlite_catalog import SqliteCatalogStore
 from .storage import (
     DEFAULT_ALLOWED_UPLOAD_EXTENSIONS,
@@ -51,6 +57,8 @@ from .submissions import (
     SubmissionStore,
     SubmissionValidationError,
 )
+from .task_content import TaskContentStore
+from .task_rendering import render_task
 
 
 def _format_date_short(iso_date: str) -> str:
@@ -58,6 +66,16 @@ def _format_date_short(iso_date: str) -> str:
     if len(parts) == 3:
         return f"{parts[2]}.{parts[1]}"
     return iso_date
+
+
+def _format_bytes(size_bytes: int) -> str:
+    if size_bytes < 1024:
+        return f"{size_bytes} Б"
+    if size_bytes < 1024 * 1024:
+        return f"{size_bytes / 1024:.1f} КБ"
+    if size_bytes < 1024 * 1024 * 1024:
+        return f"{size_bytes / (1024 * 1024):.1f} МБ"
+    return f"{size_bytes / (1024 * 1024 * 1024):.1f} ГБ"
 
 
 def _parse_deadline_input(value: str) -> datetime | None:
@@ -111,7 +129,6 @@ def create_app(config=None):
 
     _validate_secret_key(app.config.get("SECRET_KEY"))
 
-    allowed_ext_raw = None
     if "ALLOWED_UPLOAD_EXTENSIONS" in app.config:
         allowed_ext_raw = app.config["ALLOWED_UPLOAD_EXTENSIONS"]
     elif "ALLOWED_UPLOAD_EXTENSIONS" in os.environ:
@@ -136,7 +153,6 @@ def create_app(config=None):
         if "application/json" in accept or request.is_json or is_ajax:
             return jsonify({"error": "csrf_error", "message": message}), 400
         return Response(message, status=400, mimetype="text/plain; charset=utf-8")
-
 
     upload_mb = app.config.get("MAX_UPLOAD_MB")
     if upload_mb is None and "MAX_UPLOAD_MB" in os.environ:
@@ -194,6 +210,10 @@ def create_app(config=None):
     access_store = AccessStore(db_path)
     assignment_store = AssignmentStore(db_path)
     submission_store = SubmissionStore(db_path, app.config["STORAGE_ROOT"])
+    task_attachments_dir = Path(
+        app.config.get("TASK_ATTACHMENTS_DIR", private_dir / "task-attachments")
+    )
+    task_content_store = TaskContentStore(db_path, task_attachments_dir)
 
     def is_admin() -> bool:
         return bool(session.get("admin"))
@@ -211,6 +231,98 @@ def create_app(config=None):
         if topics:
             return jsonify(error="topic_name_conflict", names=error.names), 400
         return jsonify(error="name_conflict"), 400
+
+    def resolve_group_uuid(raw_group: str) -> UUID | None:
+        cleaned = raw_group.strip()
+        if not cleaned:
+            return None
+        try:
+            return UUID(cleaned)
+        except (ValueError, TypeError):
+            found = next(
+                (
+                    g
+                    for g in catalog_store.list_groups()
+                    if g.name.casefold() == cleaned.casefold()
+                ),
+                None,
+            )
+            return found.id if found else None
+
+    def serialize_student_assignments(assigned, snapshot) -> list[dict]:
+        subject_map = {s.id: s.name for s in snapshot.subjects}
+        topic_map = {t.id: t.name for t in snapshot.topics}
+        result: list[dict] = []
+        for a in assigned:
+            if a.subject_id not in subject_map or a.topic_id not in topic_map:
+                continue
+            tc = task_content_store.get("lesson", a.id)
+            has_desc = bool(tc and tc.description and tc.description.strip())
+            has_att = bool(tc and tc.attachment_id)
+            result.append(
+                {
+                    "id": str(a.id),
+                    "subject_id": str(a.subject_id),
+                    "subject_name": subject_map.get(a.subject_id, ""),
+                    "topic_id": str(a.topic_id),
+                    "topic_name": topic_map.get(a.topic_id, ""),
+                    "lesson_date": a.lesson_date,
+                    "pair_number": a.pair_number,
+                    "has_description": has_desc,
+                    "has_attachment": has_att,
+                    "label": (
+                        f"{_format_date_short(a.lesson_date)}, пара {a.pair_number} — "
+                        f"{topic_map.get(a.topic_id, '')}"
+                    ),
+                }
+            )
+        return result
+
+    def stage_task_payload(
+        *, restrict_existing_att_id: UUID | None = None
+    ) -> tuple[str, str, UUID | None, tuple[UUID, str, int] | None]:
+        """Parse and stage task description/attachment from request form and files."""
+        description = request.form.get("description", "")
+        description_format = request.form.get("description_format", "txt").strip().lower()
+        if description_format not in ("html", "md", "txt"):
+            abort(400)
+
+        raw_att_id = request.form.get("attachment_id", "").strip()
+        remove_attachment = request.form.get("remove_attachment", "0").strip() == "1"
+        file = request.files.get("attachment")
+        has_new_file = bool(file and file.filename and file.filename.strip())
+
+        if remove_attachment and has_new_file:
+            abort(400)
+
+        staged_att: tuple[UUID, str, int] | None = None
+        if has_new_file and file is not None and file.filename:
+            file_bytes = file.read()
+            if len(file_bytes) > app.config["MAX_CONTENT_LENGTH"]:
+                abort(413)
+            new_att_id = uuid4()
+            task_content_store.write_attachment_file(new_att_id, file_bytes)
+            staged_att = (new_att_id, file.filename.strip(), len(file_bytes))
+            final_att_id: UUID | None = new_att_id
+        elif remove_attachment:
+            final_att_id = None
+        elif raw_att_id:
+            try:
+                req_att = UUID(raw_att_id)
+            except ValueError:
+                abort(400)
+            if restrict_existing_att_id is not None:
+                if req_att != restrict_existing_att_id:
+                    abort(400)
+            else:
+                att = task_content_store.get_attachment(req_att)
+                if att is None or not task_content_store.get_attachment_path(req_att).is_file():
+                    abort(400)
+            final_att_id = req_att
+        else:
+            final_att_id = None
+
+        return description, description_format, final_att_id, staged_att
 
     def verify_student_session() -> tuple[UUID, int]:
         if session.get("student_session_schema") != 2:
@@ -250,22 +362,14 @@ def create_app(config=None):
         else:
             data = request.form
 
-        raw_group = data.get("group_id") or data.get("group", "")
-        raw_password = data.get("password", "")
+        raw_group = str(data.get("group_id") or data.get("group", ""))
+        raw_password = str(data.get("password", ""))
         if not raw_group or not raw_password:
             abort(403)
 
-        try:
-            group_uuid = UUID(str(raw_group))
-        except (ValueError, TypeError):
-            # Fallback search by name if name was submitted
-            found_group = next(
-                (g for g in catalog_store.list_groups() if g.name.casefold() == str(raw_group).strip().casefold()),
-                None,
-            )
-            if not found_group:
-                abort(403)
-            group_uuid = found_group.id
+        group_uuid = resolve_group_uuid(raw_group)
+        if not group_uuid:
+            abort(403)
 
         ok, access = access_store.authorize(group_uuid, raw_password)
         if not ok or access is None:
@@ -275,28 +379,13 @@ def create_app(config=None):
         group_name = group_item.name if group_item else ""
 
         session["student_group_id"] = str(group_uuid)
+        session["student_group"] = group_name
         session["student_access_version"] = access.version
         session["student_session_schema"] = 2
 
         assigned = assignment_store.list_for_group(group_uuid)
         snapshot = catalog_store.snapshot()
-        subject_map = {s.id: s.name for s in snapshot.subjects}
-        topic_map = {t.id: t.name for t in snapshot.topics}
-
-        assignments_data = [
-            {
-                "id": str(a.id),
-                "subject_id": str(a.subject_id),
-                "subject_name": subject_map.get(a.subject_id, ""),
-                "topic_id": str(a.topic_id),
-                "topic_name": topic_map.get(a.topic_id, ""),
-                "lesson_date": a.lesson_date,
-                "pair_number": a.pair_number,
-                "label": f"{_format_date_short(a.lesson_date)}, пара {a.pair_number} — {topic_map.get(a.topic_id, '')}",
-            }
-            for a in assigned
-            if a.subject_id in subject_map and a.topic_id in topic_map
-        ]
+        assignments_data = serialize_student_assignments(assigned, snapshot)
 
         students = submission_store.list_students(group_uuid, include_archived=False)
         students_data = [{"id": str(s.id), "display_name": s.display_name} for s in students]
@@ -305,6 +394,7 @@ def create_app(config=None):
             status="ok",
             group_id=str(group_uuid),
             group_name=group_name,
+            group=group_name,
             assignments=assignments_data,
             students=students_data,
         ), 200
@@ -312,26 +402,116 @@ def create_app(config=None):
     @app.get("/student/assignments")
     def student_assignments():
         group_uuid, _ = verify_student_session()
+        group_item = catalog_store.get_group(group_uuid)
+        group_name = group_item.name if group_item else ""
         assigned = assignment_store.list_for_group(group_uuid)
         snapshot = catalog_store.snapshot()
-        subject_map = {s.id: s.name for s in snapshot.subjects}
-        topic_map = {t.id: t.name for t in snapshot.topics}
+        assignments_data = serialize_student_assignments(assigned, snapshot)
+        return jsonify(
+            status="ok",
+            group_id=str(group_uuid),
+            group=group_name,
+            assignments=assignments_data,
+        ), 200
 
-        assignments_data = [
-            {
-                "id": str(a.id),
-                "subject_id": str(a.subject_id),
-                "subject_name": subject_map.get(a.subject_id, ""),
-                "topic_id": str(a.topic_id),
-                "topic_name": topic_map.get(a.topic_id, ""),
-                "lesson_date": a.lesson_date,
-                "pair_number": a.pair_number,
-                "label": f"{_format_date_short(a.lesson_date)}, пара {a.pair_number} — {topic_map.get(a.topic_id, '')}",
-            }
-            for a in assigned
-            if a.subject_id in subject_map and a.topic_id in topic_map
-        ]
-        return jsonify(status="ok", group_id=str(group_uuid), assignments=assignments_data), 200
+    @app.get("/student/assignments/<assignment_id>")
+    def student_assignment_page(assignment_id):
+        group_uuid, _ = verify_student_session()
+        try:
+            uid = UUID(assignment_id)
+        except (ValueError, TypeError):
+            abort(400)
+
+        group_item = catalog_store.get_group(group_uuid)
+        if group_item is None:
+            abort(403)
+
+        assignment = assignment_store.get(uid)
+        if assignment is None or assignment.archived_at is not None or assignment.group_id != group_uuid:
+            abort(404)
+
+        topic = catalog_store.get_topic(assignment.topic_id)
+        subject = catalog_store.get_subject(assignment.subject_id) if topic else None
+        if subject is None or topic is None:
+            abort(404)
+
+        content = task_content_store.get("lesson", uid)
+        if content and content.description.strip():
+            rendered_description = render_task(content.description, content.description_format)
+            description_format = content.description_format
+        else:
+            rendered_description = ""
+            description_format = "txt"
+
+        attachment = None
+        attachment_size_formatted = ""
+        if content and content.attachment_id:
+            attachment = task_content_store.get_attachment(content.attachment_id)
+            if attachment:
+                attachment_size_formatted = _format_bytes(attachment.size_bytes)
+
+        query_params = {}
+        for key in ("q", "subject_id", "date"):
+            val = request.args.get(key, "").strip()
+            if val:
+                query_params[key] = val
+        return_url = url_for("index", **query_params)
+
+        date_parts = assignment.lesson_date.split("-")
+        date_formatted = (
+            f"{date_parts[2]}.{date_parts[1]}.{date_parts[0]}"
+            if len(date_parts) == 3
+            else assignment.lesson_date
+        )
+
+        return render_template(
+            "student_assignment.html",
+            assignment=assignment,
+            lesson_date_formatted=date_formatted,
+            subject=subject,
+            topic=topic,
+            group_name=group_item.name,
+            rendered_description=rendered_description,
+            description_format=description_format,
+            attachment=attachment,
+            attachment_size_formatted=attachment_size_formatted,
+            return_url=return_url,
+            limit=app.config["LIMIT_LABEL"],
+            max_bytes=app.config["MAX_CONTENT_LENGTH"],
+            allowed_extensions=sorted(app.config["ALLOWED_UPLOAD_EXTENSIONS"]),
+        )
+
+    @app.get("/student/assignments/<assignment_id>/attachment")
+    def student_download_attachment(assignment_id):
+        group_uuid, _ = verify_student_session()
+        try:
+            uid = UUID(assignment_id)
+        except (ValueError, TypeError):
+            abort(400)
+
+        group_item = catalog_store.get_group(group_uuid)
+        if group_item is None:
+            abort(403)
+
+        assignment = assignment_store.get(uid)
+        if assignment is None or assignment.archived_at is not None or assignment.group_id != group_uuid:
+            abort(404)
+
+        content = task_content_store.get("lesson", uid)
+        if content is None or content.attachment_id is None:
+            abort(404)
+
+        att = task_content_store.get_attachment(content.attachment_id)
+        if att is None:
+            abort(404)
+
+        path = task_content_store.get_attachment_path(att.id)
+        if not path.is_file():
+            abort(404)
+
+        response = send_file(path, as_attachment=True, download_name=att.original_name)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        return response
 
     @app.get("/student/students")
     def student_list_students():
@@ -366,27 +546,97 @@ def create_app(config=None):
     @app.post("/submit")
     def submit():
         group_uuid, version = verify_student_session()
+        group_item = catalog_store.get_group(group_uuid)
+        if group_item is None:
+            abort(403)
 
         req_group_id = request.form.get("group_id", "").strip()
-        req_student_id = request.form.get("student_id", "").strip()
-        req_assignment_id = request.form.get("assignment_id", "").strip()
-        file = request.files.get("file")
-
-        if req_group_id != str(group_uuid):
+        req_group_name = request.form.get("group", "").strip()
+        if req_group_id:
+            if req_group_id != str(group_uuid):
+                abort(403)
+        elif req_group_name:
+            if req_group_name != group_item.name:
+                abort(403)
+        else:
             abort(403)
-        if not (req_group_id and req_student_id and req_assignment_id and file and file.filename):
+
+        file = request.files.get("file")
+        if not (file and file.filename):
             abort(400)
+
+        req_student_id = request.form.get("student_id", "").strip()
+        req_student_name = request.form.get("student_name", "").strip()
+        if req_student_id:
+            try:
+                student_uuid = UUID(req_student_id)
+            except (ValueError, TypeError):
+                abort(400)
+        elif req_student_name:
+            norm_key = normalize_name_key(req_student_name)
+            existing_student = next(
+                (
+                    s
+                    for s in submission_store.list_students(group_uuid, include_archived=False)
+                    if normalize_name_key(s.display_name) == norm_key
+                ),
+                None,
+            )
+            if existing_student is not None:
+                student_uuid = existing_student.id
+            else:
+                try:
+                    student_uuid = submission_store.create_student(
+                        group_uuid, unicodedata.normalize("NFC", req_student_name)
+                    ).id
+                except SubmissionValidationError as err:
+                    return jsonify(error="validation_error", message=str(err)), 400
+        else:
+            abort(400)
+
+        req_assignment_id = request.form.get("assignment_id", "").strip()
+        if req_assignment_id:
+            try:
+                assignment_uuid = UUID(req_assignment_id)
+            except (ValueError, TypeError):
+                abort(400)
+        else:
+            discipline = request.form.get("discipline", "").strip()
+            work = request.form.get("work", "").strip()
+            if not (discipline and work):
+                abort(400)
+            snapshot = catalog_store.snapshot()
+            subj_match = next(
+                (s for s in snapshot.subjects if s.name.casefold() == discipline.casefold()),
+                None,
+            )
+            topic_match = (
+                next(
+                    (
+                        t
+                        for t in snapshot.topics
+                        if t.subject_id == subj_match.id and t.name.casefold() == work.casefold()
+                    ),
+                    None,
+                )
+                if subj_match
+                else None
+            )
+            if not topic_match:
+                abort(400)
+            matching_assignments = [
+                a
+                for a in assignment_store.list_for_group(group_uuid)
+                if a.topic_id == topic_match.id
+            ]
+            if not matching_assignments:
+                abort(400)
+            assignment_uuid = matching_assignments[-1].id
 
         try:
             validated_upload_suffix(file.filename, app.config["ALLOWED_UPLOAD_EXTENSIONS"])
         except ValueError:
             return jsonify({"error": "file_type_not_allowed", "message": "Недопустимый формат файла."}), 400
-
-        try:
-            student_uuid = UUID(req_student_id)
-            assignment_uuid = UUID(req_assignment_id)
-        except (ValueError, TypeError):
-            abort(400)
 
         try:
             sub, sub_file = submission_store.submit(
@@ -456,16 +706,10 @@ def create_app(config=None):
         if not is_admin():
             abort(403)
 
-        raw_group_id = request.form.get("group_id", "").strip()
-        try:
-            group_uuid = UUID(raw_group_id)
-        except (ValueError, TypeError):
-            # Fallback by name if group_name was submitted
-            raw_group_name = request.form.get("group", "").strip()
-            found = next((g for g in catalog_store.list_groups() if g.name == raw_group_name), None)
-            if not found:
-                abort(400)
-            group_uuid = found.id
+        raw_group = request.form.get("group_id") or request.form.get("group", "")
+        group_uuid = resolve_group_uuid(str(raw_group))
+        if not group_uuid:
+            abort(400)
 
         password = request.form.get("password", "").strip() or None
         is_open = request.form.get("is_open") == "1"
@@ -474,6 +718,10 @@ def create_app(config=None):
         try:
             deadline = _parse_deadline_input(raw_deadline)
         except ValueError:
+            abort(400)
+
+        group_obj = catalog_store.get_group(group_uuid)
+        if not group_obj:
             abort(400)
 
         try:
@@ -490,13 +738,14 @@ def create_app(config=None):
         snapshot = catalog_store.snapshot()
         selected_group_id = request.args.get("group_id", "").strip()
         if not selected_group_id and snapshot.groups:
-            # Check legacy group name param
             legacy_group_name = request.args.get("group", "").strip()
             matched = next((g for g in snapshot.groups if g.name == legacy_group_name), None)
-            if matched:
-                selected_group_id = str(matched.id)
-            else:
-                selected_group_id = str(snapshot.groups[0].id)
+            selected_group_id = str(matched.id) if matched else str(snapshot.groups[0].id)
+
+        selected_group_obj = next(
+            (g for g in snapshot.groups if str(g.id) == selected_group_id), None
+        )
+        selected_group_name = selected_group_obj.name if selected_group_obj else ""
 
         selected_subject_id = None
         raw_subj = request.args.get("subject_id", "").strip()
@@ -522,7 +771,9 @@ def create_app(config=None):
             {
                 "id": str(a.id),
                 "lesson_date": a.lesson_date,
-                "lesson_date_formatted": f"{a.lesson_date.split('-')[2]}.{a.lesson_date.split('-')[1]}.{a.lesson_date.split('-')[0]}",
+                "lesson_date_formatted": (
+                    f"{a.lesson_date.split('-')[2]}.{a.lesson_date.split('-')[1]}.{a.lesson_date.split('-')[0]}"
+                ),
                 "pair_number": a.pair_number,
                 "subject_id": str(a.subject_id),
                 "subject_name": subject_map.get(a.subject_id, ""),
@@ -532,8 +783,6 @@ def create_app(config=None):
             for a in assignments
         ]
 
-        unique_subjects_count = len({a.subject_id for a in assignments})
-
         return render_template(
             "admin_assignments.html",
             section="assignments",
@@ -541,9 +790,117 @@ def create_app(config=None):
             subjects=snapshot.subjects,
             topics=snapshot.topics,
             selected_group_id=selected_group_id,
+            selected_group=selected_group_name,
             selected_subject_id=str(selected_subject_id) if selected_subject_id else "",
             assignments=items,
-            unique_subjects_count=unique_subjects_count,
+            unique_subjects_count=len({a.subject_id for a in assignments}),
+        )
+
+    @app.get("/admin/assignments/new")
+    def admin_new_assignment_page():
+        if not is_admin():
+            abort(403)
+        snapshot = catalog_store.snapshot()
+        groups = snapshot.groups
+        subjects = snapshot.subjects
+        topics = snapshot.topics
+
+        raw_group = request.args.get("group", "").strip() or request.args.get("group_id", "").strip()
+        matched_group = next(
+            (g for g in groups if str(g.id) == raw_group or g.name == raw_group), None
+        )
+        if matched_group:
+            selected_group = matched_group.name
+        elif groups:
+            selected_group = groups[0].name
+        else:
+            selected_group = ""
+
+        selected_subject_id = request.args.get("subject_id", "").strip()
+        if not selected_subject_id and subjects:
+            selected_subject_id = str(subjects[0].id)
+        selected_date = request.args.get("date", "").strip()
+        if not selected_date:
+            selected_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        try:
+            selected_pair = int(request.args.get("pair", "1"))
+            if selected_pair < 1 or selected_pair > 6:
+                selected_pair = 1
+        except ValueError:
+            selected_pair = 1
+
+        return render_template(
+            "admin_task_editor.html",
+            mode="new_lesson",
+            form_action=url_for("admin_create_assignment"),
+            cancel_url=url_for(
+                "admin_assignments_page", group=selected_group, subject_id=selected_subject_id
+            ),
+            page_title="Новое занятие с заданием",
+            hero_eyebrow="Панель преподавателя",
+            hero_lead="Запланируйте дату и пару, подготовьте описание задания и прикрепите файлы.",
+            section="assignments",
+            groups=groups,
+            subjects=subjects,
+            topics=topics,
+            selected_group=selected_group,
+            selected_subject_id=selected_subject_id,
+            selected_topic_id="",
+            selected_date=selected_date,
+            selected_pair=selected_pair,
+            task_content=None,
+            attachment=None,
+            attachment_size_formatted="",
+            limit_label=app.config["LIMIT_LABEL"],
+            allowed_extensions=sorted(app.config["ALLOWED_UPLOAD_EXTENSIONS"]),
+        )
+
+    @app.get("/admin/assignments/<assignment_id>/edit")
+    def admin_edit_assignment_page(assignment_id):
+        if not is_admin():
+            abort(403)
+        try:
+            uid = UUID(assignment_id)
+        except (ValueError, TypeError):
+            abort(400)
+
+        assignment = assignment_store.get(uid)
+        if assignment is None or assignment.archived_at is not None:
+            abort(404)
+
+        snapshot = catalog_store.snapshot()
+        subjects = snapshot.subjects
+        topics = [t for t in snapshot.topics if t.subject_id == assignment.subject_id]
+        subject = next((s for s in subjects if s.id == assignment.subject_id), None)
+
+        content = task_content_store.get("lesson", uid)
+        att = (
+            task_content_store.get_attachment(content.attachment_id)
+            if (content and content.attachment_id)
+            else None
+        )
+
+        return render_template(
+            "admin_task_editor.html",
+            mode="edit_lesson",
+            form_action=url_for("admin_update_assignment", assignment_id=assignment.id),
+            cancel_url=url_for(
+                "admin_assignments_page",
+                group_id=str(assignment.group_id),
+                subject_id=str(assignment.subject_id),
+            ),
+            page_title="Редактирование занятия и задания",
+            hero_eyebrow="Панель преподавателя",
+            hero_lead="Измените параметры расписания или отредактируйте задание и материалы к занятию.",
+            section="assignments",
+            assignment=assignment,
+            subject=subject,
+            topics=topics,
+            task_content=content,
+            attachment=att,
+            attachment_size_formatted=_format_bytes(att.size_bytes) if att else "",
+            limit_label=app.config["LIMIT_LABEL"],
+            allowed_extensions=sorted(app.config["ALLOWED_UPLOAD_EXTENSIONS"]),
         )
 
     @app.post("/admin/assignments")
@@ -551,41 +908,85 @@ def create_app(config=None):
         if not is_admin():
             abort(403)
 
-        raw_group = request.form.get("group_id", "").strip()
-        if not raw_group:
-            # Fallback to group_name
-            legacy_name = request.form.get("group_name", "").strip()
-            g_match = next((g for g in catalog_store.list_groups() if g.name == legacy_name), None)
-            raw_group = str(g_match.id) if g_match else ""
-
+        raw_group = request.form.get("group_id", "").strip() or request.form.get("group_name", "").strip()
+        group_id = resolve_group_uuid(raw_group)
         raw_topic = request.form.get("topic_id", "").strip()
         lesson_date = request.form.get("lesson_date", "").strip()
         raw_pair = request.form.get("pair_number", "").strip()
 
+        if group_id is None:
+            abort(400)
+
         try:
-            group_id = UUID(raw_group)
             topic_id = UUID(raw_topic)
             pair_number = int(raw_pair)
         except (ValueError, TypeError):
             abort(400)
 
+        has_task_payload = any(
+            k in request.form
+            for k in ("description", "description_format", "attachment_id", "remove_attachment")
+        ) or bool(
+            request.files.get("attachment")
+            and request.files["attachment"].filename
+            and request.files["attachment"].filename.strip()
+        )
+        description = ""
+        description_format = "txt"
+        final_att_id: UUID | None = None
+        staged_att: tuple[UUID, str, int] | None = None
+        if has_task_payload:
+            description, description_format, final_att_id, staged_att = stage_task_payload()
+
+        orphans_to_discard: list[UUID] = []
         try:
-            item = assignment_store.create(group_id, topic_id, lesson_date, pair_number)
+            with assignment_store.connect() as conn:
+                item = assignment_store.create(
+                    group_id, topic_id, lesson_date, pair_number, conn=conn
+                )
+                if staged_att:
+                    task_content_store.register_attachment(
+                        staged_att[0], staged_att[1], staged_att[2], conn=conn
+                    )
+                if has_task_payload:
+                    _, orphans = task_content_store.set_content(
+                        "lesson", item.id, description, description_format, final_att_id, conn=conn
+                    )
+                    orphans_to_discard.extend(orphans)
+                conn.commit()
         except AssignmentConflictError as err:
+            if staged_att:
+                task_content_store.discard_attachment_file(staged_att[0])
             return jsonify(error="assignment_conflict", message=str(err)), 409
         except AssignmentValidationError as err:
+            if staged_att:
+                task_content_store.discard_attachment_file(staged_att[0])
             return jsonify(error="validation_error", message=str(err)), 400
         except AssignmentNotFoundError:
+            if staged_att:
+                task_content_store.discard_attachment_file(staged_att[0])
             abort(404)
+        except Exception:
+            if staged_att:
+                task_content_store.discard_attachment_file(staged_att[0])
+            raise
 
+        for orphan_id in orphans_to_discard:
+            task_content_store.discard_attachment_file(orphan_id)
+
+        redirect_url = url_for(
+            "admin_assignments_page", group_id=str(item.group_id), subject_id=str(item.subject_id)
+        )
         return jsonify(
             status="created",
             id=str(item.id),
             group_id=str(item.group_id),
+            group_name=item.group_name,
             subject_id=str(item.subject_id),
             topic_id=str(item.topic_id),
             lesson_date=item.lesson_date,
             pair_number=item.pair_number,
+            redirect_url=redirect_url,
         ), 201
 
     @app.post("/admin/assignments/<assignment_id>/update")
@@ -600,24 +1001,71 @@ def create_app(config=None):
             abort(400)
 
         lesson_date = request.form.get("lesson_date", "").strip()
+        has_task_payload = any(
+            k in request.form
+            for k in ("description", "description_format", "attachment_id", "remove_attachment")
+        ) or bool(
+            request.files.get("attachment")
+            and request.files["attachment"].filename
+            and request.files["attachment"].filename.strip()
+        )
+        description = ""
+        description_format = "txt"
+        final_att_id: UUID | None = None
+        staged_att: tuple[UUID, str, int] | None = None
+        if has_task_payload:
+            description, description_format, final_att_id, staged_att = stage_task_payload()
 
+        orphans_to_discard: list[UUID] = []
         try:
-            item = assignment_store.update(uid, lesson_date, pair_number, topic_id)
+            with assignment_store.connect() as conn:
+                item = assignment_store.update(
+                    uid, lesson_date, pair_number, topic_id, conn=conn
+                )
+                if staged_att:
+                    task_content_store.register_attachment(
+                        staged_att[0], staged_att[1], staged_att[2], conn=conn
+                    )
+                if has_task_payload:
+                    _, orphans = task_content_store.set_content(
+                        "lesson", uid, description, description_format, final_att_id, conn=conn
+                    )
+                    orphans_to_discard.extend(orphans)
+                conn.commit()
         except AssignmentConflictError as err:
+            if staged_att:
+                task_content_store.discard_attachment_file(staged_att[0])
             return jsonify(error="assignment_conflict", message=str(err)), 409
         except AssignmentNotFoundError:
+            if staged_att:
+                task_content_store.discard_attachment_file(staged_att[0])
             abort(404)
         except AssignmentInUseError as err:
+            if staged_att:
+                task_content_store.discard_attachment_file(staged_att[0])
             return jsonify(error="assignment_in_use", message=str(err)), 409
         except AssignmentValidationError as err:
+            if staged_att:
+                task_content_store.discard_attachment_file(staged_att[0])
             return jsonify(error="validation_error", message=str(err)), 400
+        except Exception:
+            if staged_att:
+                task_content_store.discard_attachment_file(staged_att[0])
+            raise
 
+        for orphan_id in orphans_to_discard:
+            task_content_store.discard_attachment_file(orphan_id)
+
+        redirect_url = url_for(
+            "admin_assignments_page", group_id=str(item.group_id), subject_id=str(item.subject_id)
+        )
         return jsonify(
             status="ok",
             id=str(item.id),
             lesson_date=item.lesson_date,
             pair_number=item.pair_number,
             topic_id=str(item.topic_id),
+            redirect_url=redirect_url,
         ), 200
 
     @app.post("/admin/assignments/<assignment_id>/archive")
@@ -634,6 +1082,138 @@ def create_app(config=None):
         except AssignmentNotFoundError:
             abort(404)
         return ("", 204)
+
+    # --- Task Content Admin Routes ---
+
+    @app.get("/admin/topics/<topic_id>/task")
+    def admin_topic_task_page(topic_id):
+        if not is_admin():
+            abort(403)
+        try:
+            uid = UUID(topic_id)
+        except (ValueError, TypeError):
+            abort(400)
+
+        topic = catalog_store.get_topic(uid)
+        if topic is None:
+            abort(404)
+
+        content = task_content_store.get("topic", uid)
+        att = (
+            task_content_store.get_attachment(content.attachment_id)
+            if (content and content.attachment_id)
+            else None
+        )
+
+        if request.accept_mimetypes.accept_json and not request.accept_mimetypes.accept_html:
+            if content is None:
+                return jsonify(has_task=False)
+            return jsonify(
+                has_task=True,
+                description=content.description,
+                description_format=content.description_format,
+                attachment={
+                    "id": str(att.id),
+                    "original_name": att.original_name,
+                    "size_bytes": att.size_bytes,
+                }
+                if att
+                else None,
+            )
+
+        subject = catalog_store.get_subject(topic.subject_id)
+        return render_template(
+            "admin_task_editor.html",
+            mode="topic",
+            form_action=url_for("admin_save_topic_task", topic_id=topic.id),
+            cancel_url=url_for("admin_catalog_page", kind="topics"),
+            page_title=f"Задание для темы «{topic.name}»",
+            hero_eyebrow="Каталог тем",
+            hero_lead="Задайте заготовленное задание к теме, которое можно будет копировать в расписание занятий.",
+            section="topics",
+            topic=topic,
+            subject=subject,
+            task_content=content,
+            attachment=att,
+            attachment_size_formatted=_format_bytes(att.size_bytes) if att else "",
+            limit_label=app.config["LIMIT_LABEL"],
+        )
+
+    @app.post("/admin/topics/<topic_id>/task")
+    def admin_save_topic_task(topic_id):
+        if not is_admin():
+            abort(403)
+        try:
+            uid = UUID(topic_id)
+        except (ValueError, TypeError):
+            abort(400)
+
+        topic = catalog_store.get_topic(uid)
+        if topic is None:
+            abort(404)
+
+        current = task_content_store.get("topic", uid)
+        allowed_att_id = current.attachment_id if current else None
+        description, description_format, final_att_id, staged_att = stage_task_payload(
+            restrict_existing_att_id=allowed_att_id
+        )
+
+        orphans_to_discard: list[UUID] = []
+        try:
+            with connect(db_path) as conn:
+                if staged_att:
+                    task_content_store.register_attachment(
+                        staged_att[0], staged_att[1], staged_att[2], conn=conn
+                    )
+                _, orphans = task_content_store.set_content(
+                    "topic", uid, description, description_format, final_att_id, conn=conn
+                )
+                orphans_to_discard.extend(orphans)
+                conn.commit()
+        except Exception:
+            if staged_att:
+                task_content_store.discard_attachment_file(staged_att[0])
+            raise
+
+        for orphan_id in orphans_to_discard:
+            task_content_store.discard_attachment_file(orphan_id)
+
+        if (
+            request.accept_mimetypes.accept_json and not request.accept_mimetypes.accept_html
+        ) or request.is_json:
+            return jsonify(
+                status="ok", redirect_url=url_for("admin_catalog_page", kind="topics")
+            ), 200
+        return redirect(url_for("admin_catalog_page", kind="topics"))
+
+    @app.post("/admin/tasks/preview")
+    def admin_task_preview():
+        if not is_admin():
+            abort(403)
+        description = request.form.get("description", "")
+        description_format = request.form.get("description_format", "txt").strip().lower()
+        if description_format not in ("html", "md", "txt"):
+            abort(400)
+        return jsonify(html=render_task(description, description_format))
+
+    @app.get("/admin/tasks/attachments/<attachment_id>")
+    def admin_download_attachment(attachment_id):
+        if not is_admin():
+            abort(403)
+        try:
+            uid = UUID(attachment_id)
+        except (ValueError, TypeError):
+            abort(400)
+
+        att = task_content_store.get_attachment(uid)
+        if att is None:
+            abort(404)
+        path = task_content_store.get_attachment_path(uid)
+        if not path.is_file():
+            abort(404)
+        response = send_file(path, as_attachment=True, download_name=att.original_name)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        return response
 
     # --- Catalog Admin Routes ---
 
@@ -695,7 +1275,11 @@ def create_app(config=None):
         singular = kind[:-1]
         try:
             if kind == "topics":
-                item = catalog_store.rename_topic(uid, request.form.get("name", ""))
+                raw_subject = request.form.get("subject_id", "").strip()
+                target_subject = UUID(raw_subject) if raw_subject else None
+                item = catalog_store.update_topic(
+                    uid, request.form.get("name", ""), subject_id=target_subject
+                )
                 return jsonify(topic_json(item))
             item = getattr(catalog_store, f"rename_{singular}")(uid, request.form.get("name", ""))
             return jsonify(id=str(item.id), name=item.name)

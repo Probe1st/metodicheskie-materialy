@@ -68,4 +68,21 @@ CREATE TABLE submission_files (
  size_bytes INTEGER NOT NULL CHECK(size_bytes>=0),
  sha256 TEXT CHECK(sha256 IS NULL OR length(sha256)=64)
 );
+CREATE TABLE IF NOT EXISTS task_attachments (
+  id TEXT PRIMARY KEY,
+  original_name TEXT NOT NULL,
+  size_bytes INTEGER NOT NULL,
+  created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS task_contents (
+  owner_kind TEXT NOT NULL CHECK (owner_kind IN ('topic', 'lesson')),
+  owner_id TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  description_format TEXT NOT NULL CHECK (description_format IN ('html', 'md', 'txt')),
+  attachment_id TEXT REFERENCES task_attachments(id) ON DELETE SET NULL,
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (owner_kind, owner_id)
+);
+CREATE INDEX IF NOT EXISTS idx_task_contents_attachment
+  ON task_contents(attachment_id);
 PRAGMA user_version=2;

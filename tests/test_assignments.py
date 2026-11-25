@@ -221,3 +221,34 @@ def test_list_filtering_and_ordering(
     # List all
     all_list = store.list_all()
     assert len(all_list) == 4
+
+
+def test_get_ids_helpers_and_transaction_rollback(
+    catalog: SqliteCatalogStore,
+    store: AssignmentStore,
+    seeded_ids: tuple[UUID, UUID, UUID],
+):
+    group_1, subject_1, topic_1 = seeded_ids
+    group_2 = catalog.create_group("ИС 25/9-2П")
+    subject_2 = catalog.create_subject("Физика")
+    topic_2 = catalog.create_topic(subject_2.id, "Оптика")
+
+    a1 = store.create(group_1, topic_1, "2026-10-14", 1)
+    a2 = store.create(group_1, topic_2.id, "2026-10-14", 2)
+    a3 = store.create(group_2.id, topic_1, "2026-10-15", 1)
+
+    assert a1.group_name == "ИС 25/9-1П"
+    assert set(store.get_ids_for_topic(topic_1)) == {a1.id, a3.id}
+    assert set(store.get_ids_for_subject(subject_1)) == {a1.id, a3.id}
+    assert set(store.get_ids_for_group(group_1)) == {a1.id, a2.id}
+
+    # Rollback with external conn leaves DB unchanged
+    try:
+        with store.connect() as conn:
+            temp = store.create(group_2.id, topic_2.id, "2026-10-16", 3, conn=conn)
+            assert store.get(temp.id, conn=conn) is not None
+            raise RuntimeError("trigger rollback")
+    except RuntimeError:
+        pass
+
+    assert store.get(temp.id) is None
