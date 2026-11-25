@@ -123,25 +123,25 @@
                     {% if kind == 'topics' %}
                       <p class="field__hint" data-topic-subject>{{ subjects|selectattr('id', 'equalto', item.subject_id)|map(attribute='name')|first }}</p>
                     {% elif kind == 'subjects' and item.id == unassigned_subject_id %}
-                      <p class="field__hint" style="color: var(--color-warning);">Системный предмет для тем, ожидающих распределения. Его нельзя переименовать или удалить.</p>
+                      <p class="field__hint" style="color: var(--color-warning);">Системный предмет для тем, ожидающих распределения. Его нельзя переименовать или архивировать.</p>
                     {% endif %}
                   </div>
                   <div class="catalog-actions" style="margin-left: auto;">
                     {% if kind == 'subjects' and item.id == unassigned_subject_id %}
                       <button class="button button--outline" type="button" disabled title="Системный предмет нельзя изменить">Редактировать</button>
-                      <button class="button button--danger" type="button" disabled title="Системный предмет нельзя удалить">Удалить</button>
+                      <button class="button button--danger" type="button" disabled title="Системный предмет нельзя архивировать">Архивировать</button>
                     {% else %}
                       {% if kind == 'topics' %}
                         <a class="button button--outline" href="/admin/topics/{{ item.id }}/task">Задание темы</a>
                       {% endif %}
                       <button class="button button--outline" type="button" data-toggle-edit>Редактировать</button>
-                      <button class="button button--danger" type="button" data-delete>Удалить</button>
+                      <button class="button button--danger" type="button" data-archive>Архивировать</button>
                     {% endif %}
                   </div>
                 </div>
 
                 {% if not (kind == 'subjects' and item.id == unassigned_subject_id) %}
-                  <form class="catalog-rename form-stack" data-catalog-rename method="post" action="{{ url_for('admin_catalog_mutate', kind=kind, item_id=item.id, action='update' if kind == 'topics' else 'rename') }}" hidden>
+                  <form class="catalog-rename form-stack" data-catalog-rename method="post" action="/admin/{{ kind }}/{{ item.id }}/{{ 'update' if kind == 'topics' else 'rename' }}" hidden>
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <label class="field" for="name_{{ item.id }}">Новое название
                       <input id="name_{{ item.id }}" name="name" value="{{ item.name }}" required maxlength="200" autocomplete="off">

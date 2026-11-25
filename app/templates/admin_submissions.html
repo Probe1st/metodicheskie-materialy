@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>Сданные работы — Панель преподавателя</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+  <link rel="alternate icon" href="{{ url_for('favicon') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="{{ url_for('index') }}" aria-label="На главную">
+        <img class="brand__logo" src="{{ url_for('static', filename='logo.svg') }}" alt="" width="32" height="32">
+        <span>Учебный портал</span>
+      </a>
+      <div class="header-actions">
+        <span class="header-label">Кабинет преподавателя</span>
+        <a class="button button--quiet" href="{{ url_for('index') }}">
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 12l-4-4 4-4"/></svg>
+          <span>К сдаче заданий</span>
+        </a>
+        <form method="post" action="{{ url_for('admin_logout') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="button button--quiet" type="submit">Выйти</button>
+        </form>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <section class="admin-hero" aria-labelledby="admin_title">
+      <div>
+        <p class="eyebrow">Панель преподавателя</p>
+        <h1 id="admin_title">Сданные работы</h1>
+      </div>
+      <p class="lead">Просматривайте отправленные файлы студентов, скачивайте работы и управляйте статусами проверки.</p>
+    </section>
+
+    <div class="admin-layout">
+      {% set section = "submissions" %}
+      {% include "_admin_nav.html" %}
+
+      <section class="admin-content" aria-label="Список работ">
+        <!-- Filter Toolbar -->
+        <section class="panel filter-toolbar" aria-label="Фильтры сданных работ" style="margin-bottom: var(--space-6);">
+          <form id="submissions_filter_form" class="filter-grid" method="get" action="{{ url_for('admin_submissions_page') }}">
+            <label class="field">Учебная группа
+              <select id="filter_group" name="group_id" onchange="this.form.submit()">
+                <option value="">Все группы</option>
+                {% for g in groups %}
+                  <option value="{{ g.id }}" {% if g.id|string == selected_group_id %}selected{% endif %}>{{ g.name }}</option>
+                {% endfor %}
+              </select>
+            </label>
+            <label class="field">Тема
+              <select id="filter_topic" name="topic_id" onchange="this.form.submit()">
+                <option value="">Все темы</option>
+                {% for t in topics %}
+                  <option value="{{ t.id }}" {% if t.id|string == selected_topic_id %}selected{% endif %}>{{ t.name }}</option>
+                {% endfor %}
+              </select>
+            </label>
+          </form>
+        </section>
+
+        {% set reviewed_count = submissions | selectattr('review_status', 'equalto', 'reviewed') | list | length %}
+        {% set pending_count = submissions | length - reviewed_count %}
+
+        <section class="summary-list" aria-label="Сводка по сданным работам">
+          <article class="summary-card">
+            <strong>{{ total_count if total_count is defined else submissions|length }}</strong>
+            <span>всего сдано работ</span>
+          </article>
+          <article class="summary-card">
+            <strong>{{ pending_count }}</strong>
+            <span>ожидают проверки</span>
+          </article>
+          <article class="summary-card">
+            <strong>{{ reviewed_count }}</strong>
+            <span>проверено</span>
+          </article>
+        </section>
+
+        {% if submissions|length == 0 %}
+          <div class="empty-state">
+            <p>Сданных работ по выбранным фильтрам пока нет.</p>
+          </div>
+        {% else %}
+          <section class="panel" style="overflow-x: auto; padding: var(--space-4);" aria-label="Таблица сданных работ">
+            <table class="table" style="width: 100%; border-collapse: collapse; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--color-border); color: var(--color-text-muted);">
+                  <th style="padding: var(--space-2) var(--space-3);">Студент</th>
+                  <th style="padding: var(--space-2) var(--space-3);">Группа</th>
+                  <th style="padding: var(--space-2) var(--space-3);">Тема</th>
+                  <th style="padding: var(--space-2) var(--space-3);">Занятие</th>
+                  <th style="padding: var(--space-2) var(--space-3);">Попытка</th>
+                  <th style="padding: var(--space-2) var(--space-3);">Файл</th>
+                  <th style="padding: var(--space-2) var(--space-3);">Статус</th>
+                  <th style="padding: var(--space-2) var(--space-3);">Действие</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for sub in submissions %}
+                  <tr style="border-bottom: 1px solid var(--color-border);">
+                    <td style="padding: var(--space-3);">
+                      <strong>{{ sub.student_display_name }}</strong>
+                    </td>
+                    <td style="padding: var(--space-3);">{{ sub.group_name }}</td>
+                    <td style="padding: var(--space-3);">{{ sub.topic_name }}</td>
+                    <td style="padding: var(--space-3);">
+                      {% if sub.lesson_date %}
+                        {{ sub.lesson_date }}{% if sub.pair_number %}, пара {{ sub.pair_number }}{% endif %}
+                      {% else %}
+                        <span class="field__hint">историческая сдача</span>
+                      {% endif %}
+                    </td>
+                    <td style="padding: var(--space-3); text-align: center;">№{{ sub.attempt_number }}</td>
+                    <td style="padding: var(--space-3);">
+                      <a class="button button--outline button--sm" href="{{ url_for('admin_download_submission', submission_id=sub.id) }}" style="display: inline-flex; align-items: center; gap: 0.25rem;">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <span>{{ sub.original_filename }}</span>
+                        <span class="field__hint">({{ (sub.size_bytes / 1024)|round(1) }} КБ)</span>
+                      </a>
+                    </td>
+                    <td style="padding: var(--space-3);">
+                      {% if sub.review_status == 'reviewed' %}
+                        <span class="chip chip--reviewed">Проверено</span>
+                      {% else %}
+                        <span class="chip chip--pending">Ожидает</span>
+                      {% endif %}
+                    </td>
+                    <td style="padding: var(--space-3);">
+                      <form method="post" action="{{ url_for('admin_review_submission', submission_id=sub.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="status" value="{{ 'pending' if sub.review_status == 'reviewed' else 'reviewed' }}">
+                        <input type="hidden" name="group_id" value="{{ selected_group_id }}">
+                        <input type="hidden" name="topic_id" value="{{ selected_topic_id }}">
+                        {% if sub.review_status == 'reviewed' %}
+                          <button class="button button--outline" type="submit" style="padding: 0.25rem 0.5rem; font-size: var(--type-sm);">Вернуть в ожидание</button>
+                        {% else %}
+                          <button class="button button--primary" type="submit" style="padding: 0.25rem 0.5rem; font-size: var(--type-sm);">Проверено</button>
+                        {% endif %}
+                      </form>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </section>
+          {% if total_count and total_count > per_page %}
+            <nav class="pagination" aria-label="Страницы сданных работ" style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--space-4);">
+              <div>
+                Показано {{ submissions|length }} из {{ total_count }} (страница {{ page }})
+              </div>
+              <div style="display: flex; gap: var(--space-2);">
+                {% if page > 1 %}
+                  <a class="button button--outline button--sm" href="{{ url_for('admin_submissions_page', group_id=selected_group_id or None, topic_id=selected_topic_id or None, page=page-1, per_page=per_page) }}">← Предыдущая</a>
+                {% endif %}
+                {% if (page * per_page) < total_count %}
+                  <a class="button button--outline button--sm" href="{{ url_for('admin_submissions_page', group_id=selected_group_id or None, topic_id=selected_topic_id or None, page=page+1, per_page=per_page) }}">Следующая →</a>
+                {% endif %}
+              </div>
+            </nav>
+          {% endif %}
+        {% endif %}
+      </section>
+    </div>
+  </main>
+</body>
+</html>

@@ -49,9 +49,9 @@
         <section class="panel filter-toolbar" aria-label="Фильтры расписания">
           <form id="filter_form" class="filter-grid" method="get" action="{{ url_for('admin_assignments_page') }}">
             <label class="field">Учебная группа
-              <select id="filter_group" name="group" onchange="this.form.submit()">
+              <select id="filter_group" name="group_id" onchange="this.form.submit()">
                 {% for g in groups %}
-                  <option value="{{ g.name }}" {% if g.name == selected_group %}selected{% endif %}>{{ g.name }}</option>
+                  <option value="{{ g.id }}" {% if g.id|string == selected_group_id %}selected{% endif %}>{{ g.name }}</option>
                 {% endfor %}
               </select>
             </label>
@@ -75,9 +75,9 @@
               <h2>Запланировать пару</h2>
             </div>
             <p class="field__hint">
-              Создайте пару в расписании для группы <strong>{{ selected_group }}</strong>, задайте описание в формате HTML, Markdown или TXT и прикрепите материалы.
+              Создайте пару в расписании для группы <strong>{{ selected_group or selected_group_name }}</strong>, задайте описание в формате HTML, Markdown или TXT и прикрепите материалы.
             </p>
-            <a class="button button--primary" href="{{ url_for('admin_new_assignment_page') }}?group={{ selected_group }}{% if selected_subject_id %}&subject_id={{ selected_subject_id }}{% endif %}" style="margin-top: var(--space-2); text-align: center; text-decoration: none;">
+            <a class="button button--primary" href="{{ url_for('admin_new_assignment_page') }}?group={{ selected_group_id or selected_group }}{% if selected_subject_id %}&subject_id={{ selected_subject_id }}{% endif %}" style="margin-top: var(--space-2); text-align: center; text-decoration: none;">
               <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-right: var(--space-1);"><path d="M8 3v10M3 8h10"/></svg>
               <span>Создать занятие</span>
             </a>
@@ -109,7 +109,7 @@
                     </div>
                     <div class="catalog-actions">
                       <a class="button button--outline" href="/admin/assignments/{{ item.id }}/edit">Редактировать</a>
-                      <button class="button button--danger" type="button" data-action="delete">Удалить</button>
+                      <button class="button button--danger" type="button" data-action="archive">Архивировать</button>
                     </div>
 
                   </article>

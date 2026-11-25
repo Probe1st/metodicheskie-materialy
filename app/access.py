@@ -1,20 +1,39 @@
+"""Group access control for SQLite v2."""
+
 from __future__ import annotations
 
-import sqlite3
-from collections.abc import Iterable
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
+from uuid import UUID
 
 from werkzeug.security import check_password_hash, generate_password_hash
+
+from .database import connect
 
 
 @dataclass(frozen=True, slots=True)
 class GroupAccess:
-    group: str
+    group_id: UUID
     is_open: bool
     closes_at: datetime | None
     version: int
+
+    def __init__(
+        self,
+        group_id: UUID | str,
+        is_open: bool,
+        closes_at: datetime | None,
+        version: int,
+    ):
+        object.__setattr__(
+            self,
+            "group_id",
+            group_id if isinstance(group_id, UUID) else UUID(str(group_id)),
+        )
+        object.__setattr__(self, "is_open", bool(is_open))
+        object.__setattr__(self, "closes_at", closes_at)
+        object.__setattr__(self, "version", int(version))
 
 
 def _to_utc(value: datetime | None) -> datetime | None:
@@ -23,166 +42,179 @@ def _to_utc(value: datetime | None) -> datetime | None:
     if value.tzinfo is None:
         local_tz = datetime.now().astimezone().tzinfo
         value = value.replace(tzinfo=local_tz)
-    return value.astimezone(UTC)
+    return value.astimezone(timezone.utc)
 
 
 def _parse_iso_utc(value: str | None) -> datetime | None:
     if not value:
         return None
-    return datetime.fromisoformat(value).astimezone(UTC)
+    dt = datetime.fromisoformat(value)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
 
 
 class AccessStore:
-    def __init__(self, path: Path, groups: Iterable[str]):
-        self.path = Path(path).resolve()
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.parent.chmod(0o700)
+    def __init__(self, db_path: Path | str, groups: object = None):
+        self.db_path = Path(db_path)
 
-        with self._connect() as conn:
-            conn.execute(
+    @staticmethod
+    def _to_uuid(val: UUID | str) -> UUID:
+        return val if isinstance(val, UUID) else UUID(str(val))
+
+    def get(self, group_id: UUID | str) -> GroupAccess | None:
+        u = self._to_uuid(group_id)
+        with connect(self.db_path) as conn:
+            row = conn.execute(
                 """
-                CREATE TABLE IF NOT EXISTS group_access (
-                    group_name TEXT PRIMARY KEY,
-                    password_hash TEXT,
-                    is_open INTEGER NOT NULL DEFAULT 0,
-                    closes_at_utc TEXT,
-                    version INTEGER NOT NULL DEFAULT 1
-                )
-                """
-            )
-            for group in groups:
-                conn.execute(
-                    """
-                    INSERT INTO group_access (group_name, password_hash, is_open, closes_at_utc, version)
-                    VALUES (?, NULL, 0, NULL, 1)
-                    ON CONFLICT(group_name) DO NOTHING
-                    """,
-                    (group,),
-                )
-            conn.commit()
-
-        self.path.chmod(0o600)
-
-    def _connect(self) -> sqlite3.Connection:
-        conn = sqlite3.connect(self.path)
-        conn.row_factory = sqlite3.Row
-        return conn
-
-    def configure(
-        self,
-        group: str,
-        password: str | None,
-        is_open: bool,
-        closes_at: datetime | None,
-    ) -> None:
-        utc_closes_at = _to_utc(closes_at)
-        serialized_deadline = utc_closes_at.isoformat() if utc_closes_at else None
-
-        with self._connect() as conn:
-            cursor = conn.execute(
-                "SELECT password_hash, version FROM group_access WHERE group_name = ?",
-                (group,),
-            )
-            row = cursor.fetchone()
-            if row is None:
-                raise ValueError(f"Unknown group: {group}")
-
-            current_hash = row["password_hash"]
-            next_hash = generate_password_hash(password) if password else current_hash
-            next_version = int(row["version"]) + 1
-
-            conn.execute(
-                """
-                UPDATE group_access
-                SET password_hash = ?, is_open = ?, closes_at_utc = ?, version = ?
-                WHERE group_name = ?
+                SELECT ga.group_id, ga.is_open, ga.closes_at_utc, ga.version
+                FROM group_access ga
+                JOIN groups g ON g.id = ga.group_id
+                WHERE ga.group_id = ? AND g.archived_at IS NULL;
                 """,
-                (next_hash, 1 if is_open else 0, serialized_deadline, next_version, group),
-            )
-            conn.commit()
-
-    def rename_group(self, old_name: str, new_name: str) -> None:
-        with self._connect() as conn:
-            updated = conn.execute(
-                "UPDATE group_access SET group_name = ?, version = version + 1 WHERE group_name = ?",
-                (new_name, old_name),
-            )
-            if updated.rowcount != 1:
-                raise ValueError(f"Unknown group: {old_name}")
-
-    def delete_group(self, name: str) -> None:
-        with self._connect() as conn:
-            conn.execute("DELETE FROM group_access WHERE group_name = ?", (name,))
-
-    def authorize(self, group: str, password: str, now: datetime | None = None) -> int | None:
-        if not password:
-            return None
-
-        current_time = _to_utc(now) or datetime.now(UTC)
-
-        with self._connect() as conn:
-            cursor = conn.execute(
-                """
-                SELECT password_hash, is_open, closes_at_utc, version
-                FROM group_access
-                WHERE group_name = ?
-                """,
-                (group,),
-            )
-            row = cursor.fetchone()
-
-        if row is None or not row["is_open"] or not row["password_hash"]:
-            return None
-
-        deadline = _parse_iso_utc(row["closes_at_utc"])
-        if deadline and current_time >= deadline:
-            return None
-
-        if not check_password_hash(row["password_hash"], password):
-            return None
-
-        return int(row["version"])
-
-    def permits(self, group: str, version: int, now: datetime | None = None) -> bool:
-        current_time = _to_utc(now) or datetime.now(UTC)
-
-        with self._connect() as conn:
-            cursor = conn.execute(
-                """
-                SELECT is_open, closes_at_utc, version
-                FROM group_access
-                WHERE group_name = ?
-                """,
-                (group,),
-            )
-            row = cursor.fetchone()
-
-        if row is None:
-            return False
-
-        if int(row["version"]) != version or not row["is_open"]:
-            return False
-
-        deadline = _parse_iso_utc(row["closes_at_utc"])
-        return not (deadline and current_time >= deadline)
-
-    def groups(self) -> tuple[GroupAccess, ...]:
-        with self._connect() as conn:
-            cursor = conn.execute(
-                """
-                SELECT group_name, is_open, closes_at_utc, version
-                FROM group_access
-                ORDER BY group_name
-                """
-            )
-            rows = cursor.fetchall()
-
-        return tuple(
-            GroupAccess(
-                group=row["group_name"],
+                (str(u),),
+            ).fetchone()
+            if not row:
+                return None
+            return GroupAccess(
+                group_id=u,
                 is_open=bool(row["is_open"]),
                 closes_at=_parse_iso_utc(row["closes_at_utc"]),
                 version=int(row["version"]),
             )
-            for row in rows
+
+    def configure(
+        self,
+        group_id: UUID | str,
+        is_open: bool | str | None,
+        password: str | bool | None = None,
+        closes_at: datetime | None = None,
+    ) -> GroupAccess:
+        # Handle parameter order (group_id, password, is_open, closes_at) vs (group_id, is_open, password, closes_at)
+        if isinstance(is_open, (str, type(None))) and isinstance(password, bool):
+            actual_password: str | None = is_open
+            actual_is_open: bool = password
+        else:
+            actual_is_open = bool(is_open)
+            actual_password = password if isinstance(password, str) else None
+
+        u = self._to_uuid(group_id)
+        utc_closes_at = _to_utc(closes_at)
+        iso_closes_at = utc_closes_at.isoformat() if utc_closes_at else None
+
+        with connect(self.db_path) as conn:
+            conn.execute("BEGIN IMMEDIATE;")
+            row = conn.execute(
+                "SELECT password_hash, version FROM group_access WHERE group_id = ?;",
+                (str(u),),
+            ).fetchone()
+            if not row:
+                raise ValueError(f"Group access not found for {group_id}")
+
+            if actual_password is None:
+                new_hash = row["password_hash"]
+            elif actual_password == "":
+                new_hash = None
+            else:
+                new_hash = generate_password_hash(actual_password)
+
+            cur = conn.execute(
+                """
+                UPDATE group_access
+                SET is_open = ?, password_hash = ?, closes_at_utc = ?, version = version + 1
+                WHERE group_id = ?
+                RETURNING version;
+                """,
+                (
+                    1 if actual_is_open else 0,
+                    new_hash,
+                    iso_closes_at,
+                    str(u),
+                ),
+            )
+            ret_row = cur.fetchone()
+            new_version = int(ret_row["version"]) if ret_row else int(row["version"]) + 1
+        return GroupAccess(
+            group_id=u,
+            is_open=actual_is_open,
+            closes_at=utc_closes_at,
+            version=new_version,
         )
+
+    def authorize(
+        self,
+        group_id: UUID | str,
+        password: str,
+        now: datetime | None = None,
+    ) -> tuple[bool, GroupAccess | None]:
+        u = self._to_uuid(group_id)
+        current_time = _to_utc(now) or datetime.now(timezone.utc)
+
+        with connect(self.db_path) as conn:
+            row = conn.execute(
+                """
+                SELECT ga.password_hash, ga.is_open, ga.closes_at_utc, ga.version, g.archived_at
+                FROM group_access ga
+                JOIN groups g ON g.id = ga.group_id
+                WHERE ga.group_id = ?;
+                """,
+                (str(u),),
+            ).fetchone()
+            if not row or row["archived_at"] is not None:
+                return False, None
+
+            if not row["is_open"]:
+                return False, None
+
+            if row["closes_at_utc"]:
+                deadline = _parse_iso_utc(row["closes_at_utc"])
+                if deadline and current_time >= deadline:
+                    return False, None
+
+            if not row["password_hash"] or not check_password_hash(
+                row["password_hash"], password
+            ):
+                return False, None
+
+            access = GroupAccess(
+                group_id=u,
+                is_open=bool(row["is_open"]),
+                closes_at=_parse_iso_utc(row["closes_at_utc"]),
+                version=int(row["version"]),
+            )
+            return True, access
+
+    def permits(
+        self,
+        group_id: UUID | str,
+        expected_version: int,
+        now: datetime | None = None,
+    ) -> bool:
+        u = self._to_uuid(group_id)
+        current_time = _to_utc(now) or datetime.now(timezone.utc)
+
+        with connect(self.db_path) as conn:
+            row = conn.execute(
+                """
+                SELECT ga.is_open, ga.closes_at_utc, ga.version, g.archived_at
+                FROM group_access ga
+                JOIN groups g ON g.id = ga.group_id
+                WHERE ga.group_id = ?;
+                """,
+                (str(u),),
+            ).fetchone()
+            if not row or row["archived_at"] is not None:
+                return False
+
+            if not row["is_open"]:
+                return False
+
+            if int(row["version"]) != expected_version:
+                return False
+
+            if row["closes_at_utc"]:
+                deadline = _parse_iso_utc(row["closes_at_utc"])
+                if deadline and current_time >= deadline:
+                    return False
+
+            return True

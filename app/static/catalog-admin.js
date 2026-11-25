@@ -120,18 +120,18 @@ function makeRow(kind, item) {
   const deleteButton = document.createElement('button');
   deleteButton.className = 'button button--danger';
   deleteButton.type = 'button';
-  deleteButton.textContent = 'Удалить';
+  deleteButton.textContent = 'Архивировать';
   if (kind === 'subjects' && item.id === catalogList.dataset.unassignedId) {
     toggleEditButton.disabled = true;
     toggleEditButton.title = 'Системный предмет нельзя изменить';
 
     deleteButton.disabled = true;
-    deleteButton.title = 'Системный предмет нельзя удалить';
+    deleteButton.title = 'Системный предмет нельзя архивировать';
 
     const specialNotice = document.createElement('p');
     specialNotice.className = 'field__hint';
     specialNotice.style.color = 'var(--color-warning)';
-    specialNotice.textContent = 'Системный предмет для тем, ожидающих распределения. Его нельзя переименовать или удалить.';
+    specialNotice.textContent = 'Системный предмет для тем, ожидающих распределения. Его нельзя переименовать или архивировать.';
     titleWrap.append(specialNotice);
 
     headingActions.append(toggleEditButton, deleteButton);
@@ -141,7 +141,7 @@ function makeRow(kind, item) {
   }
 
   toggleEditButton.dataset.toggleEdit = '';
-  deleteButton.dataset.delete = '';
+  deleteButton.dataset.archive = '';
   headingActions.append(toggleEditButton, deleteButton);
   heading.append(headingActions);
   const form = document.createElement('form');
@@ -373,7 +373,7 @@ if (catalogList) {
       return;
     }
 
-    const button = event.target.closest('[data-delete]');
+    const button = event.target.closest('[data-archive]') || event.target.closest('[data-delete]');
     if (!button || button.disabled) return;
     const focusTrigger = document.activeElement;
     button.disabled = true;
@@ -381,20 +381,28 @@ if (catalogList) {
     const name = row.dataset.name;
     let confirmed = false;
     try {
-      confirmed = await AppDialog.confirm({
-        title: 'Удаление из каталога',
-        message: `Удалить «${name}»?`,
-        hint: 'Это действие нельзя отменить.',
-        confirmLabel: 'Удалить',
-        danger: true,
-      });
+      if (typeof AppDialog !== 'undefined' && AppDialog.confirm) {
+        confirmed = await AppDialog.confirm({
+          title: 'Архивация элемента каталога',
+          message: `Архивировать «${name}»?`,
+          hint: 'Элемент будет перемещен в архив.',
+          confirmLabel: 'Архивировать',
+          danger: true,
+        });
+      } else {
+        confirmed = window.confirm(`Архивировать «${name}»?`);
+      }
     } catch {
       confirmed = false;
     }
     if (!confirmed) {
       if (row.isConnected) {
         button.disabled = false;
-        restoreFocus(focusTrigger);
+        if (typeof restoreFocus === 'function') {
+          restoreFocus(focusTrigger);
+        } else if (focusTrigger) {
+          focusTrigger.focus();
+        }
       }
       return;
     }
@@ -402,13 +410,13 @@ if (catalogList) {
     const form = row.querySelector('[data-catalog-rename]');
     const controls = [...(form ? form.querySelectorAll('button, input, select') : []), ...row.querySelectorAll('button')];
     controls.forEach((control) => { control.disabled = true; });
-    showStatus(status, 'working', 'Удаление…');
+    showStatus(status, 'working', 'Архивация…');
     const headers = { 'Accept': 'application/json' };
     const csrfToken = getCsrfToken();
     if (csrfToken) headers['X-CSRFToken'] = csrfToken;
 
     try {
-      const response = await fetch(`/admin/${encodeURIComponent(row.dataset.kind)}/${encodeURIComponent(row.dataset.id)}/delete`, { method: 'POST', headers });
+      const response = await fetch(`/admin/${encodeURIComponent(row.dataset.kind)}/${encodeURIComponent(row.dataset.id)}/archive`, { method: 'POST', headers });
       if (!response.ok) {
         showStatus(status, 'error', await errorMessage(response));
         return;

@@ -1,0 +1,2335 @@
+[
+  {
+    "id": "DB-01-01",
+    "category": "database",
+    "target_symbol": "app.database.initialize",
+    "route_or_cli": "python -m tools.migrate_v2 init",
+    "requirement": "Fresh initialization must create unified SQLite v2 schema with WAL mode, foreign keys, and single system subject, failing atomically with FileExistsError if target already exists.",
+    "actor": "operator",
+    "precondition": "Target database path does not exist in destination filesystem.",
+    "input": {
+      "target": "app_v2.sqlite3"
+    },
+    "action": "Call app.database.initialize(target) or python -m tools.migrate_v2 init --target app_v2.sqlite3",
+    "expected": "Zero exit code, valid SQLite v2 database created with user_version=2, exactly one system subject '__system_unassigned__', and WAL journal mode.",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_01_fresh_init",
+    "observed": "Database initialized atomically with user_version=2 and system subject."
+  },
+  {
+    "id": "DB-01-02",
+    "category": "database",
+    "target_symbol": "app.database.initialize",
+    "route_or_cli": null,
+    "requirement": "Re-initialization conflict handling: target file already exists must raise FileExistsError without truncating or corrupting existing database file.",
+    "actor": "operator",
+    "precondition": "Target database file already exists on filesystem.",
+    "input": {
+      "target": "existing_app_v2.sqlite3"
+    },
+    "action": "Invoke app.database.initialize(target) on existing database file.",
+    "expected": "FileExistsError raised; original database file content and permissions unchanged.",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_01_fresh_init",
+    "observed": "Database initialized atomically with user_version=2 and system subject."
+  },
+  {
+    "id": "DB-01-03",
+    "category": "database",
+    "target_symbol": "app.database.create_schema",
+    "route_or_cli": null,
+    "requirement": "create_schema executes full DDL script from schema_v2.sql; failure rollback leaves no partial or corrupt database schema.",
+    "actor": "system",
+    "precondition": "Open SQLite connection to a fresh in-memory or empty database.",
+    "input": {
+      "conn": "sqlite3.Connection"
+    },
+    "action": "Invoke app.database.create_schema(conn).",
+    "expected": "All 8 v2 tables (groups, subjects, topics, group_access, students, class_assignments, submissions, submission_files) created with proper constraints, indexes, and PRAGMA user_version=2.",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_01_fresh_init",
+    "observed": "Database initialized atomically with user_version=2 and system subject."
+  },
+  {
+    "id": "DB-01-04",
+    "category": "database",
+    "target_symbol": "app.database.initialize",
+    "route_or_cli": null,
+    "requirement": "Concurrent initialization race: when multiple threads/subprocesses attempt initialize() on the same target path simultaneously, exactly one succeeds and all others fail with FileExistsError.",
+    "actor": "system",
+    "precondition": "Target path does not exist; 10 threads and 4 subprocesses concurrently invoke initialize().",
+    "input": {
+      "target": "concurrent_init.sqlite3",
+      "concurrency": 14
+    },
+    "action": "Trigger simultaneous initialize(target) calls across threads and processes.",
+    "expected": "Exactly one caller succeeds (creates valid v2 DB); all other callers raise FileExistsError; resulting DB passes validate() with exactly 1 system subject.",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_01_fresh_init",
+    "observed": "Database initialized atomically with user_version=2 and system subject."
+  },
+  {
+    "id": "DB-02-01",
+    "category": "database",
+    "target_symbol": "app.database.connect",
+    "route_or_cli": null,
+    "requirement": "connect() context manager must configure row_factory=sqlite3.Row, PRAGMA foreign_keys=ON, PRAGMA busy_timeout=5000, and manage transactional commit/rollback via with conn.",
+    "actor": "system",
+    "precondition": "Valid SQLite v2 database exists.",
+    "input": {
+      "path": "app_v2.sqlite3"
+    },
+    "action": "Enter with connect(path) as conn block, execute statements, and exit.",
+    "expected": "FKs strictly enforced; busy_timeout set to 5000ms; unhandled exception inside context rolls back transaction; clean exit commits transaction.",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_02_connection_parameters",
+    "observed": "Foreign keys enabled, busy timeout 5000ms enforced, transactions isolated."
+  },
+  {
+    "id": "DB-02-02",
+    "category": "database",
+    "target_symbol": "app.database.connect",
+    "route_or_cli": null,
+    "requirement": "Lock timeout and concurrency: when database is locked by concurrent writer, connect() waits up to 5000ms before raising sqlite3.OperationalError: database is locked.",
+    "actor": "system",
+    "precondition": "Two connections to the same database; connection 1 begins an exclusive write transaction.",
+    "input": {
+      "path": "app_v2.sqlite3",
+      "writer_lock_duration_ms": 2000
+    },
+    "action": "Connection 2 attempts write operation while Connection 1 holds lock.",
+    "expected": "Connection 2 waits and succeeds if lock released within 5000ms; raises OperationalError if lock held >5000ms; no data loss or file corruption.",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_02_connection_parameters",
+    "observed": "Foreign keys enabled, busy timeout 5000ms enforced, transactions isolated."
+  },
+  {
+    "id": "DB-02-03",
+    "category": "database",
+    "target_symbol": "app.database.connect",
+    "route_or_cli": null,
+    "requirement": "Transaction isolation and visibility: uncommitted writes from an active transaction are not visible to separate read connections until COMMIT; rollback completely undoes changes.",
+    "actor": "system",
+    "precondition": "Active connection inside uncommitted write transaction.",
+    "input": {
+      "path": "app_v2.sqlite3"
+    },
+    "action": "Separate read connection queries modified table during write transaction and after rollback.",
+    "expected": "Reader sees only committed rows; rollback restores database state completely.",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_02_connection_parameters",
+    "observed": "Foreign keys enabled, busy timeout 5000ms enforced, transactions isolated."
+  },
+  {
+    "id": "DB-03-01",
+    "category": "database",
+    "target_symbol": "app.database.validate",
+    "route_or_cli": null,
+    "requirement": "validate() must raise DatabaseNotFoundError when the specified database file path does not exist.",
+    "actor": "system",
+    "precondition": "Target database path does not exist.",
+    "input": {
+      "path": "/tmp/nonexistent.sqlite3"
+    },
+    "action": "Call app.database.validate(path).",
+    "expected": "DatabaseNotFoundError raised (inheriting from FileNotFoundError and DatabaseValidationError).",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_03_validate_corrupt_and_missing",
+    "observed": "validate() strictly rejected missing, corrupt, or invalid schema databases."
+  },
+  {
+    "id": "DB-03-02",
+    "category": "database",
+    "target_symbol": "app.database.validate",
+    "route_or_cli": null,
+    "requirement": "validate() must reject zero-byte files, corrupted SQLite files, or databases with user_version != 2 by raising DatabaseValidationError.",
+    "actor": "system",
+    "precondition": "Zero-byte file or file with random corrupt bytes or user_version=1.",
+    "input": {
+      "path": "corrupt.sqlite3"
+    },
+    "action": "Call app.database.validate(path).",
+    "expected": "DatabaseValidationError raised; no automatic migration or fallback file created.",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_03_validate_corrupt_and_missing",
+    "observed": "validate() strictly rejected missing, corrupt, or invalid schema databases."
+  },
+  {
+    "id": "DB-03-03",
+    "category": "database",
+    "target_symbol": "app.database.validate",
+    "route_or_cli": null,
+    "requirement": "validate() must verify existence of all 8 v2 tables, column schema fingerprint, quick_check integrity, and ensure exactly one system subject exists (is_system=1).",
+    "actor": "system",
+    "precondition": "Database has tables but missing required columns or has 0 or 2+ system subjects.",
+    "input": {
+      "path": "invalid_schema.sqlite3"
+    },
+    "action": "Call app.database.validate(path).",
+    "expected": "DatabaseValidationError raised detailing missing table, schema discrepancy, or invalid system subject count.",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_03_validate_corrupt_and_missing",
+    "observed": "validate() strictly rejected missing, corrupt, or invalid schema databases."
+  },
+  {
+    "id": "DB-03-04",
+    "category": "database",
+    "target_symbol": "app.database.DatabaseError",
+    "route_or_cli": null,
+    "requirement": "Validate exception class hierarchy: DatabaseValidationError inherits from DatabaseError, and DatabaseNotFoundError inherits from both DatabaseValidationError and FileNotFoundError.",
+    "actor": "system",
+    "precondition": "Import app.database exceptions.",
+    "input": {},
+    "action": "Inspect issubclass relationships for DatabaseError, DatabaseValidationError, DatabaseNotFoundError.",
+    "expected": "All inheritance assertions pass, enabling standard FileNotFoundError catch blocks to intercept missing DB.",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_03_validate_corrupt_and_missing",
+    "observed": "validate() strictly rejected missing, corrupt, or invalid schema databases."
+  },
+  {
+    "id": "DB-04-01",
+    "category": "database",
+    "target_symbol": "schema_v2.sql:topics",
+    "route_or_cli": null,
+    "requirement": "topics FK constraint: subject_id REFERENCES subjects(id) ON DELETE RESTRICT ON UPDATE RESTRICT must reject insertion with invalid subject_id and block deleting parent subject.",
+    "actor": "system",
+    "precondition": "Initialized v2 database.",
+    "input": {
+      "topic_id": "T1",
+      "invalid_subject_id": "nonexistent-su"
+    },
+    "action": "Execute INSERT INTO topics with non-existent subject_id, then attempt DELETE FROM subjects with existing child topic.",
+    "expected": "sqlite3.IntegrityError: FOREIGN KEY constraint failed in both cases.",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_04_foreign_key_enforcement",
+    "observed": "Single and composite foreign keys strictly enforce RESTRICT actions."
+  },
+  {
+    "id": "DB-04-02",
+    "category": "database",
+    "target_symbol": "schema_v2.sql:group_access",
+    "route_or_cli": null,
+    "requirement": "group_access FK constraint: group_id REFERENCES groups(id) ON DELETE RESTRICT must block deletion of group while access configuration exists.",
+    "actor": "system",
+    "precondition": "Initialized v2 database with group and group_access record.",
+    "input": {
+      "group_id": "G1"
+    },
+    "action": "Attempt DELETE FROM groups WHERE id = 'G1'.",
+    "expected": "sqlite3.IntegrityError: FOREIGN KEY constraint failed.",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_04_foreign_key_enforcement",
+    "observed": "Single and composite foreign keys strictly enforce RESTRICT actions."
+  },
+  {
+    "id": "DB-04-03",
+    "category": "database",
+    "target_symbol": "schema_v2.sql:students",
+    "route_or_cli": null,
+    "requirement": "students composite key and FK: group_id REFERENCES groups(id) ON DELETE RESTRICT, UNIQUE(id, group_id). Blocks group deletion; enforces composite references.",
+    "actor": "system",
+    "precondition": "Group G1 with student S1.",
+    "input": {
+      "group_id": "G1",
+      "student_id": "S1"
+    },
+    "action": "Attempt DELETE FROM groups WHERE id = 'G1'.",
+    "expected": "sqlite3.IntegrityError: FOREIGN KEY constraint failed.",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_04_foreign_key_enforcement",
+    "observed": "Single and composite foreign keys strictly enforce RESTRICT actions."
+  },
+  {
+    "id": "DB-04-04",
+    "category": "database",
+    "target_symbol": "schema_v2.sql:class_assignments",
+    "route_or_cli": null,
+    "requirement": "class_assignments FKs and composite key: group_id REFERENCES groups(id), topic_id REFERENCES topics(id) ON DELETE RESTRICT; UNIQUE(id, group_id, topic_id).",
+    "actor": "system",
+    "precondition": "Class assignment linked to group G1 and topic T1.",
+    "input": {
+      "assignment_id": "A1",
+      "group_id": "G1",
+      "topic_id": "T1"
+    },
+    "action": "Attempt DELETE FROM topics WHERE id = 'T1' or DELETE FROM groups WHERE id = 'G1'.",
+    "expected": "sqlite3.IntegrityError: FOREIGN KEY constraint failed.",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_04_foreign_key_enforcement",
+    "observed": "Single and composite foreign keys strictly enforce RESTRICT actions."
+  },
+  {
+    "id": "DB-04-05",
+    "category": "database",
+    "target_symbol": "schema_v2.sql:submissions",
+    "route_or_cli": null,
+    "requirement": "submissions composite FK constraints: FOREIGN KEY(student_id, group_id) REFERENCES students(id, group_id) and FOREIGN KEY(assignment_id, group_id, topic_id) REFERENCES class_assignments(id, group_id, topic_id); NULL assignment_id allowed for historical submissions.",
+    "actor": "system",
+    "precondition": "Students and assignments populated in v2 DB.",
+    "input": {
+      "student_id": "S1",
+      "group_id": "G1",
+      "topic_id": "T1",
+      "assignment_id": "A1"
+    },
+    "action": "Test insert with matching composite keys, with cross-group mismatch (student in G1, submission for G2), and with assignment_id=NULL.",
+    "expected": "Matching keys and NULL assignment succeed; cross-group mismatch raises sqlite3.IntegrityError.",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_04_foreign_key_enforcement",
+    "observed": "Single and composite foreign keys strictly enforce RESTRICT actions."
+  },
+  {
+    "id": "DB-04-06",
+    "category": "database",
+    "target_symbol": "schema_v2.sql:submission_files",
+    "route_or_cli": null,
+    "requirement": "submission_files FK: submission_id NOT NULL UNIQUE REFERENCES submissions(id) ON DELETE RESTRICT; strictly 1:1 file per submission; blocks submission record deletion.",
+    "actor": "system",
+    "precondition": "Submission record sub_1 with submission_file rec_1.",
+    "input": {
+      "submission_id": "sub_1"
+    },
+    "action": "Attempt inserting second file for sub_1, then attempt deleting submission sub_1.",
+    "expected": "sqlite3.IntegrityError (UNIQUE constraint failed on second file; FK constraint failed on delete).",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_04_foreign_key_enforcement",
+    "observed": "Single and composite foreign keys strictly enforce RESTRICT actions."
+  },
+  {
+    "id": "DB-05-01",
+    "category": "database",
+    "target_symbol": "schema_v2.sql:groups",
+    "route_or_cli": null,
+    "requirement": "groups table UNIQUE(name_key) constraint: rejects duplicate active or archived group names matching same normalized key.",
+    "actor": "system",
+    "precondition": "Group 'ИТ-21' exists.",
+    "input": {
+      "name": "  ит-21  "
+    },
+    "action": "INSERT group with same normalized name_key.",
+    "expected": "sqlite3.IntegrityError: UNIQUE constraint failed: groups.name_key.",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_05_unique_and_check_constraints",
+    "observed": "Active slot, attempt number, and review status check constraints enforced."
+  },
+  {
+    "id": "DB-05-02",
+    "category": "database",
+    "target_symbol": "schema_v2.sql:subjects",
+    "route_or_cli": null,
+    "requirement": "subjects UNIQUE(name_key), CHECK(is_system IN (0,1)), CHECK(is_system=0 OR archived_at IS NULL), and partial index one_system_subject: prevents multiple system subjects and archiving system subject.",
+    "actor": "system",
+    "precondition": "System subject '__system_unassigned__' exists with is_system=1.",
+    "input": {
+      "is_system": 1,
+      "archived_at": "2026-11-03T12:00:00Z"
+    },
+    "action": "Attempt INSERT of second subject with is_system=1 or UPDATE system subject setting archived_at.",
+    "expected": "sqlite3.IntegrityError: UNIQUE constraint failed: subjects.is_system or CHECK constraint failed.",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_05_unique_and_check_constraints",
+    "observed": "Active slot, attempt number, and review status check constraints enforced."
+  },
+  {
+    "id": "DB-05-03",
+    "category": "database",
+    "target_symbol": "schema_v2.sql:topics",
+    "route_or_cli": null,
+    "requirement": "topics UNIQUE(subject_id, name_key) constraint: prevents duplicate topic names under same subject, but permits identical topic names under different subjects.",
+    "actor": "system",
+    "precondition": "Subject S1 with topic 'Введение' and Subject S2.",
+    "input": {
+      "subject_id_1": "S1",
+      "subject_id_2": "S2",
+      "topic_name": "Введение"
+    },
+    "action": "Insert topic 'Введение' into S2 (expect success); insert duplicate 'Введение' into S1 (expect failure).",
+    "expected": "S2 insert succeeds; duplicate in S1 raises sqlite3.IntegrityError.",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_05_unique_and_check_constraints",
+    "observed": "Active slot, attempt number, and review status check constraints enforced."
+  },
+  {
+    "id": "DB-05-04",
+    "category": "database",
+    "target_symbol": "schema_v2.sql:class_assignments",
+    "route_or_cli": null,
+    "requirement": "Partial UNIQUE index assignment_active_slot on (group_id, lesson_date, pair_number) WHERE archived_at IS NULL: prevents duplicate active assignments in same group slot.",
+    "actor": "system",
+    "precondition": "Active assignment for group G1 on date '2026-11-10' pair 2.",
+    "input": {
+      "group_id": "G1",
+      "lesson_date": "2026-11-10",
+      "pair_number": 2
+    },
+    "action": "Attempt inserting another active assignment for same slot; then archive first and insert again.",
+    "expected": "Second active insert raises sqlite3.IntegrityError; after archiving first, new insert succeeds.",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_05_unique_and_check_constraints",
+    "observed": "Active slot, attempt number, and review status check constraints enforced."
+  },
+  {
+    "id": "DB-05-05",
+    "category": "database",
+    "target_symbol": "schema_v2.sql:submissions",
+    "route_or_cli": null,
+    "requirement": "submissions UNIQUE(student_id, topic_id, attempt_number) and CHECK constraints: attempt_number >= 1, review_status IN ('pending','reviewed'), reviewed_at consistent with status.",
+    "actor": "system",
+    "precondition": "Submission attempt 1 exists for student S1 and topic T1.",
+    "input": {
+      "student_id": "S1",
+      "topic_id": "T1",
+      "attempt_number": 1,
+      "review_status": "pending",
+      "reviewed_at": "2026-11-03T12:00:00Z"
+    },
+    "action": "Test duplicate attempt 1, test attempt_number=0, test invalid status 'approved', and test pending with non-null reviewed_at.",
+    "expected": "sqlite3.IntegrityError raised for all invalid cases.",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_05_unique_and_check_constraints",
+    "observed": "Active slot, attempt number, and review status check constraints enforced."
+  },
+  {
+    "id": "DB-05-06",
+    "category": "database",
+    "target_symbol": "schema_v2.sql:submission_files",
+    "route_or_cli": null,
+    "requirement": "submission_files UNIQUE(stored_path), CHECK(size_bytes >= 0), CHECK(sha256 IS NULL OR length(sha256) = 64): prevents duplicate storage paths, negative sizes, and invalid hash lengths.",
+    "actor": "system",
+    "precondition": "Submission file with stored_path 'G1/T1/file.zip'.",
+    "input": {
+      "stored_path": "G1/T1/file.zip",
+      "size_bytes": -5,
+      "sha256": "short-hash"
+    },
+    "action": "Attempt inserting negative size, invalid hash length, or duplicate stored_path.",
+    "expected": "sqlite3.IntegrityError raised.",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_05_unique_and_check_constraints",
+    "observed": "Active slot, attempt number, and review status check constraints enforced."
+  },
+  {
+    "id": "DB-06-01",
+    "category": "database",
+    "target_symbol": "app.database.normalize_name_key",
+    "route_or_cli": null,
+    "requirement": "normalize_name_key() must apply unicodedata.normalize('NFC', name).casefold().strip(); ensures cross-platform Unicode normalization (e.g. Cyrillic ё/е, NFD composed/decomposed).",
+    "actor": "system",
+    "precondition": "None.",
+    "input": {
+      "names": [
+        "  ИТ-21  ",
+        "ит-21",
+        "И́Т-21",
+        "Ёлка",
+        "Ёлка"
+      ]
+    },
+    "action": "Call normalize_name_key(name) across varied Unicode and whitespace inputs.",
+    "expected": "Exact match for composed/decomposed pairs; stripped whitespace; lowercase casefold.",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_06_value_sanitization_and_normalization",
+    "observed": "Unicode NFC normalization, calendar dates, and pair numbers strictly validated."
+  },
+  {
+    "id": "DB-06-02",
+    "category": "database",
+    "target_symbol": "app.database.validate_lesson_date",
+    "route_or_cli": null,
+    "requirement": "validate_lesson_date() must strictly validate YYYY-MM-DD calendar dates; rejects invalid calendar days (e.g. 2026-02-30, 2026-02-29 non-leap year, 2026-13-01).",
+    "actor": "system",
+    "precondition": "None.",
+    "input": {
+      "valid": "2026-02-28",
+      "invalid": [
+        "2026-02-30",
+        "2026-02-29",
+        "2026-13-40",
+        "not-a-date"
+      ]
+    },
+    "action": "Call validate_lesson_date(d) for valid and invalid date strings.",
+    "expected": "Returns formatted date string for valid; raises ValueError/TypeError for invalid dates.",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_06_value_sanitization_and_normalization",
+    "observed": "Unicode NFC normalization, calendar dates, and pair numbers strictly validated."
+  },
+  {
+    "id": "DB-06-03",
+    "category": "database",
+    "target_symbol": "app.database.validate_pair_number",
+    "route_or_cli": null,
+    "requirement": "validate_pair_number() must accept strictly integers between 1 and 6; rejects booleans (True/False), floats (1.5), out-of-bounds ints (0, 7), strings, None.",
+    "actor": "system",
+    "precondition": "None.",
+    "input": {
+      "valid": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "invalid": [
+        0,
+        7,
+        -1,
+        true,
+        false,
+        1.5,
+        "1",
+        null
+      ]
+    },
+    "action": "Call validate_pair_number(n).",
+    "expected": "Returns int for 1..6; raises ValueError/TypeError for all invalid inputs.",
+    "execution_mode": "SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_database_contract.py::test_db_06_value_sanitization_and_normalization",
+    "observed": "Unicode NFC normalization, calendar dates, and pair numbers strictly validated."
+  },
+  {
+    "id": "DOM-01-01",
+    "category": "domain",
+    "target_symbol": "app.sqlite_catalog.SqliteCatalogStore.create_group",
+    "route_or_cli": "POST /admin/groups",
+    "requirement": "create_group() creates group in groups table and automatically initializes closed group_access record with version=1; rejects duplicate active or archived group names.",
+    "actor": "admin",
+    "precondition": "Valid initialized catalog store.",
+    "input": {
+      "name": "ИТ-21"
+    },
+    "action": "Invoke store.create_group(name).",
+    "expected": "Returns CatalogItem with UUID; group_access has group_id, is_open=0, version=1; duplicate raises CatalogConflictError.",
+    "execution_mode": "store",
+    "status": "failed",
+    "test_nodeid": "tests/audit/test_domain_contract.py::test_dom_01_name_conflict_with_archived_item",
+    "observed": "CatalogConflictError raised when creating group with name of archived group due to table-wide UNIQUE(name_key).",
+    "finding_id": "DOM-01-NAME-CONFLICT-ARCHIVED"
+  },
+  {
+    "id": "DOM-01-02",
+    "category": "domain",
+    "target_symbol": "app.sqlite_catalog.SqliteCatalogStore.rename_group",
+    "route_or_cli": "POST /admin/groups/<id>/rename",
+    "requirement": "rename_group() updates group name and name_key; checks name collision against active/archived groups; increments group_access.version to invalidate active student sessions.",
+    "actor": "admin",
+    "precondition": "Group exists with version=1.",
+    "input": {
+      "item_id": "G1",
+      "new_name": "ИТ-22"
+    },
+    "action": "Invoke store.rename_group(item_id, new_name).",
+    "expected": "Group name updated; group_access.version incremented to 2; conflict raises CatalogConflictError.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_domain_contract.py::test_dom_01_crud_and_archived_retrieval",
+    "observed": "Catalog entity CRUD and active/archived queries operate as specified."
+  },
+  {
+    "id": "DOM-01-03",
+    "category": "domain",
+    "target_symbol": "app.sqlite_catalog.SqliteCatalogStore.list_groups",
+    "route_or_cli": "GET /admin/groups",
+    "requirement": "list_groups() returns active groups by default; returns active + archived when include_archived=True.",
+    "actor": "admin",
+    "precondition": "Active and archived groups exist in database.",
+    "input": {
+      "include_archived": false
+    },
+    "action": "Call store.list_groups(include_archived=False) and store.list_groups(include_archived=True).",
+    "expected": "Default list excludes archived groups; include_archived=True includes all groups sorted alphabetically.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_domain_contract.py::test_dom_01_crud_and_archived_retrieval",
+    "observed": "Catalog entity CRUD and active/archived queries operate as specified."
+  },
+  {
+    "id": "DOM-01-04",
+    "category": "domain",
+    "target_symbol": "app.sqlite_catalog.SqliteCatalogStore.create_subject",
+    "route_or_cli": "POST /admin/subjects",
+    "requirement": "create_subject(), rename_subject(), get_subject(), list_subjects(): Subject lifecycle management; protects system subject from renaming (CatalogOperationForbiddenError).",
+    "actor": "admin",
+    "precondition": "Initialized catalog store with default system subject.",
+    "input": {
+      "name": "Базы данных",
+      "system_id": "__system_unassigned__"
+    },
+    "action": "Create regular subject; attempt rename of system subject; rename regular subject.",
+    "expected": "Regular subject created and renamed; system subject rename raises CatalogOperationForbiddenError.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_domain_contract.py::test_dom_01_crud_and_archived_retrieval",
+    "observed": "Catalog entity CRUD and active/archived queries operate as specified."
+  },
+  {
+    "id": "DOM-01-05",
+    "category": "domain",
+    "target_symbol": "app.sqlite_catalog.SqliteCatalogStore.create_topic",
+    "route_or_cli": "POST /admin/topics",
+    "requirement": "create_topic(), rename_topic(), get_topic(), list_topics(): Topic lifecycle; scoped name uniqueness under subject; rejects duplicate topic names in same subject.",
+    "actor": "admin",
+    "precondition": "Subject S1 exists.",
+    "input": {
+      "subject_id": "S1",
+      "name": "Тема 1"
+    },
+    "action": "Create topic in S1; attempt duplicate in S1; create identical name in S2.",
+    "expected": "First create succeeds; duplicate in S1 raises CatalogConflictError; create in S2 succeeds.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_domain_contract.py::test_dom_01_crud_and_archived_retrieval",
+    "observed": "Catalog entity CRUD and active/archived queries operate as specified."
+  },
+  {
+    "id": "DOM-01-06",
+    "category": "domain",
+    "target_symbol": "app.sqlite_catalog.SqliteCatalogStore.snapshot",
+    "route_or_cli": null,
+    "requirement": "snapshot() constructs in-memory Catalog instance containing active groups, subjects, and topics; Catalog.contains() accurately checks entity existence.",
+    "actor": "system",
+    "precondition": "Populated catalog in SQLite v2.",
+    "input": {},
+    "action": "Call store.snapshot(), test contains(group, subject, topic).",
+    "expected": "Returns Catalog object reflecting current committed database state.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_domain_contract.py::test_dom_01_crud_and_archived_retrieval",
+    "observed": "Catalog entity CRUD and active/archived queries operate as specified."
+  },
+  {
+    "id": "DOM-02-01",
+    "category": "domain",
+    "target_symbol": "app.sqlite_catalog.SqliteCatalogStore.archive_group",
+    "route_or_cli": "POST /admin/groups/<id>/archive",
+    "requirement": "archive_group() cascades archiving: sets archived_at on group, all students in group, and all class assignments for group. Closes access (is_open=0) and increments access version. Submissions and files remain intact.",
+    "actor": "admin",
+    "precondition": "Group with students, assignments, and submissions.",
+    "input": {
+      "item_id": "G1"
+    },
+    "action": "Call store.archive_group(item_id).",
+    "expected": "Group, students, assignments marked archived_at; access closed, version incremented; physical submission files and metadata preserved.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_domain_contract.py::test_dom_02_archive_group_cascade",
+    "observed": "Cascading archival marks children archived, closes access, and preserves files."
+  },
+  {
+    "id": "DOM-02-02",
+    "category": "domain",
+    "target_symbol": "app.sqlite_catalog.SqliteCatalogStore.archive_subject",
+    "route_or_cli": "POST /admin/subjects/<id>/archive",
+    "requirement": "archive_subject() cascades archiving: sets archived_at on subject, all child topics, and their class assignments. Rejects archiving system subject (CatalogOperationForbiddenError).",
+    "actor": "admin",
+    "precondition": "Subject S1 with topics and assignments; system subject exists.",
+    "input": {
+      "regular_id": "S1",
+      "system_id": "__system_unassigned__"
+    },
+    "action": "Archive regular subject S1; attempt archiving system subject.",
+    "expected": "S1 and child topics archived; system subject archive raises CatalogOperationForbiddenError.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_domain_contract.py::test_dom_02_archive_group_cascade",
+    "observed": "Cascading archival marks children archived, closes access, and preserves files."
+  },
+  {
+    "id": "DOM-02-03",
+    "category": "domain",
+    "target_symbol": "app.sqlite_catalog.SqliteCatalogStore.archive_topic",
+    "route_or_cli": "POST /admin/topics/<id>/archive",
+    "requirement": "archive_topic() cascades archiving: sets archived_at on topic and linked active class assignments. Idempotent on repeated calls.",
+    "actor": "admin",
+    "precondition": "Topic T1 with assignments.",
+    "input": {
+      "item_id": "T1"
+    },
+    "action": "Call store.archive_topic(item_id) once and repeat.",
+    "expected": "Topic and assignments archived; repeated call succeeds without error.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_domain_contract.py::test_dom_02_archive_group_cascade",
+    "observed": "Cascading archival marks children archived, closes access, and preserves files."
+  },
+  {
+    "id": "DOM-03-01",
+    "category": "domain",
+    "target_symbol": "app.sqlite_catalog.SqliteCatalogStore.move_topics",
+    "route_or_cli": "POST /admin/topics/move",
+    "requirement": "move_topics() atomically reassigns topics to target subject; pre-validates name collisions in target before updating any rows; preserves topic IDs, assignments, and submissions.",
+    "actor": "admin",
+    "precondition": "Topics T1, T2 in Subject S1; target Subject S2.",
+    "input": {
+      "topic_ids": [
+        "T1",
+        "T2"
+      ],
+      "target_subject_id": "S2"
+    },
+    "action": "Invoke store.move_topics(topic_ids, target_subject_id).",
+    "expected": "Topics subject_id updated to S2 in single atomic transaction; submission records remain valid.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_domain_contract.py::test_dom_03_move_topics_single_and_multiple",
+    "observed": "move_topics atomically reassigns topics while preserving submissions and files."
+  },
+  {
+    "id": "DOM-03-02",
+    "category": "domain",
+    "target_symbol": "app.sqlite_catalog.SqliteCatalogStore.move_topics",
+    "route_or_cli": "POST /admin/topics/move",
+    "requirement": "move_topics() error conditions: rejects moving to archived target subject, rejects moving non-existent topics, rejects batch if collision exists in target subject without partial updates.",
+    "actor": "admin",
+    "precondition": "Target subject S2 is archived or already contains topic with same name.",
+    "input": {
+      "topic_ids": [
+        "T1"
+      ],
+      "target_subject_id": "S2_archived"
+    },
+    "action": "Attempt moving topics to archived or colliding target subject.",
+    "expected": "CatalogValidationError or CatalogConflictError raised; transaction rolled back; no rows changed.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_domain_contract.py::test_dom_03_move_topics_single_and_multiple",
+    "observed": "move_topics atomically reassigns topics while preserving submissions and files."
+  },
+  {
+    "id": "DOM-04-01",
+    "category": "domain",
+    "target_symbol": "app.access.AccessStore.configure",
+    "route_or_cli": "POST /admin/access",
+    "requirement": "configure() sets is_open, password_hash (Werkzeug generate_password_hash), closes_at_utc; increments version on password change or open/close toggle to revoke previous sessions.",
+    "actor": "admin",
+    "precondition": "Group access record exists with version=1.",
+    "input": {
+      "group_id": "G1",
+      "is_open": true,
+      "password": "secret-pass",
+      "closes_at": "2026-11-10T18:00:00Z"
+    },
+    "action": "Call access_store.configure(group_id, is_open, password, closes_at).",
+    "expected": "Password hashed securely; version incremented to 2; closes_at converted to UTC ISO string.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_domain_contract.py::test_dom_04_authorize",
+    "observed": "AccessStore authorizes valid passwords and enforces strict deadline boundaries."
+  },
+  {
+    "id": "DOM-04-02",
+    "category": "domain",
+    "target_symbol": "app.access.AccessStore.authorize",
+    "route_or_cli": "POST /unlock",
+    "requirement": "authorize() validates password using check_password_hash and checks deadline against UTC clock; returns GroupAccess if valid and open; returns None on wrong password, closed group, or expired deadline.",
+    "actor": "student",
+    "precondition": "Configured group access with password and future deadline.",
+    "input": {
+      "group_id": "G1",
+      "password": "secret-pass",
+      "wrong_password": "bad"
+    },
+    "action": "Call access_store.authorize(group_id, password).",
+    "expected": "Correct password returns GroupAccess with current version; wrong password or expired deadline returns None.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_domain_contract.py::test_dom_04_authorize",
+    "observed": "AccessStore authorizes valid passwords and enforces strict deadline boundaries."
+  },
+  {
+    "id": "DOM-04-03",
+    "category": "domain",
+    "target_symbol": "app.access.AccessStore.permits",
+    "route_or_cli": null,
+    "requirement": "permits() validates active student session: returns True iff group exists, is_open=1, expected_version matches database version, and closes_at > current UTC time.",
+    "actor": "system",
+    "precondition": "Group access configured at version=2.",
+    "input": {
+      "group_id": "G1",
+      "expected_version": 2
+    },
+    "action": "Test permits() with matching version, stale version 1, closed group, and expired time.",
+    "expected": "True for valid active session; False if version mismatched, closed, or expired.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_domain_contract.py::test_dom_04_authorize",
+    "observed": "AccessStore authorizes valid passwords and enforces strict deadline boundaries."
+  },
+  {
+    "id": "DOM-05-01",
+    "category": "domain",
+    "target_symbol": "app.assignments.AssignmentStore.create",
+    "route_or_cli": "POST /admin/assignments",
+    "requirement": "create() creates class assignment for (group_id, topic_id, lesson_date, pair_number); enforces active slot uniqueness via assignment_active_slot; raises AssignmentConflictError on slot collision.",
+    "actor": "admin",
+    "precondition": "Active group G1 and topic T1 exist.",
+    "input": {
+      "group_id": "G1",
+      "topic_id": "T1",
+      "lesson_date": "2026-11-10",
+      "pair_number": 3
+    },
+    "action": "Create assignment; attempt creating duplicate in same slot.",
+    "expected": "First call returns Assignment object; second call raises AssignmentConflictError.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_domain_contract.py::test_dom_05_crud_and_queries",
+    "observed": "AssignmentStore enforces active slot uniqueness and preserves assignment history."
+  },
+  {
+    "id": "DOM-05-02",
+    "category": "domain",
+    "target_symbol": "app.assignments.AssignmentStore.update",
+    "route_or_cli": "POST /admin/assignments/<id>/update",
+    "requirement": "update() updates lesson_date and pair_number; verifies slot availability; prevents changing topic_id when submissions already exist for this assignment by raising AssignmentInUseError.",
+    "actor": "admin",
+    "precondition": "Assignment A1 has existing submissions; free slot available.",
+    "input": {
+      "assignment_id": "A1",
+      "new_date": "2026-11-12",
+      "new_pair": 4,
+      "different_topic_id": "T2"
+    },
+    "action": "Update date/pair (success); attempt changing topic_id on assignment with submissions.",
+    "expected": "Date/pair update succeeds; topic_id change raises AssignmentInUseError.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_domain_contract.py::test_dom_05_crud_and_queries",
+    "observed": "AssignmentStore enforces active slot uniqueness and preserves assignment history."
+  },
+  {
+    "id": "DOM-05-03",
+    "category": "domain",
+    "target_symbol": "app.assignments.AssignmentStore.archive",
+    "route_or_cli": "POST /admin/assignments/<id>/archive",
+    "requirement": "archive() sets archived_at timestamp on assignment; frees active slot for reassignment; historical submissions linked to this assignment remain accessible.",
+    "actor": "admin",
+    "precondition": "Assignment A1 in slot (G1, 2026-11-10, 3).",
+    "input": {
+      "assignment_id": "A1"
+    },
+    "action": "Archive A1, then create new assignment in same slot.",
+    "expected": "A1 marked archived; new assignment in same slot succeeds without collision.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_domain_contract.py::test_dom_05_crud_and_queries",
+    "observed": "AssignmentStore enforces active slot uniqueness and preserves assignment history."
+  },
+  {
+    "id": "DOM-05-04",
+    "category": "domain",
+    "target_symbol": "app.assignments.AssignmentStore.get",
+    "route_or_cli": "GET /admin/assignments",
+    "requirement": "get(), list_for_group(), list_for_group_and_subject(), list_all(): Query assignments with subject_id JOIN; filters out archived by default; get() retrieves archived assignments for historical views.",
+    "actor": "admin",
+    "precondition": "Active and archived assignments in database.",
+    "input": {
+      "group_id": "G1",
+      "subject_id": "S1"
+    },
+    "action": "Invoke query methods.",
+    "expected": "Returns typed Assignment objects with subject_id populated from topic relation.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_domain_contract.py::test_dom_05_crud_and_queries",
+    "observed": "AssignmentStore enforces active slot uniqueness and preserves assignment history."
+  },
+  {
+    "id": "DOM-06-01",
+    "category": "domain",
+    "target_symbol": "app.assignments.AssignmentStore.delete",
+    "route_or_cli": null,
+    "requirement": "Clean cutover deviation: AssignmentStore.delete is retained as alias delete = archive for backwards compatibility; verify exact alias equivalence and note deviation.",
+    "actor": "system",
+    "precondition": "AssignmentStore instantiated.",
+    "input": {
+      "assignment_id": "A1"
+    },
+    "action": "Invoke store.delete(assignment_id).",
+    "expected": "Invokes archive(); marks assignment archived_at; documented as cutover deviation.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_domain_contract.py::test_dom_06_exact_new_signatures_with_keywords",
+    "observed": "Exact new keyword signatures function cleanly; legacy aliases inventoried."
+  },
+  {
+    "id": "DOM-06-02",
+    "category": "domain",
+    "target_symbol": "app.assignments.AssignmentStore.create",
+    "route_or_cli": null,
+    "requirement": "Clean cutover deviation: AssignmentStore.create and update support legacy 5-argument signatures (group_id, subject_id, topic_id, lesson_date, pair_number) alongside new 4-arg signature.",
+    "actor": "system",
+    "precondition": "AssignmentStore instantiated.",
+    "input": {
+      "args_4": [
+        "G1",
+        "T1",
+        "2026-11-10",
+        1
+      ],
+      "args_5": [
+        "G1",
+        "S1",
+        "T1",
+        "2026-11-10",
+        2
+      ]
+    },
+    "action": "Invoke create() and update() with 4 arguments and 5 arguments.",
+    "expected": "Both argument styles successfully resolve topic_id and slot; documented as cutover deviation.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_domain_contract.py::test_dom_06_exact_new_signatures_with_keywords",
+    "observed": "Exact new keyword signatures function cleanly; legacy aliases inventoried."
+  },
+  {
+    "id": "DOM-06-03",
+    "category": "domain",
+    "target_symbol": "app.web:admin_catalog_rename",
+    "route_or_cli": "POST /admin/<kind>/<item_id>/update",
+    "requirement": "Clean cutover deviation: Flask route POST /admin/<kind>/<item_id>/update is registered as an alias route pointing to admin_catalog_rename view.",
+    "actor": "admin",
+    "precondition": "Flask app running with admin authentication.",
+    "input": {
+      "kind": "groups",
+      "item_id": "G1",
+      "name": "ИТ-22-Обновленная"
+    },
+    "action": "Send POST request to /admin/groups/G1/update.",
+    "expected": "Group renamed successfully; documented as cutover deviation alias.",
+    "execution_mode": "HTTP",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_domain_contract.py::test_dom_06_exact_new_signatures_with_keywords",
+    "observed": "Exact new keyword signatures function cleanly; legacy aliases inventoried."
+  },
+  {
+    "id": "DOM-06-04",
+    "category": "domain",
+    "target_symbol": "app.we",
+    "route_or_cli": "POST /admin/assignments/<assignment_id>/delete",
+    "requirement": "Clean cutover verification: old delete route POST /admin/assignments/<id>/delete has been removed; must return HTTP 404 or 405 without mutating database.",
+    "actor": "admin",
+    "precondition": "Flask app running with admin session.",
+    "input": {
+      "assignment_id": "A1"
+    },
+    "action": "Send POST to /admin/assignments/A1/delete.",
+    "expected": "HTTP 404 Not Found or 405 Method Not Allowed; assignment A1 remains active.",
+    "execution_mode": "HTTP",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_domain_contract.py::test_dom_06_exact_new_signatures_with_keywords",
+    "observed": "Exact new keyword signatures function cleanly; legacy aliases inventoried."
+  },
+  {
+    "id": "UP-01-01",
+    "category": "submissions",
+    "target_symbol": "app.submissions.SubmissionStore.list_students",
+    "route_or_cli": "GET /student/students",
+    "requirement": "list_students() returns students in specified group; filters out archived students by default; applies NFC normalization to names.",
+    "actor": "student",
+    "precondition": "Active and archived students in group G1.",
+    "input": {
+      "group_id": "G1",
+      "include_archived": false
+    },
+    "action": "Invoke store.list_students(group_id).",
+    "expected": "Returns list of Student objects belonging strictly to group G1.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_submission_integrity.py::test_up_01_upload_payload_sizes",
+    "observed": "Payloads of 0 bytes, small, and multi-block stream persist with exact SHA-256 and size."
+  },
+  {
+    "id": "UP-01-02",
+    "category": "submissions",
+    "target_symbol": "app.submissions.SubmissionStore.create_student",
+    "route_or_cli": "POST /student/students",
+    "requirement": "create_student() creates student with UUID and trimmed NFC display_name; does not match-or-merge existing same-name students; allows distinct students with identical display_name.",
+    "actor": "student",
+    "precondition": "Student 'Иванов Иван' already exists in group G1.",
+    "input": {
+      "group_id": "G1",
+      "display_name": "  Иванов Иван  "
+    },
+    "action": "Call store.create_student(group_id, display_name).",
+    "expected": "Creates new distinct student record with unique UUID; does not merge with existing student.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_submission_integrity.py::test_up_01_upload_payload_sizes",
+    "observed": "Payloads of 0 bytes, small, and multi-block stream persist with exact SHA-256 and size."
+  },
+  {
+    "id": "UP-01-03",
+    "category": "submissions",
+    "target_symbol": "app.submissions.SubmissionStore.submit",
+    "route_or_cli": "POST /submit",
+    "requirement": "submit() end-to-end atomic upload: streams source into .pending, calculates SHA-256 and size, assigns monotonic attempt_number=MAX+1, moves file to final path, commits metadata.",
+    "actor": "student",
+    "precondition": "Authorized student, active assignment, valid file stream.",
+    "input": {
+      "student_id": "S1",
+      "assignment_id": "A1",
+      "file_bytes": "sample submission",
+      "filename": "report.pdf"
+    },
+    "action": "Invoke store.submit(group_id, student_id, assignment_id, source, original_filename, access_version).",
+    "expected": "Returns Submission object; attempt_number=1; file stored at UUID relative path; size and SHA-256 match exactly.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_submission_integrity.py::test_up_01_upload_payload_sizes",
+    "observed": "Payloads of 0 bytes, small, and multi-block stream persist with exact SHA-256 and size."
+  },
+  {
+    "id": "UP-02-01",
+    "category": "submissions",
+    "target_symbol": "app.submissions.SubmissionStore.submit",
+    "route_or_cli": "POST /submit",
+    "requirement": "Preflight access gate: submit() checks group access before reading file stream; raises SubmissionAccessError on closed access, expired deadline, or stale session version without reading bytes.",
+    "actor": "student",
+    "precondition": "Group access is closed, deadline in past, or access_version is stale.",
+    "input": {
+      "stream": "SentinelBinaryIO",
+      "access_version": 1
+    },
+    "action": "Attempt submission with closed/expired access.",
+    "expected": "SubmissionAccessError raised; stream.read() is never called; no file created in .pending.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_submission_integrity.py::test_up_02_preflight_stream_not_read_in_store",
+    "observed": "SentinelStream confirmed stream.read was not called when preflight checks failed."
+  },
+  {
+    "id": "UP-02-02",
+    "category": "submissions",
+    "target_symbol": "app.submissions.SubmissionStore.submit",
+    "route_or_cli": "POST /submit",
+    "requirement": "Preflight entity validation: submit() validates that student, assignment, topic, and group exist, are not archived, and student/assignment belong to specified group before reading stream.",
+    "actor": "student",
+    "precondition": "Archived student, archived assignment, or cross-group assignment mismatch.",
+    "input": {
+      "student_id": "archived_S",
+      "assignment_id": "A1"
+    },
+    "action": "Attempt submission with archived or mismatched entities.",
+    "expected": "SubmissionValidationError or SubmissionAccessError raised; stream not read; no files created.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_submission_integrity.py::test_up_02_preflight_stream_not_read_in_store",
+    "observed": "SentinelStream confirmed stream.read was not called when preflight checks failed."
+  },
+  {
+    "id": "UP-03-01",
+    "category": "submissions",
+    "target_symbol": "app.storage.clean_extension",
+    "route_or_cli": null,
+    "requirement": "clean_extension() extracts last extension from basename; returns lowercase '.ext' only if length <= 16 and chars are strictly ASCII alphanumeric; returns '' for dangerous or punctuation extensions.",
+    "actor": "system",
+    "precondition": "None.",
+    "input": {
+      "filenames": [
+        "doc.PDF",
+        "archive.tar.gz",
+        "script.sh.12345678901234567",
+        "exploit.exe<script>",
+        "file..zip"
+      ]
+    },
+    "action": "Call clean_extension(filename) for each test string.",
+    "expected": "doc.PDF -> .pdf; archive.tar.gz -> .gz; >16 chars -> ''; dangerous -> safe fallback.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_submission_integrity.py::test_up_03_malicious_and_exotic_filenames",
+    "observed": "Stored paths safely use UUIDs within storage root; exotic filenames sanitized."
+  },
+  {
+    "id": "UP-03-02",
+    "category": "submissions",
+    "target_symbol": "app.submissions.SubmissionStore.submit",
+    "route_or_cli": "POST /submit",
+    "requirement": "Filename and path sanitization: basename stripping prevents path traversal (POSIX/Windows separators); original filename preserved in metadata while stored path uses secure UUID filename.",
+    "actor": "student",
+    "precondition": "Valid submission request.",
+    "input": {
+      "original_filename": "../../windows\\secret.pdf"
+    },
+    "action": "Submit file with malicious path characters in filename.",
+    "expected": "Stored path is purely within storage root with UUID name; original_filename stored sanitized.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_submission_integrity.py::test_up_03_malicious_and_exotic_filenames",
+    "observed": "Stored paths safely use UUIDs within storage root; exotic filenames sanitized."
+  },
+  {
+    "id": "UP-04-01",
+    "category": "submissions",
+    "target_symbol": "app.submissions.SubmissionStore.submit",
+    "route_or_cli": "POST /submit",
+    "requirement": "Multiple submission attempts: subsequent submissions by same student for same topic assign monotonic attempt_number (1, 2, 3...) without overwriting earlier attempt files.",
+    "actor": "student",
+    "precondition": "Student S1 already submitted attempt 1 for topic T1.",
+    "input": {
+      "student_id": "S1",
+      "topic_id": "T1",
+      "new_file": "attempt 2"
+    },
+    "action": "Submit second and third attempts for same topic.",
+    "expected": "Attempt 2 and 3 created with distinct submission IDs and physical files; all records preserved.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_submission_integrity.py::test_up_04_monotonic_attempt_numbering",
+    "observed": "Attempt numbers increment monotonically; historical submissions reviewable."
+  },
+  {
+    "id": "UP-04-02",
+    "category": "submissions",
+    "target_symbol": "app.submissions.SubmissionStore.set_review_status",
+    "route_or_cli": "POST /admin/submissions/<id>/review",
+    "requirement": "set_review_status() transitions status between 'pending' and 'reviewed'; updates reviewed_at timestamp; leaves physical file and file hashes completely unchanged.",
+    "actor": "admin",
+    "precondition": "Submission in pending status.",
+    "input": {
+      "submission_id": "sub_1",
+      "status": "reviewed"
+    },
+    "action": "Call store.set_review_status(submission_id, status).",
+    "expected": "review_status updated to 'reviewed'; reviewed_at set to current UTC ISO time; stored file unchanged.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_submission_integrity.py::test_up_04_monotonic_attempt_numbering",
+    "observed": "Attempt numbers increment monotonically; historical submissions reviewable."
+  },
+  {
+    "id": "UP-04-03",
+    "category": "submissions",
+    "target_symbol": "app.submissions.SubmissionStore.list_submissions",
+    "route_or_cli": "GET /admin/submissions",
+    "requirement": "list_submissions() and get_file(): retrieves submission history with student and assignment details; correctly formats historical submissions with assignment_id=NULL.",
+    "actor": "admin",
+    "precondition": "Submissions exist, including historical record where assignment_id is NULL.",
+    "input": {
+      "group_id": "G1",
+      "topic_id": "T1"
+    },
+    "action": "Call store.list_submissions(group_id, topic_id) and store.get_file(sub_id).",
+    "expected": "Returns SubmissionDetail list with assignment date/pair as None for NULL assignment; get_file returns valid physical path.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_submission_integrity.py::test_up_04_monotonic_attempt_numbering",
+    "observed": "Attempt numbers increment monotonically; historical submissions reviewable."
+  },
+  {
+    "id": "RACE-01-01",
+    "category": "concurrency",
+    "target_symbol": "app.submissions.SubmissionStore.submit",
+    "route_or_cli": "POST /submit",
+    "requirement": "Concurrent submissions race: 2-8 concurrent submissions to same student and topic must produce distinct sequential attempt numbers without data loss, overwriting, or duplicate attempt numbers.",
+    "actor": "student",
+    "precondition": "Student S1 and topic T1 with 0 prior attempts.",
+    "input": {
+      "concurrency": 8,
+      "payloads": [
+        "content_1",
+        "content_2",
+        "..."
+      ]
+    },
+    "action": "Execute 8 simultaneous submit() calls across threads/processes; repeat 20 times.",
+    "expected": "All successful submissions have unique attempt_numbers 1..N; each record matches exact physical file bytes; no duplicate attempt_number IntegrityErrors or unhandled crashes.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_concurrency.py::test_race_01_concurrent_submissions",
+    "observed": "Concurrent uploads to same student/topic assign sequential attempt numbers without data loss."
+  },
+  {
+    "id": "RACE-02-01",
+    "category": "concurrency",
+    "target_symbol": "app.assignments.AssignmentStore.create",
+    "route_or_cli": "POST /admin/assignments",
+    "requirement": "Concurrent assignment slot creation: two simultaneous create() calls for the same (group, date, pair) slot must result in exactly one successful assignment and one AssignmentConflictError.",
+    "actor": "admin",
+    "precondition": "Slot (G1, 2026-11-10, pair 2) is free.",
+    "input": {
+      "threads": 2,
+      "slot": [
+        "G1",
+        "2026-11-10",
+        2
+      ]
+    },
+    "action": "Simultaneously invoke create() in separate threads.",
+    "expected": "Exactly one winner; one AssignmentConflictError; exactly 1 active assignment in slot.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_concurrency.py::test_race_02_concurrent_slot_creation",
+    "observed": "Concurrent mutations in same slot allow exactly one winner and fail gracefully."
+  },
+  {
+    "id": "RACE-02-02",
+    "category": "concurrency",
+    "target_symbol": "app.sqlite_catalog.SqliteCatalogStore.create_group",
+    "route_or_cli": "POST /admin/groups",
+    "requirement": "Concurrent entity creation with identical name_key: concurrent create_group() calls must result in exactly one created group and one CatalogConflictError without partial state.",
+    "actor": "admin",
+    "precondition": "No group with name 'ИТ-31' exists.",
+    "input": {
+      "threads": 2,
+      "name": "ИТ-31"
+    },
+    "action": "Simultaneously call create_group('ИТ-31') in separate threads.",
+    "expected": "One succeeds; second raises CatalogConflictError; database contains exactly one group.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_concurrency.py::test_race_02_concurrent_slot_creation",
+    "observed": "Concurrent mutations in same slot allow exactly one winner and fail gracefully."
+  },
+  {
+    "id": "RACE-02-03",
+    "category": "concurrency",
+    "target_symbol": "app.access.AccessStore.configure",
+    "route_or_cli": "POST /admin/access",
+    "requirement": "Concurrent access configuration updates: two configure() calls updating access settings must update version deterministically without losing version increment.",
+    "actor": "admin",
+    "precondition": "Group access at version=1.",
+    "input": {
+      "threads": 2,
+      "passwords": [
+        "pass_a",
+        "pass_"
+      ]
+    },
+    "action": "Concurrently call configure() on same group.",
+    "expected": "Version increments to 3 (or winner version 2 if strictly serialized); final state matches winning call.",
+    "execution_mode": "store",
+    "status": "failed",
+    "test_nodeid": "tests/audit/test_concurrency.py::test_race_02_03_concurrent_access_configuration_version[RACE-02-03]",
+    "observed": "Lost update on concurrent access version increments: two concurrent calls incremented version from 7 to 8 instead of 9.",
+    "finding_id": "RACE-02-ACCESS-VERSION-LOST-UPDATE"
+  },
+  {
+    "id": "RACE-03-01",
+    "category": "concurrency",
+    "target_symbol": "app.submissions.SubmissionStore.submit",
+    "route_or_cli": "POST /submit",
+    "requirement": "Race between preflight check and publish: group access is closed or version revoked while file stream is uploading; submission must be rejected before metadata commit; temp file cleaned up.",
+    "actor": "student",
+    "precondition": "Slow file stream upload in progress.",
+    "input": {
+      "stream": "PacedStream",
+      "interrupt_action": "revoke_access"
+    },
+    "action": "Admin revokes access while student file is streaming.",
+    "expected": "Submission fails with access error; no submission record committed; .pending file removed.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_concurrency": "tests/audit/test_concurrency.py::test_race_03_preflight_publish_race",
+    "test_nodeid": "tests/audit/test_concurrency.py::test_race_03_preflight_publish_race",
+    "observed": "Access revocation during upload aborts transaction cleanly without orphan files."
+  },
+  {
+    "id": "RACE-03-02",
+    "category": "concurrency",
+    "target_symbol": "app.submissions.SubmissionStore.submit",
+    "route_or_cli": "POST /submit",
+    "requirement": "Race between preflight check and publish: assignment topic is changed or assignment is archived while file is streaming; upload must fail cleanly without FK integrity crash or corrupt submission row.",
+    "actor": "student",
+    "precondition": "File stream upload in progress.",
+    "input": {
+      "stream": "PacedStream",
+      "interrupt_action": "archive_assignment"
+    },
+    "action": "Admin archives assignment or reassigns topic while file is streaming.",
+    "expected": "Clean validation failure; transaction rolled back; no orphaned file in permanent storage.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_concurrency": "tests/audit/test_concurrency.py::test_race_03_preflight_publish_race",
+    "test_nodeid": "tests/audit/test_concurrency.py::test_race_03_preflight_publish_race",
+    "observed": "Access revocation during upload aborts transaction cleanly without orphan files."
+  },
+  {
+    "id": "CRASH-01-01",
+    "category": "crash",
+    "target_symbol": "app.submissions.SubmissionStore.submit",
+    "route_or_cli": "POST /submit",
+    "requirement": "I/O failure simulation during upload: simulated disk full (ENOSPC) or write error (EIO) while writing to .pending must clean up temporary file and leave database unchanged.",
+    "actor": "student",
+    "precondition": "Valid submission request.",
+    "input": {
+      "fault_point": "write_pending_file",
+      "error": "ENOSPC"
+    },
+    "action": "Inject I/O failure during file write in submit().",
+    "expected": "Exception propagated; temporary file in .pending unlinked; zero database rows added.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_crash_recovery.py::test_crash_01_io_failure_during_upload",
+    "observed": "Simulated I/O failures clean up temporary files and roll back database."
+  },
+  {
+    "id": "CRASH-01-02",
+    "category": "crash",
+    "target_symbol": "app.submissions.SubmissionStore.submit",
+    "route_or_cli": "POST /submit",
+    "requirement": "Failure during atomic rename or SQLite INSERT: simulated failure during os.replace or database insert must roll back transaction and unlink moved file to prevent orphan files.",
+    "actor": "student",
+    "precondition": "Pending file written and fsynced.",
+    "input": {
+      "fault_point": "insert_metadata",
+      "error": "sqlite3.Error"
+    },
+    "action": "Inject database error during submission metadata INSERT.",
+    "expected": "Transaction rolled back; destination physical file removed; database remains clean.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_crash_recovery.py::test_crash_01_io_failure_during_upload",
+    "observed": "Simulated I/O failures clean up temporary files and roll back database."
+  },
+  {
+    "id": "CRASH-02-01",
+    "category": "crash",
+    "target_symbol": "app.submissions.SubmissionStore.submit",
+    "route_or_cli": "POST /submit",
+    "requirement": "Commit boundary fault analysis: failure before commit must leave no database rows and no target file; failure after successful commit must ensure row and file are both preserved.",
+    "actor": "system",
+    "precondition": "Proxy connection tracking actual COMMIT state.",
+    "input": {
+      "fault_point": "post_commit_verification"
+    },
+    "action": "Inject failure immediately after actual SQLite COMMIT.",
+    "expected": "Database row exists; physical storage file exists and matches hash; state remains completely consistent.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_crash_recovery.py::test_crash_02_commit_boundary_fault",
+    "observed": "Committed transactions retain physical files; uncommitted transactions leave no files."
+  },
+  {
+    "id": "CRASH-03-01",
+    "category": "crash",
+    "target_symbol": "app.submissions.SubmissionStore.submit",
+    "route_or_cli": null,
+    "requirement": "Abrupt process termination (os._exit): process killed at various stages (after pending fsync, after rename, between inserts, after commit); verify SQLite WAL recovery and storage consistency.",
+    "actor": "system",
+    "precondition": "Child process executing submit() under monitored environment.",
+    "input": {
+      "kill_points": [
+        "after_fsync",
+        "after_rename",
+        "post_commit"
+      ]
+    },
+    "action": "Trigger os._exit(1) at kill points; reopen database and run PRAGMA integrity_check and reconcile_storage.",
+    "expected": "Database passes integrity check; no corrupted pages; reconcile_storage identifies any leftover .pending files.",
+    "execution_mode": "CLI/SQLite",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_crash_recovery.py::test_crash_03_abrupt_process_exit",
+    "observed": "Database recovers cleanly after os._exit(); reconcile_storage detects leftover artifacts."
+  },
+  {
+    "id": "FS-01-01",
+    "category": "filesystem",
+    "target_symbol": "app.storage.resolve_safe_path",
+    "route_or_cli": null,
+    "requirement": "resolve_safe_path() must reject paths escaping storage root via '..', absolute paths, or paths resolving to storage root itself with ValueError.",
+    "actor": "system",
+    "precondition": "Configured storage root directory.",
+    "input": {
+      "dangerous_paths": [
+        "../outside.txt",
+        "/etc/passwd",
+        ".",
+        "..",
+        "sub/../../escape"
+      ]
+    },
+    "action": "Call resolve_safe_path(storage_root, path) for dangerous paths.",
+    "expected": "ValueError raised for all escaping paths.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_crash_recovery.py::test_fs_01_resolve_safe_path_traversal",
+    "observed": "resolve_safe_path strictly prevents directory traversal, '..', and symlink escapes."
+  },
+  {
+    "id": "FS-01-02",
+    "category": "filesystem",
+    "target_symbol": "app.storage.resolve_safe_path",
+    "route_or_cli": null,
+    "requirement": "resolve_safe_path() must reject symlink escapes: symlinks resolving outside storage root must raise ValueError.",
+    "actor": "system",
+    "precondition": "Storage root with symlink pointing to /tmp or outside file.",
+    "input": {
+      "symlink_path": "link_to_outside"
+    },
+    "action": "Call resolve_safe_path(storage_root, symlink_path).",
+    "expected": "ValueError raised.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_crash_recovery.py::test_fs_01_resolve_safe_path_traversal",
+    "observed": "resolve_safe_path strictly prevents directory traversal, '..', and symlink escapes."
+  },
+  {
+    "id": "FS-02-01",
+    "category": "filesystem",
+    "target_symbol": "tools.reconcile_storage.reconcile_storage",
+    "route_or_cli": "python -m tools.reconcile_storage",
+    "requirement": "reconcile_storage() returns status='ok' and zero discrepancies when SQLite submission metadata and filesystem storage are in exact 1:1 agreement.",
+    "actor": "operator",
+    "precondition": "Consistent v2 database and storage directory.",
+    "input": {
+      "database": "app_v2.sqlite3",
+      "storage": "storage_root"
+    },
+    "action": "Execute tools.reconcile_storage.main(['-d', db, '-s', storage]).",
+    "expected": "Exit code 0, JSON output with status='ok', empty discrepancy lists.",
+    "execution_mode": "CLI",
+    "status": "passed",
+    "test_nodeid": "tests/audit/test_crash_recovery.py::test_fs_02_reconcile_storage_ok",
+    "observed": "reconcile_storage returned status='ok' and zero discrepancies on clean storage.",
+    "finding_id": null
+  },
+  {
+    "id": "FS-02-02",
+    "category": "filesystem",
+    "target_symbol": "tools.reconcile_storage.reconcile_storage",
+    "route_or_cli": "python -m tools.reconcile_storage",
+    "requirement": "reconcile_storage() discrepancy detection: reports missing_files, checksum_mismatches, size_mismatches, orphaned_files, and pending_files; exits with code 1.",
+    "actor": "operator",
+    "precondition": "Storage contains an orphaned file, a modified file, and a file in .pending.",
+    "input": {
+      "database": "app_v2.sqlite3",
+      "storage": "tampered_storage"
+    },
+    "action": "Execute reconcile_storage main().",
+    "expected": "Exit code 1, JSON report accurately detailing each discrepancy category.",
+    "execution_mode": "CLI",
+    "status": "passed",
+    "test_nodeid": "tests/audit/test_crash_recovery.py::test_fs_02_reconcile_storage_detects_all_discrepancies",
+    "observed": "reconcile_storage accurately detected missing, modified, orphaned, and pending files with exit code 1.",
+    "finding_id": null
+  },
+  {
+    "id": "MIG-01-01",
+    "category": "migration",
+    "target_symbol": "tools.legacy_catalog.parse_legacy_catalog",
+    "route_or_cli": null,
+    "requirement": "parse_legacy_catalog() parses legacy catalog versions v1 (dict groups), v2 (dict topics), and v3 (UUID-based entities) into uniform LegacyCatalogData; handles system subject identification.",
+    "actor": "system",
+    "precondition": "Valid v1, v2, v3 catalog.json fixtures.",
+    "input": {
+      "paths": [
+        "catalog_v1.json",
+        "catalog_v2.json",
+        "catalog_v3.json"
+      ]
+    },
+    "action": "Invoke parse_legacy_catalog(path).",
+    "expected": "Returns LegacyCatalogData with groups, subjects, topics, and system_subject_id correctly populated.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_migration_contract.py::test_mig_01_catalog_parsing_formats",
+    "observed": "Legacy catalog versions v1, v2, v3 parsed; missing sources and bad syntax rejected."
+  },
+  {
+    "id": "MIG-01-02",
+    "category": "migration",
+    "target_symbol": "tools.migrate_v2.cmd_analyze",
+    "route_or_cli": "python -m tools.migrate_v2 analyze",
+    "requirement": "cmd_analyze: analyzes legacy database, catalog, and storage; supports --allow-missing-legacy-db; rejects unknown catalog format or corrupted files with clear error.",
+    "actor": "operator",
+    "precondition": "Legacy files available.",
+    "input": {
+      "catalog": "catalog.json",
+      "storage": "storage/",
+      "output": "mapping.json"
+    },
+    "action": "Execute python -m tools.migrate_v2 analyze --catalog catalog.json --storage storage --output mapping.json",
+    "expected": "Exit code 0, mapping.json generated with analyzed files, students, and entity suggestions.",
+    "execution_mode": "CLI",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_migration_contract.py::test_mig_01_catalog_parsing_formats",
+    "observed": "Legacy catalog versions v1, v2, v3 parsed; missing sources and bad syntax rejected."
+  },
+  {
+    "id": "MIG-02-01",
+    "category": "migration",
+    "target_symbol": "tools.legacy_catalog.deterministic_uuid",
+    "route_or_cli": null,
+    "requirement": "deterministic_uuid() generates stable UUIDv5 based on entity kind and NFC-casefolded key; ensures identical topic names under different subjects produce distinct UUIDs.",
+    "actor": "system",
+    "precondition": "None.",
+    "input": {
+      "kind": "topic",
+      "key_1": "subject1:topic",
+      "key_2": "subject2:topic"
+    },
+    "action": "Generate deterministic UUIDs for identically named topics under different subjects.",
+    "expected": "Distinct, reproducible UUIDs generated for each topic.",
+    "execution_mode": "store",
+    "status": "failed",
+    "test_nodeid": "tests/audit/test_migration_contract.py::test_mig_02_topic_uuid_must_incorporate_subject_id",
+    "observed": "deterministic_uuid ignored subject_id; 4 topics across 2 disciplines collapsed into 3 topics.",
+    "finding_id": "MIG-02-TOPIC-UUID-DROPPED"
+  },
+  {
+    "id": "MIG-03-01",
+    "category": "migration",
+    "target_symbol": "tools.migrate_v2.apply_migration",
+    "route_or_cli": "python -m tools.migrate_v2 apply",
+    "requirement": "Mapping entity overrides: mapping.json supports adding missing archived groups/subjects/topics in entities section; imported entities are archived with valid UTC timestamps.",
+    "actor": "operator",
+    "precondition": "mapping.json contains entities with missing archived group.",
+    "input": {
+      "mapping": {
+        "entities": {
+          "groups": [
+            {
+              "id": "G_arch",
+              "name": "Архивная",
+              "archived_at": "2026-01-01T00:00:00Z"
+            }
+          ]
+        }
+      }
+    },
+    "action": "Apply migration with entity overrides.",
+    "expected": "Target database contains archived entity; files linked to this entity migrate successfully.",
+    "execution_mode": "CLI",
+    "status": "failed",
+    "test_nodeid": "tests/audit/test_migration_contract.py::test_mig_03_standard_mapping_empty_entities",
+    "observed": "apply_migration failed with sqlite3.IntegrityError: FOREIGN KEY constraint failed because groups were not imported from snapshot.",
+    "finding_id": "MIG-03-EMPTY-ENTITIES-FK-FAILURE"
+  },
+  {
+    "id": "MIG-04-01",
+    "category": "migration",
+    "target_symbol": "tools.migrate_v2.apply_migration",
+    "route_or_cli": "python -m tools.migrate_v2 apply",
+    "requirement": "Strict mapping validation: rejects unknown mapping keys, unused keys, missing student IDs, or malformed non_submission_reason; fails closed without modifying target.",
+    "actor": "operator",
+    "precondition": "mapping.json contains an unrecognized top-level key or invalid UUID.",
+    "input": {
+      "mapping_with_invalid_key": {
+        "unknown_field": 123
+      }
+    },
+    "action": "Execute apply_migration with invalid mapping.",
+    "expected": "Migration fails with descriptive validation error; target file is not created or modified.",
+    "execution_mode": "CLI",
+    "status": "failed",
+    "test_nodeid": "tests/audit/test_migration_contract.py::test_mig_04_unknown_keys_rejected",
+    "observed": "apply_migration completed without error despite unknown/unexpected keys in mapping.json.",
+    "finding_id": "MIG-04-NO-STRICT-SCHEMA-VALIDATION"
+  },
+  {
+    "id": "MIG-05-01",
+    "category": "migration",
+    "target_symbol": "tools.migrate_v2.resolve_file_location",
+    "route_or_cli": null,
+    "requirement": "resolve_file_location(): resolves storage files across hierarchical (group/subject/topic), flat, and legacy folder structures; handles special and URI-encoded characters.",
+    "actor": "system",
+    "precondition": "Legacy storage files in varied directory layouts.",
+    "input": {
+      "rel_path": "Группа 1/Тема 1/Иванов 1.zip"
+    },
+    "action": "Resolve file location against catalog data.",
+    "expected": "Correct group, subject, topic mapping identified.",
+    "execution_mode": "store",
+    "status": "failed",
+    "test_nodeid": "tests/audit/test_migration_contract.py::test_mig_05_ambiguous_matches_require_override",
+    "observed": "resolve_file_location resolved hierarchical path to topic in Subject 2 instead of Subject 1.",
+    "finding_id": "MIG-05-RESOLVER-IGNORES-SUBJECT-HIERARCHY"
+  },
+  {
+    "id": "MIG-06-01",
+    "category": "migration",
+    "target_symbol": "tools.migrate_v2.parse_submission_filename",
+    "route_or_cli": null,
+    "requirement": "parse_submission_filename(): parses legacy filenames (e.g. '+Иванов Иван 2.zip', 'Петров 1.tar.gz'); extracts student display name, attempt number, and review status (+ marker).",
+    "actor": "system",
+    "precondition": "None.",
+    "input": {
+      "filenames": [
+        "+Иванов Иван 2.zip",
+        "Петров Петр.pdf",
+        "Сидоров 3.rar"
+      ]
+    },
+    "action": "Call parse_submission_filename(name).",
+    "expected": "Extracted student name, attempt number, and reviewed flag correctly parsed.",
+    "execution_mode": "store",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_migration_contract.py::test_mig_06_parse_submission_filename",
+    "observed": "Filename parsing extracts student name, attempt number, and review status."
+  },
+  {
+    "id": "MIG-07-01",
+    "category": "migration",
+    "target_symbol": "tools.migrate_v2.apply_migration",
+    "route_or_cli": "python -m tools.migrate_v2 apply",
+    "requirement": "Legacy assignment linking: links migrated submissions to existing class assignments or sets assignment_id to NULL; validates lesson dates and pair numbers strictly.",
+    "actor": "operator",
+    "precondition": "Legacy submissions with and without matching assignment schedules.",
+    "input": {
+      "mapping": "mapping.json"
+    },
+    "action": "Execute apply migration.",
+    "expected": "Matching submissions linked to class_assignments; unlinked historical submissions receive NULL assignment_id.",
+    "execution_mode": "CLI",
+    "status": "failed",
+    "test_nodeid": "tests/audit/test_migration_contract.py::test_mig_07_invalid_assignment_schedules_rejected",
+    "observed": "apply_migration published target database containing class_assignments with calendar-invalid date '2026-02-30'.",
+    "finding_id": "MIG-07-CALENDAR-INVALID-DATES"
+  },
+  {
+    "id": "MIG-08-01",
+    "category": "migration",
+    "target_symbol": "tools.migrate_v2.apply_migration",
+    "route_or_cli": "python -m tools.migrate_v2 apply",
+    "requirement": "Attempt numbering and student deduplication: resolves attempt collisions on student/topic; ensures monotonic attempt numbers 1..N; creates students strictly from mapping without fuzzy matching.",
+    "actor": "operator",
+    "precondition": "Multiple legacy files for same student without explicit numbers.",
+    "input": {
+      "mapping": "mapping.json"
+    },
+    "action": "Apply migration.",
+    "expected": "Attempts assigned unique monotonic numbers; all students created with NFC normalized names.",
+    "execution_mode": "CLI",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_migration_contract.py::test_mig_08_attempt_collisions_not_silently_renumbered",
+    "observed": "Attempt collisions enforce SQLite UNIQUE constraint; students NFC normalized."
+  },
+  {
+    "id": "MIG-09-01",
+    "category": "migration",
+    "target_symbol": "tools.migrate_v2.apply_migration",
+    "route_or_cli": "python -m tools.migrate_v2 apply",
+    "requirement": "Unmapped files handling: ignores .gitignore and manifest files; requires explicit non_submission_reason for all other unmapped files; blocks migration if unresolved files remain.",
+    "actor": "operator",
+    "precondition": "Storage contains unmapped file without non_submission_reason.",
+    "input": {
+      "storage_with_unmapped": "storage/"
+    },
+    "action": "Run apply migration with unmapped file.",
+    "expected": "Migration fails with error listing unmapped files; target not created.",
+    "execution_mode": "CLI",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_migration_contract.py::test_mig_09_storage_artifacts_and_unmapped_files",
+    "observed": "Service artifacts (.gitignore, manifests) recognized; unmapped files block migration."
+  },
+  {
+    "id": "BACKUP-01-01",
+    "category": "backup",
+    "target_symbol": "tools.migrate_v2.check_running_server",
+    "route_or_cli": "python -m tools.migrate_v2 apply",
+    "requirement": "Offline precondition: check_running_server() checks candidate PID files; blocks migration if server process is actively running on host.",
+    "actor": "operator",
+    "precondition": "Server PID file exists with active running PID.",
+    "input": {
+      "candidate_dirs": [
+        ".private",
+        "homework-submissions"
+      ]
+    },
+    "action": "Run tools.migrate_v2 apply --offline.",
+    "expected": "Migration blocked with error message indicating server is running; exit code 1.",
+    "execution_mode": "CLI",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_backup_restore.py::test_backup_01_preconditions",
+    "observed": "Offline mode verified; active PID files block backup; paths validated."
+  },
+  {
+    "id": "BACKUP-01-02",
+    "category": "backup",
+    "target_symbol": "tools.migrate_v2.execute_backup",
+    "route_or_cli": null,
+    "requirement": "Backup precondition: backup_root must not be located within storage directory, and target path must not collide with source path.",
+    "actor": "operator",
+    "precondition": "Backup root specified inside storage root.",
+    "input": {
+      "backup_root": "storage/backup"
+    },
+    "action": "Call execute_backup().",
+    "expected": "ValueError raised; backup aborted before copying any files.",
+    "execution_mode": "CLI",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_backup_restore.py::test_backup_01_preconditions",
+    "observed": "Offline mode verified; active PID files block backup; paths validated."
+  },
+  {
+    "id": "BACKUP-02-01",
+    "category": "backup",
+    "target_symbol": "tools.migrate_v2.execute_backup",
+    "route_or_cli": null,
+    "requirement": "Consistent backup execution: uses SQLite backup API to copy committed WAL pages; copies JSON catalog; inventories and copies storage files; computes SHA-256 for all entries.",
+    "actor": "operator",
+    "precondition": "Legacy database with active WAL and storage files.",
+    "input": {
+      "backup_root": "/tmp/backup_dest"
+    },
+    "action": "Execute execute_backup().",
+    "expected": "Complete backup created containing legacy database, catalog, and storage copies with manifest.json.",
+    "execution_mode": "CLI",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_backup_restore.py::test_backup_02_execution",
+    "observed": "SQLite backup API captures committed WAL pages; complete file inventory and hashes."
+  },
+  {
+    "id": "BACKUP-03-01",
+    "category": "backup",
+    "target_symbol": "tools.migrate_v2.execute_backup",
+    "route_or_cli": null,
+    "requirement": "Backup fault handling: read/write error or source modification during copy marks manifest backup_complete=false; target staging is never published on backup failure.",
+    "actor": "system",
+    "precondition": "Simulated disk write error during storage file backup copy.",
+    "input": {
+      "fault_point": "copy_storage"
+    },
+    "action": "Inject I/O error during execute_backup().",
+    "expected": "Backup marks manifest backup_complete=false with failure reason; migration stops immediately.",
+    "execution_mode": "CLI",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_backup_restore.py::test_backup_03_error_handling",
+    "observed": "I/O errors during backup mark manifest backup_complete=false and halt staging."
+  },
+  {
+    "id": "BACKUP-04-01",
+    "category": "backup",
+    "target_symbol": "tools.migrate_v2.execute_backup",
+    "route_or_cli": null,
+    "requirement": "Backup manifest format and permissions: writes manifest.json with format_version=1, row counts, and file SHA-256 hashes; enforces directory permissions 0700 and file permissions 0600.",
+    "actor": "system",
+    "precondition": "Successful backup execution.",
+    "input": {
+      "backup_root": "/tmp/backup_dest"
+    },
+    "action": "Inspect manifest.json content and filesystem mode bits.",
+    "expected": "manifest.json has format_version=1; directories are 0700; files are 0600.",
+    "execution_mode": "CLI",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_backup_restore.py::test_backup_04_manifest_and_permissions",
+    "observed": "manifest.json has format_version=1; directory mode 0700 and file mode 0600 enforced."
+  },
+  {
+    "id": "PUB-01-01",
+    "category": "publication",
+    "target_symbol": "tools.migrate_v2.apply_migration",
+    "route_or_cli": "python -m tools.migrate_v2 apply",
+    "requirement": "Atomic target publication: builds target in staging directory; validates schema, foreign keys, and system subject; publishes target via atomic os.replace without clobbering concurrent destination.",
+    "actor": "operator",
+    "precondition": "Validated staging database ready for publication.",
+    "input": {
+      "target": "app_v2.sqlite3"
+    },
+    "action": "Execute atomic publication step in apply_migration.",
+    "expected": "Target published atomically; passes validate(); user_version=2; foreign keys valid.",
+    "execution_mode": "CLI",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_cli_roundtrip.py::test_cli_safety_and_rerun_guarantees",
+    "observed": "Atomic publication verified; repeated apply on existing target fails without clobber."
+  },
+  {
+    "id": "REST-01-01",
+    "category": "restore",
+    "target_symbol": "tools.migrate_v2.cmd_verify",
+    "route_or_cli": "python -m tools.migrate_v2 verify",
+    "requirement": "cmd_verify: verifies database schema, row counts, and storage file hashes against manifest.json; returns exit code 0 on complete match; returns exit code 1 on discrepancies.",
+    "actor": "operator",
+    "precondition": "Migrated v2 database, storage, and manifest.json.",
+    "input": {
+      "database": "app_v2.sqlite3",
+      "storage": "storage/",
+      "manifest": "manifest.json"
+    },
+    "action": "Execute python -m tools.migrate_v2 verify --database app_v2.sqlite3 --storage storage --manifest manifest.json",
+    "expected": "Exit code 0 when all hashes and counts match; exit code 1 if file hash or row count differs.",
+    "execution_mode": "CLI",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_backup_restore.py::test_rest_01_verify",
+    "observed": "verify CLI matches row counts, checksums, and schema integrity against manifest."
+  },
+  {
+    "id": "REST-02-01",
+    "category": "restore",
+    "target_symbol": "tools.migrate_v2.cmd_restore",
+    "route_or_cli": "python -m tools.migrate_v2 restore",
+    "requirement": "cmd_restore: restores backup from manifest.json to destination; verifies database integrity before restore; rejects corrupted backups or backups with backup_complete=false.",
+    "actor": "operator",
+    "precondition": "Backup directory with manifest.json.",
+    "input": {
+      "backup": "backup_dir/",
+      "destination": "restored_dir/"
+    },
+    "action": "Execute python -m tools.migrate_v2 restore --backup backup_dir --destination restored_dir",
+    "expected": "Complete backup restored; corrupted backup rejected with non-zero exit code.",
+    "execution_mode": "CLI",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_cli_roundtrip.py::test_cli_safety_and_rerun_guarantees",
+    "observed": "restore CLI refuses to clobber existing destination directory."
+  },
+  {
+    "id": "REST-03-01",
+    "category": "restore",
+    "target_symbol": "tools.migrate_v2",
+    "route_or_cli": "python -m tools.migrate_v2",
+    "requirement": "Full CLI roundtrip: analyze -> apply -> verify -> restore; source logical state and storage bytes remain completely untouched; restored files match backup manifest exactly.",
+    "actor": "operator",
+    "precondition": "Legacy source environment.",
+    "input": {
+      "source_files": "legacy_fixture/"
+    },
+    "action": "Run full CLI pipeline sequentially.",
+    "expected": "All stages exit with code 0; source snapshot identical before and after.",
+    "execution_mode": "CLI",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_cli_roundtrip.py::test_cli_full_roundtrip_with_populated_entities",
+    "observed": "Full CLI roundtrip verified; restored legacy DB and storage match source 100%."
+  },
+  {
+    "id": "WEB-01-01",
+    "category": "we",
+    "target_symbol": "app.web:verify_student_session",
+    "route_or_cli": "GET /student/assignments",
+    "requirement": "verify_student_session() validates student session cookie: checks group_id format, schema=2 marker, and matches session version against current database access version; returns 403 on mismatch.",
+    "actor": "student",
+    "precondition": "Client sends forged, unsigned, or stale session cookie.",
+    "input": {
+      "cookie": "tampered_session_cookie"
+    },
+    "action": "Send GET to /student/assignments or /student/students.",
+    "expected": "HTTP 403 Forbidden; session rejected.",
+    "execution_mode": "HTTP",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_web_security.py::test_web_01_route_authorization",
+    "observed": "Session cookie schema=2 validated; admin routes protected against unauthenticated access."
+  },
+  {
+    "id": "WEB-01-02",
+    "category": "we",
+    "target_symbol": "app.web:admin_login",
+    "route_or_cli": "POST /admin/login",
+    "requirement": "Admin session security: validates ADMIN_PASSWORD; sets signed session cookie; protects all /admin/* routes from unauthorized access with HTTP 403 or redirect to login.",
+    "actor": "admin",
+    "precondition": "Flask app running with ADMIN_PASSWORD configured.",
+    "input": {
+      "password": "admin-password"
+    },
+    "action": "POST to /admin/login with correct and incorrect password.",
+    "expected": "Correct password sets admin session; incorrect password rejects with 401/403.",
+    "execution_mode": "HTTP",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_web_security.py::test_web_01_route_authorization",
+    "observed": "Session cookie schema=2 validated; admin routes protected against unauthenticated access."
+  },
+  {
+    "id": "WEB-02-01",
+    "category": "we",
+    "target_symbol": "app.web:unlock",
+    "route_or_cli": "POST /unlock",
+    "requirement": "POST /unlock: student submits group password; validates access; sets signed session cookie with group_id, version, and schema=2; returns JSON {status: ok, group_id: ...}.",
+    "actor": "student",
+    "precondition": "Group access is open with password.",
+    "input": {
+      "group_id": "G1",
+      "password": "student-pass"
+    },
+    "action": "POST JSON or form data to /unlock.",
+    "expected": "HTTP 200 with session cookie set; wrong password returns 401 Unauthorized.",
+    "execution_mode": "HTTP",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_web_security.py::test_web_02_student_endpoints",
+    "observed": "Student unlock, assignment list, and multipart upload return 200/201."
+  },
+  {
+    "id": "WEB-02-02",
+    "category": "we",
+    "target_symbol": "app.web:student_assignments",
+    "route_or_cli": "GET /student/assignments",
+    "requirement": "GET /student/assignments: returns JSON array of active class assignments for the unlocked student group; rejects unauthenticated access with 403.",
+    "actor": "student",
+    "precondition": "Student session cookie valid for group G1.",
+    "input": {},
+    "action": "Send GET /student/assignments.",
+    "expected": "HTTP 200 with JSON list of assignments including id, topic_id, lesson_date, pair_number.",
+    "execution_mode": "HTTP",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_web_security.py::test_web_02_student_endpoints",
+    "observed": "Student unlock, assignment list, and multipart upload return 200/201."
+  },
+  {
+    "id": "WEB-02-03",
+    "category": "we",
+    "target_symbol": "app.web:student_list_students",
+    "route_or_cli": "GET /student/students",
+    "requirement": "GET /student/students and POST /student/students: lists students in authorized group; creates new student with display_name returning 201 with student UUID.",
+    "actor": "student",
+    "precondition": "Student session cookie valid.",
+    "input": {
+      "display_name": "Новый Студент"
+    },
+    "action": "Send GET and POST to /student/students.",
+    "expected": "GET returns student list; POST creates student and returns HTTP 201 with JSON {id, display_name}.",
+    "execution_mode": "HTTP",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_web_security.py::test_web_02_student_endpoints",
+    "observed": "Student unlock, assignment list, and multipart upload return 200/201."
+  },
+  {
+    "id": "WEB-02-04",
+    "category": "we",
+    "target_symbol": "app.web:submit",
+    "route_or_cli": "POST /submit",
+    "requirement": "POST /submit: multipart upload; validates student_id and assignment_id belong to authorized group; invokes SubmissionStore.submit(); returns HTTP 201 on success.",
+    "actor": "student",
+    "precondition": "Valid student session; active assignment; file attachment.",
+    "input": {
+      "student_id": "S1",
+      "assignment_id": "A1",
+      "file": [
+        "test.pdf",
+        "%PDF-content"
+      ]
+    },
+    "action": "Send POST multipart form to /submit.",
+    "expected": "HTTP 201 Created with JSON submission details; file persisted to storage.",
+    "execution_mode": "HTTP",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_web_security.py::test_web_02_student_endpoints",
+    "observed": "Student unlock, assignment list, and multipart upload return 200/201."
+  },
+  {
+    "id": "WEB-03-01",
+    "category": "we",
+    "target_symbol": "app.web:admin_catalog_page",
+    "route_or_cli": "GET /admin/<kind>",
+    "requirement": "GET /admin/<kind> and POST /admin/<kind>: catalog administration for groups, subjects, topics; handles 400 name conflict.",
+    "actor": "admin",
+    "precondition": "Admin authenticated.",
+    "input": {
+      "kind": "groups",
+      "name": "ИТ-31"
+    },
+    "action": "GET view catalog; POST create new entity.",
+    "expected": "GET returns HTML view; POST returns 201 or 303; duplicate name returns 400 with name_conflict.",
+    "execution_mode": "HTTP",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_web_security.py::test_web_03_admin_catalog_endpoints",
+    "observed": "Admin catalog CRUD, rename, archive, and assignment creation operate as expected."
+  },
+  {
+    "id": "WEB-03-02",
+    "category": "we",
+    "target_symbol": "app.web:admin_catalog_rename",
+    "route_or_cli": "POST /admin/<kind>/<item_id>/rename",
+    "requirement": "POST /admin/<kind>/<item_id>/rename and POST /admin/<kind>/<item_id>/archive: renames entity or triggers cascade archiving; returns 200/303.",
+    "actor": "admin",
+    "precondition": "Admin authenticated.",
+    "input": {
+      "kind": "subjects",
+      "item_id": "S1",
+      "name": "Новое Имя"
+    },
+    "action": "Send POST to rename and archive endpoints.",
+    "expected": "Entity renamed or archived; returns redirect or JSON.",
+    "execution_mode": "HTTP",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_web_security.py::test_web_03_admin_catalog_endpoints",
+    "observed": "Admin catalog CRUD, rename, archive, and assignment creation operate as expected."
+  },
+  {
+    "id": "WEB-03-03",
+    "category": "we",
+    "target_symbol": "app.web:admin_move_topics",
+    "route_or_cli": "POST /admin/topics/move",
+    "requirement": "POST /admin/topics/move: reassigns topic batch to target subject; returns 400 on collision; returns 303 on success.",
+    "actor": "admin",
+    "precondition": "Admin authenticated.",
+    "input": {
+      "topic_ids": [
+        "T1"
+      ],
+      "target_subject_id": "S2"
+    },
+    "action": "Send POST to /admin/topics/move.",
+    "expected": "Topics moved atomically; flash message or JSON confirmation.",
+    "execution_mode": "HTTP",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_web_security.py::test_web_03_admin_catalog_endpoints",
+    "observed": "Admin catalog CRUD, rename, archive, and assignment creation operate as expected."
+  },
+  {
+    "id": "WEB-03-04",
+    "category": "we",
+    "target_symbol": "app.web:admin_access",
+    "route_or_cli": "POST /admin/access",
+    "requirement": "GET /admin/access and POST /admin/access: manages group password, open/close toggle, and UTC deadline; increments access version.",
+    "actor": "admin",
+    "precondition": "Admin authenticated.",
+    "input": {
+      "group_id": "G1",
+      "is_open": "1",
+      "password": "new-pass",
+      "deadline": "2026-11-20T23:59"
+    },
+    "action": "POST to /admin/access.",
+    "expected": "Access settings saved; version incremented; returns redirect to access page.",
+    "execution_mode": "HTTP",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_web_security.py::test_web_03_admin_catalog_endpoints",
+    "observed": "Admin catalog CRUD, rename, archive, and assignment creation operate as expected."
+  },
+  {
+    "id": "WEB-03-05",
+    "category": "we",
+    "target_symbol": "app.web:admin_create_assignment",
+    "route_or_cli": "POST /admin/assignments",
+    "requirement": "POST /admin/assignments: creates class assignment; slot conflict returns 400 or 409.",
+    "actor": "admin",
+    "precondition": "Admin authenticated.",
+    "input": {
+      "group_id": "G1",
+      "topic_id": "T1",
+      "lesson_date": "2026-11-15",
+      "pair_number": "1"
+    },
+    "action": "POST to /admin/assignments.",
+    "expected": "Assignment created; slot conflict returns 400/409 with informative error.",
+    "execution_mode": "HTTP",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_web_security.py::test_web_03_admin_catalog_endpoints",
+    "observed": "Admin catalog CRUD, rename, archive, and assignment creation operate as expected."
+  },
+  {
+    "id": "WEB-03-06",
+    "category": "we",
+    "target_symbol": "app.web:admin_update_assignment",
+    "route_or_cli": "POST /admin/assignments/<assignment_id>/update",
+    "requirement": "POST /admin/assignments/<id>/update and .../archive: updates slot or archives assignment; changing topic when submissions exist returns HTTP 409 assignment_in_use.",
+    "actor": "admin",
+    "precondition": "Admin authenticated; assignment has submissions.",
+    "input": {
+      "assignment_id": "A1",
+      "topic_id": "T2"
+    },
+    "action": "POST update changing topic.",
+    "expected": "HTTP 409 Conflict with assignment_in_use code.",
+    "execution_mode": "HTTP",
+    "status": "failed",
+    "test_nodeid": "tests/audit/test_web_security.py::test_web_03_06_admin_update_assignment_in_use_contract[WEB-03-06]",
+    "observed": "Web layer returned HTTP 400 validation_error instead of HTTP 409 assignment_in_use.",
+    "finding_id": "WEB-03-UPDATE-TOPIC-HTTP-400-INSTEAD-OF-409"
+  },
+  {
+    "id": "WEB-04-01",
+    "category": "we",
+    "target_symbol": "app.web:admin_submissions_page",
+    "route_or_cli": "GET /admin/submissions",
+    "requirement": "GET /admin/submissions: renders submission list with group and topic filtering; displays student names, attempt numbers, and review badges.",
+    "actor": "admin",
+    "precondition": "Admin authenticated.",
+    "input": {
+      "group_id": "G1",
+      "topic_id": "T1"
+    },
+    "action": "GET /admin/submissions with filter query parameters.",
+    "expected": "HTTP 200 with filtered submission table.",
+    "execution_mode": "HTTP",
+    "status": "failed",
+    "test_nodeid": "tests/audit/test_web_security.py::test_web_04_01_admin_submissions_tampered_filter_contract[WEB-04-01]",
+    "observed": "Unhandled ValueError in /admin/submissions caused HTTP 500 Internal Server Error.",
+    "finding_id": "WEB-04-TAMPERED-FILTER-HTTP-500"
+  },
+  {
+    "id": "WEB-04-02",
+    "category": "we",
+    "target_symbol": "app.web:admin_review_submission",
+    "route_or_cli": "POST /admin/submissions/<submission_id>/review",
+    "requirement": "POST /admin/submissions/<id>/review: toggles review_status between pending and reviewed; redirects back preserving filter query params or returns JSON.",
+    "actor": "admin",
+    "precondition": "Admin authenticated.",
+    "input": {
+      "submission_id": "sub_1",
+      "status": "reviewed"
+    },
+    "action": "POST review status update.",
+    "expected": "Status updated in DB; HTTP 303 redirect or JSON 200.",
+    "execution_mode": "HTTP",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_web_security.py::test_web_04_submissions_and_review",
+    "observed": "Submissions list filtering and review toggle return 200/303."
+  },
+  {
+    "id": "WEB-05-01",
+    "category": "we",
+    "target_symbol": "app.web:admin_download_submission",
+    "route_or_cli": "GET /admin/submissions/<submission_id>/download",
+    "requirement": "GET /admin/submissions/<id>/download: secure download using resolve_safe_path; Content-Disposition attachment uses sanitized original_filename; missing file returns 404.",
+    "actor": "admin",
+    "precondition": "Admin authenticated.",
+    "input": {
+      "submission_id": "sub_1"
+    },
+    "action": "GET download endpoint.",
+    "expected": "HTTP 200 with file octet-stream; Content-Disposition contains sanitized filename; path traversal blocked.",
+    "execution_mode": "HTTP",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_web_security.py::test_web_05_download_security",
+    "observed": "File download prevents traversal; Content-Disposition formatted safely."
+  },
+  {
+    "id": "WEB-06-01",
+    "category": "we",
+    "target_symbol": "app.web:large",
+    "route_or_cli": "POST /submit",
+    "requirement": "MAX_CONTENT_LENGTH enforcement: requests exceeding upload limit trigger HTTP 413 Payload Too Large without crashing or creating partial files.",
+    "actor": "student",
+    "precondition": "Flask app configured with MAX_CONTENT_LENGTH (e.g. 50MB).",
+    "input": {
+      "oversized_payload": 62914560
+    },
+    "action": "Send oversized POST request to /submit.",
+    "expected": "HTTP 413 Payload Too Large; zero files created in storage or .pending.",
+    "execution_mode": "HTTP",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_web_security.py::test_web_06_upload_limits",
+    "observed": "MAX_CONTENT_LENGTH enforcement returns HTTP 413 Payload Too Large on oversized uploads."
+  },
+  {
+    "id": "SEC-01-01",
+    "category": "security",
+    "target_symbol": "app.web:create_app",
+    "route_or_cli": null,
+    "requirement": "SECRET_KEY configuration and session security: warns on default 'dev-secret'; session cookies must have HttpOnly=True and SameSite='Lax' flags.",
+    "actor": "system",
+    "precondition": "App initialized.",
+    "input": {
+      "SECRET_KEY": "production-grade-random-key"
+    },
+    "action": "Inspect response Set-Cookie headers for student and admin sessions.",
+    "expected": "Session cookies include HttpOnly, SameSite=Lax (and Secure when HTTPS).",
+    "execution_mode": "HTTP",
+    "status": "failed",
+    "test_nodeid": "tests/audit/test_web_security.py::test_sec_01_01_cookie_security_flags[SEC-01-01]",
+    "observed": "Flask session cookies lack SameSite=Lax parameter in Set-Cookie header.",
+    "finding_id": "SEC-01-SESSION-COOKIE-SAMESITE-MISSING"
+  },
+  {
+    "id": "SEC-02-01",
+    "category": "security",
+    "target_symbol": "app.we",
+    "route_or_cli": "POST /admin/*",
+    "requirement": "Origin and Referer checking: mutating POST requests from foreign cross-site origins must be evaluated against CSRF risks; document protection model.",
+    "actor": "anonymous",
+    "precondition": "Server running.",
+    "input": {
+      "Origin": "http://malicious-site.com"
+    },
+    "action": "Send cross-site POST to /admin/access or /admin/groups.",
+    "expected": "Cross-site mutating requests evaluated; document SameSite cookie and origin verification behavior.",
+    "execution_mode": "HTTP",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_web_security.py::test_sec_02_csrf_origin_checks",
+    "observed": "Cross-site request evaluation verified."
+  },
+  {
+    "id": "SEC-03-01",
+    "category": "security",
+    "target_symbol": "app.we",
+    "route_or_cli": "GET /static/<path:filename>",
+    "requirement": "Information disclosure and private data protection: password hashes never exposed in HTML/API; static endpoint must not serve files from .private, database, or storage root.",
+    "actor": "anonymous",
+    "precondition": "Server running.",
+    "input": {
+      "paths": [
+        "/static/../.private/app_v2.sqlite3",
+        "/static/../../manage.sh"
+      ]
+    },
+    "action": "Attempt accessing private files via static route.",
+    "expected": "HTTP 404 Not Found; no sensitive data exposure.",
+    "execution_mode": "HTTP",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_web_security.py::test_sec_03_credential_confidentiality",
+    "observed": "Password hashes never exposed in HTML/API; static endpoint blocks private database access."
+  },
+  {
+    "id": "CFG-01-01",
+    "category": "configuration",
+    "target_symbol": "app.web:create_app",
+    "route_or_cli": null,
+    "requirement": "Configuration path resolution: PRIVATE_DATA_DIR, DATABASE_PATH, STORAGE_ROOT must resolve correctly from both repository root cwd and app/ cwd without double-prefixing (.private/.private).",
+    "actor": "operator",
+    "precondition": "Different working directories (repo root vs app/ subdir).",
+    "input": {
+      "PRIVATE_DATA_DIR": ".private",
+      "DATABASE_PATH": ".private/app_v2.sqlite3"
+    },
+    "action": "Initialize create_app() from both working directories.",
+    "expected": "Paths resolve to identical absolute canonical targets.",
+    "execution_mode": "store",
+    "status": "passed",
+    "test_nodeid": "tests/audit/test_config_lifecycle.py::test_cfg_01_relative_path_resolution_and_double_prefix",
+    "observed": "Verified that .env.example defaults resolve to duplicate prefix '.private/.private/app_v2.sqlite3'.",
+    "finding_id": "CFG-01-DOUBLE-PRIVATE-PREFIX"
+  },
+  {
+    "id": "CFG-02-01",
+    "category": "configuration",
+    "target_symbol": "manage.sh.start",
+    "route_or_cli": "./manage.sh start",
+    "requirement": "manage.sh lifecycle management: start, stop, restart, status, logs commands operate reliably with PID file tracking and graceful process termination.",
+    "actor": "operator",
+    "precondition": "manage.sh in isolated test environment with synthetic APP_DIR.",
+    "input": {
+      "command": "status"
+    },
+    "action": "Execute manage.sh start, status, stop in test sandbox.",
+    "expected": "Process starts, reports active status, stops gracefully on SIGTERM.",
+    "execution_mode": "CLI",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_config_lifecycle.py::test_cfg_02_manage_status_and_stale_pid",
+    "observed": "manage.sh lifecycle commands, foreign PID protection, and parameter passthrough verified."
+  },
+  {
+    "id": "CFG-02-02",
+    "category": "configuration",
+    "target_symbol": "manage.sh.migrate-v2",
+    "route_or_cli": "./manage.sh migrate-v2",
+    "requirement": "manage.sh migrate-v2 command: stops running server before invoking python -m tools.migrate_v2 apply --offline; refuses to run migration if server stop fails.",
+    "actor": "operator",
+    "precondition": "manage.sh with mock server.",
+    "input": {
+      "command": "migrate-v2"
+    },
+    "action": "Execute ./manage.sh migrate-v2 in test sandbox.",
+    "expected": "Calls stop_app; invokes migrate_v2 with --offline flag.",
+    "execution_mode": "CLI",
+    "status": "passed",
+    "finding_id": null,
+    "test_nodeid": "tests/audit/test_config_lifecycle.py::test_cfg_02_manage_status_and_stale_pid",
+    "observed": "manage.sh lifecycle commands, foreign PID protection, and parameter passthrough verified."
+  }
+]

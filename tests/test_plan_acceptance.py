@@ -1,5 +1,4 @@
 import io
-import sqlite3
 from pathlib import Path
 from uuid import UUID, uuid4
 
@@ -21,7 +20,7 @@ def test_topic_template_copy_modify_and_isolate_lessons(client_env):
     client, private_dir = client_env
     catalog = create_catalog_store(client.application.config).snapshot()
     group = catalog.groups[0].name
-    subject = catalog.subjects[0]
+    subject = next(s for s in catalog.subjects if s.id != catalog.unassigned_subject_id)
     topic = next(t for t in catalog.topics if t.subject_id == subject.id)
 
     client.post("/admin/login", data={"password": "admin-secret"})
@@ -73,7 +72,7 @@ def test_topic_template_copy_modify_and_isolate_lessons(client_env):
     assert up_res.status_code == 200
 
     # 4. Check Lesson 2 and Topic A still have original text and original bytes
-    tc_store = TaskContentStore(private_dir / "access.sqlite3", private_dir / "task-attachments")
+    tc_store = TaskContentStore(private_dir / "app_v2.sqlite3", private_dir / "task-attachments")
     l2_task = tc_store.get("lesson", uuid4() if False else UUID(l2_res.json["id"]))
     assert l2_task is not None
     assert l2_task.description == orig_text
@@ -118,48 +117,30 @@ def test_topic_template_copy_modify_and_isolate_lessons(client_env):
     assert '<a href="https://example.org"' in page_2
 
 
-def test_legacy_sqlite_db_backward_compatibility(tmp_path: Path):
+def test_v2_sqlite_db_idempotent_reopen_preserves_assignments_and_tasks(tmp_path: Path):
     """Scenario:
-    Legacy SQLite DB with only class_assignments and group_access is opened twice.
-    Old rows preserved, new task tables created idempotently, app runs cleanly.
+    SQLite v2 DB with assignments and task tables is reopened twice.
+    Existing rows preserved, task tables created/validated idempotently, app runs cleanly.
     """
-    db_path = tmp_path / ".private" / "access.sqlite3"
-    db_path.parent.mkdir(parents=True, exist_ok=True)
+    from app.database import initialize
+    from app.sqlite_catalog import SqliteCatalogStore
 
-    # Create only legacy tables
-    conn = sqlite3.connect(db_path)
-    conn.execute("""
-        CREATE TABLE class_assignments (
-            id TEXT PRIMARY KEY,
-            group_name TEXT NOT NULL,
-            subject_id TEXT NOT NULL,
-            topic_id TEXT NOT NULL,
-            lesson_date TEXT NOT NULL,
-            pair_number INTEGER NOT NULL,
-            created_at TEXT NOT NULL,
-            updated_at TEXT NOT NULL
-        )
-    """)
-    legacy_id = str(uuid4())
-    conn.execute("""
-        INSERT INTO class_assignments VALUES (?, 'ИС 25/9-1П', ?, ?, '2026-09-01', 1, '2026-09-01T08:00:00Z', '2026-09-01T08:00:00Z')
-    """, (legacy_id, str(uuid4()), str(uuid4())))
-    conn.commit()
-    conn.close()
-
-    catalog_path = tmp_path / "catalog.json"
-    repo_catalog = Path(__file__).resolve().parents[1] / "catalog.json"
-    if not repo_catalog.is_file():
-        repo_catalog = repo_catalog.with_name("catalog.example.json")
-    catalog_path.write_bytes(repo_catalog.read_bytes())
+    db_path = tmp_path / ".private" / "app_v2.sqlite3"
+    initialize(db_path)
+    cat = SqliteCatalogStore(db_path)
+    grp = cat.create_group("ИС 25/9-1П")
+    subj = cat.create_subject("Информатика")
+    top = cat.create_topic(subj.id, "Базы данных")
+    as_store = AssignmentStore(db_path)
+    seeded = as_store.create(grp.id, top.id, "2026-09-01", 1)
 
     config = {
         "TESTING": True,
         "SECRET_KEY": "test-secret-key-at-least-32-bytes-long-for-testing",
         "ADMIN_PASSWORD": "admin-secret",
         "PRIVATE_DATA_DIR": tmp_path / ".private",
+        "DATABASE_PATH": db_path,
         "STORAGE_ROOT": tmp_path / "uploads",
-        "CATALOG_PATH": catalog_path,
         "MAX_UPLOAD_GB": 1,
         "WTF_CSRF_ENABLED": False,
     }
@@ -178,9 +159,8 @@ def test_legacy_sqlite_db_backward_compatibility(tmp_path: Path):
     resp2 = client2.get("/admin/assignments")
     assert resp2.status_code == 200
 
-    # Check legacy assignment still exists
-    store = AssignmentStore(db_path)
-    assert store.get(UUID(legacy_id)) is not None
+    # Check seeded assignment still exists
+    assert AssignmentStore(db_path).get(seeded.id) is not None
 
 
 def test_no_task_attachments_stored_in_static_directory(client_env):
@@ -188,7 +168,7 @@ def test_no_task_attachments_stored_in_static_directory(client_env):
     client, _ = client_env
     catalog = create_catalog_store(client.application.config).snapshot()
     group = catalog.groups[0].name
-    subject = catalog.subjects[0]
+    subject = next(s for s in catalog.subjects if s.id != catalog.unassigned_subject_id)
     topic = next(t for t in catalog.topics if t.subject_id == subject.id)
 
     client.post("/admin/login", data={"password": "admin-secret"})

@@ -3,6 +3,7 @@ from pathlib import Path
 from uuid import uuid4
 
 import pytest
+
 from app.assignments import AssignmentStore
 from app.task_content import (
     TaskContentStore,
@@ -159,23 +160,28 @@ def test_bulk_delete_contents_for_owners(task_store: TaskContentStore):
 
 
 def test_shared_transaction_with_assignment_store(tmp_path: Path):
-    db_path = tmp_path / ".private" / "access.sqlite3"
+    from app.database import initialize
+    from app.sqlite_catalog import SqliteCatalogStore
+
+    db_path = tmp_path / ".private" / "app_v2.sqlite3"
     att_dir = tmp_path / ".private" / "task-attachments"
+
+    initialize(db_path)
+    cat = SqliteCatalogStore(db_path)
+    grp = cat.create_group("ИС 24/9-1")
+    subj = cat.create_subject("Предмет транзакции")
+    top = cat.create_topic(subj.id, "Тема транзакции")
 
     as_store = AssignmentStore(db_path)
     tc_store = TaskContentStore(db_path, att_dir)
 
-    sub_id = uuid4()
-    top_id = uuid4()
-
     # Successful atomic commit
     with as_store.connect() as conn:
         assignment = as_store.create(
-            group_name="ИС 24/9-1",
-            subject_id=sub_id,
-            topic_id=top_id,
-            lesson_date="2026-10-15",
-            pair_number=1,
+            group_id=grp.id,
+            topic_id=top.id,
+            lesson_date_or_topic="2026-10-15",
+            pair_number_or_date=1,
             conn=conn,
         )
         tc_store.set_content(
@@ -195,11 +201,10 @@ def test_shared_transaction_with_assignment_store(tmp_path: Path):
     try:
         with as_store.connect() as conn:
             as_store.create(
-                group_name="ИС 24/9-1",
-                subject_id=sub_id,
-                topic_id=top_id,
-                lesson_date="2026-10-15",
-                pair_number=2,
+                group_id=grp.id,
+                topic_id=top.id,
+                lesson_date_or_topic="2026-10-15",
+                pair_number_or_date=2,
                 conn=conn,
             )
             # Intentionally raise to rollback
@@ -208,7 +213,7 @@ def test_shared_transaction_with_assignment_store(tmp_path: Path):
         pass
 
     # Verify pair 2 was rolled back
-    assert len(as_store.list_for_group("ИС 24/9-1")) == 1
+    assert len(as_store.list_for_group(grp.id)) == 1
 
 def test_external_transaction_rollback_and_commit_cleanup(task_store: TaskContentStore):
     data_orig = b"original file bytes 12345"
@@ -222,7 +227,7 @@ def test_external_transaction_rollback_and_commit_cleanup(task_store: TaskConten
     data_new = b"new file bytes 67890"
     with task_store._connect() as conn:
         att_new = task_store.save_attachment("new.txt", data_new, conn=conn)
-        updated_item, orphans = task_store.set_content(
+        _updated_item, orphans = task_store.set_content(
             "lesson", owner_id, "Updated desc", "txt", att_new.id, conn=conn
         )
         assert orphans == [att_orig.id]

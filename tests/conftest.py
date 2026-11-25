@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import sys
 from html.parser import HTMLParser
 from io import BytesIO
@@ -9,12 +11,9 @@ repo_dir = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(repo_dir))
 
 from app.access import AccessStore
-from app.catalog_store import create_catalog_store
+from app.database import initialize
+from app.sqlite_catalog import SqliteCatalogStore
 from app.web import create_app
-
-catalog_path = repo_dir / "catalog.json"
-if not catalog_path.is_file():
-    create_catalog_store({"CATALOG_PROVIDER": "json", "CATALOG_PATH": catalog_path}).snapshot()
 
 
 class CSRFTokenParser(HTMLParser):
@@ -55,18 +54,28 @@ def post_with_csrf_fixture():
 @pytest.fixture
 def client_env(tmp_path: Path):
     private_dir = tmp_path / ".private"
-    source = repo_dir / "catalog.json"
-    if not source.is_file():
-        source = source.with_name("catalog.example.json")
-    test_catalog_path = tmp_path / "catalog.json"
-    test_catalog_path.write_bytes(source.read_bytes())
+    private_dir.mkdir(parents=True, exist_ok=True)
+    db_path = private_dir / "app_v2.sqlite3"
+    storage_root = tmp_path / "uploads"
+    storage_root.mkdir(parents=True, exist_ok=True)
+
+    initialize(db_path)
+    cat = SqliteCatalogStore(db_path)
+    cat.create_group("ИС 25/9-1П")
+    cat.create_group("ИС 25/9-2П")
+    subj1 = cat.create_subject("Архитектура аппаратных средств")
+    cat.create_topic(subj1.id, "Логические элементы. Базовые схемы")
+    cat.create_topic(subj1.id, "Комбинационные устройства")
+    subj2 = cat.create_subject("Базы данных")
+    cat.create_topic(subj2.id, "Проектирование ER-моделей")
+
     app = create_app({
         "TESTING": True,
         "SECRET_KEY": "test-secret-key-at-least-32-bytes-long-for-testing",
         "ADMIN_PASSWORD": "admin-secret",
         "PRIVATE_DATA_DIR": private_dir,
-        "STORAGE_ROOT": tmp_path / "uploads",
-        "CATALOG_PATH": test_catalog_path,
+        "DATABASE_PATH": db_path,
+        "STORAGE_ROOT": storage_root,
         "MAX_UPLOAD_GB": 1,
         "WTF_CSRF_ENABLED": False,
     })
@@ -84,5 +93,10 @@ def valid_submission():
 
 
 def configure_group(private_dir: Path, group="ИС 25/9-1П", password="1234", is_open=True):
-    store = AccessStore(private_dir / "access.sqlite3", ["ИС 25/9-1П", "ИС 25/9-2П"])
-    store.configure(group, password, is_open, None)
+    db_path = private_dir / "app_v2.sqlite3"
+    cat = SqliteCatalogStore(db_path)
+    grp = next((g for g in cat.list_groups() if g.name == group), None)
+    if not grp:
+        grp = cat.create_group(group)
+    store = AccessStore(db_path)
+    store.configure(grp.id, is_open=is_open, password=password)

@@ -16,7 +16,7 @@ def test_student_assignments_listing_has_flags(client_env):
     assert unlock_res.status_code == 200
 
     catalog = create_catalog_store(client.application.config).snapshot()
-    subject = catalog.subjects[0]
+    subject = next(s for s in catalog.subjects if s.id != catalog.unassigned_subject_id)
     topic = next(t for t in catalog.topics if t.subject_id == subject.id)
 
     # Setup assignments with 4 combinations:
@@ -83,7 +83,7 @@ def test_student_assignment_detail_and_isolation(client_env):
     configure_group(private_dir, group="ИС 25/9-2П", password="5678", is_open=True)
 
     catalog = create_catalog_store(client.application.config).snapshot()
-    subject = catalog.subjects[0]
+    subject = next(s for s in catalog.subjects if s.id != catalog.unassigned_subject_id)
     topic = next(t for t in catalog.topics if t.subject_id == subject.id)
 
     # Admin creates assignment for Group 1 and Group 2
@@ -124,7 +124,7 @@ def test_two_lessons_same_topic_have_distinct_assignments(client_env):
     configure_group(private_dir, group="ИС 25/9-1П", password="1234", is_open=True)
 
     catalog = create_catalog_store(client.application.config).snapshot()
-    subject = catalog.subjects[0]
+    subject = next(s for s in catalog.subjects if s.id != catalog.unassigned_subject_id)
     topic = next(t for t in catalog.topics if t.subject_id == subject.id)
 
     client.post("/admin/login", data={"password": "admin-secret"})
@@ -157,7 +157,7 @@ def test_student_attachment_download_and_security(client_env):
     configure_group(private_dir, group="ИС 25/9-2П", password="5678", is_open=True)
 
     catalog = create_catalog_store(client.application.config).snapshot()
-    subject = catalog.subjects[0]
+    subject = next(s for s in catalog.subjects if s.id != catalog.unassigned_subject_id)
     topic = next(t for t in catalog.topics if t.subject_id == subject.id)
 
     html_bytes = b"<html><body><h1>Task</h1><script>alert(1)</script></body></html>"
@@ -197,7 +197,7 @@ def test_student_can_submit_from_assignment_page(client_env, tmp_path):
     configure_group(private_dir, group="ИС 25/9-1П", password="1234", is_open=True)
 
     catalog = create_catalog_store(client.application.config).snapshot()
-    subject = catalog.subjects[0]
+    subject = next(s for s in catalog.subjects if s.id != catalog.unassigned_subject_id)
     topic = next(t for t in catalog.topics if t.subject_id == subject.id)
 
     client.post("/admin/login", data={"password": "admin-secret"})
@@ -223,17 +223,22 @@ def test_student_can_submit_from_assignment_page(client_env, tmp_path):
     })
     assert sub_resp.status_code == 201
 
-    saved = list((tmp_path / "uploads").rglob("Сидоров Петр Алексеевич 1.pdf"))
-    assert len(saved) == 1
-    assert saved[0].read_bytes() == b"answer PDF bytes"
+    from uuid import UUID
+
+    from app.submissions import SubmissionStore
+    sub_store = SubmissionStore(private_dir / "app_v2.sqlite3", tmp_path / "uploads")
+    saved_path, orig_name = sub_store.get_file(UUID(sub_resp.json["submission_id"]))
+    assert orig_name == "homework.pdf"
+    assert saved_path.read_bytes() == b"answer PDF bytes"
 
 def test_topic_move_and_update_reassigns_assignments_and_allows_submit(client_env, tmp_path):
     from uuid import UUID
-    from tests.conftest import configure_group
+
     from app.assignments import AssignmentStore
+    from tests.conftest import configure_group
 
     client, private_dir = client_env
-    as_store = AssignmentStore(private_dir / "access.sqlite3")
+    as_store = AssignmentStore(private_dir / "app_v2.sqlite3")
     group_name = "ИС 25/9-1П"
     configure_group(private_dir, group=group_name, password="1234", is_open=True)
 

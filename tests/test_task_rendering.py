@@ -1,4 +1,5 @@
 import pytest
+
 from app.task_rendering import render_task
 
 

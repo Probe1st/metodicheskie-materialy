@@ -23,7 +23,7 @@ function getCsrfToken() {
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.assignment-card').forEach((card) => {
     const cardId = card.dataset.assignmentId;
-    const deleteBtn = card.querySelector('button[data-action="delete"]');
+    const deleteBtn = card.querySelector('button[data-action="archive"]') || card.querySelector('button[data-action="delete"]');
 
     if (deleteBtn) {
       deleteBtn.addEventListener('click', async () => {
@@ -36,16 +36,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (csrfToken) headers['X-CSRFToken'] = csrfToken;
 
         try {
-          const confirmed = await AppDialog.confirm({
-            title: 'Удаление занятия',
-            message: `Удалить занятие «${topicTitle}»?`,
-            hint: 'Это действие также удалит задание к паре.',
-            confirmLabel: 'Удалить',
-            danger: true,
-          });
+          let confirmed = false;
+          if (typeof AppDialog !== 'undefined' && AppDialog.confirm) {
+            confirmed = await AppDialog.confirm({
+              title: 'Архивация занятия',
+              message: `Архивировать занятие «${topicTitle}»?`,
+              hint: 'Это действие также архивирует задание к паре.',
+              confirmLabel: 'Архивировать',
+              danger: true,
+            });
+          } else {
+            confirmed = window.confirm(`Архивировать занятие «${topicTitle}»?`);
+          }
           if (!confirmed) return;
 
-          const res = await fetch(`/admin/assignments/${cardId}/delete`, {
+          const res = await fetch(`/admin/assignments/${cardId}/archive`, {
             method: 'POST',
             headers,
           });
@@ -54,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (body.error === 'csrf_error') {
               throw new Error(body.message || 'Сессия устарела. Обновите страницу и повторите действие.');
             }
-            throw new Error('Delete failed');
+            throw new Error('Archive failed');
           }
           card.remove();
           const list = document.querySelector('[data-assignment-list]');
@@ -65,10 +70,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           }
         } catch (err) {
-          await AppDialog.alert({
-            title: 'Ошибка удаления',
-            message: err?.message || 'Не удалось удалить занятие.',
-          });
+          if (typeof AppDialog !== 'undefined' && AppDialog.alert) {
+            await AppDialog.alert({
+              title: 'Ошибка архивации',
+              message: err?.message || 'Не удалось архивировать занятие.',
+            });
+          } else {
+            alert(err?.message || 'Не удалось архивировать занятие.');
+          }
         } finally {
           if (card.isConnected) {
             deleteBtn.disabled = false;

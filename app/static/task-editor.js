@@ -197,10 +197,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData();
         formData.append('description', text);
         formData.append('description_format', currentFormat);
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        const headers = { Accept: 'application/json' };
+        if (csrfToken) headers['X-CSRFToken'] = csrfToken;
 
         const res = await fetch('/admin/tasks/preview', {
           method: 'POST',
           body: formData,
+          headers,
         });
         if (!res.ok) {
           throw new Error('Ошибка при загрузке предпросмотра');
