@@ -7,7 +7,9 @@ function showActiveStep(activeIndex) {
   });
 }
 
-showActiveStep(0);
+if (stepperSteps.length > 0) {
+  showActiveStep(0);
+}
 function getCsrfToken() {
   const meta = document.querySelector('meta[name="csrf-token"]');
   return meta ? meta.getAttribute('content') : '';
@@ -22,7 +24,7 @@ const submitStatus = document.querySelector('#submit_status');
 const discipline = document.querySelector('#discipline');
 const assignmentSelect = document.querySelector('#assignment_id');
 const topicHint = document.querySelector('#topic_hint');
-const submitButton = submitForm.querySelector('button[type="submit"]');
+const submitButton = submitForm?.querySelector('button[type="submit"]');
 
 const selectedGroup = document.querySelector('#selected_group');
 const groupDisplay = document.querySelector('#group_display');
@@ -53,7 +55,11 @@ const overlayRetryButton = document.querySelector('#overlay_retry_button');
 
 let isSubmitting = false;
 let groupAssignments = [];
-let groupStudents = [];
+let groupStudents = studentSelect && studentSelect.tagName === 'SELECT'
+  ? Array.from(studentSelect.options)
+      .filter((opt) => opt.value)
+      .map((opt) => ({ id: opt.value, display_name: opt.textContent || '' }))
+  : [];
 
 const titleMap = {
   loading: 'overlay_title',
@@ -99,10 +105,11 @@ function hideOverlay() {
 }
 
 function resetFilePreview() {
+  if (!file) return;
   file.value = '';
-  fileName.textContent = 'Файл не выбран';
-  clearFile.hidden = true;
-  dropzone.classList.remove('is-dragging');
+  if (fileName) fileName.textContent = 'Файл не выбран';
+  if (clearFile) clearFile.hidden = true;
+  if (dropzone) dropzone.classList.remove('is-dragging');
 }
 
 function formatFileSize(bytes) {
@@ -113,6 +120,10 @@ function formatFileSize(bytes) {
 }
 
 function showSelectedFile(selectedFile) {
+  if (!selectedFile) {
+    resetFilePreview();
+    return false;
+  }
   const maxBytes = window.submissionMaxBytes || (typeof window.submissionLimit === 'number' ? window.submissionLimit * 1024 * 1024 * 1024 : 0);
   if (maxBytes && selectedFile.size > maxBytes) {
     resetFilePreview();
@@ -123,13 +134,14 @@ function showSelectedFile(selectedFile) {
     setStatus(submitStatus, 'error', `Файл превышает допустимый размер ${limitLabel}. Выберите файл меньшего размера.`);
     return false;
   }
-  fileName.textContent = `${selectedFile.name} · ${formatFileSize(selectedFile.size)}`;
-  clearFile.hidden = false;
+  if (fileName) fileName.textContent = `${selectedFile.name} · ${formatFileSize(selectedFile.size)}`;
+  if (clearFile) clearFile.hidden = false;
   setStatus(submitStatus, '', '');
   return true;
 }
 
 function acceptDroppedFile(selectedFile) {
+  if (!file) return;
   const transfer = new DataTransfer();
   transfer.items.add(selectedFile);
   file.files = transfer.files;
@@ -143,6 +155,7 @@ function setStatus(element, state, message) {
 }
 
 function setBusy(form, busy, label) {
+  if (!form) return;
   const button = form.querySelector('button[type="submit"]');
   if (button) {
     button.disabled = busy;
@@ -153,21 +166,40 @@ function setBusy(form, busy, label) {
 function resetAccess() {
   groupAssignments = [];
   groupStudents = [];
-  selectedGroup.value = '';
-  groupDisplay.textContent = '';
-  accessSummary.hidden = true;
-  submitForm.hidden = true;
-  unlockForm.hidden = false;
-  const pwInput = unlockForm.querySelector('[name="password"]');
-  if (pwInput) {
-    pwInput.value = '';
-    pwInput.focus();
+  if (selectedGroup) selectedGroup.value = '';
+  if (groupDisplay) groupDisplay.textContent = '';
+
+  const csrfToken = getCsrfToken();
+  fetch('/student/logout', {
+    method: 'POST',
+    headers: csrfToken ? { 'X-CSRFToken': csrfToken } : {},
+  }).catch(() => {});
+
+  const unlockView = document.querySelector('#student_unlock_view');
+  const workspaceView = document.querySelector('#student_workspace_view');
+  if (workspaceView) workspaceView.hidden = true;
+  if (unlockView) unlockView.hidden = false;
+  if (!workspaceView) {
+    if (accessSummary) accessSummary.hidden = true;
+    if (submitForm) submitForm.hidden = true;
   }
-  showActiveStep(0);
-  setBusy(unlockForm, false, 'Подтвердить доступ');
+
+  if (unlockForm) {
+    unlockForm.hidden = false;
+    const pwInput = unlockForm.querySelector('[name="password"]');
+    if (pwInput) {
+      pwInput.value = '';
+      pwInput.focus();
+    }
+    setBusy(unlockForm, false, 'Подтвердить доступ');
+  }
+  if (stepperSteps.length > 0) {
+    showActiveStep(0);
+  }
 }
 
 function updateAssignments() {
+  if (!discipline || !assignmentSelect || assignmentSelect.tagName !== 'SELECT') return;
   const selectedSubjectId = discipline.value;
   let available = groupAssignments;
   if (selectedSubjectId) {
@@ -195,10 +227,11 @@ function updateAssignments() {
     topicHint.hidden = hasItems;
     topicHint.textContent = hasItems ? '' : 'Для выбранного предмета нет доступных пар/тем.';
   }
-  submitButton.disabled = !hasItems;
+  if (submitButton) submitButton.disabled = !hasItems;
 }
 
 function updateStudentsList() {
+  if (!studentSelect || studentSelect.tagName !== 'SELECT') return;
   studentSelect.replaceChildren();
   const defaultOption = document.createElement('option');
   defaultOption.value = '';
@@ -261,7 +294,7 @@ if (saveStudentBtn) {
 
       if (!res.ok) {
         if (res.status === 403) {
-          resetAccess();
+          if (unlockForm) resetAccess();
           throw new Error('Доступ группы истёк или был отозван. Подтвердите пароль снова.');
         }
         const err = await res.json().catch(() => ({}));
@@ -272,7 +305,7 @@ if (saveStudentBtn) {
       groupStudents.push(created);
       groupStudents.sort((a, b) => a.display_name.localeCompare(b.display_name));
       updateStudentsList();
-      studentSelect.value = created.id;
+      if (studentSelect) studentSelect.value = created.id;
 
       if (newStudentPanel) newStudentPanel.hidden = true;
       if (newStudentInput) newStudentInput.value = '';
@@ -293,178 +326,198 @@ if (file) {
 if (clearFile) {
   clearFile.addEventListener('click', () => {
     resetFilePreview();
-    file.focus();
+    if (file) file.focus();
   });
 }
 
-['dragenter', 'dragover'].forEach((eventName) => {
-  dropzone.addEventListener(eventName, (event) => {
+if (dropzone) {
+  ['dragenter', 'dragover'].forEach((eventName) => {
+    dropzone.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      dropzone.classList.add('is-dragging');
+    });
+  });
+
+  ['dragleave', 'dragend'].forEach((eventName) => {
+    dropzone.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      if (!dropzone.contains(event.relatedTarget)) dropzone.classList.remove('is-dragging');
+    });
+  });
+
+  dropzone.addEventListener('drop', (event) => {
     event.preventDefault();
     event.stopPropagation();
-    dropzone.classList.add('is-dragging');
+    dropzone.classList.remove('is-dragging');
+    const droppedFile = event.dataTransfer?.files[0];
+    if (droppedFile) acceptDroppedFile(droppedFile);
   });
-});
+}
 
-['dragleave', 'dragend'].forEach((eventName) => {
-  dropzone.addEventListener(eventName, (event) => {
+if (changeGroup) {
+  changeGroup.addEventListener('click', resetAccess);
+}
+
+if (unlockForm) {
+  unlockForm.addEventListener('submit', async (event) => {
     event.preventDefault();
-    if (!dropzone.contains(event.relatedTarget)) dropzone.classList.remove('is-dragging');
-  });
-});
-
-dropzone.addEventListener('drop', (event) => {
-  event.preventDefault();
-  event.stopPropagation();
-  dropzone.classList.remove('is-dragging');
-  const droppedFile = event.dataTransfer?.files[0];
-  if (droppedFile) acceptDroppedFile(droppedFile);
-});
-
-changeGroup.addEventListener('click', resetAccess);
-
-unlockForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  const formData = new FormData(unlockForm);
-  setBusy(unlockForm, true, 'Проверяем доступ…');
-  setStatus(unlockStatus, 'working', 'Проверяем доступ…');
-
-  const headers = { 'Accept': 'application/json' };
-  const csrfToken = getCsrfToken();
-  if (csrfToken) headers['X-CSRFToken'] = csrfToken;
-
-  try {
-    const response = await fetch('/unlock', {
-      method: 'POST',
-      body: formData,
-      headers,
-    });
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      if (errData.error === 'csrf_error') {
-        throw new Error(errData.message || 'Сессия устарела. Обновите страницу и повторите действие.');
-      }
-      throw new Error('denied');
-    }
-
-    const data = await response.json();
-    groupAssignments = data.assignments || [];
-    groupStudents = data.students || [];
-
-    selectedGroup.value = data.group_id;
-    groupDisplay.textContent = data.group_name || formData.get('group_id');
-    unlockForm.hidden = true;
-    accessSummary.hidden = false;
-    submitForm.hidden = false;
-    showActiveStep(1);
-    setStatus(unlockStatus, '', '');
-    updateAssignments();
-    updateStudentsList();
-    if (assignmentSelect) assignmentSelect.focus();
-  } catch (err) {
-    const msg = (err && err.message && err.message !== 'denied')
-      ? err.message
-      : 'Доступ к приёму работ закрыт или пароль неверен.';
-    setStatus(unlockStatus, 'error', msg);
-  } finally {
-    setBusy(unlockForm, false, 'Подтвердить доступ');
-  }
-});
-
-submitForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  if (isSubmitting) return;
-
-  const selectedFile = file.files[0];
-  if (!selectedFile) {
-    setStatus(submitStatus, 'error', 'Прикрепите файл с выполненной работой.');
-    file.focus();
-    return;
-  }
-  if (!showSelectedFile(selectedFile)) return;
-
-  if (!assignmentSelect.value) {
-    setStatus(submitStatus, 'error', 'Выберите тему занятия.');
-    assignmentSelect.focus();
-    return;
-  }
-  if (!studentSelect.value) {
-    setStatus(submitStatus, 'error', 'Выберите или добавьте студента.');
-    studentSelect.focus();
-    return;
-  }
-
-  isSubmitting = true;
-  showOverlay('loading');
-  setBusy(submitForm, true, 'Отправляем…');
-  setStatus(submitStatus, 'working', 'Загружаем файл…');
-
-  try {
-    const signal = typeof AbortSignal.timeout === 'function'
-      ? AbortSignal.timeout(600000)
-      : (() => {
-          const controller = new AbortController();
-          setTimeout(() => controller.abort(), 600000);
-          return controller.signal;
-        })();
+    const formData = new FormData(unlockForm);
+    setBusy(unlockForm, true, 'Проверяем доступ…');
+    setStatus(unlockStatus, 'working', 'Проверяем доступ…');
 
     const headers = { 'Accept': 'application/json' };
     const csrfToken = getCsrfToken();
     if (csrfToken) headers['X-CSRFToken'] = csrfToken;
 
-    const response = await fetch('/submit', {
-      method: 'POST',
-      body: new FormData(submitForm),
-      headers,
-      signal,
-    });
-
-    if (!response.ok) {
-      if (response.status === 413) {
-        throw new Error('Размер файла превышает допустимый лимит сервера.');
-      } else if (response.status === 403) {
-        resetAccess();
-        throw new Error('Приём работ для данной группы закрыт или дедлайн истёк.');
-      } else if (response.status === 400) {
+    try {
+      const response = await fetch('/unlock', {
+        method: 'POST',
+        body: formData,
+        headers,
+      });
+      if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
         if (errData.error === 'csrf_error') {
           throw new Error(errData.message || 'Сессия устарела. Обновите страницу и повторите действие.');
-        } else if (errData.error === 'file_type_not_allowed') {
-          throw new Error(errData.message || 'Недопустимый формат файла.');
         }
-        throw new Error(errData.message || errData.error || 'Неверные параметры отправки или неподдерживаемый файл.');
-      } else if (response.status === 500) {
-        throw new Error('Внутренняя ошибка сервера при сохранении работы.');
-      } else {
-        throw new Error('Не удалось отправить работу. Проверьте соединение.');
+        throw new Error('denied');
       }
+
+      const data = await response.json();
+      groupAssignments = data.assignments || [];
+      groupStudents = data.students || [];
+
+      if (selectedGroup) selectedGroup.value = data.group_id || '';
+      if (groupDisplay) groupDisplay.textContent = data.group_name || data.group || '';
+      setStatus(unlockStatus, '', '');
+
+      const unlockView = document.querySelector('#student_unlock_view');
+      const workspaceView = document.querySelector('#student_workspace_view');
+
+      if (workspaceView && typeof window.updateStudentLessons === 'function') {
+        if (unlockView) unlockView.hidden = true;
+        if (accessSummary) accessSummary.hidden = false;
+        window.updateStudentLessons(groupAssignments);
+      } else {
+        unlockForm.hidden = true;
+        if (accessSummary) accessSummary.hidden = false;
+        if (submitForm) submitForm.hidden = false;
+        if (stepperSteps.length > 0) showActiveStep(1);
+        updateAssignments();
+        updateStudentsList();
+        if (assignmentSelect && assignmentSelect.focus) assignmentSelect.focus();
+      }
+    } catch (err) {
+      const msg = (err && err.message && err.message !== 'denied')
+        ? err.message
+        : 'Доступ к приёму работ закрыт или пароль неверен.';
+      setStatus(unlockStatus, 'error', msg);
+    } finally {
+      setBusy(unlockForm, false, 'Подтвердить доступ');
+    }
+  });
+}
+
+if (submitForm) {
+  submitForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (isSubmitting) return;
+
+    const selectedFile = file?.files?.[0];
+    if (!selectedFile) {
+      setStatus(submitStatus, 'error', 'Прикрепите файл с выполненной работой.');
+      if (file) file.focus();
+      return;
+    }
+    if (!showSelectedFile(selectedFile)) return;
+
+    if (assignmentSelect && assignmentSelect.tagName === 'SELECT' && !assignmentSelect.value) {
+      setStatus(submitStatus, 'error', 'Выберите тему занятия.');
+      assignmentSelect.focus();
+      return;
+    }
+    if (studentSelect && !studentSelect.value) {
+      setStatus(submitStatus, 'error', 'Выберите или добавьте студента.');
+      studentSelect.focus();
+      return;
     }
 
-    const data = await response.json().catch(() => ({}));
-    const confirmedName = data.filename || selectedFile.name;
-    const attemptText = data.attempt_number ? ` (попытка №${data.attempt_number})` : '';
-    if (overlayFilename) overlayFilename.textContent = confirmedName + attemptText;
-    showOverlay('success');
-    setStatus(submitStatus, 'success', 'Работа принята: ' + confirmedName);
-  } catch (err) {
-    isSubmitting = false;
-    const msg = err.name === 'TimeoutError'
-      ? 'Время ожидания загрузки файла истекло. Проверьте сеть.'
-      : (err.message || 'Ошибка отправки: проверьте статус приёма и поля формы.');
-    if (overlayErrorMessage) overlayErrorMessage.textContent = msg;
-    showOverlay('error');
-    setStatus(submitStatus, 'error', msg);
-    setBusy(submitForm, false, 'Отправить работу');
-  }
-});
+    isSubmitting = true;
+    showOverlay('loading');
+    setBusy(submitForm, true, 'Отправляем…');
+    setStatus(submitStatus, 'working', 'Загружаем файл…');
+
+    try {
+      const signal = typeof AbortSignal.timeout === 'function'
+        ? AbortSignal.timeout(600000)
+        : (() => {
+            const controller = new AbortController();
+            setTimeout(() => controller.abort(), 600000);
+            return controller.signal;
+          })();
+
+      const headers = { 'Accept': 'application/json' };
+      const csrfToken = getCsrfToken();
+      if (csrfToken) headers['X-CSRFToken'] = csrfToken;
+
+      const response = await fetch('/submit', {
+        method: 'POST',
+        body: new FormData(submitForm),
+        headers,
+        signal,
+      });
+
+      if (!response.ok) {
+        if (response.status === 413) {
+          throw new Error('Размер файла превышает допустимый лимит сервера.');
+        } else if (response.status === 403) {
+          if (unlockForm) resetAccess();
+          throw new Error('Приём работ для данной группы закрыт или дедлайн истёк.');
+        } else if (response.status === 400) {
+          const errData = await response.json().catch(() => ({}));
+          if (errData.error === 'csrf_error') {
+            throw new Error(errData.message || 'Сессия устарела. Обновите страницу и повторите действие.');
+          } else if (errData.error === 'file_type_not_allowed') {
+            throw new Error(errData.message || 'Недопустимый формат файла.');
+          }
+          throw new Error(errData.message || errData.error || 'Неверные параметры отправки или неподдерживаемый файл.');
+        } else if (response.status === 500) {
+          throw new Error('Внутренняя ошибка сервера при сохранении работы.');
+        } else {
+          throw new Error('Не удалось отправить работу. Проверьте соединение.');
+        }
+      }
+
+      const data = await response.json().catch(() => ({}));
+      const confirmedName = data.filename || selectedFile.name;
+      const attemptText = data.attempt_number ? ` (попытка №${data.attempt_number})` : '';
+      if (overlayFilename) overlayFilename.textContent = confirmedName + attemptText;
+      showOverlay('success');
+      setStatus(submitStatus, 'success', 'Работа принята: ' + confirmedName);
+    } catch (err) {
+      isSubmitting = false;
+      const msg = err.name === 'TimeoutError'
+        ? 'Время ожидания загрузки файла истекло. Проверьте сеть.'
+        : (err.message || 'Ошибка отправки: проверьте статус приёма и поля формы.');
+      if (overlayErrorMessage) overlayErrorMessage.textContent = msg;
+      showOverlay('error');
+      setStatus(submitStatus, 'error', msg);
+      setBusy(submitForm, false, 'Отправить работу');
+    }
+  });
+}
 
 if (overlayResetButton) {
   overlayResetButton.addEventListener('click', () => {
     isSubmitting = false;
     hideOverlay();
-    file.value = '';
+    if (file) file.value = '';
     resetFilePreview();
     setStatus(submitStatus, '', '');
-    updateAssignments();
+    if (discipline && assignmentSelect && assignmentSelect.tagName === 'SELECT') {
+      updateAssignments();
+    }
     setBusy(submitForm, false, 'Отправить работу');
   });
 }
@@ -476,7 +529,7 @@ if (overlayRetryButton) {
     setBusy(submitForm, false, 'Отправить работу');
     if (submitButton && !submitButton.disabled) {
       submitButton.focus();
-    } else {
+    } else if (file) {
       file.focus();
     }
   });

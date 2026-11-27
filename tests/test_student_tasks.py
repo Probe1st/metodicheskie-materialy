@@ -376,3 +376,103 @@ def test_topic_move_and_update_reassigns_assignments_and_allows_submit(client_en
         "description_format": "txt",
     })
     assert up2_resp.status_code == 200
+
+
+def test_index_renders_student_workspace_and_lessons_script(client_env):
+    client, _ = client_env
+    res = client.get("/")
+    assert res.status_code == 200
+    html = res.get_data(as_text=True)
+    assert 'id="student_unlock_view"' in html
+    assert 'id="student_workspace_view"' in html
+    assert 'id="student_lessons_list"' in html
+    assert "student-lessons.js" in html
+
+
+def test_student_assignment_page_lists_group_students_and_submits_by_id(client_env, tmp_path):
+    from uuid import UUID
+
+    from app.submissions import SubmissionStore
+    from tests.conftest import configure_group
+
+    client, private_dir = client_env
+    configure_group(private_dir, group="ИС 25/9-1П", password="1234", is_open=True)
+
+    catalog = create_catalog_store(client.application.config).snapshot()
+    group = next(g for g in catalog.groups if g.name == "ИС 25/9-1П")
+    subject = next(s for s in catalog.subjects if s.id != catalog.unassigned_subject_id)
+    topic = next(t for t in catalog.topics if t.subject_id == subject.id)
+
+    client.post("/admin/login", data={"password": "admin-secret"})
+    r1 = client.post("/admin/assignments", data={
+        "group_id": str(group.id),
+        "subject_id": str(subject.id),
+        "topic_id": str(topic.id),
+        "lesson_date": "2026-11-08",
+        "pair_number": "2",
+    })
+    assert r1.status_code == 201
+    assign_id = r1.json["id"]
+
+    client.post("/unlock", data={"group_id": str(group.id), "password": "1234"})
+    st_res = client.post("/student/students", json={"display_name": "Новиков Никита"})
+    assert st_res.status_code == 201
+    student_id = st_res.json["id"]
+
+    page = client.get(f"/student/assignments/{assign_id}")
+    assert page.status_code == 200
+    html = page.get_data(as_text=True)
+    assert 'id="student_id"' in html
+    assert f'value="{student_id}"' in html
+    assert "Новиков Никита" in html
+
+    sub_resp = client.post("/submit", data={
+        "group_id": str(group.id),
+        "student_id": student_id,
+        "assignment_id": assign_id,
+        "file": (io.BytesIO(b"v2 submission bytes"), "solution.pdf"),
+    })
+    assert sub_resp.status_code == 201
+
+    sub_store = SubmissionStore(private_dir / "app_v2.sqlite3", tmp_path / "uploads")
+    saved_path, orig_name = sub_store.get_file(UUID(sub_resp.json["submission_id"]))
+    assert orig_name == "solution.pdf"
+    assert saved_path.read_bytes() == b"v2 submission bytes"
+
+
+def test_student_logout_clears_session_and_archived_topic_hides_attachment(client_env):
+    from tests.conftest import configure_group
+
+    client, private_dir = client_env
+    configure_group(private_dir, group="ИС 25/9-1П", password="1234", is_open=True)
+
+    catalog = create_catalog_store(client.application.config).snapshot()
+    subject = next(s for s in catalog.subjects if s.id != catalog.unassigned_subject_id)
+    topic = next(t for t in catalog.topics if t.subject_id == subject.id)
+
+    client.post("/admin/login", data={"password": "admin-secret"})
+    r1 = client.post("/admin/assignments", data={
+        "group_name": "ИС 25/9-1П",
+        "subject_id": str(subject.id),
+        "topic_id": str(topic.id),
+        "lesson_date": "2026-11-09",
+        "pair_number": "1",
+        "attachment": (io.BytesIO(b"pdf content"), "task.pdf"),
+    }, content_type="multipart/form-data")
+    assert r1.status_code == 201
+    assign_id = r1.json["id"]
+
+    client.post("/unlock", data={"group": "ИС 25/9-1П", "password": "1234"})
+    assert client.get("/student/assignments").status_code == 200
+    assert client.get(f"/student/assignments/{assign_id}/attachment").status_code == 200
+
+    # Archiving topic hides both assignment page and attachment download
+    arch = client.post(f"/admin/topics/{topic.id}/archive")
+    assert arch.status_code == 204
+    assert client.get(f"/student/assignments/{assign_id}").status_code == 404
+    assert client.get(f"/student/assignments/{assign_id}/attachment").status_code == 404
+
+    # Logout clears student session
+    logout_res = client.post("/student/logout")
+    assert logout_res.status_code == 204
+    assert client.get("/student/assignments").status_code == 403

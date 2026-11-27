@@ -104,17 +104,35 @@
 
         <form id="submit" class="form-stack" method="post" action="{{ url_for('submit') }}" enctype="multipart/form-data">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <input type="hidden" id="selected_group" name="group" value="{{ group_name }}">
-          <input type="hidden" name="group_id" value="{{ assignment.group_id }}">
-          <input type="hidden" name="assignment_id" value="{{ assignment.id }}">
+          <input type="hidden" id="selected_group" name="group_id" value="{{ assignment.group_id }}">
+          <input type="hidden" name="group" value="{{ group_name }}">
+          <input type="hidden" id="assignment_id" name="assignment_id" value="{{ assignment.id }}">
           <input type="hidden" name="discipline" value="{{ subject.name }}">
           <input type="hidden" name="work" value="{{ topic.name }}">
 
           <section class="form-section" aria-label="Данные студента">
-            <label class="field" for="student_name">
-              ФИО студента
-              <input id="student_name" name="student_name" required autocomplete="name" placeholder="Например, Иванов Иван Иванович">
-            </label>
+            <div class="field" id="student_selection_field">
+              <label for="student_id">Студент</label>
+              <div style="display: flex; gap: var(--space-2); align-items: center;">
+                <select id="student_id" name="student_id" required style="flex: 1;">
+                  <option value="">Выберите себя из списка</option>
+                  {% for st in students %}
+                    <option value="{{ st.id }}">{{ st.display_name }}</option>
+                  {% endfor %}
+                </select>
+                <button type="button" class="button button--outline" id="toggle_new_student_btn" style="white-space: nowrap;">Меня нет в списке</button>
+              </div>
+              <div id="new_student_panel" class="panel" style="margin-top: var(--space-2); padding: var(--space-3);" hidden>
+                <label class="field" for="new_student_input">ФИО нового студента
+                  <input id="new_student_input" type="text" placeholder="Например, Иванов Иван Иванович" autocomplete="name">
+                </label>
+                <div style="display: flex; gap: var(--space-2); margin-top: var(--space-2);">
+                  <button type="button" class="button button--primary" id="save_student_btn">Добавить и выбрать</button>
+                  <button type="button" class="button button--outline" id="cancel_student_btn">Отмена</button>
+                </div>
+                <p class="status" id="new_student_status" aria-live="polite" style="margin-top: var(--space-2);"></p>
+              </div>
+            </div>
           </section>
 
           <section class="form-section" aria-label="Файл с работой">
@@ -195,7 +213,7 @@
   <script>
     window.submissionLimit = {{ limit|tojson }};
     window.submissionMaxBytes = {{ max_bytes|tojson }};
-    window.allowedExtensions = {{ allowed_extensions|tojson }};
+    window.allowedUploadExtensions = {{ allowed_extensions|tojson }};
   </script>
   <script src="{{ url_for('static', filename='student.js') }}" defer></script>
 </body>

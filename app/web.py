@@ -399,6 +399,17 @@ def create_app(config=None):
             students=students_data,
         ), 200
 
+    @app.post("/student/logout")
+    def student_logout():
+        for key in (
+            "student_group_id",
+            "student_group",
+            "student_access_version",
+            "student_session_schema",
+        ):
+            session.pop(key, None)
+        return ("", 204)
+
     @app.get("/student/assignments")
     def student_assignments():
         group_uuid, _ = verify_student_session()
@@ -464,6 +475,8 @@ def create_app(config=None):
             else assignment.lesson_date
         )
 
+        students = submission_store.list_students(group_uuid, include_archived=False)
+
         return render_template(
             "student_assignment.html",
             assignment=assignment,
@@ -471,6 +484,7 @@ def create_app(config=None):
             subject=subject,
             topic=topic,
             group_name=group_item.name,
+            students=students,
             rendered_description=rendered_description,
             description_format=description_format,
             attachment=attachment,
@@ -495,6 +509,11 @@ def create_app(config=None):
 
         assignment = assignment_store.get(uid)
         if assignment is None or assignment.archived_at is not None or assignment.group_id != group_uuid:
+            abort(404)
+
+        topic = catalog_store.get_topic(assignment.topic_id)
+        subject = catalog_store.get_subject(assignment.subject_id) if topic else None
+        if subject is None or topic is None:
             abort(404)
 
         content = task_content_store.get("lesson", uid)
@@ -829,12 +848,13 @@ def create_app(config=None):
         except ValueError:
             selected_pair = 1
 
+        cancel_group_id = str(matched_group.id) if matched_group else (str(groups[0].id) if groups else "")
         return render_template(
             "admin_task_editor.html",
             mode="new_lesson",
             form_action=url_for("admin_create_assignment"),
             cancel_url=url_for(
-                "admin_assignments_page", group=selected_group, subject_id=selected_subject_id
+                "admin_assignments_page", group_id=cancel_group_id, subject_id=selected_subject_id
             ),
             page_title="Новое занятие с заданием",
             hero_eyebrow="Панель преподавателя",

@@ -102,6 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     emptyContainer.hidden = true;
     const filterQs = buildFilterQueryString();
+    const query = filterQs ? `?${filterQs.slice(1)}` : '';
 
     const html = filtered.map((item) => `
       <article class="panel catalog-row assignment-card" data-assignment-id="${escapeHtml(item.id)}">
@@ -118,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         </div>
         <div class="catalog-actions" style="margin-left: auto;">
-          <a class="button button--primary" href="/student/assignments/${encodeURIComponent(item.id)}?${filterQs.slice(1)}">Открыть занятие</a>
+          <a class="button button--primary" href="/student/assignments/${encodeURIComponent(item.id)}${query}">Открыть занятие</a>
         </div>
       </article>
     `).join('');
@@ -148,7 +149,9 @@ document.addEventListener('DOMContentLoaded', () => {
   window.updateStudentLessons = function (assignments) {
     allAssignments = assignments || [];
     const unlockView = document.querySelector('#student_unlock_view');
+    const accessSummary = document.querySelector('#access_summary');
     if (unlockView) unlockView.hidden = true;
+    if (accessSummary) accessSummary.hidden = false;
     workspaceView.hidden = false;
     renderList();
   };
@@ -166,8 +169,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const groupDisplay = document.querySelector('#group_display');
         const selectedGroup = document.querySelector('#selected_group');
 
-        if (groupDisplay) groupDisplay.textContent = data.group;
-        if (selectedGroup) selectedGroup.value = data.group;
+        if (groupDisplay) groupDisplay.textContent = data.group || '';
+        if (selectedGroup) selectedGroup.value = data.group_id || data.group || '';
 
         window.updateStudentLessons(data.assignments);
       }
