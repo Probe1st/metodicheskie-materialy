@@ -42,7 +42,6 @@ from .database import (
     DatabaseError,
     DatabaseValidationError,
     connect,
-    normalize_name_key,
     validate,
 )
 from .sqlite_catalog import SqliteCatalogStore
@@ -51,6 +50,8 @@ from .storage import (
     normalize_upload_extensions,
     validated_upload_suffix,
 )
+from .student_cleanup import analyze_students_db, apply_cleanup_plan
+from .student_names import normalize_student_name
 from .submissions import (
     SubmissionAccessError,
     SubmissionNotFoundError,
@@ -519,6 +520,60 @@ def create_app(config=None):
         students = submission_store.list_students(group_uuid, include_archived=False)
         return jsonify([{"id": str(s.id), "display_name": s.display_name} for s in students]), 200
 
+    @app.post("/student/students/check")
+    def student_check_student_name():
+        group_uuid, _ = verify_student_session()
+        if request.is_json:
+            data = request.get_json(silent=True) or {}
+        else:
+            data = request.form
+
+        raw_name = data.get("display_name", "")
+        if not isinstance(raw_name, str):
+            abort(400)
+
+        if not raw_name.strip():
+            return jsonify(
+                normalized_name="",
+                warnings=[],
+                warning_codes=[],
+                was_modified=False,
+                is_paired=False,
+                paired_parts=[],
+                exact_matches=[],
+                fuzzy_matches=[],
+            ), 200
+
+        try:
+            norm = normalize_student_name(raw_name)
+        except ValueError as err:
+            return jsonify(
+                error="validation_error",
+                message=str(err),
+                normalized_name="",
+                warnings=["Введите фамилию и имя буквами — формат может быть неверным."],
+                warning_codes=["invalid_name"],
+                was_modified=False,
+                is_paired=False,
+                paired_parts=[],
+                exact_matches=[],
+                fuzzy_matches=[],
+            ), 200
+
+        exact_matches, fuzzy_matches = submission_store.find_matching_students(
+            group_uuid, norm.display_name, include_archived=False
+        )
+        return jsonify(
+            normalized_name=norm.display_name,
+            warnings=list(norm.warnings),
+            warning_codes=list(norm.warning_codes),
+            was_modified=norm.was_modified,
+            is_paired=norm.is_paired,
+            paired_parts=list(norm.paired_parts),
+            exact_matches=[{"id": str(s.id), "display_name": s.display_name} for s in exact_matches],
+            fuzzy_matches=[{"id": str(s.id), "display_name": s.display_name} for s in fuzzy_matches],
+        ), 200
+
     @app.post("/student/students")
     def student_create_student():
         group_uuid, _ = verify_student_session()
@@ -530,18 +585,97 @@ def create_app(config=None):
         raw_name = data.get("display_name", "")
         if not isinstance(raw_name, str):
             abort(400)
-        display_name = unicodedata.normalize("NFC", raw_name.strip())
-        if not display_name:
+        cleaned_raw = unicodedata.normalize("NFC", raw_name.strip())
+        if not cleaned_raw:
             return jsonify(error="display_name cannot be empty"), 400
 
         try:
-            student = submission_store.create_student(group_uuid, display_name)
+            norm = normalize_student_name(cleaned_raw)
+        except ValueError as err:
+            return jsonify(error=str(err)), 400
+
+        if norm.is_paired:
+            return jsonify(
+                error="paired_names",
+                message="Укажите только одного студента в формате «Фамилия Имя».",
+                warnings=list(norm.warnings),
+                paired_parts=list(norm.paired_parts),
+            ), 400
+
+        def _is_truthy(val: object) -> bool:
+            return val is True or (isinstance(val, str) and val.strip().lower() in ("1", "true", "yes"))
+
+        confirm_duplicate = _is_truthy(data.get("confirm_duplicate", False))
+        confirm_similar = confirm_duplicate or _is_truthy(data.get("confirm_similar", False))
+
+        exact_matches, fuzzy_matches = submission_store.find_matching_students(
+            group_uuid, norm.display_name, include_archived=False
+        )
+        if exact_matches and not confirm_duplicate:
+            if len(exact_matches) == 1:
+                matched = exact_matches[0]
+                return jsonify(
+                    id=str(matched.id),
+                    display_name=matched.display_name,
+                    existing=True,
+                    normalized_name=norm.display_name,
+                    existing_students=[
+                        {"id": str(matched.id), "display_name": matched.display_name}
+                    ],
+                    warnings=list(norm.warnings),
+                    warning_codes=list(norm.warning_codes),
+                    fuzzy_matches=[
+                        {"id": str(s.id), "display_name": s.display_name} for s in fuzzy_matches
+                    ],
+                ), 200
+            return jsonify(
+                error="multiple_exact_students",
+                message=(
+                    "В списке группы найдено несколько однофамильцев. "
+                    "Выберите нужную запись или подтвердите создание новой."
+                ),
+                normalized_name=norm.display_name,
+                existing_students=[
+                    {"id": str(s.id), "display_name": s.display_name} for s in exact_matches
+                ],
+                fuzzy_matches=[
+                    {"id": str(s.id), "display_name": s.display_name} for s in fuzzy_matches
+                ],
+                warnings=list(norm.warnings),
+                warning_codes=list(norm.warning_codes),
+            ), 409
+
+        if fuzzy_matches and not confirm_similar:
+            return jsonify(
+                error="similar_students",
+                message=(
+                    "В списке группы уже есть похожий студент. "
+                    "Выберите его из списка или подтвердите создание нового."
+                ),
+                normalized_name=norm.display_name,
+                fuzzy_matches=[
+                    {"id": str(s.id), "display_name": s.display_name} for s in fuzzy_matches
+                ],
+                warnings=list(norm.warnings),
+                warning_codes=list(norm.warning_codes),
+            ), 409
+
+        try:
+            student, info = submission_store.create_student_with_info(group_uuid, cleaned_raw)
         except SubmissionValidationError as err:
             return jsonify(error=str(err)), 400
         except SubmissionNotFoundError:
             abort(404)
 
-        return jsonify(id=str(student.id), display_name=student.display_name), 201
+        return jsonify(
+            id=str(student.id),
+            display_name=student.display_name,
+            existing=False,
+            warnings=list(info.warnings),
+            warning_codes=list(info.warning_codes),
+            was_modified=info.was_modified,
+            fuzzy_matches=[{"id": str(s.id), "display_name": s.display_name} for s in fuzzy_matches],
+        ), 201
 
     @app.post("/submit")
     def submit():
@@ -567,28 +701,48 @@ def create_app(config=None):
 
         req_student_id = request.form.get("student_id", "").strip()
         req_student_name = request.form.get("student_name", "").strip()
+        student_warnings: list[str] = []
+        student_warning_codes: list[str] = []
+        student_display_name: str | None = None
+
         if req_student_id:
             try:
                 student_uuid = UUID(req_student_id)
             except (ValueError, TypeError):
                 abort(400)
+            st_obj = submission_store.get_student(student_uuid)
+            if st_obj is not None:
+                student_display_name = st_obj.display_name
         elif req_student_name:
-            norm_key = normalize_name_key(req_student_name)
-            existing_student = next(
-                (
-                    s
-                    for s in submission_store.list_students(group_uuid, include_archived=False)
-                    if normalize_name_key(s.display_name) == norm_key
-                ),
-                None,
+            try:
+                norm = normalize_student_name(req_student_name)
+            except ValueError as err:
+                return jsonify(error="validation_error", message=str(err)), 400
+
+            if norm.is_paired:
+                return jsonify(
+                    error="validation_error",
+                    message="Укажите одного студента в формате «Фамилия Имя».",
+                    warnings=list(norm.warnings),
+                ), 400
+
+            student_warnings = list(norm.warnings)
+            student_warning_codes = list(norm.warning_codes)
+            exact_matches, _ = submission_store.find_matching_students(
+                group_uuid, norm.display_name, include_archived=False
             )
-            if existing_student is not None:
-                student_uuid = existing_student.id
+            if exact_matches:
+                student_uuid = exact_matches[0].id
+                student_display_name = exact_matches[0].display_name
             else:
                 try:
-                    student_uuid = submission_store.create_student(
-                        group_uuid, unicodedata.normalize("NFC", req_student_name)
-                    ).id
+                    created_st, info = submission_store.create_student_with_info(
+                        group_uuid, req_student_name
+                    )
+                    student_uuid = created_st.id
+                    student_display_name = created_st.display_name
+                    student_warnings = list(info.warnings)
+                    student_warning_codes = list(info.warning_codes)
                 except SubmissionValidationError as err:
                     return jsonify(error="validation_error", message=str(err)), 400
         else:
@@ -658,6 +812,9 @@ def create_app(config=None):
             submission_id=str(sub.id),
             attempt_number=sub.attempt_number,
             filename=sub_file.original_filename,
+            student_display_name=student_display_name,
+            warnings=student_warnings,
+            warning_codes=student_warning_codes,
         ), 201
 
     # --- Admin Routes ---
@@ -1459,6 +1616,369 @@ def create_app(config=None):
             ),
             code=303,
         )
+
+    def _request_payload() -> dict[str, object]:
+        if request.is_json:
+            parsed = request.get_json(silent=True)
+            return parsed if isinstance(parsed, dict) else {}
+        return {key: request.form.get(key) for key in request.form}
+
+    def _parse_bool(value: object, default: bool = False) -> bool:
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            low = value.strip().lower()
+            if low in ("1", "true", "yes", "on"):
+                return True
+            if low in ("0", "false", "no", "off", ""):
+                return False
+        if isinstance(value, (int, float)):
+            return bool(value)
+        return default
+
+    def _wants_json() -> bool:
+        accept = request.headers.get("Accept", "")
+        return request.is_json or "application/json" in accept
+
+    def _student_dict(st) -> dict[str, object]:
+        return {
+            "id": str(st.id),
+            "group_id": str(st.group_id),
+            "display_name": st.display_name,
+            "archived_at": st.archived_at.isoformat() if st.archived_at else None,
+        }
+
+    @app.get("/admin/students")
+    def admin_students_page():
+        if not is_admin():
+            abort(403)
+
+        raw_group_id = request.args.get("group_id", "").strip()
+        group_uuid: UUID | None = None
+        if raw_group_id:
+            try:
+                group_uuid = UUID(raw_group_id)
+            except (ValueError, TypeError):
+                abort(400)
+
+        include_archived = _parse_bool(request.args.get("include_archived"), False)
+        issues_only = _parse_bool(request.args.get("issues"), False)
+        notice = request.args.get("notice", "").strip()
+
+        all_groups = catalog_store.list_groups(include_archived=True)
+        plan = analyze_students_db(db_path, group_uuid, include_archived=include_archived)
+        exact_ids: set[str] = set()
+        fuzzy_ids: set[str] = set()
+        for grp in plan["groups"]:
+            for merge_item in grp["exact_merges"]:
+                exact_ids.add(str(merge_item["target_student_id"]))
+                for src in merge_item["source_students"]:
+                    exact_ids.add(str(src["id"]))
+            for fuzzy_item in grp["fuzzy_candidates"]:
+                for st_item in fuzzy_item["students"]:
+                    fuzzy_ids.add(str(st_item["id"]))
+                    for member_id in st_item.get("member_ids", []):
+                        fuzzy_ids.add(str(member_id))
+
+        raw_students = submission_store.list_students_with_stats(
+            group_id=group_uuid,
+            include_archived=include_archived,
+        )
+        student_rows = []
+        for st in raw_students:
+            sid_str = str(st.id)
+            try:
+                norm = normalize_student_name(st.display_name)
+                suggested_name = norm.display_name
+                warnings = list(norm.warnings)
+                is_paired = norm.is_paired
+                needs_rename = (not is_paired) and (st.display_name != suggested_name)
+            except ValueError:
+                suggested_name = ""
+                warnings = ["Имя не содержит букв — проверьте или исправьте вручную."]
+                is_paired = True
+                needs_rename = True
+
+            in_exact = sid_str in exact_ids
+            in_fuzzy = sid_str in fuzzy_ids
+            has_issue = bool(warnings or needs_rename or is_paired or in_exact or in_fuzzy)
+            if issues_only and not has_issue:
+                continue
+
+            student_rows.append({
+                "student": st,
+                "suggested_name": suggested_name,
+                "warnings": warnings,
+                "is_paired": is_paired,
+                "needs_rename": needs_rename,
+                "in_exact_merge": in_exact,
+                "in_fuzzy_group": in_fuzzy,
+            })
+
+        return render_template(
+            "admin_students.html",
+            section="students",
+            groups=all_groups,
+            selected_group_id=str(group_uuid) if group_uuid else "",
+            include_archived=include_archived,
+            issues_only=issues_only,
+            notice=notice,
+            plan=plan,
+            summary=plan["summary"],
+            student_rows=student_rows,
+        )
+
+    @app.post("/admin/students/normalize-group")
+    def admin_students_normalize_group():
+        if not is_admin():
+            abort(403)
+
+        data = _request_payload()
+        raw_gid = str(data.get("group_id") or "").strip()
+        group_uuid: UUID | None = None
+        if raw_gid:
+            try:
+                group_uuid = UUID(raw_gid)
+            except (ValueError, TypeError):
+                return jsonify(error="validation_error", message="Некорректный ID группы."), 400
+            if catalog_store.get_group(group_uuid) is None:
+                abort(404)
+
+        apply_fuzzy = _parse_bool(data.get("apply_fuzzy"), False)
+        split_paired = _parse_bool(data.get("split_paired"), False)
+        plan = analyze_students_db(db_path, group_uuid)
+        result = apply_cleanup_plan(
+            db_path,
+            app.config["STORAGE_ROOT"],
+            plan,
+            apply_exact=True,
+            apply_renames=True,
+            apply_fuzzy=apply_fuzzy,
+            split_paired=split_paired,
+            dry_run=False,
+        )
+
+        if _wants_json():
+            return jsonify(result), 200
+
+        notice = (
+            f"Готово: объединено групп дублей — {result['merged_groups']}, "
+            f"переименовано — {result['renamed_students']}."
+        )
+        return redirect(
+            url_for("admin_students_page", group_id=raw_gid or None, notice=notice),
+            code=303,
+        )
+
+    @app.post("/admin/students/merge")
+    def admin_students_merge():
+        if not is_admin():
+            abort(403)
+
+        data = _request_payload()
+        try:
+            group_uuid = UUID(str(data.get("group_id") or "").strip())
+            target_uuid = UUID(str(data.get("target_student_id") or "").strip())
+        except (ValueError, TypeError):
+            return jsonify(error="validation_error", message="Укажите корректные group_id и target_student_id."), 400
+
+        raw_sources = data.get("source_student_ids")
+        if raw_sources is None and not request.is_json:
+            raw_sources = request.form.getlist("source_student_ids")
+        elif isinstance(raw_sources, str):
+            raw_sources = [part.strip() for part in raw_sources.split(",") if part.strip()]
+
+        if not isinstance(raw_sources, list) or not raw_sources:
+            return jsonify(error="validation_error", message="Не выбраны записи для объединения."), 400
+
+        try:
+            source_uuids = [UUID(str(item).strip()) for item in raw_sources]
+        except (ValueError, TypeError):
+            return jsonify(error="validation_error", message="Некорректный ID исходного студента."), 400
+
+        raw_target_name = data.get("target_display_name")
+        target_name = str(raw_target_name).strip() if isinstance(raw_target_name, str) and raw_target_name.strip() else None
+        if target_name is not None:
+            try:
+                norm_target = normalize_student_name(target_name)
+            except (ValueError, TypeError) as err:
+                return jsonify(error="validation_error", message=str(err)), 400
+            if norm_target.is_paired:
+                return jsonify(
+                    error="validation_error",
+                    message="Итоговое имя должно содержать одного студента в формате «Фамилия Имя».",
+                ), 400
+            target_name = norm_target.display_name
+
+        try:
+            res = submission_store.merge_students(
+                group_uuid,
+                target_uuid,
+                source_uuids,
+                target_display_name=target_name,
+            )
+        except SubmissionNotFoundError as err:
+            return jsonify(error="not_found", message=str(err)), 404
+        except SubmissionValidationError as err:
+            return jsonify(error="validation_error", message=str(err)), 400
+
+        if _wants_json():
+            return jsonify(
+                status="ok",
+                target_student=_student_dict(res.target_student),
+                merged_source_ids=[str(uid) for uid in res.merged_source_ids],
+                moved_submissions=res.moved_submissions,
+                total_submissions=res.total_submissions,
+            ), 200
+
+        return redirect(
+            url_for("admin_students_page", group_id=str(group_uuid)),
+            code=303,
+        )
+
+    @app.post("/admin/students/<student_id>/rename")
+    def admin_students_rename(student_id):
+        if not is_admin():
+            abort(403)
+        try:
+            st_uuid = UUID(student_id)
+        except (ValueError, TypeError):
+            abort(400)
+
+        data = _request_payload()
+        raw_name = data.get("display_name", "")
+        if not isinstance(raw_name, str) or not raw_name.strip():
+            return jsonify(error="validation_error", message="Имя студента не может быть пустым."), 400
+
+        normalize_flag = _parse_bool(data.get("normalize"), True)
+        if normalize_flag:
+            try:
+                probe = normalize_student_name(raw_name)
+            except (ValueError, TypeError) as err:
+                return jsonify(error="validation_error", message=str(err)), 400
+            if probe.is_paired:
+                return jsonify(
+                    error="validation_error",
+                    message="Укажите одного студента. Для двух студентов используйте разделение парной записи.",
+                ), 400
+
+        try:
+            student, norm_res = submission_store.rename_student(
+                st_uuid,
+                raw_name,
+                normalize=normalize_flag,
+            )
+        except SubmissionNotFoundError as err:
+            return jsonify(error="not_found", message=str(err)), 404
+        except SubmissionValidationError as err:
+            return jsonify(error="validation_error", message=str(err)), 400
+
+        if _wants_json():
+            return jsonify(
+                status="ok",
+                student=_student_dict(student),
+                warnings=list(norm_res.warnings) if norm_res else [],
+                warning_codes=list(norm_res.warning_codes) if norm_res else [],
+            ), 200
+
+        group_id_param = str(data.get("group_id") or "").strip()
+        return redirect(
+            url_for("admin_students_page", group_id=group_id_param or None),
+            code=303,
+        )
+
+    @app.post("/admin/students/<student_id>/split")
+    def admin_students_split(student_id):
+        if not is_admin():
+            abort(403)
+        try:
+            st_uuid = UUID(student_id)
+        except (ValueError, TypeError):
+            abort(400)
+
+        data = _request_payload()
+        raw_gid = str(data.get("group_id") or "").strip()
+        if raw_gid:
+            try:
+                group_uuid = UUID(raw_gid)
+            except (ValueError, TypeError):
+                return jsonify(error="validation_error", message="Некорректный ID группы."), 400
+        else:
+            existing = submission_store.get_student(st_uuid)
+            if existing is None:
+                abort(404)
+            group_uuid = existing.group_id
+
+        targets_tuples: list[tuple[UUID | str | None, str]] = []
+        raw_targets = data.get("targets")
+        if isinstance(raw_targets, list):
+            for entry in raw_targets:
+                if not isinstance(entry, dict):
+                    continue
+                t_name = str(entry.get("display_name") or "").strip()
+                t_id = entry.get("student_id")
+                if t_name:
+                    targets_tuples.append((t_id, t_name))
+        elif not request.is_json:
+            form_names = request.form.getlist("target_names")
+            for raw_n in form_names:
+                for piece in raw_n.splitlines():
+                    cleaned = piece.strip()
+                    if cleaned:
+                        targets_tuples.append((None, cleaned))
+
+        if not targets_tuples:
+            return jsonify(error="validation_error", message="Укажите хотя бы одного студента для разделения."), 400
+
+        try:
+            res = submission_store.split_paired_student(group_uuid, st_uuid, targets_tuples)
+        except SubmissionNotFoundError as err:
+            return jsonify(error="not_found", message=str(err)), 404
+        except SubmissionValidationError as err:
+            return jsonify(error="validation_error", message=str(err)), 400
+        except FileNotFoundError as err:
+            return jsonify(error="missing_file", message=str(err)), 409
+
+        if _wants_json():
+            return jsonify(
+                status="ok",
+                source_student_id=str(res.source_student_id),
+                target_students=[_student_dict(s) for s in res.target_students],
+                moved_submissions=res.moved_submissions,
+                copied_submissions=res.copied_submissions,
+            ), 200
+
+        return redirect(
+            url_for("admin_students_page", group_id=str(group_uuid)),
+            code=303,
+        )
+
+    def _toggle_student_archive(student_id: str, archived: bool):
+        if not is_admin():
+            abort(403)
+        try:
+            st_uuid = UUID(student_id)
+        except (ValueError, TypeError):
+            abort(400)
+        try:
+            st = submission_store.set_student_archived(st_uuid, archived)
+        except SubmissionNotFoundError:
+            abort(404)
+        if _wants_json():
+            return jsonify(_student_dict(st)), 200
+        group_id_param = request.form.get("group_id", "").strip()
+        return redirect(
+            url_for("admin_students_page", group_id=group_id_param or None),
+            code=303,
+        )
+
+    @app.post("/admin/students/<student_id>/archive")
+    def admin_students_archive(student_id):
+        return _toggle_student_archive(student_id, True)
+
+    @app.post("/admin/students/<student_id>/restore")
+    def admin_students_restore(student_id):
+        return _toggle_student_archive(student_id, False)
 
     @app.errorhandler(RequestEntityTooLarge)
     def large(_):

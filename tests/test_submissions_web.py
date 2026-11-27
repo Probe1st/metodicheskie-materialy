@@ -295,3 +295,127 @@ def test_admin_submissions_pagination(app_env):
     html_p2 = res_p2.get_data(as_text=True)
     assert "Показано 1 из 3" in html_p2
     assert "← Предыдущая" in html_p2
+
+
+def test_student_create_normalizes_warns_and_prevents_case_duplicates(app_env):
+    client: FlaskClient = app_env["client"]
+    group = app_env["group"]
+    client.post("/unlock", json={"group_id": str(group.id), "password": "secret_password"})
+
+    # 1. Check endpoint previews normalization, warnings, and hyphens
+    res_hyphen = client.post("/student/students/check", json={"display_name": "иванов-петров анна-мария"})
+    assert res_hyphen.status_code == 200
+    d_h = res_hyphen.get_json()
+    assert d_h["normalized_name"] == "Иванов-Петров Анна-Мария"
+    assert d_h["warnings"] == []
+    assert d_h["is_paired"] is False
+
+    res_tail = client.post("/student/students/check", json={"display_name": "Бронников Антон Анарович 1.drawio"})
+    assert res_tail.status_code == 200
+    d_t = res_tail.get_json()
+    assert d_t["normalized_name"] == "Бронников Антон"
+    assert len(d_t["warnings"]) >= 1
+
+    # 2. Paired student rejected with 400 on creation
+    res_paired = client.post("/student/students", json={"display_name": "Гилюк Даниил и Бондаренко Владислав"})
+    assert res_paired.status_code == 400
+    assert res_paired.get_json()["error"] == "paired_names"
+
+    # 3. Create normalized student from uppercase + patronymic
+    res_create = client.post("/student/students", json={"display_name": "ДУДИНОВ КИРИЛЛ АЛЕКСЕЕВИЧ"})
+    assert res_create.status_code == 201
+    created = res_create.get_json()
+    assert created["display_name"] == "Дудинов Кирилл"
+    assert created["was_modified"] is True
+    assert len(created["warnings"]) >= 1
+
+    # 4. Exact match (case / patronymic / swapped order) auto-selects existing student (200)
+    res_dup = client.post("/student/students", json={"display_name": "дудинов кирилл"})
+    assert res_dup.status_code == 200
+    dup_data = res_dup.get_json()
+    assert dup_data["existing"] is True
+    assert dup_data["id"] == created["id"]
+    assert dup_data["display_name"] == "Дудинов Кирилл"
+
+    res_swap = client.post("/student/students", json={"display_name": "Кирилл Дудинов"})
+    assert res_swap.status_code == 200
+    swap_data = res_swap.get_json()
+    assert swap_data["existing"] is True
+    assert swap_data["id"] == created["id"]
+
+    # 5. Similar (fuzzy) student returns 409 unless confirm_similar=True
+    res_sim = client.post("/student/students", json={"display_name": "Дудинов Кирил"})
+    assert res_sim.status_code == 409
+    sim_data = res_sim.get_json()
+    assert sim_data["error"] == "similar_students"
+    assert sim_data["fuzzy_matches"][0]["id"] == created["id"]
+
+    res_sim_ok = client.post(
+        "/student/students",
+        json={"display_name": "Дудинов Кирил", "confirm_similar": True},
+    )
+    assert res_sim_ok.status_code == 201
+    assert res_sim_ok.get_json()["id"] != created["id"]
+
+    # Confirming namesake creates distinct student UUID
+    res_namesake = client.post(
+        "/student/students",
+        json={"display_name": "дудинов кирилл", "confirm_duplicate": True},
+    )
+    assert res_namesake.status_code == 201
+    assert res_namesake.get_json()["id"] not in (created["id"], res_sim_ok.get_json()["id"])
+
+
+def test_submit_by_student_name_reuses_normalized_student_and_returns_warnings(app_env):
+    client: FlaskClient = app_env["client"]
+    group = app_env["group"]
+    assignment = app_env["assignment"]
+
+    client.post("/unlock", json={"group_id": str(group.id), "password": "secret_password"})
+
+    # Submit 1 with lowercase + patronymic
+    r1 = client.post(
+        "/submit",
+        data={
+            "group_id": str(group.id),
+            "assignment_id": str(assignment.id),
+            "student_name": "мельников богдан артемович",
+            "file": (BytesIO(b"v1"), "w1.pdf"),
+        },
+    )
+    assert r1.status_code == 201
+    j1 = r1.get_json()
+    assert j1["student_display_name"] == "Мельников Богдан"
+    assert j1["attempt_number"] == 1
+    assert len(j1["warnings"]) >= 1
+
+    # Submit 2 with typo in patronymic and different case -> reuses SAME student -> attempt_number == 2!
+    r2 = client.post(
+        "/submit",
+        data={
+            "group_id": str(group.id),
+            "assignment_id": str(assignment.id),
+            "student_name": "МЕЛЬНИКОВ БОГДАН АРТЕОМВИЧ",
+            "file": (BytesIO(b"v2"), "w2.pdf"),
+        },
+    )
+    assert r2.status_code == 201
+    j2 = r2.get_json()
+    assert j2["student_display_name"] == "Мельников Богдан"
+    assert j2["attempt_number"] == 2
+
+    students = client.get("/student/students").get_json()
+    assert len(students) == 1
+    assert students[0]["display_name"] == "Мельников Богдан"
+
+    # Paired student_name on /submit rejected cleanly with 400
+    r_pair = client.post(
+        "/submit",
+        data={
+            "group_id": str(group.id),
+            "assignment_id": str(assignment.id),
+            "student_name": "Гилюк Даниил и Бондаренко Владислав",
+            "file": (BytesIO(b"v3"), "w3.pdf"),
+        },
+    )
+    assert r_pair.status_code == 400
