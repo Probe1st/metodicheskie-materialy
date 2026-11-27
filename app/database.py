@@ -1,4 +1,4 @@
-"""Database connectivity, initialization, and validation for SQLite v2 schema."""
+"""Database connectivity, initialization, and validation for SQLite v3 schema."""
 
 from __future__ import annotations
 
@@ -13,7 +13,8 @@ from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 
-SCHEMA_PATH = Path(__file__).resolve().parent / "schema_v2.sql"
+CURRENT_SCHEMA_VERSION = 3
+SCHEMA_PATH = Path(__file__).resolve().parent / "schema_v3.sql"
 
 REQUIRED_TABLES: frozenset[str] = frozenset({
     "groups",
@@ -24,8 +25,13 @@ REQUIRED_TABLES: frozenset[str] = frozenset({
     "class_assignments",
     "submissions",
     "submission_files",
+    "task_attachments",
+    "task_contents",
+    "api_tokens",
+    "schema_migrations",
 })
 __all__ = [
+    "CURRENT_SCHEMA_VERSION",
     "REQUIRED_TABLES",
     "DatabaseError",
     "DatabaseNotFoundError",
@@ -80,13 +86,13 @@ def normalize_name_key(name: str) -> str:
 
 
 def create_schema(conn: sqlite3.Connection) -> None:
-    """Load and execute schema_v2.sql on the given connection."""
+    """Load and execute schema_v3.sql on the given connection."""
     schema_sql = SCHEMA_PATH.read_text(encoding="utf-8")
     conn.executescript(schema_sql)
 
 
 def initialize(path: Path | str) -> None:
-    """Create a new database with schema v2 and the initial system subject.
+    """Create a new database with schema v3 and the initial system subject.
 
     Raises FileExistsError if the database already exists.
     """
@@ -126,6 +132,13 @@ def initialize(path: Path | str) -> None:
                 """,
                 (system_id, system_name, system_name_key),
             )
+            conn.execute(
+                """
+                INSERT OR IGNORE INTO schema_migrations (version, name, applied_at)
+                VALUES (?, ?, ?);
+                """,
+                (CURRENT_SCHEMA_VERSION, "initial_v3", datetime.now(timezone.utc).isoformat()),
+            )
     except Exception:
         path.unlink(missing_ok=True)
         raise
@@ -137,7 +150,7 @@ def initialize(path: Path | str) -> None:
 
 
 def validate(path: Path | str) -> None:
-    """Validate that the database at path exists, has user_version=2, passes integrity checks, and contains all tables.
+    """Validate that the database at path exists, has current user_version, passes integrity checks, and contains all tables.
 
     Raises DatabaseNotFoundError / FileNotFoundError if the file does not exist,
     or DatabaseValidationError if any check fails.
@@ -155,10 +168,13 @@ def validate(path: Path | str) -> None:
     try:
         try:
             ver_row = conn.execute("PRAGMA user_version;").fetchone()
-            if not ver_row or ver_row[0] != 2:
+            if not ver_row or ver_row[0] != CURRENT_SCHEMA_VERSION:
                 ver_val = ver_row[0] if ver_row else None
+                hint = ""
+                if ver_val == 2:
+                    hint = " Run 'python -m tools.migrate_db upgrade --offline' or './manage.sh migrate'."
                 raise DatabaseValidationError(
-                    f"Unsupported database user_version: {ver_val}, expected 2"
+                    f"Unsupported database user_version: {ver_val}, expected {CURRENT_SCHEMA_VERSION}.{hint}"
                 )
 
             qc_rows = conn.execute("PRAGMA quick_check;").fetchall()

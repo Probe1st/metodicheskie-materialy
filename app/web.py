@@ -25,6 +25,7 @@ from flask_wtf.csrf import CSRFError, CSRFProtect
 from werkzeug.exceptions import RequestEntityTooLarge
 
 from .access import AccessStore
+from .api import create_api_blueprint
 from .assignments import (
     AssignmentConflictError,
     AssignmentInUseError,
@@ -59,6 +60,25 @@ from .submissions import (
 )
 from .task_content import TaskContentStore
 from .task_rendering import render_task
+from .tokens import (
+    TokenConflictError,
+    TokenNotFoundError,
+    TokenStore,
+    TokenValidationError,
+    parse_env_tokens,
+)
+
+
+def _parse_allowed_grades(raw: object) -> frozenset[str] | None:
+    if raw is None:
+        return None
+    if isinstance(raw, str):
+        items = [part.strip() for part in raw.split(",") if part.strip()]
+    elif isinstance(raw, (list, tuple, set, frozenset)):
+        items = [str(part).strip() for part in raw if str(part).strip()]
+    else:
+        return None
+    return frozenset(items) if items else None
 
 
 def _format_date_short(iso_date: str) -> str:
@@ -143,7 +163,7 @@ def create_app(config=None):
         app.config["SESSION_COOKIE_HTTPONLY"] = True
     if "SESSION_COOKIE_SAMESITE" not in (config or {}):
         app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
-    CSRFProtect(app)
+    csrf = CSRFProtect(app)
 
     @app.errorhandler(CSRFError)
     def handle_csrf_error(e):
@@ -214,6 +234,28 @@ def create_app(config=None):
         app.config.get("TASK_ATTACHMENTS_DIR", private_dir / "task-attachments")
     )
     task_content_store = TaskContentStore(db_path, task_attachments_dir)
+
+    env_tokens = parse_env_tokens(
+        app.config.get("AGENT_API_TOKEN") if "AGENT_API_TOKEN" in app.config else os.getenv("AGENT_API_TOKEN"),
+        app.config.get("AGENT_API_TOKENS") if "AGENT_API_TOKENS" in app.config else os.getenv("AGENT_API_TOKENS"),
+    )
+    token_store = TokenStore(db_path, env_tokens=env_tokens)
+    allowed_grades = _parse_allowed_grades(
+        app.config.get("ALLOWED_GRADES") if "ALLOWED_GRADES" in app.config else os.getenv("ALLOWED_GRADES")
+    )
+
+    api_bp = create_api_blueprint(
+        db_path=db_path,
+        catalog_store=catalog_store,
+        access_store=access_store,
+        assignment_store=assignment_store,
+        submission_store=submission_store,
+        task_content_store=task_content_store,
+        token_store=token_store,
+        allowed_grades=allowed_grades,
+    )
+    csrf.exempt(api_bp)
+    app.register_blueprint(api_bp)
 
     def is_admin() -> bool:
         return bool(session.get("admin"))
@@ -1429,9 +1471,32 @@ def create_app(config=None):
         else:
             data = request.form
 
-        status = data.get("status", "").strip()
+        raw_grade = data.get("grade")
+        has_grade = raw_grade is not None and str(raw_grade).strip() != ""
+        raw_feedback = data.get("feedback")
+        feedback_arg = str(raw_feedback) if raw_feedback is not None else None
+        status = str(data.get("status", "")).strip()
+
         try:
-            status, reviewed_at = submission_store.set_review_status(sub_uuid, status)
+            if has_grade:
+                detail = submission_store.set_grade(
+                    sub_uuid,
+                    raw_grade,
+                    feedback=feedback_arg,
+                    graded_by="admin",
+                    allowed_grades=allowed_grades,
+                )
+                status = detail.review_status
+                reviewed_at = detail.reviewed_at.isoformat() if detail.reviewed_at else None
+                grade_val: str | None = detail.grade
+                feedback_val: str | None = detail.feedback
+            else:
+                status, reviewed_at = submission_store.set_review_status(
+                    sub_uuid, status, feedback=feedback_arg
+                )
+                detail = submission_store.get_submission(sub_uuid)
+                grade_val = detail.grade if detail else None
+                feedback_val = detail.feedback if detail else None
         except SubmissionNotFoundError:
             abort(404)
         except SubmissionValidationError as err:
@@ -1447,6 +1512,8 @@ def create_app(config=None):
                 id=str(sub_uuid),
                 review_status=status,
                 reviewed_at=reviewed_at,
+                grade=grade_val,
+                feedback=feedback_val,
             ), 200
 
         group_id_param = request.form.get("group_id", "")
@@ -1459,6 +1526,79 @@ def create_app(config=None):
             ),
             code=303,
         )
+
+    # --- API Tokens Admin Routes ---
+
+    @app.get("/admin/tokens")
+    def admin_tokens_page():
+        if not is_admin():
+            abort(403)
+        created_token = session.pop("created_api_token", None)
+        tokens = token_store.list_tokens(include_revoked=True)
+        return render_template(
+            "admin_tokens.html",
+            section="tokens",
+            tokens=tokens,
+            created_token=created_token,
+            env_token_names=[name for name, _ in token_store.env_tokens],
+        )
+
+    @app.post("/admin/tokens")
+    def admin_create_token():
+        if not is_admin():
+            abort(403)
+        data = request.get_json(silent=True) or {} if request.is_json else request.form
+        name = str(data.get("name", ""))
+        try:
+            token_obj, raw_token = token_store.create_token(name)
+        except TokenConflictError as err:
+            return jsonify(error="token_name_conflict", message=str(err)), 409
+        except TokenValidationError as err:
+            return jsonify(error="validation_error", message=str(err)), 400
+
+        wants_json = (
+            request.is_json
+            or "application/json" in request.headers.get("Accept", "")
+        )
+        if wants_json:
+            return jsonify(
+                id=str(token_obj.id),
+                name=token_obj.name,
+                token_prefix=token_obj.token_prefix,
+                token=raw_token,
+                created_at=token_obj.created_at.isoformat(),
+            ), 201
+
+        session["created_api_token"] = {
+            "id": str(token_obj.id),
+            "name": token_obj.name,
+            "token": raw_token,
+        }
+        return redirect(url_for("admin_tokens_page"), code=303)
+
+    @app.post("/admin/tokens/<token_id>/revoke")
+    def admin_revoke_token(token_id):
+        if not is_admin():
+            abort(403)
+        try:
+            uid = UUID(token_id)
+        except (ValueError, TypeError):
+            abort(400)
+        try:
+            token_obj = token_store.revoke_token(uid)
+        except TokenNotFoundError:
+            abort(404)
+
+        wants_json = (
+            request.is_json
+            or "application/json" in request.headers.get("Accept", "")
+        )
+        if wants_json:
+            return jsonify(
+                id=str(token_obj.id),
+                revoked_at=token_obj.revoked_at.isoformat() if token_obj.revoked_at else None,
+            ), 200
+        return redirect(url_for("admin_tokens_page"), code=303)
 
     @app.errorhandler(RequestEntityTooLarge)
     def large(_):

@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>API-токены — Панель преподавателя</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+  <link rel="alternate icon" href="{{ url_for('favicon') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="{{ url_for('index') }}" aria-label="На главную">
+        <img class="brand__logo" src="{{ url_for('static', filename='logo.svg') }}" alt="" width="32" height="32">
+        <span>Учебный портал</span>
+      </a>
+      <div class="header-actions">
+        <span class="header-label">Кабинет преподавателя</span>
+        <a class="button button--quiet" href="{{ url_for('index') }}">
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 12l-4-4 4-4"/></svg>
+          <span>К сдаче заданий</span>
+        </a>
+        <form method="post" action="{{ url_for('admin_logout') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="button button--quiet" type="submit">Выйти</button>
+        </form>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <section class="admin-hero" aria-labelledby="admin_title">
+      <div>
+        <p class="eyebrow">Панель преподавателя</p>
+        <h1 id="admin_title">API-токены для ИИ-агентов</h1>
+      </div>
+      <p class="lead">Выпускайте Bearer-токены для подключения ИИ-агентов к REST API (`/api/v1/*`) и отзывайте скомпрометированные ключи.</p>
+    </section>
+
+    <div class="admin-layout">
+      {% set section = "tokens" %}
+      {% include "_admin_nav.html" %}
+
+      <section class="admin-content" aria-label="Управление API-токенами">
+        {% if created_token %}
+          <section class="panel" style="padding: var(--space-5); margin-bottom: var(--space-6); border-left: 4px solid var(--color-accent, #2563eb);" aria-label="Новый токен">
+            <h2 style="margin-top: 0;">Токен для «{{ created_token.name }}» создан</h2>
+            <p class="field__hint">Скопируйте токен сейчас — в базе данных хранится только его SHA-256 хеш, повторно показать секрет невозможно.</p>
+            <div style="display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap;">
+              <code id="created_token_value" style="padding: 0.5rem 0.75rem; background: var(--color-surface-alt, #f3f4f6); border-radius: 6px; user-select: all; word-break: break-all;">{{ created_token.token }}</code>
+              <button type="button" class="button button--outline" onclick="navigator.clipboard && navigator.clipboard.writeText(document.getElementById('created_token_value').textContent)">Скопировать</button>
+            </div>
+            <p class="field__hint" style="margin-top: var(--space-3); margin-bottom: 0;">
+              Пример запроса: <code>curl -H "Authorization: Bearer {{ created_token.token }}" /api/v1/me</code>
+            </p>
+          </section>
+        {% endif %}
+
+        <section class="panel" style="padding: var(--space-5); margin-bottom: var(--space-6);" aria-label="Создание токена">
+          <h2 style="margin-top: 0;">Создать новый токен</h2>
+          <form method="post" action="{{ url_for('admin_create_token') }}" style="display: flex; gap: var(--space-3); align-items: flex-end; flex-wrap: wrap;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label class="field" style="flex: 1 1 18rem; margin: 0;">
+              Имя агента / назначение
+              <input type="text" name="name" required maxlength="100" placeholder="Например: grader-agent-1">
+            </label>
+            <button class="button button--primary" type="submit">Выпустить токен</button>
+          </form>
+        </section>
+
+        {% if env_token_names %}
+          <section class="panel" style="padding: var(--space-4); margin-bottom: var(--space-6);" aria-label="Токены окружения">
+            <strong>Статические токены из окружения (.env):</strong>
+            <span>{{ env_token_names | join(', ') }}</span>
+          </section>
+        {% endif %}
+
+        {% if tokens|length == 0 %}
+          <div class="empty-state">
+            <p>Выпущенных токенов в базе данных пока нет.</p>
+          </div>
+        {% else %}
+          <section class="panel" style="overflow-x: auto; padding: var(--space-4);" aria-label="Список API-токенов">
+            <table class="table" style="width: 100%; border-collapse: collapse; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--color-border); color: var(--color-text-muted);">
+                  <th style="padding: var(--space-2) var(--space-3);">Имя</th>
+                  <th style="padding: var(--space-2) var(--space-3);">Префикс</th>
+                  <th style="padding: var(--space-2) var(--space-3);">Создан</th>
+                  <th style="padding: var(--space-2) var(--space-3);">Последнее использование</th>
+                  <th style="padding: var(--space-2) var(--space-3);">Статус</th>
+                  <th style="padding: var(--space-2) var(--space-3);">Действие</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for tok in tokens %}
+                  <tr style="border-bottom: 1px solid var(--color-border);">
+                    <td style="padding: var(--space-3);"><strong>{{ tok.name }}</strong></td>
+                    <td style="padding: var(--space-3);"><code>{{ tok.token_prefix }}…</code></td>
+                    <td style="padding: var(--space-3);">{{ tok.created_at.strftime('%Y-%m-%d %H:%M UTC') }}</td>
+                    <td style="padding: var(--space-3);">
+                      {% if tok.last_used_at %}
+                        {{ tok.last_used_at.strftime('%Y-%m-%d %H:%M UTC') }}
+                      {% else %}
+                        <span class="field__hint">не использовался</span>
+                      {% endif %}
+                    </td>
+                    <td style="padding: var(--space-3);">
+                      {% if tok.revoked_at %}
+                        <span class="chip chip--closed">Отозван</span>
+                      {% else %}
+                        <span class="chip chip--open">Активен</span>
+                      {% endif %}
+                    </td>
+                    <td style="padding: var(--space-3);">
+                      {% if not tok.revoked_at %}
+                        <form method="post" action="{{ url_for('admin_revoke_token', token_id=tok.id) }}">
+                          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                          <button class="button button--outline" type="submit" style="padding: 0.25rem 0.5rem; font-size: var(--type-sm);">Отозвать</button>
+                        </form>
+                      {% else %}
+                        <span class="field__hint">—</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </section>
+        {% endif %}
+      </section>
+    </div>
+  </main>
+</body>
+</html>

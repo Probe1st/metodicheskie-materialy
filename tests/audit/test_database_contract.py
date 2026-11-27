@@ -19,6 +19,7 @@ from typing import Any
 import pytest
 
 from app.database import (
+    CURRENT_SCHEMA_VERSION,
     REQUIRED_TABLES,
     DatabaseError,
     DatabaseNotFoundError,
@@ -67,7 +68,7 @@ def test_db_01_01_fresh_initialization(case_id: str, audit_env: AuditEnv) -> Non
     assert (st.st_mode & 0o777) == 0o600
 
     state = read_db_state(db_path)
-    assert state["user_version"] == 2
+    assert state["user_version"] == CURRENT_SCHEMA_VERSION
     assert state["integrity_check"] == ["ok"]
     assert state["foreign_key_check"] == []
 
@@ -155,7 +156,7 @@ def test_db_01_04_concurrent_initialization_threads_and_processes(
     # Verify the created database is completely valid
     validate(target_thread_db)
     state_thread = read_db_state(target_thread_db)
-    assert state_thread["user_version"] == 2
+    assert state_thread["user_version"] == CURRENT_SCHEMA_VERSION
     assert len([s for s in state_thread["tables"]["subjects"]["rows"] if s["is_system"] == 1]) == 1
 
     # 2. 4 Separate OS Processes racing
@@ -185,7 +186,7 @@ except OSError:
 
     validate(target_proc_db)
     state_proc = read_db_state(target_proc_db)
-    assert state_proc["user_version"] == 2
+    assert state_proc["user_version"] == CURRENT_SCHEMA_VERSION
     assert len([s for s in state_proc["tables"]["subjects"]["rows"] if s["is_system"] == 1]) == 1
 
 
@@ -315,7 +316,7 @@ def test_db_03_01_validate_missing_file(case_id: str, audit_env: AuditEnv) -> No
     [
         ("DB-03-02", "zero_byte.sqlite3", b"", None, "Unsupported database user_version"),
         ("DB-03-02", "garbage.sqlite3", b"GARBAGE_NOT_A_SQLITE_FILE", None, "Could not open database file|file is not a database"),
-        ("DB-03-02", "old_version.sqlite3", None, 1, "Unsupported database user_version: 1, expected 2"),
+        ("DB-03-02", "old_version.sqlite3", None, 1, f"Unsupported database user_version: 1, expected {CURRENT_SCHEMA_VERSION}"),
     ],
 )
 def test_db_03_02_validate_invalid_files(
@@ -350,7 +351,7 @@ def test_db_03_03_validate_schema_fingerprint_and_system_subjects(
     """
     target = audit_env.private / "dummy_tables.sqlite3"
     with sqlite3.connect(str(target)) as conn:
-        conn.execute("PRAGMA user_version = 2;")
+        conn.execute(f"PRAGMA user_version = {CURRENT_SCHEMA_VERSION};")
         # Create all required tables but with degenerate/dummy schema
         for tbl in REQUIRED_TABLES:
             conn.execute(f"CREATE TABLE {tbl} (dummy_col TEXT);")

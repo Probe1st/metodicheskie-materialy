@@ -12,6 +12,7 @@ from pathlib import Path
 import pytest
 
 from app.database import (
+    CURRENT_SCHEMA_VERSION,
     DatabaseError,
     DatabaseNotFoundError,
     DatabaseValidationError,
@@ -125,7 +126,7 @@ def test_initialize_creates_database_and_system_subject(tmp_path: Path):
     with connect(db_path) as conn:
         # Check user_version
         user_version = conn.execute("PRAGMA user_version;").fetchone()[0]
-        assert user_version == 2
+        assert user_version == CURRENT_SCHEMA_VERSION
 
         # Check journal_mode
         mode = conn.execute("PRAGMA journal_mode;").fetchone()[0]
@@ -217,7 +218,7 @@ def test_validate_fails_old_user_version(tmp_path: Path):
 def test_validate_fails_missing_tables(tmp_path: Path):
     db_path = tmp_path / "incomplete.db"
     with connect(db_path) as conn:
-        conn.execute("PRAGMA user_version = 2;")
+        conn.execute(f"PRAGMA user_version = {CURRENT_SCHEMA_VERSION};")
         conn.execute("CREATE TABLE groups (id TEXT PRIMARY KEY, name TEXT, name_key TEXT);")
 
     with pytest.raises(DatabaseValidationError, match="Missing required tables"):
