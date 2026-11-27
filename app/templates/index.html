@@ -128,15 +128,21 @@
               <button type="button" class="button button--outline" id="toggle_new_student_btn" style="white-space: nowrap;">Меня нет в списке</button>
             </div>
             <div id="new_student_panel" class="panel" style="margin-top: var(--space-2); padding: var(--space-3);" hidden>
-              <label class="field" for="new_student_input">ФИО нового студента
+              <label class="field" for="new_student_input">Фамилия и имя студента
                 <input id="new_student_input" type="text" placeholder="Например: Иванов Иван" autocomplete="name">
+                <span class="field__hint">Указывайте только фамилию и имя (без отчества). Двойные фамилии или имена пишите через дефис, например: Иванов-Петров Анна-Мария.</span>
               </label>
-              <div style="display: flex; gap: var(--space-2); margin-top: var(--space-2);">
+              <p class="student-preview" id="new_student_preview" hidden></p>
+              <p class="status" id="new_student_warning" data-state="warning" role="status" aria-live="polite" hidden></p>
+              <div id="new_student_matches" class="student-matches" hidden></div>
+              <div style="display: flex; gap: var(--space-2); margin-top: var(--space-2); flex-wrap: wrap;">
                 <button type="button" class="button button--primary" id="save_student_btn">Добавить и выбрать</button>
                 <button type="button" class="button button--outline" id="cancel_student_btn">Отмена</button>
               </div>
               <p class="status" id="new_student_status" aria-live="polite" style="margin-top: var(--space-2);"></p>
             </div>
+            <p class="status" id="student_selection_warning" data-state="warning" role="status" aria-live="polite" hidden></p>
+            <p class="status" id="student_selection_notice" data-state="info" role="status" aria-live="polite" hidden></p>
           </div>
         </section>
         <section class="form-section" aria-label="Файл работы">
@@ -210,6 +216,8 @@
       </div>
     </div>
   </div>
+
+  {% include '_student_confirm_dialog.html' %}
 
   <script>
     window.submissionLimit = {{ limit|tojson }};

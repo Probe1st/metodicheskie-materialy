@@ -436,3 +436,184 @@ def test_get_file(store_env: tuple[SubmissionStore, Path, Path]) -> None:
 
     with pytest.raises(ValueError, match="Path escapes storage root"):
         store.get_file(sub.id)
+
+
+def test_create_student_normalizes_display_name(store_env: tuple[SubmissionStore, Path, Path]) -> None:
+    store, db_path, _ = store_env
+    group_id = UUID(_create_sample_group(db_path))
+
+    s1 = store.create_student(group_id, "колотович олег")
+    assert s1.display_name == "Колотович Олег"
+
+    s2 = store.create_student(group_id, "ДУДИНОВ КИРИЛЛ АЛЕКСЕЕВИЧ")
+    assert s2.display_name == "Дудинов Кирилл"
+
+    s3 = store.create_student(group_id, "иванов-петров анна-мария")
+    assert s3.display_name == "Иванов-Петров Анна-Мария"
+
+    with pytest.raises(SubmissionValidationError):
+        store.create_student(group_id, "12345")
+
+
+def test_find_matching_students(store_env: tuple[SubmissionStore, Path, Path]) -> None:
+    store, db_path, _ = store_env
+    group_id = UUID(_create_sample_group(db_path))
+
+    s_exact = store.create_student(group_id, "Колотович Олег")
+    s_typo = store.create_student(group_id, "Мельников Богдан")
+    store.create_student(group_id, "Петрова Анна")
+
+    exact, fuzzy = store.find_matching_students(group_id, "колотович олег")
+    assert [s.id for s in exact] == [s_exact.id]
+    assert fuzzy == []
+
+    exact_rev, fuzzy_rev = store.find_matching_students(group_id, "Олег Колотович")
+    assert [s.id for s in exact_rev] == [s_exact.id]
+    assert fuzzy_rev == []
+
+    exact_t, fuzzy_t = store.find_matching_students(group_id, "Мельников Бгодан")
+    assert exact_t == []
+    assert [s.id for s in fuzzy_t] == [s_typo.id]
+
+
+def test_rename_and_archive_student(store_env: tuple[SubmissionStore, Path, Path]) -> None:
+    store, db_path, _ = store_env
+    group_id = UUID(_create_sample_group(db_path))
+
+    st = store.create_student(group_id, "колотович олег")
+    renamed, res = store.rename_student(st.id, "иванов-сидоров павел николаевич")
+    assert renamed.display_name == "Иванов-Сидоров Павел"
+    assert res is not None
+    assert "extra_words_removed" in res.warning_codes
+
+    archived = store.set_student_archived(st.id, True)
+    assert archived.archived_at is not None
+    assert store.list_students(group_id, include_archived=False) == []
+
+    restored = store.set_student_archived(st.id, False)
+    assert restored.archived_at is None
+    assert len(store.list_students(group_id, include_archived=False)) == 1
+
+    with pytest.raises(SubmissionNotFoundError):
+        store.rename_student(uuid4(), "Иванов Иван")
+
+
+def test_merge_students_preserves_all_submissions_and_renumbers_attempts(
+    store_env: tuple[SubmissionStore, Path, Path],
+) -> None:
+    from tools.reconcile_storage import reconcile_storage
+
+    store, db_path, storage_root = store_env
+    group_id = UUID(_create_sample_group(db_path))
+    other_group_id = UUID(_create_sample_group(db_path, name="Другая группа"))
+
+    t1_id, a1_id = _create_sample_topic_and_assignment(db_path, str(group_id), "Тема 1", "2026-11-01", 1)
+    _t2_id, a2_id = _create_sample_topic_and_assignment(db_path, str(group_id), "Тема 2", "2026-11-02", 1)
+    _t3_id, a3_id = _create_sample_topic_and_assignment(db_path, str(group_id), "Тема 3", "2026-11-03", 1)
+
+    with connect(db_path) as conn:
+        st_a = str(uuid4())
+        st_b = str(uuid4())
+        st_c = str(uuid4())
+        st_other = str(uuid4())
+        conn.execute(
+            "INSERT INTO students (id, group_id, display_name, archived_at) VALUES (?, ?, 'Колотович Олег', '2026-11-01T00:00:00Z')",
+            (st_a, str(group_id)),
+        )
+        conn.execute(
+            "INSERT INTO students (id, group_id, display_name, archived_at) VALUES (?, ?, 'колотович олег', NULL)",
+            (st_b, str(group_id)),
+        )
+        conn.execute(
+            "INSERT INTO students (id, group_id, display_name, archived_at) VALUES (?, ?, 'Колотович Олег Сергеевич', NULL)",
+            (st_c, str(group_id)),
+        )
+        conn.execute(
+            "INSERT INTO students (id, group_id, display_name, archived_at) VALUES (?, ?, 'Чужой Студент', NULL)",
+            (st_other, str(other_group_id)),
+        )
+
+    # Unarchive temporarily to submit as st_a, then re-archive st_a to verify active source unarchives target
+    store.set_student_archived(st_a, False)
+    sub_a1, _ = store.submit(group_id, st_a, a1_id, io.BytesIO(b"a1"), "a1.py", 1)
+    sub_a2, _ = store.submit(group_id, st_a, a1_id, io.BytesIO(b"a2"), "a2.py", 1)
+    sub_a_t2, _ = store.submit(group_id, st_a, a2_id, io.BytesIO(b"at2"), "at2.py", 1)
+    store.set_student_archived(st_a, True)
+
+    sub_b1, _ = store.submit(group_id, st_b, a1_id, io.BytesIO(b"b1"), "b1.py", 1)
+    store.set_review_status(sub_b1.id, "reviewed")
+    sub_b_t3, _ = store.submit(group_id, st_b, a3_id, io.BytesIO(b"bt3"), "bt3.py", 1)
+
+    sub_c1, _ = store.submit(group_id, st_c, a1_id, io.BytesIO(b"c1"), "c1.py", 1)
+
+    # Cross-group merge must fail
+    with pytest.raises(SubmissionValidationError):
+        store.merge_students(group_id, st_a, [st_other])
+
+    result = store.merge_students(group_id, st_a, [st_b, st_c], target_display_name="колотович олег")
+    assert result.target_student.display_name == "Колотович Олег"
+    assert result.target_student.archived_at is None
+    assert result.total_submissions == 6
+    assert result.moved_submissions == 3
+
+    students_left = store.list_students(group_id, include_archived=True)
+    assert [str(s.id) for s in students_left] == [st_a]
+
+    subs_t1 = store.list_submissions(group_id=group_id, topic_id=UUID(t1_id))
+    assert sorted(s.attempt_number for s in subs_t1) == [1, 2, 3, 4]
+    assert {s.student_id for s in subs_t1} == {UUID(st_a)}
+    b1_row = next(s for s in subs_t1 if s.id == sub_b1.id)
+    assert b1_row.review_status == "reviewed"
+
+    all_subs = store.list_submissions(group_id=group_id)
+    assert {s.id for s in all_subs} == {sub_a1.id, sub_a2.id, sub_a_t2.id, sub_b1.id, sub_b_t3.id, sub_c1.id}
+    assert reconcile_storage(db_path, storage_root)["status"] == "ok"
+
+
+def test_split_paired_student_preserves_files_and_reconciles(
+    store_env: tuple[SubmissionStore, Path, Path],
+) -> None:
+    from tools.reconcile_storage import reconcile_storage
+
+    store, db_path, storage_root = store_env
+    group_id = UUID(_create_sample_group(db_path))
+    t1_id, a1_id = _create_sample_topic_and_assignment(db_path, str(group_id), "Тема 1", "2026-11-01", 1)
+
+    gilyuk = store.create_student(group_id, "Гилюк Даниил")
+    existing_sub, _ = store.submit(group_id, gilyuk.id, a1_id, io.BytesIO(b"existing"), "g.py", 1)
+
+    with connect(db_path) as conn:
+        paired_id = str(uuid4())
+        conn.execute(
+            "INSERT INTO students (id, group_id, display_name, archived_at) VALUES (?, ?, 'Гилюк Даниил и Бондаренко Владислав', NULL)",
+            (paired_id, str(group_id)),
+        )
+
+    p_sub1, _ = store.submit(group_id, paired_id, a1_id, io.BytesIO(b"pair_work_1"), "pair1.py", 1)
+    store.set_review_status(p_sub1.id, "reviewed")
+    _p_sub2, _ = store.submit(group_id, paired_id, a1_id, io.BytesIO(b"pair_work_2"), "pair2.py", 1)
+
+    split_res = store.split_paired_student(
+        group_id,
+        paired_id,
+        targets=[(gilyuk.id, "Гилюк Даниил"), (None, "бондаренко владислав")],
+    )
+    assert len(split_res.target_students) == 2
+    bondarenko = split_res.target_students[1]
+    assert bondarenko.display_name == "Бондаренко Владислав"
+
+    students = store.list_students(group_id, include_archived=True)
+    assert {s.display_name for s in students} == {"Гилюк Даниил", "Бондаренко Владислав"}
+
+    subs = store.list_submissions(group_id=group_id, topic_id=UUID(t1_id))
+    g_subs = [s for s in subs if s.student_id == gilyuk.id]
+    b_subs = [s for s in subs if s.student_id == bondarenko.id]
+    assert sorted(s.attempt_number for s in g_subs) == [1, 2, 3]
+    assert sorted(s.attempt_number for s in b_subs) == [1, 2]
+    assert existing_sub.id in {s.id for s in g_subs}
+    assert any(s.review_status == "reviewed" for s in b_subs)
+    for s in subs:
+        p, _ = store.get_file(s.id)
+        assert p.is_file()
+
+    assert reconcile_storage(db_path, storage_root)["status"] == "ok"
