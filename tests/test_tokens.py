@@ -113,3 +113,28 @@ def test_tokens_cli(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     assert tokens_cli_main(["revoke", "--database", str(db_path), "--id", created["id"]]) == 0
     revoked = json.loads(capsys.readouterr().out)
     assert revoked["revoked_at"] is not None
+
+
+def test_token_scopes_validation_and_last_used_throttling(tmp_path: Path) -> None:
+    db_path = tmp_path / "throttle.sqlite3"
+    initialize(db_path)
+    store = TokenStore(db_path, last_used_interval_seconds=60)
+
+    with pytest.raises(TokenValidationError):
+        store.create_token("bad-scope", scopes="superuser")
+    with pytest.raises(TokenValidationError):
+        store.create_token("empty-scope", scopes=" , ")
+
+    tok, raw = store.create_token("reader", scopes="READ, grade")
+    assert tok.scopes == "read,grade"
+
+    # First auth sets last_used_at
+    assert store.authenticate(raw) is not None
+    t1 = store.get_token(tok.id).last_used_at
+    assert t1 is not None
+
+    # Second auth within 60s does not rewrite last_used_at
+    assert store.authenticate(raw) is not None
+    t2 = store.get_token(tok.id).last_used_at
+    assert t2 == t1
+

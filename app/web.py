@@ -223,7 +223,9 @@ def create_app(config=None):
         validate(db_path)
     except (DatabaseValidationError, DatabaseError, FileNotFoundError) as e:
         raise RuntimeError(
-            f"Database at {db_path} is missing or invalid ({e}). Please run 'migrate_v2 apply' or 'init' before starting the app."
+            f"Database at {db_path} is missing or invalid ({e}). "
+            "Please run './manage.sh migrate' (or 'python -m tools.migrate_db upgrade --offline') "
+            "for existing v2 databases, or 'python -m tools.migrate_v2 init' for a new database."
         ) from e
 
     catalog_store = SqliteCatalogStore(db_path)
@@ -1377,6 +1379,44 @@ def create_app(config=None):
 
     # --- Submissions Admin Routes ---
 
+    def _render_submissions_page(
+        *,
+        group_uuid: UUID | None,
+        topic_uuid: UUID | None,
+        page: int = 1,
+        per_page: int = 50,
+        limit: int | None = None,
+        offset: int | None = None,
+        error_message: str | None = None,
+        status_code: int = 200,
+    ):
+        submissions = submission_store.list_submissions(
+            group_id=group_uuid, topic_id=topic_uuid, limit=limit, offset=offset
+        )
+        total_count = submission_store.count_submissions(
+            group_id=group_uuid, topic_id=topic_uuid
+        )
+
+        all_groups = catalog_store.list_groups(include_archived=True)
+        all_topics = catalog_store.list_topics(include_archived=True)
+
+        return (
+            render_template(
+                "admin_submissions.html",
+                section="submissions",
+                submissions=submissions,
+                groups=all_groups,
+                topics=all_topics,
+                selected_group_id=str(group_uuid) if group_uuid else "",
+                selected_topic_id=str(topic_uuid) if topic_uuid else "",
+                page=page,
+                per_page=per_page,
+                total_count=total_count,
+                error_message=error_message,
+            ),
+            status_code,
+        )
+
     @app.get("/admin/submissions")
     def admin_submissions_page():
         if not is_admin():
@@ -1414,27 +1454,13 @@ def create_app(config=None):
             limit = per_page
             offset = (page - 1) * per_page
 
-        submissions = submission_store.list_submissions(
-            group_id=group_uuid, topic_id=topic_uuid, limit=limit, offset=offset
-        )
-        total_count = submission_store.count_submissions(
-            group_id=group_uuid, topic_id=topic_uuid
-        )
-
-        all_groups = catalog_store.list_groups(include_archived=True)
-        all_topics = catalog_store.list_topics(include_archived=True)
-
-        return render_template(
-            "admin_submissions.html",
-            section="submissions",
-            submissions=submissions,
-            groups=all_groups,
-            topics=all_topics,
-            selected_group_id=str(group_uuid) if group_uuid else "",
-            selected_topic_id=str(topic_uuid) if topic_uuid else "",
+        return _render_submissions_page(
+            group_uuid=group_uuid,
+            topic_uuid=topic_uuid,
             page=page,
             per_page=per_page,
-            total_count=total_count,
+            limit=limit,
+            offset=offset,
         )
 
     @app.get("/admin/submissions/<submission_id>/download")
@@ -1466,6 +1492,12 @@ def create_app(config=None):
         except (ValueError, TypeError):
             abort(400)
 
+        wants_json = (
+            request.is_json
+            or request.headers.get("Accept") == "application/json"
+            or "application/json" in request.headers.get("Accept", "")
+        )
+
         if request.is_json:
             data = request.get_json(silent=True) or {}
         else:
@@ -1491,6 +1523,8 @@ def create_app(config=None):
                 grade_val: str | None = detail.grade
                 feedback_val: str | None = detail.feedback
             else:
+                if "grade" in data and status == "reviewed":
+                    submission_store.clear_grade(sub_uuid, reset_status=False)
                 status, reviewed_at = submission_store.set_review_status(
                     sub_uuid, status, feedback=feedback_arg
                 )
@@ -1500,13 +1534,25 @@ def create_app(config=None):
         except SubmissionNotFoundError:
             abort(404)
         except SubmissionValidationError as err:
-            return jsonify(error="validation_error", message=str(err)), 400
+            if wants_json:
+                return jsonify(error="validation_error", message=str(err)), 400
+            raw_gid = request.form.get("group_id", "").strip()
+            raw_tid = request.form.get("topic_id", "").strip()
+            try:
+                g_uuid = UUID(raw_gid) if raw_gid else None
+            except ValueError:
+                g_uuid = None
+            try:
+                t_uuid = UUID(raw_tid) if raw_tid else None
+            except ValueError:
+                t_uuid = None
+            return _render_submissions_page(
+                group_uuid=g_uuid,
+                topic_uuid=t_uuid,
+                error_message=str(err),
+                status_code=400,
+            )
 
-        wants_json = (
-            request.is_json
-            or request.headers.get("Accept") == "application/json"
-            or "application/json" in request.headers.get("Accept", "")
-        )
         if wants_json:
             return jsonify(
                 id=str(sub_uuid),
@@ -1529,42 +1575,60 @@ def create_app(config=None):
 
     # --- API Tokens Admin Routes ---
 
+    def _render_tokens_page(
+        *,
+        created_token: dict | None = None,
+        error_message: str | None = None,
+        status_code: int = 200,
+    ):
+        tokens = token_store.list_tokens(include_revoked=True)
+        return (
+            render_template(
+                "admin_tokens.html",
+                section="tokens",
+                tokens=tokens,
+                created_token=created_token,
+                error_message=error_message,
+                env_token_names=[name for name, _ in token_store.env_tokens],
+            ),
+            status_code,
+        )
+
     @app.get("/admin/tokens")
     def admin_tokens_page():
         if not is_admin():
             abort(403)
         created_token = session.pop("created_api_token", None)
-        tokens = token_store.list_tokens(include_revoked=True)
-        return render_template(
-            "admin_tokens.html",
-            section="tokens",
-            tokens=tokens,
-            created_token=created_token,
-            env_token_names=[name for name, _ in token_store.env_tokens],
-        )
+        return _render_tokens_page(created_token=created_token)
 
     @app.post("/admin/tokens")
     def admin_create_token():
         if not is_admin():
             abort(403)
-        data = request.get_json(silent=True) or {} if request.is_json else request.form
-        name = str(data.get("name", ""))
-        try:
-            token_obj, raw_token = token_store.create_token(name)
-        except TokenConflictError as err:
-            return jsonify(error="token_name_conflict", message=str(err)), 409
-        except TokenValidationError as err:
-            return jsonify(error="validation_error", message=str(err)), 400
-
         wants_json = (
             request.is_json
             or "application/json" in request.headers.get("Accept", "")
         )
+        data = request.get_json(silent=True) or {} if request.is_json else request.form
+        name = str(data.get("name", ""))
+        scopes = str(data.get("scopes", "agent"))
+        try:
+            token_obj, raw_token = token_store.create_token(name, scopes=scopes)
+        except TokenConflictError as err:
+            if wants_json:
+                return jsonify(error="token_name_conflict", message=str(err)), 409
+            return _render_tokens_page(error_message=str(err), status_code=409)
+        except TokenValidationError as err:
+            if wants_json:
+                return jsonify(error="validation_error", message=str(err)), 400
+            return _render_tokens_page(error_message=str(err), status_code=400)
+
         if wants_json:
             return jsonify(
                 id=str(token_obj.id),
                 name=token_obj.name,
                 token_prefix=token_obj.token_prefix,
+                scopes=token_obj.scopes,
                 token=raw_token,
                 created_at=token_obj.created_at.isoformat(),
             ), 201
@@ -1572,6 +1636,7 @@ def create_app(config=None):
         session["created_api_token"] = {
             "id": str(token_obj.id),
             "name": token_obj.name,
+            "scopes": token_obj.scopes,
             "token": raw_token,
         }
         return redirect(url_for("admin_tokens_page"), code=303)

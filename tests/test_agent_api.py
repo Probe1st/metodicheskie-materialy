@@ -396,3 +396,113 @@ def test_admin_tokens_and_submissions_grading_ui(api_env) -> None:
     assert rev_tok.status_code == 303
     assert UUID(tok_data["id"])
     assert client.get("/api/v1/me", headers=_auth_headers(tok_data["token"])).status_code == 401
+
+
+def test_api_token_scopes_and_strict_json_booleans(api_env) -> None:
+    client = api_env["client"]
+    sub1 = api_env["sub1"]
+    tok_store = TokenStore(api_env["db_path"])
+    _, read_token = tok_store.create_token("read-only-agent", scopes="read")
+
+    read_headers = _auth_headers(read_token)
+    assert client.get("/api/v1/me", headers=read_headers).status_code == 200
+    assert client.get("/api/v1/submissions", headers=read_headers).status_code == 200
+    assert client.get(f"/api/v1/submissions/{sub1.id}/download", headers=read_headers).status_code == 200
+
+    # Read-only token cannot mutate grades or review status
+    assert client.post(
+        f"/api/v1/submissions/{sub1.id}/grade",
+        json={"grade": 5},
+        headers=read_headers,
+    ).status_code == 403
+    assert client.delete(
+        f"/api/v1/submissions/{sub1.id}/grade",
+        headers=read_headers,
+    ).status_code == 403
+    assert client.post(
+        f"/api/v1/submissions/{sub1.id}/review",
+        json={"status": "reviewed"},
+        headers=read_headers,
+    ).status_code == 403
+
+    # Strict boolean parsing rejects string "false"
+    agent_headers = _auth_headers(api_env["token"])
+    bad_clear = client.post(
+        f"/api/v1/submissions/{sub1.id}/grade",
+        json={"grade": 5, "clear_feedback": "false"},
+        headers=agent_headers,
+    )
+    assert bad_clear.status_code == 400
+    assert bad_clear.get_json()["error"] == "validation_error"
+
+    bad_reset = client.delete(
+        f"/api/v1/submissions/{sub1.id}/grade",
+        json={"reset_status": "false"},
+        headers=agent_headers,
+    )
+    assert bad_reset.status_code == 400
+    assert bad_reset.get_json()["error"] == "validation_error"
+
+
+def test_review_feedback_preservation_and_admin_html_validation_errors(api_env) -> None:
+    app = create_app({
+        "TESTING": True,
+        "SECRET_KEY": "test-secret-key-at-least-32-bytes-long-for-testing",
+        "ADMIN_PASSWORD": "admin-secret-password",
+        "DATABASE_PATH": api_env["db_path"],
+        "STORAGE_ROOT": api_env["app"].config["STORAGE_ROOT"],
+        "TASK_ATTACHMENTS_DIR": api_env["app"].config["TASK_ATTACHMENTS_DIR"],
+        "ALLOWED_GRADES": "2,3,4,5",
+        "WTF_CSRF_ENABLED": False,
+    })
+    client = app.test_client()
+    sub1 = api_env["sub1"]
+    headers = _auth_headers(api_env["token"])
+
+    # 1. Pending review via API with feedback preserves feedback
+    r_pend = client.post(
+        f"/api/v1/submissions/{sub1.id}/review",
+        json={"status": "pending", "feedback": "Нужно доработать раздел 2"},
+        headers=headers,
+    )
+    assert r_pend.status_code == 200
+    assert r_pend.get_json()["review_status"] == "pending"
+    assert r_pend.get_json()["feedback"] == "Нужно доработать раздел 2"
+
+    # 2. Admin login and verify HTML form save on reviewed submission keeps reviewed status & updates feedback
+    client.post("/admin/login", data={"password": "admin-secret-password"})
+    page_html = client.get("/admin/submissions").get_data(as_text=True)
+    # Save form hidden input must always be value="reviewed"
+    assert '<input type="hidden" name="status" value="reviewed">' in page_html
+
+    r_save = client.post(
+        f"/admin/submissions/{sub1.id}/review",
+        data={"status": "reviewed", "grade": "", "feedback": "Проверено без оценки"},
+    )
+    assert r_save.status_code == 303
+
+    sub_after = client.get(f"/api/v1/submissions/{sub1.id}", headers=headers).get_json()
+    assert sub_after["review_status"] == "reviewed"
+    assert sub_after["grade"] is None
+    assert sub_after["feedback"] == "Проверено без оценки"
+
+    # 3. Admin HTML form invalid grade returns 400 HTML (not raw JSON)
+    r_bad_grade = client.post(
+        f"/admin/submissions/{sub1.id}/review",
+        data={"status": "reviewed", "grade": "999", "feedback": "test"},
+        headers={"Accept": "text/html"},
+    )
+    assert r_bad_grade.status_code == 400
+    assert "text/html" in r_bad_grade.content_type
+    assert "Invalid grade" in r_bad_grade.get_data(as_text=True)
+
+    # 4. Admin HTML form duplicate token name returns 409 HTML (not raw JSON)
+    r_dup_tok = client.post(
+        "/admin/tokens",
+        data={"name": "grader-agent", "scopes": "agent"},
+        headers={"Accept": "text/html"},
+    )
+    assert r_dup_tok.status_code == 409
+    assert "text/html" in r_dup_tok.content_type
+    assert "already exists" in r_dup_tok.get_data(as_text=True)
+

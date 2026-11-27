@@ -45,6 +45,11 @@
       {% include "_admin_nav.html" %}
 
       <section class="admin-content" aria-label="Список работ">
+        {% if error_message %}
+          <section class="panel" role="alert" style="padding: var(--space-4); margin-bottom: var(--space-4); border-left: 4px solid #dc2626;">
+            <strong>Ошибка:</strong> {{ error_message }}
+          </section>
+        {% endif %}
         <!-- Filter Toolbar -->
         <section class="panel filter-toolbar" aria-label="Фильтры сданных работ" style="margin-bottom: var(--space-6);">
           <form id="submissions_filter_form" class="filter-grid" method="get" action="{{ url_for('admin_submissions_page') }}">
@@ -149,7 +154,7 @@
                     <td style="padding: var(--space-3);">
                       <form method="post" action="{{ url_for('admin_review_submission', submission_id=sub.id) }}" style="display: flex; flex-direction: column; gap: 0.35rem;">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <input type="hidden" name="status" value="{{ 'pending' if sub.review_status == 'reviewed' else 'reviewed' }}">
+                        <input type="hidden" name="status" value="reviewed">
                         <input type="hidden" name="group_id" value="{{ selected_group_id }}">
                         <input type="hidden" name="topic_id" value="{{ selected_topic_id }}">
                         <div style="display: flex; gap: 0.25rem; flex-wrap: wrap;">

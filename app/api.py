@@ -68,6 +68,15 @@ def _parse_bool_arg(name: str, default: bool = False) -> bool:
     raise _ApiError(400, "invalid_parameter", f"Invalid boolean value for {name}: {raw!r}")
 
 
+def _parse_json_bool(data: dict[str, Any], key: str, default: bool = False) -> bool:
+    if key not in data:
+        return default
+    val = data[key]
+    if not isinstance(val, bool):
+        raise _ApiError(400, "validation_error", f"{key} must be a boolean")
+    return val
+
+
 def _parse_pagination() -> tuple[int, int]:
     raw_page = request.args.get("page", "1").strip()
     raw_per_page = request.args.get("per_page", "50").strip()
@@ -213,6 +222,17 @@ def create_api_blueprint(
                 jsonify(error="unauthorized", message="Invalid or revoked API token"),
                 401,
                 {"WWW-Authenticate": "Bearer"},
+            )
+        if request.method in ("GET", "HEAD", "OPTIONS"):
+            if not any(s in actor.scopes for s in ("agent", "read", "grade")):
+                return (
+                    jsonify(error="forbidden", message="Token scope does not permit read operations"),
+                    403,
+                )
+        elif not any(s in actor.scopes for s in ("agent", "grade")):
+            return (
+                jsonify(error="forbidden", message="Token scope does not permit write operations"),
+                403,
             )
         g.api_actor = actor
 
@@ -1232,7 +1252,7 @@ def create_api_blueprint(
             raise _ApiError(400, "validation_error", "Missing required field: grade")
 
         actor: ApiActor = g.api_actor
-        clear_feedback = bool(data.get("clear_feedback", False))
+        clear_feedback = _parse_json_bool(data, "clear_feedback", False)
         feedback = data.get("feedback")
 
         try:
@@ -1258,7 +1278,7 @@ def create_api_blueprint(
         if not reset_status and request.is_json:
             body = request.get_json(silent=True)
             if isinstance(body, dict) and "reset_status" in body:
-                reset_status = bool(body["reset_status"])
+                reset_status = _parse_json_bool(body, "reset_status", False)
 
         try:
             updated = submission_store.clear_grade(sid, reset_status=reset_status)

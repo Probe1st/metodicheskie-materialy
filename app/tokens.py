@@ -102,6 +102,39 @@ def parse_env_tokens(
     return tuple(parsed)
 
 
+VALID_TOKEN_SCOPES: frozenset[str] = frozenset({"agent", "read", "grade"})
+LAST_USED_UPDATE_INTERVAL_SECONDS = 60
+
+
+def normalize_token_scopes(scopes: str | Sequence[str] | None) -> str:
+    """Validate and normalize comma-separated API token scopes."""
+    if scopes is None:
+        return "agent"
+    if isinstance(scopes, str):
+        raw_items = scopes.split(",")
+    elif isinstance(scopes, Sequence):
+        raw_items = [str(item) for item in scopes]
+    else:
+        raise TokenValidationError("scopes must be a string or sequence")
+
+    normalized: list[str] = []
+    seen: set[str] = set()
+    for item in raw_items:
+        part = item.strip().casefold()
+        if not part:
+            continue
+        if part not in VALID_TOKEN_SCOPES:
+            allowed = ", ".join(sorted(VALID_TOKEN_SCOPES))
+            raise TokenValidationError(f"Invalid scope {part!r}. Allowed: {allowed}")
+        if part not in seen:
+            seen.add(part)
+            normalized.append(part)
+
+    if not normalized:
+        raise TokenValidationError("Token must have at least one scope")
+    return ",".join(normalized)
+
+
 class TokenStore:
     """Persistence and authentication for AI agent API tokens."""
 
@@ -109,6 +142,8 @@ class TokenStore:
         self,
         db_path: Path | str,
         env_tokens: Sequence[tuple[str, str]] = (),
+        *,
+        last_used_interval_seconds: int = LAST_USED_UPDATE_INTERVAL_SECONDS,
     ):
         self.db_path = Path(db_path).resolve()
         self.env_tokens = tuple(
@@ -116,6 +151,7 @@ class TokenStore:
             for name, secret in env_tokens
             if str(name).strip() and str(secret).strip()
         )
+        self.last_used_interval_seconds = max(0, int(last_used_interval_seconds))
 
     @staticmethod
     def _row_to_token(row: sqlite3.Row) -> ApiToken:
@@ -143,7 +179,7 @@ class TokenStore:
         except (ValueError, TypeError) as err:
             raise TokenValidationError(str(err)) from err
 
-        cleaned_scopes = (scopes or "agent").strip() or "agent"
+        cleaned_scopes = normalize_token_scopes(scopes)
         token_id = uuid4()
         raw_token = f"ag_{secrets.token_urlsafe(32)}"
         token_prefix = raw_token[:12]
@@ -242,22 +278,29 @@ class TokenStore:
             return None
 
         digest = hash_token(candidate)
-        now_iso = datetime.now(timezone.utc).isoformat()
+        now_dt = datetime.now(timezone.utc)
+        now_iso = now_dt.isoformat()
 
         with connect(self.db_path) as conn:
             row = conn.execute(
                 """
-                SELECT id, name, token_hash, scopes
+                SELECT id, name, token_hash, scopes, last_used_at
                 FROM api_tokens
                 WHERE token_hash = ? AND revoked_at IS NULL;
                 """,
                 (digest,),
             ).fetchone()
             if row and hmac.compare_digest(row["token_hash"], digest):
-                conn.execute(
-                    "UPDATE api_tokens SET last_used_at = ? WHERE id = ?;",
-                    (now_iso, row["id"]),
+                prev_used = _parse_iso_utc(row["last_used_at"])
+                should_update = (
+                    prev_used is None
+                    or (now_dt - prev_used).total_seconds() >= self.last_used_interval_seconds
                 )
+                if should_update:
+                    conn.execute(
+                        "UPDATE api_tokens SET last_used_at = ? WHERE id = ?;",
+                        (now_iso, row["id"]),
+                    )
                 scopes = tuple(s.strip() for s in str(row["scopes"]).split(",") if s.strip()) or ("agent",)
                 return ApiActor(
                     token_id=UUID(row["id"]),

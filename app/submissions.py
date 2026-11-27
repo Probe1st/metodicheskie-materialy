@@ -718,18 +718,34 @@ class SubmissionStore:
 
         with connect(self.db_path) as conn:
             if status == "pending":
-                cur = conn.execute(
-                    """
-                    UPDATE submissions
-                    SET review_status = 'pending',
-                        reviewed_at = NULL,
-                        grade = NULL,
-                        graded_at = NULL,
-                        graded_by = NULL
-                    WHERE id = ?
-                    """,
-                    (str(sub_uuid),),
-                )
+                if feedback is not None:
+                    cleaned_fb = self._normalize_feedback(feedback)
+                    cur = conn.execute(
+                        """
+                        UPDATE submissions
+                        SET review_status = 'pending',
+                            reviewed_at = NULL,
+                            grade = NULL,
+                            graded_at = NULL,
+                            graded_by = NULL,
+                            feedback = ?
+                        WHERE id = ?
+                        """,
+                        (cleaned_fb, str(sub_uuid)),
+                    )
+                else:
+                    cur = conn.execute(
+                        """
+                        UPDATE submissions
+                        SET review_status = 'pending',
+                            reviewed_at = NULL,
+                            grade = NULL,
+                            graded_at = NULL,
+                            graded_by = NULL
+                        WHERE id = ?
+                        """,
+                        (str(sub_uuid),),
+                    )
             elif feedback is not None:
                 cleaned_fb = self._normalize_feedback(feedback)
                 cur = conn.execute(
