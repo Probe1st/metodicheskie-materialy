@@ -295,6 +295,19 @@ def test_admin_students_archive_and_restore(admin_env):
     assert arch.status_code == 200
     assert arch.get_json()["archived_at"] is not None
 
+    # Archived student is hidden from fuzzy/paired cards when include_archived=0, shown & tagged when include_archived=1
+    st_fuzzy_b = admin_env["students"]["fuzzy_b"]
+    client.post(f"/admin/students/{st_fuzzy_b.id}/archive", headers={"Accept": "application/json"})
+    gid = admin_env["group"].id
+    html_active = client.get(f"/admin/students?group_id={gid}").get_data(as_text=True)
+    assert "Антонова Даря" not in html_active
+    html_with_arch = client.get(f"/admin/students?group_id={gid}&include_archived=1").get_data(as_text=True)
+    assert "Антонова Даря" in html_with_arch
+    assert "архив" in html_with_arch
+    # Radio inputs in same fuzzy card share identical name in SSR HTML
+    assert f'name="fuzzy_target_{gid}_1"' in html_with_arch
+    assert f'name="fuzzy_target_{gid}_2"' not in html_with_arch
+
     rest = client.post(
         f"/admin/students/{st_double.id}/restore",
         headers={"Accept": "application/json"},

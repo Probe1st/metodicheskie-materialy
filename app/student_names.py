@@ -453,12 +453,6 @@ def normalize_student_name(raw: str) -> StudentNameResult:
                 "possible_reversed_order",
                 "Первое слово похоже на имя. Убедитесь, что сначала указана фамилия, затем имя — формат может быть неверным.",
             ))
-        elif not _has_surname_suffix(w1) and _has_surname_suffix(w2) and _is_first_name(w1):
-            final_tokens = [w2, w1]
-            warnings.append((
-                "swapped_order",
-                f"Порядок слов изменён на «{w2} {w1}» — формат может быть неверным.",
-            ))
         else:
             final_tokens = [w1, w2]
     else:
@@ -598,24 +592,38 @@ def damerau_levenshtein(a: str, b: str) -> int:
     return dp[la][lb]
 
 
+def _is_gender_token_pair(a: str, b: str) -> bool:
+    """Return True when two folded tokens form a male/female Russian surname or first-name pair."""
+    if a == b:
+        return False
+    if a + "а" == b or b + "а" == a:
+        return True
+    if (a.endswith("ий") and b == a[:-1] + "я") or (b.endswith("ий") and a == b[:-1] + "я"):
+        return True
+    if (a.endswith(("ский", "цкий")) and b == a[:-2] + "ая") or (
+        b.endswith(("ский", "цкий")) and a == b[:-2] + "ая"
+    ):
+        return True
+    return False
+
+
 def _opposite_gender_pair(w1_a: str, w2_a: str, w1_b: str, w2_b: str) -> bool:
-    """Detect distinct-gender pairs like 'Петров Александр' vs 'Петрова Александра'."""
+    """Detect distinct-gender pairs like 'Петров Александр' vs 'Петрова Александра' or 'Иванов Евгений' vs 'Иванова Евгения'."""
     sur_a, sur_b = _fold(w1_a), _fold(w1_b)
     nam_a, nam_b = _fold(w2_a), _fold(w2_b)
     sur_diff_gender = (
-        (sur_a.endswith(("ов", "ев", "ин")) and sur_b == sur_a + "а")
-        or (sur_b.endswith(("ов", "ев", "ин")) and sur_a == sur_b + "а")
+        (sur_a.endswith(("ов", "ев", "ёв", "ин")) and sur_b == sur_a + "а")
+        or (sur_b.endswith(("ов", "ев", "ёв", "ин")) and sur_a == sur_b + "а")
+        or (sur_a.endswith(("ский", "цкий")) and sur_b == sur_a[:-2] + "ая")
+        or (sur_b.endswith(("ский", "цкий")) and sur_a == sur_b[:-2] + "ая")
     )
-    nam_diff_gender = (
-        (nam_a + "а" == nam_b) or (nam_b + "а" == nam_a)
-    )
-    return sur_diff_gender and nam_diff_gender
+    return sur_diff_gender and _is_gender_token_pair(nam_a, nam_b)
 
 
 def _pair_fuzzy_similarity(sa: str, fa: str, sb: str, fb: str) -> tuple[bool, str, str]:
     """Compare two aligned (surname, first_name) pairs for typos, initials, or partial hyphens."""
     if _opposite_gender_pair(sa, fa, sb, fb) or (
-        (sa + "а" == sb or sb + "а" == sa) and (fa + "а" == fb or fb + "а" == fa)
+        _is_gender_token_pair(sa, sb) and _is_gender_token_pair(fa, fb)
     ):
         return False, "", ""
 

@@ -24,8 +24,10 @@ from app.submissions import SubmissionStore
 def analyze_students_db(
     db_path: Path | str,
     group_id: UUID | str | None = None,
+    *,
+    include_archived: bool = True,
 ) -> dict[str, Any]:
-    """Inspect all students in the database and build a non-mutating cleanup plan."""
+    """Inspect students in the database and build a non-mutating cleanup plan."""
     db_file = Path(db_path).resolve()
     validate(db_file)
 
@@ -45,9 +47,11 @@ def analyze_students_db(
                 "SELECT id, name, archived_at FROM groups ORDER BY name"
             ).fetchall()
 
-        student_rows = conn.execute(
-            "SELECT id, group_id, display_name, archived_at FROM students ORDER BY display_name, id"
-        ).fetchall()
+        student_sql = "SELECT id, group_id, display_name, archived_at FROM students"
+        if not include_archived:
+            student_sql += " WHERE archived_at IS NULL"
+        student_sql += " ORDER BY display_name, id"
+        student_rows = conn.execute(student_sql).fetchall()
 
         sub_counts_rows = conn.execute(
             "SELECT student_id, COUNT(*) AS cnt FROM submissions GROUP BY student_id"
@@ -131,7 +135,7 @@ def analyze_students_db(
         exact_merges: list[dict[str, Any]] = []
         renames: list[dict[str, Any]] = []
         unchanged_warnings: list[dict[str, Any]] = []
-        canonical_reps: list[tuple[str, str, int, list[str]]] = []
+        canonical_reps: list[tuple[str, str, int, list[str], str | None]] = []
 
         bucket_target_by_key: dict[str, tuple[str, str]] = {}
 
@@ -150,7 +154,9 @@ def analyze_students_db(
             bucket_target_by_key[key] = (target_item["id"], canonical_name)
             member_ids = [it["id"] for it in items]
             total_bucket_subs = sum(it["submissions_count"] for it in items)
-            canonical_reps.append((target_item["id"], canonical_name, total_bucket_subs, member_ids))
+            canonical_reps.append(
+                (target_item["id"], canonical_name, total_bucket_subs, member_ids, target_item["archived_at"])
+            )
 
             if len(items) > 1:
                 sources = [it for it in items if it["id"] != target_item["id"]]
@@ -213,10 +219,11 @@ def analyze_students_db(
                 "display_name": rname,
                 "submissions_count": rsubs,
                 "member_ids": rmems,
+                "archived_at": rarch,
             }
-            for rid, rname, rsubs, rmems in canonical_reps
+            for rid, rname, rsubs, rmems, rarch in canonical_reps
         }
-        fuzzy_groups = find_fuzzy_duplicate_groups([(rid, rname) for rid, rname, _, _ in canonical_reps])
+        fuzzy_groups = find_fuzzy_duplicate_groups([(rid, rname) for rid, rname, _, _, _ in canonical_reps])
         fuzzy_candidates: list[dict[str, Any]] = []
         for fg in fuzzy_groups:
             fg_members = [rep_by_id[sid] for sid in fg.student_ids if sid in rep_by_id]

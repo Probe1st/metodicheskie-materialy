@@ -1666,7 +1666,7 @@ def create_app(config=None):
         notice = request.args.get("notice", "").strip()
 
         all_groups = catalog_store.list_groups(include_archived=True)
-        plan = analyze_students_db(db_path, group_uuid)
+        plan = analyze_students_db(db_path, group_uuid, include_archived=include_archived)
         exact_ids: set[str] = set()
         fuzzy_ids: set[str] = set()
         for grp in plan["groups"]:

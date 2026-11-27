@@ -176,6 +176,7 @@
             </div>
             {% for grp in plan.groups %}
               {% for fc in grp.fuzzy_candidates %}
+                {% set card_idx = loop.index %}
                 <article class="admin-student-card" data-fuzzy-card data-group-id="{{ grp.group_id }}">
                   <div class="admin-student-card__row">
                     <div>
@@ -188,10 +189,10 @@
                       <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
                         <label style="display: inline-flex; align-items: center; gap: 0.35rem;">
                           <input type="checkbox" data-fuzzy-member value="{{ st.id }}" checked>
-                          <span><strong>{{ st.display_name }}</strong> ({{ st.submissions_count }} работ)</span>
+                          <span><strong>{{ st.display_name }}</strong> ({{ st.submissions_count }} работ){% if st.archived_at %} <span class="chip chip--closed">архив</span>{% endif %}</span>
                         </label>
                         <label style="display: inline-flex; align-items: center; gap: 0.25rem; font-size: var(--type-xs); color: var(--color-text-muted);">
-                          <input type="radio" name="fuzzy_target_{{ grp.group_id }}_{{ loop.index }}" data-fuzzy-target value="{{ st.id }}" {% if st.id == fc.target_student_id %}checked{% endif %}>
+                          <input type="radio" name="fuzzy_target_{{ grp.group_id }}_{{ card_idx }}" data-fuzzy-target value="{{ st.id }}" {% if st.id == fc.target_student_id %}checked{% endif %}>
                           <span>оставить основной</span>
                         </label>
                       </div>
@@ -227,6 +228,7 @@
                     <div>
                       <strong>{{ grp.group_name }}</strong>: «{{ p.display_name }}»
                       <span class="chip chip--pending">{{ p.submissions_count }} работ</span>
+                      {% if p.archived_at %}<span class="chip chip--closed">архив</span>{% endif %}
                     </div>
                   </div>
                   <div class="admin-student-parts" data-paired-inputs>

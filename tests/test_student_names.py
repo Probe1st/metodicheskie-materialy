@@ -213,6 +213,10 @@ def test_fuzzy_similarity_reversed_typo_initial_and_hyphen_partial() -> None:
         ("d2", "Петрова Анна"),
         ("e1", "Александр Петров"),
         ("e2", "Петрова Александра"),
+        ("f1", "Иванов Евгений"),
+        ("f2", "Иванова Евгения"),
+        ("g1", "Петровский Валерий"),
+        ("g2", "Петровская Валерия"),
     ]
     groups = find_fuzzy_duplicate_groups(records)
     id_sets = [set(g.student_ids) for g in groups]
@@ -222,3 +226,5 @@ def test_fuzzy_similarity_reversed_typo_initial_and_hyphen_partial() -> None:
     assert any({"c1", "c2"}.issubset(s) for s in id_sets)
     assert any({"d1", "d2"}.issubset(s) for s in id_sets)
     assert not any({"e1", "e2"}.issubset(s) for s in id_sets)
+    assert not any({"f1", "f2"}.issubset(s) for s in id_sets)
+    assert not any({"g1", "g2"}.issubset(s) for s in id_sets)
