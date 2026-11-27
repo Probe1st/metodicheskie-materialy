@@ -542,9 +542,9 @@ def test_pub_01_02_cross_device_exdev_handling(
     assert exdev_raised is True
     assert target.is_file()
 
-    # Valid v2 database
+    # Valid v3 database
     state = read_db_state(target)
-    assert state["user_version"] == 2
+    assert state["user_version"] == 3
     assert state["integrity_check"] == ["ok"]
 
 
@@ -566,7 +566,7 @@ def test_pub_01_03_post_publish_validation(case_id: str, audit_env: AuditEnv) ->
     assert ret == 0
 
     state = read_db_state(target)
-    assert state["user_version"] == 2
+    assert state["user_version"] == 3
     assert state["integrity_check"] == ["ok"]
     assert state["foreign_key_check"] == []
 

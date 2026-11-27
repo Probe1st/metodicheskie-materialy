@@ -139,7 +139,7 @@ def test_read_db_state(audit_env: AuditEnv) -> None:
     db_path = audit_env.populate_canonical()
     state = read_db_state(db_path)
 
-    assert state["user_version"] == 2
+    assert state["user_version"] == 3
     assert state["integrity_check"] == ["ok"]
     assert state["quick_check"] == ["ok"]
     assert state["foreign_key_check"] == []

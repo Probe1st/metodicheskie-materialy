@@ -570,16 +570,27 @@ case "${1:-}" in
         shift
         (cd "${APP_DIR}" && "${PYTHON_BIN}" -m tools.migrate_v2 apply --offline "$@")
         ;;
+    migrate)
+        stop_app || exit 1
+        shift
+        (cd "${APP_DIR}" && "${PYTHON_BIN}" -m tools.migrate_db upgrade --offline "$@")
+        ;;
+    migrate-status)
+        shift
+        (cd "${APP_DIR}" && "${PYTHON_BIN}" -m tools.migrate_db status "$@")
+        ;;
     *)
-        echo "Использование: $0 {start|stop|restart|status|logs|migrate-v2}"
+        echo "Использование: $0 {start|stop|restart|status|logs|migrate|migrate-status|migrate-v2}"
         echo ""
         echo "Команды:"
-        echo "  start       - запустить приложение в фоновом режиме"
-        echo "  stop        - остановить приложение"
-        echo "  restart     - перезапустить приложение"
-        echo "  status      - проверить статус работы"
-        echo "  logs        - показать последние записи логов"
-        echo "  migrate-v2  - применить миграцию на схему SQLite v2 в оффлайн-режиме"
+        echo "  start          - запустить приложение в фоновом режиме"
+        echo "  stop           - остановить приложение"
+        echo "  restart        - перезапустить приложение"
+        echo "  status         - проверить статус работы"
+        echo "  logs           - показать последние записи логов"
+        echo "  migrate        - применить миграции схемы БД (например, v2 -> v3) в оффлайн-режиме"
+        echo "  migrate-status - проверить текущую и целевую версии схемы БД"
+        echo "  migrate-v2     - применить миграцию на схему SQLite v2 в оффлайн-режиме"
         exit 1
         ;;
 esac

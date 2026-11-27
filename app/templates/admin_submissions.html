@@ -101,6 +101,7 @@
                   <th style="padding: var(--space-2) var(--space-3);">Попытка</th>
                   <th style="padding: var(--space-2) var(--space-3);">Файл</th>
                   <th style="padding: var(--space-2) var(--space-3);">Статус</th>
+                  <th style="padding: var(--space-2) var(--space-3);">Оценка</th>
                   <th style="padding: var(--space-2) var(--space-3);">Действие</th>
                 </tr>
               </thead>
@@ -135,17 +136,45 @@
                       {% endif %}
                     </td>
                     <td style="padding: var(--space-3);">
-                      <form method="post" action="{{ url_for('admin_review_submission', submission_id=sub.id) }}">
+                      {% if sub.grade %}
+                        <strong>{{ sub.grade }}</strong>
+                        {% if sub.graded_by %}<div class="field__hint">{{ sub.graded_by }}</div>{% endif %}
+                      {% else %}
+                        <span class="field__hint">—</span>
+                      {% endif %}
+                      {% if sub.feedback %}
+                        <div class="field__hint" title="{{ sub.feedback }}">{{ sub.feedback[:80] }}{% if sub.feedback|length > 80 %}…{% endif %}</div>
+                      {% endif %}
+                    </td>
+                    <td style="padding: var(--space-3);">
+                      <form method="post" action="{{ url_for('admin_review_submission', submission_id=sub.id) }}" style="display: flex; flex-direction: column; gap: 0.35rem;">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="status" value="{{ 'pending' if sub.review_status == 'reviewed' else 'reviewed' }}">
                         <input type="hidden" name="group_id" value="{{ selected_group_id }}">
                         <input type="hidden" name="topic_id" value="{{ selected_topic_id }}">
-                        {% if sub.review_status == 'reviewed' %}
-                          <button class="button button--outline" type="submit" style="padding: 0.25rem 0.5rem; font-size: var(--type-sm);">Вернуть в ожидание</button>
-                        {% else %}
-                          <button class="button button--primary" type="submit" style="padding: 0.25rem 0.5rem; font-size: var(--type-sm);">Проверено</button>
-                        {% endif %}
+                        <div style="display: flex; gap: 0.25rem; flex-wrap: wrap;">
+                          <input type="text" name="grade" value="{{ sub.grade or '' }}" placeholder="Оценка" aria-label="Оценка" style="width: 5rem; padding: 0.2rem 0.4rem; font-size: var(--type-sm);">
+                          <input type="text" name="feedback" value="{{ sub.feedback or '' }}" placeholder="Комментарий" aria-label="Комментарий" style="width: 10rem; padding: 0.2rem 0.4rem; font-size: var(--type-sm);">
+                          <button class="button button--primary" type="submit" style="padding: 0.25rem 0.5rem; font-size: var(--type-sm);">Сохранить</button>
+                        </div>
                       </form>
+                      {% if sub.review_status == 'reviewed' %}
+                        <form method="post" action="{{ url_for('admin_review_submission', submission_id=sub.id) }}" style="margin-top: 0.25rem;">
+                          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                          <input type="hidden" name="status" value="pending">
+                          <input type="hidden" name="group_id" value="{{ selected_group_id }}">
+                          <input type="hidden" name="topic_id" value="{{ selected_topic_id }}">
+                          <button class="button button--outline" type="submit" style="padding: 0.2rem 0.5rem; font-size: var(--type-sm);">Вернуть в ожидание</button>
+                        </form>
+                      {% else %}
+                        <form method="post" action="{{ url_for('admin_review_submission', submission_id=sub.id) }}" style="margin-top: 0.25rem;">
+                          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                          <input type="hidden" name="status" value="reviewed">
+                          <input type="hidden" name="group_id" value="{{ selected_group_id }}">
+                          <input type="hidden" name="topic_id" value="{{ selected_topic_id }}">
+                          <button class="button button--outline" type="submit" style="padding: 0.2rem 0.5rem; font-size: var(--type-sm);">Проверено</button>
+                        </form>
+                      {% endif %}
                     </td>
                   </tr>
                 {% endfor %}

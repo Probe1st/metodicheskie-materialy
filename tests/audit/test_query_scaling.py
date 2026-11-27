@@ -172,7 +172,15 @@ def scale_env(tmp_path_factory: pytest.TempPathFactory) -> ScaleDataset:
                     ))
                     sub_idx += 1
 
-        conn.executemany("INSERT INTO submissions VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);", submissions_insert)
+        conn.executemany(
+            """
+            INSERT INTO submissions (
+                id, student_id, group_id, topic_id, assignment_id,
+                attempt_number, review_status, reviewed_at, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+            """,
+            submissions_insert,
+        )
         conn.executemany("INSERT INTO submission_files VALUES (?, ?, ?, ?, ?, ?);", submission_files_insert)
 
     t1 = time.perf_counter()

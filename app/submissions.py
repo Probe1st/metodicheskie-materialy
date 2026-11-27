@@ -40,6 +40,10 @@ class Submission:
     review_status: str
     reviewed_at: datetime | None
     created_at: datetime
+    grade: str | None = None
+    feedback: str | None = None
+    graded_at: datetime | None = None
+    graded_by: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -72,6 +76,12 @@ class SubmissionDetail:
     stored_path: str
     size_bytes: int
     sha256: str | None
+    subject_id: UUID | None = None
+    subject_name: str = ""
+    grade: str | None = None
+    feedback: str | None = None
+    graded_at: datetime | None = None
+    graded_by: str | None = None
 
     @property
     def display_name(self) -> str:
@@ -457,23 +467,151 @@ class SubmissionStore:
         except (sqlite3.Error, OSError):
             return False
 
-    def count_submissions(
+    def _build_filters(
         self,
+        *,
         group_id: UUID | str | None = None,
+        subject_id: UUID | str | None = None,
         topic_id: UUID | str | None = None,
-    ) -> int:
+        assignment_id: UUID | str | None = None,
+        student_id: UUID | str | None = None,
+        review_status: str | None = None,
+        graded: bool | None = None,
+        grade: str | None = None,
+        date_from: str | None = None,
+        date_to: str | None = None,
+    ) -> tuple[str, list[Any]]:
         conditions: list[str] = []
         params: list[Any] = []
 
         if group_id is not None:
-            conditions.append("group_id = ?")
+            conditions.append("s.group_id = ?")
             params.append(str(UUID(str(group_id))))
+        if subject_id is not None:
+            conditions.append("t.subject_id = ?")
+            params.append(str(UUID(str(subject_id))))
         if topic_id is not None:
-            conditions.append("topic_id = ?")
+            conditions.append("s.topic_id = ?")
             params.append(str(UUID(str(topic_id))))
+        if assignment_id is not None:
+            conditions.append("s.assignment_id = ?")
+            params.append(str(UUID(str(assignment_id))))
+        if student_id is not None:
+            conditions.append("s.student_id = ?")
+            params.append(str(UUID(str(student_id))))
+        if review_status is not None:
+            if review_status not in ("pending", "reviewed"):
+                raise SubmissionValidationError(f"Invalid review_status filter: {review_status!r}")
+            conditions.append("s.review_status = ?")
+            params.append(review_status)
+        if graded is True:
+            conditions.append("s.grade IS NOT NULL")
+        elif graded is False:
+            conditions.append("s.grade IS NULL")
+        if grade is not None:
+            cleaned_g = unicodedata.normalize("NFC", str(grade).strip())
+            if not cleaned_g:
+                raise SubmissionValidationError("grade filter cannot be empty")
+            conditions.append("s.grade = ?")
+            params.append(cleaned_g)
+        if date_from is not None:
+            conditions.append("substr(s.created_at, 1, 10) >= ?")
+            params.append(str(date_from).strip())
+        if date_to is not None:
+            conditions.append("substr(s.created_at, 1, 10) <= ?")
+            params.append(str(date_to).strip())
 
         where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
-        query = f"SELECT COUNT(*) FROM submissions {where_clause};"
+        return where_clause, params
+
+    @staticmethod
+    def _row_to_detail(row: sqlite3.Row) -> SubmissionDetail:
+        return SubmissionDetail(
+            id=UUID(row["id"]),
+            student_id=UUID(row["student_id"]),
+            group_id=UUID(row["group_id"]),
+            topic_id=UUID(row["topic_id"]),
+            assignment_id=UUID(row["assignment_id"]) if row["assignment_id"] else None,
+            attempt_number=int(row["attempt_number"]),
+            review_status=row["review_status"],
+            reviewed_at=_parse_iso_utc(row["reviewed_at"]),
+            created_at=_parse_iso_utc(row["created_at"]) or datetime.now(timezone.utc),
+            student_display_name=row["student_display_name"],
+            group_name=row["group_name"],
+            topic_name=row["topic_name"],
+            lesson_date=row["lesson_date"],
+            pair_number=int(row["pair_number"]) if row["pair_number"] is not None else None,
+            original_filename=row["original_filename"],
+            stored_path=row["stored_path"],
+            size_bytes=int(row["size_bytes"]),
+            sha256=row["sha256"],
+            subject_id=UUID(row["subject_id"]) if row["subject_id"] else None,
+            subject_name=row["subject_name"] or "",
+            grade=row["grade"],
+            feedback=row["feedback"],
+            graded_at=_parse_iso_utc(row["graded_at"]),
+            graded_by=row["graded_by"],
+        )
+
+    _DETAIL_FROM_CLAUSE = """
+        FROM submissions s
+        JOIN students st ON st.id = s.student_id
+        JOIN groups g ON g.id = s.group_id
+        JOIN topics t ON t.id = s.topic_id
+        JOIN subjects subj ON subj.id = t.subject_id
+        LEFT JOIN class_assignments ca ON ca.id = s.assignment_id
+        JOIN submission_files sf ON sf.submission_id = s.id
+    """
+
+    _DETAIL_SELECT_COLS = """
+        SELECT
+            s.id, s.student_id, s.group_id, s.topic_id, s.assignment_id,
+            s.attempt_number, s.review_status, s.reviewed_at, s.created_at,
+            s.grade, s.feedback, s.graded_at, s.graded_by,
+            st.display_name AS student_display_name,
+            g.name AS group_name,
+            t.name AS topic_name,
+            t.subject_id AS subject_id,
+            subj.name AS subject_name,
+            ca.lesson_date,
+            ca.pair_number,
+            sf.original_filename,
+            sf.stored_path,
+            sf.size_bytes,
+            sf.sha256
+    """
+
+    def count_submissions(
+        self,
+        group_id: UUID | str | None = None,
+        topic_id: UUID | str | None = None,
+        *,
+        subject_id: UUID | str | None = None,
+        assignment_id: UUID | str | None = None,
+        student_id: UUID | str | None = None,
+        review_status: str | None = None,
+        graded: bool | None = None,
+        grade: str | None = None,
+        date_from: str | None = None,
+        date_to: str | None = None,
+    ) -> int:
+        where_clause, params = self._build_filters(
+            group_id=group_id,
+            subject_id=subject_id,
+            topic_id=topic_id,
+            assignment_id=assignment_id,
+            student_id=student_id,
+            review_status=review_status,
+            graded=graded,
+            grade=grade,
+            date_from=date_from,
+            date_to=date_to,
+        )
+        query = (
+            f"SELECT COUNT(*) FROM submissions s "
+            f"JOIN topics t ON t.id = s.topic_id "
+            f"{where_clause};"
+        )
 
         with connect(self.db_path) as conn:
             return int(conn.execute(query, params).fetchone()[0])
@@ -484,18 +622,28 @@ class SubmissionStore:
         topic_id: UUID | str | None = None,
         limit: int | None = None,
         offset: int | None = None,
+        *,
+        subject_id: UUID | str | None = None,
+        assignment_id: UUID | str | None = None,
+        student_id: UUID | str | None = None,
+        review_status: str | None = None,
+        graded: bool | None = None,
+        grade: str | None = None,
+        date_from: str | None = None,
+        date_to: str | None = None,
     ) -> list[SubmissionDetail]:
-        conditions: list[str] = []
-        params: list[Any] = []
-
-        if group_id is not None:
-            conditions.append("s.group_id = ?")
-            params.append(str(UUID(str(group_id))))
-        if topic_id is not None:
-            conditions.append("s.topic_id = ?")
-            params.append(str(UUID(str(topic_id))))
-
-        where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+        where_clause, params = self._build_filters(
+            group_id=group_id,
+            subject_id=subject_id,
+            topic_id=topic_id,
+            assignment_id=assignment_id,
+            student_id=student_id,
+            review_status=review_status,
+            graded=graded,
+            grade=grade,
+            date_from=date_from,
+            date_to=date_to,
+        )
 
         pagination_clause = ""
         if limit is not None:
@@ -506,24 +654,8 @@ class SubmissionStore:
                 params.append(int(offset))
 
         query = f"""
-        SELECT
-            s.id, s.student_id, s.group_id, s.topic_id, s.assignment_id,
-            s.attempt_number, s.review_status, s.reviewed_at, s.created_at,
-            st.display_name AS student_display_name,
-            g.name AS group_name,
-            t.name AS topic_name,
-            ca.lesson_date,
-            ca.pair_number,
-            sf.original_filename,
-            sf.stored_path,
-            sf.size_bytes,
-            sf.sha256
-        FROM submissions s
-        JOIN students st ON st.id = s.student_id
-        JOIN groups g ON g.id = s.group_id
-        JOIN topics t ON t.id = s.topic_id
-        LEFT JOIN class_assignments ca ON ca.id = s.assignment_id
-        JOIN submission_files sf ON sf.submission_id = s.id
+        {self._DETAIL_SELECT_COLS}
+        {self._DETAIL_FROM_CLAUSE}
         {where_clause}
         ORDER BY s.created_at DESC, s.id DESC
         {pagination_clause}
@@ -531,29 +663,18 @@ class SubmissionStore:
 
         with connect(self.db_path) as conn:
             rows = conn.execute(query, params).fetchall()
-            return [
-                SubmissionDetail(
-                    id=UUID(row["id"]),
-                    student_id=UUID(row["student_id"]),
-                    group_id=UUID(row["group_id"]),
-                    topic_id=UUID(row["topic_id"]),
-                    assignment_id=UUID(row["assignment_id"]) if row["assignment_id"] else None,
-                    attempt_number=int(row["attempt_number"]),
-                    review_status=row["review_status"],
-                    reviewed_at=_parse_iso_utc(row["reviewed_at"]),
-                    created_at=_parse_iso_utc(row["created_at"]) or datetime.now(timezone.utc),
-                    student_display_name=row["student_display_name"],
-                    group_name=row["group_name"],
-                    topic_name=row["topic_name"],
-                    lesson_date=row["lesson_date"],
-                    pair_number=int(row["pair_number"]) if row["pair_number"] is not None else None,
-                    original_filename=row["original_filename"],
-                    stored_path=row["stored_path"],
-                    size_bytes=int(row["size_bytes"]),
-                    sha256=row["sha256"],
-                )
-                for row in rows
-            ]
+            return [self._row_to_detail(row) for row in rows]
+
+    def get_submission(self, submission_id: UUID | str) -> SubmissionDetail | None:
+        sub_uuid = UUID(str(submission_id))
+        query = f"""
+        {self._DETAIL_SELECT_COLS}
+        {self._DETAIL_FROM_CLAUSE}
+        WHERE s.id = ?
+        """
+        with connect(self.db_path) as conn:
+            row = conn.execute(query, (str(sub_uuid),)).fetchone()
+            return self._row_to_detail(row) if row else None
 
     def get_file(self, submission_id: UUID | str) -> tuple[Path, str]:
         sub_uuid = UUID(str(submission_id))
@@ -579,27 +700,210 @@ class SubmissionStore:
 
         return full_path, original_filename
 
-    def set_review_status(self, submission_id: UUID | str, status: str) -> tuple[str, str | None]:
+    def set_review_status(
+        self,
+        submission_id: UUID | str,
+        status: str,
+        *,
+        feedback: str | None = None,
+    ) -> tuple[str, str | None]:
         if status not in ("pending", "reviewed"):
             raise SubmissionValidationError(f"Invalid review status: {status!r}. Must be 'pending' or 'reviewed'.")
 
         sub_uuid = UUID(str(submission_id))
         if status == "reviewed":
-            reviewed_at = datetime.now(timezone.utc).isoformat()
+            reviewed_at: str | None = datetime.now(timezone.utc).isoformat()
         else:
             reviewed_at = None
 
         with connect(self.db_path) as conn:
-            cur = conn.execute(
-                """
-                UPDATE submissions
-                SET review_status = ?, reviewed_at = ?
-                WHERE id = ?
-                """,
-                (status, reviewed_at, str(sub_uuid)),
-            )
+            if status == "pending":
+                cur = conn.execute(
+                    """
+                    UPDATE submissions
+                    SET review_status = 'pending',
+                        reviewed_at = NULL,
+                        grade = NULL,
+                        graded_at = NULL,
+                        graded_by = NULL
+                    WHERE id = ?
+                    """,
+                    (str(sub_uuid),),
+                )
+            elif feedback is not None:
+                cleaned_fb = self._normalize_feedback(feedback)
+                cur = conn.execute(
+                    """
+                    UPDATE submissions
+                    SET review_status = ?, reviewed_at = ?, feedback = ?
+                    WHERE id = ?
+                    """,
+                    (status, reviewed_at, cleaned_fb, str(sub_uuid)),
+                )
+            else:
+                cur = conn.execute(
+                    """
+                    UPDATE submissions
+                    SET review_status = ?, reviewed_at = ?
+                    WHERE id = ?
+                    """,
+                    (status, reviewed_at, str(sub_uuid)),
+                )
             if cur.rowcount == 0:
                 raise SubmissionNotFoundError(f"Submission {sub_uuid} not found")
             conn.commit()
 
         return status, reviewed_at
+
+    @staticmethod
+    def _normalize_grade(
+        grade: Any,
+        allowed_grades: frozenset[str] | None = None,
+    ) -> str:
+        if isinstance(grade, bool) or grade is None:
+            raise SubmissionValidationError("grade must be a non-empty string or number")
+        if isinstance(grade, int):
+            raw = str(grade)
+        elif isinstance(grade, float):
+            if grade.is_integer():
+                raw = str(int(grade))
+            else:
+                raw = str(grade)
+        elif isinstance(grade, str):
+            raw = grade
+        else:
+            raise SubmissionValidationError("grade must be a non-empty string or number")
+
+        cleaned = unicodedata.normalize("NFC", raw.strip())
+        if not cleaned:
+            raise SubmissionValidationError("grade cannot be empty")
+        if len(cleaned) > 64:
+            raise SubmissionValidationError("grade must be at most 64 characters")
+        if allowed_grades:
+            allowed_map = {g.casefold(): g for g in allowed_grades}
+            matched = allowed_map.get(cleaned.casefold())
+            if matched is None:
+                allowed_list = ", ".join(sorted(allowed_grades))
+                raise SubmissionValidationError(
+                    f"Invalid grade {cleaned!r}. Allowed grades: {allowed_list}"
+                )
+            return matched
+        return cleaned
+
+    @staticmethod
+    def _normalize_feedback(feedback: Any) -> str | None:
+        if feedback is None:
+            return None
+        if not isinstance(feedback, str):
+            raise SubmissionValidationError("feedback must be a string")
+        cleaned = unicodedata.normalize("NFC", feedback.strip())
+        if len(cleaned) > 10000:
+            raise SubmissionValidationError("feedback must be at most 10000 characters")
+        return cleaned or None
+
+    def set_grade(
+        self,
+        submission_id: UUID | str,
+        grade: str | int | float,
+        feedback: str | None = None,
+        graded_by: str | None = None,
+        *,
+        clear_feedback: bool = False,
+        allowed_grades: frozenset[str] | None = None,
+    ) -> SubmissionDetail:
+        sub_uuid = UUID(str(submission_id))
+        cleaned_grade = self._normalize_grade(grade, allowed_grades=allowed_grades)
+
+        if clear_feedback:
+            update_feedback = True
+            cleaned_feedback: str | None = None
+        elif feedback is not None:
+            update_feedback = True
+            cleaned_feedback = self._normalize_feedback(feedback)
+        else:
+            update_feedback = False
+            cleaned_feedback = None
+
+        cleaned_actor: str | None = None
+        if graded_by is not None:
+            actor_str = unicodedata.normalize("NFC", str(graded_by).strip())
+            cleaned_actor = actor_str[:128] if actor_str else None
+
+        now_iso = datetime.now(timezone.utc).isoformat()
+        with connect(self.db_path) as conn:
+            if update_feedback:
+                cur = conn.execute(
+                    """
+                    UPDATE submissions
+                    SET grade = ?,
+                        feedback = ?,
+                        graded_at = ?,
+                        graded_by = ?,
+                        review_status = 'reviewed',
+                        reviewed_at = ?
+                    WHERE id = ?
+                    """,
+                    (cleaned_grade, cleaned_feedback, now_iso, cleaned_actor, now_iso, str(sub_uuid)),
+                )
+            else:
+                cur = conn.execute(
+                    """
+                    UPDATE submissions
+                    SET grade = ?,
+                        graded_at = ?,
+                        graded_by = ?,
+                        review_status = 'reviewed',
+                        reviewed_at = ?
+                    WHERE id = ?
+                    """,
+                    (cleaned_grade, now_iso, cleaned_actor, now_iso, str(sub_uuid)),
+                )
+            if cur.rowcount == 0:
+                raise SubmissionNotFoundError(f"Submission {sub_uuid} not found")
+            conn.commit()
+
+        detail = self.get_submission(sub_uuid)
+        if detail is None:
+            raise SubmissionNotFoundError(f"Submission {sub_uuid} not found")
+        return detail
+
+    def clear_grade(
+        self,
+        submission_id: UUID | str,
+        *,
+        reset_status: bool = False,
+    ) -> SubmissionDetail:
+        sub_uuid = UUID(str(submission_id))
+        with connect(self.db_path) as conn:
+            if reset_status:
+                cur = conn.execute(
+                    """
+                    UPDATE submissions
+                    SET grade = NULL,
+                        graded_at = NULL,
+                        graded_by = NULL,
+                        review_status = 'pending',
+                        reviewed_at = NULL
+                    WHERE id = ?
+                    """,
+                    (str(sub_uuid),),
+                )
+            else:
+                cur = conn.execute(
+                    """
+                    UPDATE submissions
+                    SET grade = NULL,
+                        graded_at = NULL,
+                        graded_by = NULL
+                    WHERE id = ?
+                    """,
+                    (str(sub_uuid),),
+                )
+            if cur.rowcount == 0:
+                raise SubmissionNotFoundError(f"Submission {sub_uuid} not found")
+            conn.commit()
+
+        detail = self.get_submission(sub_uuid)
+        if detail is None:
+            raise SubmissionNotFoundError(f"Submission {sub_uuid} not found")
+        return detail

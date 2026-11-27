@@ -20,6 +20,7 @@ from typing import Any
 from uuid import UUID
 
 from app.database import (
+    CURRENT_SCHEMA_VERSION,
     DatabaseError,
     create_schema,
     initialize,
@@ -858,6 +859,14 @@ def apply_migration(
                 )
 
     # Validate staging database integrity and constraints
+    staging_conn.execute(
+        """
+        INSERT OR IGNORE INTO schema_migrations (version, name, applied_at)
+        VALUES (?, ?, ?);
+        """,
+        (CURRENT_SCHEMA_VERSION, "initial_v3", datetime.now(timezone.utc).isoformat()),
+    )
+    staging_conn.commit()
     res = staging_conn.execute("PRAGMA integrity_check;").fetchall()
     if not res or res[0][0] != "ok":
         raise RuntimeError(f"Integrity check failed on staging DB: {res}")
