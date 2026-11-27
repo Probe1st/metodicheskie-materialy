@@ -98,6 +98,13 @@ def test_end_to_end_browser_flow(case_id: str, audit_env: AuditEnv) -> None:
             # Context 1: Student browser context
             student_context = browser.new_context()
             page = student_context.new_page()
+            student_page_errors: list[str] = []
+            student_console_errors: list[str] = []
+            page.on("pageerror", lambda err: student_page_errors.append(str(err)))
+            page.on(
+                "console",
+                lambda msg: student_console_errors.append(msg.text) if msg.type == "error" else None,
+            )
 
             # Step 1: Navigate to / and screenshot landing page
             page.goto(f"{base_url}/")
@@ -109,38 +116,41 @@ def test_end_to_end_browser_flow(case_id: str, audit_env: AuditEnv) -> None:
             page.fill("#group_password", G1_PASSWORD)
             page.click("#unlock button[type='submit']")
 
-            # Wait for Step 2 form to become visible
-            page.wait_for_selector("#submit:not([hidden])")
+            # Wait for student workspace lessons list to become visible
+            page.wait_for_selector("#student_workspace_view:not([hidden])")
+            page.wait_for_selector(f'.assignment-card[data-assignment-id="{A2_ID}"]')
             _save_screenshot(page, "02_unlocked.png")
 
-            # Step 3: Check student identity distinction by ID
+            # Step 3: Check assignment distinction (two distinct cards for two pairs of same topic)
+            assignment_ids_in_list = page.eval_on_selector_all(
+                "#student_lessons_list .assignment-card",
+                "cards => cards.map(c => c.dataset.assignmentId)",
+            )
+            assert str(A1_ID) in assignment_ids_in_list
+            assert str(A2_ID) in assignment_ids_in_list
+
+            # Step 4: Open Pair A2 assignment page to inspect task and submit
+            page.locator(
+                f'.assignment-card[data-assignment-id="{A2_ID}"] a:has-text("Открыть занятие")'
+            ).click()
+            page.wait_for_selector("#submit")
+            page.wait_for_selector("#student_id")
+
+            # Check student identity distinction by ID on assignment page
             student_options = page.eval_on_selector_all(
                 "#student_id option",
                 "opts => opts.map(o => ({ value: o.value, text: o.text }))",
             )
-            # Filter out empty default placeholder
             populated_students = [opt for opt in student_options if opt["value"]]
             assert len(populated_students) == 2, f"Expected 2 students, got {populated_students}"
 
             student_ids = {opt["value"] for opt in populated_students}
             assert str(STUDENT1_ID) in student_ids
             assert str(STUDENT2_ID) in student_ids
-            # Verify distinct option values for identical display names
             assert len(student_ids) == 2
             assert all(opt["text"] == STUDENT1_NAME for opt in populated_students)
 
-            # Step 4: Check assignment distinction (two distinct options for two pairs of same topic)
-            assignment_options = page.eval_on_selector_all(
-                "#assignment_id option",
-                "opts => opts.map(o => ({ value: o.value, text: o.text }))",
-            )
-            populated_assignments = [opt for opt in assignment_options if opt["value"]]
-            assert len(populated_assignments) == 2
-            asgn_ids = {opt["value"] for opt in populated_assignments}
-            assert str(A1_ID) in asgn_ids
-            assert str(A2_ID) in asgn_ids
-
-            # Step 5: Student creation flow
+            # Step 5: Student creation flow on assignment page
             page.click("#toggle_new_student_btn")
             page.wait_for_selector("#new_student_panel:not([hidden])")
             page.fill("#new_student_input", "Петров Петр")
@@ -162,7 +172,6 @@ def test_end_to_end_browser_flow(case_id: str, audit_env: AuditEnv) -> None:
 
             # Step 6: Submission flow (Student 2 on Pair A2)
             page.select_option("#student_id", str(STUDENT2_ID))
-            page.select_option("#assignment_id", str(A2_ID))
             page.set_input_files("#file", str(sample_zip))
 
             page.click("#submit button[type='submit']")
@@ -196,7 +205,6 @@ def test_end_to_end_browser_flow(case_id: str, audit_env: AuditEnv) -> None:
             page.wait_for_selector("#submission_overlay", state="hidden")
 
             page.select_option("#student_id", str(STUDENT2_ID))
-            page.select_option("#assignment_id", str(A2_ID))
             page.set_input_files("#file", str(sample_zip))
             page.click("#submit button[type='submit']")
             page.wait_for_selector("#overlay_success:not([hidden])")
@@ -253,7 +261,7 @@ def test_end_to_end_browser_flow(case_id: str, audit_env: AuditEnv) -> None:
             # Reload landing page -> session requires re-unlock
             page.goto(f"{base_url}/")
             page.wait_for_selector("#unlock:not([hidden])")
-            assert page.is_hidden("#submit")
+            assert page.is_hidden("#student_workspace_view")
 
             # 9b. Archive topic T1
             cat_store.archive_topic(T1_ID)
@@ -262,14 +270,21 @@ def test_end_to_end_browser_flow(case_id: str, audit_env: AuditEnv) -> None:
             page.select_option("#group", str(G1_ID))
             page.fill("#group_password", G1_PASSWORD)
             page.click("#unlock button[type='submit']")
-            page.wait_for_selector("#submit:not([hidden])")
+            page.wait_for_selector("#student_workspace_view:not([hidden])")
 
-            # Archived topic T1 assignments must be hidden from active assignment dropdown
-            asgn_opts_after_archive = page.eval_on_selector_all(
-                "#assignment_id option", "opts => opts.map(o => o.value)"
+            # Archived topic T1 assignments must be hidden from active lessons list
+            asgn_ids_after_archive = page.eval_on_selector_all(
+                "#student_lessons_list .assignment-card",
+                "cards => cards.map(c => c.dataset.assignmentId)",
             )
-            assert str(A1_ID) not in asgn_opts_after_archive
-            assert str(A2_ID) not in asgn_opts_after_archive
+            assert str(A1_ID) not in asgn_ids_after_archive
+            assert str(A2_ID) not in asgn_ids_after_archive
+
+            assert student_page_errors == [], f"Unexpected student page errors: {student_page_errors}"
+            unexpected_console = [
+                msg for msg in student_console_errors if "status of 4" not in msg
+            ]
+            assert unexpected_console == [], f"Unexpected student console errors: {unexpected_console}"
 
             # In admin portal, existing submissions for T1 remain downloadable
             with sqlite3.connect(str(db_path)) as conn:
